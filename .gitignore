@@ -14,3 +14,4 @@ npm-debug.log
 yarn-error.log
 .vagrant
 Vagrantfile
+demo.sql
