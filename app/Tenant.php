@@ -31,8 +31,20 @@ use Spatie\Multitenancy\Models\Tenant as Tenanto;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Agent[] $agents
  * @property-read int|null $agents_count
  * @property-read \App\Supplier|null $supplier_owner
-
  * @mixin \Eloquent
+ * @method static \Spatie\Multitenancy\TenantCollection|static[] all($columns = ['*'])
+ * @method static \Spatie\Multitenancy\TenantCollection|static[] get($columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant query()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant whereData($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant whereDatabase($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant whereSettings($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant whereSubdomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Tenant whereUpdatedAt($value)
  */
 class Tenant extends Tenanto {
     protected $casts = [

@@ -21,6 +21,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|Employee newQuery()
  * @method static Builder|Employee query()
  * @mixin \Eloquent
+ * @property-read \App\User|null $user
  */
 class Employee extends Model {
     use UsesTenantConnection;

@@ -17,6 +17,15 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
+/**
+ * App\Contractor
+ *
+ * @property-read \App\User|null $image
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Contractor newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Contractor newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Contractor query()
+ * @mixin \Eloquent
+ */
 class Contractor extends Model {
     use UsesTenantConnection;
 
