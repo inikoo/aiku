@@ -30,5 +30,11 @@ class Order extends Model
     {
         return $this->hasMany('App\Product');
     }
+
+
+    public function deliverynotes()
+    {
+        return $this->hasMany('App\DeliveryNote');
+    }
     
 }

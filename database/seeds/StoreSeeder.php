@@ -58,6 +58,15 @@ class StoreSeeder extends Seeder
                             )
                         );
 
+
+                        $orders->deliveynotes()->save(
+                            factory(App\DeliveryNote::class, 10)->make(
+                                [
+                                    'tenant_id' => $orders->tenant_id
+                                ]
+                            )
+                        );
+
                     }
                 )->each(
                     function ($products) {
@@ -71,7 +80,11 @@ class StoreSeeder extends Seeder
                             )
                         );
 
+                        
+
                     }
+
+                    
                 );
 
             }

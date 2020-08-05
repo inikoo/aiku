@@ -1,7 +1,5 @@
 <?php
 /*
-
-Amila 
 Copyright (c) 2020, AIku.io
 
 Version 4
@@ -11,8 +9,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
-
-class Invoice extends Model {
+class DeliveryNote extends Model {
     use UsesTenantConnection;
 
     protected $casts = [
@@ -24,18 +21,4 @@ class Invoice extends Model {
     {
         return $this->belongsTo('App\Order');
     }
-
-    public function store()
-    {
-        return $this->belongsTo('App\Store');
-    }
-
-    public function customer()
-    {
-        return $this->belongsTo('App\Customer');
-    }
-
-
-
-
 }

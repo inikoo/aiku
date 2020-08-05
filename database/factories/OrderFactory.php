@@ -13,13 +13,13 @@ Version 4
 use App\Order;
 use Faker\Generator as Faker;
  
-$factory->define(Order::class, function (Faker $faker) {
+$factory->define(Order::class, function (Faker $faker, $tenant_id, $customer_id) {
 
    
     $name = $faker->word;
     return [
         'tenant_id' => $tenant_id,
-        'name'      => $name,
+        'customer_id'      => $customer_id,
         'slug'      => Str::slug($name),
 
     ];
