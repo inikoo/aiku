@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Query\Expression;
 
-class CreateLocationsTable extends Migration
+class CreateWebpagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +14,10 @@ class CreateLocationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('locations', function (Blueprint $table) {
+        Schema::create('webpages', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
-            $table->unsignedMediumInteger('warehouse_area_id');
-            $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
+            $table->unsignedMediumInteger('website_id');
             $table->string('slug');
             $table->json('settings')->default(new Expression('(JSON_ARRAY())'));
             $table->json('data')->default(new Expression('(JSON_ARRAY())'));
@@ -35,6 +34,6 @@ class CreateLocationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('locations');
+        Schema::dropIfExists('webpages');
     }
 }

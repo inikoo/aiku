@@ -27,7 +27,7 @@ class WarehouseSeeder extends Seeder {
             function ($warehouse) {
 
 
-                $warehouse->areas()->saveMany(
+                $warehouse->warehouse_areas()->saveMany(
                     factory(App\WarehouseArea::class, 5)->make(
                         [
                             'tenant_id' => $warehouse->tenant_id

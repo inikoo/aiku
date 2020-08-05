@@ -15,19 +15,15 @@ use Illuminate\Support\Str;
 use Faker\Generator as Faker;
 
 
-$factory->define(
-    Warehouse::class, function (Faker $faker,$tenant_id) {
+$factory->define(Warehouse::class, function (Faker $faker, $args) {
 
-
-
-
+   
     $name = $faker->word;
-
     return [
-        'tenant_id' => $tenant_id,
-        'name'      => $name,
+        'tenant_id' => $args['tenant_id'],
+     
         'slug'      => Str::slug($name),
 
     ];
-}
-);
+});
+

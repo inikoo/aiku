@@ -1,20 +1,12 @@
 <?php
-/*
-Author: Amila
-Created:  Mon Aug 03 2020 15:01:44 GMT+0800 (Malaysia Time) Kuala Lumpur, Malaysia
-Copyright (c) 2020,  AIku.io
-
-Version 4
-*/
-
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\Store;
+use App\Part;
 use Faker\Generator as Faker;
 
 
-$factory->define(Store::class, function (Faker $faker, $args) {
+$factory->define(Part::class, function (Faker $faker, $args) {
 
    
     $name = $faker->word;

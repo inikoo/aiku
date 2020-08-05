@@ -27,7 +27,7 @@ class Warehouse extends Model
         'data'     => 'array'
     ];
 
-    public function areas()
+    public function warehouse_areas()
     {
         return $this->hasMany('App\WarehouseArea');
     }

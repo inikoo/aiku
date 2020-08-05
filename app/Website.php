@@ -31,4 +31,9 @@ class Website extends Model
         return $this->hasMany('App\Customer');
     }
 
+    public function webpages()
+    {
+        return $this->hasMany('App\Webpage');
+    }
+
 }

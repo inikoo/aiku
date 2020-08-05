@@ -11,15 +11,16 @@ Version 4
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
 use App\Order;
+use Illuminate\Support\Str;
 use Faker\Generator as Faker;
  
-$factory->define(Order::class, function (Faker $faker, $tenant_id, $customer_id) {
+$factory->define(Order::class, function (Faker $faker, $args) {
 
    
     $name = $faker->word;
     return [
-        'tenant_id' => $tenant_id,
-        'customer_id'  => $customer_id,
+        'tenant_id' => $args['tenant_id'],
+     
         'slug'      => Str::slug($name),
 
     ];

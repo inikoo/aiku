@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Query\Expression;
 
-class CreateAreasTable extends Migration
+class CreatePartsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +14,12 @@ class CreateAreasTable extends Migration
      */
     public function up()
     {
-        Schema::create('areas', function (Blueprint $table) {
+        Schema::create('parts', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
-            $table->unsignedMediumInteger('warehouse_id');
+            $table->unsignedMediumInteger('part_id');
+            $table->unsignedMediumInteger('product_id');
             $table->string('slug');
-            $table->string('name');
             $table->json('settings')->default(new Expression('(JSON_ARRAY())'));
             $table->json('data')->default(new Expression('(JSON_ARRAY())'));
             $table->timestamps();
@@ -35,6 +35,6 @@ class CreateAreasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('areas');
+        Schema::dropIfExists('parts');
     }
 }

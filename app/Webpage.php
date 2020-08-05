@@ -1,15 +1,16 @@
 <?php
+/*
+Copyright (c) 2020, AIku.io
+
+Version 4
+*/
 
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-
-class Area extends Model
-{
-   
+class Webpage extends Model {
     use UsesTenantConnection;
 
     protected $casts = [
@@ -17,14 +18,8 @@ class Area extends Model
         'data'     => 'array'
     ];
 
-    public function warehouse()
+    public function webpage()
     {
-        return $this->belongsTo('App\Warehouse');
+        return $this->belongsTo('App\Webpage');
     }
-
-    public function locations()
-    {
-        return $this->hasMany('App\Location');
-    }
-
 }

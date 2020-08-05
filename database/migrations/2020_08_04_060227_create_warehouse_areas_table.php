@@ -17,7 +17,10 @@ class CreateWarehouseAreasTable extends Migration
         Schema::create('warehouse_areas', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
+
             $table->unsignedMediumInteger('warehouse_id');
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
+
             $table->string('slug');
             $table->string('name');
             $table->json('settings')->default(new Expression('(JSON_ARRAY())'));
