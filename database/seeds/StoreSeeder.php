@@ -46,6 +46,19 @@ class StoreSeeder extends Seeder
                         );
 
                     }
+                )->each(
+                    function ($orders) {
+
+
+                        $orders->invoice()->save(
+                            factory(App\Order::class, 10)->make(
+                                [
+                                    'tenant_id' => $orders->tenant_id
+                                ]
+                            )
+                        );
+
+                    }
                 );
 
             }
