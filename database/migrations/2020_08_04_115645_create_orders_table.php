@@ -18,6 +18,7 @@ class CreateOrdersTable extends Migration
             $table->mediumIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('store_id');
+           
             $table->string('slug');
             $table->json('settings')->default(new Expression('(JSON_ARRAY())'));
             $table->json('data')->default(new Expression('(JSON_ARRAY())'));

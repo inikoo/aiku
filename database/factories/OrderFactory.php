@@ -19,7 +19,7 @@ $factory->define(Order::class, function (Faker $faker, $tenant_id, $customer_id)
     $name = $faker->word;
     return [
         'tenant_id' => $tenant_id,
-        'customer_id'      => $customer_id,
+        'customer_id'  => $customer_id,
         'slug'      => Str::slug($name),
 
     ];
