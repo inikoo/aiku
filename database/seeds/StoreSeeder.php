@@ -20,6 +20,10 @@ class StoreSeeder extends Seeder
     public function run()
     {
         $tenant = app('currentTenant');
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         factory(App\Store::class, rand(2, 3))->create(
             [
                 'tenant_id' => $tenant->id,
@@ -27,12 +31,19 @@ class StoreSeeder extends Seeder
         )->each(
             function ($store) {
 
+<<<<<<< Updated upstream
                 $store->customers()->saveMany(
                     factory(App\Customer::class, 5)->make(
+=======
+
+                $store->prospects()->saveMany(
+                    factory(App\Prospect::class, 5)->make(
+>>>>>>> Stashed changes
                         [
                             'tenant_id' => $store->tenant_id
                         ]
                     )
+<<<<<<< Updated upstream
                 )->each(
                     function ($customer) {
 
@@ -92,4 +103,19 @@ class StoreSeeder extends Seeder
 
         );
     }
+=======
+                );
+
+
+            }
+
+
+        );
+
+
+    }
+
+
+    
+>>>>>>> Stashed changes
 }

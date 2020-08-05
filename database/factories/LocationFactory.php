@@ -18,6 +18,12 @@ use Faker\Generator as Faker;
 $factory->define(
     Location::class, function (Faker $faker,$args) {
 
+<<<<<<< Updated upstream
+=======
+
+
+
+>>>>>>> Stashed changes
     $name = $faker->word;
 
     return [

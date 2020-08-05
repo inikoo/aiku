@@ -18,7 +18,11 @@ class DatabaseSeeder extends Seeder
         $this->call(EmployeeSeeder::class);
         $this->call(WarehouseSeeder::class);
         $this->call(StoreSeeder::class);
+<<<<<<< Updated upstream
         $this->call(Website::class);
+=======
+      
+>>>>>>> Stashed changes
 
 
     }
