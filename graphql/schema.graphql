@@ -12,7 +12,12 @@ type Query {
 
     user(handle: String @eq): User @find
 
-    employee(id: ID @eq): Employee @find
+    employees: [Employee!]! @paginate(defaultCount: 100)
+    employee(slug: String @eq): Employee @find
+
+    clocking_machines: [ClockingMachine!]! @paginate(defaultCount: 100)
+    clocking_machine(slug: String @eq): ClockingMachine @find
+
 
 }
 
@@ -62,4 +67,12 @@ type Admin {
     created_at: DateTime!
     updated_at: DateTime!
     user: User! @morphOne
+}
+
+type ClockingMachine {
+    id: ID!
+    slug: String!
+    name: String!
+    created_at: DateTime!
+    updated_at: DateTime!
 }
