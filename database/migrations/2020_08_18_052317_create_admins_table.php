@@ -16,7 +16,7 @@ class CreateAdminsTable extends Migration
         Schema::create('admins', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
-            $table->string('slug')->unique();
+            $table->string('slug',1000)->unique();
             $table->string('name');
             $table->json('settings');
             $table->json('data');

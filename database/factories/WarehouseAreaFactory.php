@@ -18,13 +18,10 @@ use Faker\Generator as Faker;
 $factory->define(
     WarehouseArea::class, function (Faker $faker, $tenant_id) {
 
-
-    $name = $faker->word;
-
     return [
         'tenant_id' => $tenant_id,
-        'name'      => $name,
-        'slug'      => Str::slug($name),
+        'name'      => $faker->word,
+        'slug'      => Str::slug($faker->uuid),
 
     ];
 }

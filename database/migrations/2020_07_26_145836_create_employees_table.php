@@ -23,18 +23,19 @@ class CreateEmployeesTable extends Migration
     public function up()
     {
         Schema::create('employees', function (Blueprint $table) {
-            $table->mediumIncrements('id');
+            $table->smallIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
-            $table->unsignedSmallInteger('position_id')->nullable()->index();
-
+            $table->unsignedSmallInteger('job_position_id')->nullable()->index();
+            $table->foreign('job_position_id')->references('id')->on('job_positions');
             $table->enum('status',['Working','NotWorking'])->default('Working');
             $table->string('slug')->nullable()->unique();
             $table->string('name');
             $table->json('settings');
             $table->json('data');
             $table->timestampsTz();
-            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('legacy_id')->nullable();
             $table->index('status');
+
         });
     }
 

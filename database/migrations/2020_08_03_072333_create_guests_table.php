@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateContractorsTable extends Migration
+class CreateGuestsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateContractorsTable extends Migration
      */
     public function up()
     {
-        Schema::create('contractors', function (Blueprint $table) {
+        Schema::create('guests', function (Blueprint $table) {
             $table->id();
-            $table->enum('status',['Working','NotWorking'])->default('Working');
-            $table->string('slug')->unique();
-            $table->string('name');
+            $table->enum('status',['Active','Inactive'])->default('Active');
+            $table->string('slug',1000)->unique();
+            $table->string('name',500);
+            $table->string('description',1000);
             $table->timestampsTz();
             $table->index('status');
         });
@@ -30,6 +31,6 @@ class CreateContractorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contractors');
+        Schema::dropIfExists('guests');
     }
 }

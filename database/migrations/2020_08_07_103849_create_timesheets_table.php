@@ -25,7 +25,13 @@ class CreateTimesheetsTable extends Migration
         Schema::create('timesheets', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedSmallInteger('employee_id');
-            $table->unsignedSmallInteger('dates');
+            $table->foreign('employee_id')->references('id')->on('employees');
+            $table->unsignedMediumInteger('date_id');
+            $table->foreign('date_id')->references('id')->on('dates');
+
+            $table->unsignedSmallInteger('records')->default(0);
+            $table->float('clocked_hours',4,2)->default(0);
+
             $table->date('date');
             $table->enum('status',['Working','Holiday','SickDay'])->default('Working');
             $table->json('data');

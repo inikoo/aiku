@@ -60,6 +60,10 @@ class Employee extends Model {
         return $this->hasMany('App\Models\HR\Timesheet');
     }
 
+    public function job_position() {
+        return $this->belongsTo('App\Models\HR\JobPosition');
+    }
+
     protected static function booted() {
         static::created(
             function ($employee) {

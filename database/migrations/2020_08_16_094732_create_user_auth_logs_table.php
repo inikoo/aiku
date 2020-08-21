@@ -16,7 +16,9 @@ class CreateUserAuthLogsTable extends Migration {
             $table->timestampTz('time', 0);
             $table->string('handle')->index();
 
-            $table->unsignedMediumInteger('user_id')->nullable();
+            $table->unsignedMediumInteger('user_id')->nullable()->index();
+            $table->foreign('user_id')->references('id')->on('users');
+
             $table->string('ip', 15);
             $table->enum(
                 'action', [

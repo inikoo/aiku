@@ -14,16 +14,18 @@ class CreateWarehouseAreasTable extends Migration
     public function up()
     {
         Schema::create('warehouse_areas', function (Blueprint $table) {
-            $table->mediumIncrements('id');
-            $table->unsignedSmallInteger('tenant_id');
-            $table->unsignedMediumInteger('warehouse_id');
-            $table->string('slug');
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('warehouse_id');
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
+
+            $table->string('slug')->index();
             $table->string('name');
             $table->json('settings');
             $table->json('data');
             $table->timestampsTz();
             $table->unsignedMediumInteger('legacy_id')->nullable();
-            $table->index(['tenant_id', 'slug']);
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unique(['warehouse_id', 'slug']);
         });
     }
 

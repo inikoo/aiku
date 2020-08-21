@@ -14,6 +14,8 @@ CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 
 art migrate:refresh --path=database/migrations/landlord --database=landlord;art db:seed;art tenants:artisan "migrate --database=tenant --seed"
 
+art tenants:artisan "migrate:refresh --database=tenant";
+
 ##### Landlord database migrations and seeding (only for master)
 `art migrate --path=database/migrations/landlord --database=landlord`
 

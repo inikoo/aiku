@@ -15,15 +15,20 @@ class CreateLocationsTable extends Migration
     {
         Schema::create('locations', function (Blueprint $table) {
             $table->mediumIncrements('id');
-            $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('warehouse_id');
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
+
             $table->unsignedMediumInteger('warehouse_area_id');
-            $table->string('slug');
+            $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
+
+
+            $table->string('code')->unique()->index();
             $table->json('settings');
             $table->json('data');
             $table->timestampsTz();
             $table->unsignedMediumInteger('legacy_id')->nullable();
-            $table->index(['tenant_id', 'slug']);
+            $table->unsignedSmallInteger('tenant_id');
+
         });
     }
 

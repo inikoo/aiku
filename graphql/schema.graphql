@@ -9,6 +9,8 @@ type Query {
     tenant(id: ID @eq): Tenant @find
 
     users: [User!]! @paginate(defaultCount: 100)
+    roles: [User!]! @paginate(defaultCount: 100)
+
     employees: [Employee!]! @paginate(defaultCount: 100)
     clocking_machines: [ClockingMachine!]! @paginate(defaultCount: 100)
 

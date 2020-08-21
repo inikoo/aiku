@@ -16,17 +16,13 @@ use Faker\Generator as Faker;
 
 
 $factory->define(
-    Location::class, function (Faker $faker,$args) {
+    Location::class, function (Faker $faker, $args) {
 
-
-
-
-    $name = $faker->word;
 
     return [
         'tenant_id' => $args['tenant_id'],
 
-        'slug'      => Str::slug($name),
+        'code' => Str::slug($faker->uuid),
 
     ];
 }

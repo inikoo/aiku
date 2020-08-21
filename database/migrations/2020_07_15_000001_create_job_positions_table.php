@@ -19,7 +19,7 @@ class CreateJobPositionsTable extends Migration
     public function up()
     {
         Schema::create('job_positions', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->string('name');
             $table->timestampsTz();

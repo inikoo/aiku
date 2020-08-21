@@ -9,7 +9,7 @@ Version 4
 
 
 use Illuminate\Support\Facades\DB;
-use App\Employee;
+use App\Models\HR\Employee;
 use App\User;
 
 
@@ -28,7 +28,7 @@ class UserRelocator extends Relocator {
         foreach (DB::connection('legacy')->select("select * from`User Dimension`", []) as $legacy_data) {
 
 
-            if ($legacy_data->{'User Type'} == 'Staff' or $legacy_data->{'User Type'} == 'Contractor') {
+            if ($legacy_data->{'User Type'} == 'Staff' or $legacy_data->{'User Type'} == 'Guest') {
 
                 $user_parent_key = null;
                 switch ($legacy_data->{'User Type'}) {
@@ -38,7 +38,7 @@ class UserRelocator extends Relocator {
                             $user_parent_key = $employee->id;
                         }
                         break;
-                    case 'Contractor':
+                    case 'Guest':
                         $user_parent = 'contractor';
                         if ($employee = Employee::where('legacy_id', $legacy_data->{'User Parent Key'})->first()) {
                             $user_parent_key = $employee->id;
