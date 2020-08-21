@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder {
 
     public function runTenantSpecificSeeders() {
         $this->call(EmployeeSeeder::class);
+        $this->call(ClockingMachineSeeder::class);
+
         $this->call(WarehouseSeeder::class);
         $this->call(StoreSeeder::class);
 

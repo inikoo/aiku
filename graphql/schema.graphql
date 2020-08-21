@@ -9,13 +9,11 @@ type Query {
     tenant(id: ID @eq): Tenant @find
 
     users: [User!]! @paginate(defaultCount: 100)
+    employees: [Employee!]! @paginate(defaultCount: 100)
+    clocking_machines: [ClockingMachine!]! @paginate(defaultCount: 100)
 
     user(handle: String @eq): User @find
-
-    employees: [Employee!]! @paginate(defaultCount: 100)
     employee(slug: String @eq): Employee @find
-
-    clocking_machines: [ClockingMachine!]! @paginate(defaultCount: 100)
     clocking_machine(slug: String @eq): ClockingMachine @find
 
 
