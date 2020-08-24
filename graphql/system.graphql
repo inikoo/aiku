@@ -9,7 +9,11 @@ extend type Query {
 
 extend type Mutation {
     createUser(name: String!, handle: String!, password: String!): User! @create
-    updateUser(id: ID!, handle: String, password: String): User  @update
+    updateUser(id: ID!, handle: String, status: Boolean): User  @update
+    updatePassword(id: ID!, password: String! @hash): User!  @update
+    updatePin(id: ID!, pin: String! @hash): User!  @update
+
+
     deleteUser(id: ID!): User @delete
 }
 

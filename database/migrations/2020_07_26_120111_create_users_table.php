@@ -28,15 +28,11 @@ class CreateUsersTable extends Migration {
             'users', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
-            $table->enum(
-                'status', [
-                            'Active',
-                            'Disabled'
-                        ]
-            )->default('Active');
+            $table->boolean('status')->default(true);
 
             $table->string('handle',1000)->unique();
             $table->string('password');
+            $table->string('pin');
 
             $table->string('userable_type',64);
             $table->unsignedMediumInteger('userable_id');

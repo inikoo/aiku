@@ -74,10 +74,9 @@ class Employee extends Model {
                         'handle'    => Str::slug($employee->name),
                         'tenant_id' => $employee->tenant_id,
                         'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                        'pin'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
                         'legacy_id' => $employee->legacy_id,
-                        //'userable_type' => 'App\Employee',
-                        //'userable_id'   => $employee->id,
-                        'status'    => ($employee->status == 'Working' ? 'Active' : 'Disabled'),
+                        'status'    => $employee->status == 'Working',
                         'settings'  => [],
                         'data'      => []
 

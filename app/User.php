@@ -42,6 +42,9 @@ class User extends Authenticatable
     ];
 
 
+    protected $fillable = ['handle','password','pin','status'];
+
+
     protected $attributes = [
         'data' => '{}',
         'settings' => '{}'

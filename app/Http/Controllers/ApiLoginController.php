@@ -25,7 +25,7 @@ class ApiLoginController extends Controller {
 
 
         $credentials = $request->only('handle', 'password');
-        data_set($credentials, 'status', 'Active');
+        data_set($credentials, 'status', true);
 
 
         if (Auth::attempt($credentials)) {
