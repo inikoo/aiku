@@ -1,0 +1,9 @@
+extend type Query {
+    me: User @auth
+}
+
+extend type Mutation {
+    updateMyPassword(password: String! @hash): User!  @auth
+    updateMyPin(pin: String! @hash): User!   @auth
+}
+
