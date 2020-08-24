@@ -23,8 +23,7 @@ type Tenant {
 }
 
 
-
-
+#import profile.graphql
 #import system.graphql
 #import hr.graphql
 
