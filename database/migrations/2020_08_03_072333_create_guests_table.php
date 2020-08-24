@@ -15,7 +15,7 @@ class CreateGuestsTable extends Migration
     {
         Schema::create('guests', function (Blueprint $table) {
             $table->id();
-            $table->enum('status',['Active','Inactive'])->default('Active');
+            $table->boolean('status')->default(true);
             $table->string('slug',1000)->unique();
             $table->string('name',500);
             $table->string('description',1000);

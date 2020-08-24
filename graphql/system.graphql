@@ -24,6 +24,7 @@ union Userable = Employee | Contractor | Admin
 type User {
     id: ID!
     handle: String!
+    status: Boolean!
     created_at: DateTime!
     updated_at: DateTime!
     userable : Userable! @morphTo
