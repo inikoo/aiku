@@ -43,4 +43,6 @@ class ClockingMachine extends Model {
         'data'     => '{}',
         'settings' => '{}'
     ];
+
+    protected $fillable = ['name'];
 }

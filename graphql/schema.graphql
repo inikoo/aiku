@@ -7,17 +7,11 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 type Query {
     tenants: [Tenant!]! @paginate(defaultCount: 100)
     tenant(id: ID @eq): Tenant @find
+}
 
-    users: [User!]! @paginate(defaultCount: 100)
-    roles: [User!]! @paginate(defaultCount: 100)
 
-    employees: [Employee!]! @paginate(defaultCount: 100)
-    clocking_machines: [ClockingMachine!]! @paginate(defaultCount: 100)
-
-    user(handle: String @eq): User @find
-    employee(slug: String @eq): Employee @find
-    clocking_machine(slug: String @eq): ClockingMachine @find
-
+type Mutation {
+    updateTenant(id: ID!, name: String): Tenant @update
 
 }
 
@@ -28,51 +22,10 @@ type Tenant {
     updated_at: DateTime!
 }
 
-union Userable = Employee | Contractor | Admin
 
 
-type User {
-    id: ID!
-    handle: String!
-    created_at: DateTime!
-    updated_at: DateTime!
-    userable : Userable! @morphTo
 
-}
+#import system.graphql
+#import hr.graphql
 
-type Employee {
-    id: ID!
-    slug: String!
-    name: String!
-    status: String!
-    created_at: DateTime!
-    updated_at: DateTime!
-    user: User! @morphOne
-}
 
-type Contractor {
-    id: ID!
-    slug: String!
-    name: String!
-    status: String!
-    created_at: DateTime!
-    updated_at: DateTime!
-    user: User! @morphOne
-}
-
-type Admin {
-    id: ID!
-    slug: String!
-    name: String!
-    created_at: DateTime!
-    updated_at: DateTime!
-    user: User! @morphOne
-}
-
-type ClockingMachine {
-    id: ID!
-    slug: String!
-    name: String!
-    created_at: DateTime!
-    updated_at: DateTime!
-}

@@ -1,0 +1,47 @@
+extend type Query {
+    users: [User!]! @paginate(defaultCount: 100)
+    roles: [User!]! @paginate(defaultCount: 100)
+
+
+    user(handle: String @eq): User @find
+
+}
+
+extend type Mutation {
+    createUser(name: String!, handle: String!, password: String!): User! @create
+    updateUser(id: ID!, handle: String, password: String): User  @update
+    deleteUser(id: ID!): User @delete
+}
+
+
+union Userable = Employee | Contractor | Admin
+
+
+type User {
+    id: ID!
+    handle: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    userable : Userable! @morphTo
+
+}
+
+
+type Contractor {
+    id: ID!
+    slug: String!
+    name: String!
+    status: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    user: User! @morphOne
+}
+
+type Admin {
+    id: ID!
+    slug: String!
+    name: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    user: User! @morphOne
+}

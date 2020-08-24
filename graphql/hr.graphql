@@ -1,0 +1,32 @@
+extend type Query {
+    employees: [Employee!]! @paginate(defaultCount: 100)
+    clocking_machines: [ClockingMachine!]! @paginate(defaultCount: 100)
+
+    employee(slug: String @eq): Employee @find
+    clocking_machine(slug: String @eq): ClockingMachine @find
+}
+
+extend type Mutation {
+    createClockingMachine( name: String!): ClockingMachine! @create
+    updateClockingMachine(id: ID!, name: String): ClockingMachine @update
+    deleteClockingMachine(id: ID!): ClockingMachine @delete
+}
+
+type Employee {
+    id: ID!
+    slug: String!
+    name: String!
+    status: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    user: User! @morphOne
+}
+
+
+type ClockingMachine {
+    id: ID!
+    slug: String!
+    name: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
