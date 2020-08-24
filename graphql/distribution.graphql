@@ -1,0 +1,57 @@
+extend type Query {
+    warehouses: [Warehouse!]! @paginate(defaultCount: 100)
+    warehouse_areas: [WarehouseArea!]! @paginate(defaultCount: 100)
+    locations: [Location!]! @paginate(defaultCount: 100)
+
+    warehouse(slug: String @eq): Warehouse @find
+    warehouse_area(slug: String @eq): WarehouseArea @find
+    location(code: String @eq): Location @find
+
+}
+
+extend type Mutation {
+    createWarehouse( name: String!): Warehouse! @create
+    updateWarehouse(id: ID!, name: String): Warehouse @update
+    deleteWarehouse(id: ID!): Warehouse @delete
+
+    createWarehouseArea( name: String!): WarehouseArea! @create
+    updateWarehouseArea(id: ID!, name: String): WarehouseArea @update
+    deleteWarehouseArea(id: ID!): WarehouseArea @delete
+
+    createLocation( code: String!): Location! @create
+    updateLocation(id: ID!, code: String): Location @update
+    deleteLocation(id: ID!): Location @delete
+
+
+}
+
+type Warehouse {
+    id: ID!
+    slug: String!
+    name: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    warehouse_areas: [WarehouseArea!]! @hasMany
+}
+
+
+type WarehouseArea {
+    id: ID!
+    slug: String!
+    name: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    warehouse: Warehouse! @belongsTo
+    locations: [Location!]! @hasMany
+
+}
+
+type Location {
+    id: ID!
+    code: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    warehouse: Warehouse! @belongsTo
+    warehouse_area: WarehouseArea! @belongsTo
+
+}
