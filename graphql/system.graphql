@@ -2,7 +2,10 @@ extend type Query {
     users: [User!]! @paginate(defaultCount: 100)
     roles: [Role!]! @paginate(defaultCount: 100)
     permissions: [Permission!]! @paginate(defaultCount: 100)
-    user_auth_logs: [UserAuthLog!]! @paginate(defaultCount: 100)
+
+    user_auth_logs(
+        where: _ @whereConditions(columns: ["user_id"])
+    ): [UserAuthLog!]!   @paginate(defaultCount: 100)
 
 
     user(handle: String @eq): User @find

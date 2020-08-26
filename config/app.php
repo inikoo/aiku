@@ -1,5 +1,8 @@
 <?php
 
+use Nuwave\Lighthouse\Tracing\TracingServiceProvider;
+use Nuwave\Lighthouse\WhereConditions\WhereConditionsServiceProvider;
+
 return [
 
     /*
@@ -162,6 +165,12 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
+
+        //GraphQL
+        WhereConditionsServiceProvider::class,
+        TracingServiceProvider::class,
+
+
         /*
          * Package Service Providers...
          */
@@ -174,6 +183,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+
 
     ],
 
