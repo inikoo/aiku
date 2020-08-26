@@ -141,6 +141,9 @@ return [
             'App\\Models\\Sales',
             'App\\Models\\Stores',
             'App\\Models\\Suppliers',
+            'App\\Models\\System',
+            'Spatie\\Permission\\Models',
+
 
         ],
         'queries'       => 'App\\GraphQL\\Queries',
