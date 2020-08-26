@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Cviebrock\EloquentSluggable\Sluggable;
 
@@ -30,16 +31,18 @@ use Cviebrock\EloquentSluggable\Sluggable;
  * @method static Builder|Employee query()
  * @mixin \Eloquent
  */
-class Employee extends Model {
+class Employee extends Model implements Auditable {
     use UsesTenantConnection, Sluggable;
+    use \OwenIt\Auditing\Auditable;
 
-        protected $casts = [
+
+    protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}'
     ];
 
@@ -74,7 +77,7 @@ class Employee extends Model {
                         'handle'    => Str::slug($employee->name),
                         'tenant_id' => $employee->tenant_id,
                         'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                        'pin'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                        'pin'       => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
                         'legacy_id' => $employee->legacy_id,
                         'status'    => $employee->status == 'Working',
                         'settings'  => [],

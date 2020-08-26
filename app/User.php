@@ -10,6 +10,8 @@ Version 4
 namespace App;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Builder;
+use OwenIt\Auditing\Contracts\Auditable;
+
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -31,16 +33,22 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $userable
  * @method static Builder|User findSimilarSlugs($attribute, $config, $slug)
  */
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
     use HasApiTokens,Notifiable,UsesTenantConnection,Sluggable;
     use HasRoles;
+    use \OwenIt\Auditing\Auditable;
 
-        protected $casts = [
+
+    protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
     ];
 
+
+    protected $auditInclude = [
+        'handle'
+    ];
 
     protected $fillable = ['handle','password','pin','status'];
 

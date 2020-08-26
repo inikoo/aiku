@@ -22,6 +22,7 @@
         "laravel/ui": "^2.1",
         "mll-lab/graphql-php-scalars": "^3.1",
         "nuwave/lighthouse": "^4.16",
+        "owen-it/laravel-auditing": "^10.0",
         "sentry/sentry-laravel": "^1.8",
         "spatie/laravel-multitenancy": "^1.0",
         "spatie/laravel-permission": "^3.13"

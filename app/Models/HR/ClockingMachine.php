@@ -10,6 +10,7 @@ namespace App\Models\HR;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
@@ -22,9 +23,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|ClockingMachine query()
  * @mixin \Eloquent
  */
-class ClockingMachine extends Model {
+class ClockingMachine extends Model implements Auditable{
 
     use UsesTenantConnection, Sluggable;
+    use \OwenIt\Auditing\Auditable;
+
 
     public function sluggable() {
         return [

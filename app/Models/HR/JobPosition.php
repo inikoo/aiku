@@ -8,18 +8,21 @@
 namespace App\Models\HR;
 
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-class JobPosition extends Model {
+class JobPosition extends Model implements Auditable {
     use UsesTenantConnection;
+    use \OwenIt\Auditing\Auditable;
 
-        protected $casts = [
+
+    protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}'
     ];
 }
