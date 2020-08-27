@@ -54,33 +54,36 @@ class LegacyDataMigrationUserAgent extends Command {
 
         foreach (DB::connection('mysql')->select('select Data from `User Agent`', []) as $legacy_data) {
 
-            $raw_data = json_decode($legacy_data->Data, true);
+            try {
+                $raw_data   = json_decode($legacy_data->Data, true);
+                $data       = $raw_data['parse'];
+                $user_agent = new UserAgent;
 
-            $data = $raw_data['parse'];
+                $user_agent->skip_fetch_user_agent_device_data = true;
+
+                $user_agent->user_agent = $data['user_agent'];
+                $user_agent->checksum   = md5(strtolower($data['user_agent']));
 
 
-            $user_agent = new UserAgent;
-            $user_agent->skip_fetch_user_agent_device_data=true;
+                $user_agent->description = $data['simple_software_string'];
+                $user_agent->os_code     = $data['operating_system_name_code'];
+                $user_agent->software    = $data['software_name'];
 
-            $user_agent->user_agent = $data['user_agent'];
-            $user_agent->checksum   = md5(strtolower($data['user_agent']));
+                unset($data['user_agent']);
+                unset($data['simple_software_string']);
+                unset($data['software_name']);
+                unset($data['operating_system_name_code']);
 
-            $user_agent->description = $data['simple_software_string'];
-            $user_agent->os_code     = $data['operating_system_name_code'];
-            $user_agent->software    = $data['software_name'];
-
-            unset($data['user_agent']);
-            unset($data['simple_software_string']);
-            unset($data['software_name']);
-            unset($data['operating_system_name_code']);
-
-            $user_agent->status = 'OK';
-            $user_agent->save();
-            $user_agent->data = $data;
-            $user_agent->save();
-            $user_agent->device_type = $user_agent->get_user_agent_device_type();
-            $user_agent->save();
-            $bar->advance();
+                $user_agent->status = 'OK';
+                $user_agent->save();
+                $user_agent->data = $data;
+                $user_agent->save();
+                $user_agent->device_type = $user_agent->get_user_agent_device_type();
+                $user_agent->save();
+                $bar->advance();
+            } catch (Exception $e) {
+                $bar->advance();
+            }
 
 
         }

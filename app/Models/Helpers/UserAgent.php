@@ -14,6 +14,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 class UserAgent extends Model {
     use UsesLandLordConnection;
 
+    //todo remove this when LDM done
+
     public $skip_fetch_user_agent_device_data=false;
 
 
@@ -28,7 +30,13 @@ class UserAgent extends Model {
         static::created(
 
             function ($userAgent) {
-                $userAgent->fetch_user_agent_device_data();
+
+                //todo remove this when LDM done
+                if(empty($userAgent->skip_fetch_user_agent_device_data)){
+                    $userAgent->fetch_user_agent_device_data();
+                }
+
+
             }
         );
     }
@@ -38,11 +46,6 @@ class UserAgent extends Model {
      */
     public function fetch_user_agent_device_data() {
 
-
-        //todo remove this when LDM done
-        if(!empty($this->skip_fetch_user_agent_device_data)){
-            return false;
-        }
 
         $api_url = env('USER_AGENT_API_URL');
 
