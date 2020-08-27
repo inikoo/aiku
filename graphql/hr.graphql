@@ -1,9 +1,12 @@
 extend type Query {
     employees: [Employee!]! @paginate(defaultCount: 100)
     clocking_machines: [ClockingMachine!]! @paginate(defaultCount: 100)
+    job_postions: [JobPosition!]! @paginate(defaultCount: 100)
 
     employee(slug: String @eq): Employee @find
     clocking_machine(slug: String @eq): ClockingMachine @find
+    job_postion(slug: String @eq): JobPosition @find
+
 }
 
 extend type Mutation {
@@ -24,6 +27,14 @@ type Employee {
 
 
 type ClockingMachine {
+    id: ID!
+    slug: String!
+    name: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type JobPosition {
     id: ID!
     slug: String!
     name: String!

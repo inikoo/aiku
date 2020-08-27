@@ -22,6 +22,7 @@ class CreateJobPositionsTable extends Migration
             $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->string('name');
+            $table->json('data')->nullable();
             $table->timestampsTz();
         });
     }
