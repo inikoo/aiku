@@ -1,0 +1,30 @@
+extend type Query {
+    customers: [Customer!]! @paginate(defaultCount: 100)
+    prospects: [Prospect!]! @paginate(defaultCount: 100)
+
+
+}
+
+extend type Mutation {
+    createCustomer( name: String!): Customer! @create
+    updateCustomer(id: ID!, slug: String): Customer @update
+    deleteCustomer(id: ID!): Customer @delete
+}
+
+type Customer {
+    id: ID!
+    slug: String!
+
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+
+type Prospect {
+    id: ID!
+    slug: String!
+
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+

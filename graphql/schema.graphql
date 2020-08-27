@@ -31,5 +31,6 @@ type Tenant {
 #import system.graphql
 #import hr.graphql
 #import distribution.graphql
+#import crm.graphql
 
 
