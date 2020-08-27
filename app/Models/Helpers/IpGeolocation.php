@@ -29,36 +29,29 @@ class IpGeolocation extends Model {
     public function fetch_ip_geolocation_data() {
 
 
-        $api_keys = preg_split('/,/', env('IP_STACK_API_KEYS', []));
+        $api_url=env('IP_GEOLOCATION_API_URL');
 
-        if (count($api_keys) == 0) {
+        $api_keys = preg_split('/,/', env('IP_GEOLOCATION_API_KEYS', []));
+
+        if (count($api_keys) == 0 or $api_url=='') {
             return;
         }
+        shuffle($api_keys);
 
         $access_credentials = preg_split('/\|/', reset($api_keys))[1];
 
         $options = array(
             CURLOPT_RETURNTRANSFER => true,
-            // return web page
             CURLOPT_HEADER         => false,
-            // don't return headers
             CURLOPT_FOLLOWLOCATION => true,
-            // follow redirects
             CURLOPT_MAXREDIRS      => 10,
-            // stop after 10 redirects
             CURLOPT_ENCODING       => "",
-            // handle compressed
-            CURLOPT_USERAGENT      => "test",
-            // name of client
             CURLOPT_AUTOREFERER    => true,
-            // set referrer on redirect
             CURLOPT_CONNECTTIMEOUT => 120,
-            // time-out on connect
             CURLOPT_TIMEOUT        => 120,
-            // time-out on response
         );
 
-        $ch = curl_init('http://api.ipstack.com/'.$this->ip.'?access_key='.$access_credentials);
+        $ch = curl_init($api_url.$this->ip.'?access_key='.$access_credentials);
 
         curl_setopt_array($ch, $options);
 
@@ -79,6 +72,7 @@ class IpGeolocation extends Model {
         unset($data['location']['geoname_id']);
 
         $this->data = $data;
+        $this->status = 'OK';
 
         curl_close($ch);
 
@@ -106,8 +100,7 @@ class IpGeolocation extends Model {
         $label = trim($label);
 
         return $label;
-        //$this->geolocation_label=$label;
-        //$this->save();
+
 
 
     }

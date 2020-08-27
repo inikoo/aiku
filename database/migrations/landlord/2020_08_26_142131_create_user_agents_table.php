@@ -22,11 +22,11 @@ class CreateUserAgentsTable extends Migration
             $table->id();
             $table->string('checksum',32)->index();
             $table->text('user_agent')->nullable();
+            $table->text('description')->nullable();
             $table->text('software')->nullable();
-            $table->text('software_details')->nullable();
-            $table->string('device')->nullable();
             $table->string('os_code')->nullable();
-            $table->string('icon')->nullable();
+            $table->string('device_type')->nullable()->index();
+
             $table->enum('status',['InProcess','OK','Error'])->default('InProcess');
             $table->json('data')->nullable();
             $table->timestampsTz();

@@ -18,7 +18,7 @@ class UserAgentResolver implements \OwenIt\Auditing\Contracts\UserAgentResolver 
 
 
         $userAgent = UserAgent::firstOrCreate(
-            ['checksum' => md5(Request::header('User-Agent'))], ['user_agent' => Request::header('User-Agent')]
+            ['checksum' => md5(strtolower(Request::header('User-Agent')))], ['user_agent' => Request::header('User-Agent')]
         );
 
 
