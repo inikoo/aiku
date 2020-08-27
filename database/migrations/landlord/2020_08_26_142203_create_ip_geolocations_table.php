@@ -26,7 +26,7 @@ class CreateIpGeolocationsTable extends Migration
             $table->string('country_code', 2)->nullable()->index();
             $table->string('geolocation_label')->nullable();
             $table->unsignedBigInteger('geoname_id')->nullable()->index();
-            $table->json('data')->nullable();
+            $table->jsonb('data')->nullable();
             $table->enum('status',['InProcess','OK','Error'])->default('InProcess')->index();
             $table->timestampsTz();
 

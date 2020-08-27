@@ -20,7 +20,7 @@ class CreateUserAgentsTable extends Migration
     {
         Schema::create('user_agents', function (Blueprint $table) {
             $table->id();
-            $table->string('checksum',32)->index();
+            $table->string('checksum',32)->index()->unique();
             $table->text('user_agent')->nullable();
             $table->text('description')->nullable();
             $table->text('software')->nullable();
@@ -28,7 +28,7 @@ class CreateUserAgentsTable extends Migration
             $table->string('device_type')->nullable()->index();
 
             $table->enum('status',['InProcess','OK','Error'])->default('InProcess');
-            $table->json('data')->nullable();
+            $table->jsonb('data')->nullable();
             $table->timestampsTz();
         });
     }
