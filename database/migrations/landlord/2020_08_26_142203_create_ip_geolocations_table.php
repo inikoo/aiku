@@ -21,15 +21,15 @@ class CreateIpGeolocationsTable extends Migration
         Schema::create('ip_geolocations', function (Blueprint $table) {
             $table->id();
             $table->ipAddress('ip');
-            $table->float('latitude', 10, 6)->nullable();
-            $table->float('longitude', 10, 6)->nullable();
-            $table->string('country_code', 2)->nullable();
-            $table->string('region_code',64)->nullable();
-            $table->string('region_name')->nullable();
-            $table->string('postal_code')->nullable();
-            $table->string('town')->nullable();
-            $table->enum('status',['InProcess','OK','Error'])->default('InProcess');
+            $table->string('continent_code')->nullable()->index();
+
+            $table->string('country_code', 2)->nullable()->index();
+            $table->string('geolocation_label')->nullable();
+            $table->unsignedBigInteger('geoname_id')->nullable()->index();
+            $table->json('data')->nullable();
+            $table->enum('status',['InProcess','OK','Error'])->default('InProcess')->index();
             $table->timestampsTz();
+
         });
     }
 

@@ -14,40 +14,101 @@ class IpGeolocation extends Model {
     use UsesLandLordConnection;
 
     protected $fillable = ['ip'];
-
+    protected $casts = [
+        'data' => 'array'
+    ];
 
     protected static function booted() {
         static::created(
             function ($ipGeolocation) {
-
-                    if($ipGeolocation->status=='InProcess'){
-                        $ipGeolocation->fetch_ip_geolocation();
-                    }
-
+                $ipGeolocation->fetch_ip_geolocation_data();
             }
         );
     }
 
-    public function fetch_ip_geolocation(){
-        //todo get data from external API
+    public function fetch_ip_geolocation_data() {
 
-        /*
 
-        shuffle($api_keys);
-        $access_key = reset($api_keys);
+        $api_keys = preg_split('/,/', env('IP_STACK_API_KEYS', []));
 
-        // Initialize CURL:
-        $ch = curl_init('http://api.ipstack.com/'.$ip.'?access_key='.$access_key.'');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        if (count($api_keys) == 0) {
+            return;
+        }
 
-        // Store the data:
-        $json = curl_exec($ch);
+        $access_credentials = preg_split('/\|/', reset($api_keys))[1];
+
+        $options = array(
+            CURLOPT_RETURNTRANSFER => true,
+            // return web page
+            CURLOPT_HEADER         => false,
+            // don't return headers
+            CURLOPT_FOLLOWLOCATION => true,
+            // follow redirects
+            CURLOPT_MAXREDIRS      => 10,
+            // stop after 10 redirects
+            CURLOPT_ENCODING       => "",
+            // handle compressed
+            CURLOPT_USERAGENT      => "test",
+            // name of client
+            CURLOPT_AUTOREFERER    => true,
+            // set referrer on redirect
+            CURLOPT_CONNECTTIMEOUT => 120,
+            // time-out on connect
+            CURLOPT_TIMEOUT        => 120,
+            // time-out on response
+        );
+
+        $ch = curl_init('http://api.ipstack.com/'.$this->ip.'?access_key='.$access_credentials);
+
+        curl_setopt_array($ch, $options);
+
+        $data = json_decode(curl_exec($ch), true);
+
+
+        $this->geoname_id     = $data['location']['geoname_id'];
+        $this->continent_code = $data['continent_code'];
+        $this->country_code   = $data['country_code'];
+
+        unset($data['continent_code']);
+        unset($data['continent_name']);
+
+        unset($data['country_code']);
+        unset($data['country_name']);
+
+        unset($data['ip']);
+        unset($data['location']['geoname_id']);
+
+        $this->data = $data;
+
         curl_close($ch);
 
-        // Decode JSON response:
-        $api_result = json_decode($json, true);
 
-        */
+        $this->geolocation_label = $this->get_geolocation_label();
+        $this->save();
+
+
+    }
+
+    public function get_geolocation_label() {
+
+        $label = '';
+
+        if (!empty($this->data['location']['country_flag_emoji'])) {
+            $label = $this->data['location']['country_flag_emoji'];
+        }
+
+        if (!empty($this->data['city'])) {
+            $label .= ' '.$this->data['city'];
+        } elseif (!empty($this->data['region_name'])) {
+            $label .= ' '.$this->data['region_name'];
+        }
+
+        $label = trim($label);
+
+        return $label;
+        //$this->geolocation_label=$label;
+        //$this->save();
+
 
     }
 
