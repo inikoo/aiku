@@ -21,7 +21,7 @@ class CreateUserAgentsTable extends Migration
         Schema::create('user_agents', function (Blueprint $table) {
             $table->id();
             $table->string('checksum',32)->index();
-            $table->text('user_agent');
+            $table->text('user_agent')->nullable();
             $table->text('software')->nullable();
             $table->text('software_details')->nullable();
             $table->string('device')->nullable();

@@ -13,6 +13,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 class UserAgent extends Model {
     use UsesLandLordConnection;
 
+    protected $fillable = ['checksum'];
+
+
     protected static function booted() {
         static::created(
 
