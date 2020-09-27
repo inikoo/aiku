@@ -38,7 +38,7 @@ class ApiTokenController extends Controller {
             ]
         );
 
-        $user = User::where('handle', $request->handle)->first();
+        $user = (new User)->where('handle', $request->handle)->first();
         if (!$user || !Hash::check($request->password, $user->password)) {
 
             throw ValidationException::withMessages(
@@ -66,6 +66,28 @@ class ApiTokenController extends Controller {
     }
 
     /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function registerApp(Request $request){
+
+        $request->validate(
+            [
+                'code'       => 'required|size:6',
+            ]
+        );
+
+        throw ValidationException::withMessages(
+            [
+                'role' => ['unknown-role'],
+            ]
+        );
+
+
+    }
+
+    /**
      * @param $user
      * @param $request
      *
@@ -84,7 +106,7 @@ class ApiTokenController extends Controller {
             $request->on_duplicate = 'ThrowError';
         }
 
-        $clocking_machine = ClockingMachine::where('name', $request->device_name)->firstOr(
+        $clocking_machine = (new ClockingMachine)->where('name', $request->device_name)->firstOr(
             function () use ($request, $user, $token_abilities) {
 
                 $request->on_duplicate = '';

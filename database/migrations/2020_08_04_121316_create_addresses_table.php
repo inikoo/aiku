@@ -32,6 +32,19 @@ class CreateAddressesTable extends Migration {
         Schema::create(
             'addresses', function (Blueprint $table) {
             $table->id();
+            $table->string('contact')->nullable();
+            $table->string('organization')->nullable();
+            $table->string('address_line_1')->nullable();
+            $table->string('address_line_2')->nullable();
+            $table->string('sorting_code')->nullable();
+            $table->string('postal_code')->nullable();
+            $table->string('locality')->nullable();
+            $table->string('dependent_locality')->nullable();
+            $table->string('administrative_area')->nullable();
+            $table->string('country_code',2)->nullable()->index();
+            $table->string('checksum');
+
+
             $table->timestampsTz();
         }
         );

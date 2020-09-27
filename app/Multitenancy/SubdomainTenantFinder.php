@@ -19,12 +19,22 @@ class SubdomainTenantFinder extends TenantFinder
 {
     use UsesTenantModel;
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Spatie\Multitenancy\Models\Tenant|null
+     */
     public function findForRequest(Request $request):?Tenant
     {
 
-        list($subdomain) = explode('.', $request->getHost(), 2);
+        $host=$request->getHost();
+        if($host==env('APP_DOMAIN')){
+            return null;
+        }
 
+        list($subdomain) = explode('.', $host, 2);
 
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->getTenantModel()::where('subdomain', $subdomain)->first();
 
 

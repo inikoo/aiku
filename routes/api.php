@@ -8,6 +8,9 @@ Route::post('/login', 'ApiLoginController@authenticate');
 Route::post('/logout', 'ApiLogoutController@logout');
 Route::post('/token', 'ApiTokenController@authenticate');
 
+Route::post('/register-app', 'ApiTokenController@registerApp');
+
+
 
 Route::middleware('auth:sanctum')->get(
     '/user', function (Request $request) {

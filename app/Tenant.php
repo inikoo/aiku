@@ -11,12 +11,10 @@ Version 4
 namespace App;
 
 use Exception;
-use Artisan;
-use DB;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 
-use Illuminate\Database\Eloquent\Builder;
 use Spatie\Multitenancy\Models\Tenant as Tenanto;
-use Spatie\Multitenancy\TenantCollection;
 
 
 /**
@@ -28,25 +26,7 @@ use Spatie\Multitenancy\TenantCollection;
  * @property string $database
  * @property array $settings
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Suppliers\Agent[] $agents
- * @property-read int|null $agents_count
- * @property-read \App\Models\Suppliers\Supplier|null $supplier_owner
- * @method static TenantCollection|static[] all($columns = ['*'])
- * @method static TenantCollection|static[] get($columns = ['*'])
- * @method static Builder|Tenant newModelQuery()
- * @method static Builder|Tenant newQuery()
- * @method static Builder|Tenant query()
- * @method static Builder|Tenant whereCreatedAt($value)
- * @method static Builder|Tenant whereData($value)
- * @method static Builder|Tenant whereDatabase($value)
- * @method static Builder|Tenant whereId($value)
- * @method static Builder|Tenant whereName($value)
- * @method static Builder|Tenant whereSettings($value)
- * @method static Builder|Tenant whereSubdomain($value)
- * @method static Builder|Tenant whereUpdatedAt($value)
- * @mixin \Eloquent
+
  */
 class Tenant extends Tenanto {
     protected $casts = [

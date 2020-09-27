@@ -1,10 +1,11 @@
 <?php
 
+use App\Multitenancy\SubdomainTenantFinder;
+use App\Multitenancy\SwitchTenantDatabaseTask;
 use Spatie\Multitenancy\Actions\ForgetCurrentTenantAction;
 use Spatie\Multitenancy\Actions\MakeQueueTenantAwareAction;
 use Spatie\Multitenancy\Actions\MakeTenantCurrentAction;
 use Spatie\Multitenancy\Actions\MigrateTenantAction;
-use Spatie\Multitenancy\Models\Tenant;
 
 return [
     /*
@@ -14,7 +15,7 @@ return [
      * This class should extend `Spatie\Multitenancy\TenantFinder\TenantFinder`
      *
      */
-    'tenant_finder' => \App\Multitenancy\SubdomainTenantFinder::class,
+    'tenant_finder' => SubdomainTenantFinder::class,
 
     /*
      * These fields are used by tenant:artisan command to match one or more tenant
@@ -29,7 +30,7 @@ return [
      * A valid task is any class that implements Spatie\Multitenancy\Tasks\SwitchTenantTask
      */
     'switch_tenant_tasks' => [
-        \App\Multitenancy\SwitchTenantDatabaseTask::class
+        SwitchTenantDatabaseTask::class
 
     ],
 
