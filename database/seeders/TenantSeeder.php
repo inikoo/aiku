@@ -11,7 +11,7 @@ use Illuminate\Database\Seeder;
 
 class TenantSeeder extends Seeder {
     /**
-     * Run the database seeds.
+     * Run the database seeders.
      *
      * @return void
      */

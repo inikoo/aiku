@@ -1,5 +1,8 @@
 <?php
 
+namespace Database\Seeders;
+
+
 use App\Models\System\Admin;
 use Illuminate\Database\Seeder;
 
@@ -9,7 +12,7 @@ use Spatie\Permission\Models\Permission;
 
 class NewTenantSeeder extends Seeder {
     /**
-     * Run the database seeds.
+     * Run the database seeders.
      *
      * @return void
      */
