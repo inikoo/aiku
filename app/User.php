@@ -21,15 +21,16 @@ use Spatie\Permission\Traits\HasRoles;
 
 /**
  * App\User
+ * @property string $password
  *
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @property-read int|null $notifications_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
- * @method static Builder|User newModelQuery()
- * @method static Builder|User newQuery()
- * @method static Builder|User query()
- * @mixin \Eloquent
+
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
+
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $userable
  * @method static Builder|User findSimilarSlugs($attribute, $config, $slug)
  */
