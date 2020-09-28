@@ -16,7 +16,7 @@ use App\Employee;
 
 class EmployeeRelocator extends Relocator {
     /**
-     * Run the database seeds.
+     * Run the database seeders.
      *
      * @return void
      */

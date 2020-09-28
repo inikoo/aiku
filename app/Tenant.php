@@ -26,12 +26,16 @@ use Spatie\Multitenancy\Models\Tenant as Tenanto;
  * @property string $database
  * @property array $settings
  * @property array $data
-
+ * @method static where
  */
 class Tenant extends Tenanto {
     protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
+    ];
+
+    protected $fillable = [
+        'name','subdomain','database','settings'
     ];
 
     protected $attributes = [

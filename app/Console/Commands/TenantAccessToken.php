@@ -16,7 +16,7 @@ class TenantAccessToken extends Command
      *
      * @var string
      */
-    protected $signature = 'au:access_token {handle}  {--tenant=*}';
+    protected $signature = 'tenant:access_token {handle}  {--tenant=*}';
 
     /**
      * The console command description.

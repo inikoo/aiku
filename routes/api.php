@@ -8,7 +8,11 @@ Route::post('/login', 'ApiLoginController@authenticate');
 Route::post('/logout', 'ApiLogoutController@logout');
 Route::post('/token', 'ApiTokenController@authenticate');
 
+
+Route::post('/access-code', 'ApiTokenController@createAccessCode');
+
 Route::post('/register-app', 'ApiTokenController@registerApp');
+
 
 
 

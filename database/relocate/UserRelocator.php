@@ -15,7 +15,7 @@ use App\User;
 
 class UserRelocator extends Relocator {
     /**
-     * Run the database seeds.
+     * Run the database seeders.
      *
      * @return void
      */
