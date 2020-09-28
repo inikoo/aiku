@@ -26,7 +26,8 @@ use Spatie\Multitenancy\Models\Tenant as Tenanto;
  * @property string $database
  * @property array $settings
  * @property array $data
- * @method static where
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
 class Tenant extends Tenanto {
     protected $casts = [

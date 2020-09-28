@@ -84,7 +84,7 @@ class ClockingMachine extends Model implements Auditable{
         $accessCode->code = Str::random(6);
         $accessCode->tenant_id = $tenant->id;
         $accessCode->scope = 'ClockingMachine';
-        $accessCode->ttl = 86400;
+        $accessCode->expired_at       = gmdate('Y-m-d H:i:s',strtotime('now +300 86400'));
 
         $accessCode->scope_id = $this->getAttribute('id');
         $accessCode->payload=[

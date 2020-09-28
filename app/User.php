@@ -8,7 +8,10 @@ Version 4
 */
 
 namespace App;
+
+use App\Models\Helpers\AccessCode;
 use Cviebrock\EloquentSluggable\Sluggable;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -21,21 +24,19 @@ use Spatie\Permission\Traits\HasRoles;
 
 /**
  * App\User
- * @property string $password
+ *
+ * @property string                                                                                                         $password
  *
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
- * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
- * @property-read int|null $tokens_count
-
+ * @property-read int|null                                                                                                  $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[]                           $tokens
+ * @property-read int|null                                                                                                  $tokens_count
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
-
  * @method static Builder|User findSimilarSlugs($attribute, $config, $slug)
  */
-class User extends Authenticatable implements Auditable
-{
-    use HasApiTokens,Notifiable,UsesTenantConnection,Sluggable;
+class User extends Authenticatable implements Auditable {
+    use HasApiTokens, Notifiable, UsesTenantConnection, Sluggable;
     use HasRoles;
     use \OwenIt\Auditing\Auditable;
 
@@ -54,14 +55,13 @@ class User extends Authenticatable implements Auditable
 
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}'
     ];
 
     protected $hidden = ['password'];
 
-    public function sluggable()
-    {
+    public function sluggable() {
         return [
             'handle' => [
                 'source' => 'userable.slug'
@@ -69,9 +69,38 @@ class User extends Authenticatable implements Auditable
         ];
     }
 
-    public function userable()
-    {
+    public function userable() {
         return $this->morphTo();
+    }
+
+    public function createAccessCode() {
+
+
+        $tenant = app('currentTenant');
+
+        $accessCode            = new AccessCode;
+        $accessCode->code      = sprintf("%06d", rand(1, 999999));
+        $accessCode->tenant_id = $tenant->id;
+        $accessCode->scope = 'User';
+        $accessCode->scope_id = $this->id;
+
+        $accessCode->expired_at       = gmdate('Y-m-d H:i:s',strtotime('now +300 seconds'));
+
+        $accessCode->payload = [
+            'url'     => $tenant->subdomain.'.'.env('APP_DOMAIN'),
+            'user_id' => $this->id
+        ];
+
+        try {
+            $accessCode->save();
+            return $accessCode;
+        }catch (Exception $exception){
+            return $this->createAccessCode();
+        }
+
+
+
+
     }
 
 }
