@@ -53,4 +53,12 @@ class Admin extends Model {
         );
     }
 
+    public function createDirectAccessCode($device_name){
+        $tokenData=preg_split('/\|/',$this->user->createToken($device_name)->plainTextToken);
+
+        return $tokenData[1];
+
+    }
+
+
 }
