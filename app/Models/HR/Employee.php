@@ -29,7 +29,9 @@ use Cviebrock\EloquentSluggable\Sluggable;
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
  * @method static Builder|Employee query()
- * @mixin \Eloquent
+
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
 class Employee extends Model implements Auditable {
     use UsesTenantConnection, Sluggable;
@@ -40,6 +42,8 @@ class Employee extends Model implements Auditable {
         'settings' => 'array',
         'data'     => 'array'
     ];
+
+    protected $guarded = [];
 
     protected $attributes = [
         'data'     => '{}',
@@ -72,20 +76,25 @@ class Employee extends Model implements Auditable {
             function ($employee) {
 
 
-                $employee->user()->create(
-                    [
-                        'handle'    => Str::slug($employee->name),
-                        'tenant_id' => $employee->tenant_id,
-                        'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                        'pin'       => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
-                        'legacy_id' => $employee->legacy_id,
-                        'status'    => $employee->status == 'Working',
-                        'settings'  => [],
-                        'data'      => []
+                if(!$employee->legacy_id){
+                    $employee->user()->create(
+                        [
+                            'handle'    => Str::slug($employee->name),
+                            'tenant_id' => $employee->tenant_id,
+                            'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                            'pin'       => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                            'status'    => $employee->status == 'Working',
+                            'settings'  => [],
+                            'data'      => []
 
-                    ]
+                        ]
 
-                );
+                    );
+                }
+
+
+
+
 
             }
         );

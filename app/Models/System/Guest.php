@@ -8,32 +8,44 @@
 
 namespace App\Models\System;
 
-use Illuminate\Database\Eloquent\Builder;
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
  * App\Models\System\Guest
  *
- * @property-read \App\User|null $image
- * @method static Builder|Guest newModelQuery()
- * @method static Builder|Guest newQuery()
- * @method static Builder|Guest query()
- * @mixin \Eloquent
+
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
 class Guest extends Model {
-    use UsesTenantConnection;
+    use UsesTenantConnection, Sluggable;
+    use Auditable;
 
-        protected $casts = [
+    protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
     ];
 
+    protected $guarded = [];
+
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}'
     ];
+
+    public function sluggable() {
+        return [
+            'slug' => [
+                'source'   => 'name',
+                'onUpdate' => true
+            ]
+        ];
+    }
+
 
     public function image()
     {

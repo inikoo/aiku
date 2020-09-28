@@ -31,7 +31,6 @@ use Spatie\Permission\Traits\HasRoles;
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
 
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $userable
  * @method static Builder|User findSimilarSlugs($attribute, $config, $slug)
  */
 class User extends Authenticatable implements Auditable
@@ -51,7 +50,7 @@ class User extends Authenticatable implements Auditable
         'handle'
     ];
 
-    protected $fillable = ['handle','password','pin','status'];
+    protected $guarded = [];
 
 
     protected $attributes = [
