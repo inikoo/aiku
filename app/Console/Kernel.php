@@ -26,11 +26,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
-        $schedule->call(function () {
-            DB::table('access_codes')->where('expired_at','<',gmdate('Y-m-d H:i:s'))->delete();
+        if(env('APP_ENV')=='production'){
+            $schedule->call(function () {
+                DB::table('access_codes')->where('expired_at','<',gmdate('Y-m-d H:i:s'))->delete();
+            })->everyMinute();
+        }
 
-
-        })->everyMinute();
 
 
     }

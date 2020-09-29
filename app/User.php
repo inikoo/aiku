@@ -25,7 +25,7 @@ use Spatie\Permission\Traits\HasRoles;
 /**
  * App\User
  *
- * @property string                                                                                                         $password
+ * @property $id integer                                                                                                         $password
  *
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @property-read int|null                                                                                                  $notifications_count
@@ -59,7 +59,11 @@ class User extends Authenticatable implements Auditable {
         'settings' => '{}'
     ];
 
-    protected $hidden = ['password'];
+    protected $hidden = [
+        'password',
+        'pin',
+        'confidential'
+    ];
 
     public function sluggable() {
         return [
@@ -73,6 +77,10 @@ class User extends Authenticatable implements Auditable {
         return $this->morphTo();
     }
 
+    public function devices() {
+        return $this->hasMany('App\Models\System\Device');
+    }
+
     public function createAccessCode() {
 
 
@@ -81,24 +89,22 @@ class User extends Authenticatable implements Auditable {
         $accessCode            = new AccessCode;
         $accessCode->code      = sprintf("%06d", rand(1, 999999));
         $accessCode->tenant_id = $tenant->id;
-        $accessCode->scope = 'User';
-        $accessCode->scope_id = $this->id;
+        $accessCode->scope     = 'Tenant';
+        $accessCode->scope_id  = $tenant->id;
 
-        $accessCode->expired_at       = gmdate('Y-m-d H:i:s',strtotime('now +300 seconds'));
+        $accessCode->expired_at = gmdate('Y-m-d H:i:s', strtotime('now +300 seconds'));
 
         $accessCode->payload = [
-            'url'     => $tenant->subdomain.'.'.env('APP_DOMAIN'),
             'user_id' => $this->id
         ];
 
         try {
             $accessCode->save();
+
             return $accessCode;
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return $this->createAccessCode();
         }
-
-
 
 
     }

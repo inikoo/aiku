@@ -10,6 +10,14 @@ namespace App\Models\Helpers;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
+/**
+ * Class AccessCode
+ *
+ * @package App\Models\Helpers
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
+ *
+ */
 class AccessCode extends Model {
     use UsesLandLordConnection;
 

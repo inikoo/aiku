@@ -10,7 +10,6 @@ Version 4
 
 namespace App\Http\Controllers;
 
-use App\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -157,39 +156,6 @@ class ApiTokenController extends Controller {
 
         return response()->json([$payload]);
     }
-    function createAccessCode(Request $request) {
 
-        $request->validate(
-            [
-                'handle'    => 'required',
-                'subdomain' => 'required|exists:tenants',
-            ]
-        );
-
-
-
-        $tenant= (new Tenant)->firstWhere('subdomain', $request->subdomain);
-
-
-        $tenant->makeCurrent();
-
-        $request->validate(
-            [
-                'user_id' => 'required|exists:users,id',
-            ]
-        );
-
-        $user = (new User)->find($request->user_id);
-
-        $accessCode = $user->createAccessCode();
-
-        return response()->json(
-            [
-                'code' => $accessCode->code
-            ]
-        );
-
-
-    }
 
 }
