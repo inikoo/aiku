@@ -1,5 +1,6 @@
 <?php
 
+use Database\Seeders\CountrySeeder;
 use Illuminate\Database\Seeder;
 use Spatie\Multitenancy\Models\Tenant as Tenanto;
 
@@ -20,7 +21,8 @@ class DatabaseSeeder extends Seeder {
     }
 
     public function runLandlordSpecificSeeders() {
-        $this->call(TenantSeeder::class);
+        $this->call(CountrySeeder::class);
+
     }
 
 
