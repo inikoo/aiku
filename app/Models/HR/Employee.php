@@ -10,7 +10,6 @@ Version 4
 
 namespace App\Models\HR;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -25,10 +24,7 @@ use Cviebrock\EloquentSluggable\Sluggable;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\HR\Timesheet[] $timesheets
  * @property-read int|null                                                            $timesheets_count
  * @property-read \App\User|null                                                      $user
- * @method static Builder|Employee findSimilarSlugs($attribute, $config, $slug)
- * @method static Builder|Employee newModelQuery()
- * @method static Builder|Employee newQuery()
- * @method static Builder|Employee query()
+
 
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class

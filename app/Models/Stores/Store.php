@@ -8,34 +8,24 @@ Version 4
 namespace App\Models\Stores;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
+use Cviebrock\EloquentSluggable\Sluggable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
  * App\Models\Stores\Store
  *
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Charge[] $charges
- * @property-read int|null $charges_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CRM\Customer[] $customers
- * @property-read int|null $customers_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Invoice[] $invoices
- * @property-read int|null $invoices_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Order[] $orders
- * @property-read int|null $orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Stores\Product[] $products
- * @property-read int|null $products_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CRM\Prospect[] $prospects
- * @property-read int|null $prospects_count
- * @property-read \App\Models\Stores\StoreAggregation|null $store_aggregation
- * @property-read \App\Models\ECommerce\Website|null $websites
- * @method static Builder|Store newModelQuery()
- * @method static Builder|Store newQuery()
- * @method static Builder|Store query()
- * @mixin \Eloquent
+ * @property string $created_at
+ *
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
-class Store extends Model {
-    use UsesTenantConnection;
+class Store extends Model implements Auditable{
+    use UsesTenantConnection, Sluggable;
+    use \OwenIt\Auditing\Auditable;
+    use SoftDeletes;
 
         protected $casts = [
         'settings' => 'array',
@@ -46,6 +36,18 @@ class Store extends Model {
         'data' => '{}',
         'settings' => '{}'
     ];
+
+    protected $guarded=[];
+
+
+    public function sluggable() {
+        return [
+            'slug' => [
+                'source'   => 'slug',
+                'onUpdate' => true
+            ]
+        ];
+    }
 
     public function prospects()
     {
