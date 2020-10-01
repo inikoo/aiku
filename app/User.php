@@ -42,8 +42,10 @@ class User extends Authenticatable implements Auditable {
 
 
     protected $casts = [
-        'settings' => 'array',
-        'data'     => 'array'
+        'settings'     => 'array',
+        'data'         => 'array',
+        'confidential' => 'array'
+
     ];
 
 
@@ -55,8 +57,9 @@ class User extends Authenticatable implements Auditable {
 
 
     protected $attributes = [
-        'data'     => '{}',
-        'settings' => '{}'
+        'data'         => '{}',
+        'settings'     => '{}',
+        'confidential' => '{}'
     ];
 
     protected $hidden = [

@@ -15,6 +15,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @package App\Models\System
  *
+ * @property $id integer                                                                                                         $password
+ *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */

@@ -10,7 +10,7 @@ namespace App\Models\System;
 
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
@@ -21,9 +21,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
-class Guest extends Model {
+class Guest extends Model implements Auditable {
     use UsesTenantConnection, Sluggable;
-    use Auditable;
+    use \OwenIt\Auditing\Auditable;
 
     protected $casts = [
         'settings' => 'array',

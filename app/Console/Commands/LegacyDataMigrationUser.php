@@ -46,14 +46,14 @@ class LegacyDataMigrationUser extends Command {
                     $user_parent_key = null;
                     switch ($legacy_data->{'User Type'}) {
                         case 'Staff':
-                            $user_parent = 'employee';
+                            $user_parent = 'Employee';
 
                             if ($employee = (new Employee)->where('legacy_id', $legacy_data->{'User Parent Key'})->first()) {
                                 $user_parent_key = $employee->id;
                             }
                             break;
                         case 'Contractor':
-                            $user_parent = 'guest';
+                            $user_parent = 'Guest';
                             if ($guest = (new Guest)->where('legacy_id', $legacy_data->{'User Parent Key'})->first()) {
                                 $user_parent_key = $guest->id;
                             }

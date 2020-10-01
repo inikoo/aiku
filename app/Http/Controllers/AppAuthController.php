@@ -88,10 +88,20 @@ class AppAuthController extends Controller {
 
 
         $payload=[
-            'url'     => env('APP_PROTOCOL','https').'://'.$tenant->subdomain.'.'.env('APP_DOMAIN'),
-            'user'=>$user,
-            'device'=>$device,
-            'token'=>$tokenData[1]
+            'apiUrl'     => env('APP_PROTOCOL','https').'://'.$tenant->subdomain.'.'.env('APP_DOMAIN'),
+            'token'=>$tokenData[1],
+            'userData'=>[
+                'tokenId'=>$device->personal_access_token_id,
+                'id'=>$user->id,
+                'handle'=>$user->handle,
+                'name'=>$user->userable->name,
+            ],
+            'tenantData'=>[
+                'code'=>$tenant->subdomain,
+                'name'=>$tenant->name,
+            ],
+            'deviceId'=>$device->id
+
         ];
 
         return response()->json($payload);
