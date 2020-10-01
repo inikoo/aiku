@@ -17,7 +17,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 /**
  * App\Models\System\Guest
  *
-
+ * @property int $id
+ *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */

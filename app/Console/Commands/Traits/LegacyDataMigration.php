@@ -14,12 +14,12 @@ trait LegacyDataMigration
 
     public function set_legacy_connection($database_name) {
 
-
         $database_settings = data_get(config('database.connections'), 'mysql');
-
         data_set($database_settings, 'database', $database_name);
+
         config(['database.connections.legacy' => $database_settings]);
         DB::connection('legacy');
+        DB::purge('legacy');
 
     }
 

@@ -7,22 +7,25 @@ Version 4
 
 namespace App\Models\CRM;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Cviebrock\EloquentSluggable\Sluggable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
  * App\Models\CRM\Customer
  *
- * @property-read \App\Models\Stores\Store $store
- * @method static Builder|Customer newModelQuery()
- * @method static Builder|Customer newQuery()
- * @method static Builder|Customer query()
- * @mixin \Eloquent
+ * @property int $id
+ *
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
-class Customer extends Model {
-    use UsesTenantConnection;
+class Customer extends Model implements Auditable{
+    use UsesTenantConnection, Sluggable;
+    use \OwenIt\Auditing\Auditable;
+    use SoftDeletes;
 
         protected $casts = [
         'settings' => 'array',
@@ -34,9 +37,46 @@ class Customer extends Model {
         'settings' => '{}'
     ];
 
+    protected $guarded=[];
+
+    public function sluggable() {
+        return [
+            'slug' => [
+                'source'   => 'sluggledName',
+                'onUpdate' => true
+            ]
+        ];
+    }
+
+    public function getSluggledNameAttribute() {
+        $sluggableName=preg_replace('/\'/','',$this->name);
+
+        $sluggableName=preg_replace('/www\./','www ',$sluggableName);
+        $sluggableName=preg_replace('/\.com/',' com',$sluggableName);
+        $sluggableName=preg_replace('/&/',' and ',$sluggableName);
+
+        $sluggableName=preg_replace('/\./','',$sluggableName);
+
+        $sluggableName=preg_replace('/-/',' ',$sluggableName);
+        $sluggableName=trim($sluggableName);
+        if($sluggableName==''){
+            $sluggableName='empty';
+        }
+
+        return $sluggableName;
+    }
+
+
     public function store()
     {
         return $this->belongsTo('App\Models\Stores\Store');
+    }
+
+    public function addresses()
+    {
+        return $this->morphToMany('App\Models\Helpers\Address', 'addressable');
+
+
     }
 
 

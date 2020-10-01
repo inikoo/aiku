@@ -19,15 +19,18 @@ art tenants:artisan "migrate:refresh --database=tenant"; art tenants:artisan "mi
 
 
 ##### Landlord database migrations and seeding (only for master)
-`art migrate --path=database/migrations/landlord --database=landlord`
+art migrate --path=database/migrations/landlord --database=landlord
+art db:seed
 
-`art db:seed` 
 
 
 ##### Tenants database migrations and seeding (for the tenants databases)
-`art tenants:artisan "migrate --database=tenant"`
+art tenants:artisan "migrate --database=tenant"
  
-`art tenants:artisan "migrate --database=tenant --seed"` 
+ art tenants:artisan "migrate:rollback --step=1 --database=tenant"
+
+ 
+art tenants:artisan "migrate --database=tenant --seed"
 
 
 ## create model 

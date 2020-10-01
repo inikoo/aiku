@@ -21,10 +21,7 @@ use Cviebrock\EloquentSluggable\Sluggable;
 /**
  * App\Models\HR\Employee
  *
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\HR\Timesheet[] $timesheets
- * @property-read int|null                                                            $timesheets_count
- * @property-read \App\User|null                                                      $user
-
+ * @property int $id
 
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class

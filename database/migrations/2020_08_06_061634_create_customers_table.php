@@ -17,14 +17,13 @@ class CreateCustomersTable extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
-            $table->unsignedMediumInteger('store_id');
+            $table->unsignedMediumInteger('store_id')->index();
             $table->foreign('store_id')->references('id')->on('stores');
-            $table->string('slug');
+            $table->string('slug')->index();
             $table->json('settings');
             $table->json('data');
             $table->timestampsTz();
-            $table->unsignedMediumInteger('legacy_id')->nullable();
-            $table->index(['tenant_id', 'slug']);
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
         });
     }
 

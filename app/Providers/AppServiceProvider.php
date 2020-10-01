@@ -32,6 +32,8 @@ class AppServiceProvider extends ServiceProvider {
                 'Admin'    => 'App\Models\System\Admin',
                 'Guest'    => 'App\Models\System\Guest',
                 'Employee' => 'App\Models\HR\Employee',
+                'Customer' => 'App\Models\CRM\Customer',
+                'Order'    => 'App\Models\Sales\Order',
 
             ]
         );

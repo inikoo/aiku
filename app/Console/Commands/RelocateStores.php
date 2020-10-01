@@ -18,12 +18,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Spatie\Multitenancy\Commands\Concerns\TenantAware;
 
-class LegacyDataMigrationStore extends Command {
+class RelocateStores extends Command {
 
     use TenantAware, LegacyDataMigration;
 
     protected $signature = 'relocate:stores {--tenant=*}';
-    protected $description = 'Migrate legacy stores';
+    protected $description = 'Relocate legacy stores';
 
 
     public function __construct() {

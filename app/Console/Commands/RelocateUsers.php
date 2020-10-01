@@ -19,13 +19,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\Multitenancy\Commands\Concerns\TenantAware;
 
-class LegacyDataMigrationUser extends Command {
+class RelocateUsers extends Command {
 
     use TenantAware, LegacyDataMigration;
 
 
     protected $signature = 'relocate:users {--tenant=*}';
-    protected $description = 'Migrate legacy users';
+    protected $description = 'Relocate legacy users';
 
     public function __construct() {
         parent::__construct();
@@ -42,6 +42,7 @@ class LegacyDataMigrationUser extends Command {
 
             foreach (DB::connection('legacy')->select("select * from".' '.$_table, []) as $legacy_data) {
                 if ($legacy_data->{'User Type'} == 'Staff' or $legacy_data->{'User Type'} == 'Contractor') {
+
 
                     $user_parent_key = null;
                     switch ($legacy_data->{'User Type'}) {
@@ -70,7 +71,7 @@ class LegacyDataMigrationUser extends Command {
                             'pwd_legacy' => 'User Password'
                         ], $legacy_data
                     );
-                    $user_data = $this->fill_data(
+                    $user_data              = $this->fill_data(
                         [
 
                         ], $legacy_data
@@ -89,7 +90,7 @@ class LegacyDataMigrationUser extends Command {
                             'status'        => $legacy_data->{'User Active'} == 'Yes',
                             'settings'      => $user_settings,
                             'confidential'  => $confidential_user_data,
-                            'data'  => $user_data
+                            'data'          => $user_data
 
                         ]
                     );

@@ -7,7 +7,6 @@ Version 4
 
 namespace App\Models\Distribution;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -15,12 +14,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 /**
  * App\Models\Distribution\DeliveryNote
  *
- * @property-read \App\Models\Sales\Order $order
- * @property-read \App\Models\Stores\Store $store
- * @method static Builder|DeliveryNote newModelQuery()
- * @method static Builder|DeliveryNote newQuery()
- * @method static Builder|DeliveryNote query()
- * @mixin \Eloquent
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
+
  */
 class DeliveryNote extends Model {
     use UsesTenantConnection;

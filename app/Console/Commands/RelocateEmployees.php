@@ -19,12 +19,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Spatie\Multitenancy\Commands\Concerns\TenantAware;
 
-class LegacyDataMigrationEmployee extends Command {
+class RelocateEmployees extends Command {
 
     use TenantAware, LegacyDataMigration;
 
     protected $signature = 'relocate:employees {--tenant=*}';
-    protected $description = 'Migrate legacy employees';
+    protected $description = 'Relocate legacy employees';
 
 
     public function __construct() {
@@ -38,10 +38,12 @@ class LegacyDataMigrationEmployee extends Command {
         $_table = '`Staff Dimension`';
 
         if (Arr::get($tenant->data, 'legacy')) {
-            print ('The tenant is '.$tenant->subdomain."\n");
+            print ('Relocation staff from '.$tenant->subdomain." ".$tenant->data['legacy']['db']."  \n");
+
             $this->set_legacy_connection($tenant->data['legacy']['db']);
 
             foreach (DB::connection('legacy')->select("select * from".' '.$_table, []) as $legacy_data) {
+
 
                 $employee_data = $this->fill_data(
                     [
@@ -52,8 +54,7 @@ class LegacyDataMigrationEmployee extends Command {
                 );
 
 
-
-                if($legacy_data->{'Staff Type'}=='Employee'){
+                if ($legacy_data->{'Staff Type'} == 'Employee') {
                     (new Employee)->firstOrCreate(
                         [
                             'tenant_id' => $tenant->id,
@@ -68,10 +69,7 @@ class LegacyDataMigrationEmployee extends Command {
 
                         ]
                     );
-                }elseif($legacy_data->{'Staff Type'}=='Contractor'){
-
-
-
+                } elseif ($legacy_data->{'Staff Type'} == 'Contractor') {
                     (new Guest)->firstOrCreate(
                         [
                             'tenant_id' => $tenant->id,
@@ -79,29 +77,21 @@ class LegacyDataMigrationEmployee extends Command {
 
 
                         ], [
-                            'tenant_id' => $tenant->id,
-                            'legacy_id' => $legacy_data->{'Staff Key'},
-                            'status'    => $legacy_data->{'Staff Currently Working'} == 'Yes',
-                            'data'      => $employee_data,
-                            'name'      => $legacy_data->{'Staff Name'},
-                            'description'=>'Contractor'
+                            'tenant_id'   => $tenant->id,
+                            'legacy_id'   => $legacy_data->{'Staff Key'},
+                            'status'      => $legacy_data->{'Staff Currently Working'} == 'Yes',
+                            'data'        => $employee_data,
+                            'name'        => $legacy_data->{'Staff Name'},
+                            'description' => 'Contractor'
 
                         ]
                     );
                 }
 
 
-
-
             }
 
         }
-
-
         return 0;
-
-
     }
-
-
 }

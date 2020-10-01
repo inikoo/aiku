@@ -11,10 +11,10 @@ class StoreState extends Migration {
      * @return void
      */
     public function up() {
-        Schema::table('stores', function (Blueprint $table) {
+        Schema::table(
+            'stores', function (Blueprint $table) {
             $table->string('state')->index();
             $table->softDeletesTz('deleted_at', 0);
-
         }
         );
     }
@@ -25,7 +25,8 @@ class StoreState extends Migration {
      * @return void
      */
     public function down() {
-        Schema::table('stores', function (Blueprint $table) {
+        Schema::table(
+            'stores', function (Blueprint $table) {
             $table->dropColumn('state');
             $table->dropSoftDeletesTz('deleted_at');
         }
