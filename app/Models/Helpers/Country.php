@@ -8,13 +8,12 @@
 namespace App\Models\Helpers;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Country extends Model {
-    use UsesLandLordConnection;
+    use UsesTenantConnection;
 
     protected $table = 'countries';
-
 
     protected $casts = [
         'data' => 'array'
