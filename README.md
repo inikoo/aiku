@@ -27,7 +27,7 @@ art db:seed
 ##### Tenants database migrations and seeding (for the tenants databases)
 art tenants:artisan "migrate --database=tenant"
  
- art tenants:artisan "migrate:rollback --step=1 --database=tenant"
+art tenants:artisan "migrate:rollback --step=1 --database=tenant"
 
  
 art tenants:artisan "migrate --database=tenant --seed"

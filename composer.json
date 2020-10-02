@@ -28,7 +28,8 @@
         "owen-it/laravel-auditing": "^10.0",
         "sentry/sentry-laravel": "^1.8",
         "spatie/laravel-multitenancy": "^1.0",
-        "spatie/laravel-permission": "^3.13"
+        "spatie/laravel-permission": "^3.13",
+        "ext-zlib": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.7",

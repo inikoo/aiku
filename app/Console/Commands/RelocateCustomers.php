@@ -84,9 +84,9 @@ class RelocateCustomers extends Command {
 
 
                 $customer=$this->relocate_customer($legacy_data,$tenant);
+
                 $customer->status='deleted';
                 $customer->state='deleted';
-
                 $customer->deleted_at=$raw_legacy_data->{'Customer Deleted Date'};
                 $customer->save();
 
@@ -145,7 +145,10 @@ class RelocateCustomers extends Command {
         $store = (new Store)->firstWhere('legacy_id', $legacy_data->{'Customer Store Key'});
 
 
-        $customer = (new Customer)->updateOrCreate(
+
+
+
+        $customer = Customer::withTrashed()->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Customer Key'},
 
@@ -164,6 +167,8 @@ class RelocateCustomers extends Command {
 
             ]
         );
+
+
 
 
         $_billing_address = new Address();
@@ -223,6 +228,7 @@ class RelocateCustomers extends Command {
         }
         $customer->billing_address_id = $billing_address->id;
         $customer->save();
+
 
         return $customer;
 

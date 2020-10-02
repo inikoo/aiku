@@ -17,6 +17,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 /**
  * App\Models\Stores\Store
  *
+ * @property int $id
  * @property string $created_at
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
