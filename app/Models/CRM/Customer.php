@@ -48,6 +48,21 @@ class Customer extends Model implements Auditable{
         ];
     }
 
+
+
+
+    public function store()
+    {
+        return $this->belongsTo('App\Models\Stores\Store');
+    }
+
+    public function addresses()
+    {
+        return $this->morphToMany('App\Models\Helpers\Address', 'addressable');
+
+
+    }
+
     public function getSluggledNameAttribute() {
         $sluggableName=preg_replace('/\'/','',$this->name);
 
@@ -65,19 +80,5 @@ class Customer extends Model implements Auditable{
 
         return $sluggableName;
     }
-
-
-    public function store()
-    {
-        return $this->belongsTo('App\Models\Stores\Store');
-    }
-
-    public function addresses()
-    {
-        return $this->morphToMany('App\Models\Helpers\Address', 'addressable');
-
-
-    }
-
 
 }
