@@ -1,9 +1,9 @@
 <?php
 /*
-Copyright (c) 2020, AIku.io
-
-Version 4
-*/
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Mon, 05 Oct 2020 14:53:45 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2020. Aiku.io
+ */
 
 namespace App\Models\Distribution;
 
@@ -22,14 +22,14 @@ class DeliveryNote extends Model {
     use UsesTenantConnection;
 
         protected $casts = [
-        'settings' => 'array',
         'data'     => 'array'
     ];
 
     protected $attributes = [
         'data' => '{}',
-        'settings' => '{}'
     ];
+
+    protected $guarded=[];
 
     public function store()
     {
@@ -38,5 +38,14 @@ class DeliveryNote extends Model {
     public function order()
     {
         return $this->belongsTo('App\Models\Sales\Order');
+    }
+
+
+    public function pickings() {
+        return $this->belongsToMany('App\Models\Distribution\Stock', 'pickings')->using('App\Models\Distribution\Picking')->withTimestamps()->withPivot(['quantity','legacy_id']);
+    }
+
+    public function items() {
+        return $this->belongsToMany('App\Models\Distribution\Stock', 'delivery_note_items')->using('App\Models\Distribution\DeliveryNoteItem')->withTimestamps()->withPivot(['quantity','legacy_id']);
     }
 }

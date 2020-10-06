@@ -17,6 +17,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property string $created_at
+ * @property string $legacy_id
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
@@ -35,9 +36,13 @@ class Order extends Model implements Auditable{
 
     protected $guarded=[];
 
-    public function store()
-    {
+    public function store() {
         return $this->belongsTo('App\Models\Stores\Store');
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo('App\Models\CRM\Customer');
     }
 
     public function invoices()
@@ -48,4 +53,10 @@ class Order extends Model implements Auditable{
     {
         return $this->hasMany('App\Models\Distribution\DeliveryNote');
     }
+
+    public function transactions() {
+        return $this->belongsToMany('App\Models\Stores\Product', 'transactions')->using('App\Models\Sales\Transaction')->withTimestamps()->withPivot(['quantity']);
+    }
+
+
 }

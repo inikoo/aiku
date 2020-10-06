@@ -13,9 +13,11 @@ use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\HR\Employee;
 use App\Models\System\Guest;
 use App\Tenant;
+use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\Multitenancy\Commands\Concerns\TenantAware;
 
@@ -55,30 +57,68 @@ class RelocateEmployees extends Command {
 
 
                 if ($legacy_data->{'Staff Type'} == 'Employee') {
-                    (new Employee)->firstOrCreate(
+                    $employee = (new Employee)->firstOrCreate(
                         [
-                            'tenant_id' => $tenant->id,
-                            'slug'      => Str::kebab($legacy_data->{'Staff Name'}),
+                            'legacy_id' => $legacy_data->{'Staff Key'},
 
                         ], [
                             'tenant_id' => $tenant->id,
-                            'legacy_id' => $legacy_data->{'Staff Key'},
+
+                            'slug'      => Str::kebab($legacy_data->{'Staff Name'}),
                             'name'      => $legacy_data->{'Staff Name'},
                             'status'    => ($legacy_data->{'Staff Currently Working'} == 'Yes' ? 'Working' : 'NotWorking'),
                             'data'      => $employee_data
 
                         ]
                     );
+
+                    $_table   = '`User Dimension`';
+                    $_where_1 = '`User Type`';
+                    $_where_2 = '`User Parent Key`';
+                    if ($legacy_user_data = DB::connection('legacy')->select(
+                        "select * from  $_table where  $_where_1=? and $_where_2=?", [
+                                                                                       'Staff',
+                                                                                       $legacy_data->{'Staff Key'}
+                                                                                   ]
+                    )) {
+
+                        $user = $this->relocate_user('Employee', $employee, $tenant, $legacy_user_data[0]);
+
+
+                    } else {
+                        $user = $employee->user()->create(
+                            [
+
+                                'tenant_id'   => $employee->tenant_id,
+                                'handle'      => Str::slug($employee->name),
+                                'userable_type'    => 'Employee',
+                                'userable_id' => $employee->id,
+                                'password'    => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                                'pin'         => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                                'status'      => $employee->status == 'Working',
+                                'settings'    => [],
+                                'data'        => []
+
+                            ]
+
+                        );
+
+                    }
+
+                    $employee->user_id = $user->id;
+                    $employee->save();
+
+
                 } elseif ($legacy_data->{'Staff Type'} == 'Contractor') {
-                    (new Guest)->firstOrCreate(
+                    $guess = (new Guest)->firstOrCreate(
                         [
-                            'tenant_id' => $tenant->id,
-                            'slug'      => Str::kebab($legacy_data->{'Staff Name'}),
+                            'legacy_id'   => $legacy_data->{'Staff Key'},
 
 
                         ], [
                             'tenant_id'   => $tenant->id,
-                            'legacy_id'   => $legacy_data->{'Staff Key'},
+                            'slug'      => Str::kebab($legacy_data->{'Staff Name'}),
+
                             'status'      => $legacy_data->{'Staff Currently Working'} == 'Yes',
                             'data'        => $employee_data,
                             'name'        => $legacy_data->{'Staff Name'},
@@ -86,12 +126,90 @@ class RelocateEmployees extends Command {
 
                         ]
                     );
+
+                    $_table   = '`User Dimension`';
+                    $_where_1 = '`User Type`';
+                    $_where_2 = '`User Parent Key`';
+                    if ($legacy_user_data = DB::connection('legacy')->select(
+                        "select * from  $_table where  $_where_1=? and $_where_2=?", [
+                                                                                       'Contractor',
+                                                                                       $legacy_data->{'Staff Key'}
+                                                                                   ]
+                    )) {
+
+                        $user = $this->relocate_user('Employee', $guess, $tenant, $legacy_user_data[0]);
+
+
+                    } else {
+                        $user = $guess->user()->create(
+                            [
+
+                                'tenant_id' => $guess->tenant_id,
+                                'handle'    => Str::slug($guess->name),
+                                'userable_type'    => 'Guess',
+                                'userable_id' => $guess->id,
+                                'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                                'pin'       => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                                'status'    => $guess->status,
+                                'settings'  => [],
+                                'data'      => []
+
+                            ]
+
+                        );
+
+                    }
+
+                    $guess->user_id = $user->id;
+                    $guess->save();
+
+
                 }
 
 
             }
 
         }
+
         return 0;
     }
+
+    function relocate_user($parent_type, $parent, $tenant, $legacy_user_data) {
+
+
+        $user_settings = [];
+
+        $confidential_user_data = $this->fill_data(
+            [
+                'pwd_legacy' => 'User Password'
+            ], $legacy_user_data
+        );
+        $user_data              = $this->fill_data(
+            [
+
+            ], $legacy_user_data
+        );
+
+        return (new User)->updateOrCreate(
+            [
+                'tenant_id' => $tenant->id,
+                'handle'    => Str::lower($legacy_user_data->{'User Handle'}),
+            ], [
+                'password'      => bcrypt($legacy_user_data->{'User Password'}),
+                'pin'           => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                'legacy_id'     => $legacy_user_data->{'User Key'},
+                'userable_type' => $parent_type,
+                'userable_id'   => $parent->id,
+                'status'        => $legacy_user_data->{'User Active'} == 'Yes',
+                'settings'      => $user_settings,
+                'confidential'  => $confidential_user_data,
+                'data'          => $user_data
+
+            ]
+        );
+
+    }
+
 }
+
+

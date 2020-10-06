@@ -1,0 +1,132 @@
+<?php
+/*
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Fri, 02 Oct 2020 18:35:20 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2020. Aiku.io
+ */
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class WarehouseInventory extends Migration {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up() {
+        Schema::create(
+            'warehouses', function (Blueprint $table) {
+            $table->smallIncrements('id');
+            $table->string('slug')->unique()->index();
+            $table->string('name');
+            $table->json('settings');
+            $table->json('data');
+            $table->timestampsTz();
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unsignedSmallInteger('tenant_id');
+
+            $table->index(
+                [
+                    'tenant_id',
+                    'slug'
+                ]
+            );
+        }
+        );
+
+        Schema::create(
+            'warehouse_areas', function (Blueprint $table) {
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('warehouse_id');
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
+
+            $table->string('slug')->index();
+            $table->string('name');
+            $table->json('data');
+            $table->timestampsTz();
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unique(
+                [
+                    'warehouse_id',
+                    'slug'
+                ]
+            );
+        }
+        );
+
+        Schema::create(
+            'locations', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+            $table->unsignedMediumInteger('warehouse_id')->index();
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
+
+            $table->unsignedMediumInteger('warehouse_area_id')->nullable()->index();
+            $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
+
+            $table->string('code')->unique()->index();
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
+            $table->string('natural_order_code')->nullable()->index();
+
+        }
+        );
+
+        Schema::create('stocks', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedSmallInteger('tenant_id');
+            $table->string('state')->nullable()->index();
+            $table->string('status')->nullable()->index();
+
+            $table->string('code')->index();
+            $table->text('description')->nullable();
+
+            $table->unsignedSmallInteger('packed_in')->default(1);
+
+
+            $table->decimal('quantity', 16, 3)->nullable();
+            $table->decimal('cost', 16, 3)->nullable();
+
+            $table->jsonb('settings');
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+        });
+
+        Schema::create('location_stock', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedMediumInteger('location_id');
+            $table->foreign('location_id')->references('id')->on('locations');
+
+            $table->unsignedInteger('stock_id');
+            $table->foreign('stock_id')->references('id')->on('stocks');
+
+            $table->decimal('quantity', 16, 3);
+            $table->smallInteger('picking_priority')->default(0);
+
+            $table->timestampsTz();
+        });
+
+
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down() {
+        Schema::dropIfExists('locations');
+        Schema::dropIfExists('warehouse_areas');
+        Schema::dropIfExists('warehouses');
+        Schema::dropIfExists('stocks');
+        Schema::dropIfExists('location_stock');
+
+    }
+}

@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul A Perusquía-Flores (raul@aiku.io)
- * Created: Fri, 02 Oct 2020 19:04:15 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 03 Oct 2020 00:58:25 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2020. Aiku.io
  */
 
 namespace App\Models\Distribution;
 
-use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -17,27 +17,21 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property string $created_at
+ * @property string $deleted_at
+ * @property int $legacy_id
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
-class Warehouse extends Model implements Auditable{
-    use UsesTenantConnection,Sluggable;
+class Stock extends Model implements Auditable{
+    use UsesTenantConnection;
     use \OwenIt\Auditing\Auditable;
+    use SoftDeletes;
 
         protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
     ];
-
-    public function sluggable() {
-        return [
-            'slug' => [
-                'source'   => 'name',
-                'onUpdate' => true
-            ]
-        ];
-    }
 
     protected $attributes = [
         'data' => '{}',
@@ -46,9 +40,13 @@ class Warehouse extends Model implements Auditable{
 
     protected $guarded = [];
 
-    public function areas() {
-        return $this->hasMany('App\Models\Distribution\WarehouseArea');
+
+
+    public function locations() {
+        return $this->belongsToMany('App\Models\Distribution\Location')->withTimestamps()->withPivot('quantity');
     }
 
-
+    public function products() {
+        return $this->belongsToMany('App\Models\Stores\Product')->using('App\Models\Stores\ProductStock')->withTimestamps()->withPivot('ratio');
+    }
 }

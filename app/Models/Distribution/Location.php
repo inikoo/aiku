@@ -2,40 +2,44 @@
 
 namespace App\Models\Distribution;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
  * App\Models\Distribution\Location
  *
- * @property-read \App\Models\Distribution\WarehouseArea $area
- * @property-read \App\Models\Distribution\Warehouse $warehouse
- * @method static Builder|Location newModelQuery()
- * @method static Builder|Location newQuery()
- * @method static Builder|Location query()
- * @mixin \Eloquent
+ * @property int $id
+ * @property string $created_at
+ *
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
-class Location extends Model {
+class Location extends Model implements Auditable{
     use UsesTenantConnection;
+    use \OwenIt\Auditing\Auditable;
 
         protected $casts = [
-        'settings' => 'array',
         'data'     => 'array'
     ];
 
     protected $attributes = [
         'data' => '{}',
-        'settings' => '{}'
     ];
+
+    protected $guarded = [];
 
     public function warehouse() {
         return $this->belongsTo('App\Models\Distribution\Warehouse');
     }
 
-    public function area() {
+    public function warehouse_area() {
         return $this->belongsTo('App\Models\Distribution\WarehouseArea');
+    }
+
+    public function stocks() {
+        return $this->belongsToMany('App\Models\Distribution\Stock')->withTimestamps()->withPivot('quantity');
     }
 
 

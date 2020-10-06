@@ -44,7 +44,7 @@ class StoreSeeder extends Seeder {
                 )->each(
                     function ($product) {
                         $product->parts()->saveMany(
-                            factory(App\Models\Distribution\Part::class, 1)->make(
+                            factory(App\Models\Distribution\Stock::class, 1)->make(
                                 [
                                     'tenant_id' => $product->tenant_id
                                 ]

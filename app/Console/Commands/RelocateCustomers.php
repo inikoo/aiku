@@ -47,13 +47,13 @@ class RelocateCustomers extends Command {
             $this->set_legacy_connection($tenant->data['legacy']['db']);
 
 
-            print ('Relocation customers from '.$tenant->subdomain." ".$tenant->data['legacy']['db']."  \n");
+            print ('Relocation customers from '.$tenant->subdomain."\n");
 
             $count_customers_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_customers_table, [])[0];
 
 
             $bar = $this->output->createProgressBar($count_customers_data->num);
-
+            $bar->setFormat('debug');
             $bar->start();
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_customers_table, []) as $legacy_data) {
@@ -67,14 +67,14 @@ class RelocateCustomers extends Command {
 
 
 
-            print ('Relocation deleted customers from '.$tenant->subdomain." ".$tenant->data['legacy']['db']."  \n");
+            print ('Relocation deleted customers from '.$tenant->subdomain."\n");
 
 
             $count_deleted_customers_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_customers_table, [])[0];
 
 
             $bar = $this->output->createProgressBar($count_deleted_customers_data->num);
-
+            $bar->setFormat('debug');
             $bar->start();
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_deleted_customers_table, []) as $raw_legacy_data) {

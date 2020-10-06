@@ -1,0 +1,130 @@
+<?php
+/*
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Fri, 02 Oct 2020 18:50:38 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2020. Aiku.io
+ */
+
+namespace App\Console\Commands;
+
+use App\Console\Commands\Traits\LegacyDataMigration;
+use App\Models\Distribution\Location;
+use App\Models\Distribution\Stock;
+use App\Tenant;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
+use Spatie\Multitenancy\Commands\Concerns\TenantAware;
+
+class RelocateInventory extends Command {
+
+    use TenantAware, LegacyDataMigration;
+
+    protected $signature = 'relocate:inventory {--tenant=*}';
+    protected $description = 'Relocate legacy inventory (stock)';
+
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function handle() {
+        $tenant = Tenant::current();
+
+        $legacy_stocks_table          = '`Part Dimension`';
+        $legacy_deleted_stocks_table  = '`Part Deleted Dimension`';
+        $legacy_location_stocks_table = '`Part Location Dimension`';
+
+
+        if (Arr::get($tenant->data, 'legacy')) {
+
+
+            $this->set_legacy_connection($tenant->data['legacy']['db']);
+
+
+            print ('Relocation inventory from '.$tenant->subdomain."\n");
+            $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_stocks_table, [])[0];
+            $bar               = $this->output->createProgressBar($count_stocks_data->num);
+            $bar->setFormat('debug');
+
+            $bar->start();
+            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_stocks_table, []) as $legacy_data) {
+                $stock = $this->relocate_inventory($legacy_data, $tenant);
+
+                $location_stock_data = [];
+                foreach (DB::connection('legacy')->select("select * from".' '.$legacy_location_stocks_table.' where `Part SKU`=?', [$stock->legacy_id]) as $legacy_part_location_data) {
+
+                    $location                           = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'});
+                    $location_stock_data[$location->id] = ['quantity' => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'}];
+
+                }
+
+                $stock->locations()->sync($location_stock_data);
+
+                $bar->advance();
+            }
+            $bar->finish();
+            print "\n";
+
+            print ('Relocation parts customers from '.$tenant->subdomain."\n");
+
+
+            $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_stocks_table, [])[0];
+            $bar               = $this->output->createProgressBar($count_stocks_data->num);
+            $bar->setFormat('debug');
+
+            $bar->start();
+            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_deleted_stocks_table, []) as $raw_legacy_data) {
+
+
+                $legacy_data = json_decode(gzuncompress($raw_legacy_data->{'Part Deleted Metadata'}));
+                if ($legacy_data) {
+
+
+                    $stock             = $this->relocate_inventory($legacy_data, $tenant);
+                    $stock->deleted_at = $raw_legacy_data->{'Part Deleted Date'};
+                    $stock->save();
+                }
+
+                $bar->advance();
+            }
+            $bar->finish();
+            print "\n";
+
+
+        }
+
+
+        return 0;
+
+
+    }
+
+
+    function relocate_inventory($legacy_data, $tenant) {
+
+        $stock_data = $this->fill_data(
+            [], $legacy_data
+        );
+
+        $stock_settings = $this->fill_data(
+            [], $legacy_data
+        );
+
+        return Stock::withTrashed()->updateOrCreate(
+            [
+                'legacy_id' => $legacy_data->{'Part SKU'},
+            ], [
+                'tenant_id' => $tenant->id,
+                'code'      => $legacy_data->{'Part Reference'},
+                'packed_in' => $legacy_data->{'Part Units Per Package'},
+
+                'data'       => $stock_data,
+                'settings'   => $stock_settings,
+                'created_at' => $legacy_data->{'Part Valid From'},
+            ]
+        );
+    }
+
+
+}

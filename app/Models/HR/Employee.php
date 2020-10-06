@@ -22,6 +22,9 @@ use Cviebrock\EloquentSluggable\Sluggable;
  * App\Models\HR\Employee
  *
  * @property int $id
+ * @property string $name
+ * @property int $user_id
+
 
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
@@ -53,7 +56,9 @@ class Employee extends Model implements Auditable {
     }
 
     public function user() {
-        return $this->morphOne('App\User', 'userable');
+        //return $this->morphOne('App\User', 'userable');
+        return $this->belongsTo('App\User', 'user_id');
+
     }
 
     public function timesheets() {
@@ -74,6 +79,8 @@ class Employee extends Model implements Auditable {
                         [
                             'handle'    => Str::slug($employee->name),
                             'tenant_id' => $employee->tenant_id,
+                            'userable_type'    => 'Employee',
+                            'userable_id' => $employee->id,
                             'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
                             'pin'       => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
                             'status'    => $employee->status == 'Working',
