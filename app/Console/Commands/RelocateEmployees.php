@@ -86,22 +86,30 @@ class RelocateEmployees extends Command {
 
 
                     } else {
-                        $user = $employee->user()->create(
-                            [
 
-                                'tenant_id'   => $employee->tenant_id,
-                                'handle'      => Str::slug($employee->name),
-                                'userable_type'    => 'Employee',
-                                'userable_id' => $employee->id,
-                                'password'    => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                                'pin'         => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
-                                'status'      => $employee->status == 'Working',
-                                'settings'    => [],
-                                'data'        => []
 
-                            ]
 
-                        );
+                        if(!$employee->user_id) {
+
+                            $user = $employee->user()->create(
+                                [
+
+                                    'tenant_id'     => $employee->tenant_id,
+                                    'handle'        => Str::slug($employee->name),
+                                    'userable_type' => 'Employee',
+                                    'userable_id'   => $employee->id,
+                                    'password'      => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                                    'pin'           => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                                    'status'        => $employee->status == 'Working',
+                                    'settings'      => [],
+                                    'data'          => []
+
+                                ]
+
+                            );
+                        }else{
+                            $user=$employee->user;
+                        }
 
                     }
 
@@ -141,22 +149,27 @@ class RelocateEmployees extends Command {
 
 
                     } else {
-                        $user = $guess->user()->create(
-                            [
 
-                                'tenant_id' => $guess->tenant_id,
-                                'handle'    => Str::slug($guess->name),
-                                'userable_type'    => 'Guess',
-                                'userable_id' => $guess->id,
-                                'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                                'pin'       => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
-                                'status'    => $guess->status,
-                                'settings'  => [],
-                                'data'      => []
+                        if(!$guess->user_id) {
+                            $user = $guess->user()->create(
+                                [
 
-                            ]
+                                    'tenant_id'     => $guess->tenant_id,
+                                    'handle'        => Str::slug($guess->name),
+                                    'userable_type' => 'Guess',
+                                    'userable_id'   => $guess->id,
+                                    'password'      => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                                    'pin'           => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                                    'status'        => $guess->status,
+                                    'settings'      => [],
+                                    'data'          => []
 
-                        );
+                                ]
+
+                            );
+                        }else{
+                            $user=$guess->user;
+                        }
 
                     }
 

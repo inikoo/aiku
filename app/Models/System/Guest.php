@@ -22,6 +22,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $id
  * @property int $user_id
  * @property string $name
+ * @property \App\User $user
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class

@@ -56,7 +56,7 @@ class RelocateOrders extends Command {
 
             $bar->start();
 
-            foreach (DB::connection('legacy')->select("select * from".' '.$_table, []) as $legacy_data) {
+            foreach (DB::connection('legacy')->select("select * from".' '.$_table.'   ', []) as $legacy_data) {
                 $_table = ' `Order Transaction Fact` ';
                 $_where = ' `Order Key` ';
 
@@ -111,17 +111,21 @@ class RelocateOrders extends Command {
                             $delivery_note = $this->relocate_delivery_note($dn_legacy_data, $order, $tenant);
 
                             if ($dn_legacy_data->{'Delivery Note State'} == 'Dispatched' or $dn_legacy_data->{'Delivery Note State'} == 'Cancelled') {
-                                $legacy_picking_itf = $this->get_legacy_dispatched_itf($delivery_note);
-                                $delivery_note->items()->sync($legacy_picking_itf);
-                            } else {
-                                $legacy_picking_itf = $this->get_legacy_picking_itf($delivery_note);
 
-                                $delivery_note->pickings()->sync($legacy_picking_itf);
+
+                                $delivery_note->sync_items($this->get_legacy_dispatched_itf($delivery_note), 'delivery_note_items');
+
+
+                            } else {
+
+
+                                $delivery_note->sync_items($this->get_legacy_picking_itf($delivery_note), 'pickings');
+
                             }
 
 
                         } else {
-                             $this->relocate_return($dn_legacy_data, $order, $tenant);
+                            $this->relocate_return($dn_legacy_data, $order, $tenant);
 
                         }
 
@@ -145,7 +149,7 @@ class RelocateOrders extends Command {
 
     }
 
-    function relocate_return($dn_legacy_data, $order, $tenant){
+    function relocate_return($dn_legacy_data, $order, $tenant) {
 
     }
 
@@ -176,7 +180,7 @@ class RelocateOrders extends Command {
                     $status = 'packed';
 
 
-                    $qty=abs($legacy_picking_itf_data->{'Inventory Transaction Quantity'});
+                    $qty = abs($legacy_picking_itf_data->{'Inventory Transaction Quantity'});
 
                     if ($qty < $legacy_picking_itf_data->{'Required'}) {
 
@@ -194,7 +198,7 @@ class RelocateOrders extends Command {
                     $locations = [
                         $legacy_picking_itf_data->{'Location Key'} => $picked
                     ];
-                    if($legacy_picking_itf_data->{'Date Picked'}!='' and $legacy_picking_itf_data->{'Date Picked'}!='0000-00-00 00:00:00'){
+                    if ($legacy_picking_itf_data->{'Date Picked'} != '' and $legacy_picking_itf_data->{'Date Picked'} != '0000-00-00 00:00:00') {
                         $picked_at = $legacy_picking_itf_data->{'Date Picked'};
                     }
 
@@ -217,6 +221,7 @@ class RelocateOrders extends Command {
 
             $legacy_picking_itf[$stock->id] = [
 
+                'weight'    => $legacy_picking_itf_data->{'Inventory Transaction Weight'},
                 'required'  => $legacy_picking_itf_data->{'Required'} * $stock->packed_in,
                 'picked'    => $picked,
                 'picked_by' => $picked_by,
@@ -237,7 +242,7 @@ class RelocateOrders extends Command {
     function get_legacy_dispatched_itf($delivery_note) {
 
         $itf_table = '`Inventory Transaction Fact`';
-        $itf_where = '`Delivery Note key`';
+        $itf_where = '`Delivery Note Key`';
 
         $legacy_dispatched_itf = [];
 
@@ -248,12 +253,37 @@ class RelocateOrders extends Command {
             ) as $legacy_picking_itf_data
         ) {
 
+
             $stock = Stock::withTrashed()->firstWhere('legacy_id', $legacy_picking_itf_data->{'Part SKU'});
+            $qty   = abs($legacy_picking_itf_data->{'Inventory Transaction Quantity'});
 
-            $legacy_picking_itf[$stock->id] = [
+            $was_dispatched = true;
 
-                'quantity'  => $legacy_picking_itf_data->{'Required'},
-                'legacy_id' => $legacy_picking_itf_data->{'Inventory Transaction Key'}
+            $status = 'dispatched';
+
+
+            if ($qty == 0) {
+                $was_dispatched = false;
+                $status         = 'out_of_stock';
+            } elseif ($qty < $legacy_picking_itf_data->{'Required'}) {
+                $status = 'partially_dispatched';
+            }
+
+            if ($delivery_note->state == 'cancelled') {
+                $status = 'cancelled';
+            }
+
+            $data = [];
+
+            $legacy_dispatched_itf[$stock->id] = [
+                'was_dispatched' => $was_dispatched,
+                'status'         => $status,
+                'weight'         => $legacy_picking_itf_data->{'Inventory Transaction Weight'},
+                'required'       => $legacy_picking_itf_data->{'Required'} * $stock->packed_in,
+                'dispatched'     => $qty * $stock->packed_in,
+
+                'legacy_id' => $legacy_picking_itf_data->{'Inventory Transaction Key'},
+                'data'      => $data,
             ];
 
         }

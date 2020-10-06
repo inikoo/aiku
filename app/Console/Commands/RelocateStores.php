@@ -54,7 +54,7 @@ class RelocateStores extends Command {
             $bar->setFormat('debug');
 
             $bar->start();
-            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_products_table, []) as $legacy_data) {
+            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_products_table.'  order by `Product ID` desc ', []) as $legacy_data) {
                 $product = $this->relocate_products($legacy_data, $tenant);
 
                 $_table = ' `Product History Dimension` ';

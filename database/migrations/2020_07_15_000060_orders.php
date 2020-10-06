@@ -92,7 +92,6 @@ class Orders extends Migration
             $table->dateTimeTz('date', 0)->index();
 
             $table->dateTimeTz('order_submitted_at', 0)->nullable();
-            $table->dateTimeTz('assigned_at', 0)->nullable();
 
             $table->dateTimeTz('assigned_at', 0)->nullable();
             $table->dateTimeTz('picking_at', 0)->nullable();
@@ -237,11 +236,13 @@ class Orders extends Migration
         Schema::create('pickings', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedMediumInteger('delivery_note_id')->nullable()->index();
-            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
 
             $table->string('state')->index()->default('created')->comment('created|assigned|picking|queried|waiting|picked|packing|done');
             $table->string('status')->index()->default('created')->comment('processing|packed|partially_packed|out_of_stock|cancelled');
+
+
+            $table->unsignedMediumInteger('delivery_note_id')->nullable()->index();
+            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
 
 
             $table->unsignedMediumInteger('stock_id')->nullable()->index();
@@ -253,8 +254,10 @@ class Orders extends Migration
 
             $table->decimal('required', 16, 3);
             $table->decimal('picked', 16, 3)->nullable();
+            $table->decimal('weight', 16, 3)->nullable();
 
             $table->jsonb('data');
+
 
             $table->dateTimeTz('assigned_at', 0)->nullable();
 
@@ -272,6 +275,11 @@ class Orders extends Migration
         Schema::create('delivery_note_items', function (Blueprint $table) {
             $table->id();
 
+
+            $table->boolean('was_dispatched')->index();
+            $table->string('status')->index()->default('created')->comment('dispatched|partially_dispatched|out_of_stock|cancelled');
+
+
             $table->unsignedMediumInteger('delivery_note_id')->nullable()->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
 
@@ -279,13 +287,28 @@ class Orders extends Migration
             $table->foreign('stock_id')->references('id')->on('stocks');
 
 
-            $table->unsignedMediumInteger('picked_by_id')->nullable()->index();
-            $table->foreign('picked_by_id')->references('id')->on('users');
+            $table->unsignedMediumInteger('picked_by')->nullable()->index();
+            $table->foreign('picked_by')->references('id')->on('users');
+            $table->unsignedMediumInteger('packed_by')->nullable()->index();
+            $table->foreign('packed_by')->references('id')->on('users');
 
+            $table->decimal('required', 16, 3);
 
-            $table->decimal('quantity', 16, 3);
+            $table->decimal('dispatched', 16, 3);
+            $table->decimal('weight', 16, 3)->nullable();
 
             $table->jsonb('data');
+
+
+            $table->dateTimeTz('ordered_at', 0)->nullable();
+            $table->dateTimeTz('warehoused_at', 0)->nullable();
+
+            $table->dateTimeTz('assigned_at', 0)->nullable();
+            $table->dateTimeTz('picking_at', 0)->nullable();
+            $table->dateTimeTz('picked_at', 0)->nullable();
+            $table->dateTimeTz('packing_at', 0)->nullable();
+            $table->dateTimeTz('packed_at', 0)->nullable();
+            $table->dateTimeTz('dispatched_at', 0)->nullable();
 
             $table->timestampsTz();
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();

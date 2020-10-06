@@ -29,6 +29,8 @@ class DeliveryNote extends Model {
         'data' => '{}',
     ];
 
+    protected $with = ['pickings','items'];
+
     protected $guarded=[];
 
     public function store()
@@ -42,10 +44,31 @@ class DeliveryNote extends Model {
 
 
     public function pickings() {
-        return $this->belongsToMany('App\Models\Distribution\Stock', 'pickings')->using('App\Models\Distribution\Picking')->withTimestamps()->withPivot(['quantity','legacy_id']);
+        return $this->belongsToMany('App\Models\Distribution\Stock', 'pickings')->using('App\Models\Distribution\Picking')->withTimestamps()->withPivot(['required','weight','legacy_id']);
     }
 
     public function items() {
-        return $this->belongsToMany('App\Models\Distribution\Stock', 'delivery_note_items')->using('App\Models\Distribution\DeliveryNoteItem')->withTimestamps()->withPivot(['quantity','legacy_id']);
+        return $this->belongsToMany('App\Models\Distribution\Stock', 'delivery_note_items')->using('App\Models\Distribution\DeliveryNoteItem')->withTimestamps()->withPivot(['dispatched','required','weight','legacy_id']);
     }
+
+
+    function sync_items($items,$type='pickings'){
+
+        $scope=($type=='pickings'?$this->pickings():$this->items());
+
+
+
+        $scope->sync($items);
+        $this->update_aggregates($type,$scope);
+
+    }
+
+
+    function update_aggregates($type,$items){
+        $this->number_stocks=$items->count($type);
+        $this->number_picks=ceil($items->sum($type.'.required'));
+        $this->weight=$items->sum($type.'.weight');
+        $this->save();
+    }
+
 }
