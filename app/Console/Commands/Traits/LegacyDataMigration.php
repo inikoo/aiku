@@ -7,10 +7,10 @@
 
 namespace App\Console\Commands\Traits;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-trait LegacyDataMigration
-{
+trait LegacyDataMigration {
 
     public function set_legacy_connection($database_name) {
 
@@ -24,27 +24,34 @@ trait LegacyDataMigration
     }
 
 
-    public function fill_data($fields, $legacy_data) {
+    public function fill_data($fields, $legacy_data, $modifier = false) {
 
         $data = [];
         foreach ($fields as $key => $legacy_key) {
-
-
             if (!empty($legacy_data->{$legacy_key})) {
-
-                $key_path = preg_split('/\./', $key);
-                if (count($key_path) == 1) {
-                    $data[$key] = $legacy_data->{$legacy_key};
-                } elseif (count($key_path) == 2) {
-                    $data[$key_path[0]][$key_path[1]] = $legacy_data->{$legacy_key};
-                } elseif (count($key_path) == 3) {
-                    $data[$key_path[0]][$key_path[1]][$key_path[2]] = $legacy_data->{$legacy_key};
+                if ($modifier == 'strtolower') {
+                    $value = strtolower($legacy_data->{$legacy_key});
+                } else {
+                    $value = $legacy_data->{$legacy_key};
                 }
-
-
+                Arr::set($data, $key, $value);
             }
         }
 
         return $data;
     }
+
+    function elementsToLower($elements_keys, $array) {
+
+        foreach ($elements_keys as $key) {
+            Arr::set(
+                $array, $key, strtolower(Arr::get($array, $key))
+            );
+        }
+
+        return $array;
+
+    }
+
+
 }

@@ -19,9 +19,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 /**
  * App\Models\System\Guest
  *
- * @property int $id
- * @property int $user_id
- * @property string $name
+ * @property int       $id
+ * @property int       $user_id
+ * @property string    $name
  * @property \App\User $user
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
@@ -64,18 +64,19 @@ class Guest extends Model implements Auditable {
             function ($guess) {
 
 
-                if(!$guess->legacy_id){
+                if (!$guess->legacy_id) {
                     $guess->user()->create(
                         [
-                            'handle'    => Str::slug($guess->name),
-                            'tenant_id' => $guess->tenant_id,
-                            'userable_type'    => 'Guess',
-                            'userable_id' => $guess->id,
-                            'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                            'pin'       => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
-                            'status'    => $guess->status,
-                            'settings'  => [],
-                            'data'      => []
+                            'handle'        => Str::slug($guess->name),
+                            'tenant_id'     => $guess->tenant_id,
+                            'userable_type' => 'Guess',
+                            'userable_id'   => $guess->id,
+                            'password'      => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                            'pin'           => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                            'status'        => ($guess->status == 'working' ? 'active' : 'suspended'),
+
+                            'settings' => [],
+                            'data'     => []
 
                         ]
 
@@ -83,18 +84,13 @@ class Guest extends Model implements Auditable {
                 }
 
 
-
-
-
             }
         );
     }
 
-    public function image()
-    {
+    public function image() {
         return $this->morphOne('App\User', 'userable');
     }
-
 
 
 }

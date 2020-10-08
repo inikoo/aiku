@@ -11,26 +11,45 @@ class Stores extends Migration {
      * @return void
      */
     public function up() {
+
+
+
         Schema::create(
             'stores', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->string('state')->index();
 
-            $table->string('slug');
+            $table->string('slug')->index();
+            $table->string('code');
             $table->string('name');
             $table->json('settings');
             $table->json('data');
             $table->timestampsTz();
+
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedMediumInteger('legacy_id')->nullable();
             $table->unsignedSmallInteger('tenant_id');
+        }
+        );
 
-            $table->index(
-                [
-                    'tenant_id',
-                    'slug'
-                ]
-            );
+
+        Schema::create(
+            'websites', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+            $table->unsignedMediumInteger('store_id')->index();
+            $table->foreign('store_id')->references('id')->on('stores');
+            $table->string('state')->index();
+
+            $table->string('slug')->index();
+            $table->string('url');
+            $table->string('name');
+            $table->json('settings');
+            $table->json('data');
+            $table->timestampsTz();
+            $table->timestampTz('launched_at', 0)->nullable();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
         }
         );
 
@@ -131,6 +150,8 @@ class Stores extends Migration {
         );
         Schema::dropIfExists('product_historic_variations');
         Schema::dropIfExists('products');
+        Schema::dropIfExists('websites');
+
         Schema::dropIfExists('stores');
     }
 }

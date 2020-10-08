@@ -12,7 +12,6 @@ namespace App;
 use App\Models\Helpers\AccessCode;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
 use OwenIt\Auditing\Contracts\Auditable;
 
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -25,15 +24,19 @@ use Spatie\Permission\Traits\HasRoles;
 /**
  * App\User
  *
- * @property $id integer                                                                                                         $password
- *
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
- * @property-read int|null                                                                                                  $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[]                           $tokens
- * @property-read int|null                                                                                                  $tokens_count
+ * @property int $id
+ * @property string $handle
+ * @property array $data
+ * @property array $confidential
+
+ * @property string $password
+ * @property string $pin
+
+ * @property \App\User $user
+
+
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
- * @method static Builder|User findSimilarSlugs($attribute, $config, $slug)
  */
 class User extends Authenticatable implements Auditable {
     use HasApiTokens, Notifiable, UsesTenantConnection, Sluggable;

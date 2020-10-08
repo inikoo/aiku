@@ -2,7 +2,9 @@
 
 namespace App\Models\Distribution;
 
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -12,13 +14,15 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property string $created_at
+ * @property string $deleted_at
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
 class Location extends Model implements Auditable{
-    use UsesTenantConnection;
+    use UsesTenantConnection, Sluggable;
     use \OwenIt\Auditing\Auditable;
+    use SoftDeletes;
 
         protected $casts = [
         'data'     => 'array'
@@ -27,6 +31,14 @@ class Location extends Model implements Auditable{
     protected $attributes = [
         'data' => '{}',
     ];
+
+    public function sluggable() {
+        return [
+            'slug' => [
+                'source' => 'code'
+            ]
+        ];
+    }
 
     protected $guarded = [];
 

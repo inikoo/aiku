@@ -17,7 +17,6 @@ use App\Tenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Spatie\Multitenancy\Commands\Concerns\TenantAware;
 
 class RelocateCustomers extends Command {
@@ -36,12 +35,10 @@ class RelocateCustomers extends Command {
     public function handle() {
         $tenant = Tenant::current();
 
-        $legacy_customers_table = '`Customer Dimension`';
+        $legacy_customers_table         = '`Customer Dimension`';
         $legacy_deleted_customers_table = '`Customer Deleted Dimension`';
 
         if (Arr::get($tenant->data, 'legacy')) {
-
-
 
 
             $this->set_legacy_connection($tenant->data['legacy']['db']);
@@ -58,13 +55,12 @@ class RelocateCustomers extends Command {
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_customers_table, []) as $legacy_data) {
 
-                $this->relocate_customer($legacy_data,$tenant);
+                $this->relocate_customer($legacy_data, $tenant);
 
                 $bar->advance();
             }
 
             $bar->finish();
-
 
 
             print ('Relocation deleted customers from '.$tenant->subdomain."\n");
@@ -79,15 +75,18 @@ class RelocateCustomers extends Command {
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_deleted_customers_table, []) as $raw_legacy_data) {
 
+                if (!$raw_legacy_data->{'Customer Key'}) {
+                    continue;
+                }
 
-                $legacy_data=json_decode(gzuncompress($raw_legacy_data->{'Customer Deleted Metadata'}));
+                $legacy_data = json_decode(gzuncompress($raw_legacy_data->{'Customer Deleted Metadata'}));
 
 
-                $customer=$this->relocate_customer($legacy_data,$tenant);
+                $customer = $this->relocate_customer($legacy_data, $tenant);
 
-                $customer->status='deleted';
-                $customer->state='deleted';
-                $customer->deleted_at=$raw_legacy_data->{'Customer Deleted Date'};
+                $customer->status     = 'deleted';
+                $customer->state      = 'deleted';
+                $customer->deleted_at = $raw_legacy_data->{'Customer Deleted Date'};
                 $customer->save();
 
 
@@ -107,23 +106,49 @@ class RelocateCustomers extends Command {
     }
 
 
-    function relocate_customer($legacy_data,$tenant){
+    function relocate_customer($legacy_data, $tenant) {
+
 
         $customer_data = $this->fill_data(
             [
+                'contact'                       => 'Customer Main Contact Name',
+                'company'                       => 'Customer Company Name',
+                'registration_number'           => 'Customer Registration Number',
+                'tax_number'                    => 'Customer Tax Number',
+                'tax_number_validation.result'  => 'Customer Tax Number Valid',
+                'tax_number_validation.source'  => 'Customer Tax Number Validation Source',
+                'tax_number_validation.date'    => 'Customer Tax Number Validation Date',
+                'tax_number_validation.message' => 'Customer Tax Number Validation Message',
+
+                'tax_number_validation.registered_name'    => 'Customer Tax Number Registered Name',
+                'tax_number_validation.registered_address' => 'Customer Tax Number Registered Address',
+                'website'                                  => 'Customer Website'
+
 
             ], $legacy_data
         );
+
 
         $customer_settings = $this->fill_data(
             [
+                'can_send.newsletter'       => 'Customer Send Newsletter',
+                'can_send.email_marketing'  => 'Customer Send Email Marketing',
+                'can_send.postal_marketing' => 'Customer Send Postal Marketing',
 
-            ], $legacy_data
+            ], $legacy_data, 'strtolower'
         );
 
 
+        $customer_data = $this->elementsToLower(
+            [
+                'tax_number_validation.result',
+                'tax_number_validation.source'
+            ], $customer_data
+        );
 
-
+        if ($legacy_data->{'Customer Tax Number'} == '') {
+            unset($customer_data['tax_number_validation']);
+        }
 
 
         //state->  registered,new,active,losing,lost,deleted
@@ -145,19 +170,15 @@ class RelocateCustomers extends Command {
         $store = (new Store)->firstWhere('legacy_id', $legacy_data->{'Customer Store Key'});
 
 
-
-
-
         $customer = Customer::withTrashed()->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Customer Key'},
 
             ], [
                 'tenant_id'  => $tenant->id,
-                'slug'       => Str::kebab(strtolower($legacy_data->{'Customer Name'})),
                 'name'       => $legacy_data->{'Customer Name'},
-                'email'       => $legacy_data->{'Customer Main Plain Email'},
-                'mobile'       => $legacy_data->{'Customer Main Plain Mobile'},
+                'email'      => $legacy_data->{'Customer Main Plain Email'},
+                'mobile'     => $legacy_data->{'Customer Main Plain Mobile'},
                 'state'      => $state,
                 'status'     => $status,
                 'data'       => $customer_data,
@@ -169,21 +190,19 @@ class RelocateCustomers extends Command {
         );
 
 
-
-
         $_billing_address = new Address();
 
         $_billing_address->address_line_1 = $legacy_data->{'Customer Invoice Address Line 1'};
         $_billing_address->address_line_2 = $legacy_data->{'Customer Invoice Address Line 2'};
 
-        $_billing_address->sorting_code = $legacy_data->{'Customer Invoice Address Sorting Code'};
-        $_billing_address->postal_code = $legacy_data->{'Customer Invoice Address Postal Code'};
-        $_billing_address->locality = $legacy_data->{'Customer Invoice Address Locality'};
-        $_billing_address->dependent_locality = $legacy_data->{'Customer Invoice Address Dependent Locality'};
+        $_billing_address->sorting_code        = $legacy_data->{'Customer Invoice Address Sorting Code'};
+        $_billing_address->postal_code         = $legacy_data->{'Customer Invoice Address Postal Code'};
+        $_billing_address->locality            = $legacy_data->{'Customer Invoice Address Locality'};
+        $_billing_address->dependent_locality  = $legacy_data->{'Customer Invoice Address Dependent Locality'};
         $_billing_address->administrative_area = $legacy_data->{'Customer Invoice Address Administrative Area'};
 
 
-        $_billing_address->country_code   = $legacy_data->{'Customer Invoice Address Country 2 Alpha Code'};
+        $_billing_address->country_code = $legacy_data->{'Customer Invoice Address Country 2 Alpha Code'};
 
         $_billing_address->checksum = $_billing_address->checksum();
 
@@ -198,15 +217,14 @@ class RelocateCustomers extends Command {
                 'address_line_1' => $_billing_address->address_line_1,
                 'address_line_2' => $_billing_address->address_line_2,
 
-                'sorting_code'   => $_billing_address->sorting_code,
-                'postal_code'   => $_billing_address->postal_code,
-                'locality'   => $_billing_address->locality,
-                'dependent_locality'   => $_billing_address->dependent_locality,
-                'administrative_area'   => $_billing_address->administrative_area,
+                'sorting_code'        => $_billing_address->sorting_code,
+                'postal_code'         => $_billing_address->postal_code,
+                'locality'            => $_billing_address->locality,
+                'dependent_locality'  => $_billing_address->dependent_locality,
+                'administrative_area' => $_billing_address->administrative_area,
 
 
-
-                'country_code'   => $_billing_address->country_code,
+                'country_code' => $_billing_address->country_code,
 
             ]
         );

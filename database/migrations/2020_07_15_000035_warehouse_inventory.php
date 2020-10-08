@@ -48,12 +48,7 @@ class WarehouseInventory extends Migration {
             $table->timestampsTz();
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
             $table->unsignedSmallInteger('tenant_id');
-            $table->unique(
-                [
-                    'warehouse_id',
-                    'slug'
-                ]
-            );
+          
         }
         );
 
@@ -66,9 +61,13 @@ class WarehouseInventory extends Migration {
             $table->unsignedMediumInteger('warehouse_area_id')->nullable()->index();
             $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
 
-            $table->string('code')->unique()->index();
+            $table->string('slug')->index();
+            $table->string('code')->index();
+
             $table->jsonb('data');
             $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+
             $table->unsignedMediumInteger('legacy_id')->nullable();
             $table->unsignedSmallInteger('tenant_id');
             $table->string('natural_order_code')->nullable()->index();
@@ -76,7 +75,8 @@ class WarehouseInventory extends Migration {
         }
         );
 
-        Schema::create('stocks', function (Blueprint $table) {
+        Schema::create(
+            'stocks', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedSmallInteger('tenant_id');
             $table->string('state')->nullable()->index();
@@ -85,7 +85,7 @@ class WarehouseInventory extends Migration {
             $table->string('code')->index();
             $table->text('description')->nullable();
 
-            $table->unsignedSmallInteger('packed_in')->default(1);
+            $table->unsignedMediumInteger('packed_in')->default(1);
 
 
             $table->decimal('quantity', 16, 3)->nullable();
@@ -97,9 +97,11 @@ class WarehouseInventory extends Migration {
             $table->softDeletesTz('deleted_at', 0);
 
             $table->unsignedMediumInteger('legacy_id')->nullable();
-        });
+        }
+        );
 
-        Schema::create('location_stock', function (Blueprint $table) {
+        Schema::create(
+            'location_stock', function (Blueprint $table) {
             $table->id();
             $table->unsignedMediumInteger('location_id');
             $table->foreign('location_id')->references('id')->on('locations');
@@ -111,7 +113,8 @@ class WarehouseInventory extends Migration {
             $table->smallInteger('picking_priority')->default(0);
 
             $table->timestampsTz();
-        });
+        }
+        );
 
 
     }
@@ -122,11 +125,12 @@ class WarehouseInventory extends Migration {
      * @return void
      */
     public function down() {
+
+        Schema::dropIfExists('location_stock');
+        Schema::dropIfExists('stocks');
         Schema::dropIfExists('locations');
         Schema::dropIfExists('warehouse_areas');
         Schema::dropIfExists('warehouses');
-        Schema::dropIfExists('stocks');
-        Schema::dropIfExists('location_stock');
 
     }
 }

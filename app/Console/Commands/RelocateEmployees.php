@@ -44,30 +44,41 @@ class RelocateEmployees extends Command {
 
             $this->set_legacy_connection($tenant->data['legacy']['db']);
 
+
+            $count_data = DB::connection('legacy')->select("select count(*) as num from".' '.$_table, [])[0];
+
+            $bar = $this->output->createProgressBar($count_data->num);
+            $bar->setFormat('debug');
+
             foreach (DB::connection('legacy')->select("select * from".' '.$_table, []) as $legacy_data) {
 
 
                 $employee_data = $this->fill_data(
                     [
                         'personal_identification' => 'Staff Official ID',
+                        'hr_identification'       => 'Staff ID',
                         'next_of_kind.name'       => 'Staff Next of Kind',
-                        'date_of_birth'           => 'Staff Birthday'
+                        'date_of_birth'           => 'Staff Birthday',
+                        'email'                   => 'Staff Email',
+                        'phone'                   => 'Staff Telephone'
+
+
                     ], $legacy_data
                 );
 
 
                 if ($legacy_data->{'Staff Type'} == 'Employee') {
-                    $employee = (new Employee)->firstOrCreate(
+                    $employee = (new Employee)->updateOrCreate(
                         [
                             'legacy_id' => $legacy_data->{'Staff Key'},
 
                         ], [
                             'tenant_id' => $tenant->id,
 
-                            'slug'      => Str::kebab($legacy_data->{'Staff Name'}),
-                            'name'      => $legacy_data->{'Staff Name'},
-                            'status'    => ($legacy_data->{'Staff Currently Working'} == 'Yes' ? 'Working' : 'NotWorking'),
-                            'data'      => $employee_data
+                            'slug'   => Str::kebab($legacy_data->{'Staff Name'}),
+                            'name'   => $legacy_data->{'Staff Name'},
+                            'status' => ($legacy_data->{'Staff Currently Working'} == 'Yes' ? 'working' : 'notWorking'),
+                            'data'   => $employee_data
 
                         ]
                     );
@@ -82,52 +93,25 @@ class RelocateEmployees extends Command {
                                                                                    ]
                     )) {
 
-                        $user = $this->relocate_user('Employee', $employee, $tenant, $legacy_user_data[0]);
+                        $user              = $this->relocate_user('Employee', $employee, $tenant, $legacy_user_data[0]);
+                        $employee->user_id = $user->id;
+                        $employee->save();
 
-
-                    } else {
-
-
-
-                        if(!$employee->user_id) {
-
-                            $user = $employee->user()->create(
-                                [
-
-                                    'tenant_id'     => $employee->tenant_id,
-                                    'handle'        => Str::slug($employee->name),
-                                    'userable_type' => 'Employee',
-                                    'userable_id'   => $employee->id,
-                                    'password'      => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                                    'pin'           => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
-                                    'status'        => $employee->status == 'Working',
-                                    'settings'      => [],
-                                    'data'          => []
-
-                                ]
-
-                            );
-                        }else{
-                            $user=$employee->user;
-                        }
 
                     }
 
-                    $employee->user_id = $user->id;
-                    $employee->save();
-
 
                 } elseif ($legacy_data->{'Staff Type'} == 'Contractor') {
-                    $guess = (new Guest)->firstOrCreate(
+                    $guess = (new Guest)->updateOrCreate(
                         [
-                            'legacy_id'   => $legacy_data->{'Staff Key'},
+                            'legacy_id' => $legacy_data->{'Staff Key'},
 
 
                         ], [
-                            'tenant_id'   => $tenant->id,
+                            'tenant_id' => $tenant->id,
                             'slug'      => Str::kebab($legacy_data->{'Staff Name'}),
 
-                            'status'      => $legacy_data->{'Staff Currently Working'} == 'Yes',
+                            'status'      => ($legacy_data->{'Staff Currently Working'} == 'Yes' ? 'active' : 'inactive'),
                             'data'        => $employee_data,
                             'name'        => $legacy_data->{'Staff Name'},
                             'description' => 'Contractor'
@@ -147,41 +131,17 @@ class RelocateEmployees extends Command {
 
                         $user = $this->relocate_user('Employee', $guess, $tenant, $legacy_user_data[0]);
 
-
-                    } else {
-
-                        if(!$guess->user_id) {
-                            $user = $guess->user()->create(
-                                [
-
-                                    'tenant_id'     => $guess->tenant_id,
-                                    'handle'        => Str::slug($guess->name),
-                                    'userable_type' => 'Guess',
-                                    'userable_id'   => $guess->id,
-                                    'password'      => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                                    'pin'           => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
-                                    'status'        => $guess->status,
-                                    'settings'      => [],
-                                    'data'          => []
-
-                                ]
-
-                            );
-                        }else{
-                            $user=$guess->user;
-                        }
-
+                        $guess->user_id = $user->id;
+                        $guess->save();
                     }
-
-                    $guess->user_id = $user->id;
-                    $guess->save();
 
 
                 }
 
-
+                $bar->advance();
             }
-
+            $bar->finish();
+            print "\n";
         }
 
         return 0;
@@ -199,7 +159,8 @@ class RelocateEmployees extends Command {
         );
         $user_data              = $this->fill_data(
             [
-
+                'email'  => 'User Password Recovery Email',
+                'mobile' => 'User Password Recovery Mobile'
             ], $legacy_user_data
         );
 
@@ -213,7 +174,7 @@ class RelocateEmployees extends Command {
                 'legacy_id'     => $legacy_user_data->{'User Key'},
                 'userable_type' => $parent_type,
                 'userable_id'   => $parent->id,
-                'status'        => $legacy_user_data->{'User Active'} == 'Yes',
+                'status'        => ($legacy_user_data->{'User Active'} == 'Yes' ? 'active' : 'suspended'),
                 'settings'      => $user_settings,
                 'confidential'  => $confidential_user_data,
                 'data'          => $user_data

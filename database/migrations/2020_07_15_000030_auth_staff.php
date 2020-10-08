@@ -30,7 +30,7 @@ class AuthStaff extends Migration
             'users', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
-            $table->boolean('status')->default(true);
+            $table->string('status')->default('active')->index();
 
             $table->string('handle',1000)->unique();
             $table->string('password');
@@ -42,6 +42,9 @@ class AuthStaff extends Migration
             $table->json('settings');
             $table->json('data');
             $table->json('confidential')->nullable();
+
+            $table->string('api_token')->nullable()->index();
+
 
             $table->timestampTZ('last_login_at')->nullable();
             $table->timestampTZ('last_login_fail_at')->nullable();
@@ -60,7 +63,6 @@ class AuthStaff extends Migration
                     'userable_id'
                 ]
             );
-            $table->index('status');
         }
         );
 
@@ -73,7 +75,7 @@ class AuthStaff extends Migration
             $table->unsignedSmallInteger('user_id')->nullable()->index();
             $table->foreign('user_id')->references('id')->on('users');
 
-            $table->enum('status',['Working','NotWorking'])->default('Working');
+            $table->string('status')->default('working');
             $table->string('slug')->nullable()->unique();
             $table->string('name');
             $table->json('settings');
@@ -90,15 +92,17 @@ class AuthStaff extends Migration
             $table->unsignedSmallInteger('user_id')->nullable()->index();
             $table->foreign('user_id')->references('id')->on('users');
 
-            $table->boolean('status')->default(true)->index();
+            $table->string('status')->default('active')->index();
             $table->string('slug',1000)->unique();
             $table->string('name',500);
             $table->string('description',1000);
-            $table->unsignedSmallInteger('legacy_id')->nullable();
-            $table->unsignedSmallInteger('tenant_id');
+
             $table->json('data');
             $table->json('settings');
             $table->timestampsTz();
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedSmallInteger('legacy_id')->nullable();
+
 
         });
 

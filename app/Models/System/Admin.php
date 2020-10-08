@@ -41,7 +41,6 @@ class Admin extends Model {
                         'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
                         'pin'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
                         'legacy_id' => $admin->legacy_id,
-                        'status'    => true,
                         'settings'  => [],
                         'data'      => []
 
@@ -54,10 +53,11 @@ class Admin extends Model {
     }
 
     public function createDirectAccessCode($device_name){
-        $tokenData=preg_split('/\|/',$this->user->createToken($device_name)->plainTextToken);
 
-        return $tokenData[1];
+        //$tokenData=preg_split('/\|/',$this->user->createToken($device_name)->plainTextToken);
+        //return $tokenData[1];
 
+        return $this->user->createToken($device_name)->plainTextToken;
     }
 
 

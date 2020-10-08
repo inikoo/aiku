@@ -37,7 +37,7 @@ class RelocateWarehouses extends Command {
         $legacy_warehouse_areas_table = '`Warehouse Area Dimension`';
         $legacy_locations_table       = '`Location Dimension`';
 
-        //$legacy_deleted_customers_table = '`Customer Deleted Dimension`';
+        $legacy_deleted_locations_table = '`Location Deleted Dimension`';
 
         if (Arr::get($tenant->data, 'legacy')) {
 
@@ -45,36 +45,43 @@ class RelocateWarehouses extends Command {
             $this->set_legacy_connection($tenant->data['legacy']['db']);
 
 
-            print ('Relocation warehouses from '.$tenant->subdomain."\n");
-            $count_warehouses_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_warehouses_table, [])[0];
-            $bar                   = $this->output->createProgressBar($count_warehouses_data->num);
-            $bar->start();
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_warehouses_table, []) as $legacy_data) {
                 $this->relocate_warehouse($legacy_data, $tenant);
-                $bar->advance();
-            }
-            $bar->finish();
-            print "\n";
 
-            print ('Relocation warehouse areas from '.$tenant->subdomain."\n");
-            $count_warehouse_areas_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_warehouse_areas_table, [])[0];
-            $bar                        = $this->output->createProgressBar($count_warehouse_areas_data->num);
-            $bar->start();
+            }
+
+
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_warehouse_areas_table, []) as $legacy_data) {
                 $this->relocate_warehouse_area($legacy_data, $tenant);
-                $bar->advance();
+
             }
-            $bar->finish();
-            print "\n";
+
 
             print ('Relocation locations from '.$tenant->subdomain."\n");
-            $count_locations_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_locations_table, [])[0];
-            $bar                  = $this->output->createProgressBar($count_locations_data->num);
+            $count_deleted_locations_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_locations_table, [])[0];
+            $count_locations_data         = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_locations_table, [])[0];
+
+
+            $bar = $this->output->createProgressBar($count_deleted_locations_data->num + $count_locations_data->num);
+
+
+            $bar->setFormat('debug');
             $bar->start();
+
+
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_locations_table, []) as $legacy_data) {
                 $this->relocate_location($legacy_data, $tenant);
                 $bar->advance();
             }
+
+            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_deleted_locations_table, []) as $legacy_deleted_data) {
+
+                $legacy_data                  = json_decode($legacy_deleted_data->{'Location Deleted Metadata'});
+                $deleted_location             = $this->relocate_location($legacy_data, $tenant);
+                $deleted_location->deleted_at = $legacy_deleted_data->{'Location Deleted Date'};
+                $bar->advance();
+            }
+
             $bar->finish();
             print "\n";
 
@@ -150,11 +157,21 @@ class RelocateWarehouses extends Command {
 
     function relocate_location($legacy_data, $tenant) {
 
+        //Hack to avoid error in legacy locations
+
+        /*
+        $warehouse_legacy_id=$legacy_data->{'Location Warehouse Key'};
+        if ($legacy_data->{'Location Warehouse Key'} > 1) {
+            $warehouse_legacy_id=1;
+        }
+        */
+        $warehouse_legacy_id=1;
         $location_data = $this->fill_data(
             [], $legacy_data
         );
 
-        $warehouse = (new Warehouse)->firstWhere('legacy_id', $legacy_data->{'Location Warehouse Key'});
+
+        $warehouse = (new Warehouse)->firstWhere('legacy_id', $warehouse_legacy_id);
 
 
         if ($warehouse_area = (new WarehouseArea)->firstWhere('legacy_id', $legacy_data->{'Location Warehouse Area Key'})) {
@@ -164,7 +181,7 @@ class RelocateWarehouses extends Command {
         }
 
 
-        return (new Location)->updateOrCreate(
+        return  Location::withTrashed()->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Location Key'},
             ], [
@@ -177,5 +194,6 @@ class RelocateWarehouses extends Command {
             ]
         );
     }
+
 
 }

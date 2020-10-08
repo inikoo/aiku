@@ -19,6 +19,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property string $created_at
+ * @property array $data
+ * @property array $settings
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
@@ -44,7 +46,7 @@ class Store extends Model implements Auditable{
     public function sluggable() {
         return [
             'slug' => [
-                'source'   => 'slug',
+                'source'   => 'code',
                 'onUpdate' => true
             ]
         ];

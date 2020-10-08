@@ -24,6 +24,8 @@ use Cviebrock\EloquentSluggable\Sluggable;
  * @property int $id
  * @property string $name
  * @property int $user_id
+ * @property array $data
+
  * @property \App\User $user
 
 
@@ -84,7 +86,7 @@ class Employee extends Model implements Auditable {
                             'userable_id' => $employee->id,
                             'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
                             'pin'       => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
-                            'status'    => $employee->status == 'Working',
+                            'status'    => ($employee->status == 'Working'?'active':'suspended'),
                             'settings'  => [],
                             'data'      => []
 

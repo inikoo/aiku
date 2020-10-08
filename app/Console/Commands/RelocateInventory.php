@@ -111,17 +111,30 @@ class RelocateInventory extends Command {
             [], $legacy_data
         );
 
+
+        if ($legacy_data->{'Part Valid From'} == '0000-00-00 00:00:00') {
+            $created_at = null;
+        } else {
+            $created_at = $legacy_data->{'Part Valid From'};
+        }
+
+        $code = $legacy_data->{'Part Reference'};
+
+        if ($code == '') {
+            $code = 'empty_'.$legacy_data->{'Part SKU'};
+        }
+
         return Stock::withTrashed()->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Part SKU'},
             ], [
                 'tenant_id' => $tenant->id,
-                'code'      => $legacy_data->{'Part Reference'},
+                'code'      => $code,
                 'packed_in' => $legacy_data->{'Part Units Per Package'},
 
                 'data'       => $stock_data,
                 'settings'   => $stock_settings,
-                'created_at' => $legacy_data->{'Part Valid From'},
+                'created_at' => $created_at,
             ]
         );
     }

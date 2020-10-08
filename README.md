@@ -24,6 +24,15 @@ art db:seed
 
 
 
+art tenants:artisan "migrate:refresh --database=tenant"
+art tenants:artisan "db:seed --database=tenant --class=NewTenantSeeder"
+art tenants:artisan "db:seed --database=tenant --class=CountrySeeder"
+art tenant:access_token au
+
+
+
+
+
 ##### Tenants database migrations and seeding (for the tenants databases)
 art tenants:artisan "migrate --database=tenant"
  

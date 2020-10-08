@@ -42,6 +42,11 @@ class DeliveryNote extends Model {
         return $this->belongsTo('App\Models\Sales\Order');
     }
 
+    public function customer()
+    {
+        return $this->belongsTo('App\Models\CRM\Customer');
+    }
+
 
     public function pickings() {
         return $this->belongsToMany('App\Models\Distribution\Stock', 'pickings')->using('App\Models\Distribution\Picking')->withTimestamps()->withPivot(['required','weight','legacy_id']);

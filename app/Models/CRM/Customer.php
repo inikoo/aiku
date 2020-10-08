@@ -19,6 +19,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int    $id
  * @property string $deleted_at
+ * @property string state registered,new,active,losing,lost,deleted
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
