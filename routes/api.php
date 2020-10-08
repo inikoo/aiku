@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
@@ -47,5 +48,12 @@ Route::middleware('auth:sanctum')->prefix('legacy')->group(
                       'update'
                   ]
         );
+        Route::post(
+            'customer', [
+                       CustomerController::class,
+                       'update'
+                   ]
+        );
+
     }
 );

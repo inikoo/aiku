@@ -111,11 +111,12 @@ class RelocateCustomers extends Command {
 
         $customer_data = $this->fill_data(
             [
-                'contact'                       => 'Customer Main Contact Name',
-                'company'                       => 'Customer Company Name',
-                'registration_number'           => 'Customer Registration Number',
+                'contact'             => 'Customer Main Contact Name',
+                'company'             => 'Customer Company Name',
+                'registration_number' => 'Customer Registration Number',
+
                 'tax_number'                    => 'Customer Tax Number',
-                'tax_number_validation.result'  => 'Customer Tax Number Valid',
+                'tax_number_validation.valid'   => 'Customer Tax Number Valid',
                 'tax_number_validation.source'  => 'Customer Tax Number Validation Source',
                 'tax_number_validation.date'    => 'Customer Tax Number Validation Date',
                 'tax_number_validation.message' => 'Customer Tax Number Validation Message',
@@ -141,7 +142,7 @@ class RelocateCustomers extends Command {
 
         $customer_data = $this->elementsToLower(
             [
-                'tax_number_validation.result',
+                'tax_number_validation.valid',
                 'tax_number_validation.source'
             ], $customer_data
         );
@@ -190,67 +191,46 @@ class RelocateCustomers extends Command {
         );
 
 
-        $_billing_address = new Address();
+        if(!$customer->billing_address_id){
+            $billing_address=$this->process_instance_address('Customer',$customer->id,'Invoice',$legacy_data);
+        }else{
+            $billing_address=$customer->billingAddress;
 
-        $_billing_address->address_line_1 = $legacy_data->{'Customer Invoice Address Line 1'};
-        $_billing_address->address_line_2 = $legacy_data->{'Customer Invoice Address Line 2'};
+            $_billing_address=$this->get_instance_address_scaffolding('Customer','Invoice',$legacy_data);
 
-        $_billing_address->sorting_code        = $legacy_data->{'Customer Invoice Address Sorting Code'};
-        $_billing_address->postal_code         = $legacy_data->{'Customer Invoice Address Postal Code'};
-        $_billing_address->locality            = $legacy_data->{'Customer Invoice Address Locality'};
-        $_billing_address->dependent_locality  = $legacy_data->{'Customer Invoice Address Dependent Locality'};
-        $_billing_address->administrative_area = $legacy_data->{'Customer Invoice Address Administrative Area'};
+            //$properties = array_except($_billing_address->attributesToArray(), [']);
 
 
-        $_billing_address->country_code = $legacy_data->{'Customer Invoice Address Country 2 Alpha Code'};
-
-        $_billing_address->checksum = $_billing_address->checksum();
-
-
-        $billing_address = (new Address)->firstOrCreate(
-            [
-                'checksum'   => $_billing_address->checksum,
-                'owner_type' => 'Customer',
-                'owner_id'   => $customer->id,
-
-            ], [
-                'address_line_1' => $_billing_address->address_line_1,
-                'address_line_2' => $_billing_address->address_line_2,
-
-                'sorting_code'        => $_billing_address->sorting_code,
-                'postal_code'         => $_billing_address->postal_code,
-                'locality'            => $_billing_address->locality,
-                'dependent_locality'  => $_billing_address->dependent_locality,
-                'administrative_area' => $_billing_address->administrative_area,
-
-
-                'country_code' => $_billing_address->country_code,
-
-            ]
-        );
-
-
-        $billing_address_id = false;
-        foreach ($customer->addresses as $address) {
-            if ($address->checksum == $billing_address->checksum) {
-                $billing_address_id = $address->id;
-
-            }
-        }
-        if (!$billing_address_id) {
+            $billing_address->fill($_billing_address->attributesToArray());
             $billing_address->save();
-
-            $customer->addresses()->attach($billing_address->id);
-
-            $customer->save();
+            $customer->addresses()->syncWithoutDetaching([$billing_address->id]);
         }
         $customer->billing_address_id = $billing_address->id;
+        $customer->country_id = $billing_address->country_id;
         $customer->save();
+
+        if(!$customer->delivery_address_id){
+            $delivery_address=$this->process_instance_address('Customer',$customer->id,'Delivery',$legacy_data);
+        }else{
+            $delivery_address=$customer->deliveryAddress;
+
+            $_delivery_address=$this->get_instance_address_scaffolding('Customer','Delivery',$legacy_data);
+
+
+            $delivery_address->fill($_delivery_address->attributesToArray());
+            $delivery_address->save();
+            $customer->addresses()->syncWithoutDetaching([$delivery_address->id]);
+        }
+        $customer->delivery_address_id = $delivery_address->id;
+        $customer->save();
+
 
 
         return $customer;
 
 
     }
+
+
 
 }

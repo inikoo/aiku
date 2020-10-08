@@ -48,7 +48,7 @@ class Address extends Model implements Auditable {
     }
 
 
-    function checksum() {
+    function getChecksum() {
 
 
         return md5(

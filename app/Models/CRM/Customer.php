@@ -20,6 +20,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int    $id
  * @property string $deleted_at
  * @property string state registered,new,active,losing,lost,deleted
+ * @property array $data
+ * @property array $settings
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
@@ -54,7 +56,15 @@ class Customer extends Model implements Auditable {
         return $this->belongsTo('App\Models\Stores\Store');
     }
 
+    public function billingAddress()
+    {
+        return $this->belongsTo('App\Models\Helpers\Address');
+    }
 
+    public function deliveryAddress()
+    {
+        return $this->belongsTo('App\Models\Helpers\Address');
+    }
 
     public function addresses() {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable');
