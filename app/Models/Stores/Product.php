@@ -40,10 +40,14 @@ class Product extends Model implements Auditable {
     public function sluggable() {
         return [
             'slug' => [
-                'source'   => 'code',
+                'source'   => 'storeCode',
                 'onUpdate' => true
             ]
         ];
+    }
+
+    function getStoreCodeAttribute(){
+        return $this->code.'-'.$this->store->code;
     }
 
 
