@@ -7,6 +7,7 @@
 
 namespace App\Models\Distribution;
 
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -24,7 +25,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
 class Stock extends Model implements Auditable{
-    use UsesTenantConnection;
+    use UsesTenantConnection,Sluggable;
     use \OwenIt\Auditing\Auditable;
     use SoftDeletes;
 
@@ -37,6 +38,15 @@ class Stock extends Model implements Auditable{
         'data' => '{}',
         'settings' => '{}'
     ];
+
+    public function sluggable() {
+        return [
+            'slug' => [
+                'source' => 'code',
+                'onUpdate' => true
+            ]
+        ];
+    }
 
     protected $guarded = [];
 

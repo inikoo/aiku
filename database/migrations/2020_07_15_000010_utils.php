@@ -107,6 +107,31 @@ class Utils extends Migration {
             $table->index(['user_id', 'user_type']);
         });
 
+        Schema::create('images', function (Blueprint $table) {
+            $table->id('id');
+            $table->string('checksum')->index();
+            $table->string('path')->index();
+            $table->unsignedBigInteger('filesize')->index();
+            $table->unsignedBigInteger('pixels')->index();
+            $table->boolean('public')->default(false);
+            $table->jsonb('data');
+            $table->timestampsTz();
+        });
+
+        Schema::create('imageable', function (Blueprint $table) {
+            $table->id('id');
+            $table->unsignedBigInteger('image_id');
+            $table->foreign('image_id')->references('id')->on('images');
+
+            $table->string('imageable_id')->index();
+            $table->string('imageable_type')->index();
+
+            $table->string('scope')->index();
+            $table->boolean('public')->default(false);
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->index(['imageable_id', 'imageable_type']);
+        });
 
 
 
@@ -118,7 +143,8 @@ class Utils extends Migration {
      * @return void
      */
     public function down() {
-
+        Schema::dropIfExists('imageable');
+        Schema::dropIfExists('images');
         Schema::dropIfExists('audits');
         Schema::dropIfExists('dates');
         Schema::dropIfExists('addressables');

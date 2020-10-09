@@ -48,7 +48,7 @@ class WarehouseInventory extends Migration {
             $table->timestampsTz();
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
             $table->unsignedSmallInteger('tenant_id');
-          
+
         }
         );
 
@@ -78,24 +78,39 @@ class WarehouseInventory extends Migration {
         Schema::create(
             'stocks', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedSmallInteger('tenant_id');
+
             $table->string('state')->nullable()->index();
-            $table->string('status')->nullable()->index();
+            $table->string('quantity_status')->nullable()->index();
+
+            $table->string('sellable')->default('yes')->index();
+            $table->string('raw_material')->default('no')->index();
+
+
+            $table->string('slug')->index();
 
             $table->string('code')->index();
+            $table->string('barcode')->index()->nullable();
+
             $table->text('description')->nullable();
 
             $table->unsignedMediumInteger('packed_in')->default(1);
+            $table->unsignedMediumInteger('stored_in')->nullable();
+
+            $table->string('unit_type')->default('piece')->index()->nullable;
+            $table->decimal('unit_quantity', 16, 3)->nullable();
+            $table->float('available_forecast')->nullable()->comment('days');
 
 
-            $table->decimal('quantity', 16, 3)->nullable();
-            $table->decimal('cost', 16, 3)->nullable();
-
+            $table->decimal('value', 16, 3)->nullable();
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('images');
+            $table->unsignedBigInteger('package_image_id')->nullable();
+            $table->foreign('package_image_id')->references('id')->on('images');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz('deleted_at', 0);
-
+            $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable();
         }
         );

@@ -32,6 +32,8 @@ trait LegacyDataMigration {
             if (!empty($legacy_data->{$legacy_key})) {
                 if ($modifier == 'strtolower') {
                     $value = strtolower($legacy_data->{$legacy_key});
+                }elseif ($modifier == 'jsonDecode') {
+                    $value = jsondecode($legacy_data->{$legacy_key},true);
                 } else {
                     $value = $legacy_data->{$legacy_key};
                 }

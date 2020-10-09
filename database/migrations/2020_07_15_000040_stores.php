@@ -73,7 +73,8 @@ class Stores extends Migration {
             $table->unsignedSmallInteger('units');
 
             $table->unsignedMediumInteger('available')->default(0)->nullable();
-
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('images');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();

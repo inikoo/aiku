@@ -108,6 +108,9 @@ class RelocateProducts extends Command {
         $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Product Store Key'});
 
 
+        //print_r($legacy_data);
+
+
         $status = true;
         if ($legacy_data->{'Product Status'} == 'Discontinued') {
             $status = false;

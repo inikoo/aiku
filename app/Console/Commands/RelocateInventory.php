@@ -42,6 +42,7 @@ class RelocateInventory extends Command {
             $this->set_legacy_connection($tenant->data['legacy']['db']);
 
 
+
             print ('Relocation inventory from '.$tenant->subdomain."\n");
             $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_stocks_table, [])[0];
             $bar               = $this->output->createProgressBar($count_stocks_data->num);
@@ -66,7 +67,7 @@ class RelocateInventory extends Command {
             $bar->finish();
             print "\n";
 
-            print ('Relocation parts customers from '.$tenant->subdomain."\n");
+            print ('Relocation deleted parts from '.$tenant->subdomain."\n");
 
 
             $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_stocks_table, [])[0];
@@ -104,12 +105,42 @@ class RelocateInventory extends Command {
     function relocate_inventory($legacy_data, $tenant) {
 
         $stock_data = $this->fill_data(
-            [], $legacy_data
+            [
+                'package.description' => 'Part Package Description',
+                'package.weight'      => 'Part Package Weight',
+                'package.dimensions'  => 'Part Package Dimensions',
+                'package.weight'      => 'Part Unit Weight',
+            ], $legacy_data
         );
+
+
+        if ($package_dimensions = json_decode($legacy_data->{'Part Package Dimensions'})) {
+            Arr::set($stock_data, 'package.dimensions', $package_dimensions);
+        }
+
+        if ($unit_dimensions = json_decode($legacy_data->{'Part Unit Dimensions'})) {
+            Arr::set($stock_data, 'unit.dimensions', $unit_dimensions);
+        }
+
 
         $stock_settings = $this->fill_data(
             [], $legacy_data
         );
+
+        $legacy_status_to_state = [
+            'In Use'        => 'active',
+            'Discontinuing' => 'discontinuing',
+            'In Process'    => 'creating',
+            'Not In Use'    => 'discontinued'
+        ];
+
+        $state = $legacy_status_to_state[$legacy_data->{'Part Status'}];
+
+
+        $quantity_status = strtolower($legacy_data->{'Part Stock Status'});
+        if ($quantity_status == 'out_of_stock') {
+            $quantity_status = 'outOfStock';
+        }
 
 
         if ($legacy_data->{'Part Valid From'} == '0000-00-00 00:00:00') {
@@ -118,23 +149,70 @@ class RelocateInventory extends Command {
             $created_at = $legacy_data->{'Part Valid From'};
         }
 
+        if ($legacy_data->{'Part Valid To'} == '0000-00-00 00:00:00' or $legacy_data->{'Part Valid From'} == '') {
+            $deleted_at = gmdate('Y-m-d H:i:s');
+        } else {
+            $deleted_at = $legacy_data->{'Part Valid To'};
+        }
+
         $code = $legacy_data->{'Part Reference'};
 
         if ($code == '') {
             $code = 'empty_'.$legacy_data->{'Part SKU'};
         }
 
+        $barcode ='';
+        if(isset($legacy_data->{'Part SKO Barcode'})) {
+            $barcode = $legacy_data->{'Part SKO Barcode'};
+        }
+        if ($barcode == '') {
+            $barcode = $legacy_data->{'Part Barcode Number'};
+
+        }
+        if ($barcode == '') {
+            $barcode =null;
+        }
+
+
+        if (isset($legacy_data->{'Part Recommended Product Unit Name'})) {
+            $unit_description = $legacy_data->{'Part Recommended Product Unit Name'};
+
+        } elseif (isset($legacy_data->{'Part Unit Description'})) {
+            $unit_description = $legacy_data->{'Part Unit Description'};
+        }else{
+
+            $unit_description = 'empty_'.$legacy_data->{'Part SKU'};
+
+        }
+
+        if(isset($legacy_data->{'Part Unit Label'})){
+            $unit_label=$legacy_data->{'Part Unit Label'};
+
+        }else{
+            $unit_label='piece';
+
+        }
+
+
         return Stock::withTrashed()->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Part SKU'},
             ], [
-                'tenant_id' => $tenant->id,
-                'code'      => $code,
-                'packed_in' => $legacy_data->{'Part Units Per Package'},
+                'tenant_id'          => $tenant->id,
+                'code'               => $code,
+                'barcode'            => ($barcode == '' ? null : $barcode),
+                'description'        => $unit_description,
+                'quantity_status'    => $quantity_status,
+                'available_forecast' => $legacy_data->{'Part Days Available Forecast'},
+                'packed_in'          => $legacy_data->{'Part Units Per Package'},
+                'unit_type'          => $unit_label,
+                'state'              => $state,
+                'unit_quantity'      => $legacy_data->{'Part Current On Hand Stock'} * $legacy_data->{'Part Units Per Package'},
+                'data'               => $stock_data,
+                'settings'           => $stock_settings,
+                'created_at'         => $created_at,
+                'deleted_at'         => ($state == 'discontinued' ? $deleted_at : null),
 
-                'data'       => $stock_data,
-                'settings'   => $stock_settings,
-                'created_at' => $created_at,
             ]
         );
     }

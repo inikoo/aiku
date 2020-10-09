@@ -54,7 +54,7 @@ class Product extends Model implements Auditable {
     protected $guarded = [];
 
     public function store() {
-        return $this->belongsTo('App\Models\Stores\Store');
+        return $this->belongsTo('App\Models\Stores\Store')->withTrashed();
     }
 
     public function stocks() {

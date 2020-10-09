@@ -35,7 +35,8 @@ class Location extends Model implements Auditable{
     public function sluggable() {
         return [
             'slug' => [
-                'source' => 'code'
+                'source' => 'code',
+                'onUpdate' => true
             ]
         ];
     }
