@@ -89,7 +89,7 @@ class Customer extends Model implements Auditable {
     }
 
     public function basketItems() {
-        return $this->belongsToMany('App\Models\Stores\Product', 'basket_items')->using('App\Models\Sales\BasketItem')->withTimestamps()->withPivot(['quantity']);
+        return $this->belongsToMany('App\Models\Stores\Product', 'basket_transactions')->using('App\Models\Sales\BasketTransaction')->withTimestamps()->withPivot(['quantity']);
     }
 
 }

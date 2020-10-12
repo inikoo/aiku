@@ -56,6 +56,11 @@ class DeliveryNote extends Model {
         return $this->belongsToMany('App\Models\Distribution\Stock', 'delivery_note_items')->using('App\Models\Distribution\DeliveryNoteItem')->withTimestamps()->withPivot(['dispatched','required','weight','legacy_id']);
     }
 
+    public function addresses()
+    {
+        return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps()->withPivot(['scope']);
+    }
+
 
     function sync_items($items,$type='pickings'){
 

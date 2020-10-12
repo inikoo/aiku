@@ -47,6 +47,16 @@ class Address extends Model implements Auditable {
         return $this->morphedByMany('App\Models\CRM\Customers', 'addressable');
     }
 
+    public function orders()
+    {
+        return $this->morphedByMany('App\Models\Sales\Order', 'taggable');
+    }
+
+    public function invoices()
+    {
+        return $this->morphedByMany('App\Models\Sales\Invoice', 'taggable');
+    }
+
 
     function getChecksum() {
 

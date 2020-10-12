@@ -38,5 +38,12 @@ class ProductHistoricVariation extends Model {
         return $this->belongsTo('App\Models\Stores\Product');
     }
 
+    public function orderTransactions() {
+        return $this->morphMany('App\Models\Sales\OrderTransaction', 'orderable',
+
+
+        );
+    }
+
 
 }

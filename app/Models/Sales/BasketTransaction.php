@@ -10,8 +10,17 @@ namespace App\Models\Sales;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-class BasketItem extends Pivot {
+/**
+ *
+
+ *
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
+ */
+class BasketTransaction extends Pivot {
     use UsesTenantConnection;
+
+    protected $table = 'basket_transactions';
 
     protected $casts = [
         'data'     => 'array'
@@ -20,4 +29,16 @@ class BasketItem extends Pivot {
     protected $attributes = [
         'data' => '{}',
     ];
+
+    public function basketable()
+    {
+        return $this->morphTo();
+    }
+
+    public function products()
+    {
+        return $this->morphedByMany('App\Models\Store\Product', 'basketable','basket_transactions');
+
+    }
+
 }

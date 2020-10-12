@@ -55,7 +55,12 @@ class Order extends Model implements Auditable{
     }
 
     public function transactions() {
-        return $this->belongsToMany('App\Models\Stores\Product', 'transactions')->using('App\Models\Sales\Transaction')->withTimestamps()->withPivot(['quantity']);
+        return $this->belongsToMany('App\Models\Stores\Product', 'transactions')->using('App\Models\Sales\OrderTransaction')->withTimestamps()->withPivot(['quantity']);
+    }
+
+    public function addresses()
+    {
+        return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps()->withPivot(['scope']);
     }
 
 

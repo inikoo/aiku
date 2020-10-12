@@ -10,16 +10,118 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 
-class Orders extends Migration
-{
+class Orders extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
-    {
-        Schema::create('orders', function (Blueprint $table) {
+    public function up() {
+
+        Schema::create(
+            'shippers', function (Blueprint $table) {
+            $table->smallIncrements('id');
+
+
+
+            $table->string('status')->index();
+            $table->string('slug');
+            $table->string('code');
+
+            $table->jsonb('settings');
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
+        }
+        );
+
+
+
+        Schema::create(
+            'charges', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+
+
+            $table->unsignedMediumInteger('store_id')->nullable()->index();
+            $table->foreign('store_id')->references('id')->on('stores');
+
+
+            $table->string('type')->index();
+            $table->string('slug');
+            $table->string('code');
+
+            $table->jsonb('settings');
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
+        }
+        );
+
+        Schema::create(
+            'shipping_schemas', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+
+            $table->unsignedMediumInteger('store_id')->nullable()->index();
+            $table->foreign('store_id')->references('id')->on('stores');
+
+
+            $table->string('type')->index();
+            $table->string('slug');
+            $table->string('code');
+
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
+        }
+        );
+
+        Schema::create(
+            'shipping_zones', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+
+            $table->unsignedMediumInteger('shipping_schema_id')->nullable()->index();
+            $table->foreign('shipping_schema_id')->references('id')->on('shipping_schemas');
+
+
+
+            $table->smallInteger('outweigh');
+            $table->string('slug');
+            $table->string('code');
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
+        }
+        );
+
+        Schema::create(
+            'tax_codes', function (Blueprint $table) {
+            $table->smallIncrements('id');
+            $table->string('slug');
+            $table->string('name');
+            $table->decimal('rate', 10, 4);
+
+
+            $table->unsignedMediumInteger('country_id')->nullable()->index();
+            $table->foreign('country_id')->references('id')->on('countries');
+
+
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+        }
+        );
+
+        Schema::create(
+            'orders', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedMediumInteger('store_id')->index();
             $table->foreign('store_id')->references('id')->on('stores');
@@ -28,7 +130,7 @@ class Orders extends Migration
 
             $table->unsignedMediumInteger('billing_id')->nullable()->index();
             $table->foreign('billing_id')->references('id')->on('addresses');
-            $table->unsignedMediumInteger('delivery_id')->nullable()->index();
+            $table->unsignedSmallInteger('delivery_id')->nullable()->index();
             $table->foreign('delivery_id')->references('id')->on('addresses');
 
 
@@ -38,7 +140,11 @@ class Orders extends Migration
 
             $table->string('payment_status')->nullable()->index();
 
+            $table->decimal('discounts', 16, 2)->default(0);
+
             $table->decimal('net', 16, 2)->default(0);
+            $table->decimal('tax', 16, 2)->default(0);
+
             $table->decimal('total', 16, 2)->default(0);
             $table->decimal('payment', 16, 2)->default(0);
 
@@ -58,26 +164,30 @@ class Orders extends Migration
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-        });
+        }
+        );
 
-        Schema::create('delivery_notes', function (Blueprint $table) {
+        Schema::create(
+            'delivery_notes', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->string('number')->index();
+            $table->string('type')->default('purchase')->index()->comment('purchase|donation|samplereplacement');
+
             $table->string('state')->nullable()->index();
             $table->string('status')->nullable()->index();
 
-            $table->unsignedMediumInteger('store_id')->index();
-            $table->foreign('store_id')->references('id')->on('stores');
+            //$table->unsignedMediumInteger('store_id')->index();
+            //$table->foreign('store_id')->references('id')->on('stores');
 
-            $table->unsignedMediumInteger('customer_id')->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
+            //$table->unsignedMediumInteger('customer_id')->index();
+            //$table->foreign('customer_id')->references('id')->on('customers');
             $table->unsignedMediumInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders');
-            $table->unsignedMediumInteger('delivery_id')->nullable()->index();
-            $table->foreign('delivery_id')->references('id')->on('addresses');
 
-
-
+            $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
+            $table->foreign('delivery_address_id')->references('id')->on('addresses');
+            $table->unsignedMediumInteger('shipper_id')->nullable()->index();
+            $table->foreign('shipper_id')->references('id')->on('shippers');
 
             $table->decimal('weight', 16, 2)->nullable()->default(0);
             $table->unsignedMediumInteger('number_stocks')->default(0);
@@ -85,9 +195,9 @@ class Orders extends Migration
 
 
             $table->unsignedMediumInteger('picker_id')->nullable()->index()->comment('Main picker');
-            $table->foreign('picker_id')->references('id')->on('users');
+            $table->foreign('picker_id')->references('id')->on('employees');
             $table->unsignedMediumInteger('packer_id')->nullable()->index()->comment('Main packer');
-            $table->foreign('packer_id')->references('id')->on('users');
+            $table->foreign('packer_id')->references('id')->on('employees');
 
             $table->dateTimeTz('date', 0)->index();
 
@@ -102,14 +212,15 @@ class Orders extends Migration
             $table->dateTimeTz('cancelled_at', 0)->nullable();
 
 
-
             $table->json('data');
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable();
-        });
+        }
+        );
 
-        Schema::create('returns', function (Blueprint $table) {
+        Schema::create(
+            'returns', function (Blueprint $table) {
 
             $table->mediumIncrements('id');
             $table->string('number')->unique()->index();
@@ -139,16 +250,16 @@ class Orders extends Migration
             $table->dateTimeTz('cancelled_at', 0)->nullable();
 
 
-
             $table->json('data');
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable();
-        });
+        }
+        );
 
 
-
-        Schema::create('invoices', function (Blueprint $table) {
+        Schema::create(
+            'invoices', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedMediumInteger('store_id')->index();
             $table->foreign('store_id')->references('id')->on('stores');
@@ -172,7 +283,6 @@ class Orders extends Migration
             $table->decimal('payment', 16, 2)->default(0);
 
 
-
             $table->dateTimeTz('date', 0)->index();
             $table->dateTimeTz('paid_at', 0)->nullable();
 
@@ -181,29 +291,60 @@ class Orders extends Migration
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-        });
+        }
+        );
 
-        Schema::create('transactions', function (Blueprint $table) {
+
+        Schema::create(
+            'order_transactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedMediumInteger('store_id')->index();
             $table->foreign('store_id')->references('id')->on('stores');
             $table->unsignedMediumInteger('order_id')->nullable()->index();
             $table->foreign('order_id')->references('id')->on('orders');
-            $table->unsignedMediumInteger('invoice_id')->nullable()->index();
-            $table->foreign('invoice_id')->references('id')->on('invoices');
-
-            $table->unsignedMediumInteger('product_id')->index();
-            $table->foreign('product_id')->references('id')->on('products');
-            $table->unsignedMediumInteger('product_historic_variation_id')->index();
-            $table->foreign('product_historic_variation_id')->references('id')->on('product_historic_variations');
             $table->unsignedMediumInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
+            $table->morphs('orderable');
+
+
+            //$table->unsignedMediumInteger('product_id')->index();
+            //$table->foreign('product_id')->references('id')->on('products');
+            //$table->unsignedMediumInteger('product_historic_variation_id')->index();
+            //$table->foreign('product_historic_variation_id')->references('id')->on('product_historic_variations');
+
+
             $table->decimal('quantity', 16, 3);
-            $table->decimal('gross', 16, 2)->default(0);
             $table->decimal('discounts', 16, 2)->default(0);
             $table->decimal('net', 16, 2)->default(0);
 
+            $table->unsignedMediumInteger('tax_code_id')->nullable()->index();
+            $table->foreign('tax_code_id')->references('id')->on('tax_codes');
+
+            $table->jsonb('data');
+
+            $table->timestampsTz();
+
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+
+
+        }
+        );
+
+        Schema::create(
+            'invoice_transactions', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedMediumInteger('invoice_id')->nullable()->index();
+
+            $table->unsignedMediumInteger('order_transactions_id')->nullable()->index();
+            $table->foreign('order_transactions_id')->references('id')->on('order_transactions');
+
+            $table->morphs('invoiceable');
+
+
+            $table->decimal('quantity', 16, 3);
+            $table->decimal('net', 16, 2)->default(0);
             $table->decimal('tax', 16, 2)->default(0);
 
             $table->jsonb('data');
@@ -212,9 +353,12 @@ class Orders extends Migration
 
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-        });
+        }
+        );
 
-        Schema::create('stock_movements', function (Blueprint $table) {
+
+        Schema::create(
+            'stock_movements', function (Blueprint $table) {
             $table->id();
 
 
@@ -231,9 +375,11 @@ class Orders extends Migration
             $table->timestampsTz();
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
 
-        });
+        }
+        );
 
-        Schema::create('pickings', function (Blueprint $table) {
+        Schema::create(
+            'pickings', function (Blueprint $table) {
             $table->id();
 
 
@@ -249,7 +395,7 @@ class Orders extends Migration
             $table->foreign('stock_id')->references('id')->on('stocks');
 
             $table->unsignedMediumInteger('picked_by')->nullable()->index();
-            $table->foreign('picked_by')->references('id')->on('users');
+            $table->foreign('picked_by')->references('id')->on('employees');
 
 
             $table->decimal('required', 16, 3);
@@ -270,9 +416,11 @@ class Orders extends Migration
             $table->timestampsTz();
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
 
-        });
+        }
+        );
 
-        Schema::create('delivery_note_items', function (Blueprint $table) {
+        Schema::create(
+            'delivery_note_items', function (Blueprint $table) {
             $table->id();
 
 
@@ -288,9 +436,9 @@ class Orders extends Migration
 
 
             $table->unsignedMediumInteger('picked_by')->nullable()->index();
-            $table->foreign('picked_by')->references('id')->on('users');
+            $table->foreign('picked_by')->references('id')->on('employees');
             $table->unsignedMediumInteger('packed_by')->nullable()->index();
-            $table->foreign('packed_by')->references('id')->on('users');
+            $table->foreign('packed_by')->references('id')->on('employees');
 
             $table->decimal('required', 16, 3);
 
@@ -313,15 +461,20 @@ class Orders extends Migration
             $table->timestampsTz();
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
 
-        });
+        }
+        );
 
-        Schema::create('basket_items', function (Blueprint $table) {
+        Schema::create(
+            'basket_transactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedMediumInteger('store_id')->index();
             $table->foreign('store_id')->references('id')->on('stores');
-            $table->unsignedMediumInteger('product_id')->index();
-            $table->foreign('product_id')->references('id')->on('products');
+
+            $table->morphs('basketable');
+
+
             $table->unsignedMediumInteger('customer_id')->index();
+
             $table->foreign('customer_id')->references('id')->on('customers');
 
 
@@ -339,9 +492,19 @@ class Orders extends Migration
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-        });
 
-        Schema::create('placing_returns', function (Blueprint $table) {
+            $table->unique(
+                [
+                    'basketable_type',
+                    'legacy_id'
+                ]
+            );
+
+        }
+        );
+
+        Schema::create(
+            'placing_returns', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedMediumInteger('product_id')->index();
@@ -360,39 +523,43 @@ class Orders extends Migration
             $table->decimal('quantity', 16, 3);
 
 
-
             $table->jsonb('data');
 
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-        });
+        }
+        );
 
 
-        Schema::create('delivery_note_picker', function (Blueprint $table) {
+        Schema::create(
+            'delivery_note_picker', function (Blueprint $table) {
             $table->id();
             $table->unsignedMediumInteger('delivery_note_id')->nullable()->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
             $table->unsignedMediumInteger('picker_id')->nullable()->index();
-            $table->foreign('picker_id')->references('id')->on('users');
+            $table->foreign('picker_id')->references('id')->on('employees');
             $table->decimal('weight', 16, 2)->nullable()->default(0);
             $table->unsignedMediumInteger('number_stocks')->default(0);
             $table->unsignedMediumInteger('number_picks')->default(0);
 
             $table->timestampsTz();
-        });
+        }
+        );
 
-        Schema::create('delivery_note_packer', function (Blueprint $table) {
+        Schema::create(
+            'delivery_note_packer', function (Blueprint $table) {
             $table->id();
             $table->unsignedMediumInteger('delivery_note_id')->nullable()->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
             $table->unsignedMediumInteger('packer_id')->nullable()->index();
-            $table->foreign('packer_id')->references('id')->on('users');
+            $table->foreign('packer_id')->references('id')->on('employees');
             $table->unsignedMediumInteger('number_stocks')->default(0);
             $table->unsignedMediumInteger('number_picks')->default(0);
 
             $table->timestampsTz();
-        });
+        }
+        );
 
     }
 
@@ -401,23 +568,32 @@ class Orders extends Migration
      *
      * @return void
      */
-    public function down()
-    {
+    public function down() {
         Schema::dropIfExists('delivery_note_packer');
         Schema::dropIfExists('delivery_note_picker');
 
         Schema::dropIfExists('placing_returns');
-        Schema::dropIfExists('basket_items');
+        Schema::dropIfExists('basket_transactions');
         Schema::dropIfExists('delivery_note_items');
 
         Schema::dropIfExists('pickings');
         Schema::dropIfExists('stock_movements');
-        Schema::dropIfExists('transactions');
+
+
+        Schema::dropIfExists('invoice_transactions');
+
+        Schema::dropIfExists('order_transactions');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('returns');
 
         Schema::dropIfExists('delivery_notes');
 
         Schema::dropIfExists('orders');
+        Schema::dropIfExists('tax_codes');
+        Schema::dropIfExists('shipping_zones');
+        Schema::dropIfExists('shipping_schemas');
+        Schema::dropIfExists('charges');
+        Schema::dropIfExists('shippers');
+
     }
 }

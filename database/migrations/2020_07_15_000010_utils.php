@@ -52,8 +52,9 @@ class Utils extends Migration {
         Schema::create(
             'addresses', function (Blueprint $table) {
             $table->id();
-            $table->string('contact')->nullable();
-            $table->string('organization')->nullable();
+
+
+
             $table->string('address_line_1')->nullable();
             $table->string('address_line_2')->nullable();
             $table->string('sorting_code')->nullable();
@@ -63,8 +64,11 @@ class Utils extends Migration {
             $table->string('administrative_area')->nullable();
             $table->string('country_code',2)->nullable()->index();
             $table->string('checksum')->index();
+
             $table->foreignId('owner_id')->nullable()->index();
             $table->string('owner_type')->nullable()->index();
+
+
             $table->unsignedSmallInteger('country_id')->nullable()->index();
             $table->foreign('country_id')->references('id')->on('countries');
             $table->index(['checksum', 'owner_id','owner_type']);
@@ -73,9 +77,12 @@ class Utils extends Migration {
         });
 
         Schema::create('addressables', function (Blueprint $table) {
-            $table->bigIncrements('address_id');
+            $table->id();
+            $table->unsignedBigInteger('address_id')->index();
             $table->foreignId('addressable_id')->index();
             $table->string('addressable_type')->index();
+            $table->string('scope')->nullable()->index();
+
             $table->timestampsTz();
         });
 

@@ -10,9 +10,12 @@ namespace App\Console\Commands;
 use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\CRM\Customer;
 use App\Models\Distribution\DeliveryNote;
+use App\Models\Distribution\Shipper;
 use App\Models\Distribution\Stock;
 use App\Models\HR\Employee;
+use App\Models\Sales\BasketTransaction;
 use App\Models\Sales\Order;
+use App\Models\Sales\OrderTransaction;
 use App\Models\Stores\Product;
 use App\Models\Stores\ProductHistoricVariation;
 use App\Models\Stores\Store;
@@ -38,17 +41,19 @@ class RelocateOrders extends Command {
     public function handle() {
         $tenant = Tenant::current();
 
-        $_table = '`Order Dimension`';
-
-        $delivery_notes_table = '`Delivery Note Dimension`';
-        $delivery_notes_where = '`Delivery Note Order Key`';
-
+        $legacy_orders_table = '`Order Dimension`';
         if (Arr::get($tenant->data, 'legacy')) {
-            print ('Relocation orders from '.$tenant->subdomain." ".$tenant->data['legacy']['db']."  \n");
 
             $this->set_legacy_connection($tenant->data['legacy']['db']);
 
-            $count_data = DB::connection('legacy')->select("select count(*) as num from".' '.$_table, [])[0];
+            $legacy_shippers_table = '`Shipper Dimension`';
+            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_shippers_table.'   ', []) as $legacy_data) {
+                $this->relocate_shippers($legacy_data, $tenant);
+            }
+
+            print ('Relocation orders from '.$tenant->subdomain." ".$tenant->data['legacy']['db']."  \n");
+
+            $count_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_orders_table, [])[0];
 
 
             $bar = $this->output->createProgressBar($count_data->num);
@@ -56,55 +61,95 @@ class RelocateOrders extends Command {
 
             $bar->start();
 
-            foreach (DB::connection('legacy')->select("select * from".' '.$_table.'   ', []) as $legacy_data) {
-                $_table = ' `Order Transaction Fact` ';
-                $_where = ' `Order Key` ';
+            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_orders_table.'   ', []) as $legacy_data) {
+                $otf_table = ' `Order Transaction Fact` ';
+                $_where    = ' `Order Key` ';
+
 
                 if ($legacy_data->{'Order State'} == 'InBasket') {
 
-                    $customer    = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
-                    $basketItems = [];
-                    foreach (DB::connection('legacy')->select("select * from  $_table where  $_where=?", [$legacy_data->{'Order Key'}]) as $otf_data) {
-                        $product                   = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
-                        $basketItems[$product->id] = [
-                            'store_id'    => $customer->store_id,
-                            'customer_id' => $customer->id,
-                            'tenant_id'   => $tenant->id,
-                            'quantity'    => $otf_data->{'Order Quantity'},
-                            'legacy_id'   => $otf_data->{'Order Transaction Fact Key'},
-                            'data'        => []
-                        ];
+
+                    foreach (DB::connection('legacy')->select("select * from  $otf_table where  $_where=?", [$legacy_data->{'Order Key'}]) as $otf_data) {
+
+
+                        if ($basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('basketable_type', 'Product')->first()) {
+                            $basketItem->fill(
+                                [
+                                    'quantity' => $otf_data->{'Order Quantity'},
+                                    'data'     => []
+                                ]
+                            );
+                            $basketItem->save();
+                        } else {
+
+                            $product  = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
+                            $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
+
+                            $basketItems = new BasketTransaction(
+                                [
+                                    'store_id'    => $customer->store_id,
+                                    'customer_id' => $customer->id,
+                                    'tenant_id'   => $tenant->id,
+                                    'quantity'    => $otf_data->{'Order Quantity'},
+                                    'legacy_id'   => $otf_data->{'Order Transaction Fact Key'},
+                                    'data'        => []
+                                ]
+                            );
+                            $product->basketTransactions()->save($basketItems);
+                        }
+
 
                     }
-
-
-                    $customer->basketItems()->sync($basketItems);
 
 
                 } else {
+
                     $order = $this->relocate_order($legacy_data, $tenant);
 
 
-                    $transactions = [];
-                    foreach (DB::connection('legacy')->select("select * from  $_table where  $_where=?", [$order->legacy_id]) as $otf_data) {
+                    foreach (DB::connection('legacy')->select("select * from  $otf_table where  $_where=?", [$order->legacy_id]) as $otf_data) {
 
-                        $product_historic_variant = (new ProductHistoricVariation())->firstWhere('legacy_id', $otf_data->{'Product Key'});
-                        $product                  = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
 
-                        $transactions[$product->id] = [
+                        if ($orderTransaction = (new OrderTransaction())->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('orderable_type', 'ProductHistoricVariation')->first()) {
+                            $orderTransaction->fill(
+                                [
+                                    'quantity'  => $otf_data->{'Order Quantity'},
+                                    'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                                    'net'       => $otf_data->{'Order Transaction Amount'},
 
-                            'store_id'                      => $order->store_id,
-                            'customer_id'                   => $order->customer_id,
-                            'tenant_id'                     => $tenant->id,
-                            'product_historic_variation_id' => $product_historic_variant->id,
-                            'legacy_id'                     => $otf_data->{'Order Transaction Fact Key'},
+                                    'data' => []
+                                ]
+                            );
+                            $orderTransaction->save();
+                        } else {
 
-                            'quantity' => $otf_data->{'Order Quantity'},
-                            'data'     => []
-                        ];
+                            $product_historic_variant = (new ProductHistoricVariation())->firstWhere('legacy_id', $otf_data->{'Product Key'});
+
+                            $orderTransactions = new OrderTransaction(
+                                [
+                                    'store_id'    => $order->store_id,
+                                    'order_id'    => $order->id,
+                                    'customer_id' => $order->customer_id,
+                                    'tenant_id'   => $tenant->id,
+
+                                    'quantity'  => $otf_data->{'Order Quantity'},
+                                    'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                                    'net'       => $otf_data->{'Order Transaction Amount'},
+
+                                    'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
+                                    'data'      => []
+                                ]
+                            );
+                            $product_historic_variant->orderTransactions()->save($orderTransactions);
+                        }
+
+
                     }
-                    $order->transactions()->sync($transactions);
 
+
+                    // delivery notes
+                    $delivery_notes_table = '`Delivery Note Dimension`';
+                    $delivery_notes_where = '`Delivery Note Order Key`';
                     foreach (DB::connection('legacy')->select("select * from  $delivery_notes_table where  $delivery_notes_where=?", [$order->legacy_id]) as $dn_legacy_data) {
 
                         if ($dn_legacy_data->{'Delivery Note State'} != 'Cancelled to Restock') {
@@ -370,7 +415,19 @@ class RelocateOrders extends Command {
             ]
         );
 
+        $billing_address  = $this->process_immutable_address('Order', 'Invoice', $legacy_data);
+        $delivery_address = $this->process_immutable_address('Order', 'Delivery', $legacy_data);
 
+        if ($billing_address->id == $delivery_address->id) {
+            $order->addresses()->syncWithoutDetaching([$billing_address->id => ['scope' => 'billing_delivery']]);
+        } else {
+            $order->addresses()->syncWithoutDetaching([$billing_address->id => ['scope' => 'billing']]);
+            $order->addresses()->syncWithoutDetaching([$delivery_address->id => ['scope' => 'delivery']]);
+        }
+
+
+        $order->billing_id  = $billing_address->id;
+        $order->delivery_id = $delivery_address->id;
         switch ($legacy_data->{'Order State'}) {
             /*
              case 'InBasket':
@@ -457,7 +514,7 @@ class RelocateOrders extends Command {
                 $state = 'labeled';
                 break;
             case 'Dispatched':
-                $state  = 'packed';
+                $state  = 'dispatched';
                 $status = 'invoiced';
                 break;
             case 'Cancelled':
@@ -467,64 +524,58 @@ class RelocateOrders extends Command {
 
         }
 
+        //enum('Replacement & Shortages','Order','Replacement','Shortages','Sample','Donation')
 
-        $delivery_note = (new DeliveryNote)->updateOrCreate(
-            [
-                'legacy_id' => $legacy_data->{'Delivery Note Key'},
+        switch ($legacy_data->{'Delivery Note Type'}) {
+            case 'Order':
+                $type               = 'purchase';
+                $order_submitted_at = $order->submitted_at;
+                break;
+            case 'Sample':
+                $type               = 'sample';
+                $order_submitted_at = $order->submitted_at;
+                break;
+            case 'Donation':
+                $type               = 'donation';
+                $order_submitted_at = $order->submitted_at;
+                break;
+            default:
+                $type               = 'replacement';
+                $order_submitted_at = $legacy_data->{'Delivery Note Date Created'};
 
-            ], [
-                'tenant_id'   => $tenant->id,
-                'store_id'    => $order->store_id,
-                'customer_id' => $order->customer_id,
-                'order_id'    => $order->id,
+        }
 
-                'number' => $legacy_data->{'Delivery Note ID'},
+        $shipper_id = null;
+        if ($shipper = (new Shipper)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Shipper Key'})) {
+            $shipper_id=$shipper->id;
+        }
 
-
-                'weight' => $legacy_data->{'Delivery Note Weight'},
-                //'items'  => $legacy_data->{'Delivery Note Number Items'},
-
-
-                'state'  => $state,
-                'status' => $status,
-                'date'   => $legacy_data->{'Delivery Note Date'},
-
-
-                'data'       => $order_data,
-                'created_at' => $legacy_data->{'Delivery Note Date Created'},
-
-
-            ]
-        );
-
-
-        //enum('Ready to be Picked','Picker Assigned','Picking','Picked','Packing','Packed','Packed Done','Approved','Dispatched','Cancelled','Cancelled to Restock')
-
-
+        $dispatched_at = null;
+        $cancelled_at  = null;
         switch ($legacy_data->{'Delivery Note State'}) {
 
 
             case 'Dispatched':
 
-                $delivery_note->dispatched_at = $legacy_data->{'Delivery Note Date Cancelled'};
+                $dispatched_at = $legacy_data->{'Delivery Note Date Dispatched'};
 
                 break;
             case 'Cancelled':
 
-                $delivery_note->cancelled_at = $legacy_data->{'Delivery Note Date Dispatched'};
-
-                break;
+                $cancelled_at = $legacy_data->{'Delivery Note Date Cancelled'};
+                $shipper_id=null;
 
 
         }
-
+        $picker_id = null;
+        $packer_id = null;
         if ($legacy_data->{'Delivery Note Assigned Picker Key'}) {
             /**
              * @var $picker \App\Models\HR\Employee
              */
             if ($picker = (new Employee)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Assigned Picker Key'})) {
 
-                $delivery_note->picker_id = $picker->user->id;
+                $picker_id = $picker->id;
 
             }
 
@@ -535,10 +586,55 @@ class RelocateOrders extends Command {
              * @var $packer \App\Models\HR\Employee
              */
             if ($packer = (new Employee)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Assigned Packer Key'})) {
-                $delivery_note->picker_id = $packer->user->id;
+                $packer_id = $packer->id;
             }
 
         }
+
+
+
+        $delivery_note = (new DeliveryNote)->updateOrCreate(
+            [
+                'legacy_id' => $legacy_data->{'Delivery Note Key'},
+
+            ], [
+                'tenant_id' => $tenant->id,
+                //'store_id'    => $order->store_id,
+                //'customer_id' => $order->customer_id,
+                'order_id'  => $order->id,
+                'type'      => $type,
+                'number'    => $legacy_data->{'Delivery Note ID'},
+
+
+                'weight' => $legacy_data->{'Delivery Note Weight'},
+
+
+                'state'     => $state,
+                'status'    => $status,
+                'date'      => $legacy_data->{'Delivery Note Date'},
+                'picker_id' => $picker_id,
+                'packer_id' => $packer_id,
+                'shipper_id'   => $shipper_id,
+
+
+                'data'               => $order_data,
+                'created_at'         => $legacy_data->{'Delivery Note Date Created'},
+                'order_submitted_at' => $order_submitted_at,
+                'dispatched_at'      => $dispatched_at,
+                'cancelled_at'       => $cancelled_at,
+
+
+            ]
+        );
+
+
+        $delivery_address = $this->process_immutable_address('Delivery Note', '', $legacy_data);
+
+        $delivery_note->addresses()->syncWithoutDetaching([$delivery_address->id => ['scope' => 'delivery']]);
+
+        $delivery_note->delivery_address_id = $delivery_address->id;
+
+        //enum('Ready to be Picked','Picker Assigned','Picking','Picked','Packing','Packed','Packed Done','Approved','Dispatched','Cancelled','Cancelled to Restock')
 
 
         $delivery_note->save();
@@ -546,5 +642,37 @@ class RelocateOrders extends Command {
         return $delivery_note;
     }
 
+
+    function relocate_shippers($legacy_data, $tenant) {
+
+
+        $shipper_data = $this->fill_data(
+            [
+                'company'     => 'Shipper Name',
+                'website'     => 'Shipper Website',
+                'tracking_ul' => 'Shipper Tracking URL',
+                'api_id'      => 'Shipper API Key'
+
+            ], $legacy_data
+        );
+        $shipper_data = array_filter($shipper_data);
+
+        return (new Shipper)->updateOrCreate(
+            [
+                'legacy_id' => $legacy_data->{'Shipper Key'},
+
+            ], [
+                'tenant_id' => $tenant->id,
+
+                'code'   => $legacy_data->{'Shipper Code'},
+                'status' => strtolower($legacy_data->{'Shipper Status'}),
+                'data'   => $shipper_data,
+
+
+            ]
+        );
+
+
+    }
 
 }

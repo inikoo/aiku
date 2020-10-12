@@ -29,11 +29,15 @@ class AppServiceProvider extends ServiceProvider {
     public function boot() {
         Relation::morphMap(
             [
-                'Admin'    => 'App\Models\System\Admin',
-                'Guest'    => 'App\Models\System\Guest',
-                'Employee' => 'App\Models\HR\Employee',
-                'Customer' => 'App\Models\CRM\Customer',
-                'Order'    => 'App\Models\Sales\Order',
+                'Admin'                    => 'App\Models\System\Admin',
+                'Guest'                    => 'App\Models\System\Guest',
+                'Employee'                 => 'App\Models\HR\Employee',
+                'Customer'                 => 'App\Models\CRM\Customer',
+                'Order'                    => 'App\Models\Sales\Order',
+                'Invoice'                  => 'App\Models\Sales\Invoice',
+                'DeliveryNote'             => 'App\Models\Distribution\DeliveryNote',
+                'Product'                  => 'App\Models\Stores\Product',
+                'ProductHistoricVariation' => 'App\Models\Stores\ProductHistoricVariation',
 
             ]
         );

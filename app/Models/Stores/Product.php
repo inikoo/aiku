@@ -60,4 +60,13 @@ class Product extends Model implements Auditable {
     public function stocks() {
         return $this->belongsToMany('App\Models\Distribution\Stock')->using('App\Models\Stores\ProductStock')->withTimestamps()->withPivot('ratio');
     }
+
+    public function basketTransactions() {
+        return $this->morphMany('App\Models\Sales\BasketTransaction', 'basketable',
+
+
+        );
+    }
+
+
 }

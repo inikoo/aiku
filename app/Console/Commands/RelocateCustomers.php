@@ -11,7 +11,6 @@ namespace App\Console\Commands;
 
 use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\CRM\Customer;
-use App\Models\Helpers\Address;
 use App\Models\Stores\Store;
 use App\Tenant;
 use Illuminate\Support\Facades\DB;
@@ -198,7 +197,6 @@ class RelocateCustomers extends Command {
 
             $_billing_address=$this->get_instance_address_scaffolding('Customer','Invoice',$legacy_data);
 
-            //$properties = array_except($_billing_address->attributesToArray(), [']);
 
 
             $billing_address->fill($_billing_address->attributesToArray());

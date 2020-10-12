@@ -70,7 +70,7 @@ class Stores extends Migration {
             $table->text('description')->nullable();
 
             $table->decimal('unit_price');
-            $table->unsignedSmallInteger('units');
+            $table->unsignedMediumInteger('units');
 
             $table->unsignedMediumInteger('available')->default(0)->nullable();
             $table->unsignedBigInteger('image_id')->nullable();
@@ -92,7 +92,7 @@ class Stores extends Migration {
             $table->timestampTz('date', 0)->nullable();
 
             $table->decimal('unit_price');
-            $table->unsignedSmallInteger('units');
+            $table->unsignedMediumInteger('units');
 
             $table->jsonb('data');
             $table->timestampsTz();

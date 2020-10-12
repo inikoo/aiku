@@ -10,14 +10,30 @@ namespace App\Models\Sales;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-class Transaction extends Pivot {
+/**
+ *
+ * @property int    $id
+
+ *
+ * @mixin \Illuminate\Database\Eloquent\Model:class
+ * @mixin \Illuminate\Database\Eloquent\Builder:class
+ */
+class OrderTransaction extends Pivot {
     use UsesTenantConnection;
+
+    protected $table = 'order_transactions';
 
     protected $casts = [
         'data'     => 'array'
     ];
 
     protected $attributes = [
-        'settings' => '{}'
+        'data' => '{}'
     ];
+
+    public function productHistoricVariations()
+    {
+        return $this->morphedByMany('App\Models\Store\ProductHistoricVariation', 'orderable','order_transactions');
+
+    }
 }
