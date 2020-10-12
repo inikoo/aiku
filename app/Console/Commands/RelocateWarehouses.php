@@ -92,7 +92,6 @@ class RelocateWarehouses extends Command {
             print "\n";
 
 
-
         }
 
 
@@ -133,9 +132,15 @@ class RelocateWarehouses extends Command {
         );
 
 
+        $name = $legacy_data->{'Warehouse Area Name'};
+        if ($name == '') {
+            $name = 'Name not set';
+        }
+
         if ($legacy_data->{'Warehouse Area Place'} == 'Local') {
 
             $warehouse = (new Warehouse)->firstWhere('legacy_id', $legacy_data->{'Warehouse Area Warehouse Key'});
+
 
             return (new WarehouseArea)->updateOrCreate(
                 [
@@ -143,7 +148,7 @@ class RelocateWarehouses extends Command {
                 ], [
                     'tenant_id'    => $tenant->id,
                     'warehouse_id' => $warehouse->id,
-                    'name'         => $legacy_data->{'Warehouse Area Name'},
+                    'name'         => $name,
                     'data'         => $warehouse_area_data,
                 ]
             );
@@ -153,7 +158,7 @@ class RelocateWarehouses extends Command {
                     'legacy_id' => $legacy_data->{'Warehouse Area Key'},
                 ], [
                     'tenant_id' => $tenant->id,
-                    'name'      => $legacy_data->{'Warehouse Area Name'},
+                    'name'      => $name,
                     'data'      => $warehouse_area_data,
                 ]
             );
@@ -172,8 +177,8 @@ class RelocateWarehouses extends Command {
             $warehouse_legacy_id=1;
         }
         */
-        $warehouse_legacy_id=1;
-        $location_data = $this->fill_data(
+        $warehouse_legacy_id = 1;
+        $location_data       = $this->fill_data(
             [], $legacy_data
         );
 
@@ -188,7 +193,7 @@ class RelocateWarehouses extends Command {
         }
 
 
-        return  Location::withTrashed()->updateOrCreate(
+        return Location::withTrashed()->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Location Key'},
             ], [
@@ -233,7 +238,6 @@ class RelocateWarehouses extends Command {
 
 
     }
-
 
 
 }
