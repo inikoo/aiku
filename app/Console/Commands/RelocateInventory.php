@@ -42,7 +42,6 @@ class RelocateInventory extends Command {
             $this->set_legacy_connection($tenant->data['legacy']['db']);
 
 
-
             print ('Relocation inventory from '.$tenant->subdomain."\n");
             $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_stocks_table, [])[0];
             $bar               = $this->output->createProgressBar($count_stocks_data->num);
@@ -109,7 +108,7 @@ class RelocateInventory extends Command {
                 'package.description' => 'Part Package Description',
                 'package.weight'      => 'Part Package Weight',
                 'package.dimensions'  => 'Part Package Dimensions',
-                'package.weight'      => 'Part Unit Weight',
+                'unit.weight'      => 'Part Unit Weight',
             ], $legacy_data
         );
 
@@ -161,8 +160,8 @@ class RelocateInventory extends Command {
             $code = 'empty_'.$legacy_data->{'Part SKU'};
         }
 
-        $barcode ='';
-        if(isset($legacy_data->{'Part SKO Barcode'})) {
+        $barcode = '';
+        if (isset($legacy_data->{'Part SKO Barcode'})) {
             $barcode = $legacy_data->{'Part SKO Barcode'};
         }
         if ($barcode == '') {
@@ -170,7 +169,7 @@ class RelocateInventory extends Command {
 
         }
         if ($barcode == '') {
-            $barcode =null;
+            $barcode = null;
         }
 
 
@@ -179,17 +178,17 @@ class RelocateInventory extends Command {
 
         } elseif (isset($legacy_data->{'Part Unit Description'})) {
             $unit_description = $legacy_data->{'Part Unit Description'};
-        }else{
+        } else {
 
             $unit_description = 'empty_'.$legacy_data->{'Part SKU'};
 
         }
 
-        if(isset($legacy_data->{'Part Unit Label'})){
-            $unit_label=$legacy_data->{'Part Unit Label'};
+        if (isset($legacy_data->{'Part Unit Label'})) {
+            $unit_label = $legacy_data->{'Part Unit Label'};
 
-        }else{
-            $unit_label='piece';
+        } else {
+            $unit_label = 'piece';
 
         }
 
@@ -208,6 +207,7 @@ class RelocateInventory extends Command {
                 'unit_type'          => $unit_label,
                 'state'              => $state,
                 'unit_quantity'      => $legacy_data->{'Part Current On Hand Stock'} * $legacy_data->{'Part Units Per Package'},
+                'value'              => $legacy_data->{'Part Current Value'},
                 'data'               => $stock_data,
                 'settings'           => $stock_settings,
                 'created_at'         => $created_at,

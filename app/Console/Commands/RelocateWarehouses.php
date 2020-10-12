@@ -9,6 +9,7 @@ namespace App\Console\Commands;
 
 use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\Distribution\Location;
+use App\Models\Distribution\Shipper;
 use App\Models\Distribution\Warehouse;
 use App\Models\Distribution\WarehouseArea;
 use App\Tenant;
@@ -44,6 +45,11 @@ class RelocateWarehouses extends Command {
 
             $this->set_legacy_connection($tenant->data['legacy']['db']);
 
+
+            $legacy_shippers_table = '`Shipper Dimension`';
+            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_shippers_table.'   ', []) as $legacy_data) {
+                $this->relocate_shippers($legacy_data, $tenant);
+            }
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_warehouses_table, []) as $legacy_data) {
                 $this->relocate_warehouse($legacy_data, $tenant);
@@ -84,6 +90,7 @@ class RelocateWarehouses extends Command {
 
             $bar->finish();
             print "\n";
+
 
 
         }
@@ -194,6 +201,39 @@ class RelocateWarehouses extends Command {
             ]
         );
     }
+
+    function relocate_shippers($legacy_data, $tenant) {
+
+
+        $shipper_data = $this->fill_data(
+            [
+                'company'     => 'Shipper Name',
+                'website'     => 'Shipper Website',
+                'tracking_ul' => 'Shipper Tracking URL',
+                'api_id'      => 'Shipper API Key'
+
+            ], $legacy_data
+        );
+        $shipper_data = array_filter($shipper_data);
+
+        return (new Shipper)->updateOrCreate(
+            [
+                'legacy_id' => $legacy_data->{'Shipper Key'},
+
+            ], [
+                'tenant_id' => $tenant->id,
+
+                'code'   => $legacy_data->{'Shipper Code'},
+                'status' => strtolower($legacy_data->{'Shipper Status'}),
+                'data'   => $shipper_data,
+
+
+            ]
+        );
+
+
+    }
+
 
 
 }
