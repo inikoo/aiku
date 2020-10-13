@@ -39,16 +39,16 @@ class RelocateOrders extends Command {
 
 
     public function handle() {
-        $tenant = Tenant::current();
+        $this->tenant = Tenant::current();
 
         $legacy_orders_table = '`Order Dimension`';
-        if (Arr::get($tenant->data, 'legacy')) {
+        if (Arr::get($this->tenant->data, 'legacy')) {
 
-            $this->set_legacy_connection($tenant->data['legacy']['db']);
+            $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
 
-            print ('Relocation orders from '.$tenant->subdomain." ".$tenant->data['legacy']['db']."  \n");
+            print ('Relocation orders from '.$this->tenant->subdomain." ".$this->tenant->data['legacy']['db']."  \n");
 
             $count_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_orders_table, [])[0];
 
@@ -86,7 +86,7 @@ class RelocateOrders extends Command {
                                 [
                                     'store_id'    => $customer->store_id,
                                     'customer_id' => $customer->id,
-                                    'tenant_id'   => $tenant->id,
+                                    'tenant_id'   => $this->tenant->id,
                                     'quantity'    => $otf_data->{'Order Quantity'},
                                     'legacy_id'   => $otf_data->{'Order Transaction Fact Key'},
                                     'data'        => []
@@ -101,7 +101,7 @@ class RelocateOrders extends Command {
 
                 } else {
 
-                    $order = $this->relocate_order($legacy_data, $tenant);
+                    $order = $this->relocate_order($legacy_data);
 
 
                     foreach (DB::connection('legacy')->select("select * from  $otf_table where  $_where=?", [$order->legacy_id]) as $otf_data) {
@@ -127,7 +127,7 @@ class RelocateOrders extends Command {
                                     'store_id'    => $order->store_id,
                                     'order_id'    => $order->id,
                                     'customer_id' => $order->customer_id,
-                                    'tenant_id'   => $tenant->id,
+                                    'tenant_id'   => $this->tenant->id,
 
                                     'quantity'  => $otf_data->{'Order Quantity'},
                                     'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
@@ -150,7 +150,7 @@ class RelocateOrders extends Command {
                     foreach (DB::connection('legacy')->select("select * from  $delivery_notes_table where  $delivery_notes_where=?", [$order->legacy_id]) as $dn_legacy_data) {
 
                         if ($dn_legacy_data->{'Delivery Note State'} != 'Cancelled to Restock') {
-                            $delivery_note = $this->relocate_delivery_note($dn_legacy_data, $order, $tenant);
+                            $delivery_note = $this->relocate_delivery_note($dn_legacy_data, $order);
 
                             if ($dn_legacy_data->{'Delivery Note State'} == 'Dispatched' or $dn_legacy_data->{'Delivery Note State'} == 'Cancelled') {
 
@@ -167,7 +167,7 @@ class RelocateOrders extends Command {
 
 
                         } else {
-                            $this->relocate_return($dn_legacy_data, $order, $tenant);
+                            $this->relocate_return($dn_legacy_data, $order);
 
                         }
 
@@ -191,7 +191,7 @@ class RelocateOrders extends Command {
 
     }
 
-    function relocate_return($dn_legacy_data, $order, $tenant) {
+    function relocate_return($dn_legacy_data, $order) {
 
     }
 
@@ -335,7 +335,7 @@ class RelocateOrders extends Command {
 
     }
 
-    function relocate_order($legacy_data, $tenant) {
+    function relocate_order($legacy_data) {
         $order_data = $this->fill_data(
             [
 
@@ -386,7 +386,7 @@ class RelocateOrders extends Command {
                 'legacy_id' => $legacy_data->{'Order Key'},
 
             ], [
-                'tenant_id'   => $tenant->id,
+                'tenant_id'   => $this->tenant->id,
                 'store_id'    => $store->id,
                 'customer_id' => $customer->id,
 
@@ -475,7 +475,7 @@ class RelocateOrders extends Command {
         return $order;
     }
 
-    function relocate_delivery_note($legacy_data, $order, $tenant) {
+    function relocate_delivery_note($legacy_data, $order) {
 
 
         $order_data = $this->fill_data(
@@ -595,7 +595,7 @@ class RelocateOrders extends Command {
                 'legacy_id' => $legacy_data->{'Delivery Note Key'},
 
             ], [
-                'tenant_id' => $tenant->id,
+                'tenant_id' => $this->tenant->id,
                 //'store_id'    => $order->store_id,
                 //'customer_id' => $order->customer_id,
                 'order_id'  => $order->id,

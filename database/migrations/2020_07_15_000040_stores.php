@@ -130,6 +130,8 @@ class Stores extends Migration {
 
             $table->jsonb('data');
             $table->timestampsTz();
+            $table->unique(['product_id', 'stock_id']);
+
 
         }
         );
