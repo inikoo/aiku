@@ -62,4 +62,8 @@ class Stock extends Model implements Auditable {
     public function images() {
         return $this->morphMany('App\Models\Helpers\ImageModel', 'image_models', 'imageable_type', 'imageable_id');
     }
+
+    public function attachments() {
+        return $this->morphMany('App\Models\Helpers\AttachmentModel', 'attachment_models', 'attachmentable_type', 'attachmentable_id');
+    }
 }

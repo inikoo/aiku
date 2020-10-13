@@ -153,6 +153,14 @@ class RelocateProducts extends Command {
             ]
         );
 
+        $attachmentModelData = $this->get_attachments_data(
+            [
+                'object'     => 'Product',
+                'object_key' => $legacy_data->{'Product ID'},
+
+            ]
+        );
+
         $product= (new Product)->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Product ID'},
@@ -182,6 +190,16 @@ class RelocateProducts extends Command {
             }
             return $scope;
         });
+
+
+        $this->sync_attachments(
+            $product, $attachmentModelData, function ($_scope) {
+            switch ($_scope) {
+                default:
+                    return strtolower($_scope);
+            }
+        }
+        );
 
 
         return $product;

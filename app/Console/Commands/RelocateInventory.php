@@ -200,6 +200,14 @@ class RelocateInventory extends Command {
             ]
         );
 
+        $attachmentModelData = $this->get_attachments_data(
+            [
+                'object'     => 'Part',
+                'object_key' => $legacy_data->{'Part SKU'},
+
+            ]
+        );
+
 
         $stock = Stock::withTrashed()->updateOrCreate(
             [
@@ -235,6 +243,15 @@ class RelocateInventory extends Command {
             }
             return $scope;
         });
+
+        $this->sync_attachments(
+            $stock, $attachmentModelData, function ($_scope) {
+            switch ($_scope) {
+                default:
+                    return strtolower($_scope);
+            }
+        }
+        );
 
 
         return $stock;

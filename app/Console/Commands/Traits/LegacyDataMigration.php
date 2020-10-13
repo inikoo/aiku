@@ -8,6 +8,8 @@
 namespace App\Console\Commands\Traits;
 
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Attachment;
+use App\Models\Helpers\AttachmentModel;
 use App\Models\Helpers\Image;
 use App\Models\Helpers\ImageModel;
 use Exception;
@@ -244,7 +246,7 @@ trait LegacyDataMigration {
                 $old_imageModelIds[] = $imageModel->id;
             }
         );
-        $precedence=1;
+        $precedence = 1;
         foreach ($imagesModelData as $imageModelData) {
 
 
@@ -258,8 +260,8 @@ trait LegacyDataMigration {
                     'image_id'       => $imageModelData['image_id'],
 
                 ], [
-                    'data' => $imageModelData['data'],
-                    'precedence'=>$precedence
+                    'data'       => $imageModelData['data'],
+                    'precedence' => $precedence
                 ]
             );
             $new_imageModelIds[] = $imageModel->id;
@@ -274,10 +276,10 @@ trait LegacyDataMigration {
 
     function sync_image($model, $imagesModelData, $get_scope) {
 
-        $oldImageModelId=null;
-        $newImageModelId=null;
+        $oldImageModelId = null;
+        $newImageModelId = null;
 
-        if($model->image){
+        if ($model->image) {
             $oldImageModelId = $model->image->id;
 
         }
@@ -288,7 +290,7 @@ trait LegacyDataMigration {
 
             $scope = $get_scope($imageModelData['scope']);
 
-            $imageModel          = (new ImageModel)->updateOrCreate(
+            $imageModel      = (new ImageModel)->updateOrCreate(
                 [
                     'imageable_type' => $model->getMorphClass(),
                     'imageable_id'   => $model->id,
@@ -304,13 +306,107 @@ trait LegacyDataMigration {
             break;
 
         }
-        if($oldImageModelId and $oldImageModelId != $newImageModelId)
+        if ($oldImageModelId and $oldImageModelId != $newImageModelId) {
             try {
                 (new ImageModel)->find($oldImageModelId)->delete();
             } catch (Exception $e) {
             }
+        }
 
         return $newImageModelId;
+
+    }
+
+    function get_attachments_data($params) {
+
+        $attachment_table    = '`Attachment Bridge` B ';
+        $attachmentModelData = [];
+
+
+        foreach (
+            DB::connection('legacy')->select(
+                "select * from $attachment_table left join `Attachment Dimension` A on (A.`Attachment Key`=B.`Attachment Key`) where `Subject`=? and `Subject Key`=? ",
+
+                [
+                    $params['object'],
+                    $params['object_key']
+                ]
+            ) as $attachment_legacy_data
+        ) {
+
+
+            $attachment_data = $this->fill_data(
+                [
+                    'mime_type' => 'Attachment MIME Type',
+
+
+                ], $attachment_legacy_data
+            );
+
+
+            $attachment = (new Attachment)->updateOrCreate(
+                [
+                    'legacy_id' => $attachment_legacy_data->{'Attachment Key'}
+                ], [
+                    'tenant_id' => $this->tenant->id,
+                    'checksum'  => $attachment_legacy_data->{'Attachment File Checksum'},
+                    'filesize'  => $attachment_legacy_data->{'Attachment File Size'},
+
+                    'attachment_data' => pg_escape_bytea($attachment_legacy_data->{'Attachment Data'}),
+
+                    'data' => $attachment_data
+                ]
+            );
+
+
+            $attachmentModelData[] = [
+                'attachment_id' => $attachment->id,
+                'scope'         => $attachment_legacy_data->{'Attachment Subject Type'},
+                'data'          => [
+                    'notes' => $attachment_legacy_data->{'Attachment Caption'},
+                    'filename'    => $attachment_legacy_data->{'Attachment File Original Name'}
+                ]
+            ];
+
+
+        }
+
+        return $attachmentModelData;
+
+    }
+
+    function sync_attachments($model, $attachmentsModelData, $get_scope) {
+
+        $old_attachmentModelIds = [];
+        $new_attachmentModelIds = [];
+
+        $model->attachments()->get()->each(
+            function ($attachmentModel) use (&$old_attachmentModelIds) {
+                $old_attachmentModelIds[] = $attachmentModel->id;
+            }
+        );
+        foreach ($attachmentsModelData as $attachmentModelData) {
+
+
+            $scope = $get_scope($attachmentModelData['scope']);
+
+            $attachmentModel          = (new AttachmentModel)->updateOrCreate(
+                [
+                    'attachmentable_type' => $model->getMorphClass(),
+                    'attachmentable_id'   => $model->id,
+                    'scope'               => $scope,
+                    'attachment_id'       => $attachmentModelData['attachment_id'],
+
+                ], [
+                    'data' => $attachmentModelData['data'],
+                ]
+            );
+            $new_attachmentModelIds[] = $attachmentModel->id;
+            $model->attachments()->save($attachmentModel);
+
+        }
+        $model->attachments()->whereIn('id', array_diff($old_attachmentModelIds, $new_attachmentModelIds))->delete();
+
 
     }
 

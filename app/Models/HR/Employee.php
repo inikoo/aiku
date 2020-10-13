@@ -103,9 +103,12 @@ class Employee extends Model implements Auditable {
         );
     }
 
-    public function image()
-    {
+    public function image() {
         return $this->morphOne('App\Models\Helpers\ImageModel', 'image_models','imageable_type','imageable_id');
+    }
+
+    public function attachments() {
+        return $this->morphMany('App\Models\Helpers\AttachmentModel', 'attachment_models', 'attachmentable_type', 'attachmentable_id');
     }
 
 }

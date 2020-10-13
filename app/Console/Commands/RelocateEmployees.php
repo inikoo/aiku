@@ -89,6 +89,14 @@ class RelocateEmployees extends Command {
             ]
         );
 
+        $attachmentModelData = $this->get_attachments_data(
+            [
+                'object'     => 'Staff',
+                'object_key' => $legacy_data->{'Staff Key'}
+
+            ]
+        );
+
 
         if ($legacy_data->{'Staff Type'} != 'Contractor') {
 
@@ -117,17 +125,23 @@ class RelocateEmployees extends Command {
             );
 
 
-            if (count($imagesModelData) > 0) {
-                $this->sync_image(
-                    $employee, $imagesModelData, function ($_scope = '') {
-                    switch ($_scope) {
-                        default:
-                            return 'profile';
-                    }
+            $this->sync_image(
+                $employee, $imagesModelData, function ($_scope) {
+                switch ($_scope) {
+                    default:
+                        return 'profile';
                 }
-                );
-
             }
+            );
+
+            $this->sync_attachments(
+                $employee, $attachmentModelData, function ($_scope) {
+                switch ($_scope) {
+                    default:
+                        return strtolower($_scope);
+                }
+            }
+            );
 
 
             $_table   = '`User Dimension`';
@@ -166,17 +180,14 @@ class RelocateEmployees extends Command {
                 ]
             );
 
-            if (count($imagesModelData) > 0) {
-                $this->sync_image(
-                    $guest, $imagesModelData, function ($_scope = '') {
-                    switch ($_scope) {
-                        default:
-                            return 'profile';
-                    }
+            $this->sync_image(
+                $guest, $imagesModelData, function ($_scope = '') {
+                switch ($_scope) {
+                    default:
+                        return 'profile';
                 }
-                );
-
             }
+            );
 
 
             $_table   = '`User Dimension`';

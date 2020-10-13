@@ -131,8 +131,8 @@ class Utils extends Migration {
             $table->unsignedBigInteger('image_id');
             $table->foreign('image_id')->references('id')->on('images');
 
-            $table->unsignedBigInteger('imageable_id')->nullable()->index();
             $table->string('imageable_type')->nullable()->index();
+            $table->unsignedBigInteger('imageable_id')->nullable()->index();
 
             $table->string('scope')->index();
             $table->smallInteger('precedence')->default(0);
@@ -140,6 +140,35 @@ class Utils extends Migration {
             $table->timestampsTz();
             $table->index(['imageable_id', 'imageable_type','scope']);
             $table->unique(['image_id','imageable_id', 'imageable_type','scope']);
+
+        });
+
+        Schema::create('attachments', function (Blueprint $table) {
+            $table->id('id');
+            $table->string('checksum')->unique()->index();
+            $table->unsignedBigInteger('filesize')->index();
+            $table->binary('attachment_data');
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unsignedMediumInteger('tenant_id');
+
+        });
+
+        Schema::create('attachment_models', function (Blueprint $table) {
+            $table->id('id');
+            $table->unsignedBigInteger('attachment_id');
+            $table->foreign('attachment_id')->references('id')->on('attachments');
+
+            $table->string('attachmentable_type')->nullable()->index();
+            $table->unsignedBigInteger('attachmentable_id')->nullable()->index();
+
+            $table->string('scope')->index();
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->index(['attachmentable_id', 'attachmentable_type','scope']);
+            $table->unique(['attachment_id','attachmentable_id', 'attachmentable_type','scope']);
 
         });
 
@@ -153,6 +182,8 @@ class Utils extends Migration {
      * @return void
      */
     public function down() {
+        Schema::dropIfExists('attachment_models');
+        Schema::dropIfExists('attachments');
         Schema::dropIfExists('image_models');
         Schema::dropIfExists('images');
         Schema::dropIfExists('audits');
