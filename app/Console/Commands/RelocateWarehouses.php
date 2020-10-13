@@ -32,7 +32,7 @@ class RelocateWarehouses extends Command {
 
 
     public function handle() {
-        $tenant = Tenant::current();
+        $this->tenant = Tenant::current();
 
         $legacy_warehouses_table      = '`Warehouse Dimension`';
         $legacy_warehouse_areas_table = '`Warehouse Area Dimension`';
@@ -40,30 +40,30 @@ class RelocateWarehouses extends Command {
 
         $legacy_deleted_locations_table = '`Location Deleted Dimension`';
 
-        if (Arr::get($tenant->data, 'legacy')) {
+        if (Arr::get($this->tenant->data, 'legacy')) {
 
 
-            $this->set_legacy_connection($tenant->data['legacy']['db']);
+            $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
             $legacy_shippers_table = '`Shipper Dimension`';
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_shippers_table.'   ', []) as $legacy_data) {
-                $this->relocate_shippers($legacy_data, $tenant);
+                $this->relocate_shippers($legacy_data);
             }
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_warehouses_table, []) as $legacy_data) {
-                $this->relocate_warehouse($legacy_data, $tenant);
+                $this->relocate_warehouse($legacy_data);
 
             }
 
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_warehouse_areas_table, []) as $legacy_data) {
-                $this->relocate_warehouse_area($legacy_data, $tenant);
+                $this->relocate_warehouse_area($legacy_data);
 
             }
 
 
-            print ('Relocation locations from '.$tenant->subdomain."\n");
+            print ('Relocation locations from '.$this->tenant->subdomain."\n");
             $count_deleted_locations_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_locations_table, [])[0];
             $count_locations_data         = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_locations_table, [])[0];
 
@@ -76,14 +76,14 @@ class RelocateWarehouses extends Command {
 
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_locations_table, []) as $legacy_data) {
-                $this->relocate_location($legacy_data, $tenant);
+                $this->relocate_location($legacy_data);
                 $bar->advance();
             }
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_deleted_locations_table, []) as $legacy_deleted_data) {
 
                 $legacy_data                  = json_decode($legacy_deleted_data->{'Location Deleted Metadata'});
-                $deleted_location             = $this->relocate_location($legacy_data, $tenant);
+                $deleted_location             = $this->relocate_location($legacy_data);
                 $deleted_location->deleted_at = $legacy_deleted_data->{'Location Deleted Date'};
                 $bar->advance();
             }
@@ -101,7 +101,7 @@ class RelocateWarehouses extends Command {
     }
 
 
-    function relocate_warehouse($legacy_data, $tenant) {
+    function relocate_warehouse($legacy_data) {
 
         $warehouse_data = $this->fill_data(
             [], $legacy_data
@@ -115,7 +115,7 @@ class RelocateWarehouses extends Command {
             [
                 'legacy_id' => $legacy_data->{'Warehouse Key'},
             ], [
-                'tenant_id'  => $tenant->id,
+                'tenant_id'  => $this->tenant->id,
                 'name'       => $legacy_data->{'Warehouse Name'},
                 'data'       => $warehouse_data,
                 'settings'   => $warehouse_settings,
@@ -124,7 +124,7 @@ class RelocateWarehouses extends Command {
         );
     }
 
-    function relocate_warehouse_area($legacy_data, $tenant) {
+    function relocate_warehouse_area($legacy_data) {
 
 
         $warehouse_area_data = $this->fill_data(
@@ -146,7 +146,7 @@ class RelocateWarehouses extends Command {
                 [
                     'legacy_id' => $legacy_data->{'Warehouse Area Key'},
                 ], [
-                    'tenant_id'    => $tenant->id,
+                    'tenant_id'    => $this->tenant->id,
                     'warehouse_id' => $warehouse->id,
                     'name'         => $name,
                     'data'         => $warehouse_area_data,
@@ -157,7 +157,7 @@ class RelocateWarehouses extends Command {
                 [
                     'legacy_id' => $legacy_data->{'Warehouse Area Key'},
                 ], [
-                    'tenant_id' => $tenant->id,
+                    'tenant_id' => $this->tenant->id,
                     'name'      => $name,
                     'data'      => $warehouse_area_data,
                 ]
@@ -167,7 +167,7 @@ class RelocateWarehouses extends Command {
 
     }
 
-    function relocate_location($legacy_data, $tenant) {
+    function relocate_location($legacy_data) {
 
         //Hack to avoid error in legacy locations
 
@@ -197,7 +197,7 @@ class RelocateWarehouses extends Command {
             [
                 'legacy_id' => $legacy_data->{'Location Key'},
             ], [
-                'tenant_id'         => $tenant->id,
+                'tenant_id'         => $this->tenant->id,
                 'code'              => $legacy_data->{'Location Code'},
                 'data'              => $location_data,
                 'warehouse_area_id' => $warehouse_area_id,
@@ -207,7 +207,7 @@ class RelocateWarehouses extends Command {
         );
     }
 
-    function relocate_shippers($legacy_data, $tenant) {
+    function relocate_shippers($legacy_data) {
 
 
         $shipper_data = $this->fill_data(
@@ -226,7 +226,7 @@ class RelocateWarehouses extends Command {
                 'legacy_id' => $legacy_data->{'Shipper Key'},
 
             ], [
-                'tenant_id' => $tenant->id,
+                'tenant_id' => $this->tenant->id,
 
                 'code'   => $legacy_data->{'Shipper Code'},
                 'status' => strtolower($legacy_data->{'Shipper Status'}),

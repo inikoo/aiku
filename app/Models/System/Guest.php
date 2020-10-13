@@ -54,7 +54,6 @@ class Guest extends Model implements Auditable {
 
 
     public function user() {
-        //return $this->morphOne('App\User', 'userable');
         return $this->belongsTo('App\User', 'user_id');
 
     }
@@ -88,8 +87,9 @@ class Guest extends Model implements Auditable {
         );
     }
 
-    public function image() {
-        return $this->morphOne('App\User', 'userable');
+    public function image()
+    {
+        return $this->morphOne('App\Models\Helpers\ImageModel', 'image_models','imageable_type','imageable_id');
     }
 
 

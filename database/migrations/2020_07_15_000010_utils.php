@@ -116,28 +116,31 @@ class Utils extends Migration {
 
         Schema::create('images', function (Blueprint $table) {
             $table->id('id');
-            $table->string('checksum')->index();
-            $table->string('path')->index();
-            $table->unsignedBigInteger('filesize')->index();
-            $table->unsignedBigInteger('pixels')->index();
-            $table->boolean('public')->default(false);
+            $table->unsignedBigInteger('communal_image_id')->nullable()->index();
+            $table->string('checksum')->nullable()->index();
             $table->jsonb('data');
             $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unsignedMediumInteger('tenant_id');
+
         });
 
-        Schema::create('imageable', function (Blueprint $table) {
+        Schema::create('image_models', function (Blueprint $table) {
             $table->id('id');
             $table->unsignedBigInteger('image_id');
             $table->foreign('image_id')->references('id')->on('images');
 
-            $table->string('imageable_id')->index();
-            $table->string('imageable_type')->index();
+            $table->unsignedBigInteger('imageable_id')->nullable()->index();
+            $table->string('imageable_type')->nullable()->index();
 
             $table->string('scope')->index();
-            $table->boolean('public')->default(false);
+            $table->smallInteger('precedence')->default(0);
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->index(['imageable_id', 'imageable_type']);
+            $table->index(['imageable_id', 'imageable_type','scope']);
+            $table->unique(['image_id','imageable_id', 'imageable_type','scope']);
+
         });
 
 
@@ -150,7 +153,7 @@ class Utils extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('imageable');
+        Schema::dropIfExists('image_models');
         Schema::dropIfExists('images');
         Schema::dropIfExists('audits');
         Schema::dropIfExists('dates');

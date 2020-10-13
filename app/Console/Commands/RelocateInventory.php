@@ -29,27 +29,27 @@ class RelocateInventory extends Command {
     }
 
     public function handle() {
-        $tenant = Tenant::current();
+        $this->tenant = Tenant::current();
 
         $legacy_stocks_table          = '`Part Dimension`';
         $legacy_deleted_stocks_table  = '`Part Deleted Dimension`';
         $legacy_location_stocks_table = '`Part Location Dimension`';
 
 
-        if (Arr::get($tenant->data, 'legacy')) {
+        if (Arr::get($this->tenant->data, 'legacy')) {
 
 
-            $this->set_legacy_connection($tenant->data['legacy']['db']);
+            $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
-            print ('Relocation inventory from '.$tenant->subdomain."\n");
+            print ('Relocation inventory from '.$this->tenant->subdomain."\n");
             $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_stocks_table, [])[0];
             $bar               = $this->output->createProgressBar($count_stocks_data->num);
             $bar->setFormat('debug');
 
             $bar->start();
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_stocks_table, []) as $legacy_data) {
-                $stock = $this->relocate_inventory($legacy_data, $tenant);
+                $stock = $this->relocate_inventory($legacy_data);
 
                 $location_stock_data = [];
                 foreach (DB::connection('legacy')->select("select * from".' '.$legacy_location_stocks_table.' where `Part SKU`=?', [$stock->legacy_id]) as $legacy_part_location_data) {
@@ -66,7 +66,7 @@ class RelocateInventory extends Command {
             $bar->finish();
             print "\n";
 
-            print ('Relocation deleted parts from '.$tenant->subdomain."\n");
+            print ('Relocation deleted parts from '.$this->tenant->subdomain."\n");
 
 
             $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_stocks_table, [])[0];
@@ -81,7 +81,7 @@ class RelocateInventory extends Command {
                 if ($legacy_data) {
 
 
-                    $stock             = $this->relocate_inventory($legacy_data, $tenant);
+                    $stock             = $this->relocate_inventory($legacy_data);
                     $stock->deleted_at = $raw_legacy_data->{'Part Deleted Date'};
                     $stock->save();
                 }
@@ -101,14 +101,14 @@ class RelocateInventory extends Command {
     }
 
 
-    function relocate_inventory($legacy_data, $tenant) {
+    function relocate_inventory($legacy_data) {
 
         $stock_data = $this->fill_data(
             [
                 'package.description' => 'Part Package Description',
                 'package.weight'      => 'Part Package Weight',
                 'package.dimensions'  => 'Part Package Dimensions',
-                'unit.weight'      => 'Part Unit Weight',
+                'unit.weight'         => 'Part Unit Weight',
             ], $legacy_data
         );
 
@@ -192,12 +192,20 @@ class RelocateInventory extends Command {
 
         }
 
+        $imagesModelData = $this->get_images_data(
+            [
+                'object'     => 'Part',
+                'object_key' => $legacy_data->{'Part SKU'},
 
-        return Stock::withTrashed()->updateOrCreate(
+            ]
+        );
+
+
+        $stock = Stock::withTrashed()->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Part SKU'},
             ], [
-                'tenant_id'          => $tenant->id,
+                'tenant_id'          => $this->tenant->id,
                 'code'               => $code,
                 'barcode'            => ($barcode == '' ? null : $barcode),
                 'description'        => $unit_description,
@@ -215,6 +223,21 @@ class RelocateInventory extends Command {
 
             ]
         );
+
+
+
+
+
+        $this->sync_images($stock,$imagesModelData, function ($_scope){
+            $scope = 'marketing';
+            if ($_scope== 'SKO') {
+                $scope = 'pack';
+            }
+            return $scope;
+        });
+
+
+        return $stock;
     }
 
 

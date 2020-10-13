@@ -21,6 +21,8 @@ art tenants:artisan "migrate:refresh --database=tenant"; art tenants:artisan "mi
 ##### Landlord database migrations and seeding (only for master)
 art migrate --path=database/migrations/landlord --database=landlord
 art db:seed
+ALTER TABLE original_images ALTER COLUMN image_data SET STORAGE EXTERNAL;
+ALTER TABLE processed_images ALTER COLUMN image_data SET STORAGE EXTERNAL;
 
 
 

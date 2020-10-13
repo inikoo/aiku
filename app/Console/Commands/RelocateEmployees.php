@@ -35,14 +35,14 @@ class RelocateEmployees extends Command {
 
 
     public function handle() {
-        $tenant = Tenant::current();
+        $this->tenant = Tenant::current();
 
         $_table = '`Staff Dimension`';
 
-        if (Arr::get($tenant->data, 'legacy')) {
-            print ('Relocation staff from '.$tenant->subdomain." ".$tenant->data['legacy']['db']."  \n");
+        if (Arr::get($this->tenant->data, 'legacy')) {
+            print ('Relocation staff from '.$this->tenant->subdomain." ".$this->tenant->data['legacy']['db']."  \n");
 
-            $this->set_legacy_connection($tenant->data['legacy']['db']);
+            $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
             $count_data = DB::connection('legacy')->select("select count(*) as num from".' '.$_table, [])[0];
@@ -53,90 +53,7 @@ class RelocateEmployees extends Command {
             foreach (DB::connection('legacy')->select("select * from".' '.$_table, []) as $legacy_data) {
 
 
-                $employee_data = $this->fill_data(
-                    [
-                        'personal_identification' => 'Staff Official ID',
-                        'hr_identification'       => 'Staff ID',
-                        'next_of_kind.name'       => 'Staff Next of Kind',
-                        'date_of_birth'           => 'Staff Birthday',
-                        'email'                   => 'Staff Email',
-                        'phone'                   => 'Staff Telephone'
-
-
-                    ], $legacy_data
-                );
-
-
-                if ($legacy_data->{'Staff Type'} == 'Employee') {
-                    $employee = (new Employee)->updateOrCreate(
-                        [
-                            'legacy_id' => $legacy_data->{'Staff Key'},
-
-                        ], [
-                            'tenant_id' => $tenant->id,
-
-                            'slug'   => Str::kebab($legacy_data->{'Staff Name'}),
-                            'name'   => $legacy_data->{'Staff Name'},
-                            'status' => ($legacy_data->{'Staff Currently Working'} == 'Yes' ? 'working' : 'notWorking'),
-                            'data'   => $employee_data
-
-                        ]
-                    );
-
-                    $_table   = '`User Dimension`';
-                    $_where_1 = '`User Type`';
-                    $_where_2 = '`User Parent Key`';
-                    if ($legacy_user_data = DB::connection('legacy')->select(
-                        "select * from  $_table where  $_where_1=? and $_where_2=?", [
-                                                                                       'Staff',
-                                                                                       $legacy_data->{'Staff Key'}
-                                                                                   ]
-                    )) {
-
-                        $user              = $this->relocate_user('Employee', $employee, $tenant, $legacy_user_data[0]);
-                        $employee->user_id = $user->id;
-                        $employee->save();
-
-
-                    }
-
-
-                } elseif ($legacy_data->{'Staff Type'} == 'Contractor') {
-                    $guess = (new Guest)->updateOrCreate(
-                        [
-                            'legacy_id' => $legacy_data->{'Staff Key'},
-
-
-                        ], [
-                            'tenant_id' => $tenant->id,
-                            'slug'      => Str::kebab($legacy_data->{'Staff Name'}),
-
-                            'status'      => ($legacy_data->{'Staff Currently Working'} == 'Yes' ? 'active' : 'inactive'),
-                            'data'        => $employee_data,
-                            'name'        => $legacy_data->{'Staff Name'},
-                            'description' => 'Contractor'
-
-                        ]
-                    );
-
-                    $_table   = '`User Dimension`';
-                    $_where_1 = '`User Type`';
-                    $_where_2 = '`User Parent Key`';
-                    if ($legacy_user_data = DB::connection('legacy')->select(
-                        "select * from  $_table where  $_where_1=? and $_where_2=?", [
-                                                                                       'Contractor',
-                                                                                       $legacy_data->{'Staff Key'}
-                                                                                   ]
-                    )) {
-
-                        $user = $this->relocate_user('Employee', $guess, $tenant, $legacy_user_data[0]);
-
-                        $guess->user_id = $user->id;
-                        $guess->save();
-                    }
-
-
-                }
+                $this->relocate_employee($legacy_data);
 
                 $bar->advance();
             }
@@ -147,7 +64,142 @@ class RelocateEmployees extends Command {
         return 0;
     }
 
-    function relocate_user($parent_type, $parent, $tenant, $legacy_user_data) {
+    function relocate_employee($legacy_data) {
+
+        $employee_data = $this->fill_data(
+            [
+                'personal_identification' => 'Staff Official ID',
+                'hr_identification'       => 'Staff ID',
+                'next_of_kind.name'       => 'Staff Next of Kind',
+                'date_of_birth'           => 'Staff Birthday',
+                'email'                   => 'Staff Email',
+                'phone'                   => 'Staff Telephone'
+
+
+            ], $legacy_data
+        );
+
+
+        $imagesModelData = $this->get_images_data(
+            [
+                'object'     => 'Staff',
+                'object_key' => $legacy_data->{'Staff Key'},
+                'limit'      => 1
+
+            ]
+        );
+
+
+        if ($legacy_data->{'Staff Type'} != 'Contractor') {
+
+            $type = 'permanent';
+            if ($legacy_data->{'Staff Type'} == 'TemporalWorker') {
+                $type = 'temporal';
+
+            } elseif ($legacy_data->{'Staff Type'} == 'WorkExperience') {
+                $type = 'workExperience';
+
+            }
+
+            $employee = (new Employee)->updateOrCreate(
+                [
+                    'legacy_id' => $legacy_data->{'Staff Key'},
+
+                ], [
+                    'tenant_id' => $this->tenant->id,
+                    'type'      => $type,
+                    'slug'      => Str::kebab($legacy_data->{'Staff Name'}),
+                    'name'      => $legacy_data->{'Staff Name'},
+                    'status'    => ($legacy_data->{'Staff Currently Working'} == 'Yes' ? 'working' : 'notWorking'),
+                    'data'      => $employee_data,
+
+                ]
+            );
+
+
+            if (count($imagesModelData) > 0) {
+                $this->sync_image(
+                    $employee, $imagesModelData, function ($_scope = '') {
+                    switch ($_scope) {
+                        default:
+                            return 'profile';
+                    }
+                }
+                );
+
+            }
+
+
+            $_table   = '`User Dimension`';
+            $_where_1 = '`User Type`';
+            $_where_2 = '`User Parent Key`';
+            if ($legacy_user_data = DB::connection('legacy')->select(
+                "select * from  $_table where  $_where_1=? and $_where_2=?", [
+                                                                               'Staff',
+                                                                               $legacy_data->{'Staff Key'}
+                                                                           ]
+            )) {
+
+                $user              = $this->relocate_user('Employee', $employee, $legacy_user_data[0]);
+                $employee->user_id = $user->id;
+                $employee->save();
+
+
+            }
+
+
+        } else {
+            $guest = (new Guest)->updateOrCreate(
+                [
+                    'legacy_id' => $legacy_data->{'Staff Key'},
+
+
+                ], [
+                    'tenant_id' => $this->tenant->id,
+                    'slug'      => Str::kebab($legacy_data->{'Staff Name'}),
+
+                    'status'      => ($legacy_data->{'Staff Currently Working'} == 'Yes' ? 'active' : 'inactive'),
+                    'data'        => $employee_data,
+                    'name'        => $legacy_data->{'Staff Name'},
+                    'description' => 'Contractor'
+
+                ]
+            );
+
+            if (count($imagesModelData) > 0) {
+                $this->sync_image(
+                    $guest, $imagesModelData, function ($_scope = '') {
+                    switch ($_scope) {
+                        default:
+                            return 'profile';
+                    }
+                }
+                );
+
+            }
+
+
+            $_table   = '`User Dimension`';
+            $_where_1 = '`User Type`';
+            $_where_2 = '`User Parent Key`';
+            if ($legacy_user_data = DB::connection('legacy')->select(
+                "select * from  $_table where  $_where_1=? and $_where_2=?", [
+                                                                               'Contractor',
+                                                                               $legacy_data->{'Staff Key'}
+                                                                           ]
+            )) {
+
+                $user = $this->relocate_user('Employee', $guest, $legacy_user_data[0]);
+
+                $guest->user_id = $user->id;
+                $guest->save();
+            }
+
+
+        }
+    }
+
+    function relocate_user($parent_type, $parent, $legacy_user_data) {
 
 
         $user_settings = [];
@@ -166,7 +218,7 @@ class RelocateEmployees extends Command {
 
         return (new User)->updateOrCreate(
             [
-                'tenant_id' => $tenant->id,
+                'tenant_id' => $this->tenant->id,
                 'handle'    => Str::lower($legacy_user_data->{'User Handle'}),
             ], [
                 'password'      => bcrypt($legacy_user_data->{'User Password'}),

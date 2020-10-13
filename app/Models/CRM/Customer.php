@@ -92,4 +92,8 @@ class Customer extends Model implements Auditable {
         return $this->belongsToMany('App\Models\Stores\Product', 'basket_transactions')->using('App\Models\Sales\BasketTransaction')->withTimestamps()->withPivot(['quantity']);
     }
 
+    public function images() {
+        return $this->morphMany('App\Models\Helpers\ImageModel', 'image_models', 'imageable_type', 'imageable_id');
+    }
+
 }

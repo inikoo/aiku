@@ -38,6 +38,9 @@ class AppServiceProvider extends ServiceProvider {
                 'DeliveryNote'             => 'App\Models\Distribution\DeliveryNote',
                 'Product'                  => 'App\Models\Stores\Product',
                 'ProductHistoricVariation' => 'App\Models\Stores\ProductHistoricVariation',
+                'OriginalImage'            => 'App\Models\Helpers\OriginalImage',
+                'ProcessedImage'           => 'App\Models\Helpers\ProcessedImage',
+                'Stock'                    => 'App\Models\Distribution\Stock',
 
             ]
         );

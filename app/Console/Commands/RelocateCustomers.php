@@ -32,18 +32,18 @@ class RelocateCustomers extends Command {
 
 
     public function handle() {
-        $tenant = Tenant::current();
+        $this->tenant = Tenant::current();
 
         $legacy_customers_table         = '`Customer Dimension`';
         $legacy_deleted_customers_table = '`Customer Deleted Dimension`';
 
-        if (Arr::get($tenant->data, 'legacy')) {
+        if (Arr::get($this->tenant->data, 'legacy')) {
 
 
-            $this->set_legacy_connection($tenant->data['legacy']['db']);
+            $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
-            print ('Relocation customers from '.$tenant->subdomain."\n");
+            print ('Relocation customers from '.$this->tenant->subdomain."\n");
 
             $count_customers_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_customers_table, [])[0];
 
@@ -54,7 +54,7 @@ class RelocateCustomers extends Command {
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_customers_table, []) as $legacy_data) {
 
-                $this->relocate_customer($legacy_data, $tenant);
+                $this->relocate_customer($legacy_data);
 
                 $bar->advance();
             }
@@ -62,7 +62,7 @@ class RelocateCustomers extends Command {
             $bar->finish();
 
 
-            print ('Relocation deleted customers from '.$tenant->subdomain."\n");
+            print ('Relocation deleted customers from '.$this->tenant->subdomain."\n");
 
 
             $count_deleted_customers_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_customers_table, [])[0];
@@ -81,7 +81,7 @@ class RelocateCustomers extends Command {
                 $legacy_data = json_decode(gzuncompress($raw_legacy_data->{'Customer Deleted Metadata'}));
 
 
-                $customer = $this->relocate_customer($legacy_data, $tenant);
+                $customer = $this->relocate_customer($legacy_data);
 
                 $customer->status     = 'deleted';
                 $customer->state      = 'deleted';
@@ -105,7 +105,7 @@ class RelocateCustomers extends Command {
     }
 
 
-    function relocate_customer($legacy_data, $tenant) {
+    function relocate_customer($legacy_data) {
 
 
         $customer_data = $this->fill_data(
@@ -169,13 +169,20 @@ class RelocateCustomers extends Command {
 
         $store = (new Store)->firstWhere('legacy_id', $legacy_data->{'Customer Store Key'});
 
+        $imagesModelData = $this->get_images_data(
+            [
+                'object'     => 'Customer',
+                'object_key' => $legacy_data->{'Customer Key'},
+
+            ]
+        );
 
         $customer = Customer::withTrashed()->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Customer Key'},
 
             ], [
-                'tenant_id'  => $tenant->id,
+                'tenant_id'  => $this->tenant->id,
                 'name'       => $legacy_data->{'Customer Name'},
                 'email'      => $legacy_data->{'Customer Main Plain Email'},
                 'mobile'     => $legacy_data->{'Customer Main Plain Mobile'},
@@ -188,6 +195,14 @@ class RelocateCustomers extends Command {
 
             ]
         );
+
+        $this->sync_images($customer,$imagesModelData, function ($_scope){
+            $scope = 'profile';
+            if ($_scope== '') {
+                $scope = 'profile';
+            }
+            return $scope;
+        });
 
 
         if(!$customer->billing_address_id){

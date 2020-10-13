@@ -74,12 +74,12 @@ class AuthStaff extends Migration
 
             $table->unsignedSmallInteger('user_id')->nullable()->index();
             $table->foreign('user_id')->references('id')->on('users');
+            $table->string('type')->index();
 
             $table->string('status')->default('working');
             $table->string('slug')->nullable()->unique();
             $table->string('name');
-            $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('images');
+
             $table->json('settings');
             $table->json('data');
             $table->timestampsTz();

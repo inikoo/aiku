@@ -16,33 +16,33 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 /**
  * App\Models\Distribution\Warehouse
  *
- * @property int $id
+ * @property int    $id
  * @property string $created_at
  * @property string $deleted_at
- * @property int $legacy_id
+ * @property int    $legacy_id
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
-class Stock extends Model implements Auditable{
-    use UsesTenantConnection,Sluggable;
+class Stock extends Model implements Auditable {
+    use UsesTenantConnection, Sluggable;
     use \OwenIt\Auditing\Auditable;
     use SoftDeletes;
 
-        protected $casts = [
+    protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}'
     ];
 
     public function sluggable() {
         return [
             'slug' => [
-                'source' => 'code',
+                'source'   => 'code',
                 'onUpdate' => true
             ]
         ];
@@ -51,12 +51,15 @@ class Stock extends Model implements Auditable{
     protected $guarded = [];
 
 
-
     public function locations() {
         return $this->belongsToMany('App\Models\Distribution\Location')->withTimestamps()->withPivot('quantity');
     }
 
     public function products() {
         return $this->belongsToMany('App\Models\Stores\Product')->using('App\Models\Stores\ProductStock')->withTimestamps()->withPivot('ratio');
+    }
+
+    public function images() {
+        return $this->morphMany('App\Models\Helpers\ImageModel', 'image_models', 'imageable_type', 'imageable_id');
     }
 }

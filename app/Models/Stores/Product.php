@@ -18,13 +18,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int    $id
  * @property string $created_at
- * @property int $legacy_id
+ * @property int    $legacy_id
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
 class Product extends Model implements Auditable {
-    use UsesTenantConnection,Sluggable;
+    use UsesTenantConnection, Sluggable;
     use \OwenIt\Auditing\Auditable;
 
     protected $casts = [
@@ -46,7 +46,7 @@ class Product extends Model implements Auditable {
         ];
     }
 
-    function getStoreCodeAttribute(){
+    function getStoreCodeAttribute() {
         return $this->code.'-'.$this->store->code;
     }
 
@@ -62,11 +62,11 @@ class Product extends Model implements Auditable {
     }
 
     public function basketTransactions() {
-        return $this->morphMany('App\Models\Sales\BasketTransaction', 'basketable',
-
-
-        );
+        return $this->morphMany('App\Models\Sales\BasketTransaction', 'basketable',);
     }
 
+    public function images() {
+        return $this->morphMany('App\Models\Helpers\ImageModel', 'image_models', 'imageable_type', 'imageable_id');
+    }
 
 }

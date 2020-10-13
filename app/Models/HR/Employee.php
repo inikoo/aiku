@@ -36,13 +36,13 @@ class Employee extends Model implements Auditable {
     use UsesTenantConnection, Sluggable;
     use \OwenIt\Auditing\Auditable;
 
+    protected $guarded = [];
 
     protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
     ];
 
-    protected $guarded = [];
 
     protected $attributes = [
         'data'     => '{}',
@@ -103,5 +103,9 @@ class Employee extends Model implements Auditable {
         );
     }
 
+    public function image()
+    {
+        return $this->morphOne('App\Models\Helpers\ImageModel', 'image_models','imageable_type','imageable_id');
+    }
 
 }

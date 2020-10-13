@@ -34,22 +34,22 @@ class RelocateProducts extends Command {
 
 
     public function handle() {
-        $tenant = Tenant::current();
+        $this->tenant = Tenant::current();
 
         $legacy_products_table = '`Product Dimension`';
 
-        if (Arr::get($tenant->data, 'legacy')) {
-            $this->set_legacy_connection($tenant->data['legacy']['db']);
+        if (Arr::get($this->tenant->data, 'legacy')) {
+            $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
-            print ('Relocation products from '.$tenant->subdomain."\n");
+            print ('Relocation products from '.$this->tenant->subdomain."\n");
             $count_products_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_products_table, [])[0];
             $bar                 = $this->output->createProgressBar($count_products_data->num);
             $bar->setFormat('debug');
 
             $bar->start();
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_products_table.'  order by `Product ID` desc ', []) as $legacy_data) {
-                $product = $this->relocate_products($legacy_data, $tenant);
+                $product = $this->relocate_products($legacy_data);
 
                 $_table = ' `Product History Dimension` ';
                 $_where = ' `Product ID` ';
@@ -95,7 +95,7 @@ class RelocateProducts extends Command {
     }
 
 
-    function relocate_products($legacy_data, $tenant) {
+    function relocate_products($legacy_data) {
 
         $stock_data = $this->fill_data(
             [], $legacy_data
@@ -144,11 +144,20 @@ class RelocateProducts extends Command {
             $created_at = $legacy_data->{'Product Valid From'};
         }
 
-        return (new Product)->updateOrCreate(
+
+        $imagesModelData = $this->get_images_data(
+            [
+                'object'     => 'Product',
+                'object_key' => $legacy_data->{'Product ID'},
+
+            ]
+        );
+
+        $product= (new Product)->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Product ID'},
             ], [
-                'tenant_id' => $tenant->id,
+                'tenant_id' => $this->tenant->id,
                 'store_id'  => $store->id,
 
                 'code' => $legacy_data->{'Product Code'},
@@ -165,6 +174,17 @@ class RelocateProducts extends Command {
                 'created_at' => $created_at,
             ]
         );
+
+        $this->sync_images($product,$imagesModelData, function ($_scope){
+            $scope = 'marketing';
+            if ($_scope== '') {
+                $scope = 'marketing';
+            }
+            return $scope;
+        });
+
+
+        return $product;
     }
 
     function relocate_historic_products($legacy_data, $product_id) {

@@ -33,23 +33,23 @@ class RelocateStores extends Command {
 
 
     public function handle() {
-        $tenant = Tenant::current();
+        $this->tenant = Tenant::current();
 
         $legacy_stores_table   = '`Store Dimension`';
         $legacy_websites_table = '`Website Dimension`';
 
-        if (Arr::get($tenant->data, 'legacy')) {
-            print ('Relocation Stores/Websites '.$tenant->subdomain."\n");
-            $this->set_legacy_connection($tenant->data['legacy']['db']);
+        if (Arr::get($this->tenant->data, 'legacy')) {
+            print ('Relocation Stores/Websites '.$this->tenant->subdomain."\n");
+            $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_stores_table, []) as $legacy_data) {
-                $this->relocate_stores($legacy_data, $tenant);
+                $this->relocate_stores($legacy_data);
             }
 
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_websites_table, []) as $legacy_data) {
-                $this->relocate_websites($legacy_data, $tenant);
+                $this->relocate_websites($legacy_data);
             }
 
 
@@ -63,7 +63,7 @@ class RelocateStores extends Command {
 
     }
 
-    function relocate_stores($legacy_data, $tenant) {
+    function relocate_stores($legacy_data) {
 
 
         $legacy_data->{'Store Can Collect'} = $legacy_data->{'Store Can Collect'} == 'Yes';
@@ -111,7 +111,7 @@ class RelocateStores extends Command {
                 'legacy_id' => $legacy_data->{'Store Key'},
 
             ], [
-                'tenant_id' => $tenant->id,
+                'tenant_id' => $this->tenant->id,
                 'code'       => $legacy_data->{'Store Code'},
                 'name'       => $legacy_data->{'Store Name'},
                 'state'      => $state,
@@ -123,7 +123,7 @@ class RelocateStores extends Command {
         );
     }
 
-    function relocate_websites($legacy_data, $tenant) {
+    function relocate_websites($legacy_data) {
 
 
         $website_data = $this->fill_data(
@@ -176,7 +176,7 @@ class RelocateStores extends Command {
             ], [
 
                 'url'       => $legacy_data->{'Website URL'},
-                'tenant_id' => $tenant->id,
+                'tenant_id' => $this->tenant->id,
                 'store_id' => $store->id,
 
                 'name'       => $legacy_data->{'Website Name'},
