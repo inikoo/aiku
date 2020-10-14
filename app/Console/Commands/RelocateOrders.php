@@ -53,22 +53,17 @@ class RelocateOrders extends Command {
             print ('Relocation orders from '.$this->tenant->subdomain." ".$this->tenant->data['legacy']['db']."  \n");
 
             $count_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_orders_table, [])[0];
-
-
             $bar = $this->output->createProgressBar($count_data->num);
             $bar->setFormat('debug');
-
             $bar->start();
-
-            $max = 1000;
+            $max = 500;
             $total = $count_data->num;
             $pages = ceil($total / $max);
             for ($i = 1; $i < ($pages + 1); $i++) {
                 $offset = (($i - 1)  * $max);
                 $start = ($offset == 0 ? 0 : ($offset + 1));
 
-
-                foreach (DB::connection('legacy')->select("select * from $legacy_orders_table  limit  $max , $start ", []) as $legacy_data) {
+                foreach (DB::connection('legacy')->select("select * from $legacy_orders_table  limit $start,  $max   ", []) as $legacy_data) {
                     $otf_table = ' `Order Transaction Fact` ';
                     $_where    = ' `Order Key` ';
 

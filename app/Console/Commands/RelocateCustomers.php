@@ -58,7 +58,7 @@ class RelocateCustomers extends Command {
             for ($i = 1; $i < ($pages + 1); $i++) {
                 $offset = (($i - 1) * $max);
                 $start  = ($offset == 0 ? 0 : ($offset + 1));
-                foreach (DB::connection('legacy')->select("select * from $legacy_customers_table  limit  $max , $start", []) as $legacy_data) {
+                foreach (DB::connection('legacy')->select("select * from $legacy_customers_table  limit $start, $max ", []) as $legacy_data) {
 
                     $this->relocate_customer($legacy_data);
 

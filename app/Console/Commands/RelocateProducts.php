@@ -57,7 +57,7 @@ class RelocateProducts extends Command {
                 $start  = ($offset == 0 ? 0 : ($offset + 1));
 
 
-                foreach (DB::connection('legacy')->select("select * from $legacy_products_table limit  $max , $start ", []) as $legacy_data) {
+                foreach (DB::connection('legacy')->select("select * from $legacy_products_table limit  $start, $max  ", []) as $legacy_data) {
                     $product = $this->relocate_products($legacy_data);
 
                     $_table = ' `Product History Dimension` ';
