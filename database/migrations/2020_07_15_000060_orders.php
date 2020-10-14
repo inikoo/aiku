@@ -90,7 +90,7 @@ class Orders extends Migration {
 
 
 
-            $table->smallInteger('outweigh');
+            $table->smallInteger('precedence')->default(0);
             $table->string('slug');
             $table->string('code');
             $table->jsonb('data');
@@ -130,7 +130,7 @@ class Orders extends Migration {
 
             $table->unsignedMediumInteger('billing_id')->nullable()->index();
             $table->foreign('billing_id')->references('id')->on('addresses');
-            $table->unsignedSmallInteger('delivery_id')->nullable()->index();
+            $table->unsignedMediumInteger('delivery_id')->nullable()->index();
             $table->foreign('delivery_id')->references('id')->on('addresses');
 
 
