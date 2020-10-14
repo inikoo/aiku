@@ -41,6 +41,7 @@ class AppServiceProvider extends ServiceProvider {
                 'OriginalImage'            => 'App\Models\Helpers\OriginalImage',
                 'ProcessedImage'           => 'App\Models\Helpers\ProcessedImage',
                 'Stock'                    => 'App\Models\Distribution\Stock',
+                'User'                     => 'App\User',
 
             ]
         );

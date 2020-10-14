@@ -71,16 +71,9 @@ class Customer extends Model implements Auditable {
     }
 
     public function getSluggledNameAttribute() {
-        $sluggableName = preg_replace('/\'/', '', $this->name);
 
-        $sluggableName = preg_replace('/www\./', 'www ', $sluggableName);
-        $sluggableName = preg_replace('/\.com/', ' com', $sluggableName);
-        $sluggableName = preg_replace('/&/', ' and ', $sluggableName);
+        $sluggableName=au_escape_slug($this->name);
 
-        $sluggableName = preg_replace('/\./', '', $sluggableName);
-
-        $sluggableName = preg_replace('/-/', ' ', $sluggableName);
-        $sluggableName = trim($sluggableName);
         if ($sluggableName == '') {
             $sluggableName = 'empty';
         }

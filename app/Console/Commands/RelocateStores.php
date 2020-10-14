@@ -53,8 +53,6 @@ class RelocateStores extends Command {
             }
 
 
-
-
         }
 
 
@@ -75,10 +73,13 @@ class RelocateStores extends Command {
                 'email'    => 'Store Email',
                 'currency' => 'Store Currency Code',
                 'locale'   => 'Store Locale',
-                'timezone' => 'Store Timezone'
+                'timezone' => 'Store Timezone',
+                'type'     => 'Store Type'
 
             ], $legacy_data
         );
+
+        $website_data['type']=strtolower($website_data['type']);
 
         $website_settings = $this->fill_data(
             [
@@ -104,14 +105,12 @@ class RelocateStores extends Command {
         }
 
 
-
-
         return (new Store)->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Store Key'},
 
             ], [
-                'tenant_id' => $this->tenant->id,
+                'tenant_id'  => $this->tenant->id,
                 'code'       => $legacy_data->{'Store Code'},
                 'name'       => $legacy_data->{'Store Name'},
                 'state'      => $state,
@@ -136,7 +135,7 @@ class RelocateStores extends Command {
 
         $website_settings       = $this->fill_data(
             [
-                'google_tag' => 'Website Google Tag Manager Code',
+                'google_tag'   => 'Website Google Tag Manager Code',
                 'zendesk_chat' => 'Website Zendesk Chat Code',
 
 
@@ -159,7 +158,7 @@ class RelocateStores extends Command {
             $created_at = $legacy_data->{'Website From'};
         }
 
-        if ($legacy_data->{'Website Launched'} == '0000-00-00 00:00:00' or $legacy_data->{'Website Launched'}=='') {
+        if ($legacy_data->{'Website Launched'} == '0000-00-00 00:00:00' or $legacy_data->{'Website Launched'} == '') {
             $launched_at = null;
         } else {
             $launched_at = $legacy_data->{'Website Launched'};
@@ -177,20 +176,18 @@ class RelocateStores extends Command {
 
                 'url'       => $legacy_data->{'Website URL'},
                 'tenant_id' => $this->tenant->id,
-                'store_id' => $store->id,
+                'store_id'  => $store->id,
 
-                'name'       => $legacy_data->{'Website Name'},
-                'state'      => $state,
-                'data'       => $website_data,
-                'settings'   => $website_settings,
-                'created_at' => $created_at,
+                'name'        => $legacy_data->{'Website Name'},
+                'state'       => $state,
+                'data'        => $website_data,
+                'settings'    => $website_settings,
+                'created_at'  => $created_at,
                 'launched_at' => $launched_at,
-                'deleted_at' => ($state == 'closed' ? gmdate('Y-m-d H:i:s') : null)
+                'deleted_at'  => ($state == 'closed' ? gmdate('Y-m-d H:i:s') : null)
             ]
         );
     }
-
-
 
 
 }

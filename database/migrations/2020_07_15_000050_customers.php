@@ -38,6 +38,50 @@ class Customers extends Migration
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
         });
+
+        Schema::create('customer_clients', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+            $table->unsignedMediumInteger('customer_id')->index();
+            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->string('slug')->index();
+            $table->string('code')->nullable()->index();
+            $table->string('name')->nullable();
+            $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
+            $table->foreign('delivery_address_id')->references('id')->on('addresses');
+            $table->json('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+        });
+
+        Schema::create('customer_portfolio', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+
+            $table->unsignedMediumInteger('customer_id')->index();
+            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->unsignedMediumInteger('product_id')->index();
+            $table->foreign('product_id')->references('id')->on('products');
+            $table->string('code')->nullable()->index();
+            $table->json('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unique(['customer_id','product_id']);
+        });
+
+        Schema::create('customer_portfolio_timeline', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+            $table->unsignedMediumInteger('customer_portfolio_id')->index();
+            $table->foreign('customer_portfolio_id')->references('id')->on('customer_portfolio');
+            $table->string('action')->index();
+            $table->dateTimeTz('date', 0);
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+        });
+
+
     }
 
     /**
@@ -47,6 +91,10 @@ class Customers extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('customer_portfolio_timeline');
+        Schema::dropIfExists('customer_portfolio');
+        Schema::dropIfExists('customer_clients');
         Schema::dropIfExists('customers');
+
     }
 }

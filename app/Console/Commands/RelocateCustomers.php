@@ -11,6 +11,9 @@ namespace App\Console\Commands;
 
 use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\CRM\Customer;
+use App\Models\CRM\CustomerClient;
+use App\Models\CRM\CustomerPortfolio;
+use App\Models\Stores\Product;
 use App\Models\Stores\Store;
 use App\Tenant;
 use Illuminate\Support\Facades\DB;
@@ -46,13 +49,10 @@ class RelocateCustomers extends Command {
             print ('Relocation customers from '.$this->tenant->subdomain."\n");
 
             $count_customers_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_customers_table, [])[0];
-
-
             $bar = $this->output->createProgressBar($count_customers_data->num);
             $bar->setFormat('debug');
             $bar->start();
-
-            $max = 1000;
+            $max   = 1000;
             $total = $count_customers_data->num;
             $pages = ceil($total / $max);
             for ($i = 1; $i < ($pages + 1); $i++) {
@@ -65,9 +65,6 @@ class RelocateCustomers extends Command {
                     $bar->advance();
                 }
             }
-
-
-
 
 
             $bar->finish();
@@ -207,22 +204,24 @@ class RelocateCustomers extends Command {
             ]
         );
 
-        $this->sync_images($customer,$imagesModelData, function ($_scope){
+        $this->sync_images(
+            $customer, $imagesModelData, function ($_scope) {
             $scope = 'profile';
-            if ($_scope== '') {
+            if ($_scope == '') {
                 $scope = 'profile';
             }
+
             return $scope;
-        });
+        }
+        );
 
 
-        if(!$customer->billing_address_id){
-            $billing_address=$this->process_instance_address('Customer',$customer->id,'Invoice',$legacy_data);
-        }else{
-            $billing_address=$customer->billingAddress;
+        if (!$customer->billing_address_id) {
+            $billing_address = $this->process_instance_address('Customer', $customer->id, 'Invoice', $legacy_data);
+        } else {
+            $billing_address = $customer->billingAddress;
 
-            $_billing_address=$this->get_instance_address_scaffolding('Customer','Invoice',$legacy_data);
-
+            $_billing_address = $this->get_instance_address_scaffolding('Customer', 'Invoice', $legacy_data);
 
 
             $billing_address->fill($_billing_address->attributesToArray());
@@ -230,15 +229,15 @@ class RelocateCustomers extends Command {
             $customer->addresses()->syncWithoutDetaching([$billing_address->id]);
         }
         $customer->billing_address_id = $billing_address->id;
-        $customer->country_id = $billing_address->country_id;
+        $customer->country_id         = $billing_address->country_id;
         $customer->save();
 
-        if(!$customer->delivery_address_id){
-            $delivery_address=$this->process_instance_address('Customer',$customer->id,'Delivery',$legacy_data);
-        }else{
-            $delivery_address=$customer->deliveryAddress;
+        if (!$customer->delivery_address_id) {
+            $delivery_address = $this->process_instance_address('Customer', $customer->id, 'Delivery', $legacy_data);
+        } else {
+            $delivery_address = $customer->deliveryAddress;
 
-            $_delivery_address=$this->get_instance_address_scaffolding('Customer','Delivery',$legacy_data);
+            $_delivery_address = $this->get_instance_address_scaffolding('Customer', 'Delivery', $legacy_data);
 
 
             $delivery_address->fill($_delivery_address->attributesToArray());
@@ -249,6 +248,12 @@ class RelocateCustomers extends Command {
         $customer->save();
 
 
+        if ($store->data['type'] == 'dropshipping') {
+            $this->relocate_customer_client($customer);
+            $this->relocate_customer_portfolio($customer);
+
+        }
+
 
         return $customer;
 
@@ -256,5 +261,84 @@ class RelocateCustomers extends Command {
     }
 
 
+    function relocate_customer_client($customer) {
+
+        $_table = '`Customer Client Dimension`';
+        $_where = '`Customer Client Customer Key`';
+
+        foreach (DB::connection('legacy')->select("select * from $_table where $_where=?", [$customer->legacy_id]) as $legacy_data) {
+
+
+            $metadata   = json_decode($legacy_data->{'Customer Client Metadata'}, true);
+            $deleted_at = null;
+            if ($legacy_data->{'Customer Client Status'} == 'Inactive') {
+                $deleted_at = $metadata['deactivated_date'];
+            }
+
+            $customer_client_data = $this->fill_data(
+                [
+                    'contact' => 'Customer Client Main Contact Name',
+                    'company' => 'Customer Client Company Name',
+                    'mobile'  => 'Customer Client Main Plain Mobile',
+                    'phone'   => 'Customer Client Main Plain Telephone',
+                    'email'   => 'Customer Client Main Plain Email',
+
+
+                ], $legacy_data
+            );
+
+            CustomerClient::withTrashed()->updateOrCreate(
+                [
+                    'legacy_id' => $legacy_data->{'Customer Client Key'},
+
+                ], [
+                    'tenant_id'   => $this->tenant->id,
+                    'customer_id' => $customer->id,
+                    'code'        => $legacy_data->{'Customer Client Code'},
+                    'name'        => $legacy_data->{'Customer Client Name'},
+                    'data'        => $customer_client_data,
+                    'created_at'  => $legacy_data->{'Customer Client Creation Date'},
+                    'deleted_at'  => $deleted_at,
+
+
+                ]
+            );
+
+
+        }
+
+
+    }
+
+    function relocate_customer_portfolio($customer) {
+
+        $_table = '`Customer Portfolio Fact`';
+        $_where = '`Customer Portfolio Customer Key`';
+
+        foreach (DB::connection('legacy')->select("select * from $_table where $_where=?", [$customer->legacy_id]) as $legacy_data) {
+
+
+            $product            = (new Product)->firstWhere('legacy_id', $legacy_data->{'Customer Portfolio Product ID'});
+             CustomerPortfolio::withTrashed()->updateOrCreate(
+                [
+                    'legacy_id' => $legacy_data->{'Customer Portfolio Key'},
+
+                ], [
+                    'tenant_id'   => $this->tenant->id,
+                    'customer_id' => $customer->id,
+                    'product_id'  => $product->id,
+                    'code'        => $legacy_data->{'Customer Portfolio Reference'},
+                    'created_at'  => $legacy_data->{'Customer Portfolio Creation Date'},
+                    'deleted_at'  => (($legacy_data->{'Customer Portfolio Customers State'} == 'Removed' and $legacy_data->{'Customer Portfolio Removed Date'} != '') ? $legacy_data->{'Customer Portfolio Removed Date'} : null),
+
+
+                ]
+            );
+
+
+        }
+
+
+    }
 
 }
