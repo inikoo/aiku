@@ -52,12 +52,23 @@ class RelocateCustomers extends Command {
             $bar->setFormat('debug');
             $bar->start();
 
-            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_customers_table, []) as $legacy_data) {
+            $max = 1000;
+            $total = $count_customers_data->num;
+            $pages = ceil($total / $max);
+            for ($i = 1; $i < ($pages + 1); $i++) {
+                $offset = (($i - 1) * $max);
+                $start  = ($offset == 0 ? 0 : ($offset + 1));
+                foreach (DB::connection('legacy')->select("select * from $legacy_customers_table  limit  $max , $start", []) as $legacy_data) {
 
-                $this->relocate_customer($legacy_data);
+                    $this->relocate_customer($legacy_data);
 
-                $bar->advance();
+                    $bar->advance();
+                }
             }
+
+
+
+
 
             $bar->finish();
 

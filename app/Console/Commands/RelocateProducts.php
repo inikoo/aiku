@@ -48,41 +48,57 @@ class RelocateProducts extends Command {
             $bar->setFormat('debug');
 
             $bar->start();
-            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_products_table.'  order by `Product ID` desc ', []) as $legacy_data) {
-                $product = $this->relocate_products($legacy_data);
 
-                $_table = ' `Product History Dimension` ';
-                $_where = ' `Product ID` ';
+            $max = 1000;
+            $total = $count_products_data->num;
+            $pages = ceil($total / $max);
+            for ($i = 1; $i < ($pages + 1); $i++) {
+                $offset = (($i - 1) * $max);
+                $start  = ($offset == 0 ? 0 : ($offset + 1));
 
-                foreach (DB::connection('legacy')->select("select * from  $_table where  $_where=?", [$product->legacy_id]) as $legacy_historic_product_data) {
 
-                    $historic_product = $this->relocate_historic_products($legacy_historic_product_data, $product->id);
+                foreach (DB::connection('legacy')->select("select * from $legacy_products_table limit  $max , $start ", []) as $legacy_data) {
+                    $product = $this->relocate_products($legacy_data);
 
-                    if ($legacy_data->{'Product Current Key'} == $legacy_historic_product_data->{'Product Key'}) {
-                        $product->product_historic_variation_id = $historic_product->id;
-                        $product->save();
+                    $_table = ' `Product History Dimension` ';
+                    $_where = ' `Product ID` ';
+
+                    foreach (DB::connection('legacy')->select("select * from  $_table where  $_where=?", [$product->legacy_id]) as $legacy_historic_product_data) {
+
+                        $historic_product = $this->relocate_historic_products($legacy_historic_product_data, $product->id);
+
+                        if ($legacy_data->{'Product Current Key'} == $legacy_historic_product_data->{'Product Key'}) {
+                            $product->product_historic_variation_id = $historic_product->id;
+                            $product->save();
+                        }
+
+
                     }
 
 
-                }
+                    $_table             = ' `Product Part Bridge` ';
+                    $_where             = ' `Product Part Product ID` ';
+                    $product_stock_data = [];
+                    foreach (DB::connection('legacy')->select("select * from  $_table where  $_where=?", [$product->legacy_id]) as $legacy_product_stock_data) {
 
-
-                $_table             = ' `Product Part Bridge` ';
-                $_where             = ' `Product Part Product ID` ';
-                $product_stock_data = [];
-                foreach (DB::connection('legacy')->select("select * from  $_table where  $_where=?", [$product->legacy_id]) as $legacy_product_stock_data) {
-
-                    if ($stock = (new Stock)->firstWhere('legacy_id', $legacy_product_stock_data->{'Product Part Part SKU'})) {
-                        $product_stock_data[$stock->id] = [
-                            'ratio' => $stock->packed_in * $legacy_product_stock_data->{'Product Part Ratio'},
-                            'data'  => []
-                        ];
+                        if ($stock = (new Stock)->firstWhere('legacy_id', $legacy_product_stock_data->{'Product Part Part SKU'})) {
+                            $product_stock_data[$stock->id] = [
+                                'ratio' => $stock->packed_in * $legacy_product_stock_data->{'Product Part Ratio'},
+                                'data'  => []
+                            ];
+                        }
                     }
+
+                    $product->stocks()->sync($product_stock_data);
+                    $bar->advance();
                 }
 
-                $product->stocks()->sync($product_stock_data);
-                $bar->advance();
+
             }
+
+
+
+
             $bar->finish();
             print "\n";
 

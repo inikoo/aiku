@@ -39,6 +39,8 @@ class RelocateOrders extends Command {
 
 
     public function handle() {
+
+        DB::disableQueryLog();
         $this->tenant = Tenant::current();
 
         $legacy_orders_table = '`Order Dimension`';
@@ -58,127 +60,145 @@ class RelocateOrders extends Command {
 
             $bar->start();
 
-            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_orders_table.'   ', []) as $legacy_data) {
-                $otf_table = ' `Order Transaction Fact` ';
-                $_where    = ' `Order Key` ';
+            $max = 1000;
+            $total = $count_data->num;
+            $pages = ceil($total / $max);
+            for ($i = 1; $i < ($pages + 1); $i++) {
+                $offset = (($i - 1)  * $max);
+                $start = ($offset == 0 ? 0 : ($offset + 1));
 
 
-                if ($legacy_data->{'Order State'} == 'InBasket') {
+                foreach (DB::connection('legacy')->select("select * from $legacy_orders_table  limit  $max , $start ", []) as $legacy_data) {
+                    $otf_table = ' `Order Transaction Fact` ';
+                    $_where    = ' `Order Key` ';
 
 
-                    foreach (DB::connection('legacy')->select("select * from  $otf_table where  $_where=?", [$legacy_data->{'Order Key'}]) as $otf_data) {
+                    if ($legacy_data->{'Order State'} == 'InBasket') {
 
 
-                        if ($basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('basketable_type', 'Product')->first()) {
-                            $basketItem->fill(
-                                [
-                                    'quantity' => $otf_data->{'Order Quantity'},
-                                    'data'     => []
-                                ]
-                            );
-                            $basketItem->save();
-                        } else {
+                        foreach (DB::connection('legacy')->select("select * from  $otf_table where  $_where=?", [$legacy_data->{'Order Key'}]) as $otf_data) {
 
-                            $product  = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
-                            $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
 
-                            $basketItems = new BasketTransaction(
-                                [
-                                    'store_id'    => $customer->store_id,
-                                    'customer_id' => $customer->id,
-                                    'tenant_id'   => $this->tenant->id,
-                                    'quantity'    => $otf_data->{'Order Quantity'},
-                                    'legacy_id'   => $otf_data->{'Order Transaction Fact Key'},
-                                    'data'        => []
-                                ]
-                            );
-                            $product->basketTransactions()->save($basketItems);
+                            if ($basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('basketable_type', 'Product')->first()) {
+                                $basketItem->fill(
+                                    [
+                                        'quantity' => $otf_data->{'Order Quantity'},
+                                        'data'     => []
+                                    ]
+                                );
+                                $basketItem->save();
+                            } else {
+
+                                $product  = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
+                                $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
+
+                                $basketItems = new BasketTransaction(
+                                    [
+                                        'store_id'    => $customer->store_id,
+                                        'customer_id' => $customer->id,
+                                        'tenant_id'   => $this->tenant->id,
+                                        'quantity'    => $otf_data->{'Order Quantity'},
+                                        'legacy_id'   => $otf_data->{'Order Transaction Fact Key'},
+                                        'data'        => []
+                                    ]
+                                );
+                                $product->basketTransactions()->save($basketItems);
+                            }
+
+
                         }
 
 
-                    }
+                    } else {
+
+                        $order = $this->relocate_order($legacy_data);
 
 
-                } else {
-
-                    $order = $this->relocate_order($legacy_data);
+                        foreach (DB::connection('legacy')->select("select * from  $otf_table where  $_where=?", [$order->legacy_id]) as $otf_data) {
 
 
-                    foreach (DB::connection('legacy')->select("select * from  $otf_table where  $_where=?", [$order->legacy_id]) as $otf_data) {
+                            if ($orderTransaction = (new OrderTransaction())->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('orderable_type', 'ProductHistoricVariation')->first()) {
+                                $orderTransaction->fill(
+                                    [
+                                        'quantity'  => $otf_data->{'Order Quantity'},
+                                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                                        'net'       => $otf_data->{'Order Transaction Amount'},
+
+                                        'data' => []
+                                    ]
+                                );
+                                $orderTransaction->save();
+                            } else {
+
+                                $product_historic_variant = (new ProductHistoricVariation())->firstWhere('legacy_id', $otf_data->{'Product Key'});
+
+                                $orderTransactions = new OrderTransaction(
+                                    [
+                                        'store_id'    => $order->store_id,
+                                        'order_id'    => $order->id,
+                                        'customer_id' => $order->customer_id,
+                                        'tenant_id'   => $this->tenant->id,
+
+                                        'quantity'  => $otf_data->{'Order Quantity'},
+                                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                                        'net'       => $otf_data->{'Order Transaction Amount'},
+
+                                        'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
+                                        'data'      => []
+                                    ]
+                                );
+                                $product_historic_variant->orderTransactions()->save($orderTransactions);
+                            }
 
 
-                        if ($orderTransaction = (new OrderTransaction())->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('orderable_type', 'ProductHistoricVariation')->first()) {
-                            $orderTransaction->fill(
-                                [
-                                    'quantity'  => $otf_data->{'Order Quantity'},
-                                    'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
-                                    'net'       => $otf_data->{'Order Transaction Amount'},
-
-                                    'data' => []
-                                ]
-                            );
-                            $orderTransaction->save();
-                        } else {
-
-                            $product_historic_variant = (new ProductHistoricVariation())->firstWhere('legacy_id', $otf_data->{'Product Key'});
-
-                            $orderTransactions = new OrderTransaction(
-                                [
-                                    'store_id'    => $order->store_id,
-                                    'order_id'    => $order->id,
-                                    'customer_id' => $order->customer_id,
-                                    'tenant_id'   => $this->tenant->id,
-
-                                    'quantity'  => $otf_data->{'Order Quantity'},
-                                    'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
-                                    'net'       => $otf_data->{'Order Transaction Amount'},
-
-                                    'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
-                                    'data'      => []
-                                ]
-                            );
-                            $product_historic_variant->orderTransactions()->save($orderTransactions);
                         }
 
 
-                    }
+                        // delivery notes
+                        $delivery_notes_table = '`Delivery Note Dimension`';
+                        $delivery_notes_where = '`Delivery Note Order Key`';
+                        foreach (DB::connection('legacy')->select("select * from  $delivery_notes_table where  $delivery_notes_where=?", [$order->legacy_id]) as $dn_legacy_data) {
+
+                            if ($dn_legacy_data->{'Delivery Note State'} != 'Cancelled to Restock') {
+                                $delivery_note = $this->relocate_delivery_note($dn_legacy_data, $order);
+
+                                if ($dn_legacy_data->{'Delivery Note State'} == 'Dispatched' or $dn_legacy_data->{'Delivery Note State'} == 'Cancelled') {
 
 
-                    // delivery notes
-                    $delivery_notes_table = '`Delivery Note Dimension`';
-                    $delivery_notes_where = '`Delivery Note Order Key`';
-                    foreach (DB::connection('legacy')->select("select * from  $delivery_notes_table where  $delivery_notes_where=?", [$order->legacy_id]) as $dn_legacy_data) {
-
-                        if ($dn_legacy_data->{'Delivery Note State'} != 'Cancelled to Restock') {
-                            $delivery_note = $this->relocate_delivery_note($dn_legacy_data, $order);
-
-                            if ($dn_legacy_data->{'Delivery Note State'} == 'Dispatched' or $dn_legacy_data->{'Delivery Note State'} == 'Cancelled') {
+                                    $delivery_note->sync_items($this->get_legacy_dispatched_itf($delivery_note), 'delivery_note_items');
 
 
-                                $delivery_note->sync_items($this->get_legacy_dispatched_itf($delivery_note), 'delivery_note_items');
+                                } else {
+
+
+                                    $delivery_note->sync_items($this->get_legacy_picking_itf($delivery_note), 'pickings');
+
+                                }
 
 
                             } else {
-
-
-                                $delivery_note->sync_items($this->get_legacy_picking_itf($delivery_note), 'pickings');
+                                $this->relocate_return($dn_legacy_data, $order);
 
                             }
 
 
-                        } else {
-                            $this->relocate_return($dn_legacy_data, $order);
-
                         }
 
 
                     }
 
-
+                    $bar->advance();
                 }
 
-                $bar->advance();
             }
+
+
+
+
+
+
+
+
 
             $bar->finish();
             print "\n";
