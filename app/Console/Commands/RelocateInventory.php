@@ -48,21 +48,34 @@ class RelocateInventory extends Command {
             $bar->setFormat('debug');
 
             $bar->start();
-            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_stocks_table, []) as $legacy_data) {
-                $stock = $this->relocate_inventory($legacy_data);
 
-                $location_stock_data = [];
-                foreach (DB::connection('legacy')->select("select * from".' '.$legacy_location_stocks_table.' where `Part SKU`=?', [$stock->legacy_id]) as $legacy_part_location_data) {
+            $max   = 1000;
+            $total = $count_stocks_data->num;
+            $pages = ceil($total / $max);
+            for ($i = 1; $i < ($pages + 1); $i++) {
+                $offset = (($i - 1) * $max);
+                foreach (DB::connection('legacy')->select("select * from $legacy_stocks_table  limit $offset, $max ", []) as $legacy_data) {
+                    $stock = $this->relocate_inventory($legacy_data);
 
-                    $location                           = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'});
-                    $location_stock_data[$location->id] = ['quantity' => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'}];
+                    $location_stock_data = [];
+                    foreach (DB::connection('legacy')->select("select * from".' '.$legacy_location_stocks_table.' where `Part SKU`=?', [$stock->legacy_id]) as $legacy_part_location_data) {
 
+                        $location                           = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'});
+                        $location_stock_data[$location->id] = ['quantity' => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'}];
+
+                    }
+
+                    $stock->locations()->sync($location_stock_data);
+
+                    $bar->advance();
                 }
-
-                $stock->locations()->sync($location_stock_data);
-
-                $bar->advance();
             }
+
+
+
+
+
+
             $bar->finish();
             print "\n";
 

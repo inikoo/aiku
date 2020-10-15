@@ -52,6 +52,7 @@ class RelocateCustomers extends Command {
             $bar = $this->output->createProgressBar($count_customers_data->num);
             $bar->setFormat('debug');
             $bar->start();
+
             $max   = 1000;
             $total = $count_customers_data->num;
             $pages = ceil($total / $max);
