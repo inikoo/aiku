@@ -22,17 +22,23 @@ class CustomerController extends Controller {
 
         $new_obj_data = $request->all();
 
-        $legacy                = json_decode(Arr::pull($new_obj_data, 'legacy', '[]'), true);
-        $data                  = json_decode(Arr::pull($new_obj_data, 'data', '[]'), true);
-        $settings              = json_decode(Arr::pull($new_obj_data, 'settings', '[]'), true);
-        $tax_number_validation = json_decode(Arr::pull($new_obj_data, 'tax_number_validation', '[]'), true);
-        $tax_number_validation = array_filter($tax_number_validation);
+
+        $legacy                = Arr::pull($new_obj_data, 'legacy', false);
+        $data                  = Arr::pull($new_obj_data, 'data', false);
+        $settings              = Arr::pull($new_obj_data, 'settings', false);
+        $tax_number_validation = Arr::pull($new_obj_data, 'tax_number_validation', false);
+
+
+        $legacy                = ($legacy ? array_filter(json_decode($legacy, true)) : []);
+        $data                  = ($data ? array_filter(json_decode($data, true)) : []);
+        $settings              = ($settings ? array_filter(json_decode($settings, true)) : []);
+        $tax_number_validation = ($tax_number_validation ? array_filter(json_decode($tax_number_validation, true)) : []);
 
 
         $store = (new Store)->firstWhere('legacy_id', $legacy['store_key']);
 
         $new_obj_data['tenant_id'] = app('currentTenant')->id;
-        $new_obj_data['store_id'] = $store->id;
+        $new_obj_data['store_id']  = $store->id;
 
         $customer = (new Customer)->updateOrCreate(
             [
@@ -47,6 +53,7 @@ class CustomerController extends Controller {
         if (empty($tax_number_validation)) {
             unset($data['tax_number_validation']);
         } else {
+            $tax_number_validation         = array_filter($tax_number_validation);
             $data['tax_number_validation'] = $tax_number_validation;
         }
         $data = array_filter($data);
