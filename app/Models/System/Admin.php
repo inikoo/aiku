@@ -38,8 +38,8 @@ class Admin extends Model {
                     [
                         'handle'    => Str::slug($admin->slug),
                         'tenant_id' => $admin->tenant_id,
-                        'password'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                        'pin'  => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                        'password'  => (config('env') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                        'pin'  => (config('env') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
                         'legacy_id' => $admin->legacy_id,
                         'settings'  => [],
                         'data'      => []

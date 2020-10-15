@@ -146,7 +146,7 @@ trait LegacyDataMigration {
     function get_image_filename($image_legacy_data) {
 
 
-        $image_path = sprintf(env('LEGACY_IMAGES_PATH'), $this->tenant->data['legacy']['code']).$image_legacy_data->{'Image File Checksum'}[0].'/'.$image_legacy_data->{'Image File Checksum'}[1].'/'.$image_legacy_data->{'Image File Checksum'}.'.'
+        $image_path = sprintf(config('legacy.images_path'), $this->tenant->data['legacy']['code']).$image_legacy_data->{'Image File Checksum'}[0].'/'.$image_legacy_data->{'Image File Checksum'}[1].'/'.$image_legacy_data->{'Image File Checksum'}.'.'
             .$image_legacy_data->{'Image File Format'};
 
 

@@ -70,8 +70,8 @@ class Guest extends Model implements Auditable {
                             'tenant_id'     => $guess->tenant_id,
                             'userable_type' => 'Guess',
                             'userable_id'   => $guess->id,
-                            'password'      => (env('APP_ENV', 'production') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                            'pin'           => (env('APP_ENV', 'production') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                            'password'      => (config('env') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                            'pin'           => (config('env') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
                             'status'        => ($guess->status == 'working' ? 'active' : 'suspended'),
 
                             'settings' => [],

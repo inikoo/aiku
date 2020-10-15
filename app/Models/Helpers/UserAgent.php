@@ -47,9 +47,9 @@ class UserAgent extends Model {
     public function fetch_user_agent_device_data() {
 
 
-        $api_url = env('USER_AGENT_API_URL');
+        $api_url = config('user_agent_api.url');
 
-        $api_keys = preg_split('/,/', env('USER_AGENT_API_KEYS', []));
+        $api_keys = preg_split('/,/', config('user_agent_api.keys'));
 
         if (count($api_keys) == 0 or $api_url == '') {
             throw new Exception(
