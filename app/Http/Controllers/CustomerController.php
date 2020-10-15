@@ -8,6 +8,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CRM\Customer;
+use App\Models\Stores\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -19,21 +20,22 @@ class CustomerController extends Controller {
 
         Customer::disableAuditing();
 
-        $new_obj_data              = $request->all();
+        $new_obj_data = $request->all();
 
-        $data = json_decode(Arr::pull($new_obj_data, 'data', '[]'),true);
-        $settings = json_decode(Arr::pull($new_obj_data, 'settings', '[]'),true);
-        $tax_number_validation = json_decode(Arr::pull($new_obj_data, 'tax_number_validation', '[]'),true);
+        $legacy = json_decode(Arr::pull($new_obj_data, 'legacy', '[]'), true);
+
+        $data                  = json_decode(Arr::pull($new_obj_data, 'data', '[]'), true);
+        $settings              = json_decode(Arr::pull($new_obj_data, 'settings', '[]'), true);
+        $tax_number_validation = json_decode(Arr::pull($new_obj_data, 'tax_number_validation', '[]'), true);
         $tax_number_validation = array_filter($tax_number_validation);
 
-
+        $store = (new Store)->firstWhere('legacy_id', $legacy['store_key']);
 
 
         $new_obj_data['tenant_id'] = app('currentTenant')->id;
+        $new_obj_data['store_key'] = $store->id;
 
-
-
-        $store = (new Customer)->updateOrCreate(
+        $customer = (new Customer)->updateOrCreate(
             [
                 'legacy_id' => $request->legacy_id,
 
@@ -41,22 +43,22 @@ class CustomerController extends Controller {
         );
 
 
+        $data = $data + $customer->data;
 
-        $data=$data+$store->data;
-
-        if(empty($tax_number_validation)){
+        if (empty($tax_number_validation)) {
             unset($data['tax_number_validation']);
-        }else{
-            $data['tax_number_validation']=$tax_number_validation;
+        } else {
+            $data['tax_number_validation'] = $tax_number_validation;
         }
         $data = array_filter($data);
 
 
-        $store->data=$data;
-        $store->settings=$settings+$store->settings;
+        $customer->data     = $data;
+        $customer->settings = $settings + $customer->settings;
 
-        $store->save();
-        return response()->json($store, 200);
+        $customer->save();
+
+        return response()->json($customer, 200);
 
 
     }
