@@ -22,18 +22,17 @@ class CustomerController extends Controller {
 
         $new_obj_data = $request->all();
 
-        $legacy = json_decode(Arr::pull($new_obj_data, 'legacy', '[]'), true);
-
+        $legacy                = json_decode(Arr::pull($new_obj_data, 'legacy', '[]'), true);
         $data                  = json_decode(Arr::pull($new_obj_data, 'data', '[]'), true);
         $settings              = json_decode(Arr::pull($new_obj_data, 'settings', '[]'), true);
         $tax_number_validation = json_decode(Arr::pull($new_obj_data, 'tax_number_validation', '[]'), true);
         $tax_number_validation = array_filter($tax_number_validation);
 
+
         $store = (new Store)->firstWhere('legacy_id', $legacy['store_key']);
 
-
         $new_obj_data['tenant_id'] = app('currentTenant')->id;
-        $new_obj_data['store_key'] = $store->id;
+        $new_obj_data['store_id'] = $store->id;
 
         $customer = (new Customer)->updateOrCreate(
             [
