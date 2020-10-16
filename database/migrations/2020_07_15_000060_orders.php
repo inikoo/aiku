@@ -127,6 +127,9 @@ class Orders extends Migration {
             $table->foreign('store_id')->references('id')->on('stores');
             $table->unsignedMediumInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
+            $table->unsignedMediumInteger('customer_client_id')->nullable()->index();
+            $table->foreign('customer_client_id')->references('id')->on('customer_clients');
+
 
             $table->unsignedMediumInteger('billing_id')->nullable()->index();
             $table->foreign('billing_id')->references('id')->on('addresses');

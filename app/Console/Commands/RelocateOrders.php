@@ -9,6 +9,7 @@ namespace App\Console\Commands;
 
 use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\CRM\Customer;
+use App\Models\CRM\CustomerClient;
 use App\Models\Distribution\DeliveryNote;
 use App\Models\Distribution\Shipper;
 use App\Models\Distribution\Stock;
@@ -49,18 +50,17 @@ class RelocateOrders extends Command {
             $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
-
             print ('Relocation orders from '.$this->tenant->subdomain." ".$this->tenant->data['legacy']['db']."  \n");
 
             $count_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_orders_table, [])[0];
-            $bar = $this->output->createProgressBar($count_data->num);
+            $bar        = $this->output->createProgressBar($count_data->num);
             $bar->setFormat('debug');
             $bar->start();
-            $max = 500;
+            $max   = 500;
             $total = $count_data->num;
             $pages = ceil($total / $max);
             for ($i = 1; $i < ($pages + 1); $i++) {
-                $offset = (($i - 1)  * $max);
+                $offset = (($i - 1) * $max);
 
                 foreach (DB::connection('legacy')->select("select * from $legacy_orders_table  limit $offset,  $max   ", []) as $legacy_data) {
                     $otf_table = ' `Order Transaction Fact` ';
@@ -185,13 +185,6 @@ class RelocateOrders extends Command {
                 }
 
             }
-
-
-
-
-
-
-
 
 
             $bar->finish();
@@ -360,6 +353,12 @@ class RelocateOrders extends Command {
         $store    = (new Store)->firstWhere('legacy_id', $legacy_data->{'Order Store Key'});
         $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
 
+        $customer_client_id = null;
+        if ($legacy_data->{'Order Customer Client Key'}) {
+            $customer_client    = CustomerClient::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Client Key'});
+            $customer_client_id = $customer_client->id;
+        }
+
 
         //enum('InBasket','InProcess','InWarehouse','PackedDone','Approved','Dispatched','Cancelled')
 
@@ -400,9 +399,10 @@ class RelocateOrders extends Command {
                 'legacy_id' => $legacy_data->{'Order Key'},
 
             ], [
-                'tenant_id'   => $this->tenant->id,
-                'store_id'    => $store->id,
-                'customer_id' => $customer->id,
+                'tenant_id'           => $this->tenant->id,
+                'store_id'            => $store->id,
+                'customer_id'         => $customer->id,
+                'customer_client_id' => $customer_client_id,
 
                 'number'  => $legacy_data->{'Order Public ID'},
                 'total'   => $legacy_data->{'Order Total Amount'},
@@ -558,7 +558,7 @@ class RelocateOrders extends Command {
 
         $shipper_id = null;
         if ($shipper = (new Shipper)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Shipper Key'})) {
-            $shipper_id=$shipper->id;
+            $shipper_id = $shipper->id;
         }
 
         $dispatched_at = null;
@@ -574,7 +574,7 @@ class RelocateOrders extends Command {
             case 'Cancelled':
 
                 $cancelled_at = $legacy_data->{'Delivery Note Date Cancelled'};
-                $shipper_id=null;
+                $shipper_id   = null;
 
 
         }
@@ -603,7 +603,6 @@ class RelocateOrders extends Command {
         }
 
 
-
         $delivery_note = (new DeliveryNote)->updateOrCreate(
             [
                 'legacy_id' => $legacy_data->{'Delivery Note Key'},
@@ -620,12 +619,12 @@ class RelocateOrders extends Command {
                 'weight' => $legacy_data->{'Delivery Note Weight'},
 
 
-                'state'     => $state,
-                'status'    => $status,
-                'date'      => $legacy_data->{'Delivery Note Date'},
-                'picker_id' => $picker_id,
-                'packer_id' => $packer_id,
-                'shipper_id'   => $shipper_id,
+                'state'      => $state,
+                'status'     => $status,
+                'date'       => $legacy_data->{'Delivery Note Date'},
+                'picker_id'  => $picker_id,
+                'packer_id'  => $packer_id,
+                'shipper_id' => $shipper_id,
 
 
                 'data'               => $order_data,
@@ -652,7 +651,6 @@ class RelocateOrders extends Command {
 
         return $delivery_note;
     }
-
 
 
 }
