@@ -63,8 +63,6 @@ class CustomerController extends Controller {
     }
 
 
-
-
     function update($legacy_id, Request $request) {
 
         $this->parseRequest($request);
@@ -72,6 +70,11 @@ class CustomerController extends Controller {
 
         $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_id);
 
+
+        if (!$customer) {
+            return response()->json(['errors' => 'object not found'], 422);
+
+        }
 
 
         if (isset($this->legacy['billing_address'])) {
@@ -81,16 +84,15 @@ class CustomerController extends Controller {
             $delivery_address = $customer->deliveryAddress;
 
 
-
             $customer = legacy_process_addresses($customer, $billing_address, $delivery_address);
 
         } elseif (isset($this->legacy['delivery_address'])) {
 
             $delivery_address = $this->get_address('Customer', $customer->id, $this->legacy['delivery_address']);
             $billing_address  = $customer->billingAddress;
-            $customer = legacy_process_addresses($customer, $billing_address, $delivery_address);
+            $customer         = legacy_process_addresses($customer, $billing_address, $delivery_address);
 
-        }else{
+        } else {
 
             $customer->fill($this->object_parameters);
 
@@ -109,8 +111,6 @@ class CustomerController extends Controller {
             $customer->save();
 
         }
-
-
 
 
         return response()->json($customer, 200);
