@@ -7,7 +7,9 @@
 
 namespace App\Models\Helpers;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -83,6 +85,16 @@ class Address extends Model implements Auditable {
                 )
             )
         );
+    }
+
+    function deleteIfOrphan(){
+        if(!DB::table('addressables')->where('address_id', $this->id)->exists()){
+            try {
+                $this->delete();
+            } catch (Exception $e) {
+                //
+            }
+        }
     }
 
 

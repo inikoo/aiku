@@ -48,11 +48,10 @@ class RelocateCustomers extends Command {
 
             print ('Relocation customers from '.$this->tenant->subdomain."\n");
 
-            $count_customers_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_customers_table, [])[0];
+            $count_customers_data = DB::connection('legacy')->select("select count(*) as num from $legacy_customers_table", [])[0];
             $bar = $this->output->createProgressBar($count_customers_data->num);
             $bar->setFormat('debug');
             $bar->start();
-
             $max   = 1000;
             $total = $count_customers_data->num;
             $pages = ceil($total / $max);
@@ -216,36 +215,11 @@ class RelocateCustomers extends Command {
         );
 
 
-        if (!$customer->billing_address_id) {
-            $billing_address = $this->process_instance_address('Customer', $customer->id, 'Invoice', $legacy_data);
-        } else {
-            $billing_address = $customer->billingAddress;
-
-            $_billing_address = $this->get_instance_address_scaffolding('Customer', 'Invoice', $legacy_data);
+        $billing_address  = $this->process_instance_address('Customer', $customer->id, 'Invoice', $legacy_data);
+        $delivery_address = $this->process_instance_address('Customer', $customer->id, 'Delivery', $legacy_data);
 
 
-            $billing_address->fill($_billing_address->attributesToArray());
-            $billing_address->save();
-            $customer->addresses()->syncWithoutDetaching([$billing_address->id]);
-        }
-        $customer->billing_address_id = $billing_address->id;
-        $customer->country_id         = $billing_address->country_id;
-        $customer->save();
-
-        if (!$customer->delivery_address_id) {
-            $delivery_address = $this->process_instance_address('Customer', $customer->id, 'Delivery', $legacy_data);
-        } else {
-            $delivery_address = $customer->deliveryAddress;
-
-            $_delivery_address = $this->get_instance_address_scaffolding('Customer', 'Delivery', $legacy_data);
-
-
-            $delivery_address->fill($_delivery_address->attributesToArray());
-            $delivery_address->save();
-            $customer->addresses()->syncWithoutDetaching([$delivery_address->id]);
-        }
-        $customer->delivery_address_id = $delivery_address->id;
-        $customer->save();
+        $customer = legacy_process_addresses($customer, $billing_address, $delivery_address);
 
 
         if ($store->data['type'] == 'dropshipping') {
@@ -318,8 +292,8 @@ class RelocateCustomers extends Command {
         foreach (DB::connection('legacy')->select("select * from $_table where $_where=?", [$customer->legacy_id]) as $legacy_data) {
 
 
-            $product            = (new Product)->firstWhere('legacy_id', $legacy_data->{'Customer Portfolio Product ID'});
-             CustomerPortfolio::withTrashed()->updateOrCreate(
+            $product = (new Product)->firstWhere('legacy_id', $legacy_data->{'Customer Portfolio Product ID'});
+            CustomerPortfolio::withTrashed()->updateOrCreate(
                 [
                     'legacy_id' => $legacy_data->{'Customer Portfolio Key'},
 

@@ -51,11 +51,18 @@ Route::middleware('auth:sanctum')->prefix('legacy')->group(
                    ]
         )->name('update_store');
         Route::post(
-            'customer', [
+            'customer/{legacy_id}', [
                           CustomerController::class,
                           'update'
                       ]
         )->name('update_customer');
+        Route::post(
+            'customer', [
+                          CustomerController::class,
+                          'create'
+                      ]
+        )->name('create_customer');
+
         Route::post(
             'customer_client', [
                                  CustomerClientController::class,

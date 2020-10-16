@@ -67,7 +67,7 @@ class Customer extends Model implements Auditable {
     }
 
     public function addresses() {
-        return $this->morphToMany('App\Models\Helpers\Address', 'addressable');
+        return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps();
     }
 
     public function getSluggledNameAttribute() {

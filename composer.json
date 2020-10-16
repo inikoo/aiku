@@ -57,7 +57,8 @@
     },
     "autoload": {
         "files": [
-            "app/helpers.php"
+            "app/helpers.php",
+            "app/legacy_helpers.php"
         ],
 
         "psr-4": {
