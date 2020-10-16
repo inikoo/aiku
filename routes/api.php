@@ -36,39 +36,39 @@ Route::middleware('auth:sanctum')->prefix('legacy')->group(
                           EmployeeController::class,
                           'update'
                       ]
-        );
+        )->name('update_employee');
         Route::post(
             'user', [
                       UserController::class,
                       'update'
                   ]
-        );
+        )->name('update_user');
 
         Route::post(
             'store', [
                        StoreController::class,
                        'update'
                    ]
-        );
+        )->name('update_store');
         Route::post(
             'customer', [
                           CustomerController::class,
                           'update'
                       ]
-        );
+        )->name('update_customer');
         Route::post(
             'customer_client', [
                                  CustomerClientController::class,
                                  'update'
                              ]
-        );
+        )->name('update_customer_client');
 
         Route::post(
             'stock', [
                        StockController::class,
                        'update'
                    ]
-        );
+        )->name('update_stock');
 
     }
 );
