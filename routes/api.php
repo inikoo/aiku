@@ -3,6 +3,7 @@
 use App\Http\Controllers\CustomerClientController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -45,21 +46,28 @@ Route::middleware('auth:sanctum')->prefix('legacy')->group(
 
         Route::post(
             'store', [
-                      StoreController::class,
-                      'update'
-                  ]
-        );
-        Route::post(
-            'customer', [
-                       CustomerController::class,
+                       StoreController::class,
                        'update'
                    ]
         );
         Route::post(
-            'customer_client', [
-                          CustomerClientController::class,
+            'customer', [
+                          CustomerController::class,
                           'update'
                       ]
+        );
+        Route::post(
+            'customer_client', [
+                                 CustomerClientController::class,
+                                 'update'
+                             ]
+        );
+
+        Route::post(
+            'stock', [
+                       StockController::class,
+                       'update'
+                   ]
         );
 
     }

@@ -20,6 +20,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $created_at
  * @property string $deleted_at
  * @property int    $legacy_id
+ * @property array  $data
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class

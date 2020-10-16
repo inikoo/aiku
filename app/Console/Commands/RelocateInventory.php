@@ -120,17 +120,16 @@ class RelocateInventory extends Command {
             [
                 'package.description' => 'Part Package Description',
                 'package.weight'      => 'Part Package Weight',
-                'package.dimensions'  => 'Part Package Dimensions',
                 'unit.weight'         => 'Part Unit Weight',
             ], $legacy_data
         );
 
 
-        if ($package_dimensions = json_decode($legacy_data->{'Part Package Dimensions'})) {
+        if ($package_dimensions = json_decode($legacy_data->{'Part Package Dimensions'},true)) {
             Arr::set($stock_data, 'package.dimensions', $package_dimensions);
         }
 
-        if ($unit_dimensions = json_decode($legacy_data->{'Part Unit Dimensions'})) {
+        if ($unit_dimensions = json_decode($legacy_data->{'Part Unit Dimensions'},true)) {
             Arr::set($stock_data, 'unit.dimensions', $unit_dimensions);
         }
 
@@ -179,7 +178,6 @@ class RelocateInventory extends Command {
         }
         if ($barcode == '') {
             $barcode = $legacy_data->{'Part Barcode Number'};
-
         }
         if ($barcode == '') {
             $barcode = null;
