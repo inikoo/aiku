@@ -29,9 +29,9 @@ class IpGeolocation extends Model {
     public function fetch_ip_geolocation_data() {
 
 
-        $api_url=env('IP_GEOLOCATION_API_URL');
+        $api_url=config('geolocation_api.url');
 
-        $api_keys = preg_split('/,/', env('IP_GEOLOCATION_API_KEYS', []));
+        $api_keys = preg_split('/,/', config('geolocation_api.keys'));
 
         if (count($api_keys) == 0 or $api_url=='') {
             return;

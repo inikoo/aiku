@@ -255,6 +255,11 @@ return [
     'user_agent_api' => [
         'url' => env('USER_AGENT_API_URL'),
         'keys' => env('USER_AGENT_API_KEYS'),
+    ],
+    'geolocation_api' => [
+        'url' => env('IP_GEOLOCATION_API_URL'),
+        'keys' => env('IP_GEOLOCATION_API_KEYS'),
     ]
+
 
 ];
