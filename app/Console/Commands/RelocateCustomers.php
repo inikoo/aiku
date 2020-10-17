@@ -49,7 +49,7 @@ class RelocateCustomers extends Command {
             print ('Relocation customers from '.$this->tenant->subdomain."\n");
 
             $count_customers_data = DB::connection('legacy')->select("select count(*) as num from $legacy_customers_table", [])[0];
-            $bar = $this->output->createProgressBar($count_customers_data->num);
+            $bar                  = $this->output->createProgressBar($count_customers_data->num);
             $bar->setFormat('debug');
             $bar->start();
             $max   = 1000;
@@ -174,7 +174,8 @@ class RelocateCustomers extends Command {
         }
 
 
-        $store = (new Store)->firstWhere('legacy_id', $legacy_data->{'Customer Store Key'});
+        $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Customer Store Key'});
+
 
         $imagesModelData = $this->get_images_data(
             [

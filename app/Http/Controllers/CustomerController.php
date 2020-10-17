@@ -39,8 +39,8 @@ class CustomerController extends Controller {
         $this->object_parameters['settings'] = $this->settings;
         $this->object_parameters['data']     = $this->data;
 
+        $store = Store::withTrashed()->firstWhere('legacy_id', $this->legacy['store_key']);
 
-        $store                                = (new Store)->firstWhere('legacy_id', $$this->legacy['store_key']);
         $this->object_parameters['tenant_id'] = app('currentTenant')->id;
         $this->object_parameters['store_id']  = $store->id;
 
