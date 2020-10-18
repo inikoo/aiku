@@ -210,7 +210,6 @@ class Stores extends Migration {
 
             $table->smallInteger('precedence')->default(0);
             $table->string('code');
-            $table->string('code');
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->timestampsTz();
