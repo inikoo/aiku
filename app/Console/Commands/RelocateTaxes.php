@@ -62,6 +62,7 @@ class RelocateTaxes extends Command {
                 'ESP' => 'ES',
                 'GBR' => 'GB',
                 'SVK' => 'SK',
+                'IND' => 'ID',
             ];
 
             $country_code = $country_translations[$legacy_data->{'Tax Category Country Code'}];
