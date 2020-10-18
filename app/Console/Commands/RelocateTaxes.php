@@ -1,0 +1,86 @@
+<?php
+/*
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Thu, 27 Aug 2020 14:16:39 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2020. Aiku.io
+ */
+
+namespace App\Console\Commands;
+
+use App\Console\Commands\Traits\LegacyDataMigration;
+use App\Models\Helpers\Tax;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+
+class RelocateTaxes extends Command {
+
+    use LegacyDataMigration;
+
+    protected $signature = 'relocate:taxes';
+
+    protected $description = 'Migrate legacy taxes';
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+
+    public function handle() {
+
+
+        DB::connection('mysql');
+
+        $table = '`Tax Category Dimension`';
+
+        foreach (DB::connection('mysql')->select('select * from '.$table, []) as $legacy_data) {
+
+
+            if ($legacy_data->{'Composite'} == 'Yes') {
+                continue;
+            }
+
+
+            $tax_data = $this->fill_data(
+                [
+                    'type.code'        => 'Tax Category Type',
+                    'type.description' => 'Tax Category Type Name',
+                    'rete'             => 'Tax Category Rate'
+                ], $legacy_data
+            );
+
+            $tax_data['type']['code'] = strtolower($tax_data['type']['code']);
+
+
+            $country_translations = [
+                'ESP' => 'es',
+                'GBR' => 'gb',
+                'SVK' => 'sk',
+            ];
+
+            $country_code = $country_translations[$legacy_data->{'Tax Category Country Code'}];
+
+
+            (new Tax)->updateOrCreate(
+                [
+                    'legacy_id' => $legacy_data->{'Tax Category Key'},
+                ], [
+                    'status'       => $legacy_data->{'Tax Category Active'} == 'Yes',
+                    'data'         => $tax_data,
+                    'name'         => $legacy_data->{'Tax Category Name'},
+                    'country_code' => $country_code
+
+                ]
+            );
+
+
+        }
+
+
+        return 0;
+
+
+    }
+
+
+}
