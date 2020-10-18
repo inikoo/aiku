@@ -206,58 +206,68 @@ class RelocateStores extends Command {
     function relocate_charges($legacy_data) {
 
 
-        $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Charge Store Key'});
+        if ($store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Charge Store Key'})) {
 
 
-        $charge_data = $this->fill_data(
-            [
-                'description'        => 'Charge Description',
-                'public_description' => 'Charge Public Description',
+            $charge_data = $this->fill_data(
+                [
+                    'description'        => 'Charge Description',
+                    'public_description' => 'Charge Public Description',
 
 
-            ], $legacy_data
-        );
+                ], $legacy_data
+            );
 
 
-        $charge_settings = $this->fill_data(
-            [
-                'amount' => 'Charge Metadata',
+            $charge_settings = $this->fill_data(
+                [
+                    'amount' => 'Charge Metadata',
 
 
-            ], $legacy_data
-        );
+                ], $legacy_data
+            );
 
 
-        if ($legacy_data->{'Charge Terms Type'} == 'Order Items Net Amount') {
-            $where_field = 'itemsNet';
-        } else {
-            $where_field = '';
+            if ($legacy_data->{'Charge Terms Type'} == 'Order Items Net Amount') {
+                $where_field = 'itemsNet';
+            } else {
+                $where_field = '';
+            }
+
+
+            if ($legacy_data->{'Charge Terms Metadata'} != '') {
+
+
+                $where_metadata = preg_split('/;/', $legacy_data->{'Charge Terms Metadata'});
+
+
+                $charge_settings['where'] = [
+                    $where_field,
+                    $where_metadata[0],
+                    $where_metadata[1]
+                ];
+            }
+
+
+
+            return (new Charge)->updateOrCreate(
+                [
+                    'legacy_id' => $legacy_data->{'Charge Key'},
+
+                ], [
+                    'tenant_id'  => $this->tenant->id,
+                    'store_id'   => $store->id,
+                    'type'       => strtolower($legacy_data->{'Charge Scope'}),
+                    'status'     => $legacy_data->{'Charge Active'} == 'Yes',
+                    'name'       => $legacy_data->{'Charge Name'},
+                    'data'       => $charge_data,
+                    'settings'   => $charge_settings,
+                    'created_at' => $legacy_data->{'Charge Begin Date'},
+                ]
+            );
+        }else{
+            return false;
         }
-
-        $where_metadata = preg_split('/;/', $legacy_data->{'Charge Terms Metadata'});
-
-        $charge_settings['where'] = [
-            $where_field,
-            $where_metadata[0],
-            $where_metadata[1]
-        ];
-
-
-        return (new Charge)->updateOrCreate(
-            [
-                'legacy_id' => $legacy_data->{'Charge Key'},
-
-            ], [
-                'tenant_id'  => $this->tenant->id,
-                'store_id'   => $store->id,
-                'type'       => strtolower($legacy_data->{'Charge Scope'}),
-                'status'     => $legacy_data->{'Charge Active'} == 'Yes',
-                'name'       => $legacy_data->{'Charge Name'},
-                'data'       => $charge_data,
-                'settings'   => $charge_settings,
-                'created_at' => $legacy_data->{'Charge Begin Date'},
-            ]
-        );
     }
 
     function relocate_shipping_schemas($legacy_data) {

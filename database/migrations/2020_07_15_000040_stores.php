@@ -205,6 +205,7 @@ class Stores extends Migration {
             $table->unsignedMediumInteger('shipping_schema_id')->nullable()->index();
             $table->foreign('shipping_schema_id')->references('id')->on('shipping_schemas');
             $table->boolean('status')->default(true)->index();
+            $table->string('slug');
 
 
 
