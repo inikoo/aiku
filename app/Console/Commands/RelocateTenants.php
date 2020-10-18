@@ -48,7 +48,7 @@ class RelocateTenants extends Command {
                     'ESP' => 'ES',
                     'GBR' => 'GB',
                     'SVK' => 'SK',
-                    'IND' => 'ID',
+                    'IDN' => 'ID',
 
                 ];
 
