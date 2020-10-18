@@ -222,7 +222,7 @@ class Stores extends Migration {
         Schema::create(
             'tax_bands', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique();
+            $table->string('code')->unique();
             $table->string('type')->index();
             $table->string('name');
             $table->jsonb('data');

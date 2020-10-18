@@ -171,7 +171,6 @@ class Customers extends Migration
     public function down()
     {
         Schema::dropIfExists('basket_transactions');
-        Schema::dropIfExists('tax_bands');
 
         Schema::dropIfExists('baskets');
         Schema::dropIfExists('customer_portfolio_timeline');
