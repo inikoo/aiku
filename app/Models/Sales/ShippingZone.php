@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul A Perusquía-Flores (raul@aiku.io)
- * Created: Sun, 18 Oct 2020 02:16:36 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sun, 18 Oct 2020 15:11:13 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2020. Aiku.io
  */
 
@@ -15,7 +15,6 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 
 /**
- * App\Models\Sales\Charge
  *
  * @property int    $id
  * @property string $deleted_at
@@ -24,7 +23,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
-class Charge extends Model implements Auditable {
+class ShippingZone extends Model implements Auditable {
     use UsesTenantConnection, Sluggable;
     use \OwenIt\Auditing\Auditable;
     use SoftDeletes;
@@ -45,13 +44,13 @@ class Charge extends Model implements Auditable {
     public function sluggable() {
         return [
             'slug' => [
-                'source'   => 'name',
+                'source'   => 'code',
                 'onUpdate' => true
             ]
         ];
     }
 
-    public function store() {
-        return $this->belongsTo('App\Models\Stores\Store');
+    public function shippingSchema() {
+        return $this->belongsTo('App\Models\Sales\ShippingSchema');
     }
 }

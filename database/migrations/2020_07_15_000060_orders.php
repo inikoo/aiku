@@ -47,10 +47,11 @@ class Orders extends Migration {
             $table->unsignedMediumInteger('store_id')->nullable()->index();
             $table->foreign('store_id')->references('id')->on('stores');
 
+            $table->boolean('status');
 
             $table->string('type')->index();
             $table->string('slug');
-            $table->string('code');
+            $table->string('name');
 
             $table->jsonb('settings');
             $table->jsonb('data');
@@ -68,12 +69,14 @@ class Orders extends Migration {
             $table->unsignedMediumInteger('store_id')->nullable()->index();
             $table->foreign('store_id')->references('id')->on('stores');
 
+            $table->boolean('status')->default(true)->index();
 
-            $table->string('type')->index();
             $table->string('slug');
-            $table->string('code');
+            $table->string('name');
 
             $table->jsonb('data');
+            $table->jsonb('settings');
+
             $table->timestampsTz();
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedMediumInteger('legacy_id')->nullable();
@@ -87,6 +90,7 @@ class Orders extends Migration {
 
             $table->unsignedMediumInteger('shipping_schema_id')->nullable()->index();
             $table->foreign('shipping_schema_id')->references('id')->on('shipping_schemas');
+            $table->boolean('status')->default(true)->index();
 
 
 
@@ -94,6 +98,7 @@ class Orders extends Migration {
             $table->string('slug');
             $table->string('code');
             $table->jsonb('data');
+            $table->jsonb('settings');
             $table->timestampsTz();
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedMediumInteger('legacy_id')->nullable();
@@ -143,12 +148,15 @@ class Orders extends Migration {
 
             $table->string('payment_status')->nullable()->index();
 
-            $table->decimal('discounts', 16, 2)->default(0);
 
+            $table->decimal('items_gross', 16, 2)->default(0);
+            $table->decimal('items_discounts', 16, 2)->default(0);
+            $table->decimal('charges', 16, 2)->default(0);
+            $table->decimal('shipping', 16, 2)->default(null)->nullable();
             $table->decimal('net', 16, 2)->default(0);
             $table->decimal('tax', 16, 2)->default(0);
 
-            $table->decimal('total', 16, 2)->default(0);
+
             $table->decimal('payment', 16, 2)->default(0);
 
             $table->decimal('weight', 16, 2)->nullable()->default(0);
@@ -467,23 +475,53 @@ class Orders extends Migration {
         }
         );
 
+
+        Schema::create(
+            'baskets', function (Blueprint $table) {
+            $table->id();
+
+            $table->morphs('parent');
+
+            $table->boolean('status')->default(false);
+
+            $table->unsignedMediumInteger('delivery_id')->nullable()->index();
+            $table->foreign('delivery_id')->references('id')->on('addresses');
+
+            $table->unsignedMediumInteger('items')->default(0);
+
+            $table->decimal('items_gross', 16, 2)->default(0);
+            $table->decimal('items_discounts', 16, 2)->default(0);
+            $table->decimal('charges', 16, 2)->default(0);
+            $table->decimal('shipping', 16, 2)->default(null)->nullable();
+            $table->decimal('net', 16, 2)->default(0);
+            $table->decimal('tax', 16, 2)->default(0);
+
+            $table->jsonb('data');
+
+            $table->timestampsTz();
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+
+            $table->unique(
+                [
+                    'parent_type',
+                    'parent_id'
+                ]
+            );
+
+        }
+        );
+
+
         Schema::create(
             'basket_transactions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedMediumInteger('store_id')->index();
-            $table->foreign('store_id')->references('id')->on('stores');
+            $table->unsignedMediumInteger('basket_id')->index();
+            $table->foreign('basket_id')->references('id')->on('baskets');
 
-            $table->morphs('basketable');
-
-
-            $table->unsignedMediumInteger('customer_id')->index();
-
-            $table->foreign('customer_id')->references('id')->on('customers');
-
+            $table->morphs('transaction');
 
             $table->decimal('quantity', 16, 3);
-
-
             $table->decimal('gross', 16, 2)->default(0);
             $table->decimal('discounts', 16, 2)->default(0);
             $table->decimal('net', 16, 2)->default(0);
@@ -498,13 +536,14 @@ class Orders extends Migration {
 
             $table->unique(
                 [
-                    'basketable_type',
+                    'transaction_type',
                     'legacy_id'
                 ]
             );
 
         }
         );
+
 
         Schema::create(
             'placing_returns', function (Blueprint $table) {
@@ -576,7 +615,10 @@ class Orders extends Migration {
         Schema::dropIfExists('delivery_note_picker');
 
         Schema::dropIfExists('placing_returns');
+
         Schema::dropIfExists('basket_transactions');
+        Schema::dropIfExists('baskets');
+
         Schema::dropIfExists('delivery_note_items');
 
         Schema::dropIfExists('pickings');

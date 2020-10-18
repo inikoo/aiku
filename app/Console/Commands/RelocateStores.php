@@ -12,6 +12,9 @@ namespace App\Console\Commands;
 use App\Console\Commands\Traits\LegacyDataMigration;
 
 use App\Models\ECommerce\Website;
+use App\Models\Sales\Charge;
+use App\Models\Sales\ShippingSchema;
+use App\Models\Sales\ShippingZone;
 use App\Models\Stores\Store;
 use App\Tenant;
 use Illuminate\Support\Facades\DB;
@@ -35,8 +38,10 @@ class RelocateStores extends Command {
     public function handle() {
         $this->tenant = Tenant::current();
 
-        $legacy_stores_table   = '`Store Dimension`';
-        $legacy_websites_table = '`Website Dimension`';
+        $legacy_stores_table           = '`Store Dimension`';
+        $legacy_websites_table         = '`Website Dimension`';
+        $legacy_charges_table          = '`Charge Dimension`';
+        $legacy_shipping_schemas_table = '`Shipping Zone Schema Dimension`';
 
         if (Arr::get($this->tenant->data, 'legacy')) {
             print ('Relocation Stores/Websites '.$this->tenant->subdomain."\n");
@@ -50,6 +55,14 @@ class RelocateStores extends Command {
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_websites_table, []) as $legacy_data) {
                 $this->relocate_websites($legacy_data);
+            }
+
+            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_charges_table, []) as $legacy_data) {
+                $this->relocate_charges($legacy_data);
+            }
+
+            foreach (DB::connection('legacy')->select("select * from".' '.$legacy_shipping_schemas_table, []) as $legacy_data) {
+                $this->relocate_shipping_schemas($legacy_data);
             }
 
 
@@ -79,7 +92,7 @@ class RelocateStores extends Command {
             ], $legacy_data
         );
 
-        $website_data['type']=strtolower($website_data['type']);
+        $website_data['type'] = strtolower($website_data['type']);
 
         $website_settings = $this->fill_data(
             [
@@ -187,6 +200,151 @@ class RelocateStores extends Command {
                 'deleted_at'  => ($state == 'closed' ? gmdate('Y-m-d H:i:s') : null)
             ]
         );
+    }
+
+    function relocate_charges($legacy_data) {
+
+
+        $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Charge Store Key'});
+
+
+        $charge_data = $this->fill_data(
+            [
+                'description'        => 'Charge Description',
+                'public_description' => 'Charge Public Description',
+
+
+            ], $legacy_data
+        );
+
+
+        $charge_settings = $this->fill_data(
+            [
+                'amount' => 'Charge Metadata',
+
+
+            ], $legacy_data
+        );
+
+
+        if ($legacy_data->{'Charge Terms Type'} == 'Order Items Net Amount') {
+            $where_field = 'itemsNet';
+        } else {
+            $where_field = '';
+        }
+
+        $where_metadata = preg_split('/;/', $legacy_data->{'Charge Terms Metadata'});
+
+        $charge_settings['where'] = [
+            $where_field,
+            $where_metadata[0],
+            $where_metadata[1]
+        ];
+
+
+        return (new Charge)->updateOrCreate(
+            [
+                'legacy_id' => $legacy_data->{'Charge Key'},
+
+            ], [
+                'tenant_id'  => $this->tenant->id,
+                'store_id'   => $store->id,
+                'type'       => strtolower($legacy_data->{'Charge Scope'}),
+                'status'     => $legacy_data->{'Charge Active'} == 'Yes',
+                'name'       => $legacy_data->{'Charge Name'},
+                'data'       => $charge_data,
+                'settings'   => $charge_settings,
+                'created_at' => $legacy_data->{'Charge Begin Date'},
+            ]
+        );
+    }
+
+    function relocate_shipping_schemas($legacy_data) {
+
+
+        $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Shipping Zone Schema Store Key'});
+
+
+        $shipping_schema_data = $this->fill_data(
+            [
+                'type' => 'Shipping Zone Schema Type',
+            ], $legacy_data, 'strtolower'
+        );
+
+
+        $shipping_schema_settings = $this->fill_data(
+            [], $legacy_data
+        );
+
+
+        $shipping_schema = (new ShippingSchema())->updateOrCreate(
+            [
+                'legacy_id' => $legacy_data->{'Shipping Zone Schema Key'},
+
+            ], [
+                'tenant_id'  => $this->tenant->id,
+                'store_id'   => $store->id,
+                'status'     => $legacy_data->{'Shipping Zone Schema Store State'} == 'Active',
+                'name'       => $legacy_data->{'Shipping Zone Schema Label'},
+                'data'       => $shipping_schema_data,
+                'settings'   => $shipping_schema_settings,
+                'created_at' => $legacy_data->{'Shipping Zone Schema Creation Date'},
+            ]
+        );
+
+        $shipping_zones_table = '`Shipping Zone Dimension`';
+        $_where               = '`Shipping Zone Shipping Zone Schema Key`';
+        foreach (DB::connection('legacy')->select("select * from  $shipping_zones_table where  $_where=?", [$legacy_data->{'Shipping Zone Schema Key'}]) as $legacy_shipping_zone_data) {
+
+
+            $shipping_schema_data = $this->fill_data(
+                [
+                    'name' => 'Shipping Zone Name',
+                ], $legacy_shipping_zone_data
+            );
+
+
+            $price_data                        = json_decode($legacy_shipping_zone_data->{'Shipping Zone Price'}, true);
+
+            if($price_data['type']=='TBC'){
+                $shipping_schema_settings['price'] = [
+                    'type'   => 'tbp',
+                    'metric' => '',
+                    'rules'  => ''
+                ];
+            }else{
+                $shipping_schema_settings['price'] = [
+                    'type'   => 'steps',
+                    'metric' => 'itemsNet',
+                    'rules'  => $price_data['steps']
+                ];
+            }
+
+
+
+            $shipping_schema_settings['territories'] = json_decode($legacy_shipping_zone_data->{'Shipping Zone Territories'});
+
+            (new ShippingZone())->updateOrCreate(
+                [
+                    'legacy_id' => $legacy_shipping_zone_data->{'Shipping Zone Key'},
+
+                ], [
+                    'tenant_id'          => $this->tenant->id,
+                    'shipping_schema_id' => $shipping_schema->id,
+                    'status'             => $legacy_shipping_zone_data->{'Shipping Zone Active'} == 'Yes',
+                    'code'               => $legacy_shipping_zone_data->{'Shipping Zone Code'},
+                    'data'               => $shipping_schema_data,
+                    'settings'           => $shipping_schema_settings,
+                    'created_at'         => $legacy_shipping_zone_data->{'Shipping Zone Creation Date'},
+                    'precedence'         => $legacy_shipping_zone_data->{'Shipping Zone Position'}
+                ]
+            );
+
+        }
+
+        return $shipping_schema;
+
+
     }
 
 
