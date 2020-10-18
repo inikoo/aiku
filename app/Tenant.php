@@ -57,6 +57,7 @@ class Tenant extends Tenanto {
                 Artisan::call('tenants:artisan "migrate:refresh --database=tenant" --tenant='.$tenant->id );
                 Artisan::call('tenants:artisan "db:seed --database=tenant --class=NewTenantSeeder" --tenant='.$tenant->id);
                 Artisan::call('tenants:artisan "db:seed --database=tenant --class=CountrySeeder" --tenant='.$tenant->id);
+                Artisan::call('tenants:artisan "db:seed --database=tenant --class=TaxBandSeeder" --tenant='.$tenant->id);
 
 
             }

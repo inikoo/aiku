@@ -37,7 +37,7 @@ class BasketTransaction extends Pivot {
 
     public function products()
     {
-        return $this->morphedByMany('App\Models\Store\Product', 'basketable','basket_transactions');
+        return $this->morphedByMany('App\Models\Store\Product', 'transaction','basket_transactions');
 
     }
 

@@ -7,6 +7,7 @@
 
 namespace App\Models\CRM;
 
+use App\Models\Sales\Basket;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -61,6 +62,21 @@ class CustomerClient extends Model implements Auditable {
         return $sluggableName;
     }
 
+    protected static function booted() {
+        static::created(
+            function ($customer_client) {
+                $basket            = new Basket;
+                $basket->tenant_id = $customer_client->tenant_id;
+                $customer_client->basket()->save($basket);
+
+
+            }
+        );
+    }
+
+    public function basket() {
+        return $this->morphOne('App\Models\Sales\Basket', 'parent');
+    }
 
     public function customer() {
         return $this->belongsTo('App\Models\CRM\Customer');

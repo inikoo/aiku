@@ -82,6 +82,85 @@ class Customers extends Migration
         });
 
 
+
+        Schema::create(
+            'baskets', function (Blueprint $table) {
+            $table->id();
+
+            $table->morphs('parent');
+
+            $table->boolean('status')->default(false);
+
+            $table->unsignedMediumInteger('delivery_id')->nullable()->index();
+            $table->foreign('delivery_id')->references('id')->on('addresses');
+
+            $table->unsignedMediumInteger('items')->default(0);
+
+            $table->decimal('items_discounts', 16, 2)->default(0);
+            $table->decimal('items_net', 16, 2)->default(0);
+
+            $table->decimal('charges', 16, 2)->default(0);
+            $table->decimal('shipping', 16, 2)->default(null)->nullable();
+            $table->decimal('net', 16, 2)->default(0);
+            $table->decimal('tax', 16, 2)->default(0);
+
+            $table->jsonb('data');
+
+            $table->timestampsTz();
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+
+            $table->unique(
+                [
+                    'parent_type',
+                    'parent_id'
+                ]
+            );
+
+        }
+        );
+
+
+
+        Schema::create(
+            'basket_transactions', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedMediumInteger('basket_id')->index();
+            $table->foreign('basket_id')->references('id')->on('baskets');
+
+
+
+            $table->string('transaction_type')->index();
+            $table->unsignedBigInteger('transaction_id')->nullable();
+
+
+            $table->decimal('quantity', 16, 3);
+
+            $table->decimal('discounts', 16, 2)->default(0);
+            $table->decimal('net', 16, 2)->default(0);
+
+            $table->unsignedMediumInteger('tax_band_id')->nullable()->index();
+            $table->foreign('tax_band_id')->references('id')->on('tax_bands');
+
+            $table->jsonb('data');
+
+            $table->timestampsTz();
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+
+            $table->index(['transaction_id','transaction_type']);
+            $table->unique(
+                [
+                    'transaction_type',
+                    'legacy_id'
+                ]
+            );
+
+        }
+        );
+
+
+
     }
 
     /**
@@ -91,10 +170,15 @@ class Customers extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('basket_transactions');
+        Schema::dropIfExists('tax_bands');
+
+        Schema::dropIfExists('baskets');
         Schema::dropIfExists('customer_portfolio_timeline');
         Schema::dropIfExists('customer_portfolio');
         Schema::dropIfExists('customer_clients');
         Schema::dropIfExists('customers');
+
 
     }
 }

@@ -7,9 +7,11 @@ Version 4
 
 namespace App\Models\CRM;
 
+use App\Models\Sales\Basket;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -50,6 +52,23 @@ class Customer extends Model implements Auditable {
                 'onUpdate' => true
             ]
         ];
+    }
+    protected static function booted() {
+        static::created(
+            function ($customer) {
+                if(!Arr::exists($customer->data, 'dropshipping')){
+                    $basket=new Basket;
+                    $basket->tenant_id=$customer->tenant_id;
+                    $customer->basket()->save($basket);
+                }
+
+
+            }
+        );
+    }
+
+    public function basket() {
+        return $this->morphOne('App\Models\Sales\Basket', 'parent');
     }
 
     public function store() {

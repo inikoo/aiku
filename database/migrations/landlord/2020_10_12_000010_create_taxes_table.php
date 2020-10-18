@@ -23,8 +23,8 @@ class CreateTaxesTable extends Migration
             $table->smallIncrements('id');
             $table->boolean('status');
             $table->string('slug');
-            $table->string('name');
             $table->string('country_code');
+            $table->string('code');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();

@@ -44,6 +44,7 @@ class RelocateStores extends Command {
         $legacy_shipping_schemas_table = '`Shipping Zone Schema Dimension`';
 
         if (Arr::get($this->tenant->data, 'legacy')) {
+
             print ('Relocation Stores/Websites '.$this->tenant->subdomain."\n");
             $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 

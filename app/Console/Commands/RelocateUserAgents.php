@@ -7,17 +7,18 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Models\Helpers\UserAgent;
-use DB;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
-class LegacyDataMigrationUserAgent extends Command {
+class RelocateUserAgents extends Command {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'ldm:user_agents';
+    protected $signature = 'relocate:user_agents';
 
     /**
      * The console command description.
@@ -45,14 +46,14 @@ class LegacyDataMigrationUserAgent extends Command {
         //comment fetch_user_agent_device_data function in UserAgent class
 
         DB::connection('mysql');
+        $table='`User Agent`';
 
-        $res = DB::connection('mysql')->select('select count(*) as num from `User Agent`', []);
+        $res = DB::connection('mysql')->select('select count(*) as num from '.$table, []);
 
         $bar = $this->output->createProgressBar($res[0]->num);
         $bar->setFormat('debug');
 
-
-        foreach (DB::connection('mysql')->select('select Data from `User Agent`', []) as $legacy_data) {
+        foreach (DB::connection('mysql')->select('select * from '.$table, []) as $legacy_data) {
 
             try {
                 $raw_data   = json_decode($legacy_data->Data, true);

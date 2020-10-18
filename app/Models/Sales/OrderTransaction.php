@@ -33,7 +33,7 @@ class OrderTransaction extends Pivot {
 
     public function productHistoricVariations()
     {
-        return $this->morphedByMany('App\Models\Store\ProductHistoricVariation', 'orderable','order_transactions');
+        return $this->morphedByMany('App\Models\Store\ProductHistoricVariation', 'transaction','order_transactions');
 
     }
 }

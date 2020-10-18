@@ -136,6 +136,102 @@ class Stores extends Migration {
         }
         );
 
+
+        Schema::create(
+            'shippers', function (Blueprint $table) {
+            $table->smallIncrements('id');
+
+
+
+            $table->string('status')->index();
+            $table->string('slug');
+            $table->string('code');
+
+            $table->jsonb('settings');
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
+        }
+        );
+        Schema::create(
+            'charges', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+
+
+            $table->unsignedMediumInteger('store_id')->nullable()->index();
+            $table->foreign('store_id')->references('id')->on('stores');
+
+            $table->boolean('status');
+
+            $table->string('type')->index();
+            $table->string('slug');
+            $table->string('name');
+
+            $table->jsonb('settings');
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
+        }
+        );
+        Schema::create(
+            'shipping_schemas', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+
+            $table->unsignedMediumInteger('store_id')->nullable()->index();
+            $table->foreign('store_id')->references('id')->on('stores');
+
+            $table->boolean('status')->default(true)->index();
+
+            $table->string('slug');
+            $table->string('name');
+
+            $table->jsonb('data');
+            $table->jsonb('settings');
+
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
+        }
+        );
+        Schema::create(
+            'shipping_zones', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+
+            $table->unsignedMediumInteger('shipping_schema_id')->nullable()->index();
+            $table->foreign('shipping_schema_id')->references('id')->on('shipping_schemas');
+            $table->boolean('status')->default(true)->index();
+
+
+
+            $table->smallInteger('precedence')->default(0);
+            $table->string('code');
+            $table->string('code');
+            $table->jsonb('data');
+            $table->jsonb('settings');
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedSmallInteger('tenant_id');
+        }
+        );
+        Schema::create(
+            'tax_bands', function (Blueprint $table) {
+            $table->smallIncrements('id');
+            $table->string('slug')->unique();
+            $table->string('type')->index();
+            $table->string('name');
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+        }
+        );
+
     }
 
 
@@ -145,6 +241,14 @@ class Stores extends Migration {
      * @return void
      */
     public function down() {
+
+        Schema::dropIfExists('tax_bands');
+        Schema::dropIfExists('shipping_zones');
+        Schema::dropIfExists('shipping_schemas');
+        Schema::dropIfExists('charges');
+        Schema::dropIfExists('shippers');
+
+
         Schema::dropIfExists('product_stock');
         Schema::table(
             'products', function (Blueprint $table) {
@@ -156,6 +260,11 @@ class Stores extends Migration {
         Schema::dropIfExists('websites');
 
         Schema::dropIfExists('stores');
+
+
+
+
+
     }
 }
 

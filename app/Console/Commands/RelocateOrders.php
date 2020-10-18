@@ -15,8 +15,10 @@ use App\Models\Distribution\Shipper;
 use App\Models\Distribution\Stock;
 use App\Models\HR\Employee;
 use App\Models\Sales\BasketTransaction;
+use App\Models\Sales\Charge;
 use App\Models\Sales\Order;
 use App\Models\Sales\OrderTransaction;
+use App\Models\Sales\ShippingZone;
 use App\Models\Stores\Product;
 use App\Models\Stores\ProductHistoricVariation;
 use App\Models\Stores\Store;
@@ -62,38 +64,62 @@ class RelocateOrders extends Command {
             for ($i = 1; $i < ($pages + 1); $i++) {
                 $offset = (($i - 1) * $max);
 
+
+                $otf_table            = ' `Order Transaction Fact` ';
+                $otf_table_where      = ' `Order Key` ';
+                $onptf_table          = ' `Order No Product Transaction Fact` ';
+                $onptf_table_where    = ' `Order Key` ';
+                $delivery_notes_table = '`Delivery Note Dimension`';
+                $delivery_notes_where = '`Delivery Note Order Key`';
+
                 foreach (DB::connection('legacy')->select("select * from $legacy_orders_table  limit $offset,  $max   ", []) as $legacy_data) {
-                    $otf_table = ' `Order Transaction Fact` ';
-                    $_where    = ' `Order Key` ';
 
 
                     if ($legacy_data->{'Order State'} == 'InBasket') {
 
+                        $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
 
-                        foreach (DB::connection('legacy')->select("select * from  $otf_table where  $_where=?", [$legacy_data->{'Order Key'}]) as $otf_data) {
+
+                        if (Arr::exists($customer->data, 'dropshipping')) {
+
+                            $customer_client = CustomerClient::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Client Key'});
+
+                            $basket = $customer_client->basket;
+                        } else {
+
+                            $basket = $customer->basket;
+
+                        }
+
+                        foreach (DB::connection('legacy')->select("select * from  $otf_table where  $otf_table_where=?", [$legacy_data->{'Order Key'}]) as $otf_data) {
 
 
-                            if ($basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('basketable_type', 'Product')->first()) {
+                            if ($basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'Product')->first()) {
                                 $basketItem->fill(
                                     [
-                                        'quantity' => $otf_data->{'Order Quantity'},
-                                        'data'     => []
+                                        'quantity'  => $otf_data->{'Order Quantity'},
+                                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                                        'net'       => $otf_data->{'Order Transaction Amount'},
+                                        'data'      => []
                                     ]
                                 );
                                 $basketItem->save();
                             } else {
 
-                                $product  = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
-                                $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
+                                $product = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
 
                                 $basketItems = new BasketTransaction(
                                     [
-                                        'store_id'    => $customer->store_id,
-                                        'customer_id' => $customer->id,
-                                        'tenant_id'   => $this->tenant->id,
-                                        'quantity'    => $otf_data->{'Order Quantity'},
-                                        'legacy_id'   => $otf_data->{'Order Transaction Fact Key'},
-                                        'data'        => []
+                                        'basket_id' => $basket->id,
+
+                                        'tenant_id' => $this->tenant->id,
+                                        'quantity'  => $otf_data->{'Order Quantity'},
+                                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                                        'net'       => $otf_data->{'Order Transaction Amount'},
+
+
+                                        'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
+                                        'data'      => []
                                     ]
                                 );
                                 $product->basketTransactions()->save($basketItems);
@@ -103,15 +129,62 @@ class RelocateOrders extends Command {
                         }
 
 
+                        foreach (DB::connection('legacy')->select("select * from  $onptf_table where  $onptf_table_where=?", [$legacy_data->{'Order Key'}]) as $onptf_data) {
+
+
+                            $transaction_data = $this->get_transaction_data($onptf_data);
+
+
+                            if ($basketItem = (new BasketTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
+                                $basketItem->fill(
+                                    [
+                                        'quantity'  => 1,
+                                        'discounts' => $onptf_data->{'Transaction Total Discount Amount'},
+                                        'net'       => $onptf_data->{'Transaction Net Amount'},
+                                        'data'      => []
+                                    ]
+                                );
+                                $basketItem->save();
+                            } else {
+
+
+                                $basketItem = new BasketTransaction(
+                                    [
+
+                                        'basket_id'        => $basket->id,
+                                        'tenant_id'        => $this->tenant->id,
+                                        'transaction_type' => $transaction_data['type'],
+                                        'transaction_id'   => $transaction_data['id'],
+                                        'quantity'         => 1,
+                                        'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
+                                        'net'              => $onptf_data->{'Transaction Net Amount'},
+
+                                        'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
+                                        'data'      => []
+                                    ]
+                                );
+                                $basketItem->save();
+                            }
+
+
+
+
+
+                        }
+
+
+                        $basket->updateTotals();
+
                     } else {
+
 
                         $order = $this->relocate_order($legacy_data);
 
 
-                        foreach (DB::connection('legacy')->select("select * from  $otf_table where  $_where=?", [$order->legacy_id]) as $otf_data) {
+                        foreach (DB::connection('legacy')->select("select * from  $otf_table where  $otf_table_where=?", [$order->legacy_id]) as $otf_data) {
 
 
-                            if ($orderTransaction = (new OrderTransaction())->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('orderable_type', 'ProductHistoricVariation')->first()) {
+                            if ($orderTransaction = (new OrderTransaction())->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'ProductHistoricVariation')->first()) {
                                 $orderTransaction->fill(
                                     [
                                         'quantity'  => $otf_data->{'Order Quantity'},
@@ -128,12 +201,13 @@ class RelocateOrders extends Command {
 
                                 $orderTransactions = new OrderTransaction(
                                     [
-                                        'store_id'    => $order->store_id,
-                                        'order_id'    => $order->id,
-                                        'customer_id' => $order->customer_id,
-                                        'tenant_id'   => $this->tenant->id,
 
-                                        'quantity'  => $otf_data->{'Order Quantity'},
+                                        'order_id' => $order->id,
+
+                                        'tenant_id' => $this->tenant->id,
+
+                                        'quantity' => $otf_data->{'Order Quantity'},
+
                                         'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
                                         'net'       => $otf_data->{'Order Transaction Amount'},
 
@@ -148,9 +222,47 @@ class RelocateOrders extends Command {
                         }
 
 
-                        // delivery notes
-                        $delivery_notes_table = '`Delivery Note Dimension`';
-                        $delivery_notes_where = '`Delivery Note Order Key`';
+                        foreach (DB::connection('legacy')->select("select * from  $onptf_table where  $onptf_table_where=?", [$legacy_data->{'Order Key'}]) as $onptf_data) {
+
+
+                            $transaction_data = $this->get_transaction_data($onptf_data);
+
+
+                            if ($orderTransaction = (new OrderTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
+                                $orderTransaction->fill(
+                                    [
+                                        'quantity'  => 1,
+                                        'discounts' => $onptf_data->{'Transaction Total Discount Amount'},
+                                        'net'       => $onptf_data->{'Transaction Net Amount'},
+                                        'data'      => []
+                                    ]
+                                );
+                                $orderTransaction->save();
+                            } else {
+
+
+                                $orderTransaction = new OrderTransaction(
+                                    [
+
+                                        'order_id'         => $order->id,
+                                        'tenant_id'        => $this->tenant->id,
+                                        'transaction_type' => $transaction_data['type'],
+                                        'transaction_id'   => $transaction_data['id'],
+                                        'quantity'         => 1,
+                                        'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
+                                        'net'              => $onptf_data->{'Transaction Net Amount'},
+
+                                        'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
+                                        'data'      => []
+                                    ]
+                                );
+                                $orderTransaction->save();
+                            }
+
+
+                        }
+
+
                         foreach (DB::connection('legacy')->select("select * from  $delivery_notes_table where  $delivery_notes_where=?", [$order->legacy_id]) as $dn_legacy_data) {
 
                             if ($dn_legacy_data->{'Delivery Note State'} != 'Cancelled to Restock') {
@@ -399,15 +511,20 @@ class RelocateOrders extends Command {
                 'legacy_id' => $legacy_data->{'Order Key'},
 
             ], [
-                'tenant_id'           => $this->tenant->id,
-                'store_id'            => $store->id,
-                'customer_id'         => $customer->id,
+                'tenant_id'          => $this->tenant->id,
+                'store_id'           => $store->id,
+                'customer_id'        => $customer->id,
                 'customer_client_id' => $customer_client_id,
 
-                'number'  => $legacy_data->{'Order Public ID'},
-                'total'   => $legacy_data->{'Order Total Amount'},
-                'net'     => $legacy_data->{'Order Total Net Amount'},
-                'payment' => $legacy_data->{'Order Payments Amount'},
+                'number' => $legacy_data->{'Order Public ID'},
+
+
+                'payment'         => $legacy_data->{'Order Payments Amount'},
+                'items_discounts' => $legacy_data->{'Order Items Discount Amount'},
+                'shipping'        => $legacy_data->{'Order Shipping Net Amount'},
+                'charges'         => $legacy_data->{'Order Charges Net Amount'},
+                'net'             => $legacy_data->{'Order Total Net Amount'},
+                'tax'             => $legacy_data->{'Order Total Tax Amount'},
 
 
                 'weight' => $legacy_data->{'Order Estimated Weight'},
@@ -652,5 +769,39 @@ class RelocateOrders extends Command {
         return $delivery_note;
     }
 
+    function get_transaction_data($onptf_data) {
+
+        switch ($onptf_data->{'Transaction Type'}) {
+            case 'Shipping':
+                $transaction_type = 'ShippingZone';
+                $transaction_id   = null;
+                if ($onptf_data->{'Transaction Type Key'}) {
+                    if ($shipping_zone = (new ShippingZone())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
+                        $transaction_id = $shipping_zone->id;
+                    }
+
+                }
+                break;
+            case 'Charges':
+                $transaction_type = 'Charge';
+                $transaction_id   = null;
+                if ($onptf_data->{'Transaction Type Key'}) {
+                    if ($charge = (new Charge())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
+                        $transaction_id = $charge->id;
+                    }
+
+                }
+                break;
+            default:
+                print_r($onptf_data);
+                exit();
+        }
+
+        return [
+            'type' => $transaction_type,
+            'id'   => $transaction_id,
+
+        ];
+    }
 
 }

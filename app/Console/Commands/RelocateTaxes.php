@@ -45,17 +45,23 @@ class RelocateTaxes extends Command {
                 [
                     'type.code'        => 'Tax Category Type',
                     'type.description' => 'Tax Category Type Name',
-                    'rete'             => 'Tax Category Rate'
+                    'rate'             => 'Tax Category Rate',
+                    'name'             => 'Tax Category Name'
                 ], $legacy_data
             );
 
             $tax_data['type']['code'] = strtolower($tax_data['type']['code']);
 
+            $tax_data['rate'] = round($tax_data['rate'], 4);
+
+            if ($tax_data['type']['code'] == 'unknown') {
+                $tax_data['rate'] = 0;
+            }
 
             $country_translations = [
-                'ESP' => 'es',
-                'GBR' => 'gb',
-                'SVK' => 'sk',
+                'ESP' => 'ES',
+                'GBR' => 'GB',
+                'SVK' => 'SK',
             ];
 
             $country_code = $country_translations[$legacy_data->{'Tax Category Country Code'}];
@@ -67,7 +73,7 @@ class RelocateTaxes extends Command {
                 ], [
                     'status'       => $legacy_data->{'Tax Category Active'} == 'Yes',
                     'data'         => $tax_data,
-                    'name'         => $legacy_data->{'Tax Category Name'},
+                    'code'         => strtolower($legacy_data->{'Tax Category Code'}),
                     'country_code' => $country_code
 
                 ]

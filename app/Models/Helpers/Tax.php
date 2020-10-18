@@ -35,10 +35,16 @@ class Tax extends Model {
     public function sluggable() {
         return [
             'slug' => [
-                'source'   => 'name',
+                'source'   => 'sluggledCode',
                 'onUpdate' => true
             ]
         ];
+    }
+
+    public function getSluggledCodeAttribute() {
+
+
+        return $this->country_code.'-'.$this->code;
     }
 
 

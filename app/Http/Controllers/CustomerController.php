@@ -41,6 +41,14 @@ class CustomerController extends Controller {
 
         $store = Store::withTrashed()->firstWhere('legacy_id', $this->legacy['store_key']);
 
+
+        if ($store->data['type'] == 'dropshipping') {
+            $this->object_parameters['data'] = [
+                'clients'         => 0,
+                'portfolio_items' => 0
+            ];
+        }
+
         $this->object_parameters['tenant_id'] = app('currentTenant')->id;
         $this->object_parameters['store_id']  = $store->id;
 

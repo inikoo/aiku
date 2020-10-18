@@ -62,7 +62,7 @@ class Product extends Model implements Auditable {
     }
 
     public function basketTransactions() {
-        return $this->morphMany('App\Models\Sales\BasketTransaction', 'basketable',);
+        return $this->morphMany('App\Models\Sales\BasketTransaction', 'transaction');
     }
 
     public function images() {

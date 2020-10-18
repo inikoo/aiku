@@ -29,6 +29,10 @@ ALTER TABLE processed_images ALTER COLUMN image_data SET STORAGE EXTERNAL;
 art tenants:artisan "migrate:refresh --database=tenant"
 art tenants:artisan "db:seed --database=tenant --class=NewTenantSeeder"
 art tenants:artisan "db:seed --database=tenant --class=CountrySeeder"
+
+
+art tenants:artisan "db:seed --database=tenant --class=TaxBandSeeder"
+
 art tenant:access_token au
 
 

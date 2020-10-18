@@ -177,6 +177,13 @@ class RelocateCustomers extends Command {
         $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Customer Store Key'});
 
 
+        if($store->data['type']=='dropshipping'){
+            $customer_data['dropshipping']=[
+                'clients'=>0,
+                'portfolio_items'=>0
+            ];
+        }
+
         $imagesModelData = $this->get_images_data(
             [
                 'object'     => 'Customer',

@@ -7,6 +7,7 @@
 
 namespace App\Models\Sales;
 
+use App\Models\Traits\OrderTotals;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -15,42 +16,45 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 /**
  * App\Models\Sales\Order
  *
- * @property int $id
+ * @property int    $id
+ * @property int    $items
+ * @property float  $items_discounts
+ * @property float  $net
+ * @property float  $tax
+
  * @property string $created_at
  * @property string $legacy_id
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
-class Order extends Model implements Auditable{
-    use UsesTenantConnection;
+class Order extends Model implements Auditable {
+    use UsesTenantConnection, OrderTotals;
     use \OwenIt\Auditing\Auditable;
 
-        protected $casts = [
-        'data'     => 'array'
+    protected $casts = [
+        'data' => 'array'
     ];
 
     protected $attributes = [
         'data' => '{}',
     ];
 
-    protected $guarded=[];
+    protected $guarded = [];
 
     public function store() {
         return $this->belongsTo('App\Models\Stores\Store');
     }
 
-    public function customer()
-    {
+    public function customer() {
         return $this->belongsTo('App\Models\CRM\Customer');
     }
 
-    public function invoices()
-    {
+    public function invoices() {
         return $this->hasMany('App\Models\Sales\Invoice');
     }
-    public function delivery_notes()
-    {
+
+    public function delivery_notes() {
         return $this->hasMany('App\Models\Distribution\DeliveryNote');
     }
 
@@ -58,8 +62,7 @@ class Order extends Model implements Auditable{
         return $this->belongsToMany('App\Models\Stores\Product', 'transactions')->using('App\Models\Sales\OrderTransaction')->withTimestamps()->withPivot(['quantity']);
     }
 
-    public function addresses()
-    {
+    public function addresses() {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps()->withPivot(['scope']);
     }
 
