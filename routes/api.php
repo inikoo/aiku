@@ -76,7 +76,7 @@ Route::middleware('auth:sanctum')->prefix('legacy')->group(
                                  CustomerClientController::class,
                                  'create'
                              ]
-        )->name('update_customer_client');
+        )->name('create_customer_client');
 
 
         Route::post(
