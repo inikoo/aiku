@@ -8,6 +8,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\CRM\Customer;
+use App\Models\CRM\CustomerPortfolio;
+use App\Models\Stores\Product;
 use App\Models\Stores\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -77,7 +79,6 @@ class CustomerController extends Controller {
 
         if (!$customer) {
             return response()->json(['errors' => 'object not found'], 470);
-
         }
 
 
@@ -121,6 +122,42 @@ class CustomerController extends Controller {
 
     }
 
+    function sync_portfolio($legacy_customer_id, $legacy_product_id, Request $request) {
+
+        $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_customer_id);
+        if (!$customer) {
+            return response()->json(['errors' => 'object not found'], 470);
+        }
+        $product = Product::withTrashed()->firstWhere('legacy_id', $legacy_product_id);
+
+        if (!$product) {
+            return response()->json(['errors' => 'object not found'], 470);
+        }
+
+        $request_data = $request->all();
+
+        $customerPortfolioItem=CustomerPortfolio::withTrashed()->updateOrCreate(
+            [
+                'legacy_id' => $request_data['Customer Portfolio Key'],
+
+            ], [
+                'tenant_id'   => app('currentTenant')->id,
+                'customer_id' => $customer->id,
+                'product_id'  => $product->id,
+                'code'        => Arr::get($request_data, 'Customer Portfolio Reference'),
+                'created_at'  => Arr::get($request_data, 'Customer Portfolio Creation Date'),
+                'deleted_at'  => ((Arr::get($request_data, 'Customer Portfolio Customers State') == 'Removed' and Arr::get($request_data, 'Customer Portfolio Removed Date') != '') ? Arr::get($request_data, 'Customer Portfolio Removed Date') : null),
+
+
+            ]
+        );
+
+        return response()->json($customerPortfolioItem, 200);
+
+
+    }
+
+
     function parseRequest($request) {
 
         $request_data          = $request->all();
@@ -139,8 +176,6 @@ class CustomerController extends Controller {
         $this->object_parameters = $request_data;
 
     }
-
-
 
 
 }
