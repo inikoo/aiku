@@ -26,6 +26,7 @@ class TaxBandSeeder extends Seeder {
             foreach ((new Tax)->where('country_code', $country->code)->get() as $tax) {
 
 
+
                 $code = $tax->code;
 
                 $data    = [
@@ -72,6 +73,11 @@ class TaxBandSeeder extends Seeder {
 
 
                     $code = $base->code.'+'.$complement->code;
+
+                    if(round($base->data['rate']+$complement->data['rate'],4)==0.262){
+                        $code='s8';
+                    }
+
                     $data    = [
                         'rate'  => round($base->data['rate']+$complement->data['rate'],4),
                         'taxes' => array_merge($base->data['taxes'],$complement->data['taxes'])

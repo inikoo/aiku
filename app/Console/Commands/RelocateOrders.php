@@ -19,6 +19,7 @@ use App\Models\Sales\Charge;
 use App\Models\Sales\Order;
 use App\Models\Sales\OrderTransaction;
 use App\Models\Sales\ShippingZone;
+use App\Models\Sales\TaxBand;
 use App\Models\Stores\Product;
 use App\Models\Stores\ProductHistoricVariation;
 use App\Models\Stores\Store;
@@ -141,6 +142,7 @@ class RelocateOrders extends Command {
                                         'quantity'  => 1,
                                         'discounts' => $onptf_data->{'Transaction Total Discount Amount'},
                                         'net'       => $onptf_data->{'Transaction Net Amount'},
+                                        'tax_band_id'=>$transaction_data['tax_band_id'],
                                         'data'      => []
                                     ]
                                 );
@@ -158,16 +160,15 @@ class RelocateOrders extends Command {
                                         'quantity'         => 1,
                                         'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
                                         'net'              => $onptf_data->{'Transaction Net Amount'},
+                                        'tax_band_id'=>$transaction_data['tax_band_id'],
 
                                         'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
+
                                         'data'      => []
                                     ]
                                 );
                                 $basketItem->save();
                             }
-
-
-
 
 
                         }
@@ -231,10 +232,11 @@ class RelocateOrders extends Command {
                             if ($orderTransaction = (new OrderTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
                                 $orderTransaction->fill(
                                     [
-                                        'quantity'  => 1,
-                                        'discounts' => $onptf_data->{'Transaction Total Discount Amount'},
-                                        'net'       => $onptf_data->{'Transaction Net Amount'},
-                                        'data'      => []
+                                        'quantity'    => 1,
+                                        'discounts'   => $onptf_data->{'Transaction Total Discount Amount'},
+                                        'net'         => $onptf_data->{'Transaction Net Amount'},
+                                        'tax_band_id' => $transaction_data['tax_band_id'],
+                                        'data'        => []
                                     ]
                                 );
                                 $orderTransaction->save();
@@ -251,6 +253,7 @@ class RelocateOrders extends Command {
                                         'quantity'         => 1,
                                         'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
                                         'net'              => $onptf_data->{'Transaction Net Amount'},
+                                        'tax_band_id'      => $transaction_data['tax_band_id'],
 
                                         'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
                                         'data'      => []
@@ -796,10 +799,19 @@ class RelocateOrders extends Command {
                 print_r($onptf_data);
                 exit();
         }
+        $tax_band_id = null;
+        if ($taxBand = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}))) {
+            $tax_band_id = $taxBand->id;
+        } else {
+            print_r($onptf_data);
+            exit;
+        }
+
 
         return [
-            'type' => $transaction_type,
-            'id'   => $transaction_id,
+            'type'        => $transaction_type,
+            'id'          => $transaction_id,
+            'tax_band_id' => $tax_band_id
 
         ];
     }
