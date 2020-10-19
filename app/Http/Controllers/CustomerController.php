@@ -128,7 +128,7 @@ class CustomerController extends Controller {
         if (!$customer) {
             return response()->json(['errors' => 'object not found'], 470);
         }
-        $product = Product::withTrashed()->firstWhere('legacy_id', $legacy_product_id);
+        $product = (new Product)->firstWhere('legacy_id', $legacy_product_id);
 
         if (!$product) {
             return response()->json(['errors' => 'object not found'], 470);
