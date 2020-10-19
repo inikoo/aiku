@@ -91,8 +91,8 @@ class Customers extends Migration
 
             $table->boolean('status')->default(false);
 
-            $table->unsignedMediumInteger('delivery_id')->nullable()->index();
-            $table->foreign('delivery_id')->references('id')->on('addresses');
+            $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
+            $table->foreign('delivery_address_id')->references('id')->on('addresses');
 
             $table->unsignedMediumInteger('items')->default(0);
 

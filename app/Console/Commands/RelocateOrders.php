@@ -557,8 +557,8 @@ class RelocateOrders extends Command {
         }
 
 
-        $order->billing_id  = $billing_address->id;
-        $order->delivery_id = $delivery_address->id;
+        $order->billing_address_id  = $billing_address->id;
+        $order->delivery_address_id = $delivery_address->id;
         switch ($legacy_data->{'Order State'}) {
             /*
              case 'InBasket':

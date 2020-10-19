@@ -29,10 +29,10 @@ class Orders extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers');
 
 
-            $table->unsignedMediumInteger('billing_id')->nullable()->index();
-            $table->foreign('billing_id')->references('id')->on('addresses');
-            $table->unsignedMediumInteger('delivery_id')->nullable()->index();
-            $table->foreign('delivery_id')->references('id')->on('addresses');
+            $table->unsignedMediumInteger('billing_address_id')->nullable()->index();
+            $table->foreign('billing_address_id')->references('id')->on('addresses');
+            $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
+            $table->foreign('delivery_address_id')->references('id')->on('addresses');
 
 
             $table->string('number')->index();
@@ -176,10 +176,10 @@ class Orders extends Migration {
             $table->unsignedMediumInteger('order_id')->nullable()->index();
             $table->foreign('order_id')->references('id')->on('orders');
 
-            $table->unsignedMediumInteger('billing_id')->nullable()->index();
-            $table->foreign('billing_id')->references('id')->on('addresses');
-            $table->unsignedMediumInteger('delivery_id')->nullable()->index();
-            $table->foreign('delivery_id')->references('id')->on('addresses');
+            $table->unsignedMediumInteger('billing_address_id')->nullable()->index();
+            $table->foreign('billing_address_id')->references('id')->on('addresses');
+            $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
+            $table->foreign('delivery_address_id')->references('id')->on('addresses');
 
 
             $table->string('number')->unique()->index();
