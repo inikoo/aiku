@@ -139,11 +139,11 @@ class RelocateOrders extends Command {
                             if ($basketItem = (new BasketTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
                                 $basketItem->fill(
                                     [
-                                        'quantity'  => 1,
-                                        'discounts' => $onptf_data->{'Transaction Total Discount Amount'},
-                                        'net'       => $onptf_data->{'Transaction Net Amount'},
-                                        'tax_band_id'=>$transaction_data['tax_band_id'],
-                                        'data'      => []
+                                        'quantity'    => 1,
+                                        'discounts'   => $onptf_data->{'Transaction Total Discount Amount'},
+                                        'net'         => $onptf_data->{'Transaction Net Amount'},
+                                        'tax_band_id' => $transaction_data['tax_band_id'],
+                                        'data'        => []
                                     ]
                                 );
                                 $basketItem->save();
@@ -160,11 +160,11 @@ class RelocateOrders extends Command {
                                         'quantity'         => 1,
                                         'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
                                         'net'              => $onptf_data->{'Transaction Net Amount'},
-                                        'tax_band_id'=>$transaction_data['tax_band_id'],
+                                        'tax_band_id'      => $transaction_data['tax_band_id'],
 
                                         'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
 
-                                        'data'      => []
+                                        'data' => []
                                     ]
                                 );
                                 $basketItem->save();

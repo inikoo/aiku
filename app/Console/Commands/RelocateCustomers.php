@@ -48,6 +48,8 @@ class RelocateCustomers extends Command {
 
             print ('Relocation customers from '.$this->tenant->subdomain."\n");
 
+
+
             $count_customers_data = DB::connection('legacy')->select("select count(*) as num from $legacy_customers_table", [])[0];
             $bar                  = $this->output->createProgressBar($count_customers_data->num);
             $bar->setFormat('debug');
@@ -82,6 +84,9 @@ class RelocateCustomers extends Command {
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_deleted_customers_table, []) as $raw_legacy_data) {
 
                 if (!$raw_legacy_data->{'Customer Key'}) {
+                    continue;
+                }
+                if ($raw_legacy_data->{'Customer Deleted Metadata'}=='') {
                     continue;
                 }
 
