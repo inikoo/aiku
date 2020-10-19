@@ -9,11 +9,13 @@ Version 4
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerClient;
 use App\Models\CRM\CustomerPortfolio;
 use App\Models\Helpers\Address;
+use App\Models\Sales\BasketTransaction;
 use App\Models\Stores\Product;
 use App\Models\Stores\Store;
 use App\Tenant;
@@ -236,14 +238,144 @@ class RelocateCustomers extends Command {
 
 
         if ($store->data['type'] == 'dropshipping') {
+
             $this->relocate_customer_client($customer);
             $this->relocate_customer_portfolio($customer);
+
+        }else{
+            $this->relocate_basket($customer->basket);
 
         }
 
 
         return $customer;
 
+
+    }
+
+    function relocate_basket($basket) {
+
+
+
+        if ($basket->parent_type == 'Customer') {
+            $legacy_column_name = 'Order Customer Key';
+        } else {
+            $legacy_column_name = 'Order Customer Client Key';
+
+        }
+        $oldTransactions = $basket->transactions->pluck('id')->all();
+
+        $sql = " * from  `Order Transaction Fact` OTF  left join `Order Dimension` O on (O.`Order Key`=OTF.`Order Key`)   where `$legacy_column_name`=? and `Order State`=?";
+
+        foreach (
+            DB::connection('legacy')->select(
+                'select '.$sql, [
+                                  $basket->parent_id,
+                                  'InBasket'
+                              ]
+            ) as $otf_data
+        ) {
+
+
+            if ($basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'Product')->first()) {
+                $basketItem->fill(
+                    [
+                        'quantity'  => $otf_data->{'Order Quantity'},
+                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                        'net'       => $otf_data->{'Order Transaction Amount'},
+                        'data'      => []
+                    ]
+                );
+                $basketItem->save();
+            } else {
+
+                $product = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
+
+                $basketItems = new BasketTransaction(
+                    [
+                        'basket_id' => $basket->id,
+
+                        'tenant_id' => $this->tenant->id,
+                        'quantity'  => $otf_data->{'Order Quantity'},
+                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                        'net'       => $otf_data->{'Order Transaction Amount'},
+
+
+                        'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
+                        'data'      => []
+                    ]
+                );
+                $product->basketTransactions()->save($basketItems);
+            }
+
+
+            $basket->updateTotals();
+
+
+        }
+
+        $sql = " * from `Order No Product Transaction Fact` OTF left join `Order Dimension` O on (O.`Order Key`=OTF.`Order Key`)  where `$legacy_column_name`=? and `Order State`=? ";
+        foreach (
+            DB::connection('legacy')->select(
+                "select ".$sql, [
+                                  $basket->parent_id,
+                                  'InBasket'
+                              ]
+            ) as $onptf_data
+        ) {
+
+
+            $transaction_data = $this->get_transaction_data($onptf_data);
+
+
+            if ($basketItem = (new BasketTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
+                $basketItem->fill(
+                    [
+                        'quantity'    => 1,
+                        'discounts'   => $onptf_data->{'Transaction Total Discount Amount'},
+                        'net'         => $onptf_data->{'Transaction Net Amount'},
+                        'tax_band_id' => $transaction_data['tax_band_id'],
+                        'data'        => []
+                    ]
+                );
+                $basketItem->save();
+            } else {
+
+
+                $basketItem = new BasketTransaction(
+                    [
+
+                        'basket_id'        => $basket->id,
+                        'tenant_id'        => $this->tenant->id,
+                        'transaction_type' => $transaction_data['type'],
+                        'transaction_id'   => $transaction_data['id'],
+                        'quantity'         => 1,
+                        'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
+                        'net'              => $onptf_data->{'Transaction Net Amount'},
+                        'tax_band_id'      => $transaction_data['tax_band_id'],
+
+                        'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
+
+                        'data' => []
+                    ]
+                );
+                $basketItem->save();
+            }
+
+
+        }
+
+        $basket = $basket->fresh();
+
+        foreach (array_diff($oldTransactions, $basket->transactions->pluck('id')->all()) as $transactionToDelete) {
+            if ($transaction = (new BasketTransaction())->find($transactionToDelete)) {
+                try {
+                    $transaction->delete();
+                } catch (Exception $e) {
+                }
+            }
+
+        }
 
     }
 
@@ -291,18 +423,19 @@ class RelocateCustomers extends Command {
                 ]
             );
 
-            $oldAddressId=$customerClient->deliery_id;
+            $oldAddressId = $customerClient->deliery_id;
 
             $delivery_address = $this->process_instance_address('CustomerClient', $customerClient->id, 'Contact', $legacy_data);
 
-            $customerClient->delivery_address_id=$delivery_address->id;
+            $customerClient->delivery_address_id = $delivery_address->id;
             $customerClient->save();
-            if($oldAddressId and $delivery_address->id!=$oldAddressId){
+            if ($oldAddressId and $delivery_address->id != $oldAddressId) {
                 if ($address = (new Address)->find($oldAddressId)) {
                     $address->deleteIfOrphan();
                 }
             }
 
+            $this->relocate_basket($customerClient->basket);
 
 
         }

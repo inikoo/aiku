@@ -47,5 +47,10 @@ class Basket extends Model {
 
 
 
+    public function transactions()
+    {
+        return $this->hasMany('App\Models\Sales\BasketTransaction');
+    }
+
 
 }

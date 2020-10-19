@@ -14,13 +14,10 @@ use App\Models\Distribution\DeliveryNote;
 use App\Models\Distribution\Shipper;
 use App\Models\Distribution\Stock;
 use App\Models\HR\Employee;
-use App\Models\Sales\BasketTransaction;
-use App\Models\Sales\Charge;
+
 use App\Models\Sales\Order;
 use App\Models\Sales\OrderTransaction;
-use App\Models\Sales\ShippingZone;
-use App\Models\Sales\TaxBand;
-use App\Models\Stores\Product;
+
 use App\Models\Stores\ProductHistoricVariation;
 use App\Models\Stores\Store;
 use App\Tenant;
@@ -76,107 +73,7 @@ class RelocateOrders extends Command {
                 foreach (DB::connection('legacy')->select("select * from $legacy_orders_table  limit $offset,  $max   ", []) as $legacy_data) {
 
 
-                    if ($legacy_data->{'Order State'} == 'InBasket') {
-
-                        $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
-
-
-                        if (Arr::exists($customer->data, 'dropshipping')) {
-
-                            $customer_client = CustomerClient::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Client Key'});
-
-                            $basket = $customer_client->basket;
-                        } else {
-
-                            $basket = $customer->basket;
-
-                        }
-
-                        foreach (DB::connection('legacy')->select("select * from  $otf_table where  $otf_table_where=?", [$legacy_data->{'Order Key'}]) as $otf_data) {
-
-
-                            if ($basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'Product')->first()) {
-                                $basketItem->fill(
-                                    [
-                                        'quantity'  => $otf_data->{'Order Quantity'},
-                                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
-                                        'net'       => $otf_data->{'Order Transaction Amount'},
-                                        'data'      => []
-                                    ]
-                                );
-                                $basketItem->save();
-                            } else {
-
-                                $product = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
-
-                                $basketItems = new BasketTransaction(
-                                    [
-                                        'basket_id' => $basket->id,
-
-                                        'tenant_id' => $this->tenant->id,
-                                        'quantity'  => $otf_data->{'Order Quantity'},
-                                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
-                                        'net'       => $otf_data->{'Order Transaction Amount'},
-
-
-                                        'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
-                                        'data'      => []
-                                    ]
-                                );
-                                $product->basketTransactions()->save($basketItems);
-                            }
-
-
-                        }
-
-
-                        foreach (DB::connection('legacy')->select("select * from  $onptf_table where  $onptf_table_where=?", [$legacy_data->{'Order Key'}]) as $onptf_data) {
-
-
-                            $transaction_data = $this->get_transaction_data($onptf_data);
-
-
-                            if ($basketItem = (new BasketTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
-                                $basketItem->fill(
-                                    [
-                                        'quantity'    => 1,
-                                        'discounts'   => $onptf_data->{'Transaction Total Discount Amount'},
-                                        'net'         => $onptf_data->{'Transaction Net Amount'},
-                                        'tax_band_id' => $transaction_data['tax_band_id'],
-                                        'data'        => []
-                                    ]
-                                );
-                                $basketItem->save();
-                            } else {
-
-
-                                $basketItem = new BasketTransaction(
-                                    [
-
-                                        'basket_id'        => $basket->id,
-                                        'tenant_id'        => $this->tenant->id,
-                                        'transaction_type' => $transaction_data['type'],
-                                        'transaction_id'   => $transaction_data['id'],
-                                        'quantity'         => 1,
-                                        'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
-                                        'net'              => $onptf_data->{'Transaction Net Amount'},
-                                        'tax_band_id'      => $transaction_data['tax_band_id'],
-
-                                        'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
-
-                                        'data' => []
-                                    ]
-                                );
-                                $basketItem->save();
-                            }
-
-
-                        }
-
-
-                        $basket->updateTotals();
-
-                    } else {
+                    if ($legacy_data->{'Order State'} != 'InBasket') {
 
 
                         $order = $this->relocate_order($legacy_data);
@@ -772,48 +669,5 @@ class RelocateOrders extends Command {
         return $delivery_note;
     }
 
-    function get_transaction_data($onptf_data) {
-
-        switch ($onptf_data->{'Transaction Type'}) {
-            case 'Shipping':
-                $transaction_type = 'ShippingZone';
-                $transaction_id   = null;
-                if ($onptf_data->{'Transaction Type Key'}) {
-                    if ($shipping_zone = (new ShippingZone())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
-                        $transaction_id = $shipping_zone->id;
-                    }
-
-                }
-                break;
-            case 'Charges':
-                $transaction_type = 'Charge';
-                $transaction_id   = null;
-                if ($onptf_data->{'Transaction Type Key'}) {
-                    if ($charge = (new Charge())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
-                        $transaction_id = $charge->id;
-                    }
-
-                }
-                break;
-            default:
-                print_r($onptf_data);
-                exit();
-        }
-        $tax_band_id = null;
-        if ($taxBand = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}))) {
-            $tax_band_id = $taxBand->id;
-        } else {
-            print_r($onptf_data);
-            exit;
-        }
-
-
-        return [
-            'type'        => $transaction_type,
-            'id'          => $transaction_id,
-            'tax_band_id' => $tax_band_id
-
-        ];
-    }
 
 }
