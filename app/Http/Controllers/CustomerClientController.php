@@ -9,54 +9,131 @@ namespace App\Http\Controllers;
 
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerClient;
+use App\Models\Helpers\Address;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class CustomerClientController extends Controller {
 
+    private $object_parameters;
+    private $data;
+    private $legacy;
 
-    function update(Request $request) {
-
-
+    public function __construct() {
         CustomerClient::disableAuditing();
+        Address::disableAuditing();
 
-        $new_obj_data = $request->all();
+    }
 
+    function create(Request $request) {
 
-        $legacy                = Arr::pull($new_obj_data, 'legacy', false);
-        $data                  = Arr::pull($new_obj_data, 'data', false);
-
-        $legacy                = ($legacy ? array_filter(json_decode($legacy, true)) : []);
-        $data                  = ($data ? array_filter(json_decode($data, true)) : []);
+        $this->parseRequest($request);
 
 
-        $customer = (new Customer)->firstWhere('legacy_id', $legacy['customer_key']);
-        if(!$customer){
-            return response()->json(['errors' =>'Customer not found'], 422);
+        print_r($request->all());
+
+
+        $this->object_parameters['data'] = $this->data;
+
+
+        $customer = (new Customer)->firstWhere('legacy_id', $this->legacy['customer_key']);
+        if (!$customer) {
+            return response()->json(
+                [
+                    'errors'  => 'Parent not found',
+                    'parents' => [
+                        'Customer' => $this->legacy['customer_key']
+                    ]
+                ], 471
+            );
         }
 
 
-        $new_obj_data['tenant_id'] = app('currentTenant')->id;
-        $new_obj_data['customer_id']  = $customer->id;
+        $this->object_parameters['tenant_id']   = app('currentTenant')->id;
+        $this->object_parameters['customer_id'] = $customer->id;
 
-        $customer_client = (new CustomerClient)->updateOrCreate(
+
+        $customerClient = (new CustomerClient)->updateOrCreate(
             [
                 'legacy_id' => $request->legacy_id,
 
-            ], $new_obj_data
+            ], $this->object_parameters
         );
 
-
-        $data = $data + $customer_client->data;
-        $data = array_filter($data);
+        $customerClient = $this->process_address($customerClient);
 
 
-        $customer_client->data     = $data;
+        return response()->json($customerClient, 200);
+    }
 
-        $customer_client->save();
+    function update($legacy_id, Request $request) {
 
-        return response()->json($customer_client, 200);
+        $this->parseRequest($request);
 
+
+        $customerClient = (new CustomerClient)->firstWhere('legacy_id', $legacy_id);
+
+
+        if (!$customerClient) {
+            return response()->json(['errors' => 'object not found'], 470);
+        }
+
+
+        if (isset($this->legacy['delivery_address'])) {
+
+
+            $customerClient = $this->process_address($customerClient);
+
+
+        } else {
+
+            $customerClient->fill($this->object_parameters);
+
+
+            $data = $this->data + $customerClient->data;
+            $data = array_filter($data);
+
+            $customerClient->data = $data;
+            $customerClient->save();
+
+        }
+
+
+        return response()->json($customerClient, 200);
 
     }
+
+    function process_address($customerClient) {
+
+        $delivery_address = legacy_get_address('CustomerClient', $customerClient->id, $this->legacy['delivery_address']);
+        $oldAddressId     = $customerClient->deliery_id;
+
+        $customerClient->delivery_address_id = $delivery_address->id;
+        $customerClient->save();
+        if ($oldAddressId and $delivery_address->id != $oldAddressId) {
+            if ($address = (new Address)->find($oldAddressId)) {
+                $address->deleteIfOrphan();
+            }
+        }
+
+        return $customerClient;
+
+    }
+
+
+    function parseRequest($request) {
+
+        $request_data = $request->all();
+        $data         = Arr::pull($request_data, 'data', false);
+        $legacy       = Arr::pull($request_data, 'legacy', false);
+
+
+        $this->data   = ($data ? array_filter(json_decode($data, true)) : []);
+        $this->legacy = ($legacy ? array_filter(json_decode($legacy, true)) : []);
+
+
+        $this->object_parameters = $request_data;
+
+    }
+
 }

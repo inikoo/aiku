@@ -13,6 +13,7 @@ use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerClient;
 use App\Models\CRM\CustomerPortfolio;
+use App\Models\Helpers\Address;
 use App\Models\Stores\Product;
 use App\Models\Stores\Store;
 use App\Tenant;
@@ -47,7 +48,6 @@ class RelocateCustomers extends Command {
 
 
             print ('Relocation customers from '.$this->tenant->subdomain."\n");
-
 
 
             $count_customers_data = DB::connection('legacy')->select("select count(*) as num from $legacy_customers_table", [])[0];
@@ -86,7 +86,7 @@ class RelocateCustomers extends Command {
                 if (!$raw_legacy_data->{'Customer Key'}) {
                     continue;
                 }
-                if ($raw_legacy_data->{'Customer Deleted Metadata'}=='') {
+                if ($raw_legacy_data->{'Customer Deleted Metadata'} == '') {
                     continue;
                 }
 
@@ -182,10 +182,10 @@ class RelocateCustomers extends Command {
         $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Customer Store Key'});
 
 
-        if($store->data['type']=='dropshipping'){
-            $customer_data['dropshipping']=[
-                'clients'=>0,
-                'portfolio_items'=>0
+        if ($store->data['type'] == 'dropshipping') {
+            $customer_data['dropshipping'] = [
+                'clients'         => 0,
+                'portfolio_items' => 0
             ];
         }
 
@@ -274,7 +274,7 @@ class RelocateCustomers extends Command {
                 ], $legacy_data
             );
 
-            CustomerClient::withTrashed()->updateOrCreate(
+            $customerClient = CustomerClient::withTrashed()->updateOrCreate(
                 [
                     'legacy_id' => $legacy_data->{'Customer Client Key'},
 
@@ -290,6 +290,19 @@ class RelocateCustomers extends Command {
 
                 ]
             );
+
+            $oldAddressId=$customerClient->deliery_id;
+
+            $delivery_address = $this->process_instance_address('CustomerClient', $customerClient->id, 'Contact', $legacy_data);
+
+            $customerClient->delivery_address_id=$delivery_address->id;
+            $customerClient->save();
+            if($oldAddressId and $delivery_address->id!=$oldAddressId){
+                if ($address = (new Address)->find($oldAddressId)) {
+                    $address->deleteIfOrphan();
+                }
+            }
+
 
 
         }

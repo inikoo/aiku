@@ -8,7 +8,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\CRM\Customer;
-use App\Models\Helpers\Address;
 use App\Models\Stores\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -26,8 +25,6 @@ class CustomerController extends Controller {
 
     public function __construct() {
         Customer::disableAuditing();
-
-
     }
 
     function create(Request $request) {
@@ -37,7 +34,6 @@ class CustomerController extends Controller {
 
         $this->object_parameters['data']     = $this->data;
         $this->object_parameters['settings'] = $this->settings;
-        $this->object_parameters['data']     = $this->data;
 
         $store = Store::withTrashed()->firstWhere('legacy_id', $this->legacy['store_key']);
 
@@ -60,8 +56,8 @@ class CustomerController extends Controller {
         );
 
 
-        $billing_address  = $this->get_address('Customer', $customer->id, $this->legacy['billing_address']);
-        $delivery_address = $this->get_address('Customer', $customer->id, $this->legacy['delivery_address']);
+        $billing_address  = legacy_get_address('Customer', $customer->id, $this->legacy['billing_address']);
+        $delivery_address = legacy_get_address('Customer', $customer->id, $this->legacy['delivery_address']);
 
         $customer = legacy_process_addresses($customer, $billing_address, $delivery_address);
 
@@ -80,7 +76,7 @@ class CustomerController extends Controller {
 
 
         if (!$customer) {
-            return response()->json(['errors' => 'object not found'], 422);
+            return response()->json(['errors' => 'object not found'], 470);
 
         }
 
@@ -88,7 +84,7 @@ class CustomerController extends Controller {
         if (isset($this->legacy['billing_address'])) {
 
 
-            $billing_address  = $this->get_address('Customer', $customer->id, $this->legacy['billing_address']);
+            $billing_address  = legacy_get_address('Customer', $customer->id, $this->legacy['billing_address']);
             $delivery_address = $customer->deliveryAddress;
 
 
@@ -96,7 +92,7 @@ class CustomerController extends Controller {
 
         } elseif (isset($this->legacy['delivery_address'])) {
 
-            $delivery_address = $this->get_address('Customer', $customer->id, $this->legacy['delivery_address']);
+            $delivery_address = legacy_get_address('Customer', $customer->id, $this->legacy['delivery_address']);
             $billing_address  = $customer->billingAddress;
             $customer         = legacy_process_addresses($customer, $billing_address, $delivery_address);
 
@@ -144,32 +140,7 @@ class CustomerController extends Controller {
 
     }
 
-    function get_address($object, $object_key, $address_data) {
 
-
-        $_address = new Address();
-        $_address->fill($address_data);
-
-        return (new Address)->firstOrCreate(
-            [
-                'checksum'   => $_address->getChecksum(),
-                'owner_type' => $object,
-                'owner_id'   => $object_key,
-
-            ], [
-                'address_line_1'      => $_address->address_line_1,
-                'address_line_2'      => $_address->address_line_2,
-                'sorting_code'        => $_address->sorting_code,
-                'postal_code'         => $_address->postal_code,
-                'locality'            => $_address->locality,
-                'dependent_locality'  => $_address->dependent_locality,
-                'administrative_area' => $_address->administrative_area,
-                'country_code'        => $_address->country_code,
-
-            ]
-        );
-
-    }
 
 
 }

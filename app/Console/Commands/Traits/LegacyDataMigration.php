@@ -65,7 +65,11 @@ trait LegacyDataMigration {
 
     function get_instance_address_scaffolding($object, $type, $legacy_data) {
 
-        $legacy_object = $object;
+       if($object=='CustomerClient'){
+           $legacy_object='Customer Client';
+       }else{
+           $legacy_object= $object;
+       }
 
 
         if ($type != '') {
