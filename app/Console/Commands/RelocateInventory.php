@@ -116,7 +116,7 @@ class RelocateInventory extends Command {
 
     function relocate_inventory($legacy_data) {
 
-        $stock_data = $this->fill_data(
+        $stock_data = fill_legacy_data(
             [
                 'package.description' => 'Part Package Description',
                 'package.weight'      => 'Part Package Weight',
@@ -134,7 +134,7 @@ class RelocateInventory extends Command {
         }
 
 
-        $stock_settings = $this->fill_data(
+        $stock_settings = fill_legacy_data(
             [], $legacy_data
         );
 

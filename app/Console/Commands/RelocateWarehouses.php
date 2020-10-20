@@ -103,11 +103,11 @@ class RelocateWarehouses extends Command {
 
     function relocate_warehouse($legacy_data) {
 
-        $warehouse_data = $this->fill_data(
+        $warehouse_data = fill_legacy_data(
             [], $legacy_data
         );
 
-        $warehouse_settings = $this->fill_data(
+        $warehouse_settings = fill_legacy_data(
             [], $legacy_data
         );
 
@@ -127,7 +127,7 @@ class RelocateWarehouses extends Command {
     function relocate_warehouse_area($legacy_data) {
 
 
-        $warehouse_area_data = $this->fill_data(
+        $warehouse_area_data = fill_legacy_data(
             [], $legacy_data
         );
 
@@ -178,7 +178,7 @@ class RelocateWarehouses extends Command {
         }
         */
         $warehouse_legacy_id = 1;
-        $location_data       = $this->fill_data(
+        $location_data       = fill_legacy_data(
             [], $legacy_data
         );
 
@@ -210,7 +210,7 @@ class RelocateWarehouses extends Command {
     function relocate_shippers($legacy_data) {
 
 
-        $shipper_data = $this->fill_data(
+        $shipper_data = fill_legacy_data(
             [
                 'company'     => 'Shipper Name',
                 'website'     => 'Shipper Website',

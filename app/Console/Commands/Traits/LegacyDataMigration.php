@@ -35,24 +35,7 @@ trait LegacyDataMigration {
     }
 
 
-    public function fill_data($fields, $legacy_data, $modifier = false) {
 
-        $data = [];
-        foreach ($fields as $key => $legacy_key) {
-            if (!empty($legacy_data->{$legacy_key})) {
-                if ($modifier == 'strtolower') {
-                    $value = strtolower($legacy_data->{$legacy_key});
-                } elseif ($modifier == 'jsonDecode') {
-                    $value = json_decode($legacy_data->{$legacy_key}, true);
-                } else {
-                    $value = $legacy_data->{$legacy_key};
-                }
-                Arr::set($data, $key, $value);
-            }
-        }
-
-        return $data;
-    }
 
     function elementsToLower($elements_keys, $array) {
 
@@ -194,7 +177,7 @@ trait LegacyDataMigration {
             if ($image_filename_data = $this->get_image_filename($image_legacy_data)) {
 
 
-                $image_data = $this->fill_data(
+                $image_data = fill_legacy_data(
                     [
                         'mime_type' => 'Image MIME Type',
                         'width'     => 'Image Width',
@@ -342,7 +325,7 @@ trait LegacyDataMigration {
         ) {
 
 
-            $attachment_data = $this->fill_data(
+            $attachment_data = fill_legacy_data(
                 [
                     'mime_type' => 'Attachment MIME Type',
 

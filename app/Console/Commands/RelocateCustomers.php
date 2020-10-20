@@ -122,7 +122,7 @@ class RelocateCustomers extends Command {
     function relocate_customer($legacy_data) {
 
 
-        $customer_data = $this->fill_data(
+        $customer_data = fill_legacy_data(
             [
                 'contact'             => 'Customer Main Contact Name',
                 'company'             => 'Customer Company Name',
@@ -143,7 +143,7 @@ class RelocateCustomers extends Command {
         );
 
 
-        $customer_settings = $this->fill_data(
+        $customer_settings = fill_legacy_data(
             [
                 'can_send.newsletter'       => 'Customer Send Newsletter',
                 'can_send.email_marketing'  => 'Customer Send Email Marketing',
@@ -394,7 +394,7 @@ class RelocateCustomers extends Command {
                 $deleted_at = $metadata['deactivated_date'];
             }
 
-            $customer_client_data = $this->fill_data(
+            $customer_client_data = fill_legacy_data(
                 [
                     'contact' => 'Customer Client Main Contact Name',
                     'company' => 'Customer Client Company Name',

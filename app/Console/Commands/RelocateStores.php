@@ -81,7 +81,7 @@ class RelocateStores extends Command {
         $legacy_data->{'Store Can Collect'} = $legacy_data->{'Store Can Collect'} == 'Yes';
 
 
-        $website_data = $this->fill_data(
+        $website_data = fill_legacy_data(
             [
                 'url'      => 'Store URL',
                 'email'    => 'Store Email',
@@ -95,7 +95,7 @@ class RelocateStores extends Command {
 
         $website_data['type'] = strtolower($website_data['type']);
 
-        $website_settings = $this->fill_data(
+        $website_settings = fill_legacy_data(
             [
                 'can_collect' => 'Store Can Collect',
 
@@ -139,7 +139,7 @@ class RelocateStores extends Command {
     function relocate_websites($legacy_data) {
 
 
-        $website_data = $this->fill_data(
+        $website_data = fill_legacy_data(
             [
                 'locale' => 'Website Locale',
 
@@ -147,7 +147,7 @@ class RelocateStores extends Command {
             ], $legacy_data
         );
 
-        $website_settings       = $this->fill_data(
+        $website_settings       = fill_legacy_data(
             [
                 'google_tag'   => 'Website Google Tag Manager Code',
                 'zendesk_chat' => 'Website Zendesk Chat Code',
@@ -209,7 +209,7 @@ class RelocateStores extends Command {
         if ($store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Charge Store Key'})) {
 
 
-            $charge_data = $this->fill_data(
+            $charge_data = fill_legacy_data(
                 [
                     'description'        => 'Charge Description',
                     'public_description' => 'Charge Public Description',
@@ -219,7 +219,7 @@ class RelocateStores extends Command {
             );
 
 
-            $charge_settings = $this->fill_data(
+            $charge_settings = fill_legacy_data(
                 [
                     'amount' => 'Charge Metadata',
 
@@ -276,14 +276,14 @@ class RelocateStores extends Command {
         $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Shipping Zone Schema Store Key'});
 
 
-        $shipping_schema_data = $this->fill_data(
+        $shipping_schema_data = fill_legacy_data(
             [
                 'type' => 'Shipping Zone Schema Type',
             ], $legacy_data, 'strtolower'
         );
 
 
-        $shipping_schema_settings = $this->fill_data(
+        $shipping_schema_settings = fill_legacy_data(
             [], $legacy_data
         );
 
@@ -308,7 +308,7 @@ class RelocateStores extends Command {
         foreach (DB::connection('legacy')->select("select * from  $shipping_zones_table where  $_where=?", [$legacy_data->{'Shipping Zone Schema Key'}]) as $legacy_shipping_zone_data) {
 
 
-            $shipping_schema_data = $this->fill_data(
+            $shipping_schema_data = fill_legacy_data(
                 [
                     'name' => 'Shipping Zone Name',
                 ], $legacy_shipping_zone_data

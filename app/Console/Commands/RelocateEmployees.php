@@ -66,7 +66,7 @@ class RelocateEmployees extends Command {
 
     function relocate_employee($legacy_data) {
 
-        $employee_data = $this->fill_data(
+        $employee_data = fill_legacy_data(
             [
                 'personal_identification' => 'Staff Official ID',
                 'hr_identification'       => 'Staff ID',
@@ -215,12 +215,12 @@ class RelocateEmployees extends Command {
 
         $user_settings = [];
 
-        $confidential_user_data = $this->fill_data(
+        $confidential_user_data = fill_legacy_data(
             [
                 'pwd_legacy' => 'User Password'
             ], $legacy_user_data
         );
-        $user_data              = $this->fill_data(
+        $user_data              = fill_legacy_data(
             [
                 'email'  => 'User Password Recovery Email',
                 'mobile' => 'User Password Recovery Mobile'

@@ -355,7 +355,7 @@ class RelocateOrders extends Command {
     }
 
     function relocate_order($legacy_data) {
-        $order_data = $this->fill_data(
+        $order_data = fill_legacy_data(
             [
 
             ], $legacy_data
@@ -509,7 +509,7 @@ class RelocateOrders extends Command {
     function relocate_delivery_note($legacy_data, $order) {
 
 
-        $order_data = $this->fill_data(
+        $order_data = fill_legacy_data(
             [
 
             ], $legacy_data

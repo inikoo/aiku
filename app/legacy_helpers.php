@@ -6,6 +6,8 @@
  */
 
 use App\Models\Helpers\Address;
+use App\Models\Stores\ProductHistoricVariation;
+use Illuminate\Support\Arr;
 
 if (!function_exists('legacy_process_addresses')) {
     function legacy_process_addresses($customer, $billing_address, $delivery_address) {
@@ -74,3 +76,67 @@ if (!function_exists('legacy_get_address')) {
 
     }
 }
+
+if (!function_exists('fill_legacy_data')) {
+    function fill_legacy_data($fields, $legacy_data, $modifier = false) {
+
+        $data = [];
+        foreach ($fields as $key => $legacy_key) {
+            if (!empty($legacy_data->{$legacy_key})) {
+                if ($modifier == 'strtolower') {
+                    $value = strtolower($legacy_data->{$legacy_key});
+                } elseif ($modifier == 'jsonDecode') {
+                    $value = json_decode($legacy_data->{$legacy_key}, true);
+                } else {
+                    $value = $legacy_data->{$legacy_key};
+                }
+                Arr::set($data, $key, $value);
+            }
+        }
+
+        return $data;
+    }
+
+}
+
+
+if (!function_exists('relocate_historic_products')) {
+    function relocate_historic_products($legacy_data, $product_id) {
+
+
+
+        $historic_product_data = fill_legacy_data(
+            [
+                'code' => 'Product History Code',
+                'name' => 'Product History Name'
+            ], $legacy_data
+        );
+
+
+        $units = $legacy_data->{'Product History Units Per Case'};
+        if ($units == 0) {
+            $units = 1;
+        }
+
+        if ($legacy_data->{'Product History Valid From'} == '0000-00-00 00:00:00') {
+            $date = null;
+        } else {
+            $date = $legacy_data->{'Product History Valid From'};
+        }
+
+        return (new ProductHistoricVariation)->updateOrCreate(
+            [
+                'legacy_id' => $legacy_data->{'Product Key'},
+            ], [
+
+                'product_id' => $product_id,
+                'unit_price' => $legacy_data->{'Product History Price'} / $units,
+                'units'      => $units,
+                'data'       => $historic_product_data,
+                'date'       => $date,
+            ]
+        );
+    }
+}
+
+

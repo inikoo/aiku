@@ -12,7 +12,6 @@ namespace App\Console\Commands;
 use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\Distribution\Stock;
 use App\Models\Stores\Product;
-use App\Models\Stores\ProductHistoricVariation;
 use App\Models\Stores\Store;
 use App\Tenant;
 use Illuminate\Support\Facades\DB;
@@ -64,7 +63,7 @@ class RelocateProducts extends Command {
 
                     foreach (DB::connection('legacy')->select("select * from  $_table where  $_where=?", [$product->legacy_id]) as $legacy_historic_product_data) {
 
-                        $historic_product = $this->relocate_historic_products($legacy_historic_product_data, $product->id);
+                        $historic_product = relocate_historic_products($legacy_historic_product_data, $product->id);
 
                         if ($legacy_data->{'Product Current Key'} == $legacy_historic_product_data->{'Product Key'}) {
                             $product->product_historic_variation_id = $historic_product->id;
@@ -83,7 +82,7 @@ class RelocateProducts extends Command {
                         if ($stock = (new Stock)->firstWhere('legacy_id', $legacy_product_stock_data->{'Product Part Part SKU'})) {
                             $product_stock_data[$stock->id] = [
                                 'ratio' => $stock->packed_in * $legacy_product_stock_data->{'Product Part Ratio'},
-                                'data'  => []
+                                'data'  => array_filter(['note'=>$legacy_product_stock_data->{'Product Part Note'}])
                             ];
                         }
                     }
@@ -112,11 +111,11 @@ class RelocateProducts extends Command {
 
     function relocate_products($legacy_data) {
 
-        $stock_data = $this->fill_data(
+        $stock_data = fill_legacy_data(
             [], $legacy_data
         );
 
-        $stock_settings = $this->fill_data(
+        $stock_settings = fill_legacy_data(
             [], $legacy_data
         );
 
@@ -130,7 +129,6 @@ class RelocateProducts extends Command {
         if ($legacy_data->{'Product Status'} == 'Discontinued') {
             $status = false;
         }
-
 
         switch ($legacy_data->{'Product Status'}) {
             case 'InProcess':
@@ -187,7 +185,7 @@ class RelocateProducts extends Command {
                 'name' => $legacy_data->{'Product Name'},
 
                 'unit_price' => $legacy_data->{'Product Price'} / $units,
-                'units'      => $legacy_data->{'Product Units Per Case'},
+                'units'      => $units,
 
                 'status' => $status,
                 'state'  => $state,
@@ -218,41 +216,6 @@ class RelocateProducts extends Command {
 
 
         return $product;
-    }
-
-    function relocate_historic_products($legacy_data, $product_id) {
-
-        $historic_product_data = $this->fill_data(
-            [
-                'code' => 'Product History Code',
-                'name' => 'Product History Name'
-            ], $legacy_data
-        );
-
-
-        $units = $legacy_data->{'Product History Units Per Case'};
-        if ($units == 0) {
-            $units = 1;
-        }
-
-        if ($legacy_data->{'Product History Valid From'} == '0000-00-00 00:00:00') {
-            $date = null;
-        } else {
-            $date = $legacy_data->{'Product History Valid From'};
-        }
-
-        return (new ProductHistoricVariation)->updateOrCreate(
-            [
-                'legacy_id' => $legacy_data->{'Product Key'},
-            ], [
-
-                'product_id' => $product_id,
-                'unit_price' => $legacy_data->{'Product History Price'} / $units,
-                'units'      => $units,
-                'data'       => $historic_product_data,
-                'date'       => $date,
-            ]
-        );
     }
 
 

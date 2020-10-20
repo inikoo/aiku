@@ -41,7 +41,7 @@ class RelocateTaxes extends Command {
             }
 
 
-            $tax_data = $this->fill_data(
+            $tax_data = fill_legacy_data(
                 [
                     'type.code'        => 'Tax Category Type',
                     'type.description' => 'Tax Category Type Name',
