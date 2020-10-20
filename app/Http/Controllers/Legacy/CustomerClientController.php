@@ -1,19 +1,21 @@
 <?php
 /*
  * Author: Raul A Perusquía-Flores (raul@aiku.io)
- * Created: Fri, 16 Oct 2020 14:08:58 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 20 Oct 2020 16:29:44 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2020. Aiku.io
  */
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Legacy;
 
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Legacy\Traits\LegacyHelpers;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerClient;
 use App\Models\Helpers\Address;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class CustomerClientController extends Controller {
+    use LegacyHelpers;
 
     private $object_parameters;
     private $data;
@@ -25,12 +27,10 @@ class CustomerClientController extends Controller {
 
     }
 
-    function create(Request $request) {
+    function sync(Request $request) {
 
-        $this->parseRequest($request);
+        $this->parseRequest($request->all());
 
-
-        print_r($request->all());
 
 
         $this->object_parameters['data'] = $this->data;
@@ -68,7 +68,7 @@ class CustomerClientController extends Controller {
 
     function update($legacy_id, Request $request) {
 
-        $this->parseRequest($request);
+        $this->parseRequest($request->all());
 
 
         $customerClient = (new CustomerClient)->firstWhere('legacy_id', $legacy_id);
@@ -121,19 +121,6 @@ class CustomerClientController extends Controller {
     }
 
 
-    function parseRequest($request) {
 
-        $request_data = $request->all();
-        $data         = Arr::pull($request_data, 'data', false);
-        $legacy       = Arr::pull($request_data, 'legacy', false);
-
-
-        $this->data   = ($data ? array_filter(json_decode($data, true)) : []);
-        $this->legacy = ($legacy ? array_filter(json_decode($legacy, true)) : []);
-
-
-        $this->object_parameters = $request_data;
-
-    }
 
 }

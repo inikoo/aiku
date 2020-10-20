@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul A Perusquía-Flores (raul@aiku.io)
- * Created: Thu, 08 Oct 2020 22:38:34 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 20 Oct 2020 16:25:10 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2020. Aiku.io
  */
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Legacy;
 
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerPortfolio;
@@ -13,10 +13,12 @@ use App\Models\Stores\Product;
 use App\Models\Stores\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Legacy\Traits\LegacyHelpers;
 
 
 class CustomerController extends Controller {
-
+    use LegacyHelpers;
 
     private $tax_number_validation;
     private $object_parameters;
@@ -29,10 +31,14 @@ class CustomerController extends Controller {
         Customer::disableAuditing();
     }
 
-    function create(Request $request) {
+    function sync(Request $request) {
+
+        $request_data          = $request->all();
+        $tax_number_validation = Arr::pull($request_data, 'tax_number_validation', false);
+        $this->tax_number_validation = ($tax_number_validation ? array_filter(json_decode($tax_number_validation, true)) : []);
 
 
-        $this->parseRequest($request);
+        $this->parseRequest($request_data);
 
         $this->object_parameters['data']     = $this->data;
         $this->object_parameters['settings'] = $this->settings;
@@ -71,8 +77,7 @@ class CustomerController extends Controller {
 
     function update($legacy_id, Request $request) {
 
-        $this->parseRequest($request);
-
+        $this->parseRequest($request->all());
 
         $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_id);
 
@@ -158,24 +163,7 @@ class CustomerController extends Controller {
     }
 
 
-    function parseRequest($request) {
 
-        $request_data          = $request->all();
-        $data                  = Arr::pull($request_data, 'data', false);
-        $settings              = Arr::pull($request_data, 'settings', false);
-        $tax_number_validation = Arr::pull($request_data, 'tax_number_validation', false);
-        $legacy                = Arr::pull($request_data, 'legacy', false);
-
-
-        $this->data                  = ($data ? array_filter(json_decode($data, true)) : []);
-        $this->settings              = ($settings ? array_filter(json_decode($settings, true)) : []);
-        $this->tax_number_validation = ($tax_number_validation ? array_filter(json_decode($tax_number_validation, true)) : []);
-        $this->legacy                = ($legacy ? array_filter(json_decode($legacy, true)) : []);
-
-
-        $this->object_parameters = $request_data;
-
-    }
 
 
 }
