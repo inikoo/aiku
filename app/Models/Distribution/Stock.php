@@ -55,7 +55,7 @@ class Stock extends Model implements Auditable {
 
 
     public function locations() {
-        return $this->belongsToMany('App\Models\Distribution\Location')->withTimestamps()->withPivot('quantity');
+        return $this->belongsToMany('App\Models\Distribution\Location')->using('App\Models\Distribution\LocationStock')->withTimestamps();
     }
 
     public function products() {

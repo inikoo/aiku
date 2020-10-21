@@ -58,11 +58,30 @@ class RelocateInventory extends Command {
                     $stock = $this->relocate_inventory($legacy_data);
 
                     $location_stock_data = [];
-                    foreach (DB::connection('legacy')->select("select * from".' '.$legacy_location_stocks_table.' where `Part SKU`=?', [$stock->legacy_id]) as $legacy_part_location_data) {
-
+                    $priority            = 0;
+                    foreach (DB::connection('legacy')->select("select * from".' '.$legacy_location_stocks_table.' where `Part SKU`=? order by `Can Pick` desc,`Quantity On Hand` ', [$stock->legacy_id]) as $legacy_part_location_data) {
+                        //print_r($legacy_part_location_data);
                         $location                           = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'});
-                        $location_stock_data[$location->id] = ['quantity' => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'}];
+                        $location_stock_data[$location->id] = [
+                            'quantity'         => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'},
+                            'picking_priority' => $priority,
+                            'audited_at'       => ($legacy_part_location_data->{'Part Location Last Audit'} == '' ? null : $legacy_part_location_data->{'Part Location Last Audit'}),
+                            'tenant_id'        => $this->tenant->id,
+                            'settings'         => array_filter(
+                                [
+                                    'min_quantity'  => $legacy_part_location_data->{'Minimum Quantity'},
+                                    'max_quantity'  => $legacy_part_location_data->{'Maximum Quantity'},
+                                    'move_quantity' => $legacy_part_location_data->{'Moving Quantity'}
+                                ]
+                            ),
+                            'data'             => array_filter(
+                                [
+                                    'note' => $legacy_part_location_data->{'Part Location Note'},
 
+                                ]
+                            )
+                        ];
+                        $priority++;
                     }
 
                     $stock->locations()->sync($location_stock_data);
@@ -70,10 +89,6 @@ class RelocateInventory extends Command {
                     $bar->advance();
                 }
             }
-
-
-
-
 
 
             $bar->finish();
@@ -125,11 +140,11 @@ class RelocateInventory extends Command {
         );
 
 
-        if ($package_dimensions = json_decode($legacy_data->{'Part Package Dimensions'},true)) {
+        if ($package_dimensions = json_decode($legacy_data->{'Part Package Dimensions'}, true)) {
             Arr::set($stock_data, 'package.dimensions', $package_dimensions);
         }
 
-        if ($unit_dimensions = json_decode($legacy_data->{'Part Unit Dimensions'},true)) {
+        if ($unit_dimensions = json_decode($legacy_data->{'Part Unit Dimensions'}, true)) {
             Arr::set($stock_data, 'unit.dimensions', $unit_dimensions);
         }
 
@@ -244,16 +259,16 @@ class RelocateInventory extends Command {
         );
 
 
-
-
-
-        $this->sync_images($stock,$imagesModelData, function ($_scope){
+        $this->sync_images(
+            $stock, $imagesModelData, function ($_scope) {
             $scope = 'marketing';
-            if ($_scope== 'SKO') {
+            if ($_scope == 'SKO') {
                 $scope = 'pack';
             }
+
             return $scope;
-        });
+        }
+        );
 
         $this->sync_attachments(
             $stock, $attachmentModelData, function ($_scope) {

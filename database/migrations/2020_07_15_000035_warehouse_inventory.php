@@ -118,16 +118,23 @@ class WarehouseInventory extends Migration {
         Schema::create(
             'location_stock', function (Blueprint $table) {
             $table->id();
-            $table->unsignedMediumInteger('location_id');
-            $table->foreign('location_id')->references('id')->on('locations');
 
             $table->unsignedInteger('stock_id');
             $table->foreign('stock_id')->references('id')->on('stocks');
+            $table->unsignedMediumInteger('location_id');
+            $table->foreign('location_id')->references('id')->on('locations');
 
             $table->decimal('quantity', 16, 3);
-            $table->smallInteger('picking_priority')->default(0);
+            $table->smallInteger('picking_priority')->default(0)->index();
+            $table->jsonb('data');
+            $table->jsonb('settings');
 
+            $table->dateTimeTz('audited_at')->nullable()->index();
             $table->timestampsTz();
+            $table->unique(['stock_id','location_id','tenant_id']);
+            $table->unsignedSmallInteger('tenant_id');
+
+
         }
         );
 

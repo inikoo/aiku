@@ -52,7 +52,7 @@ class Tenant extends Tenanto {
 
                 DB::connection('scaffolding')->statement("DROP DATABASE IF EXISTS " . $tenant->database);
                 DB::connection('scaffolding')->statement("CREATE DATABASE ".$tenant->database." ENCODING 'UTF8' LC_COLLATE = 'en_GB.UTF-8' LC_CTYPE = 'en_GB.UTF-8' TEMPLATE template0");
-                DB::connection('scaffolding')->statement("CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;");
+                //DB::connection('scaffolding')->statement("CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;");
 
                 Artisan::call('tenants:artisan "migrate:refresh --database=tenant" --tenant='.$tenant->id );
                 Artisan::call('tenants:artisan "db:seed --database=tenant --class=NewTenantSeeder" --tenant='.$tenant->id);

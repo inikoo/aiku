@@ -8,6 +8,8 @@
 namespace App\Http\Controllers\Legacy;
 
 use App\Models\Distribution\Stock;
+use App\Models\Distribution\Location;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Legacy\Traits\LegacyHelpers;
@@ -40,6 +42,8 @@ class StockController extends Controller {
             ], $this->object_parameters
         );
 
+        $stock=$this->sync_locations($stock);
+
         return response()->json($stock, 200);
 
     }
@@ -49,9 +53,36 @@ class StockController extends Controller {
         $this->parseRequest($request->all());
         if($stock = Stock::withTrashed()->firstWhere('legacy_id', $legacy_id)){
             $stock=$this->commonUpdate($stock);
+
+            if(isset($this->legacy['locations'])){
+                $stock=$this->sync_locations($stock);
+            }
+
             return response()->json($stock, 200);
         }else{
             return response()->json(['errors' => 'object not found'], 470);
         }
     }
+
+    function sync_locations($stock){
+
+        $location_stock_data = [];
+
+        foreach ($this->legacy['parts'] as $parts_data) {
+
+            $legacy_product_stock_data = (object)$parts_data;
+            if ($location = (new Location)->firstWhere('legacy_id', $legacy_product_stock_data->{'Location Key'})) {
+                $location_stock_data[$location->id] = [
+                    'quantity' => $stock->packed_in * $legacy_product_stock_data->{'Quantity On Hand'}];
+
+            }
+        }
+
+        $stock->locations()->sync($location_stock_data);
+        $stock = $stock->fresh();
+
+        return $stock;
+
+    }
+
 }

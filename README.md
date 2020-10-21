@@ -1,6 +1,5 @@
 #### Multi tenancy
 
-We use PostgreSQL 12
 
 sudo apt update; sudo apt upgrade;
 
