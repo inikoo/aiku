@@ -67,13 +67,33 @@ class StockController extends Controller {
     function sync_locations($stock){
 
         $location_stock_data = [];
+        $priority            = 0;
 
-        foreach ($this->legacy['parts'] as $parts_data) {
+        foreach ($this->legacy['locations'] as $params_data) {
 
-            $legacy_product_stock_data = (object)$parts_data;
-            if ($location = (new Location)->firstWhere('legacy_id', $legacy_product_stock_data->{'Location Key'})) {
+
+            $legacy_part_location_data = (object)$params_data;
+            if ($location = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'})) {
                 $location_stock_data[$location->id] = [
-                    'quantity' => $stock->packed_in * $legacy_product_stock_data->{'Quantity On Hand'}];
+                    'quantity'         => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'},
+                    'picking_priority' => $priority,
+                    'audited_at'       => ($legacy_part_location_data->{'Part Location Last Audit'} == '' ? null : $legacy_part_location_data->{'Part Location Last Audit'}),
+                    'tenant_id'        => app('currentTenant')->id,
+                    'settings'         => array_filter(
+                        [
+                            'min_quantity'  => $legacy_part_location_data->{'Minimum Quantity'},
+                            'max_quantity'  => $legacy_part_location_data->{'Maximum Quantity'},
+                            'move_quantity' => $legacy_part_location_data->{'Moving Quantity'}
+                        ]
+                    ),
+                    'data'             => array_filter(
+                        [
+                            'note' => $legacy_part_location_data->{'Part Location Note'},
+
+                        ]
+                    )
+                ];
+                $priority++;
 
             }
         }
