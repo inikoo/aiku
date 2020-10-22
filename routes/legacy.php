@@ -15,4 +15,5 @@ Route::prefix('auth')->group(__DIR__.'/legacy/auth.php');
 Route::prefix('stocks')->group(__DIR__.'/legacy/stocks.php');
 Route::prefix('stores')->group(__DIR__.'/legacy/stores.php');
 Route::prefix('products')->group(__DIR__.'/legacy/products.php');
+Route::prefix('location_stock')->group(__DIR__.'/legacy/location_stock.php');
 

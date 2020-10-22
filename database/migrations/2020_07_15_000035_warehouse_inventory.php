@@ -68,7 +68,7 @@ class WarehouseInventory extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz('deleted_at', 0);
 
-            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
             $table->unsignedSmallInteger('tenant_id');
             $table->string('natural_order_code')->nullable()->index();
 
@@ -111,7 +111,7 @@ class WarehouseInventory extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedSmallInteger('tenant_id');
-            $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
         }
         );
 
@@ -133,7 +133,9 @@ class WarehouseInventory extends Migration {
             $table->timestampsTz();
             $table->unique(['stock_id','location_id','tenant_id']);
             $table->unsignedSmallInteger('tenant_id');
-
+            $table->unsignedMediumInteger('legacy_location_id')->nullable();
+            $table->unsignedMediumInteger('legacy_stock_id')->nullable();
+            $table->unique(['legacy_location_id','legacy_stock_id']);
 
         }
         );

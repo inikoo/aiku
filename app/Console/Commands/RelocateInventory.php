@@ -63,18 +63,20 @@ class RelocateInventory extends Command {
                         //print_r($legacy_part_location_data);
                         $location                           = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'});
                         $location_stock_data[$location->id] = [
-                            'quantity'         => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'},
-                            'picking_priority' => $priority,
-                            'audited_at'       => ($legacy_part_location_data->{'Part Location Last Audit'} == '' ? null : $legacy_part_location_data->{'Part Location Last Audit'}),
-                            'tenant_id'        => $this->tenant->id,
-                            'settings'         => array_filter(
+                            'quantity'           => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'},
+                            'picking_priority'   => $priority,
+                            'audited_at'         => ($legacy_part_location_data->{'Part Location Last Audit'} == '' ? null : $legacy_part_location_data->{'Part Location Last Audit'}),
+                            'tenant_id'          => $this->tenant->id,
+                            'legacy_stock_id'    => $stock->legacy_id,
+                            'legacy_location_id' => $legacy_part_location_data->{'Location Key'},
+                            'settings'           => array_filter(
                                 [
                                     'min_quantity'  => $legacy_part_location_data->{'Minimum Quantity'},
                                     'max_quantity'  => $legacy_part_location_data->{'Maximum Quantity'},
                                     'move_quantity' => $legacy_part_location_data->{'Moving Quantity'}
                                 ]
                             ),
-                            'data'             => array_filter(
+                            'data'               => array_filter(
                                 [
                                     'note' => $legacy_part_location_data->{'Part Location Note'},
 

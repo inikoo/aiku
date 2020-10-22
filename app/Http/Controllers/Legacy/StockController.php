@@ -7,6 +7,7 @@
 
 namespace App\Http\Controllers\Legacy;
 
+use App\Models\Distribution\LocationStock;
 use App\Models\Distribution\Stock;
 use App\Models\Distribution\Location;
 
@@ -29,12 +30,13 @@ class StockController extends Controller {
 
     function sync(Request $request) {
 
-        $request_data          = $request->all();
+        $request_data = $request->all();
 
         $this->parseRequest($request_data);
-        $this->object_parameters['data']     = $this->data;
-        $this->object_parameters['settings'] = $this->settings;
+        $this->object_parameters['data']      = $this->data;
+        $this->object_parameters['settings']  = $this->settings;
         $this->object_parameters['tenant_id'] = app('currentTenant')->id;
+
 
         $stock = (new Stock)->updateOrCreate(
             [
@@ -42,29 +44,44 @@ class StockController extends Controller {
             ], $this->object_parameters
         );
 
-        $stock=$this->sync_locations($stock);
+        $stock = $this->sync_locations($stock);
 
         return response()->json($stock, 200);
 
     }
 
-    function update($legacy_id,Request $request) {
+    function update($legacy_id, Request $request) {
 
         $this->parseRequest($request->all());
-        if($stock = Stock::withTrashed()->firstWhere('legacy_id', $legacy_id)){
-            $stock=$this->commonUpdate($stock);
+        if ($stock = Stock::withTrashed()->firstWhere('legacy_id', $legacy_id)) {
+            $stock = $this->commonUpdate($stock);
 
-            if(isset($this->legacy['locations'])){
-                $stock=$this->sync_locations($stock);
+            if (isset($this->legacy['locations'])) {
+                $stock = $this->sync_locations($stock);
             }
 
             return response()->json($stock, 200);
-        }else{
+        } else {
             return response()->json(['errors' => 'object not found'], 470);
         }
     }
 
-    function sync_locations($stock){
+
+    function update_location_stock($legacy_location_id, $legacy_stock_id, Request $request) {
+
+        $this->parseRequest($request->all());
+
+        if ($location_stock = (new LocationStock)->where('legacy_location_id', $legacy_location_id)->where('legacy_stock_id', $legacy_stock_id)->first()){
+            $location_stock = $this->commonUpdate($location_stock);
+            return response()->json($location_stock, 200);
+        }
+
+        return response()->json(['errors' => 'object not found'], 470);
+
+
+    }
+
+    function sync_locations($stock) {
 
         $location_stock_data = [];
         $priority            = 0;
@@ -74,19 +91,23 @@ class StockController extends Controller {
 
             $legacy_part_location_data = (object)$params_data;
             if ($location = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'})) {
+
+
                 $location_stock_data[$location->id] = [
-                    'quantity'         => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'},
-                    'picking_priority' => $priority,
-                    'audited_at'       => ($legacy_part_location_data->{'Part Location Last Audit'} == '' ? null : $legacy_part_location_data->{'Part Location Last Audit'}),
-                    'tenant_id'        => app('currentTenant')->id,
-                    'settings'         => array_filter(
+                    'quantity'           => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'},
+                    'picking_priority'   => $priority,
+                    'audited_at'         => ($legacy_part_location_data->{'Part Location Last Audit'} == '' ? null : $legacy_part_location_data->{'Part Location Last Audit'}),
+                    'tenant_id'          => app('currentTenant')->id,
+                    'legacy_location_id' => $legacy_part_location_data->{'Location Key'},
+                    'legacy_stock_id'    => $legacy_part_location_data->{'Part SKU'},
+                    'settings'           => array_filter(
                         [
                             'min_quantity'  => $legacy_part_location_data->{'Minimum Quantity'},
                             'max_quantity'  => $legacy_part_location_data->{'Maximum Quantity'},
                             'move_quantity' => $legacy_part_location_data->{'Moving Quantity'}
                         ]
                     ),
-                    'data'             => array_filter(
+                    'data'               => array_filter(
                         [
                             'note' => $legacy_part_location_data->{'Part Location Note'},
 
