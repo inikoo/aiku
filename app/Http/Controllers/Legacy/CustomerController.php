@@ -163,5 +163,15 @@ class CustomerController extends Controller {
 
     }
 
+    function update_basket($legacy_id, Request $request){
+
+        $this->parseRequest($request->all());
+        $customer = (new Customer)->firstWhere('legacy_id', $legacy_id);
+
+        relocate_basket($legacy_id,$customer->basket);
+        return response()->json([], 200);
+
+
+    }
 
 }

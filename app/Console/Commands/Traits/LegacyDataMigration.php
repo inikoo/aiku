@@ -12,9 +12,6 @@ use App\Models\Helpers\Attachment;
 use App\Models\Helpers\AttachmentModel;
 use App\Models\Helpers\Image;
 use App\Models\Helpers\ImageModel;
-use App\Models\Sales\Charge;
-use App\Models\Sales\ShippingZone;
-use App\Models\Sales\TaxBand;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -400,49 +397,7 @@ trait LegacyDataMigration {
 
     }
 
-    function get_transaction_data($onptf_data) {
 
-        switch ($onptf_data->{'Transaction Type'}) {
-            case 'Shipping':
-                $transaction_type = 'ShippingZone';
-                $transaction_id   = null;
-                if ($onptf_data->{'Transaction Type Key'}) {
-                    if ($shipping_zone = (new ShippingZone())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
-                        $transaction_id = $shipping_zone->id;
-                    }
-
-                }
-                break;
-            case 'Charges':
-                $transaction_type = 'Charge';
-                $transaction_id   = null;
-                if ($onptf_data->{'Transaction Type Key'}) {
-                    if ($charge = (new Charge())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
-                        $transaction_id = $charge->id;
-                    }
-
-                }
-                break;
-            default:
-                print_r($onptf_data);
-                exit();
-        }
-        $tax_band_id = null;
-        if ($taxBand = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}))) {
-            $tax_band_id = $taxBand->id;
-        } else {
-            print_r($onptf_data);
-            exit;
-        }
-
-
-        return [
-            'type'        => $transaction_type,
-            'id'          => $transaction_id,
-            'tax_band_id' => $tax_band_id
-
-        ];
-    }
 
 
 }

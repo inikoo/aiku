@@ -101,14 +101,10 @@ class RelocateOrders extends Command {
                                     [
 
                                         'order_id' => $order->id,
-
                                         'tenant_id' => $this->tenant->id,
-
                                         'quantity' => $otf_data->{'Order Quantity'},
-
                                         'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
                                         'net'       => $otf_data->{'Order Transaction Amount'},
-
                                         'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
                                         'data'      => []
                                     ]
@@ -123,7 +119,7 @@ class RelocateOrders extends Command {
                         foreach (DB::connection('legacy')->select("select * from  $onptf_table where  $onptf_table_where=?", [$legacy_data->{'Order Key'}]) as $onptf_data) {
 
 
-                            $transaction_data = $this->get_transaction_data($onptf_data);
+                            $transaction_data = get_legacy_transaction_data($onptf_data);
 
 
                             if ($orderTransaction = (new OrderTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {

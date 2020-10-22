@@ -13,6 +13,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerClient;
 use App\Models\Helpers\Address;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CustomerClientController extends Controller {
     use LegacyHelpers;
@@ -117,6 +118,24 @@ class CustomerClientController extends Controller {
         }
 
         return $customerClient;
+
+    }
+
+    function update_basket($legacy_id, Request $request){
+
+        $database_settings = data_get(config('database.connections'), 'mysql');
+
+
+        data_set($database_settings, 'database', app('currentTenant')->data['legacy']['db']);
+        config(['database.connections.legacy' => $database_settings]);
+        DB::connection('legacy');
+
+        $this->parseRequest($request->all());
+        $customerClient = (new CustomerClient)->firstWhere('legacy_id', $legacy_id);
+
+        relocate_basket($legacy_id,$customerClient->basket);
+        return response()->json([], 200);
+
 
     }
 

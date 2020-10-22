@@ -101,8 +101,6 @@ class Customer extends Model implements Auditable {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps();
     }
 
-
-
     public function basketItems() {
         return $this->belongsToMany('App\Models\Stores\Product', 'basket_transactions')->using('App\Models\Sales\BasketTransaction')->withTimestamps()->withPivot(['quantity']);
     }

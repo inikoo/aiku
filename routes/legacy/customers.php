@@ -25,6 +25,14 @@ Route::post(
 )->name('update_customer');
 
 Route::post(
+    '/{legacy_id}/basket', [
+                      CustomerController::class,
+                      'update_basket'
+                  ]
+)->name('update_customer_basket');
+
+
+Route::post(
     '/{legacy_customer_id}/portfolio/{legacy_product_id}', [
                                                              CustomerController::class,
                                                              'sync_portfolio'
@@ -47,4 +55,10 @@ Route::post(
                                   ]
 )->name('update_customer_client');
 
+Route::post(
+    '/customer_client/{legacy_id}/basket', [
+                                      CustomerClientController::class,
+                                      'update_basket'
+                                  ]
+)->name('update_customer_client_basket');
 

@@ -6,8 +6,14 @@
  */
 
 use App\Models\Helpers\Address;
+use App\Models\Sales\BasketTransaction;
+use App\Models\Sales\Charge;
+use App\Models\Sales\ShippingZone;
+use App\Models\Sales\TaxBand;
+use App\Models\Stores\Product;
 use App\Models\Stores\ProductHistoricVariation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 if (!function_exists('legacy_process_addresses')) {
     function legacy_process_addresses($customer, $billing_address, $delivery_address) {
@@ -104,7 +110,6 @@ if (!function_exists('relocate_historic_products')) {
     function relocate_historic_products($legacy_data, $product_id) {
 
 
-
         $historic_product_data = fill_legacy_data(
             [
                 'code' => 'Product History Code',
@@ -138,5 +143,203 @@ if (!function_exists('relocate_historic_products')) {
         );
     }
 }
+if (!function_exists('relocate_basket')) {
+    function relocate_basket($legacy_parent_id, $basket) {
 
+
+        if ($basket->parent_type == 'Customer') {
+            $legacy_column_name = 'Order Customer Key';
+        } else {
+            $legacy_column_name = 'Order Customer Client Key';
+
+        }
+
+
+        $toDelete = [
+            'Product'      => $basket->transactions->whereIn('transaction_type', 'Product')->pluck('id', 'transaction_id')->all(),
+            'ShippingZone' => $basket->transactions->whereIn('transaction_type', 'ShippingZone')->pluck('id', 'transaction_id')->all(),
+            'Charge'       => $basket->transactions->whereIn('transaction_type', 'Charge')->pluck('id', 'transaction_id')->all()
+        ];
+
+
+        $sql = " * from  `Order Transaction Fact` OTF  left join `Order Dimension` O on (O.`Order Key`=OTF.`Order Key`)   where `$legacy_column_name`=? and `Order State`=?";
+
+        //print "$sql\n";
+        //print_r([$legacy_parent_id]);
+
+
+
+        foreach (
+            DB::connection('legacy')->select(
+                'select '.$sql, [
+                                  $legacy_parent_id,
+                                  'InBasket'
+                              ]
+            ) as $otf_data
+        ) {
+
+
+            if ($basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'Product')->first()) {
+
+
+                unset($toDelete['Product'][$basketItem->transaction_id]);
+
+
+                $basketItem->fill(
+                    [
+                        'quantity'  => $otf_data->{'Order Quantity'},
+                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                        'net'       => $otf_data->{'Order Transaction Amount'},
+                        'data'      => []
+                    ]
+                );
+                $basketItem->save();
+                $currentTransactions[] = $basketItem->id;
+            } else {
+
+                $product = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
+
+                unset($toDelete['Product'][$product->id]);
+
+
+                $basketItems = new BasketTransaction(
+                    [
+                        'basket_id' => $basket->id,
+
+                        'tenant_id' => $product->tenant_id,
+                        'quantity'  => $otf_data->{'Order Quantity'},
+                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                        'net'       => $otf_data->{'Order Transaction Amount'},
+
+
+                        'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
+                        'data'      => []
+                    ]
+                );
+                $product->basketTransactions()->save($basketItems);
+            }
+
+
+            $basket->updateTotals();
+
+
+        }
+
+        $sql = " * from `Order No Product Transaction Fact` OTF left join `Order Dimension` O on (O.`Order Key`=OTF.`Order Key`)  where `$legacy_column_name`=? and `Order State`=? ";
+        foreach (
+            DB::connection('legacy')->select(
+                "select ".$sql, [
+                                  $legacy_parent_id,
+                                  'InBasket'
+                              ]
+            ) as $onptf_data
+        ) {
+
+
+            $transaction_data = get_legacy_transaction_data($onptf_data);
+
+
+            if ($basketItem = (new BasketTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
+
+                unset($toDelete[$transaction_data['type']][$basketItem->transaction_id]);
+
+
+                $basketItem->fill(
+                    [
+                        'quantity'    => 1,
+                        'discounts'   => $onptf_data->{'Transaction Total Discount Amount'},
+                        'net'         => $onptf_data->{'Transaction Net Amount'},
+                        'tax_band_id' => $transaction_data['tax_band_id'],
+                        'data'        => []
+                    ]
+                );
+                $basketItem->save();
+            } else {
+
+                unset($toDelete[$transaction_data['type']][$transaction_data['id']]);
+
+                $basketItem = new BasketTransaction(
+                    [
+
+                        'basket_id'        => $basket->id,
+                        'tenant_id'        => $basket->tenant_id,
+                        'transaction_type' => $transaction_data['type'],
+                        'transaction_id'   => $transaction_data['id'],
+                        'quantity'         => 1,
+                        'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
+                        'net'              => $onptf_data->{'Transaction Net Amount'},
+                        'tax_band_id'      => $transaction_data['tax_band_id'],
+
+                        'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
+
+                        'data' => []
+                    ]
+                );
+                $basketItem->save();
+            }
+
+
+        }
+
+
+
+
+
+
+        BasketTransaction::destroy(Arr::flatten($toDelete));
+
+
+
+
+
+        return $basket;
+
+    }
+}
+
+if (!function_exists('get_legacy_transaction_data')) {
+    function get_legacy_transaction_data($onptf_data) {
+
+        switch ($onptf_data->{'Transaction Type'}) {
+            case 'Shipping':
+                $transaction_type = 'ShippingZone';
+                $transaction_id   = null;
+                if ($onptf_data->{'Transaction Type Key'}) {
+                    if ($shipping_zone = (new ShippingZone())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
+                        $transaction_id = $shipping_zone->id;
+                    }
+
+                }
+                break;
+            case 'Charges':
+                $transaction_type = 'Charge';
+                $transaction_id   = null;
+                if ($onptf_data->{'Transaction Type Key'}) {
+                    if ($charge = (new Charge())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
+                        $transaction_id = $charge->id;
+                    }
+
+                }
+                break;
+            default:
+                print_r($onptf_data);
+                exit();
+        }
+        $tax_band_id = null;
+        if ($taxBand = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}))) {
+            $tax_band_id = $taxBand->id;
+        } else {
+            print_r($onptf_data);
+            exit;
+        }
+
+
+        return [
+            'type'        => $transaction_type,
+            'id'          => $transaction_id,
+            'tax_band_id' => $tax_band_id
+
+        ];
+    }
+}
 
