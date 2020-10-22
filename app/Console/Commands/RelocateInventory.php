@@ -62,6 +62,14 @@ class RelocateInventory extends Command {
                     foreach (DB::connection('legacy')->select("select * from".' '.$legacy_location_stocks_table.' where `Part SKU`=? order by `Can Pick` desc,`Quantity On Hand` ', [$stock->legacy_id]) as $legacy_part_location_data) {
                         //print_r($legacy_part_location_data);
                         $location                           = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'});
+
+                        $restocking=array_filter([
+                            'min'  => $legacy_part_location_data->{'Minimum Quantity'},
+                            'max'  => $legacy_part_location_data->{'Maximum Quantity'},
+                            'move' => $legacy_part_location_data->{'Moving Quantity'}
+                        ]);
+
+
                         $location_stock_data[$location->id] = [
                             'quantity'           => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'},
                             'picking_priority'   => $priority,
@@ -71,9 +79,7 @@ class RelocateInventory extends Command {
                             'legacy_location_id' => $legacy_part_location_data->{'Location Key'},
                             'settings'           => array_filter(
                                 [
-                                    'min_quantity'  => $legacy_part_location_data->{'Minimum Quantity'},
-                                    'max_quantity'  => $legacy_part_location_data->{'Maximum Quantity'},
-                                    'move_quantity' => $legacy_part_location_data->{'Moving Quantity'}
+                                    'restocking'  => $restocking
                                 ]
                             ),
                             'data'               => array_filter(

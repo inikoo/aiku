@@ -93,6 +93,13 @@ class StockController extends Controller {
             if ($location = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'})) {
 
 
+                $restocking=array_filter([
+                                             'min'  => $legacy_part_location_data->{'Minimum Quantity'},
+                                             'max'  => $legacy_part_location_data->{'Maximum Quantity'},
+                                             'move' => $legacy_part_location_data->{'Moving Quantity'}
+                                         ]);
+
+
                 $location_stock_data[$location->id] = [
                     'quantity'           => $stock->packed_in * $legacy_part_location_data->{'Quantity On Hand'},
                     'picking_priority'   => $priority,
@@ -102,9 +109,8 @@ class StockController extends Controller {
                     'legacy_stock_id'    => $legacy_part_location_data->{'Part SKU'},
                     'settings'           => array_filter(
                         [
-                            'min_quantity'  => $legacy_part_location_data->{'Minimum Quantity'},
-                            'max_quantity'  => $legacy_part_location_data->{'Maximum Quantity'},
-                            'move_quantity' => $legacy_part_location_data->{'Moving Quantity'}
+                            'restocking'  => $restocking
+
                         ]
                     ),
                     'data'               => array_filter(
