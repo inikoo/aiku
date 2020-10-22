@@ -33,8 +33,8 @@ class CustomerController extends Controller {
 
     function sync(Request $request) {
 
-        $request_data          = $request->all();
-        $tax_number_validation = Arr::pull($request_data, 'tax_number_validation', false);
+        $request_data                = $request->all();
+        $tax_number_validation       = Arr::pull($request_data, 'tax_number_validation', false);
         $this->tax_number_validation = ($tax_number_validation ? array_filter(json_decode($tax_number_validation, true)) : []);
 
 
@@ -139,9 +139,10 @@ class CustomerController extends Controller {
             return response()->json(['errors' => 'object not found'], 470);
         }
 
-        $request_data = $request->all();
+        $request_data = json_decode($request->all()['legacy'], true);
 
-        $customerPortfolioItem=CustomerPortfolio::withTrashed()->updateOrCreate(
+
+        $customerPortfolioItem = CustomerPortfolio::withTrashed()->updateOrCreate(
             [
                 'legacy_id' => $request_data['Customer Portfolio Key'],
 
@@ -161,9 +162,6 @@ class CustomerController extends Controller {
 
 
     }
-
-
-
 
 
 }

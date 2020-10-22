@@ -61,7 +61,7 @@ class RelocateCustomers extends Command {
             $pages = ceil($total / $max);
             for ($i = 1; $i < ($pages + 1); $i++) {
                 $offset = (($i - 1) * $max);
-                foreach (DB::connection('legacy')->select("select * from $legacy_customers_table  limit $offset, $max ", []) as $legacy_data) {
+                foreach (DB::connection('legacy')->select("select * from $legacy_customers_table limit $offset, $max ", []) as $legacy_data) {
 
                     $this->relocate_customer($legacy_data);
 
@@ -242,7 +242,7 @@ class RelocateCustomers extends Command {
             $this->relocate_customer_client($customer);
             $this->relocate_customer_portfolio($customer);
 
-        }else{
+        } else {
             $this->relocate_basket($customer->basket);
 
         }
@@ -254,7 +254,6 @@ class RelocateCustomers extends Command {
     }
 
     function relocate_basket($basket) {
-
 
 
         if ($basket->parent_type == 'Customer') {
@@ -450,7 +449,6 @@ class RelocateCustomers extends Command {
 
         foreach (DB::connection('legacy')->select("select * from $_table where $_where=?", [$customer->legacy_id]) as $legacy_data) {
 
-
             $product = (new Product)->firstWhere('legacy_id', $legacy_data->{'Customer Portfolio Product ID'});
             CustomerPortfolio::withTrashed()->updateOrCreate(
                 [
@@ -463,15 +461,9 @@ class RelocateCustomers extends Command {
                     'code'        => $legacy_data->{'Customer Portfolio Reference'},
                     'created_at'  => $legacy_data->{'Customer Portfolio Creation Date'},
                     'deleted_at'  => (($legacy_data->{'Customer Portfolio Customers State'} == 'Removed' and $legacy_data->{'Customer Portfolio Removed Date'} != '') ? $legacy_data->{'Customer Portfolio Removed Date'} : null),
-
-
                 ]
             );
-
-
         }
-
-
     }
 
 }

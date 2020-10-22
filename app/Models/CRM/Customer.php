@@ -67,6 +67,18 @@ class Customer extends Model implements Auditable {
         );
     }
 
+    public function getSluggledNameAttribute() {
+
+        $sluggableName=au_escape_slug($this->name);
+
+        if ($sluggableName == '') {
+            $sluggableName = 'empty';
+        }
+
+        return $sluggableName;
+    }
+
+
     public function basket() {
         return $this->morphOne('App\Models\Sales\Basket', 'parent');
     }
@@ -89,16 +101,7 @@ class Customer extends Model implements Auditable {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps();
     }
 
-    public function getSluggledNameAttribute() {
 
-        $sluggableName=au_escape_slug($this->name);
-
-        if ($sluggableName == '') {
-            $sluggableName = 'empty';
-        }
-
-        return $sluggableName;
-    }
 
     public function basketItems() {
         return $this->belongsToMany('App\Models\Stores\Product', 'basket_transactions')->using('App\Models\Sales\BasketTransaction')->withTimestamps()->withPivot(['quantity']);
@@ -107,5 +110,7 @@ class Customer extends Model implements Auditable {
     public function images() {
         return $this->morphMany('App\Models\Helpers\ImageModel', 'image_models', 'imageable_type', 'imageable_id');
     }
+
+
 
 }
