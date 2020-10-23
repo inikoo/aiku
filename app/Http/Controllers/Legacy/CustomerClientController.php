@@ -124,8 +124,6 @@ class CustomerClientController extends Controller {
     function update_basket($legacy_id, Request $request){
 
         $database_settings = data_get(config('database.connections'), 'mysql');
-
-
         data_set($database_settings, 'database', app('currentTenant')->data['legacy']['db']);
         config(['database.connections.legacy' => $database_settings]);
         DB::connection('legacy');
