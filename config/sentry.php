@@ -5,7 +5,7 @@ return [
     'dsn'         => env('SENTRY_LARAVEL_DSN', env('SENTRY_DSN')),
 
     // capture release as git sha
-    'release'     => (is_dir(base_path('.git')) ? trim(exec('git --git-dir '.base_path('.git').' log --pretty="%h" -n1 HEAD')) : date('Ymd')),
+    'release'     => file_get_contents(base_path('version.txt')),
 
     // When left empty or `null` the Laravel environment will be used
     'environment' => env('SENTRY_ENVIRONMENT'),

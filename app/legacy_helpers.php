@@ -8,6 +8,7 @@
 use App\Models\Helpers\Address;
 use App\Models\Sales\BasketTransaction;
 use App\Models\Sales\Charge;
+use App\Models\Sales\OrderTransaction;
 use App\Models\Sales\ShippingZone;
 use App\Models\Sales\TaxBand;
 use App\Models\Stores\Product;
@@ -163,12 +164,6 @@ if (!function_exists('relocate_basket')) {
 
 
         $sql = " * from  `Order Transaction Fact` OTF  left join `Order Dimension` O on (O.`Order Key`=OTF.`Order Key`)   where `$legacy_column_name`=? and `Order State`=?";
-
-        //print "$sql\n";
-        //print_r([$legacy_parent_id]);
-
-
-
         foreach (
             DB::connection('legacy')->select(
                 'select '.$sql, [
@@ -243,7 +238,6 @@ if (!function_exists('relocate_basket')) {
 
                 unset($toDelete[$transaction_data['type']][$basketItem->transaction_id]);
 
-
                 $basketItem->fill(
                     [
                         'quantity'    => 1,
@@ -282,17 +276,124 @@ if (!function_exists('relocate_basket')) {
         }
 
 
-
-
-
-
         BasketTransaction::destroy(Arr::flatten($toDelete));
 
 
-
-
-
         return $basket;
+
+    }
+}
+
+if (!function_exists('relocate_order_transactions')) {
+    function relocate_order_transactions($order) {
+
+
+        $toDelete = [
+            'ProductHistoricVariation'      => $order->transactions->whereIn('transaction_type', 'Product')->pluck('id', 'transaction_id')->all(),
+            'ShippingZone' => $order->transactions->whereIn('transaction_type', 'ShippingZone')->pluck('id', 'transaction_id')->all(),
+            'Charge'       => $order->transactions->whereIn('transaction_type', 'Charge')->pluck('id', 'transaction_id')->all()
+        ];
+
+
+        $otf_table         = ' `Order Transaction Fact` ';
+        $otf_table_where   = ' `Order Key` ';
+        $onptf_table       = ' `Order No Product Transaction Fact` ';
+        $onptf_table_where = ' `Order Key` ';
+
+
+        foreach (DB::connection('legacy')->select("select * from  $otf_table where  $otf_table_where=?", [$order->legacy_id]) as $otf_data) {
+
+
+            if ($orderTransaction = (new OrderTransaction())->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'ProductHistoricVariation')->first()) {
+
+                unset($toDelete['ProductHistoricVariation'][$orderTransaction->transaction_id]);
+
+                $orderTransaction->fill(
+                    [
+                        'quantity'  => $otf_data->{'Order Quantity'},
+                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                        'net'       => $otf_data->{'Order Transaction Amount'},
+
+                        'data' => []
+                    ]
+                );
+                $orderTransaction->save();
+            } else {
+
+                $product_historic_variant = (new ProductHistoricVariation())->firstWhere('legacy_id', $otf_data->{'Product Key'});
+
+                unset($toDelete['ProductHistoricVariation'][$product_historic_variant->id]);
+
+
+                $orderTransactions = new OrderTransaction(
+                    [
+
+                        'order_id'  => $order->id,
+                        'tenant_id' => $order->tenant_id,
+                        'quantity'  => $otf_data->{'Order Quantity'},
+                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                        'net'       => $otf_data->{'Order Transaction Amount'},
+                        'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
+                        'data'      => []
+                    ]
+                );
+                $product_historic_variant->orderTransactions()->save($orderTransactions);
+            }
+
+
+        }
+
+
+        foreach (DB::connection('legacy')->select("select * from  $onptf_table where  $onptf_table_where=?", [$order->legacy_id]) as $onptf_data) {
+
+
+            $transaction_data = get_legacy_transaction_data($onptf_data);
+
+
+            if ($orderTransaction = (new OrderTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
+
+                unset($toDelete[$transaction_data['type']][$orderTransaction->transaction_id]);
+
+                $orderTransaction->fill(
+                    [
+                        'quantity'    => 1,
+                        'discounts'   => $onptf_data->{'Transaction Total Discount Amount'},
+                        'net'         => $onptf_data->{'Transaction Net Amount'},
+                        'tax_band_id' => $transaction_data['tax_band_id'],
+                        'data'        => []
+                    ]
+                );
+                $orderTransaction->save();
+            } else {
+
+                unset($toDelete[$transaction_data['type']][$transaction_data['id']]);
+
+
+                $orderTransaction = new OrderTransaction(
+                    [
+
+                        'order_id'         => $order->id,
+                        'tenant_id'        => $order->tenant_id,
+                        'transaction_type' => $transaction_data['type'],
+                        'transaction_id'   => $transaction_data['id'],
+                        'quantity'         => 1,
+                        'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
+                        'net'              => $onptf_data->{'Transaction Net Amount'},
+                        'tax_band_id'      => $transaction_data['tax_band_id'],
+
+                        'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
+                        'data'      => []
+                    ]
+                );
+                $orderTransaction->save();
+            }
+
+
+        }
+
+
+        OrderTransaction::destroy(Arr::flatten($toDelete));
+
 
     }
 }
@@ -342,4 +443,3 @@ if (!function_exists('get_legacy_transaction_data')) {
         ];
     }
 }
-
