@@ -33,7 +33,6 @@ class CustomerClientController extends Controller {
         $this->parseRequest($request->all());
 
 
-
         $this->object_parameters['data'] = $this->data;
 
 
@@ -121,23 +120,25 @@ class CustomerClientController extends Controller {
 
     }
 
-    function update_basket($legacy_id, Request $request){
+    function update_basket($legacy_id, Request $request) {
 
-        $database_settings = data_get(config('database.connections'), 'mysql');
-        data_set($database_settings, 'database', app('currentTenant')->data['legacy']['db']);
-        config(['database.connections.legacy' => $database_settings]);
-        DB::connection('legacy');
 
         $this->parseRequest($request->all());
-        $customerClient = (new CustomerClient)->firstWhere('legacy_id', $legacy_id);
+        if ($customerClient = (new CustomerClient)->firstWhere('legacy_id', $legacy_id)) {
+            $database_settings = data_get(config('database.connections'), 'mysql');
+            data_set($database_settings, 'database', app('currentTenant')->data['legacy']['db']);
+            config(['database.connections.legacy' => $database_settings]);
+            DB::connection('legacy');
 
-        relocate_basket($legacy_id,$customerClient->basket);
-        return response()->json([], 200);
+            relocate_basket($legacy_id, $customerClient->basket);
+
+            return response()->json([], 200);
+        } else {
+            return response()->json(['errors' => 'object not found'], 470);
+        }
 
 
     }
-
-
 
 
 }
