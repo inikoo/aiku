@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Legacy\Traits\LegacyHelpers;
+use Illuminate\Support\Facades\DB;
 
 
 class CustomerController extends Controller {
@@ -164,6 +165,11 @@ class CustomerController extends Controller {
     }
 
     function update_basket($legacy_id, Request $request){
+
+        $database_settings = data_get(config('database.connections'), 'mysql');
+        data_set($database_settings, 'database', app('currentTenant')->data['legacy']['db']);
+        config(['database.connections.legacy' => $database_settings]);
+        DB::connection('legacy');
 
         $this->parseRequest($request->all());
         $customer = (new Customer)->firstWhere('legacy_id', $legacy_id);
