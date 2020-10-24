@@ -25,11 +25,16 @@ class ApiLoginController extends Controller {
 
 
         $credentials = $request->only('handle', 'password');
-        data_set($credentials, 'status', true);
 
+        data_set($credentials, 'status', 'active');
+
+        $credentials['password']=  hash('sha256', $credentials['password']);
 
         if (Auth::attempt($credentials)) {
 
+            /**
+             * @var $user User
+             */
             $user = Auth::user();
             $this->logAttempt($credentials['handle'], $user->id, $request->ip(), 'login');
 
@@ -58,13 +63,11 @@ class ApiLoginController extends Controller {
     private function logAttempt($handle, $user_id, $ip, $action) {
 
 
-
-
         if ($action == 'loginFail') {
-            $user = User::where('handle', $handle)->first();
+            $user = (new User)->firstWhere('handle', $handle);
             if ($user !== null) {
                 $user->last_login_fail_at = gmdate('Y-m-d H:i:s+00');
-                $user_id=$user->id;
+                $user_id                  = $user->id;
                 $user->save();
             }
         }

@@ -31,6 +31,7 @@ use Spatie\Permission\Traits\HasRoles;
 
  * @property string $password
  * @property string $pin
+ * @property string $last_login_at
 
  * @property \App\User $user
 
