@@ -45,7 +45,7 @@ class RelocateStores extends Command {
 
         if (Arr::get($this->tenant->data, 'legacy')) {
 
-            print ('Relocation Stores/Websites '.$this->tenant->subdomain."\n");
+            print ('Relocation Stores/Websites '.$this->tenant->slug."\n");
             $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 

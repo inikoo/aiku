@@ -42,7 +42,7 @@ class RelocateInventory extends Command {
             $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
-            print ('Relocation inventory from '.$this->tenant->subdomain."\n");
+            print ('Relocation inventory from '.$this->tenant->slug."\n");
             $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_stocks_table, [])[0];
             $bar               = $this->output->createProgressBar($count_stocks_data->num);
             $bar->setFormat('debug');
@@ -102,7 +102,7 @@ class RelocateInventory extends Command {
             $bar->finish();
             print "\n";
 
-            print ('Relocation deleted parts from '.$this->tenant->subdomain."\n");
+            print ('Relocation deleted parts from '.$this->tenant->slug."\n");
 
 
             $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_stocks_table, [])[0];

@@ -41,7 +41,7 @@ class RelocateProducts extends Command {
             $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
-            print ('Relocation products from '.$this->tenant->subdomain."\n");
+            print ('Relocation products from '.$this->tenant->slug."\n");
             $count_products_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_products_table, [])[0];
             $bar                 = $this->output->createProgressBar($count_products_data->num);
             $bar->setFormat('debug');

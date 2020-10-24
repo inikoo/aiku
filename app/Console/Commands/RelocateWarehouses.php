@@ -63,7 +63,7 @@ class RelocateWarehouses extends Command {
             }
 
 
-            print ('Relocation locations from '.$this->tenant->subdomain."\n");
+            print ('Relocation locations from '.$this->tenant->slug."\n");
             $count_deleted_locations_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_locations_table, [])[0];
             $count_locations_data         = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_locations_table, [])[0];
 

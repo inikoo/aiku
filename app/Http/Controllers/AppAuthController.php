@@ -28,7 +28,7 @@ class AppAuthController extends Controller {
 
 
 
-        $tenant= (new Tenant)->firstWhere('subdomain', $request->subdomain);
+        $tenant= (new Tenant)->firstWhere('slug', $request->subdomain);
 
 
         $tenant->makeCurrent();
@@ -88,7 +88,7 @@ class AppAuthController extends Controller {
 
 
         $payload=[
-            'apiUrl'     => conf('protocol').'://'.$tenant->subdomain.'.'.config('domain'),
+            'apiUrl'     => config('protocol').'://'.$tenant->slug.'.'.config('domain'),
             'token'=>$tokenData[1],
             'userData'=>[
                 'tokenId'=>$device->personal_access_token_id,
@@ -97,7 +97,7 @@ class AppAuthController extends Controller {
                 'name'=>$user->userable->name,
             ],
             'tenantData'=>[
-                'code'=>$tenant->subdomain,
+                'code'=>$tenant->slug,
                 'name'=>$tenant->name,
             ],
             'deviceId'=>$device->id

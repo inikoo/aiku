@@ -35,7 +35,7 @@ class SubdomainTenantFinder extends TenantFinder
         list($subdomain) = explode('.', $host, 2);
 
         /** @noinspection PhpUndefinedMethodInspection */
-        return $this->getTenantModel()::where('subdomain', $subdomain)->first();
+        return $this->getTenantModel()::where('slug', 'au_'.$subdomain)->first();
 
 
 

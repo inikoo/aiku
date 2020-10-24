@@ -33,7 +33,7 @@ class RelocateTenants extends Command {
 
         $this->tenant = Tenant::current();
         if (Arr::exists($this->tenant->data, 'legacy')) {
-            print ('Relocation tenant '.$this->tenant->subdomain."\n");
+            print ('Relocation tenant '.$this->tenant->slug."\n");
 
 
             $table = '`Account Dimension`';

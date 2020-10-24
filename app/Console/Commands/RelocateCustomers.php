@@ -47,7 +47,7 @@ class RelocateCustomers extends Command {
             $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
-            print ('Relocation customers from '.$this->tenant->subdomain."\n");
+            print ('Relocation customers from '.$this->tenant->slug."\n");
 
 
             $count_customers_data = DB::connection('legacy')->select("select count(*) as num from $legacy_customers_table", [])[0];
@@ -71,7 +71,7 @@ class RelocateCustomers extends Command {
             $bar->finish();
 
 
-            print ('Relocation deleted customers from '.$this->tenant->subdomain."\n");
+            print ('Relocation deleted customers from '.$this->tenant->slug."\n");
 
 
             $count_deleted_customers_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_deleted_customers_table, [])[0];

@@ -47,7 +47,7 @@ class TenantAccessToken extends Command
          */
         $admin= (new User)->firstWhere('userable_type', 'Admin')->userable;
         $token=$admin->createDirectAccessCode($this->argument('handle'));
-        print ('The tenant is '. Tenant::current()->subdomain."\t\t".$token."\n");
+        print ('The tenant is '. Tenant::current()->slug."\t\t".$token."\n");
         return 0;
 
     }

@@ -40,7 +40,7 @@ class RelocateEmployees extends Command {
         $_table = '`Staff Dimension`';
 
         if (Arr::get($this->tenant->data, 'legacy')) {
-            print ('Relocation staff from '.$this->tenant->subdomain." ".$this->tenant->data['legacy']['db']."  \n");
+            print ('Relocation staff from '.$this->tenant->slug." ".$this->tenant->data['legacy']['db']."  \n");
 
             $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
