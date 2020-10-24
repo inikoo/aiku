@@ -32,7 +32,7 @@ class RelocateTenants extends Command {
 
 
         $this->tenant = Tenant::current();
-        if (Arr::get($this->tenant->data, 'legacy')) {
+        if (Arr::exists($this->tenant->data, 'legacy')) {
             print ('Relocation tenant '.$this->tenant->subdomain."\n");
 
 
@@ -41,20 +41,10 @@ class RelocateTenants extends Command {
 
             foreach (DB::connection('legacy')->select('select * from '.$table, []) as $legacy_data) {
 
-                $data    = $this->tenant->data;
+                print_r($legacy_data);
+                $data = $this->tenant->data;
 
 
-                $country_translations = [
-                    'ESP' => 'ES',
-                    'GBR' => 'GB',
-                    'SVK' => 'SK',
-                    'IDN' => 'ID',
-
-                ];
-
-
-
-                $data['country_code'] = $country_translations[$legacy_data->{'Account Country Code'}];
                 $this->tenant->data   = $data;
                 $this->tenant->save();
 

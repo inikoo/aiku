@@ -10,12 +10,13 @@ class CreateLandlordTenantsTable extends Migration
     {
         Schema::create('tenants', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->string('type')->index();
+            $table->string('slug')->unique();
             $table->string('name');
-            $table->string('subdomain')->unique();
-            $table->string('database')->unique();
-            $table->json('settings');
-            $table->json('data');
+            $table->jsonb('settings');
+            $table->jsonb('data');
             $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
         });
     }
 

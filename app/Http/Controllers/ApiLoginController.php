@@ -28,7 +28,7 @@ class ApiLoginController extends Controller {
 
         data_set($credentials, 'status', 'active');
 
-        $credentials['password']=  hash('sha256', $credentials['password']);
+        $credentials['password'] = hash('sha256', $credentials['password']);
 
         if (Auth::attempt($credentials)) {
 
@@ -44,6 +44,7 @@ class ApiLoginController extends Controller {
 
             return response()->json(
                 [
+                    'login'       => 'ok',
                     'user'        => $user,
                     'permissions' => $user->getAllPermissions(),
                     'userable'    => $user->userable

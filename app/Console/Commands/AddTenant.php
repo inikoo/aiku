@@ -16,7 +16,7 @@ class AddTenant extends Command {
      *
      * @var string
      */
-    protected $signature = 'add:tenant {name} {subdomain} {database} {legacy_db} {legacy_code}';
+    protected $signature = 'add:tenant {type} {name} {slug} {data}';
 
     /**
      * The console command description.
@@ -44,15 +44,10 @@ class AddTenant extends Command {
 
         $tenant = new Tenant(
             [
-                'name'      => $this->argument('name'),
-                'subdomain' => $this->argument('subdomain'),
-                'database'  => $this->argument('database'),
-                'data'  => [
-                    'legacy' => [
-                        'db'   => $this->argument('legacy_db'),
-                        'code' => $this->argument('legacy_code')
-                    ]
-                ]
+                'name'     => $this->argument('name'),
+                'slug'     => $this->argument('slug'),
+                'type'     => $this->argument('type'),
+                'data' => json_decode($this->argument('data'))
             ]
         );
 

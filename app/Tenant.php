@@ -22,8 +22,7 @@ use Spatie\Multitenancy\Models\Tenant as Tenanto;
  *
  * @property int $id
  * @property string $name
- * @property string $subdomain
- * @property string $database
+ * @property string $slug
  * @property array $settings
  * @property array $data
  * @mixin \Illuminate\Database\Eloquent\Model:class
@@ -42,16 +41,22 @@ class Tenant extends Tenanto {
         'settings' => '{}'
     ];
 
+    public function getDatabaseName(): string {
+        return 'au_'.$this->slug;
+    }
+
     protected static function booted() {
         static::created(
             function ($tenant) {
 
-                if (ctype_alpha($tenant->database) or ctype_lower($tenant->database)) {
+                $database='au_'.$tenant->slug;
+
+                if (ctype_alpha($database) or ctype_lower($database)) {
                     throw new Exception('Invalid database name');
                 }
 
-                DB::connection('scaffolding')->statement("DROP DATABASE IF EXISTS " . $tenant->database);
-                DB::connection('scaffolding')->statement("CREATE DATABASE ".$tenant->database." ENCODING 'UTF8' LC_COLLATE = 'en_GB.UTF-8' LC_CTYPE = 'en_GB.UTF-8' TEMPLATE template0");
+                DB::connection('scaffolding')->statement("DROP DATABASE IF EXISTS " . $database);
+                DB::connection('scaffolding')->statement("CREATE DATABASE ".$database." ENCODING 'UTF8' LC_COLLATE = 'en_GB.UTF-8' LC_CTYPE = 'en_GB.UTF-8' TEMPLATE template0");
                 //DB::connection('scaffolding')->statement("CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;");
 
                 Artisan::call('tenants:artisan "migrate:refresh --database=tenant" --tenant='.$tenant->id );
