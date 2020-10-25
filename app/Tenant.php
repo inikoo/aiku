@@ -41,6 +41,9 @@ class Tenant extends Tenanto {
         'settings' => '{}'
     ];
 
+    protected $visible = array('type', 'slug','name');
+
+
     public function getDatabaseName(): string {
         return 'au_'.$this->slug;
     }

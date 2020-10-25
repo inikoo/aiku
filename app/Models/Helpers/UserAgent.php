@@ -47,9 +47,10 @@ class UserAgent extends Model {
     public function fetch_user_agent_device_data() {
 
 
-        $api_url = config('user_agent_api.url');
 
-        $api_keys = preg_split('/,/', config('user_agent_api.keys'));
+        $api_url = config('app.user_agent_api.url');
+
+        $api_keys = preg_split('/,/', config('app.user_agent_api.keys'));
 
         if (count($api_keys) == 0 or $api_url == '') {
             throw new Exception(
@@ -60,7 +61,6 @@ class UserAgent extends Model {
 
         $access_credentials = preg_split('/\|/', reset($api_keys))[1];
 
-        $url       = 'https://api.whatismybrowser.com/api/v2/user_agent_parse';
         $headers   = [
             'X-API-KEY: '.$access_credentials,
         ];
@@ -71,7 +71,7 @@ class UserAgent extends Model {
 
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_URL, $api_url);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

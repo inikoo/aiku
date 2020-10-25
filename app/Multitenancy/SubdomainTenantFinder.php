@@ -28,7 +28,7 @@ class SubdomainTenantFinder extends TenantFinder
     {
 
         $host=$request->getHost();
-        if($host==config('domain')){
+        if($host==config('app.domain')){
             return null;
         }
 

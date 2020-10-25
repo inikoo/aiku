@@ -88,7 +88,7 @@ class AppAuthController extends Controller {
 
 
         $payload=[
-            'apiUrl'     => config('protocol').'://'.$tenant->slug.'.'.config('domain'),
+            'apiUrl'     => config('app.protocol').'://'.$tenant->slug.'.'.config('app.domain'),
             'token'=>$tokenData[1],
             'userData'=>[
                 'tokenId'=>$device->personal_access_token_id,

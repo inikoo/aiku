@@ -46,6 +46,7 @@ class ApiLoginController extends Controller {
                 [
                     'login'       => 'ok',
                     'user'        => $user,
+                    'tenant'      => app('currentTenant'),
                     'permissions' => $user->getAllPermissions(),
                     'userable'    => $user->userable
                 ]

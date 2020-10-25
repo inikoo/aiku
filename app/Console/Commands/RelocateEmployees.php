@@ -233,7 +233,7 @@ class RelocateEmployees extends Command {
                 'handle'    => Str::lower($legacy_user_data->{'User Handle'}),
             ], [
                 'password'      => bcrypt($legacy_user_data->{'User Password'}),
-                'pin'           => (config('env') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                'pin'           => (config('app.env') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
                 'legacy_id'     => $legacy_user_data->{'User Key'},
                 'userable_type' => $parent_type,
                 'userable_id'   => $parent->id,

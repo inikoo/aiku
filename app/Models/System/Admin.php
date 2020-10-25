@@ -21,7 +21,7 @@ class Admin extends Model {
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}'
     ];
 
@@ -38,8 +38,8 @@ class Admin extends Model {
                     [
                         'handle'    => Str::slug($admin->slug),
                         'tenant_id' => $admin->tenant_id,
-                        'password'  => (config('env') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                        'pin'  => (config('env') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                        'password'  => (config('app.env') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                        'pin'       => (config('app.env') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
                         'legacy_id' => $admin->legacy_id,
                         'settings'  => [],
                         'data'      => []
@@ -52,7 +52,7 @@ class Admin extends Model {
         );
     }
 
-    public function createDirectAccessCode($device_name){
+    public function createDirectAccessCode($device_name) {
 
         //$tokenData=preg_split('/\|/',$this->user->createToken($device_name)->plainTextToken);
         //return $tokenData[1];

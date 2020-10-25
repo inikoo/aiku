@@ -84,8 +84,8 @@ class Employee extends Model implements Auditable {
                             'tenant_id' => $employee->tenant_id,
                             'userable_type'    => 'Employee',
                             'userable_id' => $employee->id,
-                            'password'  => (config('env') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
-                            'pin'       => (config('env') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
+                            'password'  => (config('app.env') == 'devel' ? Hash::make('password') : Hash::make(Str::random(40))),
+                            'pin'       => (config('app.env') == 'devel' ? Hash::make('1234') : Hash::make(Str::random(6))),
                             'status'    => ($employee->status == 'Working'?'active':'suspended'),
                             'settings'  => [],
                             'data'      => []

@@ -88,7 +88,7 @@ class ClockingMachine extends Model implements Auditable{
 
         $accessCode->scope_id = $this->getAttribute('id');
         $accessCode->payload=[
-            'url'=>$tenant->slug.'.'.config('domain'),
+            'url'=>$tenant->slug.'.'.config('app.domain'),
             'user_id'=>($user==null?0:$user->getAttribute('id'))
         ];
 
