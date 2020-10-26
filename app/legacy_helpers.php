@@ -422,6 +422,16 @@ if (!function_exists('get_legacy_transaction_data')) {
 
                 }
                 break;
+            case 'Insurance':
+                $transaction_type = 'Insurance';
+                $transaction_id   = null;
+                if ($onptf_data->{'Transaction Type Key'}) {
+                    if ($charge = (new Charge())->firstWhere('type', 'insurance')) {
+                        $transaction_id = $charge->id;
+                    }
+
+                }
+                break;
             default:
                 print_r($onptf_data);
                 exit();
