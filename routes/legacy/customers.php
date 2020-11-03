@@ -9,6 +9,30 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Legacy\CustomerController;
 use App\Http\Controllers\Legacy\CustomerClientController;
 
+Route::post(
+    '/customer_client', [
+                          CustomerClientController::class,
+                          'sync'
+                      ]
+)->name('sync_customer_client');
+
+
+
+Route::post(
+    '/customer_client/{legacy_id}', [
+                                      CustomerClientController::class,
+                                      'update'
+                                  ]
+)->name('update_customer_client');
+
+Route::post(
+    '/customer_client/{legacy_id}/basket', [
+                                             CustomerClientController::class,
+                                             'update_basket'
+                                         ]
+)->name('update_customer_client_basket');
+
+
 
 Route::post(
     '/', [
@@ -40,25 +64,5 @@ Route::post(
 )->name('sync_portfolio');
 
 
-Route::post(
-    '/customer_client', [
-                          CustomerClientController::class,
-                          'sync'
-                      ]
-)->name('sync_customer_client');
 
-
-Route::post(
-    '/customer_client/{legacy_id}', [
-                                      CustomerClientController::class,
-                                      'update'
-                                  ]
-)->name('update_customer_client');
-
-Route::post(
-    '/customer_client/{legacy_id}/basket', [
-                                      CustomerClientController::class,
-                                      'update_basket'
-                                  ]
-)->name('update_customer_client_basket');
 
