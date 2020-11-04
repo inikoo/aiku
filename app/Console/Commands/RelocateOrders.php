@@ -14,10 +14,6 @@ use App\Models\Distribution\DeliveryNote;
 use App\Models\Distribution\Shipper;
 use App\Models\Distribution\Stock;
 use App\Models\HR\Employee;
-
-use App\Models\Sales\Order;
-
-use App\Models\Stores\Store;
 use App\Tenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
@@ -61,7 +57,6 @@ class RelocateOrders extends Command {
                 $offset = (($i - 1) * $max);
 
 
-
                 $delivery_notes_table = '`Delivery Note Dimension`';
                 $delivery_notes_where = '`Delivery Note Order Key`';
 
@@ -71,7 +66,14 @@ class RelocateOrders extends Command {
                     if ($legacy_data->{'Order State'} != 'InBasket') {
 
 
-                        $order = $this->relocate_order($legacy_data);
+                        if ($legacy_data->{'Order Customer Client Key'}) {
+                            $parent = CustomerClient::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Client Key'});
+                        } else {
+                            $parent = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
+                        }
+
+
+                        $order = relocate_order($parent,$legacy_data);
 
 
                         relocate_order_transactions($order);
@@ -267,157 +269,6 @@ class RelocateOrders extends Command {
 
     }
 
-    function relocate_order($legacy_data) {
-        $order_data = fill_legacy_data(
-            [
-
-            ], $legacy_data
-        );
-
-
-        $store    = (new Store)->firstWhere('legacy_id', $legacy_data->{'Order Store Key'});
-        $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
-
-        $customer_client_id = null;
-        if ($legacy_data->{'Order Customer Client Key'}) {
-            $customer_client    = CustomerClient::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Client Key'});
-            $customer_client_id = $customer_client->id;
-        }
-
-
-        //enum('InBasket','InProcess','InWarehouse','PackedDone','Approved','Dispatched','Cancelled')
-
-        $status = 'Processing';
-        $state  = null;
-        switch ($legacy_data->{'Order State'}) {
-            case 'InBasket':
-                $state  = 'basket';
-                $status = 'basket';
-                break;
-            case 'InProcess':
-                $state = 'submitted';
-                break;
-            case 'InWarehouse':
-                $state = 'picking';
-                break;
-            case 'PackedDone':
-                $state = 'packed';
-                break;
-
-            case 'Approved':
-                $state  = 'packed';
-                $status = 'invoiced';
-                break;
-            case 'Dispatched':
-                $state  = 'dispatched';
-                $status = 'invoiced';
-                break;
-            case 'Cancelled':
-                $status = 'cancelled';
-                break;
-
-        }
-
-
-        $order = (new Order)->updateOrCreate(
-            [
-                'legacy_id' => $legacy_data->{'Order Key'},
-
-            ], [
-                'tenant_id'          => $this->tenant->id,
-                'store_id'           => $store->id,
-                'customer_id'        => $customer->id,
-                'customer_client_id' => $customer_client_id,
-
-                'number' => $legacy_data->{'Order Public ID'},
-
-
-                'payment'         => $legacy_data->{'Order Payments Amount'},
-                'items_discounts' => $legacy_data->{'Order Items Discount Amount'},
-                'shipping'        => $legacy_data->{'Order Shipping Net Amount'},
-                'charges'         => $legacy_data->{'Order Charges Net Amount'},
-                'net'             => $legacy_data->{'Order Total Net Amount'},
-                'tax'             => $legacy_data->{'Order Total Tax Amount'},
-
-
-                'weight' => $legacy_data->{'Order Estimated Weight'},
-                'items'  => $legacy_data->{'Order Number Items'},
-
-
-                'state'  => $state,
-                'status' => $status,
-                'date'   => $legacy_data->{'Order Date'},
-
-
-                'data'       => $order_data,
-                'created_at' => $legacy_data->{'Order Created Date'},
-
-
-            ]
-        );
-
-        $billing_address  = $this->process_immutable_address('Order', 'Invoice', $legacy_data);
-        $delivery_address = $this->process_immutable_address('Order', 'Delivery', $legacy_data);
-
-        if ($billing_address->id == $delivery_address->id) {
-            $order->addresses()->syncWithoutDetaching([$billing_address->id => ['scope' => 'billing_delivery']]);
-        } else {
-            $order->addresses()->syncWithoutDetaching([$billing_address->id => ['scope' => 'billing']]);
-            $order->addresses()->syncWithoutDetaching([$delivery_address->id => ['scope' => 'delivery']]);
-        }
-
-
-        $order->billing_address_id  = $billing_address->id;
-        $order->delivery_address_id = $delivery_address->id;
-        switch ($legacy_data->{'Order State'}) {
-            /*
-             case 'InBasket':
-                 break;
-
-             case 'InWarehouse':
-                 break;
-             case 'PackedDone':
-                 break;
-
-
-            */ case 'InProcess':
-            $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
-
-            break;
-            case 'InWarehouse':
-                $order->submitted_at  = $legacy_data->{'Order Submitted by Customer Date'};
-                $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
-
-                break;
-            case 'Approved':
-                $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
-
-                $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
-                $order->invoiced_at  = $legacy_data->{'Order Invoiced Date'};
-                break;
-            case 'Dispatched':
-                $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
-
-                $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
-
-                $order->invoiced_at   = $legacy_data->{'Order Invoiced Date'};
-                $order->dispatched_at = $legacy_data->{'Order Dispatched Date'};
-
-                break;
-            case 'Cancelled':
-                $order->submitted_at  = $legacy_data->{'Order Submitted by Customer Date'};
-                $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
-
-                $order->cancelled_at = $legacy_data->{'Order Cancelled Date'};
-
-                break;
-
-        }
-
-        $order->save();
-
-        return $order;
-    }
 
     function relocate_delivery_note($legacy_data, $order) {
 
@@ -568,7 +419,7 @@ class RelocateOrders extends Command {
         );
 
 
-        $delivery_address = $this->process_immutable_address('Delivery Note', '', $legacy_data);
+        $delivery_address = process_legacy_immutable_address('Delivery Note', '', $legacy_data);
 
         $delivery_note->addresses()->syncWithoutDetaching([$delivery_address->id => ['scope' => 'delivery']]);
 

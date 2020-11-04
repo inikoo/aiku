@@ -45,7 +45,7 @@ class Customer extends Model implements Auditable {
 
     protected $guarded = [];
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'slug' => [
                 'source'   => 'sluggledName',
@@ -67,7 +67,7 @@ class Customer extends Model implements Auditable {
         );
     }
 
-    public function getSluggledNameAttribute() {
+    function getSluggledNameAttribute() {
 
         $sluggableName=au_escape_slug($this->name);
 
@@ -78,36 +78,41 @@ class Customer extends Model implements Auditable {
         return $sluggableName;
     }
 
+    function getCustomerIdAttribute(){
+        return $this->id;
+    }
 
-    public function basket() {
+
+    function basket() {
         return $this->morphOne('App\Models\Sales\Basket', 'parent');
     }
 
-    public function store() {
+    function store() {
         return $this->belongsTo('App\Models\Stores\Store');
     }
 
-    public function billingAddress()
+    function billingAddress()
     {
         return $this->belongsTo('App\Models\Helpers\Address');
     }
 
-    public function deliveryAddress()
+    function deliveryAddress()
     {
         return $this->belongsTo('App\Models\Helpers\Address');
     }
 
-    public function addresses() {
+    function addresses() {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps();
     }
 
-    public function basketItems() {
+    function basketItems() {
         return $this->belongsToMany('App\Models\Stores\Product', 'basket_transactions')->using('App\Models\Sales\BasketTransaction')->withTimestamps()->withPivot(['quantity']);
     }
 
-    public function images() {
+    function images() {
         return $this->morphMany('App\Models\Helpers\ImageModel', 'image_models', 'imageable_type', 'imageable_id');
     }
+
 
 
 

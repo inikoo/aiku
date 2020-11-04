@@ -39,7 +39,7 @@ class CustomerClient extends Model implements Auditable {
 
     protected $guarded = [];
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'slug' => [
                 'source'   => 'sluggledName',
@@ -48,7 +48,7 @@ class CustomerClient extends Model implements Auditable {
         ];
     }
 
-    public function getSluggledNameAttribute() {
+    function getSluggledNameAttribute() {
 
         if ($this->code != '') {
             return $this->code;
@@ -74,17 +74,25 @@ class CustomerClient extends Model implements Auditable {
         );
     }
 
-    public function basket() {
+    function basket() {
         return $this->morphOne('App\Models\Sales\Basket', 'parent');
     }
 
-    public function customer() {
+    function customer() {
         return $this->belongsTo('App\Models\CRM\Customer');
     }
 
 
-    public function deliveryAddress() {
+    function deliveryAddress() {
         return $this->belongsTo('App\Models\Helpers\Address');
+    }
+
+    function getStoreIdAttribute(){
+        return $this->customer->store_id;
+    }
+
+    function getCustomerClientIdAttribute(){
+        return $this->id;
     }
 
 

@@ -5,9 +5,11 @@
  * Copyright (c) 2020. Aiku.io
  */
 
+
 use App\Models\Helpers\Address;
 use App\Models\Sales\BasketTransaction;
 use App\Models\Sales\Charge;
+use App\Models\Sales\Order;
 use App\Models\Sales\OrderTransaction;
 use App\Models\Sales\ShippingZone;
 use App\Models\Sales\TaxBand;
@@ -201,7 +203,7 @@ if (!function_exists('relocate_basket')) {
 
                 $product = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
 
-                if($product->id) {
+                if ($product->id) {
 
                     unset($toDelete['Product'][$product->id]);
 
@@ -221,7 +223,7 @@ if (!function_exists('relocate_basket')) {
                         ]
                     );
                     $product->basketTransactions()->save($basketItems);
-                }else{
+                } else {
                     throw new Exception('Product not found: '.$otf_data->{'Product ID'});
                 }
 
@@ -302,9 +304,9 @@ if (!function_exists('relocate_order_transactions')) {
 
 
         $toDelete = [
-            'ProductHistoricVariation'      => $order->transactions->whereIn('transaction_type', 'Product')->pluck('id', 'transaction_id')->all(),
-            'ShippingZone' => $order->transactions->whereIn('transaction_type', 'ShippingZone')->pluck('id', 'transaction_id')->all(),
-            'Charge'       => $order->transactions->whereIn('transaction_type', 'Charge')->pluck('id', 'transaction_id')->all()
+            'ProductHistoricVariation' => $order->transactions->whereIn('transaction_type', 'Product')->pluck('id', 'transaction_id')->all(),
+            'ShippingZone'             => $order->transactions->whereIn('transaction_type', 'ShippingZone')->pluck('id', 'transaction_id')->all(),
+            'Charge'                   => $order->transactions->whereIn('transaction_type', 'Charge')->pluck('id', 'transaction_id')->all()
         ];
 
 
@@ -445,6 +447,16 @@ if (!function_exists('get_legacy_transaction_data')) {
 
                 }
                 break;
+            case 'Premium':
+                $transaction_type = 'Charge';
+                $transaction_id   = null;
+                if ($onptf_data->{'Transaction Type Key'}) {
+                    if ($charge = (new Charge())->firstWhere('type', 'premium')) {
+                        $transaction_id = $charge->id;
+                    }
+
+                }
+                break;
             default:
                 print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."  type: ".$onptf_data->{'Transaction Type'}."\n";
 
@@ -467,4 +479,206 @@ if (!function_exists('get_legacy_transaction_data')) {
 
         ];
     }
+}
+
+if (!function_exists('relocate_order')) {
+    function relocate_order($parent, $legacy_data) {
+        $order_data = fill_legacy_data(
+            [
+
+            ], $legacy_data
+        );
+
+        /*
+                $store    = (new Store)->firstWhere('legacy_id', $legacy_data->{'Order Store Key'});
+                $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
+
+                $customer_client_id = null;
+                if ($legacy_data->{'Order Customer Client Key'}) {
+                    $customer_client    = CustomerClient::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Client Key'});
+                    $customer_client_id = $customer_client->id;
+                }
+        */
+
+        //enum('InBasket','InProcess','InWarehouse','PackedDone','Approved','Dispatched','Cancelled')
+
+        $status = 'Processing';
+        $state  = null;
+        switch ($legacy_data->{'Order State'}) {
+            case 'InBasket':
+                $state  = 'basket';
+                $status = 'basket';
+                break;
+            case 'InProcess':
+                $state = 'submitted';
+                break;
+            case 'InWarehouse':
+                $state = 'picking';
+                break;
+            case 'PackedDone':
+                $state = 'packed';
+                break;
+
+            case 'Approved':
+                $state  = 'packed';
+                $status = 'invoiced';
+                break;
+            case 'Dispatched':
+                $state  = 'dispatched';
+                $status = 'invoiced';
+                break;
+            case 'Cancelled':
+                $status = 'cancelled';
+                break;
+
+        }
+
+
+        $order = (new Order)->updateOrCreate(
+            [
+                'legacy_id' => $legacy_data->{'Order Key'},
+
+            ], [
+                'tenant_id'          => $parent->tenant_id,
+                'store_id'           => $parent->store_id,
+                'customer_id'        => $parent->customer_id,
+                'customer_client_id' => $parent->customer_client_id,
+                'number'             => $legacy_data->{'Order Public ID'},
+                'payment'            => $legacy_data->{'Order Payments Amount'},
+                'items_discounts'    => $legacy_data->{'Order Items Discount Amount'},
+                'shipping'           => $legacy_data->{'Order Shipping Net Amount'},
+                'charges'            => $legacy_data->{'Order Charges Net Amount'},
+                'net'                => $legacy_data->{'Order Total Net Amount'},
+                'tax'                => $legacy_data->{'Order Total Tax Amount'},
+                'weight'             => $legacy_data->{'Order Estimated Weight'},
+                'items'              => $legacy_data->{'Order Number Items'},
+                'state'              => $state,
+                'status'             => $status,
+                'date'               => $legacy_data->{'Order Date'},
+                'data'               => $order_data,
+                'created_at'         => $legacy_data->{'Order Created Date'},
+
+
+            ]
+        );
+
+        $billing_address  = process_legacy_immutable_address('Order', 'Invoice', $legacy_data);
+        $delivery_address = process_legacy_immutable_address('Order', 'Delivery', $legacy_data);
+
+        if ($billing_address->id == $delivery_address->id) {
+            $order->addresses()->syncWithoutDetaching([$billing_address->id => ['scope' => 'billing_delivery']]);
+        } else {
+            $order->addresses()->syncWithoutDetaching([$billing_address->id => ['scope' => 'billing']]);
+            $order->addresses()->syncWithoutDetaching([$delivery_address->id => ['scope' => 'delivery']]);
+        }
+
+
+        $order->billing_address_id  = $billing_address->id;
+        $order->delivery_address_id = $delivery_address->id;
+        switch ($legacy_data->{'Order State'}) {
+            /*
+             case 'InBasket':
+                 break;
+
+             case 'InWarehouse':
+                 break;
+             case 'PackedDone':
+                 break;
+
+
+            */ case 'InProcess':
+            $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
+
+            break;
+            case 'InWarehouse':
+                $order->submitted_at  = $legacy_data->{'Order Submitted by Customer Date'};
+                $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
+
+                break;
+            case 'Approved':
+                $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
+
+                $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
+                $order->invoiced_at  = $legacy_data->{'Order Invoiced Date'};
+                break;
+            case 'Dispatched':
+                $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
+
+                $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
+
+                $order->invoiced_at   = $legacy_data->{'Order Invoiced Date'};
+                $order->dispatched_at = $legacy_data->{'Order Dispatched Date'};
+
+                break;
+            case 'Cancelled':
+                $order->submitted_at  = $legacy_data->{'Order Submitted by Customer Date'};
+                $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
+
+                $order->cancelled_at = $legacy_data->{'Order Cancelled Date'};
+
+                break;
+
+        }
+
+        $order->save();
+
+        return $order;
+    }
+}
+
+
+function process_legacy_immutable_address($object, $type, $legacy_data) {
+
+
+    $_address = get_legacy_instance_address_scaffolding($object, $type, $legacy_data);
+
+    return (new Address)->firstOrCreate(
+        [
+            'checksum'   => $_address->getChecksum(),
+            'owner_type' => null,
+            'owner_id'   => null,
+
+        ], [
+            'address_line_1'      => $_address->address_line_1,
+            'address_line_2'      => $_address->address_line_2,
+            'sorting_code'        => $_address->sorting_code,
+            'postal_code'         => $_address->postal_code,
+            'locality'            => $_address->locality,
+            'dependent_locality'  => $_address->dependent_locality,
+            'administrative_area' => $_address->administrative_area,
+            'country_code'        => $_address->country_code,
+
+        ]
+    );
+
+
+}
+
+
+function get_legacy_instance_address_scaffolding($object, $type, $legacy_data) {
+
+    if ($object == 'CustomerClient') {
+        $legacy_object = 'Customer Client';
+    } else {
+        $legacy_object = $object;
+    }
+
+
+    if ($type != '') {
+        $type = ' '.$type;
+    }
+
+    $_address                      = new Address();
+    $_address->address_line_1      = $legacy_data->{$legacy_object.$type.' Address Line 1'};
+    $_address->address_line_2      = $legacy_data->{$legacy_object.$type.' Address Line 2'};
+    $_address->sorting_code        = $legacy_data->{$legacy_object.$type.' Address Sorting Code'};
+    $_address->postal_code         = $legacy_data->{$legacy_object.$type.' Address Postal Code'};
+    $_address->locality            = $legacy_data->{$legacy_object.$type.' Address Locality'};
+    $_address->dependent_locality  = $legacy_data->{$legacy_object.$type.' Address Dependent Locality'};
+    $_address->administrative_area = $legacy_data->{$legacy_object.$type.' Address Administrative Area'};
+    $_address->country_code        = $legacy_data->{$legacy_object.$type.' Address Country 2 Alpha Code'};
+
+    return $_address;
+
+
 }
