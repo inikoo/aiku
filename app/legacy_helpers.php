@@ -145,6 +145,13 @@ if (!function_exists('relocate_historic_products')) {
     }
 }
 if (!function_exists('relocate_basket')) {
+    /**
+     * @param $legacy_parent_id
+     * @param $basket
+     *
+     * @return mixed
+     * @throws \Exception
+     */
     function relocate_basket($legacy_parent_id, $basket) {
 
 
@@ -194,24 +201,30 @@ if (!function_exists('relocate_basket')) {
 
                 $product = (new Product())->firstWhere('legacy_id', $otf_data->{'Product ID'});
 
-                unset($toDelete['Product'][$product->id]);
+                if($product->id) {
+
+                    unset($toDelete['Product'][$product->id]);
 
 
-                $basketItems = new BasketTransaction(
-                    [
-                        'basket_id' => $basket->id,
+                    $basketItems = new BasketTransaction(
+                        [
+                            'basket_id' => $basket->id,
 
-                        'tenant_id' => $product->tenant_id,
-                        'quantity'  => $otf_data->{'Order Quantity'},
-                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
-                        'net'       => $otf_data->{'Order Transaction Amount'},
+                            'tenant_id' => $product->tenant_id,
+                            'quantity'  => $otf_data->{'Order Quantity'},
+                            'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
+                            'net'       => $otf_data->{'Order Transaction Amount'},
 
 
-                        'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
-                        'data'      => []
-                    ]
-                );
-                $product->basketTransactions()->save($basketItems);
+                            'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
+                            'data'      => []
+                        ]
+                    );
+                    $product->basketTransactions()->save($basketItems);
+                }else{
+                    throw new Exception('Product not found: '.$otf_data->{'Product ID'});
+                }
+
             }
 
 
