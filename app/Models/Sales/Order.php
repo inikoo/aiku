@@ -58,7 +58,9 @@ class Order extends Model implements Auditable {
         return $this->hasMany('App\Models\Distribution\DeliveryNote');
     }
 
-
+    public function transactions() {
+        return $this->hasMany('App\Models\Sales\OrderTransaction');
+    }
 
     public function addresses() {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps()->withPivot(['scope']);

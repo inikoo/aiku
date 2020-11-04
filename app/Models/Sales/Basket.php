@@ -45,10 +45,7 @@ class Basket extends Model {
         return $this->morphTo();
     }
 
-
-
-    public function transactions()
-    {
+    public function transactions() {
         return $this->hasMany('App\Models\Sales\BasketTransaction');
     }
 
