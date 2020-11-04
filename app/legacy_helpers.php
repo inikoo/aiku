@@ -458,7 +458,7 @@ if (!function_exists('get_legacy_transaction_data')) {
                 }
                 break;
             default:
-                print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."  type: ".$onptf_data->{'Transaction Type'}."\n";
+                print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."  transaction type : ".$onptf_data->{'Transaction Type'}."\n";
 
                 exit();
         }
