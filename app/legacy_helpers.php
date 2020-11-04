@@ -446,14 +446,16 @@ if (!function_exists('get_legacy_transaction_data')) {
                 }
                 break;
             default:
-                print_r($onptf_data);
+                print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."  type: ".$onptf_data->{'Transaction Type'}."\n";
+
                 exit();
         }
         $tax_band_id = null;
         if ($taxBand = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}))) {
             $tax_band_id = $taxBand->id;
         } else {
-            print_r($onptf_data);
+            print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."   tax_code: ".$onptf_data->{'Tax Category Code'}."\n";
+
             exit;
         }
 
