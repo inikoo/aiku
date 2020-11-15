@@ -164,7 +164,7 @@ class CustomerController extends Controller {
 
     }
 
-    function update_basket($legacy_id, Request $request) {
+    function updateBasket($legacy_id, Request $request) {
 
 
         $this->parseRequest($request->all());

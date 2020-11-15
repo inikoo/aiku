@@ -492,12 +492,15 @@ if (!function_exists('get_legacy_transaction_data')) {
                 exit();
         }
         $tax_band_id = null;
+
         if ($taxBand = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}))) {
             $tax_band_id = $taxBand->id;
         } else {
-            print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."   tax_code: ".$onptf_data->{'Tax Category Code'}."\n";
 
-            exit;
+            if($transaction_type != 'Adjust'){
+                print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."   tax_code: ".$onptf_data->{'Tax Category Code'}."\n";
+                exit;
+            }
         }
 
 

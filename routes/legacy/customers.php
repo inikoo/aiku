@@ -28,7 +28,7 @@ Route::post(
 Route::post(
     '/customer_client/{legacy_id}/basket', [
                                              CustomerClientController::class,
-                                             'update_basket'
+                                             'updateBasket'
                                          ]
 )->name('update_customer_client_basket');
 
@@ -51,7 +51,7 @@ Route::post(
 Route::post(
     '/{legacy_id}/basket', [
                       CustomerController::class,
-                      'update_basket'
+                      'updateBasket'
                   ]
 )->name('update_customer_basket');
 
