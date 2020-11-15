@@ -52,13 +52,19 @@ class RelocateStores extends Command {
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_stores_table, []) as $legacy_data) {
                 $store=$this->relocate_stores($legacy_data);
-                Adjust::firstOrCreate(
+                (new Adjust)->firstOrCreate(
                     [
                         'store_id' =>$store->id,
                         'type' =>'legacy'
-
                     ],
                     ['name' => 'Adjust']
+                );
+                (new Adjust)->firstOrCreate(
+                    [
+                        'store_id' =>$store->id,
+                        'type' =>'credit'
+                    ],
+                    ['name' => 'Credit']
                 );
             }
 

@@ -481,6 +481,16 @@ if (!function_exists('get_legacy_transaction_data')) {
                 if ($adjust=(new Store)->find($store_id)->adjusts()->firstWhere('type', 'legacy')) {
                     $transaction_id = $adjust->id;
                 }
+                break;
+            case 'Credit':
+                $transaction_type = 'Adjust';
+                $transaction_id   = null;
+                /**
+                 * @var $adjust Adjust
+                 */
+                if ($adjust=(new Store)->find($store_id)->adjusts()->firstWhere('type', 'credit')) {
+                    $transaction_id = $adjust->id;
+                }
 
 
 
