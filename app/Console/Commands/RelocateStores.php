@@ -11,6 +11,7 @@ namespace App\Console\Commands;
 
 use App\Console\Commands\Traits\LegacyDataMigration;
 
+use App\Models\Sales\Adjust;
 use App\Models\ECommerce\Website;
 use App\Models\Sales\Charge;
 use App\Models\Sales\ShippingSchema;
@@ -50,7 +51,15 @@ class RelocateStores extends Command {
 
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_stores_table, []) as $legacy_data) {
-                $this->relocate_stores($legacy_data);
+                $store=$this->relocate_stores($legacy_data);
+                Adjust::firstOrCreate(
+                    [
+                        'store_id' =>$store->id,
+                        'type' =>'legacy'
+
+                    ],
+                    ['name' => 'Adjust']
+                );
             }
 
 
@@ -63,7 +72,12 @@ class RelocateStores extends Command {
             }
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_shipping_schemas_table, []) as $legacy_data) {
-                $this->relocate_shipping_schemas($legacy_data);
+               $this->relocate_shipping_schemas($legacy_data);
+
+
+
+
+
             }
 
 

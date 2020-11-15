@@ -7,6 +7,7 @@
 
 
 use App\Models\Helpers\Address;
+use App\Models\Sales\Adjust;
 use App\Models\Sales\BasketTransaction;
 use App\Models\Sales\Charge;
 use App\Models\Sales\Order;
@@ -15,6 +16,7 @@ use App\Models\Sales\ShippingZone;
 use App\Models\Sales\TaxBand;
 use App\Models\Stores\Product;
 use App\Models\Stores\ProductHistoricVariation;
+use App\Models\Stores\Store;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -246,7 +248,7 @@ if (!function_exists('relocate_basket')) {
         ) {
 
 
-            $transaction_data = get_legacy_transaction_data($onptf_data);
+            $transaction_data = get_legacy_transaction_data($basket->parent->store_id,$onptf_data);
 
 
             if ($basketItem = (new BasketTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
@@ -362,7 +364,7 @@ if (!function_exists('relocate_order_transactions')) {
         foreach (DB::connection('legacy')->select("select * from  $onptf_table where  $onptf_table_where=?", [$order->legacy_id]) as $onptf_data) {
 
 
-            $transaction_data = get_legacy_transaction_data($onptf_data);
+            $transaction_data = get_legacy_transaction_data($order->store_id,$onptf_data);
 
 
             if ($orderTransaction = (new OrderTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
@@ -414,7 +416,14 @@ if (!function_exists('relocate_order_transactions')) {
 }
 
 if (!function_exists('get_legacy_transaction_data')) {
-    function get_legacy_transaction_data($onptf_data) {
+    function get_legacy_transaction_data($store_id, $onptf_data) {
+
+
+
+
+
+
+
 
         switch ($onptf_data->{'Transaction Type'}) {
             case 'Shipping':
@@ -441,7 +450,11 @@ if (!function_exists('get_legacy_transaction_data')) {
                 $transaction_type = 'Charge';
                 $transaction_id   = null;
                 if ($onptf_data->{'Transaction Type Key'}) {
-                    if ($charge = (new Charge())->firstWhere('type', 'insurance')) {
+
+                    /**
+                     * @var $charge Charge
+                     */
+                    if ($charge=(new Store)->find($store_id)->charges()->firstWhere('type', 'insurance')) {
                         $transaction_id = $charge->id;
                     }
 
@@ -451,11 +464,27 @@ if (!function_exists('get_legacy_transaction_data')) {
                 $transaction_type = 'Charge';
                 $transaction_id   = null;
                 if ($onptf_data->{'Transaction Type Key'}) {
-                    if ($charge = (new Charge())->firstWhere('type', 'premium')) {
+                    /**
+                     * @var $charge Charge
+                     */
+                    if ($charge=(new Store)->find($store_id)->charges()->firstWhere('type', 'premium')) {
                         $transaction_id = $charge->id;
                     }
-
                 }
+                break;
+            case 'Adjust':
+                $transaction_type = 'Adjust';
+                $transaction_id   = null;
+                /**
+                 * @var $adjust Adjust
+                 */
+                if ($adjust=(new Store)->find($store_id)->adjusts()->firstWhere('type', 'legacy')) {
+                    $transaction_id = $adjust->id;
+                }
+
+
+
+
                 break;
             default:
                 print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."  transaction type : ".$onptf_data->{'Transaction Type'}."\n";

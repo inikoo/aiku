@@ -7,12 +7,14 @@ Version 4
 
 namespace App\Models\Stores;
 
+use App\Models\Sales\Adjust;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
-
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * App\Models\Stores\Store
@@ -52,6 +54,7 @@ class Store extends Model implements Auditable{
         ];
     }
 
+
     public function prospects()
     {
         return $this->hasMany('App\Models\CRM\Prospect');
@@ -77,9 +80,17 @@ class Store extends Model implements Auditable{
         return $this->hasOne('App\Models\ECommerce\Website');
     }
 
-    public function charges()
-    {
+
+    public function charges() {
         return $this->hasMany('App\Models\Sales\Charge');
+    }
+
+
+    /**
+     * @return HasMany|Collection|Adjust[]
+     */
+    public function adjusts() {
+        return $this->hasMany('App\Models\Sales\Adjust');
     }
 
     public function products()

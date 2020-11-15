@@ -15,20 +15,20 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 /**
  * App\Models\Sales\Basket
  *
- * @property int    $id
- * @property int    $items
- * @property float  $items_discounts
- * @property float  $net
- * @property float  $tax
- * @property boolean  $status
- * @property string $created_at
- * @property string $legacy_id
+ * @property int     $id
+ * @property int     $items
+ * @property float   $items_discounts
+ * @property float   $net
+ * @property float   $tax
+ * @property boolean $status
+ * @property string  $created_at
+ * @property string  $legacy_id
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
  */
 class Basket extends Model {
-    use UsesTenantConnection,OrderTotals;
+    use UsesTenantConnection, OrderTotals;
 
     protected $casts = [
         'data' => 'array'
