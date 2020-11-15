@@ -491,10 +491,16 @@ if (!function_exists('get_legacy_transaction_data')) {
                 if ($adjust=(new Store)->find($store_id)->adjusts()->firstWhere('type', 'credit')) {
                     $transaction_id = $adjust->id;
                 }
-
-
-
-
+                break;
+            case 'Refund':
+                $transaction_type = 'Adjust';
+                $transaction_id   = null;
+                /**
+                 * @var $adjust Adjust
+                 */
+                if ($adjust=(new Store)->find($store_id)->adjusts()->firstWhere('type', 'refund')) {
+                    $transaction_id = $adjust->id;
+                }
                 break;
             default:
                 print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."  transaction type : ".$onptf_data->{'Transaction Type'}."\n";

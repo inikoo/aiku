@@ -66,6 +66,13 @@ class RelocateStores extends Command {
                     ],
                     ['name' => 'Credit']
                 );
+                (new Adjust)->firstOrCreate(
+                    [
+                        'store_id' =>$store->id,
+                        'type' =>'refund'
+                    ],
+                    ['name' => 'Refund']
+                );
             }
 
 
