@@ -172,6 +172,26 @@ class Utils extends Migration {
 
         });
 
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id('id');
+            $table->string('container');
+            $table->unsignedMediumInteger('container_id');
+
+            $table->string('type');
+            $table->string('code')->index();
+            $table->string('name');
+            $table->jsonb('data');
+            $table->jsonb('settings');
+            $table->nestedSet();
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unsignedMediumInteger('tenant_id');
+            $table->index(['container','container_id']);
+            $table->unique(['legacy_id','tenant_id']);
+
+        });
+
 
 
     }
@@ -182,6 +202,7 @@ class Utils extends Migration {
      * @return void
      */
     public function down() {
+        Schema::dropIfExists('categories');
         Schema::dropIfExists('attachment_models');
         Schema::dropIfExists('attachments');
         Schema::dropIfExists('image_models');

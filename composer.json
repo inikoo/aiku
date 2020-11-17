@@ -22,6 +22,7 @@
         "grpc/grpc": "^v1.27.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "jpkleemans/attribute-events": "^1.0",
+        "kalnoy/nestedset": "^5.0",
         "kreait/laravel-firebase": "^2.4",
         "laravel/framework": "^8.0",
         "laravel/legacy-factories": "^1.0",

@@ -13,7 +13,6 @@ class Stores extends Migration {
     public function up() {
 
 
-
         Schema::create(
             'stores', function (Blueprint $table) {
             $table->mediumIncrements('id');
@@ -29,6 +28,12 @@ class Stores extends Migration {
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedMediumInteger('legacy_id')->nullable();
             $table->unsignedSmallInteger('tenant_id');
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -50,6 +55,12 @@ class Stores extends Migration {
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedMediumInteger('legacy_id')->nullable();
             $table->unsignedSmallInteger('tenant_id');
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -77,10 +88,17 @@ class Stores extends Migration {
             $table->foreign('image_id')->references('id')->on('images');
             $table->jsonb('settings');
             $table->jsonb('data');
+
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
 
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -96,9 +114,14 @@ class Stores extends Migration {
 
             $table->jsonb('data');
             $table->timestampsTz();
-
+            $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
 
         }
         );
@@ -130,7 +153,12 @@ class Stores extends Migration {
 
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->unique(['product_id', 'stock_id']);
+            $table->unique(
+                [
+                    'product_id',
+                    'stock_id'
+                ]
+            );
 
 
         }
@@ -140,7 +168,6 @@ class Stores extends Migration {
         Schema::create(
             'shippers', function (Blueprint $table) {
             $table->smallIncrements('id');
-
 
 
             $table->string('status')->index();
@@ -153,6 +180,12 @@ class Stores extends Migration {
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedMediumInteger('legacy_id')->nullable();
             $table->unsignedSmallInteger('tenant_id');
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
         Schema::create(
@@ -175,6 +208,18 @@ class Stores extends Migration {
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedMediumInteger('legacy_id')->nullable();
             $table->unsignedSmallInteger('tenant_id');
+            $table->index(
+                [
+                    'store_id',
+                    'type'
+                ]
+            );
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
         Schema::create(
@@ -196,6 +241,12 @@ class Stores extends Migration {
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedMediumInteger('legacy_id')->nullable();
             $table->unsignedSmallInteger('tenant_id');
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
         Schema::create(
@@ -208,7 +259,6 @@ class Stores extends Migration {
             $table->string('slug');
 
 
-
             $table->smallInteger('precedence')->default(0);
             $table->string('code');
             $table->jsonb('data');
@@ -217,6 +267,12 @@ class Stores extends Migration {
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedMediumInteger('legacy_id')->nullable();
             $table->unsignedSmallInteger('tenant_id');
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
         Schema::create(
@@ -229,6 +285,12 @@ class Stores extends Migration {
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -260,9 +322,6 @@ class Stores extends Migration {
         Schema::dropIfExists('websites');
 
         Schema::dropIfExists('stores');
-
-
-
 
 
     }

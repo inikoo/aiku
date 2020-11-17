@@ -63,7 +63,7 @@ class RelocateProducts extends Command {
 
                     foreach (DB::connection('legacy')->select("select * from  $_table where  $_where=?", [$product->legacy_id]) as $legacy_historic_product_data) {
 
-                        $historic_product = relocate_historic_products($legacy_historic_product_data, $product->id);
+                        $historic_product = relocate_historic_products($legacy_historic_product_data, $product->id,$product->tenant_id);
 
                         if ($legacy_data->{'Product Current Key'} == $legacy_historic_product_data->{'Product Key'}) {
                             $product->product_historic_variation_id = $historic_product->id;

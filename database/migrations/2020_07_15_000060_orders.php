@@ -438,7 +438,20 @@ class Orders extends Migration {
         }
         );
 
+        Schema::create('adjusts', function (Blueprint $table) {
+            $table->mediumIncrements('id');
 
+            $table->unsignedMediumInteger('store_id')->nullable()->index();
+            $table->foreign('store_id')->references('id')->on('stores');
+
+
+            $table->string('type')->index()->nullable();
+            $table->string('name');
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->unique(['store_id','type']);
+
+        });
 
     }
 
@@ -448,6 +461,7 @@ class Orders extends Migration {
      * @return void
      */
     public function down() {
+        Schema::dropIfExists('adjusts');
         Schema::dropIfExists('delivery_note_packer');
         Schema::dropIfExists('delivery_note_picker');
 

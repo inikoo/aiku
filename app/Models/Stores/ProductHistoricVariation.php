@@ -16,7 +16,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int    $id
  * @property string $created_at
- * @property int $legacy_id
+ * @property int    $legacy_id
  *
  * @mixin \Illuminate\Database\Eloquent\Model:class
  * @mixin \Illuminate\Database\Eloquent\Builder:class
@@ -25,11 +25,11 @@ class ProductHistoricVariation extends Model {
     use UsesTenantConnection;
 
     protected $casts = [
-        'data'     => 'array'
+        'data' => 'array'
     ];
 
     protected $attributes = [
-        'data'     => '{}',
+        'data' => '{}',
     ];
 
     protected $guarded = [];
@@ -39,10 +39,7 @@ class ProductHistoricVariation extends Model {
     }
 
     public function orderTransactions() {
-        return $this->morphMany('App\Models\Sales\OrderTransaction', 'transaction',
-
-
-        );
+        return $this->morphMany('App\Models\Sales\OrderTransaction', 'transaction',);
     }
 
 

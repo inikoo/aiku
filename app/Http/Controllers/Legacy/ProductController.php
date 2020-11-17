@@ -49,7 +49,7 @@ class ProductController extends Controller {
 
 
         foreach ($this->legacy['historic_products'] as $historic_product_data) {
-            $historic_product = relocate_historic_products((object)$historic_product_data, $product->id);
+            $historic_product = relocate_historic_products((object)$historic_product_data, $product->id, $product->tenant_id);
 
             if ($this->legacy['product_historic_key'] == $historic_product_data['Product Key']) {
                 $product->product_historic_variation_id = $historic_product->id;
@@ -58,7 +58,8 @@ class ProductController extends Controller {
 
 
         }
-        $product=$this->sync_parts($product);
+        $product = $this->sync_parts($product);
+
         return response()->json($product, 200);
 
 
@@ -74,8 +75,8 @@ class ProductController extends Controller {
             $product = $this->commonUpdate($product);
 
 
-            if(isset($this->legacy['parts'])){
-                $product=$this->sync_parts($product);
+            if (isset($this->legacy['parts'])) {
+                $product = $this->sync_parts($product);
             }
 
 
@@ -87,7 +88,7 @@ class ProductController extends Controller {
     }
 
 
-    function sync_parts($product){
+    function sync_parts($product) {
 
         $product_stock_data = [];
 
