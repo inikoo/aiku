@@ -1,9 +1,9 @@
 <?php
 /*
-Copyright (c) 2020, AIku.io
-
-Version 4
-*/
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Tue, 17 Nov 2020 14:08:20 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2020. Aiku.io
+ */
 
 namespace App\Models\ECommerce;
 
@@ -21,7 +21,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|Webpage newModelQuery()
  * @method static Builder|Webpage newQuery()
  * @method static Builder|Webpage query()
- * @mixin \Eloquent
  */
 class Webpage extends Model {
     use UsesTenantConnection;
