@@ -246,6 +246,7 @@ trait LegacyDataMigration {
             try {
                 (new ImageModel)->find($oldImageModelId)->delete();
             } catch (Exception $e) {
+                //
             }
         }
 

@@ -21,11 +21,6 @@ class RelocateTaxes extends Command {
 
     protected $description = 'Migrate legacy taxes';
 
-    public function __construct() {
-        parent::__construct();
-    }
-
-
     public function handle() {
 
 

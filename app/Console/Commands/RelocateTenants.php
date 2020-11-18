@@ -23,11 +23,6 @@ class RelocateTenants extends Command {
 
     protected $description = 'Migrate legacy accounts';
 
-    public function __construct() {
-        parent::__construct();
-    }
-
-
     public function handle() {
 
 

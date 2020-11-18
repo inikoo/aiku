@@ -17,7 +17,8 @@ class TaxBandSeeder extends Seeder {
     public function run() {
 
         $tenant = app('currentTenant');
-        if ($country = (new Country)->firstWhere('code', Arr::get($tenant->data, 'country_code'))) {
+        $country = (new Country)->firstWhere('code', Arr::get($tenant->data, 'country_code'));
+        if ($country) {
 
 
             $composite_base       = [];

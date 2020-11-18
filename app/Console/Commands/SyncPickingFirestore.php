@@ -8,8 +8,8 @@
 namespace App\Console\Commands;
 
 
-use App\Tenant;
 use App\Models\Distribution\DeliveryNote;
+use App\Tenant;
 use Illuminate\Console\Command;
 use Spatie\Multitenancy\Commands\Concerns\TenantAware;
 
@@ -21,19 +21,13 @@ class SyncPickingFirestore extends Command {
     protected $signature = 'sync:picking {--tenant=*}';
     protected $description = 'Sync to Firestore (picking orders)';
 
-
-    public function __construct() {
-        parent::__construct();
-    }
-
-
     public function handle() {
-        //$tenant = Tenant::current();
+        $tenant = Tenant::current();
 
 
         $firestore = app('firebase.firestore')->database('delivery_notes');
 
-        $collectionReference = $firestore->collection('delivery_notes');
+        //$collectionReference = $firestore->collection('delivery_notes');
 
         //$documentReference = $collectionReference->document('test');
         //$snapshot = $documentReference->snapshot();
@@ -61,12 +55,12 @@ class SyncPickingFirestore extends Command {
             print_r(
                 $documentData
             );
-            exit;
+
 
             $deliveryNoteRef = $firestore->collection('delivery_notes')->document($tenant->slug.'.'.$delivery_note->id);
             $deliveryNoteRef->set($documentData, ['merge' => true]);
 
-            exit;
+
 
         }
 

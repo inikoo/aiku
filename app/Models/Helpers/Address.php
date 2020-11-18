@@ -31,8 +31,8 @@ class Address extends Model implements Auditable {
     protected static function booted() {
         static::created(
             function ($address) {
-
-                if ($country = (new Country)->firstWhere('code', $address->country_code)) {
+                $country = (new Country)->firstWhere('code', $address->country_code);
+                if ($country) {
                     $address->country_id = $country->id;
                     $address->save();
                 }

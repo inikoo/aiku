@@ -27,12 +27,6 @@ class RelocateOrders extends Command {
     protected $signature = 'relocate:orders {--tenant=*}';
     protected $description = 'Relocate legacy orders';
 
-
-    public function __construct() {
-        parent::__construct();
-    }
-
-
     public function handle() {
 
         DB::disableQueryLog();

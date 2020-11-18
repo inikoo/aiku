@@ -32,11 +32,6 @@ class RelocateStores extends Command {
     protected $description = 'Relocate legacy stores';
 
 
-    public function __construct() {
-        parent::__construct();
-    }
-
-
     public function handle() {
         $this->tenant = Tenant::current();
 
@@ -190,7 +185,7 @@ class RelocateStores extends Command {
                             foreach (DB::connection('legacy')->select("select $sql", [$family_legacy_data->{'Subject Key'}]) as $legacy_category_data) {
                                 $category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'});
                                 if($category){
-                                    $category->families()->attach($family->id);
+                                    $category->families()->syncWithoutDetaching([$family->id]);
                                 }
                             }
 

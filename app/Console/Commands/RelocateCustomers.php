@@ -32,11 +32,6 @@ class RelocateCustomers extends Command {
     protected $description = 'Relocate legacy customers';
 
 
-    public function __construct() {
-        parent::__construct();
-    }
-
-
     public function handle() {
         $this->tenant = Tenant::current();
 
@@ -248,24 +243,19 @@ class RelocateCustomers extends Command {
             } catch (Exception $e) {
                 //
             }
-
         }
 
         $sql = "C.`Category Key` from `Category Bridge` B  left join `Category Dimension` C on (B.`Category Key`=C.`Category Key`) where `Category Branch Type`='Head' and `Subject`='Customer' and `Subject Key`=?";
         foreach (DB::connection('legacy')->select("select $sql", [$legacy_data->{'Customer Key'}]) as $legacy_category_data) {
             $category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'});
             if($category){
-                $category->customers()->attach($customer->id);
+                $category->customers()->syncWithoutDetaching([$customer->id]);
             }
         }
-
         return $customer;
 
 
     }
-
-
-
 
     function relocate_customer_client($customer) {
 

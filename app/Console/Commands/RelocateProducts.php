@@ -27,12 +27,6 @@ class RelocateProducts extends Command {
     protected $signature = 'relocate:products {--tenant=*}';
     protected $description = 'Relocate legacy products';
 
-
-    public function __construct() {
-        parent::__construct();
-    }
-
-
     public function handle() {
         $this->tenant = Tenant::current();
 
@@ -219,7 +213,7 @@ class RelocateProducts extends Command {
         foreach (DB::connection('legacy')->select("select $sql", [$legacy_data->{'Product ID'}]) as $legacy_category_data) {
             $category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'});
             if($category){
-                $category->products()->attach($product->id);
+                $category->products()->syncWithoutDetaching([$product->id]);
             }
         }
 

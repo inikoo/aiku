@@ -69,19 +69,13 @@ class ProductController extends Controller {
     function update($legacy_id, Request $request) {
 
         $this->parseRequest($request->all());
-        if ($product = (new Product)->firstWhere('legacy_id', $legacy_id)) {
-
-
+        $product = (new Product)->firstWhere('legacy_id', $legacy_id);
+        if ($product) {
             $product = $this->commonUpdate($product);
-
-
             if (isset($this->legacy['parts'])) {
                 $product = $this->sync_parts($product);
             }
-
-
             return response()->json($product, 200);
-
         } else {
             return response()->json(['errors' => 'object not found'], 470);
         }

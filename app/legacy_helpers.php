@@ -511,8 +511,8 @@ if (!function_exists('get_legacy_transaction_data')) {
                 exit();
         }
         $tax_band_id = null;
-
-        if ($taxBand = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}))) {
+        $taxBand = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}));
+        if ($taxBand) {
             $tax_band_id = $taxBand->id;
         } else {
 

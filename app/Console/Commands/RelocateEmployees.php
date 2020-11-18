@@ -29,11 +29,6 @@ class RelocateEmployees extends Command {
     protected $description = 'Relocate legacy employees';
 
 
-    public function __construct() {
-        parent::__construct();
-    }
-
-
     public function handle() {
         $this->tenant = Tenant::current();
 
@@ -147,12 +142,14 @@ class RelocateEmployees extends Command {
             $_table   = '`User Dimension`';
             $_where_1 = '`User Type`';
             $_where_2 = '`User Parent Key`';
-            if ($legacy_user_data = DB::connection('legacy')->select(
+
+            $legacy_user_data = DB::connection('legacy')->select(
                 "select * from  $_table where  $_where_1=? and $_where_2=?", [
                                                                                'Staff',
                                                                                $legacy_data->{'Staff Key'}
                                                                            ]
-            )) {
+            );
+            if ($legacy_user_data) {
 
                 $user              = $this->relocate_user('Employee', $employee, $legacy_user_data[0]);
                 $employee->user_id = $user->id;
@@ -193,12 +190,15 @@ class RelocateEmployees extends Command {
             $_table   = '`User Dimension`';
             $_where_1 = '`User Type`';
             $_where_2 = '`User Parent Key`';
-            if ($legacy_user_data = DB::connection('legacy')->select(
+
+            $legacy_user_data = DB::connection('legacy')->select(
                 "select * from  $_table where  $_where_1=? and $_where_2=?", [
                                                                                'Contractor',
                                                                                $legacy_data->{'Staff Key'}
                                                                            ]
-            )) {
+            );
+
+            if ($legacy_user_data) {
 
                 $user = $this->relocate_user('Employee', $guest, $legacy_user_data[0]);
 

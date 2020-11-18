@@ -25,12 +25,6 @@ class RelocateWarehouses extends Command {
     protected $signature = 'relocate:warehouses {--tenant=*}';
     protected $description = 'Relocate legacy warehouses, areas and locations';
 
-
-    public function __construct() {
-        parent::__construct();
-    }
-
-
     public function handle() {
         $this->tenant = Tenant::current();
 

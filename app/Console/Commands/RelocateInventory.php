@@ -24,11 +24,6 @@ class RelocateInventory extends Command {
     protected $signature = 'relocate:inventory {--tenant=*}';
     protected $description = 'Relocate legacy inventory (stock)';
 
-
-    public function __construct() {
-        parent::__construct();
-    }
-
     public function handle() {
         $this->tenant = Tenant::current();
 
@@ -73,7 +68,7 @@ class RelocateInventory extends Command {
 
                         $category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'});
                         if($category){
-                            $category->stocks()->attach($stock->id);
+                            $category->stocks()->syncWithoutDetaching([$stock->id]);
                         }
                     }
 
@@ -169,12 +164,12 @@ class RelocateInventory extends Command {
             ], $legacy_data
         );
 
-
-        if ($package_dimensions = json_decode($legacy_data->{'Part Package Dimensions'}, true)) {
+        $package_dimensions = json_decode($legacy_data->{'Part Package Dimensions'}, true);
+        if ($package_dimensions) {
             Arr::set($stock_data, 'package.dimensions', $package_dimensions);
         }
-
-        if ($unit_dimensions = json_decode($legacy_data->{'Part Unit Dimensions'}, true)) {
+        $unit_dimensions = json_decode($legacy_data->{'Part Unit Dimensions'}, true);
+        if ($unit_dimensions) {
             Arr::set($stock_data, 'unit.dimensions', $unit_dimensions);
         }
 
