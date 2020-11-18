@@ -7,6 +7,7 @@
 
 
 use App\Models\Helpers\Address;
+use App\Models\HR\Employee;
 use App\Models\Sales\Adjust;
 use App\Models\Sales\BasketTransaction;
 use App\Models\Sales\Charge;
@@ -726,3 +727,14 @@ function get_legacy_instance_address_scaffolding($object, $type, $legacy_data) {
 
 }
 
+function get_employee_id_from_legacy($employee_legacy_id){
+
+    if(!$employee_legacy_id){
+        return null;
+    }
+    $picker = (new Employee)->firstWhere('legacy_id', $employee_legacy_id);
+    if ($picker) {
+        return  $picker->id;
+    }
+    return null;
+}

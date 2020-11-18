@@ -13,7 +13,6 @@ use App\Models\CRM\CustomerClient;
 use App\Models\Distribution\DeliveryNote;
 use App\Models\Distribution\Shipper;
 use App\Models\Distribution\Stock;
-use App\Models\HR\Employee;
 use App\Tenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
@@ -264,6 +263,8 @@ class RelocateOrders extends Command {
     }
 
 
+
+
     function relocate_delivery_note($legacy_data, $order) {
 
 
@@ -354,29 +355,11 @@ class RelocateOrders extends Command {
 
 
         }
-        $picker_id = null;
-        $packer_id = null;
-        if ($legacy_data->{'Delivery Note Assigned Picker Key'}) {
-            /**
-             * @var $picker \App\Models\HR\Employee
-             */
-            $picker = (new Employee)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Assigned Picker Key'});
-            if ($picker) {
-                $picker_id = $picker->id;
-            }
 
-        }
+        $picker_id=get_employee_id_from_legacy($legacy_data->{'Delivery Note Assigned Picker Key'});
+        $packer_id=get_employee_id_from_legacy($legacy_data->{'Delivery Note Assigned Packer Key'});
 
-        if ($legacy_data->{'Delivery Note Assigned Packer Key'}) {
-            /**
-             * @var $packer \App\Models\HR\Employee
-             */
-            $packer = (new Employee)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Assigned Packer Key'});
-            if ($packer) {
-                $packer_id = $packer->id;
-            }
 
-        }
 
 
         $delivery_note = (new DeliveryNote)->updateOrCreate(
