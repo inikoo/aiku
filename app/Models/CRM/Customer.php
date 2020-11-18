@@ -113,7 +113,9 @@ class Customer extends Model implements Auditable {
         return $this->morphMany('App\Models\Helpers\ImageModel', 'image_models', 'imageable_type', 'imageable_id');
     }
 
-
+    public function categories() {
+        return $this->morphToMany('App\Models\Utils\Category', 'categoriable');
+    }
 
 
 }

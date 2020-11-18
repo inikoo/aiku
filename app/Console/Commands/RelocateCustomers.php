@@ -14,6 +14,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerClient;
 use App\Models\CRM\CustomerPortfolio;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Category;
 use App\Models\Stores\Product;
 use App\Models\Stores\Store;
 use App\Tenant;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Spatie\Multitenancy\Commands\Concerns\TenantAware;
+use Exception;
 
 class RelocateCustomers extends Command {
 
@@ -241,10 +243,20 @@ class RelocateCustomers extends Command {
             $this->relocate_customer_portfolio($customer);
 
         } else {
-            relocate_basket($legacy_data->{'Customer Key'},$customer->basket);
+            try {
+                relocate_basket($legacy_data->{'Customer Key'}, $customer->basket);
+            } catch (Exception $e) {
+                //
+            }
 
         }
 
+        $sql = "C.`Category Key` from `Category Bridge` B  left join `Category Dimension` C on (B.`Category Key`=C.`Category Key`) where `Category Branch Type`='Head' and `Subject`='Customer' and `Subject Key`=?";
+        foreach (DB::connection('legacy')->select("select $sql", [$legacy_data->{'Customer Key'}]) as $legacy_category_data) {
+            if($category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'})){
+                $category->customers()->attach($customer->id);
+            }
+        }
 
         return $customer;
 
@@ -309,8 +321,11 @@ class RelocateCustomers extends Command {
                 }
             }
 
-            relocate_basket($legacy_data->{'Customer Client Key'},$customerClient->basket);
-
+            try {
+                relocate_basket($legacy_data->{'Customer Client Key'},$customerClient->basket);
+            } catch (Exception $e) {
+                //
+            }
 
         }
 

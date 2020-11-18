@@ -72,5 +72,8 @@ class Product extends Model implements Auditable {
     public function attachments() {
         return $this->morphMany('App\Models\Helpers\AttachmentModel', 'attachment_models', 'attachmentable_type', 'attachmentable_id');
     }
+    public function categories() {
+        return $this->morphToMany('App\Models\Utils\Category', 'categoriable');
+    }
 
 }

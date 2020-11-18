@@ -10,6 +10,7 @@ namespace App\Console\Commands;
 use App\Console\Commands\Traits\LegacyDataMigration;
 use App\Models\Distribution\Location;
 use App\Models\Distribution\Stock;
+use App\Models\Helpers\Category;
 use App\Tenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
@@ -31,7 +32,6 @@ class RelocateInventory extends Command {
     public function handle() {
         $this->tenant = Tenant::current();
 
-        $legacy_stocks_table          = '`Part Dimension`';
         $legacy_deleted_stocks_table  = '`Part Deleted Dimension`';
         $legacy_location_stocks_table = '`Part Location Dimension`';
 
@@ -43,31 +43,51 @@ class RelocateInventory extends Command {
 
 
             print ('Relocation inventory from '.$this->tenant->slug."\n");
-            $count_stocks_data = DB::connection('legacy')->select("select count(*) as num from".' '.$legacy_stocks_table, [])[0];
+
+            $sql               = "count(*) as num from `Part Dimension`";
+            $count_stocks_data = DB::connection('legacy')->select("select $sql", [])[0];
             $bar               = $this->output->createProgressBar($count_stocks_data->num);
             $bar->setFormat('debug');
 
             $bar->start();
 
-            $max   = 1000;
+            $max   = 500;
             $total = $count_stocks_data->num;
             $pages = ceil($total / $max);
             for ($i = 1; $i < ($pages + 1); $i++) {
                 $offset = (($i - 1) * $max);
-                foreach (DB::connection('legacy')->select("select * from $legacy_stocks_table  limit $offset, $max ", []) as $legacy_data) {
+
+                $sql = "* from `Part Dimension` limit ?,?";
+                foreach (
+                    DB::connection('legacy')->select(
+                        "select $sql", [
+                                         $offset,
+                                         $max
+                                     ]
+                    ) as $legacy_data
+                ) {
                     $stock = $this->relocate_inventory($legacy_data);
+
+                    $sql = "C.`Category Key` from `Category Bridge` B  left join `Category Dimension` C on (B.`Category Key`=C.`Category Key`) where  `Category Branch Type`='Head' and `Subject`='Part' and `Subject Key`=?";
+                    foreach (DB::connection('legacy')->select("select $sql", [$legacy_data->{'Part SKU'}]) as $legacy_category_data) {
+                        if($category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'})){
+                            $category->stocks()->attach($stock->id);
+                        }
+                    }
 
                     $location_stock_data = [];
                     $priority            = 0;
                     foreach (DB::connection('legacy')->select("select * from".' '.$legacy_location_stocks_table.' where `Part SKU`=? order by `Can Pick` desc,`Quantity On Hand` ', [$stock->legacy_id]) as $legacy_part_location_data) {
                         //print_r($legacy_part_location_data);
-                        $location                           = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'});
+                        $location = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'});
 
-                        $restocking=array_filter([
-                            'min'  => $legacy_part_location_data->{'Minimum Quantity'},
-                            'max'  => $legacy_part_location_data->{'Maximum Quantity'},
-                            'move' => $legacy_part_location_data->{'Moving Quantity'}
-                        ]);
+                        $restocking = array_filter(
+                            [
+                                'min'  => $legacy_part_location_data->{'Minimum Quantity'},
+                                'max'  => $legacy_part_location_data->{'Maximum Quantity'},
+                                'move' => $legacy_part_location_data->{'Moving Quantity'}
+                            ]
+                        );
 
 
                         $location_stock_data[$location->id] = [
@@ -79,7 +99,7 @@ class RelocateInventory extends Command {
                             'legacy_location_id' => $legacy_part_location_data->{'Location Key'},
                             'settings'           => array_filter(
                                 [
-                                    'restocking'  => $restocking
+                                    'restocking' => $restocking
                                 ]
                             ),
                             'data'               => array_filter(

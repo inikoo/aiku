@@ -7,20 +7,11 @@ Version 4
 
 namespace App\Models\Sales;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
-/**
- * App\Models\Sales\Invoice
- *
- * @property-read \App\Models\Sales\Order $order
- * @method static Builder|Invoice newModelQuery()
- * @method static Builder|Invoice newQuery()
- * @method static Builder|Invoice query()
- * @mixin \Eloquent
- */
+
 class Invoice extends Model {
     use UsesTenantConnection;
 
@@ -34,11 +25,12 @@ class Invoice extends Model {
         'settings' => '{}'
     ];
 
-    public function order()
-    {
+    public function order() {
         return $this->belongsTo('App\Models\Sales\Order');
     }
 
-
+    public function categories() {
+        return $this->morphToMany('App\Models\Utils\Category', 'categoriable');
+    }
 
 }

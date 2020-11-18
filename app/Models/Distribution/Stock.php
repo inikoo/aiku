@@ -58,8 +58,6 @@ class Stock extends Model implements Auditable {
         return $this->belongsToMany('App\Models\Distribution\Location')->using('App\Models\Distribution\LocationStockPivot')->withTimestamps()->withPivot('picking_priority', 'quantity', 'data');
     }
 
-
-
     public function products() {
         return $this->belongsToMany('App\Models\Stores\Product')->using('App\Models\Stores\ProductStock')->withTimestamps()->withPivot('ratio');
     }
@@ -70,5 +68,9 @@ class Stock extends Model implements Auditable {
 
     public function attachments() {
         return $this->morphMany('App\Models\Helpers\AttachmentModel', 'attachment_models', 'attachmentable_type', 'attachmentable_id');
+    }
+
+    public function categories() {
+        return $this->morphToMany('App\Models\Utils\Category', 'categoriable');
     }
 }

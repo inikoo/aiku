@@ -43,6 +43,7 @@ class AppServiceProvider extends ServiceProvider {
                 'Stock'                    => 'App\Models\Distribution\Stock',
                 'Product'                  => 'App\Models\Stores\Product',
                 'ProductHistoricVariation' => 'App\Models\Stores\ProductHistoricVariation',
+                'Category'                 => 'App\Models\Helpers\Category',
                 'OriginalImage'            => 'App\Models\Helpers\OriginalImage',
                 'ProcessedImage'           => 'App\Models\Helpers\ProcessedImage',
                 'User'                     => 'App\User',

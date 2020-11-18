@@ -17,7 +17,7 @@ use App\Models\Sales\Charge;
 use App\Models\Sales\ShippingSchema;
 use App\Models\Sales\ShippingZone;
 use App\Models\Stores\Store;
-use App\Models\System\Category;
+use App\Models\Helpers\Category;
 use App\Tenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
@@ -72,11 +72,61 @@ class RelocateStores extends Command {
                     ], ['name' => 'Refund']
                 );
 
+                $sql = "* from `Category Dimension` where `Category Key` not in (?,?) and `Category Scope`='Product'  and `Category Branch Type`='Root' and `Category Store Key`=? ";
+                foreach (
+                    DB::connection('legacy')->select(
+                        "select ".$sql, [
+                                          $legacy_data->{'Store Department Category Key'},
+                                          $legacy_data->{'Store Family Category Key'},
+                                          $legacy_data->{'Store Key'}
+
+                                      ]
+                    ) as $products_category_data
+                ) {
+
+
+                    $type = $products_category_data->{'Category Subject'};
+
+
+                    $root = (new Category)->updateOrCreate(
+                        [
+                            'type'         => $type,
+                            'legacy_id'    => $products_category_data->{'Category Key'},
+                            'container'    => 'Store',
+                            'container_id' => $store->id,
+                        ], [
+                            'code'      => $products_category_data->{'Category Code'},
+                            'name'      => $products_category_data->{'Category Label'},
+                            'tenant_id' => $this->tenant->id,
+
+                        ]
+                    );
+
+                    $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
+                    foreach (DB::connection('legacy')->select("select ".$sql, [$products_category_data->{'Category Key'}]) as $category_legacy_data) {
+
+
+                        $root->children()->updateOrCreate(
+                            [
+                                'type'         => $type,
+                                'legacy_id'    => $category_legacy_data->{'Category Key'},
+                                'container'    => 'Store',
+                                'container_id' => $store->id,
+                            ], [
+                                'code'      => $category_legacy_data->{'Category Code'},
+                                'name'      => $category_legacy_data->{'Category Label'},
+                                'tenant_id' => $this->tenant->id
+                            ]
+                        );
+
+
+                    }
+
+
+                }
 
                 $sql = "* from `Category Dimension` where `Category Key`=? ";
                 foreach (DB::connection('legacy')->select("select ".$sql, [$legacy_data->{'Store Department Category Key'}]) as $departments_legacy_data) {
-
-
 
 
                     $root = (new Category)->updateOrCreate(
@@ -93,9 +143,14 @@ class RelocateStores extends Command {
                         ]
                     );
 
+
+                    $legacyData = $this->tenant->data;
+                    Arr::set($legacyData, 'categories.products.hierarchy', $root->id);
+                    $this->tenant->data = $legacyData;
+                    $this->tenant->save();
+
                     $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
                     foreach (DB::connection('legacy')->select("select ".$sql, [$departments_legacy_data->{'Category Key'}]) as $department_legacy_data) {
-
 
 
                         $department = $root->children()->updateOrCreate(
@@ -117,15 +172,13 @@ class RelocateStores extends Command {
                         foreach (DB::connection('legacy')->select("select ".$sql, [$department_legacy_data->{'Category Key'}]) as $family_legacy_data) {
 
 
-
-
-                             $department->children()->updateOrCreate(
+                            $family=$department->children()->updateOrCreate(
                                 [
                                     'type'         => 'Product',
                                     'legacy_id'    => $family_legacy_data->{'Subject Key'},
                                     'container'    => 'Store',
                                     'container_id' => $store->id,
-                                    'parent_id'=>$department->id,
+                                    'parent_id'    => $department->id,
                                 ], [
                                     'code'      => $family_legacy_data->{'Category Code'},
                                     'name'      => $family_legacy_data->{'Category Label'},
@@ -133,9 +186,15 @@ class RelocateStores extends Command {
                                 ]
                             );
 
+                            $sql = "C.`Category Key` from `Category Bridge` B  left join `Category Dimension` C on (B.`Category Key`=C.`Category Key`) where `Category Branch Type`='Head' and `Subject`='Product' and `Subject Key`=?";
+                            foreach (DB::connection('legacy')->select("select $sql", [$family_legacy_data->{'Subject Key'}]) as $legacy_category_data) {
+                                if($category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'})){
+                                    $category->families()->attach($family->id);
+                                }
+                            }
+
 
                         }
-
 
 
                     }
@@ -144,8 +203,10 @@ class RelocateStores extends Command {
                 }
 
 
-            }
 
+
+
+            }
 
 
             foreach (DB::connection('legacy')->select("select * from".' '.$legacy_websites_table, []) as $legacy_data) {
@@ -450,7 +511,8 @@ class RelocateStores extends Command {
         $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Website Store Key'});
 
 
-        return (new Website())->updateOrCreate(
+        return Website::withTrashed()->updateOrCreate(
+
             [
                 'legacy_id' => $legacy_data->{'Website Key'},
 

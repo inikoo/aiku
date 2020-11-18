@@ -194,6 +194,16 @@ class Utils extends Migration {
 
 
 
+        Schema::create('categoriables', function (Blueprint $table) {
+            $table->id('id');
+            $table->foreignId('category_id')->index()->constrained();
+            $table->morphs('categoriable');
+            $table->timestampsTz(0);
+            $table->unique(['category_id','categoriable_type','categoriable_id']);
+
+        });
+
+
     }
 
     /**
@@ -202,6 +212,7 @@ class Utils extends Migration {
      * @return void
      */
     public function down() {
+        Schema::dropIfExists('categoriables');
         Schema::dropIfExists('categories');
         Schema::dropIfExists('attachment_models');
         Schema::dropIfExists('attachments');
