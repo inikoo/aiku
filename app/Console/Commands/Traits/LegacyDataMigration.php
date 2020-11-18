@@ -119,8 +119,8 @@ trait LegacyDataMigration {
                 ]
             ) as $image_legacy_data
         ) {
-
-            if ($image_filename_data = $this->get_image_filename($image_legacy_data)) {
+            $image_filename_data = $this->get_image_filename($image_legacy_data);
+            if ($image_filename_data) {
 
 
                 $image_data = fill_legacy_data(

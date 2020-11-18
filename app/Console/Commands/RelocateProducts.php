@@ -217,7 +217,8 @@ class RelocateProducts extends Command {
 
         $sql = "C.`Category Key` from `Category Bridge` B  left join `Category Dimension` C on (B.`Category Key`=C.`Category Key`) where `Category Branch Type`='Head' and `Subject`='Product' and `Subject Key`=?";
         foreach (DB::connection('legacy')->select("select $sql", [$legacy_data->{'Product ID'}]) as $legacy_category_data) {
-            if($category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'})){
+            $category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'});
+            if($category){
                 $category->products()->attach($product->id);
             }
         }

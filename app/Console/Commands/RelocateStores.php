@@ -188,7 +188,8 @@ class RelocateStores extends Command {
 
                             $sql = "C.`Category Key` from `Category Bridge` B  left join `Category Dimension` C on (B.`Category Key`=C.`Category Key`) where `Category Branch Type`='Head' and `Subject`='Product' and `Subject Key`=?";
                             foreach (DB::connection('legacy')->select("select $sql", [$family_legacy_data->{'Subject Key'}]) as $legacy_category_data) {
-                                if($category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'})){
+                                $category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'});
+                                if($category){
                                     $category->families()->attach($family->id);
                                 }
                             }
@@ -535,8 +536,8 @@ class RelocateStores extends Command {
 
     function relocate_charges($legacy_data) {
 
-
-        if ($store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Charge Store Key'})) {
+        $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Charge Store Key'});
+        if ($store) {
 
 
             $charge_data = fill_legacy_data(

@@ -338,7 +338,8 @@ class RelocateOrders extends Command {
         }
 
         $shipper_id = null;
-        if ($shipper = (new Shipper)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Shipper Key'})) {
+        $shipper = (new Shipper)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Shipper Key'});
+        if ($shipper) {
             $shipper_id = $shipper->id;
         }
 
@@ -365,10 +366,9 @@ class RelocateOrders extends Command {
             /**
              * @var $picker \App\Models\HR\Employee
              */
-            if ($picker = (new Employee)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Assigned Picker Key'})) {
-
+            $picker = (new Employee)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Assigned Picker Key'});
+            if ($picker) {
                 $picker_id = $picker->id;
-
             }
 
         }
@@ -377,7 +377,8 @@ class RelocateOrders extends Command {
             /**
              * @var $packer \App\Models\HR\Employee
              */
-            if ($packer = (new Employee)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Assigned Packer Key'})) {
+            $packer = (new Employee)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Assigned Packer Key'});
+            if ($packer) {
                 $packer_id = $packer->id;
             }
 

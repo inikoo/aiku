@@ -70,8 +70,8 @@ class StockController extends Controller {
     function update_location_stock($legacy_location_id, $legacy_stock_id, Request $request) {
 
         $this->parseRequest($request->all());
-
-        if ($location_stock = (new LocationStock)->where('legacy_location_id', $legacy_location_id)->where('legacy_stock_id', $legacy_stock_id)->first()){
+        $location_stock = (new LocationStock)->where('legacy_location_id', $legacy_location_id)->where('legacy_stock_id', $legacy_stock_id)->first();
+        if ($location_stock){
             $location_stock = $this->commonUpdate($location_stock);
             return response()->json($location_stock, 200);
         }
@@ -90,7 +90,8 @@ class StockController extends Controller {
 
 
             $legacy_part_location_data = (object)$params_data;
-            if ($location = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'})) {
+            $location = (new Location)->firstWhere('legacy_id', $legacy_part_location_data->{'Location Key'});
+            if ($location) {
 
 
                 $restocking=array_filter([

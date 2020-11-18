@@ -253,7 +253,8 @@ class RelocateCustomers extends Command {
 
         $sql = "C.`Category Key` from `Category Bridge` B  left join `Category Dimension` C on (B.`Category Key`=C.`Category Key`) where `Category Branch Type`='Head' and `Subject`='Customer' and `Subject Key`=?";
         foreach (DB::connection('legacy')->select("select $sql", [$legacy_data->{'Customer Key'}]) as $legacy_category_data) {
-            if($category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'})){
+            $category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'});
+            if($category){
                 $category->customers()->attach($customer->id);
             }
         }
@@ -316,7 +317,8 @@ class RelocateCustomers extends Command {
             $customerClient->delivery_address_id = $delivery_address->id;
             $customerClient->save();
             if ($oldAddressId and $delivery_address->id != $oldAddressId) {
-                if ($address = (new Address)->find($oldAddressId)) {
+                $address = (new Address)->find($oldAddressId);
+                if ($address) {
                     $address->deleteIfOrphan();
                 }
             }

@@ -48,7 +48,8 @@ if (!function_exists('legacy_process_addresses')) {
 
 
         foreach (array_diff($oldAddressIds, $addressIds) as $addressToDelete) {
-            if ($address = (new Address)->find($addressToDelete)) {
+            $address = (new Address)->find($addressToDelete);
+            if ($address) {
                 $address->deleteIfOrphan();
             }
 
@@ -185,8 +186,8 @@ if (!function_exists('relocate_basket')) {
             ) as $otf_data
         ) {
 
-
-            if ($basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'Product')->first()) {
+            $basketItem = (new BasketTransaction)->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'Product')->first();
+            if ($basketItem) {
 
 
                 unset($toDelete['Product'][$basketItem->transaction_id]);
@@ -251,8 +252,8 @@ if (!function_exists('relocate_basket')) {
 
             $transaction_data = get_legacy_transaction_data($basket->parent->store_id, $onptf_data);
 
-
-            if ($basketItem = (new BasketTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
+            $basketItem = (new BasketTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first();
+            if ($basketItem) {
 
                 unset($toDelete[$transaction_data['type']][$basketItem->transaction_id]);
 
@@ -321,8 +322,8 @@ if (!function_exists('relocate_order_transactions')) {
 
         foreach (DB::connection('legacy')->select("select * from  $otf_table where  $otf_table_where=?", [$order->legacy_id]) as $otf_data) {
 
-
-            if ($orderTransaction = (new OrderTransaction())->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'ProductHistoricVariation')->first()) {
+            $orderTransaction = (new OrderTransaction())->where('legacy_id', $otf_data->{'Order Transaction Fact Key'})->where('transaction_type', 'ProductHistoricVariation')->first();
+            if ($orderTransaction) {
 
                 unset($toDelete['ProductHistoricVariation'][$orderTransaction->transaction_id]);
 
@@ -367,8 +368,8 @@ if (!function_exists('relocate_order_transactions')) {
 
             $transaction_data = get_legacy_transaction_data($order->store_id, $onptf_data);
 
-
-            if ($orderTransaction = (new OrderTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first()) {
+            $orderTransaction = (new OrderTransaction)->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first();
+            if ($orderTransaction) {
 
                 unset($toDelete[$transaction_data['type']][$orderTransaction->transaction_id]);
 
@@ -425,7 +426,8 @@ if (!function_exists('get_legacy_transaction_data')) {
                 $transaction_type = 'ShippingZone';
                 $transaction_id   = null;
                 if ($onptf_data->{'Transaction Type Key'}) {
-                    if ($shipping_zone = (new ShippingZone())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
+                    $shipping_zone = (new ShippingZone())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'});
+                    if ($shipping_zone) {
                         $transaction_id = $shipping_zone->id;
                     }
 
@@ -435,7 +437,8 @@ if (!function_exists('get_legacy_transaction_data')) {
                 $transaction_type = 'Charge';
                 $transaction_id   = null;
                 if ($onptf_data->{'Transaction Type Key'}) {
-                    if ($charge = (new Charge())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'})) {
+                    $charge = (new Charge())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'});
+                    if ($charge) {
                         $transaction_id = $charge->id;
                     }
 
@@ -449,7 +452,8 @@ if (!function_exists('get_legacy_transaction_data')) {
                     /**
                      * @var $charge Charge
                      */
-                    if ($charge = (new Store)->find($store_id)->charges()->firstWhere('type', 'insurance')) {
+                    $charge = (new Store)->find($store_id)->charges()->firstWhere('type', 'insurance');
+                    if ($charge) {
                         $transaction_id = $charge->id;
                     }
 
@@ -462,7 +466,8 @@ if (!function_exists('get_legacy_transaction_data')) {
                     /**
                      * @var $charge Charge
                      */
-                    if ($charge = (new Store)->find($store_id)->charges()->firstWhere('type', 'premium')) {
+                    $charge = (new Store)->find($store_id)->charges()->firstWhere('type', 'premium');
+                    if ($charge) {
                         $transaction_id = $charge->id;
                     }
                 }
@@ -473,7 +478,8 @@ if (!function_exists('get_legacy_transaction_data')) {
                 /**
                  * @var $adjust Adjust
                  */
-                if ($adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', 'legacy')) {
+                $adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', 'legacy');
+                if ($adjust) {
                     $transaction_id = $adjust->id;
                 }
                 break;
@@ -483,7 +489,8 @@ if (!function_exists('get_legacy_transaction_data')) {
                 /**
                  * @var $adjust Adjust
                  */
-                if ($adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', 'credit')) {
+                $adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', 'credit');
+                if ($adjust) {
                     $transaction_id = $adjust->id;
                 }
                 break;
@@ -493,7 +500,8 @@ if (!function_exists('get_legacy_transaction_data')) {
                 /**
                  * @var $adjust Adjust
                  */
-                if ($adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', 'refund')) {
+                $adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', 'refund');
+                if ($adjust) {
                     $transaction_id = $adjust->id;
                 }
                 break;

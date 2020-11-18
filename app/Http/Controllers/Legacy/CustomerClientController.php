@@ -111,7 +111,8 @@ class CustomerClientController extends Controller {
         $customerClient->delivery_address_id = $delivery_address->id;
         $customerClient->save();
         if ($oldAddressId and $delivery_address->id != $oldAddressId) {
-            if ($address = (new Address)->find($oldAddressId)) {
+            $address = (new Address)->find($oldAddressId);
+            if ($address) {
                 $address->deleteIfOrphan();
             }
         }
