@@ -67,139 +67,8 @@ class RelocateStores extends Command {
                     ], ['name' => 'Refund']
                 );
 
-                $sql = "* from `Category Dimension` where `Category Key` not in (?,?) and `Category Scope`='Product'  and `Category Branch Type`='Root' and `Category Store Key`=? ";
-                foreach (
-                    DB::connection('legacy')->select(
-                        "select ".$sql, [
-                                          $legacy_data->{'Store Department Category Key'},
-                                          $legacy_data->{'Store Family Category Key'},
-                                          $legacy_data->{'Store Key'}
-
-                                      ]
-                    ) as $products_category_data
-                ) {
-
-
-                    $type = $products_category_data->{'Category Subject'};
-
-
-                    $root = (new Category)->updateOrCreate(
-                        [
-                            'type'         => $type,
-                            'legacy_id'    => $products_category_data->{'Category Key'},
-                            'container'    => 'Store',
-                            'container_id' => $store->id,
-                        ], [
-                            'code'      => $products_category_data->{'Category Code'},
-                            'name'      => $products_category_data->{'Category Label'},
-                            'tenant_id' => $this->tenant->id,
-
-                        ]
-                    );
-
-                    $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
-                    foreach (DB::connection('legacy')->select("select ".$sql, [$products_category_data->{'Category Key'}]) as $category_legacy_data) {
-
-
-                        $root->children()->updateOrCreate(
-                            [
-                                'type'         => $type,
-                                'legacy_id'    => $category_legacy_data->{'Category Key'},
-                                'container'    => 'Store',
-                                'container_id' => $store->id,
-                            ], [
-                                'code'      => $category_legacy_data->{'Category Code'},
-                                'name'      => $category_legacy_data->{'Category Label'},
-                                'tenant_id' => $this->tenant->id
-                            ]
-                        );
-
-
-                    }
-
-
-                }
-
-                $sql = "* from `Category Dimension` where `Category Key`=? ";
-                foreach (DB::connection('legacy')->select("select ".$sql, [$legacy_data->{'Store Department Category Key'}]) as $departments_legacy_data) {
-
-
-                    $root = (new Category)->updateOrCreate(
-                        [
-                            'type'         => 'Product',
-                            'legacy_id'    => $departments_legacy_data->{'Category Key'},
-                            'container'    => 'Store',
-                            'container_id' => $store->id,
-                        ], [
-                            'code'      => $departments_legacy_data->{'Category Code'},
-                            'name'      => $departments_legacy_data->{'Category Label'},
-                            'tenant_id' => $this->tenant->id,
-
-                        ]
-                    );
-
-
-                    $legacyData = $this->tenant->data;
-                    Arr::set($legacyData, 'categories.products.hierarchy', $root->id);
-                    $this->tenant->data = $legacyData;
-                    $this->tenant->save();
-
-                    $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
-                    foreach (DB::connection('legacy')->select("select ".$sql, [$departments_legacy_data->{'Category Key'}]) as $department_legacy_data) {
-
-
-                        $department = $root->children()->updateOrCreate(
-                            [
-                                'type'         => 'Product',
-                                'legacy_id'    => $department_legacy_data->{'Category Key'},
-                                'container'    => 'Store',
-                                'container_id' => $store->id,
-                            ], [
-                                'code'      => $department_legacy_data->{'Category Code'},
-                                'name'      => $department_legacy_data->{'Category Label'},
-                                'tenant_id' => $this->tenant->id
-                            ]
-                        );
-
-
-                        $sql = "C.`Category Key`,`Category Code`,`Category Label`,`Subject`, B.`Category Key`,`Subject Key`
-                         from   `Category Dimension` C  left join `Category Bridge`B  on (`Subject Key`=C.`Category Key`)  where  `Subject`='Category'  and B.`Category Key`=?  ";
-                        foreach (DB::connection('legacy')->select("select ".$sql, [$department_legacy_data->{'Category Key'}]) as $family_legacy_data) {
-
-
-                            $family=$department->children()->updateOrCreate(
-                                [
-                                    'type'         => 'Product',
-                                    'legacy_id'    => $family_legacy_data->{'Subject Key'},
-                                    'container'    => 'Store',
-                                    'container_id' => $store->id,
-                                    'parent_id'    => $department->id,
-                                ], [
-                                    'code'      => $family_legacy_data->{'Category Code'},
-                                    'name'      => $family_legacy_data->{'Category Label'},
-                                    'tenant_id' => $this->tenant->id
-                                ]
-                            );
-
-                            $sql = "C.`Category Key` from `Category Bridge` B  left join `Category Dimension` C on (B.`Category Key`=C.`Category Key`) where `Category Branch Type`='Head' and `Subject`='Product' and `Subject Key`=?";
-                            foreach (DB::connection('legacy')->select("select $sql", [$family_legacy_data->{'Subject Key'}]) as $legacy_category_data) {
-                                $category=Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'});
-                                if($category){
-                                    $category->families()->syncWithoutDetaching([$family->id]);
-                                }
-                            }
-
-
-                        }
-
-
-                    }
-
-
-                }
-
-
-
+                $this->relocate_product_categories($store, $legacy_data);
+                $this->relocate_product_hierarchy($store, $legacy_data);
 
 
             }
@@ -224,169 +93,48 @@ class RelocateStores extends Command {
                 switch ($legacy_data->{'Category Scope'}) {
                     case 'Part':
                         if ($legacy_data->{'Category Code'} == 'FMap') {
-                            $root = (new Category)->updateOrCreate(
-                                [
-                                    'type'         => 'Stock',
-                                    'legacy_id'    => $legacy_data->{'Category Key'},
-                                    'container'    => 'Tenant',
-                                    'container_id' => $this->tenant->id,
-                                ], [
-                                    'code'      => $legacy_data->{'Category Code'},
-                                    'name'      => $legacy_data->{'Category Label'},
-                                    'tenant_id' => $this->tenant->id,
 
-                                ]
+                            $root=$this->relocate_category(
+                                'Stock', $legacy_data, [
+                                             'Tenant',
+                                             $this->tenant->id
+                                         ]
                             );
-
                             $legacyData = $this->tenant->data;
                             Arr::set($legacyData, 'categories.stocks.families', $root->id);
                             $this->tenant->data = $legacyData;
                             $this->tenant->save();
 
-                            $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
-                            foreach (DB::connection('legacy')->select("select ".$sql, [$legacy_data->{'Category Key'}]) as $category_legacy_data) {
 
-                                $root->children()->updateOrCreate(
-                                    [
-                                        'type'         => 'Stock',
-                                        'legacy_id'    => $category_legacy_data->{'Category Key'},
-                                        'container'    => 'Tenant',
-                                        'container_id' => $this->tenant->id,
-                                    ], [
-                                        'code'      => $category_legacy_data->{'Category Code'},
-                                        'name'      => $category_legacy_data->{'Category Label'},
-                                        'tenant_id' => $this->tenant->id,
-
-                                    ]
-                                );
-
-
-                            }
                         }
                         break;
                     case 'Supplier':
-                        $root = (new Category)->updateOrCreate(
-                            [
-                                'type'         => 'Supplier',
-                                'legacy_id'    => $legacy_data->{'Category Key'},
-                                'container'    => 'Tenant',
-                                'container_id' => $this->tenant->id,
-                            ], [
-                                'code'      => $legacy_data->{'Category Code'},
-                                'name'      => $legacy_data->{'Category Label'},
-                                'tenant_id' => $this->tenant->id,
-
-
-                            ]
+                        $this->relocate_category(
+                            'Supplier', $legacy_data, [
+                            'Tenant',
+                            $this->tenant->id
+                        ]
                         );
-
-
-                        $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
-                        foreach (DB::connection('legacy')->select("select ".$sql, [$legacy_data->{'Category Key'}]) as $category_legacy_data) {
-
-                            $root->children()->updateOrCreate(
-                                [
-                                    'type'         => 'Supplier',
-                                    'legacy_id'    => $category_legacy_data->{'Category Key'},
-                                    'container'    => 'Tenant',
-                                    'container_id' => $this->tenant->id,
-                                ], [
-                                    'code'      => $category_legacy_data->{'Category Code'},
-                                    'name'      => $category_legacy_data->{'Category Label'},
-                                    'tenant_id' => $this->tenant->id,
-
-                                ]
-                            );
-
-
-                        }
                         break;
                     case 'Invoice':
-                        $root = (new Category)->updateOrCreate(
-                            [
-                                'type'         => 'Invoice',
-                                'legacy_id'    => $legacy_data->{'Category Key'},
-                                'container'    => 'Tenant',
-                                'container_id' => $this->tenant->id,
-                            ], [
-                                'code'      => $legacy_data->{'Category Code'},
-                                'name'      => $legacy_data->{'Category Label'},
-                                'tenant_id' => $this->tenant->id,
-
-
-                            ]
+                        $this->relocate_category(
+                            'Invoice', $legacy_data, [
+                            'Tenant',
+                            $this->tenant->id
+                        ]
                         );
-
-
-                        $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
-                        foreach (DB::connection('legacy')->select("select ".$sql, [$legacy_data->{'Category Key'}]) as $category_legacy_data) {
-
-                            $root->children()->updateOrCreate(
-                                [
-                                    'type'         => 'Invoice',
-                                    'legacy_id'    => $category_legacy_data->{'Category Key'},
-                                    'container'    => 'Tenant',
-                                    'container_id' => $this->tenant->id,
-                                ], [
-                                    'code'      => $category_legacy_data->{'Category Code'},
-                                    'name'      => $category_legacy_data->{'Category Label'},
-                                    'tenant_id' => $this->tenant->id,
-
-                                ]
-                            );
-
-
-                        }
-
                         break;
                     case 'Customer':
-
                         $store = (new Store)->firstwhere('legacy_id', $legacy_data->{'Category Store Key'});
-
-                        $root = (new Category)->updateOrCreate(
-                            [
-                                'type'         => 'Customer',
-                                'legacy_id'    => $legacy_data->{'Category Key'},
-                                'container'    => 'Store',
-                                'container_id' => $store->id,
-
-                            ], [
-                                'code'      => $legacy_data->{'Category Code'},
-                                'name'      => $legacy_data->{'Category Label'},
-                                'tenant_id' => $this->tenant->id
-                            ]
+                        $this->relocate_category(
+                            'Customer', $legacy_data, [
+                            'Store',
+                            $store->id
+                        ]
                         );
 
-
-                        $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
-                        foreach (DB::connection('legacy')->select("select ".$sql, [$legacy_data->{'Category Key'}]) as $category_legacy_data) {
-
-                            $root->children()->updateOrCreate(
-                                [
-                                    'type'         => 'Customer',
-                                    'legacy_id'    => $category_legacy_data->{'Category Key'},
-                                    'container'    => 'Store',
-                                    'container_id' => $store->id,
-                                ], [
-                                    'code'      => $category_legacy_data->{'Category Code'},
-                                    'name'      => $category_legacy_data->{'Category Label'},
-                                    'tenant_id' => $this->tenant->id
-                                ]
-                            );
-
-
-                        }
-
-
-                        break;
-                    case 'Product':
-
-
                         break;
 
-                    default:
-
-                        dd($legacy_data);
                 }
 
             }
@@ -680,6 +428,183 @@ class RelocateStores extends Command {
         return $shipping_schema;
 
 
+    }
+
+    function relocate_product_categories($store, $legacy_data) {
+        $sql = "* from `Category Dimension` where `Category Key` not in (?,?) and `Category Scope`='Product'  and `Category Branch Type`='Root' and `Category Store Key`=? ";
+        foreach (
+            DB::connection('legacy')->select(
+                "select ".$sql, [
+                                  $legacy_data->{'Store Department Category Key'},
+                                  $legacy_data->{'Store Family Category Key'},
+                                  $legacy_data->{'Store Key'}
+
+                              ]
+            ) as $products_category_data
+        ) {
+
+
+            $type = $products_category_data->{'Category Subject'};
+
+
+            $root = (new Category)->updateOrCreate(
+                [
+                    'type'         => $type,
+                    'legacy_id'    => $products_category_data->{'Category Key'},
+                    'container'    => 'Store',
+                    'container_id' => $store->id,
+                ], [
+                    'code'      => $products_category_data->{'Category Code'},
+                    'name'      => $products_category_data->{'Category Label'},
+                    'tenant_id' => $this->tenant->id,
+
+                ]
+            );
+
+            $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
+            foreach (DB::connection('legacy')->select("select ".$sql, [$products_category_data->{'Category Key'}]) as $category_legacy_data) {
+
+
+                $root->children()->updateOrCreate(
+                    [
+                        'type'         => $type,
+                        'legacy_id'    => $category_legacy_data->{'Category Key'},
+                        'container'    => 'Store',
+                        'container_id' => $store->id,
+                    ], [
+                        'code'      => $category_legacy_data->{'Category Code'},
+                        'name'      => $category_legacy_data->{'Category Label'},
+                        'tenant_id' => $this->tenant->id
+                    ]
+                );
+
+
+            }
+
+
+        }
+    }
+
+    function relocate_product_hierarchy($store, $legacy_data) {
+
+        $sql = "* from `Category Dimension` where `Category Key`=? ";
+        foreach (DB::connection('legacy')->select("select ".$sql, [$legacy_data->{'Store Department Category Key'}]) as $departments_legacy_data) {
+
+
+            $root = (new Category)->updateOrCreate(
+                [
+                    'type'         => 'Product',
+                    'legacy_id'    => $departments_legacy_data->{'Category Key'},
+                    'container'    => 'Store',
+                    'container_id' => $store->id,
+                ], [
+                    'code'      => $departments_legacy_data->{'Category Code'},
+                    'name'      => $departments_legacy_data->{'Category Label'},
+                    'tenant_id' => $this->tenant->id,
+
+                ]
+            );
+
+
+            $legacyData = $this->tenant->data;
+            Arr::set($legacyData, 'categories.products.hierarchy', $root->id);
+            $this->tenant->data = $legacyData;
+            $this->tenant->save();
+
+            $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
+            foreach (DB::connection('legacy')->select("select ".$sql, [$departments_legacy_data->{'Category Key'}]) as $department_legacy_data) {
+
+
+                $department = $root->children()->updateOrCreate(
+                    [
+                        'type'         => 'Product',
+                        'legacy_id'    => $department_legacy_data->{'Category Key'},
+                        'container'    => 'Store',
+                        'container_id' => $store->id,
+                    ], [
+                        'code'      => $department_legacy_data->{'Category Code'},
+                        'name'      => $department_legacy_data->{'Category Label'},
+                        'tenant_id' => $this->tenant->id
+                    ]
+                );
+
+
+                $sql = "C.`Category Key`,`Category Code`,`Category Label`,`Subject`, B.`Category Key`,`Subject Key`
+                         from   `Category Dimension` C  left join `Category Bridge`B  on (`Subject Key`=C.`Category Key`)  where  `Subject`='Category'  and B.`Category Key`=?  ";
+                foreach (DB::connection('legacy')->select("select ".$sql, [$department_legacy_data->{'Category Key'}]) as $family_legacy_data) {
+
+
+                    $family = $department->children()->updateOrCreate(
+                        [
+                            'type'         => 'Product',
+                            'legacy_id'    => $family_legacy_data->{'Subject Key'},
+                            'container'    => 'Store',
+                            'container_id' => $store->id,
+                            'parent_id'    => $department->id,
+                        ], [
+                            'code'      => $family_legacy_data->{'Category Code'},
+                            'name'      => $family_legacy_data->{'Category Label'},
+                            'tenant_id' => $this->tenant->id
+                        ]
+                    );
+
+                    $sql = "C.`Category Key` from `Category Bridge` B  left join `Category Dimension` C on (B.`Category Key`=C.`Category Key`) where `Category Branch Type`='Head' and `Subject`='Product' and `Subject Key`=?";
+                    foreach (DB::connection('legacy')->select("select $sql", [$family_legacy_data->{'Subject Key'}]) as $legacy_category_data) {
+                        $category = Category::firstWhere('legacy_id', $legacy_category_data->{'Category Key'});
+                        if ($category) {
+                            $category->families()->syncWithoutDetaching([$family->id]);
+                        }
+                    }
+
+
+                }
+
+
+            }
+
+
+        }
+
+
+    }
+
+    function relocate_category($type, $legacy_data, $container) {
+        $root = (new Category)->updateOrCreate(
+            [
+                'type'         => $type,
+                'legacy_id'    => $legacy_data->{'Category Key'},
+                'container'    => $container[0],
+                'container_id' => $container[1],
+            ], [
+                'code'      => $legacy_data->{'Category Code'},
+                'name'      => $legacy_data->{'Category Label'},
+                'tenant_id' => $this->tenant->id,
+
+
+            ]
+        );
+
+
+        $sql = "* from `Category Dimension` where `Category Root Key`=?  and `Category Branch Type`!='Root'  ";
+        foreach (DB::connection('legacy')->select("select ".$sql, [$legacy_data->{'Category Key'}]) as $category_legacy_data) {
+
+            $root->children()->updateOrCreate(
+                [
+                    'type'         => $type,
+                    'legacy_id'    => $category_legacy_data->{'Category Key'},
+                    'container'    => $container[0],
+                    'container_id' => $container[1],
+                ], [
+                    'code'      => $category_legacy_data->{'Category Code'},
+                    'name'      => $category_legacy_data->{'Category Label'},
+                    'tenant_id' => $this->tenant->id,
+
+                ]
+            );
+
+
+        }
+        return $root;
     }
 
 
