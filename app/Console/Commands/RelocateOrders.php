@@ -264,20 +264,10 @@ class RelocateOrders extends Command {
 
 
 
-
-    function relocate_delivery_note($legacy_data, $order) {
-
-
-        $order_data = fill_legacy_data(
-            [
-
-            ], $legacy_data
-        );
-
-
+    function get_state_from_legacy_delivery_note($legacyState){
         $status = 'processing';
         $state  = null;
-        switch ($legacy_data->{'Delivery Note State'}) {
+        switch ($legacyState) {
             case 'Ready to be Picked':
                 $state = 'waiting';
                 break;
@@ -310,6 +300,22 @@ class RelocateOrders extends Command {
                 break;
 
         }
+        return [$status,$state];
+    }
+
+
+    function relocate_delivery_note($legacy_data, $order) {
+
+
+        $order_data = fill_legacy_data(
+            [
+
+            ], $legacy_data
+        );
+
+
+
+        list($status,$state)=$this->get_state_from_legacy_delivery_note($legacy_data->{'Delivery Note State'});
 
         //enum('Replacement & Shortages','Order','Replacement','Shortages','Sample','Donation')
 
