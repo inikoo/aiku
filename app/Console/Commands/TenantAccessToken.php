@@ -25,15 +25,6 @@ class TenantAccessToken extends Command
      */
     protected $description = 'Create an direct tenant access token';
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
 
     /**
      * Execute the console command.

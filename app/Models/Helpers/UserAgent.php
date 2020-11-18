@@ -14,7 +14,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 class UserAgent extends Model {
     use UsesLandLordConnection;
 
-    //todo remove this when LDM done
 
     public $skip_fetch_user_agent_device_data=false;
 
@@ -31,7 +30,6 @@ class UserAgent extends Model {
 
             function ($userAgent) {
 
-                //todo remove this when LDM done
                 if(empty($userAgent->skip_fetch_user_agent_device_data)){
                     $userAgent->fetch_user_agent_device_data();
                 }

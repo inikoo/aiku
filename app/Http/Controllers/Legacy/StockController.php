@@ -53,7 +53,8 @@ class StockController extends Controller {
     function update($legacy_id, Request $request) {
 
         $this->parseRequest($request->all());
-        if ($stock = Stock::withTrashed()->firstWhere('legacy_id', $legacy_id)) {
+        $stock = Stock::withTrashed()->firstWhere('legacy_id', $legacy_id);
+        if ($stock) {
             $stock = $this->commonUpdate($stock);
 
             if (isset($this->legacy['locations'])) {
