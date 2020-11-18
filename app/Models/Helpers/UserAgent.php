@@ -174,11 +174,9 @@ class UserAgent extends Model {
 
     function check_if_is_tablet($userAgent) {
         $tabletDevices = array(
-            // @todo: check for mobile friendly emails topic.
             'iPad'              => 'iPad|iPad.*Mobile',
             // Removed |^.*Android.*Nexus(?!(?:Mobile).)*$
             // @see #442
-            // @todo Merge NexusTablet into GoogleTablet.
             'NexusTablet'       => 'Android.*Nexus[\s]+(7|9|10)',
             // https://en.wikipedia.org/wiki/Pixel_C
             'GoogleTablet'      => 'Android.*Pixel C',
@@ -223,7 +221,6 @@ class UserAgent extends Model {
             'MedionTablet'      => 'Android.*\bOYO\b|LIFE.*(P9212|P9514|P9516|S9512)|LIFETAB',
             'ArnovaTablet'      => '97G4|AN10G2|AN7bG3|AN7fG3|AN8G3|AN8cG3|AN7G3|AN9G3|AN7dG3|AN7dG3ST|AN7dG3ChildPad|AN10bG3|AN10bG3DT|AN9G2',
             // http://www.intenso.de/kategorie_en.php?kategorie=33
-            // @todo: http://www.nbhkdz.com/read/b8e64202f92a2df129126bff.html - investigate
             'IntensoTablet'     => 'INM8002KP|INM1010FP|INM805ND|Intenso Tab|TAB1004',
             // IRU.ru Tablets http://www.iru.ru/catalog/soho/planetable/
             'IRUTablet'         => 'M702pro',
@@ -238,7 +235,6 @@ class UserAgent extends Model {
             // http://www.ainol.com/plugin.php?identifier=ainol&module=product
             'AinolTablet'       => 'NOVO7|NOVO8|NOVO10|Novo7Aurora|Novo7Basic|NOVO7PALADIN|novo9-Spark',
             'NokiaLumiaTablet'  => 'Lumia 2520',
-            // @todo: inspect http://esupport.sony.com/US/p/select-system.pl?DIRECTOR=DRIVER
             // Readers http://www.atsuhiro-me.net/ebook/sony-reader/sony-reader-web-browser
             // http://www.sony.jp/support/tablet/
             'SonyTablet'        => 'Sony.*Tablet|Xperia Tablet|Sony Tablet S|SO-03E|SGPT12|SGPT13|SGPT114|SGPT121|SGPT122|SGPT123|SGPT111|SGPT112|SGPT113|SGPT131|SGPT132|SGPT133|SGPT211|SGPT212|SGPT213|SGP311|SGP312|SGP321|EBRD1101|EBRD1102|EBRD1201|SGP351|SGP341|SGP511|SGP512|SGP521|SGP541|SGP551|SGP621|SGP641|SGP612|SOT31|SGP771|SGP611|SGP612|SGP712',
@@ -251,11 +247,8 @@ class UserAgent extends Model {
             // http://www.match.net.cn/products.asp
             'MIDTablet'         => 'M9701|M9000|M9100|M806|M1052|M806|T703|MID701|MID713|MID710|MID727|MID760|MID830|MID728|MID933|MID125|MID810|MID732|MID120|MID930|MID800|MID731|MID900|MID100|MID820|MID735|MID980|MID130|MID833|MID737|MID960|MID135|MID860|MID736|MID140|MID930|MID835|MID733|MID4X10',
             // http://www.msi.com/support
-            // @todo Research the Windows Tablets.
             'MSITablet'         => 'MSI \b(Primo 73K|Primo 73L|Primo 81L|Primo 77|Primo 93|Primo 75|Primo 76|Primo 73|Primo 81|Primo 91|Primo 90|Enjoy 71|Enjoy 7|Enjoy 10)\b',
-            // @todo http://www.kyoceramobile.com/support/drivers/
             //    'KyoceraTablet' => null,
-            // @todo http://intexuae.com/index.php/category/mobile-devices/tablets-products/
             //    'IntextTablet' => null,
             // http://pdadb.net/index.php?m=pdalist&list=SMiT (NoName Chinese Tablets)
             // http://www.imp3.net/14/show.php?itemid=20454
@@ -317,14 +310,12 @@ class UserAgent extends Model {
             // http://www.gloryunion.cn/products.asp
             // http://www.allwinnertech.com/en/apply/mobile.html
             // http://www.ptcl.com.pk/pd_content.php?pd_id=284 (EVOTAB)
-            // @todo: Softwiner tablets?
             // aka. Cute or Cool tablets. Not sure yet, must research to avoid collisions.
             'GUTablet'          => 'TX-A1301|TX-M9002|Q702|kf026',
             // A12R|D75A|D77|D79|R83|A95|A106C|R15|A75|A76|D71|D72|R71|R73|R77|D82|R85|D92|A97|D92|R91|A10F|A77F|W71F|A78F|W78F|W81F|A97F|W91F|W97F|R16G|C72|C73E|K72|K73|R96G
             // http://www.pointofview-online.com/showroom.php?shop_mode=product_listing&category_id=118
             'PointOfViewTablet' => 'TAB-P506|TAB-navi-7-3G-M|TAB-P517|TAB-P-527|TAB-P701|TAB-P703|TAB-P721|TAB-P731N|TAB-P741|TAB-P825|TAB-P905|TAB-P925|TAB-PR945|TAB-PL1015|TAB-P1025|TAB-PI1045|TAB-P1325|TAB-PROTAB[0-9]+|TAB-PROTAB25|TAB-PROTAB26|TAB-PROTAB27|TAB-PROTAB26XL|TAB-PROTAB2-IPS9|TAB-PROTAB30-IPS9|TAB-PROTAB25XXL|TAB-PROTAB26-IPS10|TAB-PROTAB30-IPS10',
             // http://www.overmax.pl/pl/katalog-produktow,p8/tablety,c14/
-            // @todo: add more tests.
             'OvermaxTablet'     => 'OV-(SteelCore|NewBase|Basecore|Baseone|Exellen|Quattor|EduTab|Solution|ACTION|BasicTab|TeddyTab|MagicTab|Stream|TB-08|TB-09)|Qualcore 1027',
             // http://hclmetablet.com/India/index.php
             'HCLTablet'         => 'HCL.*Tablet|Connect-3G-2.0|Connect-2G-2.0|ME Tablet U1|ME Tablet U2|ME Tablet G1|ME Tablet X1|ME Tablet Y2|ME Tablet Sync',
@@ -364,7 +355,6 @@ class UserAgent extends Model {
             // http://www.kmart.com.au/webapp/wcs/stores/servlet/Search?langId=-1&storeId=10701&catalogId=10001&categoryId=193001&pageSize=72&currentPage=1&searchCategory=193001%2b4294965664&sortBy=p_MaxPrice%7c1
             'AudioSonicTablet'  => '\bC-22Q|T7-QC|T-17B|T-17P\b',
             // AMPE Tablets - http://www.ampe.com.my/product-category/tablets/
-            // @todo: add them gradually to avoid conflicts.
             'AMPETablet'        => 'Android.* A78 ',
             // Skk Mobile - http://skkmobile.com.ph/product_tablets.php
             'SkkTablet'         => 'Android.* (SKYPAD|PHOENIX|CYCLOPS)',
@@ -396,13 +386,10 @@ class UserAgent extends Model {
             'JaytechTablet'     => 'TPC-PA762',
             'BlaupunktTablet'   => 'Endeavour 800NG|Endeavour 1010',
             // http://www.digma.ru/support/download/
-            // @todo: Ebooks also (if requested)
             'DigmaTablet'       => '\b(iDx10|iDx9|iDx8|iDx7|iDxD7|iDxD8|iDsQ8|iDsQ7|iDsQ8|iDsD10|iDnD7|3TS804H|iDsQ11|iDj7|iDs10)\b',
             // http://www.evolioshop.com/ro/tablete-pc.html
             // http://www.evolio.ro/support/downloads_static.html?cat=2
-            // @todo: Research some more
             'EvolioTablet'      => 'ARIA_Mini_wifi|Aria[ _]Mini|Evolio X10|Evolio X7|Evolio X8|\bEvotab\b|\bNeura\b',
-            // @todo http://www.lavamobiles.com/tablets-data-cards
             'LavaTablet'        => 'QPAD E704|\bIvoryS\b|E-TAB IVORY|\bE-TAB\b',
             // http://www.breezetablet.com/
             'AocTablet'         => 'MW0811|MW0812|MW0922|MTK8382|MW1031|MW0831|MW0821|MW0931|MW0712',
