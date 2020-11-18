@@ -47,7 +47,8 @@ class EmployeeController extends Controller {
     function update($legacy_id,Request $request) {
 
         $this->parseRequest($request->all());
-        if($employee = (new Employee)->firstWhere('legacy_id', $legacy_id)){
+        $employee = (new Employee)->firstWhere('legacy_id', $legacy_id);
+        if($employee){
             $employee=$this->commonUpdate($employee);
             return response()->json($employee, 200);
         }else{

@@ -89,7 +89,8 @@ class ProductController extends Controller {
         foreach ($this->legacy['parts'] as $parts_data) {
 
             $legacy_product_stock_data = (object)$parts_data;
-            if ($stock = (new Stock)->firstWhere('legacy_id', $legacy_product_stock_data->{'Product Part Part SKU'})) {
+            $stock = (new Stock)->firstWhere('legacy_id', $legacy_product_stock_data->{'Product Part Part SKU'});
+            if ($stock) {
                 $product_stock_data[$stock->id] = [
                     'ratio' => $stock->packed_in * $legacy_product_stock_data->{'Product Part Ratio'},
                     'data'  => array_filter(['note' => $legacy_product_stock_data->{'Product Part Note'}])

@@ -50,7 +50,8 @@ class StoreController extends Controller {
     function update($legacy_id,Request $request) {
 
         $this->parseRequest($request->all());
-        if($store = Store::withTrashed()->firstWhere('legacy_id', $legacy_id)){
+        $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_id);
+        if($store){
             $store=$this->commonUpdate($store);
             return response()->json($store, 200);
 

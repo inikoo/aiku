@@ -47,7 +47,8 @@ class GuestController extends Controller {
     function update($legacy_id,Request $request) {
 
         $this->parseRequest($request->all());
-        if($guest = (new Guest)->firstWhere('legacy_id', $legacy_id)){
+        $guest = (new Guest)->firstWhere('legacy_id', $legacy_id);
+        if($guest){
             $guest=$this->commonUpdate($guest);
             return response()->json($guest, 200);
         }else{

@@ -60,7 +60,8 @@ class UserController extends Controller {
 
 
         $this->parseRequest($request->all());
-        if ($user = (new User)->firstWhere('legacy_id', $legacy_id)) {
+        $user = (new User)->firstWhere('legacy_id', $legacy_id);
+        if ($user) {
 
             if (isset($this->object_parameters['password'])) {
                 $user->confidential = ['pwd_legacy' => $this->object_parameters['password']] + $user->confidential;

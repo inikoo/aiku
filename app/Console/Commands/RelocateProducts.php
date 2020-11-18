@@ -73,8 +73,8 @@ class RelocateProducts extends Command {
                     $_where             = ' `Product Part Product ID` ';
                     $product_stock_data = [];
                     foreach (DB::connection('legacy')->select("select * from  $_table where  $_where=?", [$product->legacy_id]) as $legacy_product_stock_data) {
-
-                        if ($stock = (new Stock)->firstWhere('legacy_id', $legacy_product_stock_data->{'Product Part Part SKU'})) {
+                        $stock = (new Stock)->firstWhere('legacy_id', $legacy_product_stock_data->{'Product Part Part SKU'});
+                        if ($stock) {
                             $product_stock_data[$stock->id] = [
                                 'ratio' => $stock->packed_in * $legacy_product_stock_data->{'Product Part Ratio'},
                                 'data'  => array_filter(['note'=>$legacy_product_stock_data->{'Product Part Note'}])

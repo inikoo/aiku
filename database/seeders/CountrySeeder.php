@@ -16,7 +16,8 @@ class CountrySeeder extends Seeder
     public function run()
     {
         $row = 1;
-        if (($handle = fopen(__DIR__."/../../assets/countryData.csv", "r")) !== false) {
+        $handle = fopen(__DIR__."/../../assets/countryData.csv", "r");
+        if ($handle !== false) {
             while (($data = fgetcsv($handle, 1000, ",")) !== false) {
                 if ($row > 1) {
 

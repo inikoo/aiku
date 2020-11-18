@@ -179,8 +179,8 @@ class RelocateWarehouses extends Command {
 
         $warehouse = (new Warehouse)->firstWhere('legacy_id', $warehouse_legacy_id);
 
-
-        if ($warehouse_area = (new WarehouseArea)->firstWhere('legacy_id', $legacy_data->{'Location Warehouse Area Key'})) {
+        $warehouse_area = (new WarehouseArea)->firstWhere('legacy_id', $legacy_data->{'Location Warehouse Area Key'});
+        if ($warehouse_area) {
             $warehouse_area_id = $warehouse_area->id;
         } else {
             $warehouse_area_id = null;

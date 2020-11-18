@@ -168,8 +168,8 @@ class CustomerController extends Controller {
 
 
         $this->parseRequest($request->all());
-
-        if ($customer = (new Customer)->firstWhere('legacy_id', $legacy_id)) {
+        $customer = (new Customer)->firstWhere('legacy_id', $legacy_id);
+        if ($customer) {
 
             $database_settings = data_get(config('database.connections'), 'mysql');
             data_set($database_settings, 'database', app('currentTenant')->data['legacy']['db']);
