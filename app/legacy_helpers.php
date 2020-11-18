@@ -417,6 +417,53 @@ if (!function_exists('relocate_order_transactions')) {
     }
 }
 
+
+function get_legacy_shipping_transaction_id($legacyTransactionKey) {
+    if ($legacyTransactionKey) {
+        $shipping_zone = (new ShippingZone())->firstWhere('legacy_id', $legacyTransactionKey);
+        if ($shipping_zone) {
+            return $shipping_zone->id;
+        }
+    }
+
+    return null;
+}
+
+function get_legacy_charges_transaction_id($legacyTransactionKey) {
+    if ($legacyTransactionKey) {
+        $charge = (new Charge())->firstWhere('legacy_id', $legacyTransactionKey);
+        if ($charge) {
+            return $charge->id;
+        }
+    }
+
+    return null;
+}
+
+function get_legacy_type_charges_transaction_id($type, $store_id) {
+    /**
+     * @var $charge Charge
+     */
+    $charge = (new Store)->find($store_id)->charges()->firstWhere('type', $type);
+    if ($charge) {
+        return $charge->id;
+    }
+
+    return null;
+}
+
+function get_legacy_type_adjusts_transaction_id($type, $store_id) {
+    /**
+     * @var $adjust Adjust
+     */
+    $adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', $type);
+    if ($adjust) {
+        return $adjust->id;
+    }
+
+    return null;
+}
+
 if (!function_exists('get_legacy_transaction_data')) {
     function get_legacy_transaction_data($store_id, $onptf_data) {
 
@@ -424,86 +471,31 @@ if (!function_exists('get_legacy_transaction_data')) {
         switch ($onptf_data->{'Transaction Type'}) {
             case 'Shipping':
                 $transaction_type = 'ShippingZone';
-                $transaction_id   = null;
-                if ($onptf_data->{'Transaction Type Key'}) {
-                    $shipping_zone = (new ShippingZone())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'});
-                    if ($shipping_zone) {
-                        $transaction_id = $shipping_zone->id;
-                    }
-
-                }
+                $transaction_id   = get_legacy_shipping_transaction_id($onptf_data->{'Transaction Type Key'});
                 break;
             case 'Charges':
                 $transaction_type = 'Charge';
-                $transaction_id   = null;
-                if ($onptf_data->{'Transaction Type Key'}) {
-                    $charge = (new Charge())->firstWhere('legacy_id', $onptf_data->{'Transaction Type Key'});
-                    if ($charge) {
-                        $transaction_id = $charge->id;
-                    }
-
-                }
+                $transaction_id   = get_legacy_charges_transaction_id($onptf_data->{'Transaction Type Key'});
                 break;
             case 'Insurance':
                 $transaction_type = 'Charge';
-                $transaction_id   = null;
-                if ($onptf_data->{'Transaction Type Key'}) {
-
-                    /**
-                     * @var $charge Charge
-                     */
-                    $charge = (new Store)->find($store_id)->charges()->firstWhere('type', 'insurance');
-                    if ($charge) {
-                        $transaction_id = $charge->id;
-                    }
-
-                }
+                $transaction_id   = get_legacy_type_charges_transaction_id('insurance', $store_id);
                 break;
             case 'Premium':
                 $transaction_type = 'Charge';
-                $transaction_id   = null;
-                if ($onptf_data->{'Transaction Type Key'}) {
-                    /**
-                     * @var $charge Charge
-                     */
-                    $charge = (new Store)->find($store_id)->charges()->firstWhere('type', 'premium');
-                    if ($charge) {
-                        $transaction_id = $charge->id;
-                    }
-                }
+                $transaction_id   = get_legacy_type_charges_transaction_id('premium', $store_id);
                 break;
             case 'Adjust':
                 $transaction_type = 'Adjust';
-                $transaction_id   = null;
-                /**
-                 * @var $adjust Adjust
-                 */
-                $adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', 'legacy');
-                if ($adjust) {
-                    $transaction_id = $adjust->id;
-                }
+                $transaction_id   = get_legacy_type_adjusts_transaction_id('legacy', $store_id);
                 break;
             case 'Credit':
                 $transaction_type = 'Adjust';
-                $transaction_id   = null;
-                /**
-                 * @var $adjust Adjust
-                 */
-                $adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', 'credit');
-                if ($adjust) {
-                    $transaction_id = $adjust->id;
-                }
+                $transaction_id   = get_legacy_type_adjusts_transaction_id('credit', $store_id);
                 break;
             case 'Refund':
                 $transaction_type = 'Adjust';
-                $transaction_id   = null;
-                /**
-                 * @var $adjust Adjust
-                 */
-                $adjust = (new Store)->find($store_id)->adjusts()->firstWhere('type', 'refund');
-                if ($adjust) {
-                    $transaction_id = $adjust->id;
-                }
+                $transaction_id   = get_legacy_type_adjusts_transaction_id('refund', $store_id);
                 break;
             default:
                 print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."  transaction type : ".$onptf_data->{'Transaction Type'}."\n";
@@ -511,7 +503,7 @@ if (!function_exists('get_legacy_transaction_data')) {
                 exit();
         }
         $tax_band_id = null;
-        $taxBand = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}));
+        $taxBand     = (new TaxBand)->firstwhere('code', strtolower($onptf_data->{'Tax Category Code'}));
         if ($taxBand) {
             $tax_band_id = $taxBand->id;
         } else {
