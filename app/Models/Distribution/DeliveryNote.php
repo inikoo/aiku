@@ -62,7 +62,7 @@ class DeliveryNote extends Model {
     }
 
 
-    function sync_items($items,$type='pickings'){
+    function syncItems($items,$type='pickings'){
 
         $scope=($type=='pickings'?$this->pickings():$this->items());
 

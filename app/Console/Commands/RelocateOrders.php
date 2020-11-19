@@ -66,7 +66,7 @@ class RelocateOrders extends Command {
                         }
 
 
-                        $order = relocate_order($parent,$legacy_data);
+                        $order = relocate_order($parent, $legacy_data);
 
 
                         relocate_order_transactions($order);
@@ -77,16 +77,9 @@ class RelocateOrders extends Command {
                                 $delivery_note = $this->relocate_delivery_note($dn_legacy_data, $order);
 
                                 if ($dn_legacy_data->{'Delivery Note State'} == 'Dispatched' or $dn_legacy_data->{'Delivery Note State'} == 'Cancelled') {
-
-
-                                    $delivery_note->sync_items($this->get_legacy_dispatched_itf($delivery_note), 'delivery_note_items');
-
-
+                                    $delivery_note->syncItems($this->get_legacy_dispatched_itf($delivery_note), 'delivery_note_items');
                                 } else {
-
-
-                                    $delivery_note->sync_items($this->get_legacy_picking_itf($delivery_note), 'pickings');
-
+                                    $delivery_note->syncItems($this->get_legacy_picking_itf($delivery_note), 'pickings');
                                 }
 
 
@@ -199,6 +192,7 @@ class RelocateOrders extends Command {
                 'state'     => $state,
                 'status'    => $status,
                 'data'      => $data,
+                'tenant_id' => $delivery_note->tenant_id
 
             ];
 
@@ -250,9 +244,9 @@ class RelocateOrders extends Command {
                 'weight'         => $legacy_picking_itf_data->{'Inventory Transaction Weight'},
                 'required'       => $legacy_picking_itf_data->{'Required'} * $stock->packed_in,
                 'dispatched'     => $qty * $stock->packed_in,
-
                 'legacy_id' => $legacy_picking_itf_data->{'Inventory Transaction Key'},
                 'data'      => $data,
+                'tenant_id' => $delivery_note->tenant_id
             ];
 
         }
@@ -263,8 +257,7 @@ class RelocateOrders extends Command {
     }
 
 
-
-    function get_state_from_legacy_delivery_note($legacyState){
+    function get_state_from_legacy_delivery_note($legacyState) {
         $status = 'processing';
         $state  = null;
         switch ($legacyState) {
@@ -300,7 +293,11 @@ class RelocateOrders extends Command {
                 break;
 
         }
-        return [$status,$state];
+
+        return [
+            $status,
+            $state
+        ];
     }
 
 
@@ -314,8 +311,7 @@ class RelocateOrders extends Command {
         );
 
 
-
-        list($status,$state)=$this->get_state_from_legacy_delivery_note($legacy_data->{'Delivery Note State'});
+        list($status, $state) = $this->get_state_from_legacy_delivery_note($legacy_data->{'Delivery Note State'});
 
         //enum('Replacement & Shortages','Order','Replacement','Shortages','Sample','Donation')
 
@@ -339,7 +335,7 @@ class RelocateOrders extends Command {
         }
 
         $shipper_id = null;
-        $shipper = (new Shipper)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Shipper Key'});
+        $shipper    = (new Shipper)->firstWhere('legacy_id', $legacy_data->{'Delivery Note Shipper Key'});
         if ($shipper) {
             $shipper_id = $shipper->id;
         }
@@ -362,10 +358,8 @@ class RelocateOrders extends Command {
 
         }
 
-        $picker_id=get_employee_id_from_legacy($legacy_data->{'Delivery Note Assigned Picker Key'});
-        $packer_id=get_employee_id_from_legacy($legacy_data->{'Delivery Note Assigned Packer Key'});
-
-
+        $picker_id = get_employee_id_from_legacy($legacy_data->{'Delivery Note Assigned Picker Key'});
+        $packer_id = get_employee_id_from_legacy($legacy_data->{'Delivery Note Assigned Packer Key'});
 
 
         $delivery_note = (new DeliveryNote)->updateOrCreate(

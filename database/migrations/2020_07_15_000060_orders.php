@@ -19,7 +19,6 @@ class Orders extends Migration {
     public function up() {
 
 
-
         Schema::create(
             'orders', function (Blueprint $table) {
             $table->mediumIncrements('id');
@@ -72,6 +71,12 @@ class Orders extends Migration {
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -79,7 +84,7 @@ class Orders extends Migration {
             'delivery_notes', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->string('number')->index();
-            $table->string('type')->default('purchase')->index()->comment('purchase|donation|samplereplacement');
+            $table->string('type')->default('purchase')->index()->comment('purchase|donation|sample|replacement');
 
             $table->string('state')->nullable()->index();
             $table->string('status')->nullable()->index();
@@ -124,6 +129,12 @@ class Orders extends Migration {
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -162,6 +173,12 @@ class Orders extends Migration {
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -199,6 +216,12 @@ class Orders extends Migration {
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -213,7 +236,6 @@ class Orders extends Migration {
 
             $table->string('transaction_type')->index();
             $table->unsignedBigInteger('transaction_id')->nullable();
-
 
 
             $table->decimal('quantity', 16, 3);
@@ -231,11 +253,22 @@ class Orders extends Migration {
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
 
-            $table->index(['transaction_id','transaction_type']);
+            $table->index(
+                [
+                    'transaction_id',
+                    'transaction_type'
+                ]
+            );
             $table->unique(
                 [
                     'transaction_type',
                     'legacy_id'
+                ]
+            );
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
                 ]
             );
 
@@ -251,8 +284,6 @@ class Orders extends Migration {
             $table->foreign('order_transactions_id')->references('id')->on('order_transactions');
 
 
-
-
             $table->morphs('invoiceable');
 
 
@@ -266,6 +297,12 @@ class Orders extends Migration {
 
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -286,7 +323,14 @@ class Orders extends Migration {
             $table->jsonb('data');
 
             $table->timestampsTz();
+            $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
 
         }
         );
@@ -327,8 +371,14 @@ class Orders extends Migration {
 
 
             $table->timestampsTz();
+            $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -372,12 +422,16 @@ class Orders extends Migration {
             $table->dateTimeTz('dispatched_at', 0)->nullable();
 
             $table->timestampsTz();
+            $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
-
-
 
 
         Schema::create(
@@ -405,6 +459,12 @@ class Orders extends Migration {
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         }
         );
 
@@ -438,7 +498,8 @@ class Orders extends Migration {
         }
         );
 
-        Schema::create('adjusts', function (Blueprint $table) {
+        Schema::create(
+            'adjusts', function (Blueprint $table) {
             $table->mediumIncrements('id');
 
             $table->unsignedMediumInteger('store_id')->nullable()->index();
@@ -449,9 +510,15 @@ class Orders extends Migration {
             $table->string('name');
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->unique(['store_id','type']);
+            $table->unique(
+                [
+                    'store_id',
+                    'type'
+                ]
+            );
 
-        });
+        }
+        );
 
     }
 
@@ -464,27 +531,16 @@ class Orders extends Migration {
         Schema::dropIfExists('adjusts');
         Schema::dropIfExists('delivery_note_packer');
         Schema::dropIfExists('delivery_note_picker');
-
         Schema::dropIfExists('placing_returns');
-
-
-
         Schema::dropIfExists('delivery_note_items');
-
         Schema::dropIfExists('pickings');
         Schema::dropIfExists('stock_movements');
-
-
         Schema::dropIfExists('invoice_transactions');
-
         Schema::dropIfExists('order_transactions');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('returns');
-
         Schema::dropIfExists('delivery_notes');
-
         Schema::dropIfExists('orders');
-
 
     }
 }
