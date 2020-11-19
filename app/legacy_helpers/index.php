@@ -14,7 +14,10 @@ include_once 'charges.php';
 include_once 'employees.php';
 include_once 'shipping.php';
 include_once 'adjusts.php';
+include_once 'basket.php';
 include_once 'orders.php';
+include_once 'invoices.php';
+include_once 'delivery_notes.php';
 
 
 if (!function_exists('fill_legacy_data')) {
