@@ -75,7 +75,7 @@ class RelocateEmployees extends Command {
         );
 
 
-        $imagesModelData = $this->get_images_data(
+        $imagesModelData = get_images_data(
             [
                 'object'     => 'Staff',
                 'object_key' => $legacy_data->{'Staff Key'},

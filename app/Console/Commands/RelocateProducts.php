@@ -153,7 +153,7 @@ class RelocateProducts extends Command {
         }
 
 
-        $imagesModelData = $this->get_images_data(
+        $imagesModelData = get_images_data(
             [
                 'object'     => 'Product',
                 'object_key' => $legacy_data->{'Product ID'},
