@@ -76,6 +76,7 @@ class RelocateEmployees extends Command {
 
 
         $imagesModelData = get_images_data(
+            $this->tenant,
             [
                 'object'     => 'Staff',
                 'object_key' => $legacy_data->{'Staff Key'},

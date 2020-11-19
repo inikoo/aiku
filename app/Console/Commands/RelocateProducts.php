@@ -154,6 +154,7 @@ class RelocateProducts extends Command {
 
 
         $imagesModelData = get_images_data(
+            $this->tenant,
             [
                 'object'     => 'Product',
                 'object_key' => $legacy_data->{'Product ID'},

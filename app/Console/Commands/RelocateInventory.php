@@ -245,6 +245,7 @@ class RelocateInventory extends Command {
         }
 
         $imagesModelData = get_images_data(
+            $this->tenant,
             [
                 'object'     => 'Part',
                 'object_key' => $legacy_data->{'Part SKU'},
