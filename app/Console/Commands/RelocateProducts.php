@@ -191,7 +191,7 @@ class RelocateProducts extends Command {
             ]
         );
 
-        $this->sync_images($product,$imagesModelData, function ($_scope){
+        sync_images($product,$imagesModelData, function ($_scope){
             $scope = 'marketing';
             if ($_scope== '') {
                 $scope = 'marketing';

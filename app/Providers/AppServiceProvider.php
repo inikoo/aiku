@@ -30,6 +30,7 @@ class AppServiceProvider extends ServiceProvider {
                 'Employee'                 => 'App\Models\HR\Employee',
                 'Customer'                 => 'App\Models\CRM\Customer',
                 'CustomerClient'           => 'App\Models\CRM\CustomerClient',
+                'Prospect'                 => 'App\Models\CRM\Prospect',
                 'Order'                    => 'App\Models\Sales\Order',
                 'Basket'                   => 'App\Models\Sales\Basket',
                 'ShippingZone'             => 'App\Models\Sales\ShippingZone',

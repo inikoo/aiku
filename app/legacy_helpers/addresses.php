@@ -8,73 +8,105 @@
 use App\Models\Helpers\Address;
 
 
-if (!function_exists('legacy_process_addresses')) {
-    function legacy_process_addresses($customer, $billing_address, $delivery_address) {
-        $oldAddressIds = $customer->addresses->pluck('id')->all();
-
-        if ($billing_address->id == $delivery_address->id) {
-            $customer->addresses()->sync([$billing_address->id => ['scope' => 'billing_delivery']]);
-        } else {
-            $customer->addresses()->sync(
-                [
-                    $billing_address->id  => ['scope' => 'billing'],
-                    $delivery_address->id => ['scope' => 'delivery']
-                ]
-            );
-
-        }
-
-        $customer->billing_address_id  = $billing_address->id;
-        $customer->country_id          = $billing_address->country_id;
-        $customer->delivery_address_id = $delivery_address->id;
-        $customer->save();
-
-        $customer = $customer->fresh();
-
-        $addressIds = $customer->addresses->pluck('id')->all();
+function process_instance_address_legacy($object, $object_key, $type, $legacy_data) {
 
 
-        foreach (array_diff($oldAddressIds, $addressIds) as $addressToDelete) {
-            $address = (new Address)->find($addressToDelete);
-            if ($address) {
-                $address->deleteIfOrphan();
-            }
+    $_address = get_legacy_instance_address_scaffolding($object, $type, $legacy_data);
 
-        }
 
-        return $customer;
-
+    if (!$_address->country_code and !$_address->administrative_area and !$_address->dependent_locality and !$_address->locality and !$_address->postal_code and !$_address->sorting_code and !$_address->address_line_2 and !$_address->address_line_1) {
+        return null;
     }
+
+
+    return (new Address)->firstOrCreate(
+        [
+            'checksum'   => $_address->getChecksum(),
+            'owner_type' => $object,
+            'owner_id'   => $object_key,
+
+        ], [
+            'address_line_1'      => $_address->address_line_1,
+            'address_line_2'      => $_address->address_line_2,
+            'sorting_code'        => $_address->sorting_code,
+            'postal_code'         => $_address->postal_code,
+            'locality'            => $_address->locality,
+            'dependent_locality'  => $_address->dependent_locality,
+            'administrative_area' => $_address->administrative_area,
+            'country_code'        => $_address->country_code,
+
+        ]
+    );
+
+
 }
-if (!function_exists('legacy_get_address')) {
-
-    function legacy_get_address($object, $object_key, $address_data) {
 
 
-        $_address = new Address();
-        $_address->fill($address_data);
+function legacy_process_addresses($customer, $billing_address, $delivery_address) {
+    $oldAddressIds = $customer->addresses->pluck('id')->all();
 
-        return (new Address)->firstOrCreate(
+    if ($billing_address->id == $delivery_address->id) {
+        $customer->addresses()->sync([$billing_address->id => ['scope' => 'billing_delivery']]);
+    } else {
+        $customer->addresses()->sync(
             [
-                'checksum'   => $_address->getChecksum(),
-                'owner_type' => $object,
-                'owner_id'   => $object_key,
-
-            ], [
-                'address_line_1'      => $_address->address_line_1,
-                'address_line_2'      => $_address->address_line_2,
-                'sorting_code'        => $_address->sorting_code,
-                'postal_code'         => $_address->postal_code,
-                'locality'            => $_address->locality,
-                'dependent_locality'  => $_address->dependent_locality,
-                'administrative_area' => $_address->administrative_area,
-                'country_code'        => $_address->country_code,
-
+                $billing_address->id  => ['scope' => 'billing'],
+                $delivery_address->id => ['scope' => 'delivery']
             ]
         );
 
     }
+
+    $customer->billing_address_id  = $billing_address->id;
+    $customer->country_id          = $billing_address->country_id;
+    $customer->delivery_address_id = $delivery_address->id;
+    $customer->save();
+
+    $customer = $customer->fresh();
+
+    $addressIds = $customer->addresses->pluck('id')->all();
+
+
+    foreach (array_diff($oldAddressIds, $addressIds) as $addressToDelete) {
+        $address = (new Address)->find($addressToDelete);
+        if ($address) {
+            $address->deleteIfOrphan();
+        }
+
+    }
+
+    return $customer;
+
 }
+
+
+function legacy_get_address($object, $object_key, $address_data) {
+
+
+    $_address = new Address();
+    $_address->fill($address_data);
+
+    return (new Address)->firstOrCreate(
+        [
+            'checksum'   => $_address->getChecksum(),
+            'owner_type' => $object,
+            'owner_id'   => $object_key,
+
+        ], [
+            'address_line_1'      => $_address->address_line_1,
+            'address_line_2'      => $_address->address_line_2,
+            'sorting_code'        => $_address->sorting_code,
+            'postal_code'         => $_address->postal_code,
+            'locality'            => $_address->locality,
+            'dependent_locality'  => $_address->dependent_locality,
+            'administrative_area' => $_address->administrative_area,
+            'country_code'        => $_address->country_code,
+
+        ]
+    );
+
+}
+
 
 function process_legacy_immutable_address($object, $type, $legacy_data) {
 
@@ -116,6 +148,7 @@ function get_legacy_instance_address_scaffolding($object, $type, $legacy_data) {
     if ($type != '') {
         $type = ' '.$type;
     }
+
 
     $_address                      = new Address();
     $_address->address_line_1      = $legacy_data->{$legacy_object.$type.' Address Line 1'};

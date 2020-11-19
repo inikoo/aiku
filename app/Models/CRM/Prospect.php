@@ -1,40 +1,40 @@
 <?php
 /*
-Copyright (c) 2020, AIku.io
-
-Version 4
-*/
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Fri, 20 Nov 2020 01:24:03 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2020. Aiku.io
+ */
 
 namespace App\Models\CRM;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-/**
- * App\Models\CRM\Prospect
- *
- * @property-read \App\Models\Stores\Store $store
- * @method static Builder|Prospect newModelQuery()
- * @method static Builder|Prospect newQuery()
- * @method static Builder|Prospect query()
- * @mixin \Eloquent
- */
+
 class Prospect extends Model {
     use UsesTenantConnection;
 
-        protected $casts = [
+    protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}'
     ];
 
-    public function store()
-    {
+    protected $guarded = [];
+
+    public function store() {
         return $this->belongsTo('App\Models\Stores\Store');
+    }
+
+    public function customer() {
+        return $this->belongsTo('App\Models\CRM\Customer');
+    }
+
+    public function employees() {
+        return $this->belongsToMany('App\Models\HR\Employee')->withTimestamps()->withPivot(['allocation']);
     }
 }

@@ -5,16 +5,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 
-class Customers extends Migration
-{
+class Customers extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
-    {
-        Schema::create('customers', function (Blueprint $table) {
+    public function up() {
+        Schema::create(
+            'customers', function (Blueprint $table) {
             $table->id();
             $table->unsignedMediumInteger('store_id')->index();
             $table->foreign('store_id')->references('id')->on('stores');
@@ -37,9 +36,17 @@ class Customers extends Migration
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-        });
+            $table->unique(
+                [
+                    'tenant_id',
+                    'legacy_id'
+                ]
+            );
+        }
+        );
 
-        Schema::create('customer_clients', function (Blueprint $table) {
+        Schema::create(
+            'customer_clients', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained();
             $table->string('slug')->index();
@@ -52,9 +59,17 @@ class Customers extends Migration
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-        });
+            $table->unique(
+                [
+                    'tenant_id',
+                    'legacy_id'
+                ]
+            );
+        }
+        );
 
-        Schema::create('customer_portfolio', function (Blueprint $table) {
+        Schema::create(
+            'customer_portfolio', function (Blueprint $table) {
             $table->mediumIncrements('id');
 
             $table->foreignId('customer_id')->constrained();
@@ -66,10 +81,17 @@ class Customers extends Migration
             $table->softDeletesTz('deleted_at', 0);
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-            $table->unique(['customer_id','product_id']);
-        });
+            $table->unique(
+                [
+                    'customer_id',
+                    'product_id'
+                ]
+            );
+        }
+        );
 
-        Schema::create('customer_portfolio_timeline', function (Blueprint $table) {
+        Schema::create(
+            'customer_portfolio_timeline', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedMediumInteger('customer_portfolio_id')->index();
             $table->foreign('customer_portfolio_id')->references('id')->on('customer_portfolio');
@@ -77,8 +99,8 @@ class Customers extends Migration
             $table->dateTimeTz('date', 0);
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-        });
-
+        }
+        );
 
 
         Schema::create(
@@ -119,13 +141,11 @@ class Customers extends Migration
         );
 
 
-
         Schema::create(
             'basket_transactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedMediumInteger('basket_id')->index();
             $table->foreign('basket_id')->references('id')->on('baskets');
-
 
 
             $table->string('transaction_type')->index();
@@ -146,7 +166,12 @@ class Customers extends Migration
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
 
-            $table->index(['transaction_id','transaction_type']);
+            $table->index(
+                [
+                    'transaction_id',
+                    'transaction_type'
+                ]
+            );
             $table->unique(
                 [
                     'transaction_type',
@@ -157,6 +182,58 @@ class Customers extends Migration
         }
         );
 
+        Schema::create(
+            'prospects', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedMediumInteger('store_id')->index();
+            $table->foreign('store_id')->references('id')->on('stores');
+            $table->foreignId('customer_id')->nullable()->constrained();
+
+            $table->string('name')->nullable()->index();
+            $table->string('email')->nullable()->index();
+            $table->string('state')->index();
+
+            $table->unsignedMediumInteger('contact_address_id')->nullable()->index();
+            $table->foreign('contact_address_id')->references('id')->on('addresses');
+
+
+            $table->json('settings');
+            $table->json('data');
+
+            $table->timestampsTz();
+            $table->softDeletesTz('deleted_at', 0);
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->unique(
+                [
+                    'tenant_id',
+                    'legacy_id'
+                ]
+            );
+        }
+        );
+
+        Schema::create(
+            'prospect_sales_representatives', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+            $table->foreignId('prospect_id')->constrained();
+
+            $table->morphs('sales_representative');
+
+
+            $table->unsignedSmallInteger('allocation')->default(1);
+            $table->timestampsTz();
+            $table->unique(
+                [
+                    'prospect_id',
+                    'sales_representative_type',
+                    'sales_representative_id'
+                ]
+            );
+
+
+        }
+        );
 
 
     }
@@ -166,10 +243,11 @@ class Customers extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        Schema::dropIfExists('basket_transactions');
+    public function down() {
 
+        Schema::dropIfExists('prospect_sales_representatives');
+        Schema::dropIfExists('prospects');
+        Schema::dropIfExists('basket_transactions');
         Schema::dropIfExists('baskets');
         Schema::dropIfExists('customer_portfolio_timeline');
         Schema::dropIfExists('customer_portfolio');

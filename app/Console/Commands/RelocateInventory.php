@@ -40,13 +40,14 @@ class RelocateInventory extends Command {
             print ('Relocation inventory from '.$this->tenant->slug."\n");
 
             $sql               = "count(*) as num from `Part Dimension`";
+
             $count_stocks_data = DB::connection('legacy')->select("select $sql", [])[0];
+
             $bar               = $this->output->createProgressBar($count_stocks_data->num);
             $bar->setFormat('debug');
-
             $bar->start();
 
-            $max   = 500;
+            $max   = 750;
             $total = $count_stocks_data->num;
             $pages = ceil($total / $max);
             for ($i = 1; $i < ($pages + 1); $i++) {
@@ -284,7 +285,7 @@ class RelocateInventory extends Command {
         );
 
 
-        $this->sync_images(
+        sync_images(
             $stock, $imagesModelData, function ($_scope) {
             $scope = 'marketing';
             if ($_scope == 'SKO') {

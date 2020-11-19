@@ -31,13 +31,11 @@ class BasketTransaction extends Pivot {
         'data' => '{}',
     ];
 
-    public function basketable()
-    {
+    public function basketable() {
         return $this->morphTo();
     }
 
-    public function products()
-    {
+    public function products() {
         return $this->morphedByMany('App\Models\Store\Product', 'transaction','basket_transactions');
 
     }

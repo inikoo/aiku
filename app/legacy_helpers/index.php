@@ -8,6 +8,7 @@
 
 use Illuminate\Support\Arr;
 
+include_once 'images.php';
 include_once 'addresses.php';
 include_once 'products.php';
 include_once 'charges.php';
@@ -19,9 +20,11 @@ include_once 'basket.php';
 include_once 'orders.php';
 include_once 'invoices.php';
 include_once 'delivery_notes.php';
+include_once 'customer_clients.php';
+include_once 'customers.php';
+include_once 'prospects.php';
 
 
-if (!function_exists('fill_legacy_data')) {
     function fill_legacy_data($fields, $legacy_data, $modifier = false) {
 
         $data = [];
@@ -41,7 +44,18 @@ if (!function_exists('fill_legacy_data')) {
         return $data;
     }
 
+
+
+
+
+function elementsToLower($elements_keys, $array) {
+
+    foreach ($elements_keys as $key) {
+        Arr::set(
+            $array, $key, strtolower(Arr::get($array, $key))
+        );
+    }
+
+    return $array;
+
 }
-
-
-
