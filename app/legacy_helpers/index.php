@@ -14,6 +14,7 @@ include_once 'charges.php';
 include_once 'employees.php';
 include_once 'shipping.php';
 include_once 'adjusts.php';
+include_once 'sales_common.php';
 include_once 'basket.php';
 include_once 'orders.php';
 include_once 'invoices.php';

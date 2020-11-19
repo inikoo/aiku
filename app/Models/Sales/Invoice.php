@@ -55,4 +55,8 @@ class Invoice extends Model {
         return $this->belongsToMany('App\Models\Sales\Order')->withTimestamps();
     }
 
+    public function transactions() {
+        return $this->hasMany('App\Models\Sales\InvoiceTransaction');
+    }
+
 }

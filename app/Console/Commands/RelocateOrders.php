@@ -59,7 +59,6 @@ class RelocateOrders extends Command {
                         }
 
                         $order = relocate_order($parent, $legacy_data);
-                        relocate_order_transactions($order);
 
                         $sql = "* from `Delivery Note Dimension` where `Delivery Note Order Key`=?";
                         foreach (DB::connection('legacy')->select("select $sql", [$order->legacy_id]) as $dn_legacy_data) {

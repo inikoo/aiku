@@ -77,6 +77,7 @@ class Orders extends Migration {
             );
         }
         );
+
         Schema::create(
             'customer_client_order', function (Blueprint $table) {
             $table->id();
@@ -91,7 +92,6 @@ class Orders extends Migration {
             );
         }
         );
-
 
         Schema::create(
             'delivery_notes', function (Blueprint $table) {
@@ -281,7 +281,6 @@ class Orders extends Migration {
 
 
             $table->decimal('quantity', 16, 3);
-
             $table->decimal('discounts', 16, 2)->default(0);
             $table->decimal('net', 16, 2)->default(0);
 
@@ -294,7 +293,7 @@ class Orders extends Migration {
 
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-            $table->string('legacy_scope')->nullable()->index();
+            $table->string('legacy_scope')->nullable();
 
             $table->index(
                 [
@@ -331,20 +330,32 @@ class Orders extends Migration {
 
             $table->decimal('quantity', 16, 3);
             $table->decimal('net', 16, 2)->default(0);
-            $table->decimal('tax', 16, 2)->default(0);
+            $table->decimal('discounts', 16, 2)->default(0);
 
+            $table->decimal('tax', 16, 2)->default(0);
+            $table->unsignedMediumInteger('tax_band_id')->nullable()->index();
+            $table->foreign('tax_band_id')->references('id')->on('tax_bands');
             $table->jsonb('data');
 
             $table->timestampsTz();
 
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->string('legacy_scope')->nullable();
+
             $table->unique(
                 [
+                    'legacy_scope',
                     'legacy_id',
                     'tenant_id'
                 ]
             );
+        }
+        );
+
+        Schema::table(
+            'invoice_transactions', function (Blueprint $table) {
+            $table->unsignedFloat('invoiceable_id')->nullable()->change();
         }
         );
 
@@ -578,6 +589,7 @@ class Orders extends Migration {
         Schema::dropIfExists('stock_movements');
         Schema::dropIfExists('invoice_transactions');
         Schema::dropIfExists('order_transactions');
+        Schema::dropIfExists('delivery_note_order');
         Schema::dropIfExists('invoice_order');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('returns');

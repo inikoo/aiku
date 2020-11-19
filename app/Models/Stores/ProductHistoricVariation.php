@@ -41,6 +41,9 @@ class ProductHistoricVariation extends Model {
     public function orderTransactions() {
         return $this->morphMany('App\Models\Sales\OrderTransaction', 'transaction',);
     }
+    public function invoiceTransactions() {
+        return $this->morphMany('App\Models\Sales\InvoiceTransaction', 'invoiceable',);
+    }
 
 
 }
