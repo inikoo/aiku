@@ -121,7 +121,7 @@ class RelocateEmployees extends Command {
             );
 
 
-            $this->sync_image(
+            sync_image(
                 $employee, $imagesModelData, function ($_scope) {
                 switch ($_scope) {
                     default:
@@ -178,7 +178,7 @@ class RelocateEmployees extends Command {
                 ]
             );
 
-            $this->sync_image(
+            sync_image(
                 $guest, $imagesModelData, function ($_scope = '') {
                 switch ($_scope) {
                     default:
