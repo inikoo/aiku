@@ -15,6 +15,7 @@
         "ext-pgsql": "*",
         "ext-zlib": "*",
         "cviebrock/eloquent-sluggable": "^8.0",
+        "doctrine/dbal": "^3.0",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^2.0",
         "galahad/laravel-addressing": "^2.0",
