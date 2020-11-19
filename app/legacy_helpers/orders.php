@@ -180,12 +180,50 @@ if (!function_exists('get_legacy_transaction_data')) {
     }
 }
 
+
+function get_order_legacy_state($legacy_state) {
+    $status = 'Processing';
+    $state  = null;
+    switch ($legacy_state) {
+        case 'InBasket':
+            $state  = 'basket';
+            $status = 'basket';
+            break;
+        case 'InProcess':
+            $state = 'submitted';
+            break;
+        case 'InWarehouse':
+            $state = 'picking';
+            break;
+        case 'PackedDone':
+            $state = 'packed';
+            break;
+        case 'Approved':
+            $state  = 'packed';
+            $status = 'invoiced';
+            break;
+        case 'Dispatched':
+            $state  = 'dispatched';
+            $status = 'invoiced';
+            break;
+        case 'Cancelled':
+            $status = 'cancelled';
+            break;
+
+    }
+
+    return [
+        $state,
+        $status
+    ];
+}
+
 if (!function_exists('relocate_order')) {
     function relocate_order($parent, $legacy_data) {
         $order_data = fill_legacy_data(
             [
-                'customer.mame'=>'Order Customer Name',
-                'customer.contact'=>'Order Customer Contact Name',
+                'customer.mame'    => 'Order Customer Name',
+                'customer.contact' => 'Order Customer Contact Name',
             ], $legacy_data
         );
 
@@ -193,35 +231,7 @@ if (!function_exists('relocate_order')) {
             $order_data['customer_client_id'] = $parent->customer_client_id;
         }
 
-        $status = 'Processing';
-        $state  = null;
-        switch ($legacy_data->{'Order State'}) {
-            case 'InBasket':
-                $state  = 'basket';
-                $status = 'basket';
-                break;
-            case 'InProcess':
-                $state = 'submitted';
-                break;
-            case 'InWarehouse':
-                $state = 'picking';
-                break;
-            case 'PackedDone':
-                $state = 'packed';
-                break;
-            case 'Approved':
-                $state  = 'packed';
-                $status = 'invoiced';
-                break;
-            case 'Dispatched':
-                $state  = 'dispatched';
-                $status = 'invoiced';
-                break;
-            case 'Cancelled':
-                $status = 'cancelled';
-                break;
-
-        }
+        list($state, $status) = get_order_legacy_state($legacy_data->{'Order State'});
 
 
         $order = (new Order)->updateOrCreate(
