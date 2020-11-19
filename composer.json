@@ -37,7 +37,6 @@
         "spatie/laravel-permission": "^3.13"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^2.7",
         "facade/ignition": "^2.3.6",
         "fzaninotto/faker": "^1.9.1",
         "haydenpierce/class-finder": "^0.4.2",
