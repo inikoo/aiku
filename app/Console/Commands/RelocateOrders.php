@@ -50,9 +50,6 @@ class RelocateOrders extends Command {
                 $offset = (($i - 1) * $max);
 
 
-                $delivery_notes_table = '`Delivery Note Dimension`';
-                $delivery_notes_where = '`Delivery Note Order Key`';
-
                 foreach (DB::connection('legacy')->select("select * from $legacy_orders_table  limit $offset,  $max   ", []) as $legacy_data) {
 
 
@@ -71,7 +68,8 @@ class RelocateOrders extends Command {
 
                         relocate_order_transactions($order);
 
-                        foreach (DB::connection('legacy')->select("select * from  $delivery_notes_table where  $delivery_notes_where=?", [$order->legacy_id]) as $dn_legacy_data) {
+                        $sql="* from `Delivery Note Dimension where `Delivery Note Order Key`=?";
+                        foreach (DB::connection('legacy')->select("select $sql", [$order->legacy_id]) as $dn_legacy_data) {
 
                             if ($dn_legacy_data->{'Delivery Note State'} != 'Cancelled to Restock') {
                                 $delivery_note = $this->relocate_delivery_note($dn_legacy_data, $order);
@@ -87,9 +85,16 @@ class RelocateOrders extends Command {
                                 $this->relocate_return($dn_legacy_data, $order);
 
                             }
+                        }
+
+                        $sql="* from `Invoice Dimension where `Invoice Order Key`=?";
+                        foreach (DB::connection('legacy')->select("select $sql", [$order->legacy_id]) as $invoice_legacy_data) {
+
+                                 $this->relocate_invoice($invoice_legacy_data, $order);
 
 
                         }
+
 
 
                     }
@@ -107,6 +112,11 @@ class RelocateOrders extends Command {
 
 
         return 0;
+
+
+    }
+
+    function relocate_invoice($invoice_legacy_data, $order) {
 
 
     }
@@ -244,9 +254,9 @@ class RelocateOrders extends Command {
                 'weight'         => $legacy_picking_itf_data->{'Inventory Transaction Weight'},
                 'required'       => $legacy_picking_itf_data->{'Required'} * $stock->packed_in,
                 'dispatched'     => $qty * $stock->packed_in,
-                'legacy_id' => $legacy_picking_itf_data->{'Inventory Transaction Key'},
-                'data'      => $data,
-                'tenant_id' => $delivery_note->tenant_id
+                'legacy_id'      => $legacy_picking_itf_data->{'Inventory Transaction Key'},
+                'data'           => $data,
+                'tenant_id'      => $delivery_note->tenant_id
             ];
 
         }
