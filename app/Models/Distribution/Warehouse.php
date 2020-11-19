@@ -30,7 +30,7 @@ class Warehouse extends Model implements Auditable{
         'data'     => 'array'
     ];
 
-    public function sluggable() {
+        function sluggable() {
         return [
             'slug' => [
                 'source'   => 'name',

@@ -42,7 +42,7 @@ class Stock extends Model implements Auditable {
         'settings' => '{}'
     ];
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'slug' => [
                 'source'   => 'code',

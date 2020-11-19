@@ -33,7 +33,7 @@ class WarehouseArea extends Model implements Auditable{
         'data' => '{}',
     ];
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'slug' => [
                 'source'   => 'name',

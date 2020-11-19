@@ -23,10 +23,8 @@ if (!function_exists('relocate_order_transactions')) {
         ];
 
 
-        $otf_table         = ' `Order Transaction Fact` ';
-        $otf_table_where   = ' `Order Key` ';
-        $onptf_table       = ' `Order No Product Transaction Fact` ';
-        $onptf_table_where = ' `Order Key` ';
+        $otf_table       = ' `Order Transaction Fact` ';
+        $otf_table_where = ' `Order Key` ';
 
 
         foreach (DB::connection('legacy')->select("select * from  $otf_table where  $otf_table_where=?", [$order->legacy_id]) as $otf_data) {
@@ -56,13 +54,14 @@ if (!function_exists('relocate_order_transactions')) {
                 $orderTransactions = new OrderTransaction(
                     [
 
-                        'order_id'  => $order->id,
-                        'tenant_id' => $order->tenant_id,
-                        'quantity'  => $otf_data->{'Order Quantity'},
-                        'discounts' => $otf_data->{'Order Transaction Total Discount Amount'},
-                        'net'       => $otf_data->{'Order Transaction Amount'},
-                        'legacy_id' => $otf_data->{'Order Transaction Fact Key'},
-                        'data'      => []
+                        'order_id'     => $order->id,
+                        'tenant_id'    => $order->tenant_id,
+                        'quantity'     => $otf_data->{'Order Quantity'},
+                        'discounts'    => $otf_data->{'Order Transaction Total Discount Amount'},
+                        'net'          => $otf_data->{'Order Transaction Amount'},
+                        'legacy_id'    => $otf_data->{'Order Transaction Fact Key'},
+                        'legacy_scope' => 'otf',
+                        'data'         => []
                     ]
                 );
                 $product_historic_variant->orderTransactions()->save($orderTransactions);
@@ -71,9 +70,8 @@ if (!function_exists('relocate_order_transactions')) {
 
         }
 
-
-        foreach (DB::connection('legacy')->select("select * from  $onptf_table where  $onptf_table_where=?", [$order->legacy_id]) as $onptf_data) {
-
+        $sql = "* from `Order No Product Transaction Fact` where  `Order Key` =?";
+        foreach (DB::connection('legacy')->select("select $sql", [$order->legacy_id]) as $onptf_data) {
 
             $transaction_data = get_legacy_transaction_data($order->store_id, $onptf_data);
 
@@ -108,20 +106,16 @@ if (!function_exists('relocate_order_transactions')) {
                         'discounts'        => $onptf_data->{'Transaction Total Discount Amount'},
                         'net'              => $onptf_data->{'Transaction Net Amount'},
                         'tax_band_id'      => $transaction_data['tax_band_id'],
-
-                        'legacy_id' => $onptf_data->{'Order No Product Transaction Fact Key'},
-                        'data'      => []
+                        'legacy_scope'     => 'onptf',
+                        'legacy_id'        => $onptf_data->{'Order No Product Transaction Fact Key'},
+                        'data'             => []
                     ]
                 );
                 $orderTransaction->save();
             }
-
-
         }
 
-
         OrderTransaction::destroy(Arr::flatten($toDelete));
-
 
     }
 }
@@ -190,22 +184,14 @@ if (!function_exists('relocate_order')) {
     function relocate_order($parent, $legacy_data) {
         $order_data = fill_legacy_data(
             [
-
+                'customer.mame'=>'Order Customer Name',
+                'customer.contact'=>'Order Customer Contact Name',
             ], $legacy_data
         );
 
-        /*
-                $store    = (new Store)->firstWhere('legacy_id', $legacy_data->{'Order Store Key'});
-                $customer = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
-
-                $customer_client_id = null;
-                if ($legacy_data->{'Order Customer Client Key'}) {
-                    $customer_client    = CustomerClient::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Client Key'});
-                    $customer_client_id = $customer_client->id;
-                }
-        */
-
-        //enum('InBasket','InProcess','InWarehouse','PackedDone','Approved','Dispatched','Cancelled')
+        if ($parent->customer_client_id) {
+            $order_data['customer_client_id'] = $parent->customer_client_id;
+        }
 
         $status = 'Processing';
         $state  = null;
@@ -223,7 +209,6 @@ if (!function_exists('relocate_order')) {
             case 'PackedDone':
                 $state = 'packed';
                 break;
-
             case 'Approved':
                 $state  = 'packed';
                 $status = 'invoiced';
@@ -244,24 +229,22 @@ if (!function_exists('relocate_order')) {
                 'legacy_id' => $legacy_data->{'Order Key'},
 
             ], [
-                'tenant_id'          => $parent->tenant_id,
-                'store_id'           => $parent->store_id,
-                'customer_id'        => $parent->customer_id,
-                'customer_client_id' => $parent->customer_client_id,
-                'number'             => $legacy_data->{'Order Public ID'},
-                'payment'            => $legacy_data->{'Order Payments Amount'},
-                'items_discounts'    => $legacy_data->{'Order Items Discount Amount'},
-                'shipping'           => $legacy_data->{'Order Shipping Net Amount'},
-                'charges'            => $legacy_data->{'Order Charges Net Amount'},
-                'net'                => $legacy_data->{'Order Total Net Amount'},
-                'tax'                => $legacy_data->{'Order Total Tax Amount'},
-                'weight'             => $legacy_data->{'Order Estimated Weight'},
-                'items'              => $legacy_data->{'Order Number Items'},
-                'state'              => $state,
-                'status'             => $status,
-                'date'               => $legacy_data->{'Order Date'},
-                'data'               => $order_data,
-                'created_at'         => $legacy_data->{'Order Created Date'},
+                'tenant_id'       => $parent->tenant_id,
+                'customer_id'     => $parent->customer_id,
+                'number'          => $legacy_data->{'Order Public ID'},
+                'payment'         => $legacy_data->{'Order Payments Amount'},
+                'items_discounts' => $legacy_data->{'Order Items Discount Amount'},
+                'shipping'        => $legacy_data->{'Order Shipping Net Amount'},
+                'charges'         => $legacy_data->{'Order Charges Net Amount'},
+                'net'             => $legacy_data->{'Order Total Net Amount'},
+                'tax'             => $legacy_data->{'Order Total Tax Amount'},
+                'weight'          => $legacy_data->{'Order Estimated Weight'},
+                'items'           => $legacy_data->{'Order Number Items'},
+                'state'           => $state,
+                'status'          => $status,
+                'date'            => $legacy_data->{'Order Date'},
+                'data'            => $order_data,
+                'created_at'      => $legacy_data->{'Order Created Date'},
 
 
             ]
@@ -281,51 +264,42 @@ if (!function_exists('relocate_order')) {
         $order->billing_address_id  = $billing_address->id;
         $order->delivery_address_id = $delivery_address->id;
         switch ($legacy_data->{'Order State'}) {
-            /*
-             case 'InBasket':
-                 break;
-
-             case 'InWarehouse':
-                 break;
-             case 'PackedDone':
-                 break;
 
 
-            */ case 'InProcess':
-            $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
+            // case 'PackedDone':
+            //     break;
 
-            break;
+
+            case 'InProcess':
+                $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
+                break;
             case 'InWarehouse':
                 $order->submitted_at  = $legacy_data->{'Order Submitted by Customer Date'};
                 $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
-
                 break;
             case 'Approved':
                 $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
-
-                $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
-                $order->invoiced_at  = $legacy_data->{'Order Invoiced Date'};
+                $order->submitted_at  = $legacy_data->{'Order Submitted by Customer Date'};
+                $order->invoiced_at   = $legacy_data->{'Order Invoiced Date'};
                 break;
             case 'Dispatched':
                 $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
-
-                $order->submitted_at = $legacy_data->{'Order Submitted by Customer Date'};
-
+                $order->submitted_at  = $legacy_data->{'Order Submitted by Customer Date'};
                 $order->invoiced_at   = $legacy_data->{'Order Invoiced Date'};
                 $order->dispatched_at = $legacy_data->{'Order Dispatched Date'};
-
                 break;
             case 'Cancelled':
                 $order->submitted_at  = $legacy_data->{'Order Submitted by Customer Date'};
                 $order->warehoused_at = $legacy_data->{'Order Send to Warehouse Date'};
-
-                $order->cancelled_at = $legacy_data->{'Order Cancelled Date'};
-
+                $order->cancelled_at  = $legacy_data->{'Order Cancelled Date'};
                 break;
-
         }
 
         $order->save();
+
+        if ($parent->customer_client_id) {
+            $parent->orders()->syncWithoutDetaching([$order->id]);
+        }
 
         return $order;
     }

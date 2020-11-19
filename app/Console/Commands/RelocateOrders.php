@@ -61,16 +61,16 @@ class RelocateOrders extends Command {
                         $order = relocate_order($parent, $legacy_data);
                         relocate_order_transactions($order);
 
-                        $sql = "* from `Delivery Note Dimension where `Delivery Note Order Key`=?";
+                        $sql = "* from `Delivery Note Dimension` where `Delivery Note Order Key`=?";
                         foreach (DB::connection('legacy')->select("select $sql", [$order->legacy_id]) as $dn_legacy_data) {
 
                             if ($dn_legacy_data->{'Delivery Note State'} != 'Cancelled to Restock') {
                                 $delivery_note = relocate_delivery_note($dn_legacy_data, $order);
 
                                 if ($dn_legacy_data->{'Delivery Note State'} == 'Dispatched' or $dn_legacy_data->{'Delivery Note State'} == 'Cancelled') {
-                                    $delivery_note->syncItems($this->get_legacy_dispatched_itf($delivery_note), 'delivery_note_items');
+                                    $delivery_note->syncItems(get_legacy_dispatched_itf($delivery_note), 'delivery_note_items');
                                 } else {
-                                    $delivery_note->syncItems($this->get_legacy_picking_itf($delivery_note), 'pickings');
+                                    $delivery_note->syncItems(get_legacy_picking_itf($delivery_note), 'pickings');
                                 }
 
                             } else {
@@ -78,9 +78,11 @@ class RelocateOrders extends Command {
                             }
                         }
 
-                        $sql = "* from `Invoice Dimension where `Invoice Order Key`=?";
+                        $sql = "* from `Invoice Dimension` where `Invoice Order Key`=?";
                         foreach (DB::connection('legacy')->select("select $sql", [$order->legacy_id]) as $invoice_legacy_data) {
-                            relocate_invoice($invoice_legacy_data, $order);
+                            if($invoice_legacy_data->{'Invoice Type'}!='CreditNote') {
+                                relocate_invoice($invoice_legacy_data, $order);
+                            }
                         }
                     }
                     $bar->advance();

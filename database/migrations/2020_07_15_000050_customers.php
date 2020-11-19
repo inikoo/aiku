@@ -15,7 +15,7 @@ class Customers extends Migration
     public function up()
     {
         Schema::create('customers', function (Blueprint $table) {
-            $table->mediumIncrements('id');
+            $table->id();
             $table->unsignedMediumInteger('store_id')->index();
             $table->foreign('store_id')->references('id')->on('stores');
             $table->string('slug')->index();
@@ -40,9 +40,8 @@ class Customers extends Migration
         });
 
         Schema::create('customer_clients', function (Blueprint $table) {
-            $table->mediumIncrements('id');
-            $table->unsignedMediumInteger('customer_id')->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->id();
+            $table->foreignId('customer_id')->constrained();
             $table->string('slug')->index();
             $table->string('code')->nullable()->index();
             $table->string('name')->nullable();
@@ -58,8 +57,7 @@ class Customers extends Migration
         Schema::create('customer_portfolio', function (Blueprint $table) {
             $table->mediumIncrements('id');
 
-            $table->unsignedMediumInteger('customer_id')->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->foreignId('customer_id')->constrained();
             $table->unsignedMediumInteger('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products');
             $table->string('code')->nullable()->index();

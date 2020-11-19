@@ -33,13 +33,10 @@ class DeliveryNote extends Model {
 
     protected $guarded=[];
 
-    public function store()
-    {
-        return $this->belongsTo('App\Models\Stores\Store');
-    }
-    public function order()
-    {
-        return $this->belongsTo('App\Models\Sales\Order');
+
+
+    public function orders() {
+        return $this->belongsToMany('App\Models\Sales\Order')->withTimestamps();
     }
 
     public function customer()
@@ -56,8 +53,7 @@ class DeliveryNote extends Model {
         return $this->belongsToMany('App\Models\Distribution\Stock', 'delivery_note_items')->using('App\Models\Distribution\DeliveryNoteItem')->withTimestamps()->withPivot(['dispatched','required','weight','legacy_id']);
     }
 
-    public function addresses()
-    {
+    public function addresses() {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps()->withPivot(['scope']);
     }
 

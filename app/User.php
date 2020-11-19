@@ -72,7 +72,7 @@ class User extends Authenticatable implements Auditable {
         'confidential'
     ];
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'handle' => [
                 'source' => 'userable.slug'

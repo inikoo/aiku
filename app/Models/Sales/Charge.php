@@ -42,7 +42,7 @@ class Charge extends Model implements Auditable {
 
     protected $guarded = [];
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'slug' => [
                 'source'   => 'name',

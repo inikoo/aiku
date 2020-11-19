@@ -32,7 +32,7 @@ class Tax extends Model {
 
     protected $guarded=[];
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'slug' => [
                 'source'   => 'sluggledCode',
@@ -42,8 +42,6 @@ class Tax extends Model {
     }
 
     public function getSluggledCodeAttribute() {
-
-
         return $this->country_code.'-'.$this->code;
     }
 

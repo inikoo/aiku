@@ -43,7 +43,7 @@ class Guest extends Model implements Auditable {
         'settings' => '{}'
     ];
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'slug' => [
                 'source'   => 'name',

@@ -53,6 +53,14 @@ class Customer extends Model implements Auditable {
             ]
         ];
     }
+    function getSluggledNameAttribute() {
+        $sluggableName=au_escape_slug($this->name);
+        if ($sluggableName == '') {
+            $sluggableName = 'empty';
+        }
+        return $sluggableName;
+    }
+
     protected static function booted() {
         static::created(
             function ($customer) {
@@ -67,16 +75,7 @@ class Customer extends Model implements Auditable {
         );
     }
 
-    function getSluggledNameAttribute() {
 
-        $sluggableName=au_escape_slug($this->name);
-
-        if ($sluggableName == '') {
-            $sluggableName = 'empty';
-        }
-
-        return $sluggableName;
-    }
 
     function getCustomerIdAttribute(){
         return $this->id;
@@ -91,8 +90,7 @@ class Customer extends Model implements Auditable {
         return $this->belongsTo('App\Models\Stores\Store');
     }
 
-    function billingAddress()
-    {
+    function billingAddress() {
         return $this->belongsTo('App\Models\Helpers\Address');
     }
 
@@ -117,5 +115,8 @@ class Customer extends Model implements Auditable {
         return $this->morphToMany('App\Models\Utils\Category', 'categoriable');
     }
 
+    function invoices() {
+        return $this->hasMany('App\Models\Sales\Invoice');
+    }
 
 }

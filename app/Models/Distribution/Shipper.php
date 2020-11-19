@@ -32,7 +32,7 @@ class Shipper extends Model implements Auditable{
         'data'     => 'array'
     ];
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'slug' => [
                 'source'   => 'code',

@@ -95,5 +95,8 @@ class CustomerClient extends Model implements Auditable {
         return $this->id;
     }
 
+    public function orders() {
+        return $this->belongsToMany('App\Models\Sales\Order')->withTimestamps();
+    }
 
 }

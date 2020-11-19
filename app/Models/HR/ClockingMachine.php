@@ -33,7 +33,7 @@ class ClockingMachine extends Model implements Auditable{
     use \OwenIt\Auditing\Auditable;
 
 
-    public function sluggable() {
+    function sluggable() {
         return [
             'slug' => [
                 'source' => 'name'

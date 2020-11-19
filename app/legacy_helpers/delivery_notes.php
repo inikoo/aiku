@@ -200,7 +200,7 @@ function get_state_from_legacy_delivery_note($legacyState) {
 function relocate_delivery_note($legacy_data, $order) {
 
 
-    $order_data = fill_legacy_data(
+    $delivery_note_data = fill_legacy_data(
         [
 
         ], $legacy_data
@@ -263,30 +263,22 @@ function relocate_delivery_note($legacy_data, $order) {
             'legacy_id' => $legacy_data->{'Delivery Note Key'},
 
         ], [
-            'tenant_id' => $$order->tenant_id,
-            'order_id'  => $order->id,
-            'type'      => $type,
-            'number'    => $legacy_data->{'Delivery Note ID'},
-
-
-            'weight' => $legacy_data->{'Delivery Note Weight'},
-
-
-            'state'      => $state,
-            'status'     => $status,
-            'date'       => $legacy_data->{'Delivery Note Date'},
-            'picker_id'  => $picker_id,
-            'packer_id'  => $packer_id,
-            'shipper_id' => $shipper_id,
-
-
-            'data'               => $order_data,
+            'tenant_id'          => $order->tenant_id,
+            'customer_id'        => $order->customer_id,
+            'type'               => $type,
+            'number'             => $legacy_data->{'Delivery Note ID'},
+            'weight'             => $legacy_data->{'Delivery Note Weight'},
+            'state'              => $state,
+            'status'             => $status,
+            'date'               => $legacy_data->{'Delivery Note Date'},
+            'picker_id'          => $picker_id,
+            'packer_id'          => $packer_id,
+            'shipper_id'         => $shipper_id,
+            'data'               => $delivery_note_data,
             'created_at'         => $legacy_data->{'Delivery Note Date Created'},
             'order_submitted_at' => $order_submitted_at,
             'dispatched_at'      => $dispatched_at,
             'cancelled_at'       => $cancelled_at,
-
-
         ]
     );
 
@@ -297,10 +289,9 @@ function relocate_delivery_note($legacy_data, $order) {
 
     $delivery_note->delivery_address_id = $delivery_address->id;
 
-    //enum('Ready to be Picked','Picker Assigned','Picking','Picked','Packing','Packed','Packed Done','Approved','Dispatched','Cancelled','Cancelled to Restock')
-
 
     $delivery_note->save();
+    $delivery_note->orders()->syncWithoutDetaching([$order->id]);
 
     return $delivery_note;
 }

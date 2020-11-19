@@ -21,11 +21,9 @@ class Orders extends Migration {
 
         Schema::create(
             'orders', function (Blueprint $table) {
-            $table->mediumIncrements('id');
-            $table->unsignedMediumInteger('store_id')->index();
-            $table->foreign('store_id')->references('id')->on('stores');
-            $table->unsignedMediumInteger('customer_id')->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->id();
+
+            $table->foreignId('customer_id')->constrained();
 
 
             $table->unsignedMediumInteger('billing_address_id')->nullable()->index();
@@ -79,23 +77,33 @@ class Orders extends Migration {
             );
         }
         );
+        Schema::create(
+            'customer_client_order', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained();
+            $table->foreignId('customer_client_id')->constrained();
+            $table->timestampsTz();
+            $table->unique(
+                [
+                    'order_id',
+                    'customer_client_id'
+                ]
+            );
+        }
+        );
+
 
         Schema::create(
             'delivery_notes', function (Blueprint $table) {
             $table->mediumIncrements('id');
+            $table->foreignId('customer_id')->constrained();
+
             $table->string('number')->index();
             $table->string('type')->default('purchase')->index()->comment('purchase|donation|sample|replacement');
 
             $table->string('state')->nullable()->index();
             $table->string('status')->nullable()->index();
 
-            //$table->unsignedMediumInteger('store_id')->index();
-            //$table->foreign('store_id')->references('id')->on('stores');
-
-            //$table->unsignedMediumInteger('customer_id')->index();
-            //$table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedMediumInteger('order_id');
-            $table->foreign('order_id')->references('id')->on('orders');
 
             $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
             $table->foreign('delivery_address_id')->references('id')->on('addresses');
@@ -149,10 +157,10 @@ class Orders extends Migration {
             $table->unsignedMediumInteger('store_id')->index();
             $table->foreign('store_id')->references('id')->on('stores');
 
-            $table->unsignedMediumInteger('customer_id')->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedMediumInteger('order_id');
-            $table->foreign('order_id')->references('id')->on('orders');
+            $table->foreignId('customer_id')->constrained();
+
+            $table->foreignId('order_id')->constrained();
+
 
             $table->unsignedMediumInteger('delivery_note_id')->nullable()->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
@@ -185,30 +193,28 @@ class Orders extends Migration {
 
         Schema::create(
             'invoices', function (Blueprint $table) {
-            $table->mediumIncrements('id');
-            $table->unsignedMediumInteger('store_id')->index();
-            $table->foreign('store_id')->references('id')->on('stores');
-            $table->unsignedMediumInteger('customer_id')->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedMediumInteger('order_id')->nullable()->index();
-            $table->foreign('order_id')->references('id')->on('orders');
+            $table->id();
+
+            $table->foreignId('customer_id')->constrained();
+
 
             $table->unsignedMediumInteger('billing_address_id')->nullable()->index();
             $table->foreign('billing_address_id')->references('id')->on('addresses');
-            $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
-            $table->foreign('delivery_address_id')->references('id')->on('addresses');
+            //$table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
+            //$table->foreign('delivery_address_id')->references('id')->on('addresses');
 
+            $table->string('slug')->nullable()->index();
 
-            $table->string('number')->unique()->index();
+            $table->string('number')->index();
             $table->string('type')->nullable()->index();
-            $table->string('payment_status')->nullable()->index();
+
+            $table->decimal('exchange', 16, 6)->default(1);
 
             $table->decimal('net', 16, 2)->default(0);
             $table->decimal('total', 16, 2)->default(0);
             $table->decimal('payment', 16, 2)->default(0);
 
 
-            $table->dateTimeTz('date', 0)->index();
             $table->dateTimeTz('paid_at', 0)->nullable();
 
 
@@ -222,16 +228,52 @@ class Orders extends Migration {
                     'tenant_id'
                 ]
             );
+            $table->unique(
+                [
+                    'slug',
+                    'tenant_id'
+                ]
+            );
+
         }
         );
 
+        Schema::create(
+            'invoice_order', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained();
+            $table->foreignId('invoice_id')->constrained();
+            $table->timestampsTz();
+            $table->unique(
+                [
+                    'order_id',
+                    'invoice_id'
+                ]
+            );
+        }
+        );
+
+        Schema::create(
+            'delivery_note_order', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained();
+            $table->foreignId('delivery_note_id')->constrained();
+            $table->timestampsTz();
+            $table->unique(
+                [
+                    'order_id',
+                    'delivery_note_id'
+                ]
+            );
+        }
+        );
 
         Schema::create(
             'order_transactions', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedMediumInteger('order_id')->nullable()->index();
-            $table->foreign('order_id')->references('id')->on('orders');
+
+            $table->foreignId('order_id')->constrained();
 
 
             $table->string('transaction_type')->index();
@@ -252,6 +294,7 @@ class Orders extends Migration {
 
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->nullable()->index();
+            $table->string('legacy_scope')->nullable()->index();
 
             $table->index(
                 [
@@ -267,6 +310,7 @@ class Orders extends Migration {
             );
             $table->unique(
                 [
+                    'legacy_scope',
                     'legacy_id',
                     'tenant_id'
                 ]
@@ -278,10 +322,8 @@ class Orders extends Migration {
         Schema::create(
             'invoice_transactions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedMediumInteger('invoice_id')->nullable()->index();
-
-            $table->unsignedMediumInteger('order_transactions_id')->nullable()->index();
-            $table->foreign('order_transactions_id')->references('id')->on('order_transactions');
+            $table->foreignId('invoice_id')->constrained();
+            $table->foreignId('order_transaction_id')->nullable()->constrained();
 
 
             $table->morphs('invoiceable');
@@ -440,8 +482,7 @@ class Orders extends Migration {
 
             $table->unsignedMediumInteger('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products');
-            $table->unsignedMediumInteger('customer_id')->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->foreignId('customer_id')->constrained();
 
             $table->unsignedMediumInteger('delivery_note_id')->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
@@ -537,9 +578,11 @@ class Orders extends Migration {
         Schema::dropIfExists('stock_movements');
         Schema::dropIfExists('invoice_transactions');
         Schema::dropIfExists('order_transactions');
+        Schema::dropIfExists('invoice_order');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('returns');
         Schema::dropIfExists('delivery_notes');
+        Schema::dropIfExists('customer_client_order');
         Schema::dropIfExists('orders');
 
     }

@@ -42,20 +42,16 @@ class Order extends Model implements Auditable {
 
     protected $guarded = [];
 
-    public function store() {
-        return $this->belongsTo('App\Models\Stores\Store');
-    }
-
     public function customer() {
         return $this->belongsTo('App\Models\CRM\Customer');
     }
 
     public function invoices() {
-        return $this->hasMany('App\Models\Sales\Invoice');
+        return $this->belongsToMany('App\Models\Sales\Invoice')->withTimestamps();
     }
 
     public function delivery_notes() {
-        return $this->hasMany('App\Models\Distribution\DeliveryNote');
+        return $this->belongsToMany('App\Models\Distribution\DeliveryNote')->withTimestamps();
     }
 
     public function transactions() {
