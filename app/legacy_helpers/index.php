@@ -7,13 +7,20 @@
 
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 include_once 'images.php';
 include_once 'addresses.php';
-include_once 'products.php';
-include_once 'charges.php';
-include_once 'employees.php';
 include_once 'shipping.php';
+include_once 'charges.php';
+
+include_once 'stores.php';
+include_once 'websites.php';
+include_once 'categories.php';
+include_once 'email_services.php';
+
+include_once 'products.php';
+include_once 'employees.php';
 include_once 'adjusts.php';
 include_once 'sales_common.php';
 include_once 'basket.php';
@@ -25,27 +32,26 @@ include_once 'customers.php';
 include_once 'prospects.php';
 
 
-    function fill_legacy_data($fields, $legacy_data, $modifier = false) {
+function fill_legacy_data($fields, $legacy_data, $modifier = false) {
 
-        $data = [];
-        foreach ($fields as $key => $legacy_key) {
-            if (!empty($legacy_data->{$legacy_key})) {
-                if ($modifier == 'strtolower') {
-                    $value = strtolower($legacy_data->{$legacy_key});
-                } elseif ($modifier == 'jsonDecode') {
-                    $value = json_decode($legacy_data->{$legacy_key}, true);
-                } else {
-                    $value = $legacy_data->{$legacy_key};
-                }
-                Arr::set($data, $key, $value);
+    $data = [];
+    foreach ($fields as $key => $legacy_key) {
+        if (!empty($legacy_data->{$legacy_key})) {
+            if ($modifier == 'strtolower') {
+                $value = strtolower($legacy_data->{$legacy_key});
+            }elseif ($modifier == 'snake') {
+                $value = Str::snake($legacy_data->{$legacy_key});
+            } elseif ($modifier == 'jsonDecode') {
+                $value = json_decode($legacy_data->{$legacy_key}, true);
+            } else {
+                $value = $legacy_data->{$legacy_key};
             }
+            Arr::set($data, $key, $value);
         }
-
-        return $data;
     }
 
-
-
+    return $data;
+}
 
 
 function elementsToLower($elements_keys, $array) {

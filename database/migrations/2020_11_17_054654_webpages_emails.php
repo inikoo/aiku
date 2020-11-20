@@ -9,7 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateWebpagesTable extends Migration
+class WebpagesEmails extends Migration
 {
     /**
      * Run the migrations.
@@ -18,6 +18,7 @@ class CreateWebpagesTable extends Migration
      */
     public function up()
     {
+
         Schema::create('webpages', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->index();
@@ -31,6 +32,12 @@ class CreateWebpagesTable extends Migration
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
             $table->unsignedMediumInteger('legacy_id')->index()->nullable();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
         });
 
         Schema::create('web_blocks', function (Blueprint $table) {
@@ -46,6 +53,29 @@ class CreateWebpagesTable extends Migration
             $table->timestampsTz();
             $table->unsignedSmallInteger('tenant_id');
         });
+        Schema::create('email_services', function (Blueprint $table) {
+            $table->id();
+            $table->string('slug')->index();
+            $table->string('type')->index();
+            $table->string('subtype')->index();
+            $table->morphs('container');
+
+            $table->boolean('status')->index();
+            $table->string('state')->index();
+            $table->jsonb('data');
+            $table->jsonb('settings');
+            $table->timestampsTz();
+
+            $table->unsignedSmallInteger('tenant_id');
+            $table->unsignedMediumInteger('legacy_id')->index()->nullable();
+            $table->unique(
+                [
+                    'legacy_id',
+                    'tenant_id'
+                ]
+            );
+        });
+
 
     }
 
@@ -56,6 +86,7 @@ class CreateWebpagesTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('email_services');
         Schema::dropIfExists('web_blocks');
         Schema::dropIfExists('webpages');
     }

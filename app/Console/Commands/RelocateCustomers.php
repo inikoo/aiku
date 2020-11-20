@@ -134,7 +134,7 @@ class RelocateCustomers extends Command {
                 }
             }
             $bar->finish();
-
+            print "\n";
 
         }
 
