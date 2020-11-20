@@ -43,23 +43,57 @@ function process_instance_address_legacy($object, $object_key, $type, $legacy_da
 
 
 function legacy_process_addresses($customer, $billing_address, $delivery_address) {
+
+
     $oldAddressIds = $customer->addresses->pluck('id')->all();
 
-    if ($billing_address->id == $delivery_address->id) {
-        $customer->addresses()->sync([$billing_address->id => ['scope' => 'billing_delivery']]);
-    } else {
+    $customer->billing_address_id  = null;
+    $customer->country_id          = null;
+    $customer->delivery_address_id = null;
+
+
+    if ($billing_address != null and $delivery_address != null) {
+
+
+        if ($billing_address->id == $delivery_address->id) {
+            $customer->addresses()->sync([$billing_address->id => ['scope' => 'billing_delivery']]);
+        } else {
+            $customer->addresses()->sync(
+                [
+                    $billing_address->id  => ['scope' => 'billing'],
+                    $delivery_address->id => ['scope' => 'delivery']
+                ]
+            );
+
+        }
+        $customer->billing_address_id  = $billing_address->id;
+        $customer->country_id          = $billing_address->country_id;
+        $customer->delivery_address_id = $delivery_address->id;
+    } elseif ($billing_address != null and $delivery_address == null) {
+
+
         $customer->addresses()->sync(
             [
-                $billing_address->id  => ['scope' => 'billing'],
-                $delivery_address->id => ['scope' => 'delivery']
+                $billing_address->id => ['scope' => 'billing'],
             ]
         );
 
+
+        $customer->billing_address_id = $billing_address->id;
+        $customer->country_id         = $billing_address->country_id;
+    } elseif ($billing_address == null and $delivery_address != null) {
+
+
+        $customer->addresses()->sync(
+            [
+                $delivery_address->id => ['scope' => 'delivery']
+            ]
+        );
+        $customer->delivery_address_id = $delivery_address->id;
+
     }
 
-    $customer->billing_address_id  = $billing_address->id;
-    $customer->country_id          = $billing_address->country_id;
-    $customer->delivery_address_id = $delivery_address->id;
+
     $customer->save();
 
     $customer = $customer->fresh();
