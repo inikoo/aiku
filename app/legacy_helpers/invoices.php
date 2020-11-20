@@ -92,11 +92,15 @@ function relocate_invoice_transactions($invoice) {
 
             unset($toDelete[$transaction_data['type']][$transaction_data['id']]);
 
+            $order_transaction_id=null;
             $order_transaction = (new OrderTransaction())->where('legacy_id', $onptf_data->{'Order No Product Transaction Fact Key'})->where('transaction_type', $transaction_data['type'])->first();
+            if($order_transaction){
+                $order_transaction_id=$order_transaction->id;
+            }
 
             $invoiceTransaction = new InvoiceTransaction(
                 [
-                    'order_transaction_id' => $order_transaction->id,
+                    'order_transaction_id' => $order_transaction_id,
                     'invoice_id'           => $invoice->id,
                     'tenant_id'            => $invoice->tenant_id,
                     'invoiceable_type'     => $transaction_data['type'],
@@ -147,7 +151,7 @@ function relocate_invoice($invoice_legacy_data, $order) {
             'exchange'    => $invoice_legacy_data->{'Invoice Currency Exchange'},
             'net'         => $invoice_legacy_data->{'Invoice Total Net Amount'},
             'total'       => $invoice_legacy_data->{'Invoice Total Amount'},
-            'payment'     => $invoice_legacy_data->{'Invoice Payments Amount'},
+            'payment'     => (!$invoice_legacy_data->{'Invoice Payments Amount'}?0:$invoice_legacy_data->{'Invoice Payments Amount'}),
             'paid_at'     => $invoice_legacy_data->{'Invoice Paid Date'},
 
 
