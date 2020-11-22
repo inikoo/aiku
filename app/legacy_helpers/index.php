@@ -30,6 +30,7 @@ include_once 'delivery_notes.php';
 include_once 'customer_clients.php';
 include_once 'customers.php';
 include_once 'prospects.php';
+include_once 'mailshots.php';
 
 
 function fill_legacy_data($fields, $legacy_data, $modifier = false) {

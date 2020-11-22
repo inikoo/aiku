@@ -11,33 +11,30 @@ use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
-use App\Models\Stores\Store;
-use App\Tenant;
-
 
 /**
  *
- * @property int    $id
+ * @property int $id
  * @property string $created_at
- * @property array  $data
- * @property array  $settings
+ * @property array $data
+ * @property array $settings
  *
  */
-class EmailService extends Model implements Auditable {
+class Mailshot extends Model implements Auditable{
     use UsesTenantConnection, Sluggable;
     use \OwenIt\Auditing\Auditable;
 
-    protected $casts = [
+        protected $casts = [
         'settings' => 'array',
         'data'     => 'array'
     ];
 
     protected $attributes = [
-        'data'     => '{}',
+        'data' => '{}',
         'settings' => '{}'
     ];
 
-    protected $guarded = [];
+    protected $guarded=[];
 
 
     function sluggable() {
@@ -50,14 +47,15 @@ class EmailService extends Model implements Auditable {
     }
 
     function getSluggledCodeAttribute() {
-        return $this->subtype.' '.$this->container->slug;
+        if($this->email_service){
+            return $this->email_service->subtype.' '.' '.$this->email_service->container->slug;
+        }else{
+            return $this->name;
+        }
     }
 
-    /**
-     * @return  Store|Tenant
-     */
-    public function container() {
-        return $this->morphTo()->withTrashed();
+    public function email_service() {
+        return $this->belongsTo('App\Models\Notifications\EmailService');
     }
 
 }

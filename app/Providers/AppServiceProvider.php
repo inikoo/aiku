@@ -41,13 +41,13 @@ class AppServiceProvider extends ServiceProvider {
                 'Store'                    => 'App\Models\Stores\Store',
                 'Product'                  => 'App\Models\Stores\Product',
                 'ProductHistoricVariation' => 'App\Models\Stores\ProductHistoricVariation',
+                'EmailService'             => 'App\Models\Notifications\EmailService',
+                'Mailshot'                 => 'App\Models\Notifications\Mailshot',
                 'Category'                 => 'App\Models\Helpers\Category',
                 'OriginalImage'            => 'App\Models\Helpers\OriginalImage',
                 'ProcessedImage'           => 'App\Models\Helpers\ProcessedImage',
                 'User'                     => 'App\User',
                 'Tenant'                   => 'App\Tenant',
-
-
             ]
         );
 

@@ -24,7 +24,7 @@ function get_legacy_tax_band($transaction_type, $legacy_tax_code) {
         return $taxBand->id;
     } else {
         if ($transaction_type != 'Adjust') {
-            print "\n   tax_code: ".$legacy_tax_code."\n";
+            print "\n   tax_code: $transaction_type >>".$legacy_tax_code."\n";
             exit;
         }
     }

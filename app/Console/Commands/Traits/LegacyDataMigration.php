@@ -27,7 +27,38 @@ trait LegacyDataMigration {
     }
 
 
+    function relocate_block($sql, $relocate_function,$max=100) {
 
+
+        $count_data = DB::connection('legacy')->select("select count(*) as num $sql", [])[0];
+
+        $bar = $this->output->createProgressBar($count_data->num);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        $total = $count_data->num;
+        $pages = ceil($total / $max);
+        for ($i = 1; $i < ($pages + 1); $i++) {
+            $offset = (($i - 1) * $max);
+
+
+            foreach (
+                DB::connection('legacy')->select(
+                    "select * $sql limit ?,?", [
+                                                 $offset,
+                                                 $max
+                                             ]
+                ) as $legacy_data
+            ) {
+                $relocate_function($this->tenant, $legacy_data);
+                $bar->advance();
+            }
+        }
+        $bar->finish();
+        print "\n";
+
+
+    }
 
 
 

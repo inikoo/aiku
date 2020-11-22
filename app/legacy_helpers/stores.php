@@ -14,7 +14,7 @@ function relocate_stores($tenant,$legacy_data) {
     $legacy_data->{'Store Can Collect'} = $legacy_data->{'Store Can Collect'} == 'Yes';
 
 
-    $website_data = fill_legacy_data(
+    $store_data = fill_legacy_data(
         [
             'url'      => 'Store URL',
             'email'    => 'Store Email',
@@ -26,9 +26,9 @@ function relocate_stores($tenant,$legacy_data) {
         ], $legacy_data
     );
 
-    $website_data['type'] = strtolower($website_data['type']);
+    $store_data['type'] = strtolower($store_data['type']);
 
-    $website_settings = fill_legacy_data(
+    $store_settings = fill_legacy_data(
         [
             'can_collect' => 'Store Can Collect',
 
@@ -61,8 +61,8 @@ function relocate_stores($tenant,$legacy_data) {
             'code'       => $legacy_data->{'Store Code'},
             'name'       => $legacy_data->{'Store Name'},
             'state'      => $state,
-            'data'       => $website_data,
-            'settings'   => $website_settings,
+            'data'       => $store_data,
+            'settings'   => $store_settings,
             'created_at' => $legacy_data->{'Store Valid From'},
             'deleted_at' => ($state == 'closed' ? $deleted_at : null)
         ]
