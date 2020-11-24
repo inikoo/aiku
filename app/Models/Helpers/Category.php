@@ -13,7 +13,13 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Kalnoy\Nestedset\NodeTrait;
 
+/**
+ * Class Category
+ * @property integer $id
+ * @property string $type
 
+ * @package App\Models\Helpers
+ */
 class Category extends Model implements Auditable {
     use UsesTenantConnection, SoftDeletes, NodeTrait;
     use \OwenIt\Auditing\Auditable;

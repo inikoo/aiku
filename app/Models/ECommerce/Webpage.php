@@ -7,23 +7,16 @@
 
 namespace App\Models\ECommerce;
 
-use Illuminate\Database\Eloquent\Builder;
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
-/**
- * App\Models\ECommerce\Webpage
- *
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ECommerce\WebBlock[] $web_blocks
- * @property-read int|null $web_blocks_count
- * @property-read \App\Models\ECommerce\Website $website
- * @method static Builder|Webpage newModelQuery()
- * @method static Builder|Webpage newQuery()
- * @method static Builder|Webpage query()
- */
-class Webpage extends Model {
-    use UsesTenantConnection;
+
+class Webpage extends Model implements Auditable{
+    use UsesTenantConnection,Sluggable;
+    use \OwenIt\Auditing\Auditable;
 
         protected $casts = [
         'settings' => 'array',
@@ -35,14 +28,27 @@ class Webpage extends Model {
         'settings' => '{}'
     ];
 
-    public function website()
-    {
-        return $this->belongsTo('App\Models\ECommerce\Website');
+    protected $guarded = [];
+
+    function sluggable() {
+        return [
+            'slug' => [
+                'source'   => 'sluggledCode',
+                'onUpdate' => true
+            ]
+        ];
+    }
+
+    function getSluggledCodeAttribute() {
+        return $this->path.' '.$this->website->slug;
+    }
+
+    public function website() {
+        return $this->belongsTo('App\Models\ECommerce\Website')->withTrashed();
     }
 
 
-    public function web_blocks()
-    {
+    public function webBlocks() {
         return $this->hasMany('App\Models\ECommerce\WebBlock');
     }
 

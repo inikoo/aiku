@@ -27,14 +27,16 @@ trait LegacyDataMigration {
     }
 
 
-    function relocate_block($sql, $relocate_function,$max=100) {
+    function relocate_block($sql, $relocate_function,$max=100,$verbosity='debug') {
 
 
         $count_data = DB::connection('legacy')->select("select count(*) as num $sql", [])[0];
-
         $bar = $this->output->createProgressBar($count_data->num);
-        $bar->setFormat('debug');
-        $bar->start();
+
+        if($verbosity!='quiet') {
+            $bar->setFormat($verbosity);
+            $bar->start();
+        }
 
         $total = $count_data->num;
         $pages = ceil($total / $max);
@@ -51,11 +53,16 @@ trait LegacyDataMigration {
                 ) as $legacy_data
             ) {
                 $relocate_function($this->tenant, $legacy_data);
-                $bar->advance();
+                if($verbosity!='quiet') {
+                    $bar->advance();
+                }
             }
         }
-        $bar->finish();
-        print "\n";
+        if($verbosity!='quiet') {
+            $bar->finish();
+            print "\n";
+        }
+
 
 
     }

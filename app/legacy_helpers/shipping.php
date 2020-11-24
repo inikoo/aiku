@@ -23,7 +23,7 @@ function get_legacy_shipping_transaction_id($legacyTransactionKey) {
     return null;
 }
 
-function relocate_shipping_schemas($legacy_data) {
+function relocate_shipping_schemas($tenant,$legacy_data) {
 
 
     $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Shipping Zone Schema Store Key'});
@@ -92,7 +92,7 @@ function relocate_shipping_schemas($legacy_data) {
                 'legacy_id' => $legacy_shipping_zone_data->{'Shipping Zone Key'},
 
             ], [
-                'tenant_id'          => $store->tenant_id,
+                'tenant_id'          => $tenant->id,
                 'shipping_schema_id' => $shipping_schema->id,
                 'status'             => $legacy_shipping_zone_data->{'Shipping Zone Active'} == 'Yes',
                 'code'               => $legacy_shipping_zone_data->{'Shipping Zone Code'},

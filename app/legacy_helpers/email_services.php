@@ -10,7 +10,7 @@ use App\Models\Notifications\EmailService;
 use App\Models\Stores\Store;
 use Illuminate\Support\Str;
 
-function relocate_email_services($legacy_data) {
+function relocate_email_services($tenant,$legacy_data) {
 
 
     $store = Store::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Email Campaign Type Store Key'});
@@ -36,7 +36,7 @@ function relocate_email_services($legacy_data) {
             'legacy_id' => $legacy_data->{'Email Campaign Type Key'},
 
         ], [
-            'tenant_id'      => $store->tenant_id,
+            'tenant_id'      => $tenant->id,
             'type'           => Str::snake(strtolower($legacy_data->{'Email Campaign Type Scope'})),
             'subtype'        => Str::snake(strtolower($legacy_data->{'Email Campaign Type Code'})),
             'container_type' => 'Store',

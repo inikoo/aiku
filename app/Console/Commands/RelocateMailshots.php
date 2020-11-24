@@ -11,7 +11,6 @@ use App\Console\Commands\Traits\LegacyDataMigration;
 
 
 use App\Tenant;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Spatie\Multitenancy\Commands\Concerns\TenantAware;
@@ -32,14 +31,12 @@ class RelocateMailshots extends Command {
             $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
 
-            $sql = " * from `Email Campaign Type Dimension`";
-            foreach (DB::connection('legacy')->select("select $sql", []) as $legacy_data) {
-                relocate_email_services($legacy_data);
-            }
+            $this->relocate_block("from `Email Campaign Type Dimension`", 'relocate_email_services',100,'quiet');
 
-            //$this->relocate_block("from `Email Campaign Dimension`", 'relocate_mailshots');
-            //$this->relocate_block("from `Email Template Dimension`", 'relocate_email_template');
-            //$this->relocate_block("from `Published Email Template Dimension`", 'relocate_published_email_template');
+            $this->relocate_block("from `Website Dimension`", 'relocate_websites',100,'quiet');
+            $this->relocate_block("from `Email Campaign Dimension`", 'relocate_mailshots');
+            $this->relocate_block("from `Email Template Dimension`", 'relocate_email_template');
+            $this->relocate_block("from `Published Email Template Dimension`", 'relocate_published_email_template');
             $this->relocate_block("from `Email Tracking Dimension`", 'relocate_email_tracking', 1000);
 
         }

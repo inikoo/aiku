@@ -9,7 +9,7 @@
 use App\Models\ECommerce\Website;
 use App\Models\Stores\Store;
 
-function relocate_websites($legacy_data) {
+function relocate_websites($tenant, $legacy_data) {
 
 
     $website_data = fill_legacy_data(
@@ -63,7 +63,7 @@ function relocate_websites($legacy_data) {
         ], [
 
             'url'       => $legacy_data->{'Website URL'},
-            'tenant_id' => $store->tenant_id,
+            'tenant_id' => $tenant->id,
             'store_id'  => $store->id,
 
             'name'        => $legacy_data->{'Website Name'},

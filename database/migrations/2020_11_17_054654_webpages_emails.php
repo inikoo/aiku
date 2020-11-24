@@ -21,10 +21,11 @@ class WebpagesEmails extends Migration {
             'webpages', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->index();
+            $table->string('path')->index();
             $table->unsignedMediumInteger('website_id');
             $table->foreign('website_id')->references('id')->on('websites');
             $table->nullableMorphs('webpageable');
-            $table->string('status')->index();
+            $table->boolean('status')->index();
             $table->string('state')->index();
             $table->jsonb('data');
             $table->jsonb('settings');
@@ -46,13 +47,12 @@ class WebpagesEmails extends Migration {
             $table->string('type')->index();
             $table->unsignedMediumInteger('webpage_id');
             $table->foreign('webpage_id')->references('id')->on('webpages');
-            $table->string('slug');
-            $table->string('status')->index();
+            //$table->string('slug');
+            $table->boolean('status')->index();
             $table->smallInteger('precedence')->default(0);
             $table->json('settings');
             $table->json('data');
             $table->timestampsTz();
-            $table->unsignedSmallInteger('tenant_id');
         }
         );
         Schema::create(

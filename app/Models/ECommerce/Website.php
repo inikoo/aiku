@@ -42,20 +42,19 @@ class Website extends Model implements Auditable{
     function sluggable() {
         return [
             'slug' => [
-                'source'   => 'stripedUrl',
+                'source'   => 'sluggledCode',
                 'onUpdate' => true
             ]
         ];
     }
 
-    public function getStripedUrlAttribute() {
-        return preg_replace('/\.com$/', '',  preg_replace('/^www\./', '', $this->url));
-
+    public function getSluggledCodeAttribute() {
+        return $this->store->slug;
 
     }
 
     public function store() {
-        return $this->belongsTo('App\Models\Stores\Store');
+        return $this->belongsTo('App\Models\Stores\Store')->withTrashed();
     }
 
     public function webpages() {

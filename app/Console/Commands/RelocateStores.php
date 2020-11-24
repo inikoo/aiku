@@ -35,8 +35,12 @@ class RelocateStores extends Command {
             print ('Relocation Stores/Websites '.$this->tenant->slug."\n");
             $this->set_legacy_connection($this->tenant->data['legacy']['db']);
 
+
+
+
             $sql = " * from `Store Dimension`";
             foreach (DB::connection('legacy')->select("select $sql", []) as $legacy_data) {
+
                 $store = relocate_stores($this->tenant, $legacy_data);
                 (new Adjust)->firstOrCreate(
                     [
@@ -57,28 +61,20 @@ class RelocateStores extends Command {
                     ], ['name' => 'Refund']
                 );
 
-                relocate_product_categories($store, $legacy_data);
-                relocate_product_hierarchy($this->tenant, $store, $legacy_data);
+
+                    relocate_product_categories($store, $legacy_data);
+                    relocate_product_hierarchy($this->tenant, $store, $legacy_data);
 
 
             }
 
-            $sql = " * from `Website Dimension`";
-            foreach (DB::connection('legacy')->select("select $sql", []) as $legacy_data) {
-                relocate_websites($legacy_data);
-            }
-            $sql = " * from `Charge Dimension`";
-            foreach (DB::connection('legacy')->select("select $sql", []) as $legacy_data) {
-                relocate_charges($legacy_data);
-            }
-            $sql = " * from `Shipping Zone Schema Dimension`";
-            foreach (DB::connection('legacy')->select("select $sql", []) as $legacy_data) {
-                relocate_shipping_schemas($legacy_data);
-            }
-            $sql = " * from `Email Campaign Type Dimension`";
-            foreach (DB::connection('legacy')->select("select $sql", []) as $legacy_data) {
-                relocate_email_services($legacy_data);
-            }
+
+
+            $this->relocate_block("from `Website Dimension`", 'relocate_websites',100,'quiet');
+            $this->relocate_block("from `Charge Dimension`", 'relocate_charges',100,'quiet');
+            $this->relocate_block("from `Shipping Zone Schema Dimension`", 'relocate_shipping_schemas',100,'quiet');
+            $this->relocate_block("from `Email Campaign Type Dimension`", 'relocate_email_services',100,'quiet');
+
 
 
             $sql = "* from `Category Dimension` where `Category Branch Type`='Root' ";
@@ -132,6 +128,12 @@ class RelocateStores extends Command {
                 }
 
             }
+
+
+            $this->relocate_block("from `Category Deleted Dimension`", 'relocate_deleted_categories',100,'quiet');
+
+
+
 
 
         }
