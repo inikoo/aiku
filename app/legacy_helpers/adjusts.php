@@ -18,7 +18,9 @@ function get_legacy_type_adjusts_transaction_id($type, $store_id,$onptf_data) {
 
     $store=Store::withTrashed()->find($store_id);
     if(!$store){
-        print_r($onptf_data);
+       print "\n >>>> $type, >$store_id<<<\n";
+       print_r($onptf_data);
+        exit;
     }
     $adjust = $store->adjusts()->firstWhere('type', $type);
     if ($adjust) {

@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 function relocate_order_transactions($order) {
 
-
     $toDelete = get_legacy_to_delete_transactions($order);
 
     $sql = "* from `Order Transaction Fact` where `Order Key`=?";

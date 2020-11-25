@@ -34,7 +34,6 @@ function get_legacy_tax_band($transaction_type, $legacy_tax_code) {
 
 function get_legacy_transaction_data($store_id, $onptf_data) {
 
-
     switch ($onptf_data->{'Transaction Type'}) {
         case 'Shipping':
             $transaction_type = 'ShippingZone';
@@ -69,7 +68,6 @@ function get_legacy_transaction_data($store_id, $onptf_data) {
 
             exit();
     }
-
 
     return [
         'type'        => $transaction_type,

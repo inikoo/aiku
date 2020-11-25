@@ -46,10 +46,13 @@ class RelocateOrders extends Command {
             for ($i = 1; $i < ($pages + 1); $i++) {
                 $offset = (($i - 1) * $max);
 
-
-                foreach (DB::connection('legacy')->select("select * from $legacy_orders_table  limit $offset,  $max   ", []) as $legacy_data) {
-
-
+                $sql = "* from `Order Dimension` where limit ?,?";
+                foreach (DB::connection('legacy')->select("select $sql", [
+                    $offset,
+                    $max
+                ]
+                ) as $legacy_data
+                ) {
                     if ($legacy_data->{'Order State'} != 'InBasket') {
 
                         if ($legacy_data->{'Order Customer Client Key'}) {
@@ -79,7 +82,7 @@ class RelocateOrders extends Command {
 
                         $sql = "* from `Invoice Dimension` where `Invoice Order Key`=?";
                         foreach (DB::connection('legacy')->select("select $sql", [$order->legacy_id]) as $invoice_legacy_data) {
-                            if($invoice_legacy_data->{'Invoice Type'}!='CreditNote') {
+                            if ($invoice_legacy_data->{'Invoice Type'} != 'CreditNote') {
                                 relocate_invoice($invoice_legacy_data, $order);
                             }
                         }

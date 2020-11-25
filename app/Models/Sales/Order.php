@@ -62,5 +62,8 @@ class Order extends Model implements Auditable {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps()->withPivot(['scope']);
     }
 
+    function getStoreIdAttribute(){
+        return $this->customer->store_id;
+    }
 
 }

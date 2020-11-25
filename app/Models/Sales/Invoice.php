@@ -59,4 +59,8 @@ class Invoice extends Model {
         return $this->hasMany('App\Models\Sales\InvoiceTransaction');
     }
 
+    function getStoreIdAttribute(){
+        return $this->customer->store_id;
+    }
+
 }
