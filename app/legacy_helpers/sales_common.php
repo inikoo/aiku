@@ -54,15 +54,15 @@ function get_legacy_transaction_data($store_id, $onptf_data) {
             break;
         case 'Adjust':
             $transaction_type = 'Adjust';
-            $transaction_id   = get_legacy_type_adjusts_transaction_id('legacy', $store_id);
+            $transaction_id   = get_legacy_type_adjusts_transaction_id('legacy', $store_id,$onptf_data);
             break;
         case 'Credit':
             $transaction_type = 'Adjust';
-            $transaction_id   = get_legacy_type_adjusts_transaction_id('credit', $store_id);
+            $transaction_id   = get_legacy_type_adjusts_transaction_id('credit', $store_id,$onptf_data);
             break;
         case 'Refund':
             $transaction_type = 'Adjust';
-            $transaction_id   = get_legacy_type_adjusts_transaction_id('refund', $store_id);
+            $transaction_id   = get_legacy_type_adjusts_transaction_id('refund', $store_id,$onptf_data);
             break;
         default:
             print "\n ".$onptf_data->{'Order No Product Transaction Fact Key'}."  transaction type : ".$onptf_data->{'Transaction Type'}."\n";
