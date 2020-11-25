@@ -111,9 +111,28 @@ function sync_image($model, $imagesModelData, $get_scope) {
 
 }
 
-function get_images_data($tenant, $params) {
 
-    $image_table    = '`Image Subject Bridge` B ';
+function get_legacy_image_data($tenant, $legacy_image_key) {
+    $sql = "* from `Image Dimension` I   where  `Image Key`=?";
+    foreach (
+        DB::connection('legacy')->select(
+            "select $sql ", [$legacy_image_key]
+        ) as $image_legacy_data
+    ) {
+        $image_filename_data=get_image_filename_legacy($tenant, $image_legacy_data);
+        if ($image_filename_data) {
+            return create_image_from_legacy($tenant,$image_legacy_data,$image_filename_data);
+        }
+
+    }
+
+    return false;
+
+}
+
+
+function get_legacy_images_data($tenant, $params) {
+
     $imageModelData = [];
 
     $limit = '';
@@ -123,7 +142,7 @@ function get_images_data($tenant, $params) {
 
     foreach (
         DB::connection('legacy')->select(
-            "select * from $image_table left join  `Image Dimension` I on (`Image Subject Image Key`=`Image Key`)  where   `Image Subject Object`=?  and `Image Subject Object Key`=?  ORDER BY FIELD(`Image Subject Is Principal`, 'Yes','No') $limit",
+            "select * from `Image Subject Bridge` B  left join  `Image Dimension` I on (`Image Subject Image Key`=`Image Key`)  where   `Image Subject Object`=?  and `Image Subject Object Key`=?  ORDER BY FIELD(`Image Subject Is Principal`, 'Yes','No') $limit",
 
             [
                 $params['object'],
@@ -133,52 +152,53 @@ function get_images_data($tenant, $params) {
     ) {
         $image_filename_data = get_image_filename_legacy($tenant, $image_legacy_data);
         if ($image_filename_data) {
-
-
-            $image_data = fill_legacy_data(
-                [
-                    'mime_type' => 'Image MIME Type',
-                    'width'     => 'Image Width',
-                    'height'    => 'Image Height',
-
-
-                ], $image_legacy_data
-            );
-
-
-            $image = (new Image)->updateOrCreate(
-                [
-                    'legacy_id' => $image_legacy_data->{'Image Key'}
-                ], [
-                    'tenant_id'  => $tenant->id,
-                    'created_at' => $image_legacy_data->{'Image Creation Date'},
-                    'data'       => $image_data
-                ]
-            );
-
-            if (!$image->communal_image_id) {
-                $image->save_image($image_filename_data);
-
-            }
-            $imageModel = new ImageModel();
-
-            $imageModel->data = [
-
-            ];
-
-
-            $imageModelData[] = [
-                'image_id' => $image->id,
-                'scope'    => $image_legacy_data->{'Image Subject Object Image Scope'},
-                'data'     => [
-                    'filename' => $image_filename_data['filename']
-                ]
-            ];
-
+            $imageModelData[] =create_image_from_legacy($tenant,$image_legacy_data,$image_filename_data);
         }
 
     }
 
     return $imageModelData;
+
+}
+
+function create_image_from_legacy($tenant,$image_legacy_data,$image_filename_data){
+
+
+
+        $image_data = fill_legacy_data(
+            [
+                'mime_type' => 'Image MIME Type',
+                'width'     => 'Image Width',
+                'height'    => 'Image Height',
+
+
+            ], $image_legacy_data
+        );
+
+
+        $image = (new Image)->updateOrCreate(
+            [
+                'legacy_id' => $image_legacy_data->{'Image Key'}
+            ], [
+                'tenant_id'  => $tenant->id,
+                'created_at' => $image_legacy_data->{'Image Creation Date'},
+                'data'       => $image_data
+            ]
+        );
+
+        if (!$image->communal_image_id) {
+            $image->save_image($image_filename_data);
+
+        }
+
+         return [
+            'image_id' => $image->id,
+            'scope'    => (isset($image_legacy_data->{'Image Subject Object Image Scope'})?$image_legacy_data->{'Image Subject Object Image Scope'}:''),
+            'data'     => [
+                'filename' => $image_filename_data['filename']
+            ]
+        ];
+
+
 
 }

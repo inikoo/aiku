@@ -32,7 +32,6 @@ class RelocateMailshots extends Command {
 
 
             $this->relocate_block("from `Email Campaign Type Dimension`", 'relocate_email_services',100,'quiet');
-
             $this->relocate_block("from `Website Dimension`", 'relocate_websites',100,'quiet');
             $this->relocate_block("from `Email Campaign Dimension`", 'relocate_mailshots');
             $this->relocate_block("from `Email Template Dimension`", 'relocate_email_template');

@@ -30,5 +30,8 @@ class WebBlock extends Model {
         return $this->belongsTo('App\Models\ECommerce\Webpage');
     }
 
+    public function images() {
+        return $this->morphMany('App\Models\Helpers\ImageModel', 'image_models', 'imageable_type', 'imageable_id');
+    }
 
 }

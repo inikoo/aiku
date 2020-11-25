@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider {
                 'Customer'                 => 'App\Models\CRM\Customer',
                 'CustomerClient'           => 'App\Models\CRM\CustomerClient',
                 'Prospect'                 => 'App\Models\CRM\Prospect',
+                'WebBlock'                 => 'App\Models\ECommerce\WebBlock',
                 'Order'                    => 'App\Models\Sales\Order',
                 'Basket'                   => 'App\Models\Sales\Basket',
                 'ShippingZone'             => 'App\Models\Sales\ShippingZone',

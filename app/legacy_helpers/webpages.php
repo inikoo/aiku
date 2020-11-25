@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 function relocate_webpages($tenant, $legacy_data) {
 
 
-    $legacy_content    = json_decode($legacy_data->{'Page Store Content Data'}, true);
+    $legacy_content = json_decode($legacy_data->{'Page Store Content Data'}, true);
     //$legacy_properties = json_decode($legacy_data->{'Webpage Properties'}, true);
 
     unset($legacy_data->{'Page Store Content Data'});
@@ -73,17 +73,17 @@ function relocate_webpages($tenant, $legacy_data) {
         ]
     );
     if (isset($legacy_content['blocks'])) {
-        relocate_web_blocks($webpage, $legacy_content['blocks']);
+        relocate_web_blocks($tenant, $webpage, $legacy_content['blocks']);
     }
 
     return $webpage;
 }
 
 
-function relocate_web_blocks($webpage, $blocks) {
+function relocate_web_blocks($tenant, $webpage, $blocks) {
 
-    $oldWebBlocks = [];
-    $webBlocksBridge  = [];
+    $oldWebBlocks        = [];
+    $webBlocksBridge     = [];
     $webBlocksPrecedence = [];
 
     foreach ($webpage->webBlocks as $webBlock) {
@@ -106,36 +106,37 @@ function relocate_web_blocks($webpage, $blocks) {
         unset($block['label']);
         unset($block['icon']);
 
-        $top_margin=Arr::pull($block,'top_margin',0);
-        if($top_margin>0){
-            Arr::set($block,'margin.top',$top_margin);
+        $top_margin = Arr::pull($block, 'top_margin', 0);
+        if ($top_margin > 0) {
+            Arr::set($block, 'margin.top', $top_margin);
         }
-        $bottom_margin=Arr::pull($block,'bottom_margin',0);
-        if($top_margin>0){
-            Arr::set($block,'margin.bottom',$bottom_margin);
+        $bottom_margin = Arr::pull($block, 'bottom_margin', 0);
+        if ($top_margin > 0) {
+            Arr::set($block, 'margin.bottom', $bottom_margin);
         }
-        $left_margin=Arr::pull($block,'left_margin',0);
-        if($top_margin>0){
-            Arr::set($block,'margin.left',$left_margin);
+        $left_margin = Arr::pull($block, 'left_margin', 0);
+        if ($top_margin > 0) {
+            Arr::set($block, 'margin.left', $left_margin);
         }
-        $right_margin=Arr::pull($block,'right_margin',0);
-        if($top_margin>0){
-            Arr::set($block,'margin.right',$right_margin);
+        $right_margin = Arr::pull($block, 'right_margin', 0);
+        if ($top_margin > 0) {
+            Arr::set($block, 'margin.right', $right_margin);
         }
 
 
-        $type=Arr::pull($block, 'type');
-        $show=Arr::pull($block, 'show') == 1;
+        $type = Arr::pull($block, 'type');
+        $show = Arr::pull($block, 'show') == 1;
+
 
         if ($webBlocksBridge[$block_key] === null) {
-            $webBlock=$webpage->webBlocks()->create(
+            $webBlock              = $webpage->webBlocks()->create(
                 [
                     'type'   => $type,
                     'status' => $show,
                     'data'   => $block
                 ]
             );
-            $webBlocksPrecedence[]=$webBlock->id;
+            $webBlocksPrecedence[] = $webBlock->id;
         } else {
             $webBlock = (new webBlock)->find($webBlocksBridge[$block_key]);
             $webBlock->fill(
@@ -145,21 +146,61 @@ function relocate_web_blocks($webpage, $blocks) {
                 ]
             );
             $webBlock->save();
-            $webBlocksPrecedence[]=$webBlock->id;
+            $webBlocksPrecedence[] = $webBlock->id;
+        }
+
+
+        $imagesModelData = [];
+
+        //$translate_images=[];
+
+        if ($type == 'images') {
+            foreach ($block['images'] as $image) {
+
+                if (preg_match('/wi.php\?id=(\d+)/', $image['src'], $match)) {
+                    $image_key = $match[1];
+
+                    $legacy_image_data = get_legacy_image_data($tenant, $image_key);
+                    if ($legacy_image_data) {
+
+                        $imagesModelData[] = get_legacy_image_data($tenant, $image_key);
+                        //todo get data to later translate ols block data to the new image id
+                    }
+
+
+                }
+
+
+            }
+
+        }
+
+        if (count($imagesModelData)) {
+
+            sync_images(
+                $webBlock, $imagesModelData, function ($_scope) {
+                switch ($_scope) {
+                    default:
+                        return 'web_image';
+                }
+
+            }
+            );
+
+
         }
 
 
     }
 
     webBlock::destroy($oldWebBlocks);
-    $precedence=0;
-    foreach($webBlocksPrecedence as $webBlocksID){
-        $webBlock = (new webBlock)->find($webBlocksID);
-        $webBlock->precedence=$precedence;
+    $precedence = 0;
+    foreach ($webBlocksPrecedence as $webBlocksID) {
+        $webBlock             = (new webBlock)->find($webBlocksID);
+        $webBlock->precedence = $precedence;
         $webBlock->save();
         $precedence++;
     }
-
 
 
 }

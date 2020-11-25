@@ -85,7 +85,7 @@ function relocate_customer($tenant, $legacy_data) {
         ];
     }
 
-    $imagesModelData = get_images_data(
+    $imagesModelData = get_legacy_images_data(
         $tenant, [
                    'object'     => 'Customer',
                    'object_key' => $legacy_data->{'Customer Key'},
