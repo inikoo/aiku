@@ -157,7 +157,8 @@ function relocate_web_blocks($tenant, $webpage, $blocks) {
         if ($type == 'images') {
             foreach ($block['images'] as $image) {
 
-                if (preg_match('/wi.php\?id=(\d+)/', $image['src'], $match)) {
+
+                if (!empty($image) and preg_match('/wi.php\?id=(\d+)/', $image['src'], $match)) {
                     $image_key = $match[1];
 
                     $legacy_image_data = get_legacy_image_data($tenant, $image_key);
@@ -175,7 +176,7 @@ function relocate_web_blocks($tenant, $webpage, $blocks) {
 
         }
 
-        if (count($imagesModelData)) {
+        if (!empty($imagesModelData)) {
 
             sync_images(
                 $webBlock, $imagesModelData, function ($_scope) {
