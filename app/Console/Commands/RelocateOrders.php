@@ -46,7 +46,7 @@ class RelocateOrders extends Command {
             for ($i = 1; $i < ($pages + 1); $i++) {
                 $offset = (($i - 1) * $max);
 
-                $sql = "* from `Order Dimension` where limit ?,?";
+                $sql = "* from `Order Dimension` limit ?,?";
                 foreach (DB::connection('legacy')->select("select $sql", [
                     $offset,
                     $max
