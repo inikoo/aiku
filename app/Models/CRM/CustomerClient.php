@@ -79,7 +79,7 @@ class CustomerClient extends Model implements Auditable {
     }
 
     function customer() {
-        return $this->belongsTo('App\Models\CRM\Customer');
+        return $this->belongsTo('App\Models\CRM\Customer')->withTrashed();
     }
 
 

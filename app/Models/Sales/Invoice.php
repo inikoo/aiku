@@ -40,7 +40,7 @@ class Invoice extends Model {
     }
 
     public function customer() {
-        return $this->belongsTo('App\Models\CRM\Customer');
+        return $this->belongsTo('App\Models\CRM\Customer')->withTrashed();
     }
 
     public function categories() {

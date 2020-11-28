@@ -43,7 +43,7 @@ class Order extends Model implements Auditable {
     protected $guarded = [];
 
     public function customer() {
-        return $this->belongsTo('App\Models\CRM\Customer');
+        return $this->belongsTo('App\Models\CRM\Customer')->withTrashed();
     }
 
     public function invoices() {
