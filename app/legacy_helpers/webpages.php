@@ -101,7 +101,6 @@ function relocate_web_blocks($tenant, $webpage, $blocks) {
         }
     }
 
-
     foreach ($blocks as $block_key => $block) {
         unset($block['label']);
         unset($block['icon']);
@@ -194,7 +193,7 @@ function relocate_web_blocks($tenant, $webpage, $blocks) {
 
     }
 
-    webBlock::destroy($oldWebBlocks);
+    webBlock::destroy(array_keys($oldWebBlocks));
     $precedence = 0;
     foreach ($webBlocksPrecedence as $webBlocksID) {
         $webBlock             = (new webBlock)->find($webBlocksID);
