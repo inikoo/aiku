@@ -11,7 +11,7 @@ use App\Models\Distribution\Shipper;
 use App\Models\Distribution\Stock;
 use Illuminate\Support\Facades\DB;
 
-function get_legacy_picking_itf($delivery_note) {
+function get_legacy_picking_itf($delivery_note): array {
 
     $itf_table = '`Inventory Transaction Fact`';
     $itf_where = '`Delivery Note key`';
@@ -98,7 +98,7 @@ function get_legacy_picking_itf($delivery_note) {
 
 }
 
-function get_legacy_dispatched_itf($delivery_note) {
+function get_legacy_dispatched_itf($delivery_note): array {
 
     $itf_table = '`Inventory Transaction Fact`';
     $itf_where = '`Delivery Note Key`';
@@ -153,7 +153,7 @@ function get_legacy_dispatched_itf($delivery_note) {
 }
 
 
-function get_state_from_legacy_delivery_note($legacyState) {
+function get_state_from_legacy_delivery_note($legacyState): array {
     $status = 'processing';
     $state  = null;
     switch ($legacyState) {
@@ -242,6 +242,7 @@ function relocate_delivery_note($legacy_data, $order) {
 
 
         case 'Dispatched':
+
 
             $dispatched_at = $legacy_data->{'Delivery Note Date Dispatched'};
 

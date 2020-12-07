@@ -5,6 +5,8 @@
  * Copyright (c) 2020. Aiku.io
  */
 
+use App\Models\CRM\Customer;
+use App\Models\CRM\CustomerClient;
 use App\Models\Sales\Order;
 use App\Models\Sales\OrderTransaction;
 use App\Models\Stores\ProductHistoricVariation;
@@ -40,22 +42,30 @@ function relocate_order_transactions($order) {
 
             $product_historic_variant = (new ProductHistoricVariation())->firstWhere('legacy_id', $otf_data->{'Product Key'});
 
-            unset($toDelete['ProductHistoricVariation'][$product_historic_variant->id]);
+            if ($product_historic_variant) {
 
-            $orderTransactions = new OrderTransaction(
-                [
-                    'order_id'     => $order->id,
-                    'tenant_id'    => $order->tenant_id,
-                    'quantity'     => $otf_data->{'Order Quantity'},
-                    'discounts'    => $otf_data->{'Order Transaction Total Discount Amount'},
-                    'net'          => $otf_data->{'Order Transaction Amount'},
-                    'legacy_id'    => $otf_data->{'Order Transaction Fact Key'},
-                    'legacy_scope' => 'otf',
-                    'tax_band_id'  => $tax_band_id,
-                    'data'         => []
-                ]
-            );
-            $product_historic_variant->orderTransactions()->save($orderTransactions);
+                unset($toDelete['ProductHistoricVariation'][$product_historic_variant->id]);
+
+                $orderTransactions = new OrderTransaction(
+                    [
+                        'order_id'     => $order->id,
+                        'tenant_id'    => $order->tenant_id,
+                        'quantity'     => $otf_data->{'Order Quantity'},
+                        'discounts'    => $otf_data->{'Order Transaction Total Discount Amount'},
+                        'net'          => $otf_data->{'Order Transaction Amount'},
+                        'legacy_id'    => $otf_data->{'Order Transaction Fact Key'},
+                        'legacy_scope' => 'otf',
+                        'tax_band_id'  => $tax_band_id,
+                        'data'         => []
+                    ]
+                );
+                $product_historic_variant->orderTransactions()->save($orderTransactions);
+            } else {
+
+                print_r($order);
+                print_r($otf_data);
+                exit;
+            }
         }
 
 
@@ -110,7 +120,7 @@ function relocate_order_transactions($order) {
 }
 
 
-function get_order_legacy_state($legacy_state) {
+function get_order_legacy_state($legacy_state): array {
     $status = 'Processing';
     $state  = null;
     switch ($legacy_state) {
@@ -147,7 +157,15 @@ function get_order_legacy_state($legacy_state) {
     ];
 }
 
-function relocate_order($parent, $legacy_data) {
+function relocate_order( $legacy_data) {
+
+    if ($legacy_data->{'Order Customer Client Key'}) {
+        $parent = CustomerClient::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Client Key'});
+    } else {
+        $parent = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
+    }
+
+
     $order_data = fill_legacy_data(
         [
             'customer.mame'    => 'Order Customer Name',
@@ -241,8 +259,39 @@ function relocate_order($parent, $legacy_data) {
 
     relocate_order_transactions($order);
 
+    $sql = "* from `Delivery Note Dimension` where `Delivery Note Order Key`=?";
+    foreach (DB::connection('legacy')->select("select $sql", [$order->legacy_id]) as $dn_legacy_data) {
+
+        if ($dn_legacy_data->{'Delivery Note State'} != 'Cancelled to Restock') {
+            $delivery_note = relocate_delivery_note($dn_legacy_data, $order);
+
+            if ($dn_legacy_data->{'Delivery Note State'} == 'Dispatched' or $dn_legacy_data->{'Delivery Note State'} == 'Cancelled') {
+                $delivery_note->syncItems(get_legacy_dispatched_itf($delivery_note), 'delivery_note_items');
+            } else {
+                $delivery_note->syncItems(get_legacy_picking_itf($delivery_note));
+            }
+
+        } else {
+            relocate_return($dn_legacy_data, $order);
+        }
+    }
+
+    $sql = "* from `Invoice Dimension` where `Invoice Order Key`=?";
+    foreach (DB::connection('legacy')->select("select $sql", [$order->legacy_id]) as $invoice_legacy_data) {
+        if ($invoice_legacy_data->{'Invoice Type'} != 'CreditNote') {
+            relocate_invoice($invoice_legacy_data, $order);
+        }
+    }
+
+
     return $order;
 }
 
+function delete_relocated_order(Order $order) {
+
+    Order::destroy($order->id);
+
+
+}
 
 

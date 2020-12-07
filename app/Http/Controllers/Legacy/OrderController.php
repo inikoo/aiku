@@ -7,11 +7,12 @@
 
 namespace App\Http\Controllers\Legacy;
 
-use App\Models\CRM\Customer;
-
+use App\Models\Sales\Order;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Legacy\Traits\LegacyHelpers;
+use Illuminate\Support\Facades\DB;
 
 
 class OrderController extends Controller {
@@ -25,11 +26,45 @@ class OrderController extends Controller {
 
 
     public function __construct() {
-        Customer::disableAuditing();
+        Order::disableAuditing();
+        $this->setLegacyDbConnection();
     }
 
-    function sync(Request $request) {
+    function sync(Request $request): JsonResponse {
 
+        $request_data = $request->all();
+
+        $this->parseRequest($request_data);
+
+        $sql = "* from `Order Dimension` where `Order Key`=?";
+        foreach (
+            DB::connection('legacy')->select(
+                "select $sql", [
+                                 $this->legacy['order_key']
+                             ]
+            ) as $legacy_data
+        ) {
+
+            if ($legacy_data->{'Order State'} != 'InBasket') {
+                $order = relocate_order($legacy_data);
+
+                return response()->json($order);
+
+            } else {
+                $order = (new Order)->firstWhere('legacy_id', $legacy_data->{'Order Key'});
+                if($order){
+                    delete_relocated_order($order);
+                }
+
+
+                return response()->json([]);
+
+            }
+
+
+        }
+
+        return response()->json(['errors' => 'object not found'], 470);
 
 
     }
@@ -38,9 +73,7 @@ class OrderController extends Controller {
     function update($legacy_id, Request $request) {
 
 
-
     }
-
 
 
 }

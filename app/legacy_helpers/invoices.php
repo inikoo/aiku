@@ -13,7 +13,8 @@ use App\Models\Stores\ProductHistoricVariation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-function relocate_invoice_transactions($invoice) {
+
+function relocate_invoice_transactions(Invoice $invoice) {
 
 
     $toDelete = get_legacy_to_delete_transactions($invoice);

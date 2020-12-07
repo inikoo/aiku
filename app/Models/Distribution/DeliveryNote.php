@@ -8,6 +8,9 @@
 namespace App\Models\Distribution;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Facades\DB;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
@@ -35,7 +38,7 @@ class DeliveryNote extends Model {
 
 
 
-    public function orders() {
+    public function orders(): BelongsToMany {
         return $this->belongsToMany('App\Models\Sales\Order')->withTimestamps();
     }
 
@@ -45,15 +48,15 @@ class DeliveryNote extends Model {
     }
 
 
-    public function pickings() {
+    public function pickings(): BelongsToMany {
         return $this->belongsToMany('App\Models\Distribution\Stock', 'pickings')->using('App\Models\Distribution\Picking')->withTimestamps()->withPivot(['required','weight','legacy_id']);
     }
 
-    public function items() {
+    public function items(): BelongsToMany {
         return $this->belongsToMany('App\Models\Distribution\Stock', 'delivery_note_items')->using('App\Models\Distribution\DeliveryNoteItem')->withTimestamps()->withPivot(['dispatched','required','weight','legacy_id']);
     }
 
-    public function addresses() {
+    public function addresses(): MorphToMany {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps()->withPivot(['scope']);
     }
 
@@ -75,6 +78,21 @@ class DeliveryNote extends Model {
         $this->number_picks=ceil($items->sum($type.'.required'));
         $this->weight=$items->sum($type.'.weight');
         $this->save();
+    }
+
+    public function delete(): bool {
+
+
+        DB::transaction(function()
+        {
+
+
+            $this->pickings()->sync([]);
+            $this->items()->sync([]);
+            $this->addresses()->sync([]);
+            parent::delete();
+        });
+        return true;
     }
 
 }

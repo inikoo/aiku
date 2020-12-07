@@ -11,6 +11,8 @@ Version 4
 namespace App;
 
 use Exception;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 
@@ -74,11 +76,11 @@ class Tenant extends Tenanto {
 
 
 
-    public function agents() {
+    public function agents(): BelongsToMany {
         return $this->belongsToMany('App\Models\Suppliers\Agent')->withTimestamps();
     }
 
-    public function supplier_owner() {
+    public function supplierOwner(): MorphOne {
         return $this->morphOne('App\Models\Suppliers\Supplier', 'owner');
     }
 

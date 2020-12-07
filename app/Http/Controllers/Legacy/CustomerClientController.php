@@ -12,8 +12,8 @@ use App\Http\Controllers\Legacy\Traits\LegacyHelpers;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerClient;
 use App\Models\Helpers\Address;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Exception;
 
 class CustomerClientController extends Controller {
@@ -29,7 +29,7 @@ class CustomerClientController extends Controller {
 
     }
 
-    function sync(Request $request) {
+    function sync(Request $request): JsonResponse {
 
         $this->parseRequest($request->all());
 
@@ -64,10 +64,10 @@ class CustomerClientController extends Controller {
         $customerClient = $this->process_address($customerClient);
 
 
-        return response()->json($customerClient, 200);
+        return response()->json($customerClient);
     }
 
-    function update($legacy_id, Request $request) {
+    function update($legacy_id, Request $request): JsonResponse {
 
         $this->parseRequest($request->all());
 
@@ -100,7 +100,7 @@ class CustomerClientController extends Controller {
         }
 
 
-        return response()->json($customerClient, 200);
+        return response()->json($customerClient);
 
     }
 
@@ -122,15 +122,12 @@ class CustomerClientController extends Controller {
 
     }
 
-    function updateBasket($legacy_id, Request $request) {
+    function updateBasket($legacy_id, Request $request): JsonResponse {
 
         $this->parseRequest($request->all());
         $customerClient = (new CustomerClient)->firstWhere('legacy_id', $legacy_id);
         if ($customerClient) {
-            $database_settings = data_get(config('database.connections'), 'mysql');
-            data_set($database_settings, 'database', app('currentTenant')->data['legacy']['db']);
-            config(['database.connections.legacy' => $database_settings]);
-            DB::connection('legacy');
+            $this->setLegacyDbConnection();
 
 
             try {
@@ -140,7 +137,7 @@ class CustomerClientController extends Controller {
             }
 
 
-            return response()->json([], 200);
+            return response()->json([]);
         } else {
             return response()->json(['errors' => 'object not found'], 470);
         }

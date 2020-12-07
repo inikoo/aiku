@@ -32,7 +32,7 @@ class RelocateUserAgents extends Command {
      *
      * @return int
      */
-    public function handle() {
+    public function handle(): int {
 
         //comment fetch_user_agent_device_data function in UserAgent class
 

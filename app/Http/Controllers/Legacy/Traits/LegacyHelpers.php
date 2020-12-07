@@ -9,6 +9,7 @@ namespace App\Http\Controllers\Legacy\Traits;
 
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 trait LegacyHelpers {
 
@@ -40,6 +41,13 @@ trait LegacyHelpers {
         $model->save();
         return $model;
 
+    }
+
+    function setLegacyDbConnection(){
+        $database_settings = data_get(config('database.connections'), 'mysql');
+        data_set($database_settings, 'database', app('currentTenant')->data['legacy']['db']);
+        config(['database.connections.legacy' => $database_settings]);
+        DB::connection('legacy');
     }
 
 }

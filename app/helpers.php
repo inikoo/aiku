@@ -7,8 +7,7 @@
 
 
 if (! function_exists('au_escape_slug')) {
-    function au_escape_slug($sluggableName)
-    {
+    function au_escape_slug($sluggableName): string {
         $sluggableName = preg_replace('/\'/', '', $sluggableName);
 
         $sluggableName = preg_replace('/www\./', 'www ', $sluggableName);

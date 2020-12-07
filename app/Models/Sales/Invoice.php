@@ -9,8 +9,11 @@ namespace App\Models\Sales;
 
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Facades\DB;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
-
 
 
 class Invoice extends Model {
@@ -26,7 +29,7 @@ class Invoice extends Model {
 
     protected $guarded=[];
 
-    function sluggable() {
+    function sluggable(): array {
         return [
             'slug' => [
                 'source'   => 'storeNumber',
@@ -35,7 +38,7 @@ class Invoice extends Model {
         ];
     }
 
-    function getStoreNumberAttribute() {
+    function getStoreNumberAttribute(): string {
         return $this->customer->store->code.'-'.$this->number;
     }
 
@@ -43,24 +46,34 @@ class Invoice extends Model {
         return $this->belongsTo('App\Models\CRM\Customer')->withTrashed();
     }
 
-    public function categories() {
+    public function categories(): MorphToMany {
         return $this->morphToMany('App\Models\Utils\Category', 'categoriable');
     }
 
-    public function addresses() {
+    public function addresses(): MorphToMany {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps()->withPivot(['scope']);
     }
 
-    public function orders() {
+    public function orders(): BelongsToMany {
         return $this->belongsToMany('App\Models\Sales\Order')->withTimestamps();
     }
 
-    public function transactions() {
+    public function transactions(): HasMany {
         return $this->hasMany('App\Models\Sales\InvoiceTransaction');
     }
 
     function getStoreIdAttribute(){
         return $this->customer->store_id;
+    }
+
+    public function delete(): bool {
+        DB::transaction(function()
+        {
+            $this->transactions->delete();
+            $this->addresses()->delete();
+            parent::delete();
+        });
+        return true;
     }
 
 }

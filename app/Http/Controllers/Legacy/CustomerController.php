@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Legacy\Traits\LegacyHelpers;
-use Illuminate\Support\Facades\DB;
+use Exception;
 
 
 class CustomerController extends Controller {
@@ -171,13 +171,16 @@ class CustomerController extends Controller {
         $customer = (new Customer)->firstWhere('legacy_id', $legacy_id);
         if ($customer) {
 
-            $database_settings = data_get(config('database.connections'), 'mysql');
-            data_set($database_settings, 'database', app('currentTenant')->data['legacy']['db']);
-            config(['database.connections.legacy' => $database_settings]);
-            DB::connection('legacy');
-            relocate_basket($legacy_id, $customer->basket);
+            $this->setLegacyDbConnection();
+            try {
+                relocate_basket($legacy_id, $customer->basket);
 
-            return response()->json([], 200);
+                return response()->json([], 200);
+            }catch (Exception $e) {
+                return response()->json(['errors' => 'can not relocate basket'], 471);
+
+            }
+
         } else {
             return response()->json(['errors' => 'object not found'], 470);
         }

@@ -9,6 +9,10 @@ namespace App\Models\Sales;
 
 use App\Models\Traits\OrderTotals;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -18,10 +22,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int    $id
  * @property int    $items
- * @property float  $items_discounts
  * @property float  $net
  * @property float  $tax
-
  * @property string $created_at
  * @property string $legacy_id
  *
@@ -42,28 +44,47 @@ class Order extends Model implements Auditable {
 
     protected $guarded = [];
 
+
     public function customer() {
         return $this->belongsTo('App\Models\CRM\Customer')->withTrashed();
     }
 
-    public function invoices() {
+    public function invoices(): BelongsToMany {
         return $this->belongsToMany('App\Models\Sales\Invoice')->withTimestamps();
     }
 
-    public function delivery_notes() {
+    public function deliveryNotes(): BelongsToMany {
         return $this->belongsToMany('App\Models\Distribution\DeliveryNote')->withTimestamps();
     }
 
-    public function transactions() {
+    public function transactions(): HasMany {
         return $this->hasMany('App\Models\Sales\OrderTransaction');
     }
 
-    public function addresses() {
+    public function addresses(): MorphToMany {
         return $this->morphToMany('App\Models\Helpers\Address', 'addressable')->withTimestamps()->withPivot(['scope']);
     }
 
     function getStoreIdAttribute(){
         return $this->customer->store_id;
+    }
+
+
+    public function delete(): ?bool {
+
+        DB::transaction(
+            function () {
+
+                foreach ($this->deliveryNotes as $delivery_note) {
+                    $delivery_note->delete();
+                }
+                $this->transactions()->delete();
+                $this->addresses()->sync([]);
+                parent::delete();
+            }
+        );
+
+        return true;
     }
 
 }
