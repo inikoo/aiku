@@ -11,6 +11,7 @@ use App\Models\ECommerce\Webpage;
 use App\Models\ECommerce\Website;
 use App\Models\Stores\Product;
 use App\Models\Helpers\Category;
+use App\Tenant;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -80,7 +81,7 @@ function relocate_webpages($tenant, $legacy_data) {
 }
 
 
-function relocate_web_blocks($tenant, $webpage, $blocks) {
+function relocate_web_blocks(Tenant $tenant, Webpage $webpage, $blocks) {
 
     $oldWebBlocks        = [];
     $webBlocksBridge     = [];
@@ -156,6 +157,12 @@ function relocate_web_blocks($tenant, $webpage, $blocks) {
         if ($type == 'images') {
             foreach ($block['images'] as $image) {
 
+
+                if(empty($image['src'])){
+                    print "Webpage error image block  ".$webpage->id."\n";
+                    print_r($block);
+                    exit;
+                }
 
                 if (!empty($image) and preg_match('/wi.php\?id=(\d+)/', $image['src'], $match)) {
                     $image_key = $match[1];
