@@ -128,6 +128,14 @@ function relocate_web_blocks(Tenant $tenant, Webpage $webpage, $blocks) {
         $show = Arr::pull($block, 'show') == 1;
 
 
+        if ($type == 'images' and (empty($block['images']) or empty(array_filter($block['images'])))) {
+            continue;
+        }
+        if ($type == 'text' and (empty($block['text_blocks']) or empty(array_filter($block['text_blocks'])))) {
+            continue;
+        }
+
+
         if ($webBlocksBridge[$block_key] === null) {
             $webBlock              = $webpage->webBlocks()->create(
                 [
@@ -154,17 +162,16 @@ function relocate_web_blocks(Tenant $tenant, Webpage $webpage, $blocks) {
 
         //$translate_images=[];
 
+
         if ($type == 'images') {
             foreach ($block['images'] as $image) {
 
 
-                if(empty($image['src'])){
-                    print "Webpage error image block  ".$webpage->id."\n";
-                    print_r($block);
-                    exit;
-                }
 
-                if (!empty($image) and preg_match('/wi.php\?id=(\d+)/', $image['src'], $match)) {
+
+
+
+                if (!empty($image)  and  !empty($image['src'])  and preg_match('/wi.php\?id=(\d+)/', $image['src'], $match)) {
                     $image_key = $match[1];
 
                     $legacy_image_data = get_legacy_image_data($tenant, $image_key);
@@ -179,6 +186,50 @@ function relocate_web_blocks(Tenant $tenant, Webpage $webpage, $blocks) {
 
 
             }
+
+        }elseif ($type == 'text') {
+            foreach ($block['text_blocks'] as $text_block) {
+
+
+                //print_r($text_block['text']);
+
+                if (!empty($text_block) and preg_match_all('/wi.php\?id=(\d+)/', $text_block['text'], $matches)) {
+
+                    //print_r($webpage);
+                    //print "\n";
+                    $image_keys=[];
+                    foreach($matches[1] as $image_key){
+                        $image_keys[$image_key]=$image_key;
+                    }
+
+                    foreach($image_keys as $image_key){
+                        $legacy_image_data = get_legacy_image_data($tenant, $image_key);
+                        if ($legacy_image_data) {
+
+                            $imagesModelData[] = get_legacy_image_data($tenant, $image_key);
+                            //todo get data to later translate old block data to the new image id
+                        }
+                    }
+
+
+
+
+
+                }
+
+
+            }
+
+        } else {
+
+            if (!in_array($type, ['code'])) {
+
+
+               // print "$type\n";
+                //print_r($block);
+                //exit();
+            }
+
 
         }
 
