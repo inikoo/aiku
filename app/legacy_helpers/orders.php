@@ -165,6 +165,9 @@ function relocate_order( $legacy_data) {
         $parent = Customer::withTrashed()->firstWhere('legacy_id', $legacy_data->{'Order Customer Key'});
     }
 
+    if(!$parent){
+        return false;
+    }
 
     $order_data = fill_legacy_data(
         [
