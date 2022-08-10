@@ -1,4 +1,3 @@
-<!-- This example requires Tailwind CSS v2.0+ -->
 <template>
     <div class="relative bg-gray-50">
         <Popover class="relative bg-white shadow">
