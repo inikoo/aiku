@@ -27,9 +27,7 @@
                                     </button>
                                 </div>
                             </TransitionChild>
-                            <div class="flex-shrink-0 flex items-center px-4">
-                                <img class="h-8 w-auto" src="art/logo-name.png" alt="Pika" />
-                            </div>
+
                             <div class="mt-5 flex-1 h-0 overflow-y-auto">
                                 <nav class="px-2">
                                     <div class="space-y-1">
@@ -62,68 +60,13 @@
 
         <!-- Static sidebar for desktop -->
         <div class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:pt-5 lg:pb-4 lg:bg-gray-100">
-            <div class="flex items-center flex-shrink-0 px-6">
-                <img class="h-8 w-auto" src="art/logo-name.png" alt="Pika" />
-            </div>
+
             <!-- Sidebar component, swap this element with another sidebar if you like -->
-            <div class="mt-6 h-0 flex-1 flex flex-col overflow-y-auto">
-                <!-- User account dropdown -->
-                <Menu as="div" class="px-3 relative inline-block text-left">
-                    <div>
-                        <MenuButton class="group w-full bg-gray-100 rounded-md px-3.5 py-2 text-sm text-left font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-purple-500">
-              <span class="flex w-full justify-between items-center">
-                <span class="flex min-w-0 items-center justify-between space-x-3">
-                  <img class="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0" src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80" alt="" />
-                  <span class="flex-1 flex flex-col min-w-0">
-                    <span class="text-gray-900 text-sm font-medium truncate">Jessy Schwarz</span>
-                    <span class="text-gray-500 text-sm truncate">@jessyschwarz</span>
-                  </span>
-                </span>
-                <SelectorIcon class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
-              </span>
-                        </MenuButton>
-                    </div>
-                    <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                        <MenuItems class="z-10 mx-3 origin-top absolute right-0 left-0 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
-                            <div class="py-1">
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">View profile</a>
-                                </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Settings</a>
-                                </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Notifications</a>
-                                </MenuItem>
-                            </div>
-                            <div class="py-1">
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Get desktop app</a>
-                                </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Support</a>
-                                </MenuItem>
-                            </div>
-                            <div class="py-1">
-                                <MenuItem v-slot="{ active }">
-                                    <Link method="post" :href="route('logout')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Logout</Link>
-                                </MenuItem>
-                            </div>
-                        </MenuItems>
-                    </transition>
-                </Menu>
-                <!-- Sidebar Search -->
-                <div class="px-3 mt-5">
-                    <label for="search" class="sr-only">Search</label>
-                    <div class="mt-1 relative rounded-md shadow-sm">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
-                            <SearchIcon class="mr-3 h-4 w-4 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <input type="text" name="search" id="search" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 sm:text-sm border-gray-300 rounded-md" placeholder="Search" />
-                    </div>
-                </div>
+            <div class=" h-0 flex-1 flex flex-col overflow-y-auto">
+
+
                 <!-- Navigation -->
-                <nav class="px-3 mt-6">
+                <nav class="px-3 ">
                     <div class="space-y-1">
                         <a v-for="item in navigation" :key="item.name" :href="item.href" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
                             <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
@@ -148,30 +91,41 @@
         <!-- Main column -->
         <div class="lg:pl-64 flex flex-col">
             <!-- Search header -->
-            <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 lg:hidden">
+            <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 ">
                 <button type="button" class="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 lg:hidden" @click="sidebarOpen = true">
                     <span class="sr-only">Open sidebar</span>
                     <MenuAlt1Icon class="h-6 w-6" aria-hidden="true" />
                 </button>
                 <div class="flex-1 flex justify-between px-4 sm:px-6 lg:px-8">
                     <div class="flex-1 flex">
-                        <form class="w-full flex md:ml-0" action="#" method="GET">
-                            <label for="search-field" class="sr-only">Search</label>
-                            <div class="relative w-full text-gray-400 focus-within:text-gray-600">
-                                <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                                    <SearchIcon class="h-5 w-5" aria-hidden="true" />
-                                </div>
-                                <input id="search-field" name="search-field" class="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent focus:placeholder-gray-400 sm:text-sm" placeholder="Search" type="search" />
-                            </div>
-                        </form>
+                        <div class="flex-shrink-0 flex items-center px-4">
+                            <img class="h-8 w-auto" src="art/logo-name.png" alt="Pika" />
+                        </div>
                     </div>
                     <div class="flex items-center">
+
+                        <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                            <span class="sr-only">Search</span>
+                            <SearchIcon class="h-6 w-6" aria-hidden="true" />
+                        </button>
+
+                        <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                            <span class="sr-only">View notifications</span>
+                            <BellIcon class="h-6 w-6" aria-hidden="true" />
+                        </button>
                         <!-- Profile dropdown -->
                         <Menu as="div" class="ml-3 relative">
                             <div>
                                 <MenuButton class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                                     <span class="sr-only">Open user menu</span>
                                     <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+
+                                    <span class="flex-1 ml-3 mr-1  flex-col min-w-0 hidden lg:flex">
+                                        <span class="text-gray-900 text-sm font-medium truncate">{{ $page.props.auth.user.name }}</span>
+                                        <span class="text-gray-500 text-sm truncate">@jessyschwarz</span>
+                                    </span>
+                                    <ChevronDownIcon class="hidden flex-shrink-0 ml-1 h-5 w-5 text-gray-400 lg:block" aria-hidden="true" />
+
                                 </MenuButton>
                             </div>
                             <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
@@ -207,7 +161,9 @@
                 </div>
             </div>
             <main class="flex-1">
-              <slot/>
+
+
+                <slot/>
             </main>
         </div>
     </div>
@@ -225,7 +181,7 @@ import {
     TransitionChild,
     TransitionRoot,
 } from '@headlessui/vue'
-import { ClockIcon, HomeIcon, MenuAlt1Icon, ViewListIcon, XIcon } from '@heroicons/vue/outline'
+import { BellIcon,ChevronDownIcon,ClockIcon, HomeIcon, MenuAlt1Icon, ViewListIcon, XIcon } from '@heroicons/vue/outline'
 import { ChevronRightIcon, DotsVerticalIcon, SearchIcon, SelectorIcon } from '@heroicons/vue/solid'
 import { Link } from '@inertiajs/inertia-vue3';
 
