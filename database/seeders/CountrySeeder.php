@@ -22,7 +22,7 @@ class CountrySeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $addressFormatRepository = new AddressFormatRepository();
         $subdivisionRepository   = new SubdivisionRepository();
