@@ -50,6 +50,10 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static Builder|User whereTwitterId($value)
  * @method static Builder|User whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property string|null $username
+ * @property int $number_accounts
+ * @method static Builder|User whereNumberAccounts($value)
+ * @method static Builder|User whereUsername($value)
  */
 class User extends Authenticatable
 {

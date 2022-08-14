@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DeploymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
+
+Route::get('/deployments/latest', [DeploymentController::class, 'latest'])->name('deployments.latest');
+Route::get('/deployments/{deploymentId}', [DeploymentController::class, 'show'])->name('deployments.show');
+Route::post('/deployments/create', [DeploymentController::class, 'store'])->name('deployments.store');
+Route::post('/deployments/latest/edit', [DeploymentController::class, 'updateLatest'])->name('deployments.edit.latest');
+

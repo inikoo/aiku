@@ -5,13 +5,17 @@
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "require": {
-        "php": "^8.0.2",
+        "php": "^8.1",
+        "ext-curl": "*",
+        "commerceguys/addressing": "^1.4",
         "guzzlehttp/guzzle": "^7.2",
         "inertiajs/inertia-laravel": "^0.5.4",
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^2.8",
         "laravel/socialite": "^5.5",
         "laravel/tinker": "^2.7",
+        "lorisleiva/laravel-actions": "^2.4",
+        "phlak/semver": "^4.0",
         "tightenco/ziggy": "^1.0"
     },
     "require-dev": {
