@@ -95,11 +95,11 @@
     </div>
 </template>
 <script setup>
-import { Head, Link,useForm } from '@inertiajs/inertia-vue3';
+import { Head, Link, useForm } from '@inertiajs/inertia-vue3';
 import Password from '@/Components/Password.vue';
 import Checkbox from '@/Components/Checkbox.vue';
-
 import ValidationErrors from '@/Components/ValidationErrors.vue';
+
 defineProps({
                 status: String,
             });

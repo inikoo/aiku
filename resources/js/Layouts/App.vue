@@ -122,7 +122,7 @@
 
                                     <span class="flex-1 ml-3 mr-1  flex-col min-w-0 hidden lg:flex">
                                         <span class="text-gray-900 text-sm font-medium truncate">{{ $page.props.auth.user.name }}</span>
-                                        <span class="text-gray-500 text-sm truncate">@jessyschwarz</span>
+                                        <span class="text-gray-500 text-sm truncate">{{ $page.props.auth.user.username }}</span>
                                     </span>
                                     <ChevronDownIcon class="hidden flex-shrink-0 ml-1 h-5 w-5 text-gray-400 lg:block" aria-hidden="true" />
 

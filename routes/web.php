@@ -1,19 +1,16 @@
 <?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Thu, 11 Aug 2022 22:50:46 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Inikoo
+ *  Version 4.0
+ */
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -23,7 +20,12 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified','verify.setup'])->name('dashboard');
+
+
+Route::prefix('setup')->middleware(['auth', 'verified','verify.new'])->name('setup.')
+    ->group(__DIR__.'/setup.php');
+
 
 require __DIR__.'/auth.php';
 
