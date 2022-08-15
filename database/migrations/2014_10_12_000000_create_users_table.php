@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('twitter_id')->nullable()->index();
             $table->string('google_id')->nullable()->index();
             $table->rememberToken();
-            $table->timestamps();
+            $table->unsignedSmallInteger('number_accounts')->default(0);
+            $table->timestampsTz();
         });
     }
 
