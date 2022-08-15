@@ -109,7 +109,7 @@ rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{
 ln -nsf {{ $path }}/.env {{ $new_release_dir }}/.env
 ln -nsf {{ $path }}/storage {{ $new_release_dir }}/storage
 ln -nsf {{ $path }}/storage/app/public {{ $new_release_dir }}/public/storage
-
+sudo chgrp www-data {{ $new_release_dir }}/bootstrap/cache
 
 echo "***********************************************************************"
 echo "* Composer install *"
