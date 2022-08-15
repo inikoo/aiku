@@ -85,6 +85,15 @@ class AdminUser extends Authenticatable
         'password',
     ];
 
+    /**
+     * @return string
+     * Hack for laravel permissions to work
+     */
+    public function guardName(): string
+    {
+        return 'admin';
+    }
+
     protected $guarded = [];
 
 
