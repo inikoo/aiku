@@ -17,7 +17,8 @@
         "lorisleiva/laravel-actions": "^2.4",
         "phlak/semver": "^4.0",
         "tightenco/ziggy": "^1.0",
-        "vlucas/phpdotenv": "^5.4"
+        "vlucas/phpdotenv": "^5.4",
+      "ext-pdo": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
