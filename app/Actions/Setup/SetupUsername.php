@@ -9,7 +9,7 @@
 
 namespace App\Actions\Setup;
 
-use App\Models\User;
+use App\Models\Organisations\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -18,7 +18,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 
 /**
- * @property User $user
+ * @property \App\Models\Organisations\User $user
  */
 class SetupUsername
 {
@@ -39,7 +39,7 @@ class SetupUsername
     public function rules(): array
     {
         return [
-            'username' => 'required|alpha_dash|unique:App\Models\User,username',
+            'username' => 'required|alpha_dash|unique:App\Models\Organisations\User,username',
         ];
     }
 

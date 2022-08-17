@@ -67,7 +67,6 @@ class AdminUser extends Authenticatable
 {
     use HasFactory;
     use HasApiTokens;
-    use Notifiable;
     use SoftDeletes;
 
     protected $casts = [

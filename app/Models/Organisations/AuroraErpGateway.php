@@ -1,12 +1,12 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 11 Aug 2022 17:26:10 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Tue, 16 Aug 2022 20:48:21 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Inikoo
  *  Version 4.0
  */
 
-namespace App\Models;
+namespace App\Models\Organisations;
 
 
 

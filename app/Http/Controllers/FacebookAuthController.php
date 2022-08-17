@@ -8,7 +8,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Organisations\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;

@@ -1,23 +1,24 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 10 Aug 2022 15:54:01 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Tue, 16 Aug 2022 20:48:21 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Inikoo
  *  Version 4.0
  */
 
-namespace App\Models;
+namespace App\Models\Organisations;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
- * App\Models\User
+ * App\Models\Organisations\User
  *
  * @property int $id
  * @property string $name
@@ -54,6 +55,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @property int $number_accounts
  * @method static Builder|User whereNumberAccounts($value)
  * @method static Builder|User whereUsername($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organisations\Organisation[] $organisations
+ * @property-read int|null $organisations_count
  */
 class User extends Authenticatable
 {
@@ -90,4 +93,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function organisations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organisation::class);
+    }
 }
