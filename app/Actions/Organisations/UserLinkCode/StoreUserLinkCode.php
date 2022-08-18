@@ -19,7 +19,7 @@ use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreUserLinkStore
+class StoreUserLinkCode
 {
     use AsAction;
 

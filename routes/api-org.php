@@ -6,9 +6,9 @@
  *  Version 4.0
  */
 
-use App\Actions\Organisations\UserLinkCode\StoreUserLinkStore;
+use App\Actions\Organisations\UserLinkCode\StoreUserLinkCode;
 use Illuminate\Support\Facades\Route;
 
 
 
-Route::post('/user-link-codes', StoreUserLinkStore::class)->name('user-link-codes.store');
+Route::post('/user-link-codes', StoreUserLinkCode::class)->name('user-link-codes.store');
