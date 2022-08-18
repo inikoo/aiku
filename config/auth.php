@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\Admin\AdminUser;
+use App\Models\Organisations\Organisation;
+use App\Models\Organisations\User;
+
 return [
 
     /*
@@ -45,6 +49,11 @@ return [
             'provider' => 'admin',
             'hash' => false,
         ],
+        'org' => [
+            'driver' => 'sanctum',
+            'provider' => 'organisations',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -67,11 +76,15 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\Organisations\User::class,
+            'model' => User::class,
         ],
         'admin' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Admin\AdminUser::class,
+            'model' => AdminUser::class,
+        ],
+        'organisations' => [
+            'driver' => 'eloquent',
+            'model' => Organisation::class,
         ],
         // 'users' => [
         //     'driver' => 'database',
@@ -85,10 +98,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | You may specify multiple password reset configurations if you have more
-    | than one user table or model in the application and you want to have
+    | than one user table or model in the application, and you want to have
     | separate password reset settings based on the specific user types.
     |
-    | The expire time is the number of minutes that each reset token will be
+    | The expiry time is the number of minutes that each reset token will be
     | considered valid. This security feature keeps tokens short-lived so
     | they have less time to be guessed. You may change this as needed.
     |

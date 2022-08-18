@@ -15,7 +15,7 @@ class ActionResult
     public array $changes;
     public array $errors;
     public Model|null $model;
-    public string $status;
+    public string $action;
 
     public int|null $model_id;
     public array $data;

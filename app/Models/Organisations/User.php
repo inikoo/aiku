@@ -57,6 +57,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static Builder|User whereUsername($value)
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organisations\Organisation[] $organisations
  * @property-read int|null $organisations_count
+ * @method static Builder|User whereOrganisationsCount($value)
  */
 class User extends Authenticatable
 {

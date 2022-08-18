@@ -85,7 +85,18 @@ class CreateAuroraOrganisation extends Command
             ->update(['pika_token' => $token]);
 
 
-        $this->line('Organisation created '.$organisation->code);
+
+        $this->table(
+            ['Organisation', 'Token'],
+            [
+                [
+                    $organisation->code,
+                    $token
+                ],
+
+            ]
+        );
+
 
         return 0;
     }

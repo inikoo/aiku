@@ -70,6 +70,11 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
              'auth:admin'
         ],
+        'api-org' => [
+            'throttle:api',
+            SubstituteBindings::class,
+            'auth:org'
+        ],
     ];
 
     /**
