@@ -6,9 +6,12 @@
  *  Version 4.0
  */
 
-use App\Http\Controllers\Setup\SetupController;
+use App\Actions\Setup\SetupAccessCode;
+use App\Actions\Setup\SetupUsername;
+use App\Actions\Setup\ShowSetup;
 
-Route::get('/', [SetupController::class, 'root'])->name('root');
-Route::post('/username', [SetupController::class, 'setupUsername'])->name('username');
+Route::get('/', ShowSetup::class)->name('root');
+Route::post('/username', SetupUsername::class)->name('username');
+Route::post('/access-code',SetupAccessCode::class)->name('access-code');
 
 

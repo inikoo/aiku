@@ -24,7 +24,8 @@ class EnsureUserIsNew
      */
     public function handle(Request $request, Closure $next): Response|RedirectResponse|JsonResponse
     {
-        if ($request->user()->username and $request->user()->number_accounts>0) {
+
+        if ($request->user()->username and $request->user()->number_organisations>0) {
             return redirect('dashboard');
         }
         return $next($request);

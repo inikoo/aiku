@@ -6,36 +6,31 @@
  *  Version 4.0
  */
 
-
 namespace App\Actions\Setup;
 
 use App\Models\Organisations\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
-
 
 /**
- * @property \App\Models\Organisations\User $user
+ * @property User $user
  */
 class SetupUsername
 {
     use AsAction;
-    use WithAttributes;
 
-    public function handle(User $user, array $data): void
+    public function handle(array $data): void
     {
-        $user->update($data);
+        $this->user->update($data);
     }
-
 
     public function authorize(): bool
     {
         return true;
-
     }
+
     public function rules(): array
     {
         return [
@@ -43,18 +38,11 @@ class SetupUsername
         ];
     }
 
-
-    public function asInertia(User $user, Request $request): RedirectResponse
+    /** @noinspection PhpUnused */
+    public function asController(ActionRequest $request): RedirectResponse
     {
-        $this->set('user', $user);
-
-        $this->fillFromRequest($request);
-        $this->validateAttributes();
-
-        $this->handle(
-            $user,
-            $request->only(['username']),
-        );
+        $this->user = $request->user();
+        $this->handle($request->only(['username']));
 
         return Redirect::route('setup.root');
     }

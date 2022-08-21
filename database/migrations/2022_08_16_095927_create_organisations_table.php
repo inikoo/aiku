@@ -27,7 +27,7 @@ class CreateOrganisationsTable extends Migration
             $table->unsignedSmallInteger('timezone_id');
             $table->foreign('timezone_id')->references('id')->on('timezones');
 
-            $table->unsignedSmallInteger('users_count')->default(0);
+            $table->unsignedSmallInteger('number_users')->default(0);
             $table->timestampsTz();
             $table->softDeletesTz();
         });

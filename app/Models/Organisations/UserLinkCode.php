@@ -36,6 +36,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|UserLinkCode whereOrganisationUserId($value)
  * @method static Builder|UserLinkCode whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @method static \Illuminate\Database\Query\Builder|UserLinkCode onlyTrashed()
+ * @method static \Illuminate\Database\Query\Builder|UserLinkCode withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|UserLinkCode withoutTrashed()
  */
 class UserLinkCode extends Model
 {

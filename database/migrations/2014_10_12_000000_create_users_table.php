@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('twitter_id')->nullable()->index();
             $table->string('google_id')->nullable()->index();
             $table->rememberToken();
-            $table->unsignedSmallInteger('organisations_count')->default(0);
+            $table->unsignedSmallInteger('number_organisations')->default(0);
             $table->timestampsTz();
         });
     }

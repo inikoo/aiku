@@ -18,7 +18,7 @@ class EnsureUserIsSetup
      */
     public function handle(Request $request, Closure $next): Response|RedirectResponse
     {
-        if (! $request->user()->username or  $request->user()->number_accounts==0) {
+        if (! $request->user()->username or  $request->user()->number_organisations==0) {
             return redirect('setup');
         }
 

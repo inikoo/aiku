@@ -7,8 +7,7 @@
 
 <template layout="App">
     <Head title="Setup"/>
-
-    <SetupUsername v-if="$page.props.auth.user.username===''"/>
+    <SetupUsername v-if="$page.props.auth.user.username==null || $page.props.auth.user.username==='' "/>
     <SetupErpGateway v-else />
 
 </template>
@@ -17,7 +16,7 @@
 
 import {Head} from '@inertiajs/inertia-vue3';
 import SetupUsername from '@/Components/Setup/SetupUsername.vue';
-import SetupErpGateway from '@/Components/Setup/SetupErpGateway.vue';
+import SetupErpGateway from '@/Components/Setup/SetupAccessCode.vue';
 
 
 

@@ -17,10 +17,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+
 /**
  * App\Models\Organisations\User
  *
  * @property int $id
+ * @property string|null $username
  * @property string $name
  * @property string $email
  * @property \Illuminate\Support\Carbon|null $email_verified_at
@@ -29,13 +31,15 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $twitter_id
  * @property string|null $google_id
  * @property string|null $remember_token
+ * @property int $number_organisations
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organisations\Organisation[] $organisations
+ * @property-read int|null $organisations_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
- * @method static UserFactory factory(...$parameters)
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
@@ -46,35 +50,21 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static Builder|User whereGoogleId($value)
  * @method static Builder|User whereId($value)
  * @method static Builder|User whereName($value)
+ * @method static Builder|User whereNumberOrganisations($value)
  * @method static Builder|User wherePassword($value)
  * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereTwitterId($value)
  * @method static Builder|User whereUpdatedAt($value)
- * @mixin \Eloquent
- * @property string|null $username
- * @property int $number_accounts
- * @method static Builder|User whereNumberAccounts($value)
  * @method static Builder|User whereUsername($value)
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organisations\Organisation[] $organisations
- * @property-read int|null $organisations_count
- * @method static Builder|User whereOrganisationsCount($value)
+ * @mixin \Eloquent
  */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'facebook_id',
-        'username'
-    ];
+
+    protected $guarded = [
+        ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -97,6 +87,6 @@ class User extends Authenticatable
 
     public function organisations(): BelongsToMany
     {
-        return $this->belongsToMany(Organisation::class);
+        return $this->belongsToMany(Organisation::class)->using(OrganisationUser::class)->withTimestamps();
     }
 }
