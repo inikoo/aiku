@@ -48,12 +48,40 @@ class OrganisationUser extends Pivot
                 ]
             );
 
-            $item->user->update(
+            $numberOrganisations= $item->user->organisations->count();
+
+            $item->user->number_organisations=$numberOrganisations;
+            if($numberOrganisations==1){
+                $item->user->organisation_id=$item->organisation->id;
+            }
+            $item->user->save();
+
+        });
+
+        static::deleted(function ($item) {
+            $item->organisation->update(
                 [
-                    'number_organisations' => $item->user->organisations->count()
+                    'number_users' => $item->organisation->users->count()
                 ]
             );
+
+            $numberOrganisations= $item->user->organisations->count();
+
+            $item->user->number_organisations=$numberOrganisations;
+
+            if($item->user->organisation_id==$item->organisation->id){
+
+                if($currentOrganisation=$item->user->organisation_id=$item->user->organisations()->first()){
+                    $item->user->organisation_id=$currentOrganisation->id;
+
+                }
+
+            }
+            $item->user->save();
+
         });
+
+
     }
 
     public function user(): BelongsTo

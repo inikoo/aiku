@@ -39,11 +39,19 @@ class CreateOrganisationsTable extends Migration
             $table->timestampsTz();
             $table->unique(['user_id', 'organisation_id']);
         });
+
+        Schema::table('users', function($table) {
+            $table->foreignId('organisation_id')->nullable();
+        });
+
     }
 
 
     public function down(): void
     {
+        Schema::table('users', function($table) {
+            $table->dropColumn('organisation_id');
+        });
         Schema::dropIfExists('organisation_user');
         Schema::dropIfExists('organisations');
     }
