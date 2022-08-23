@@ -113,12 +113,16 @@
                             <span class="sr-only">View notifications</span>
                             <BellIcon class="h-6 w-6" aria-hidden="true" />
                         </button>
+
+
                         <!-- Profile dropdown -->
                         <Menu as="div" class="ml-3 relative">
                             <div>
                                 <MenuButton class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                                     <span class="sr-only">Open user menu</span>
-                                    <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                                    <img v-if="$page.props.auth.user.data['profile_url']"  class="h-8 w-8 rounded-full"
+                                         :src="$page.props.auth.user.data['profile_url']"
+                                         alt="" />
 
                                     <span class="flex-1 ml-3 mr-1  flex-col min-w-0 hidden lg:flex">
                                         <span class="text-gray-900 text-sm font-medium truncate">{{ $page.props.auth.user.name }}</span>
