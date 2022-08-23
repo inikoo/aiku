@@ -17,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 /**
  * @property User $user
  */
-class AddUserProfileImage
+class SetAvatarFromImage
 {
     use AsAction;
     use WithUpdate;
@@ -43,7 +43,8 @@ class AddUserProfileImage
 
             $user->update(
                 [
-                    'data->profile_url' => $user->refresh()->getFirstMediaUrl('profile')
+                    'data->profile_url' => $user->refresh()->getFirstMediaUrl('profile'),
+                    'data->profile_source' => 'Media'
                 ]
             );
             $res->changes = array_merge($res->changes, $user->getChanges());

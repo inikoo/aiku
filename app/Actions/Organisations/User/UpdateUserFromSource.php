@@ -63,8 +63,8 @@ class UpdateUserFromSource
     protected function updateProfileImage($userData): void
     {
 
-        foreach($userData['profile_images'] as $profileImage){
-            AddUserProfileImage::run($this->user,$profileImage['image_path'],$profileImage['filename']);
+        foreach($userData['profile_images']??[] as $profileImage){
+            SetAvatarFromImage::run($this->user, $profileImage['image_path'], $profileImage['filename']);
         }
 
     }

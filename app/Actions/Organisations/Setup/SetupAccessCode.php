@@ -8,10 +8,13 @@
 
 namespace App\Actions\Organisations\Setup;
 
+use App\Actions\Organisations\User\SetAvatar;
 use App\Actions\Organisations\User\UpdateUser;
+use App\Actions\Organisations\User\UpdateUserFromSource;
 use App\Models\Organisations\User;
 use App\Models\Organisations\UserLinkCode;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -40,6 +43,13 @@ class SetupAccessCode
         ]);
 
         $this->userLinkCode->delete();
+        $this->user->refresh();
+        UpdateUserFromSource::run($this->user);
+        $this->user->refresh();
+        if(!Arr::get($this->user->data,'profile_url')){
+            SetAvatar::run($this->user);
+        }
+
     }
 
 

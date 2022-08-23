@@ -15,6 +15,7 @@
         "laravel/sanctum": "^2.8",
         "laravel/socialite": "^5.5",
         "laravel/tinker": "^2.7",
+        "laravolt/avatar": "^4.1",
         "lorisleiva/laravel-actions": "^2.4",
         "phlak/semver": "^4.0",
         "spatie/laravel-medialibrary": "^10.0.0",
