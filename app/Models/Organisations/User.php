@@ -9,7 +9,6 @@
 namespace App\Models\Organisations;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * App\Models\Organisations\User
@@ -58,38 +58,67 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static Builder|User whereUpdatedAt($value)
  * @method static Builder|User whereUsername($value)
  * @mixin \Eloquent
+ * @property int|null $organisation_id
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection|\Spatie\MediaLibrary\MediaCollections\Models\Media[] $media
+ * @property-read int|null $media_count
+ * @property-read \App\Models\Organisations\Organisation|null $organisation
+ * @method static Builder|User whereOrganisationId($value)
+ * @property array $data
+ * @property array $settings
+ * @method static Builder|User whereData($value)
+ * @method static Builder|User whereSettings($value)
  */
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use InteractsWithMedia;
 
 
     protected $guarded = [
-        ];
+    ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
+
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'data'     => 'array',
-        'settings' => 'array',
+        'data'              => 'array',
+        'settings'          => 'array',
     ];
 
     public function organisations(): BelongsToMany
     {
         return $this->belongsToMany(Organisation::class)->using(OrganisationUser::class)->withTimestamps();
     }
+
+    protected $attributes = [
+        'data'     => '{}',
+        'settings' => '{}',
+    ];
+
+    /**
+     * Return the current main organisation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('profile')
+            ->singleFile()
+            ->useDisk('public')
+            ->registerMediaConversions(function () {
+                $this->addMediaConversion('thumb')
+                    ->width(256)
+                    ->height(256);
+            });
+    }
+
 }

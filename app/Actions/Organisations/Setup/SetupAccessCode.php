@@ -60,7 +60,7 @@ class SetupAccessCode
     {
         $this->userLinkCode = UserLinkCode::where('code', $request->get('code'))->withTrashed()->first();
 
-        if ($this->userLinkCode->trashed()) {
+        if ($this->userLinkCode and $this->userLinkCode->trashed()) {
             $validator->errors()->add('expired_code', 'Access code expired.');
         }
     }

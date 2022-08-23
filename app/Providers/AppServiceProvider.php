@@ -10,6 +10,7 @@ namespace App\Providers;
 
 use App\Managers\Organisation\OrganisationManager;
 use App\Managers\Organisation\SourceOrganisationManager;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Lorisleiva\Actions\Facades\Actions;
 
@@ -29,5 +30,11 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             Actions::registerCommands();
         }
+
+        Relation::morphMap(
+            [
+                'User'            => 'App\Models\Organisations\User',
+            ]
+        );
     }
 }

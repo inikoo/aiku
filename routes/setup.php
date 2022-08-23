@@ -14,4 +14,3 @@ Route::get('/', ShowSetup::class)->name('root');
 Route::post('/username', SetupUsername::class)->name('username');
 Route::post('/access-code',SetupAccessCode::class)->name('access-code');
 
-

@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Tue, 23 Aug 2022 16:37:48 Malaysia Time, Kuala Lumpur, Malaysia
@@ -17,10 +18,14 @@ use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
+/**
+ * @property \App\Models\Organisations\User $user
+ */
 class UpdateUserFromSource
 {
     use AsAction;
-    public string $commandSignature = 'fetch:user {user_id} {scopes?*}';
+
+    public string $commandSignature = 'source-update:user {user_id} {scopes?*}';
 
     /**
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
@@ -30,13 +35,16 @@ class UpdateUserFromSource
     #[NoReturn] public function handle(User $user, array|null $scopes=null): void
     {
 
+        $this->user=$user;
+        $validScopes=['ProfileImage'];
+
         $organisationSource = app(SourceOrganisationManager::class)->make($user->organisation->type);
         $organisationSource->initialisation($user->organisation);
 
         $userData=$organisationSource->fetchUser(Arr::get($user->data,'source_id'));
 
         if($scopes==null){
-            $scopes=['ProfileImage'];
+            $scopes=$validScopes;
         }
 
         foreach($scopes as $scope){
@@ -51,10 +59,19 @@ class UpdateUserFromSource
 
     }
 
-    protected function updateProfileImage($userData){
+
+    protected function updateProfileImage($userData): void
+    {
+
+        foreach($userData['profile_images'] as $profileImage){
+            AddUserProfileImage::run($this->user,$profileImage['image_path'],$profileImage['filename']);
+        }
 
     }
 
+    /**
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function asCommand(Command $command): void
     {
 
