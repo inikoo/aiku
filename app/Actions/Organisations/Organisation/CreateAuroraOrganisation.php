@@ -6,9 +6,8 @@
  *  Version 4.0
  */
 
-namespace App\Console\Commands\OrganisationsAdmin;
+namespace App\Actions\Organisations\Organisation;
 
-use App\Actions\Organisations\Organisation\StoreOrganisation;
 use App\Models\Assets\Country;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
@@ -16,29 +15,22 @@ use App\Models\Organisations\Organisation;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class CreateAuroraOrganisation extends Command
+class CreateAuroraOrganisation
 {
-
-    protected $signature = 'org:aurora {aurora_db}';
-
-
-    protected $description = 'Crete new Aurora organisation';
+    use AsAction;
 
 
-    public function handle(): int
+    public string $commandSignature = 'org:aurora {code} {aurora_db}';
+    public string $commandDescription = 'Crete new Aurora organisation';
+
+    public function handle($code,$aurora_db)
     {
-        $organisation = Organisation::where('code', $this->argument('aurora_db'))->first();
-        if ($organisation) {
-            $this->error("Organisation $organisation->code already exists");
-
-            return 0;
-        }
-
         $data = [];
 
         $database_settings = data_get(config('database.connections'), 'aurora');
-        data_set($database_settings, 'database', $this->argument('aurora_db'));
+        data_set($database_settings, 'database', $aurora_db);
         config(['database.connections.aurora' => $database_settings]);
         DB::connection('aurora');
         DB::purge('aurora');
@@ -46,7 +38,7 @@ class CreateAuroraOrganisation extends Command
 
         try {
             $auData = DB::connection('aurora')->table('Account Dimension')
-                          ->where('Account Key', '=', 1)->get()[0];
+                          ->where('Account Key', 1)->get()[0];
         } catch (Exception $e) {
             echo $e->getMessage();
 
@@ -54,10 +46,10 @@ class CreateAuroraOrganisation extends Command
         }
 
 
-        $data['aurora_account_code'] = $auData->{'Account Code'};
+        $data['account_code'] = $auData->{'Account Code'};
+        $data['db_name']      = $aurora_db;
 
-        $language=substr($auData->{'Account Locale'}, 0, 2);
-
+        $language = substr($auData->{'Account Locale'}, 0, 2);
 
 
         $country  = Country::where('code', $auData->{'Account Country 2 Alpha Code'})->firstOrFail();
@@ -65,7 +57,7 @@ class CreateAuroraOrganisation extends Command
         $timezone = Timezone::where('name', $auData->{'Account Timezone'})->firstOrFail();
 
         $organisationData = [
-            'code'        => $this->argument('aurora_db'),
+            'code'        => $code,
             'name'        => $auData->{'Account Name'},
             'type'        => 'Aurora',
             'country_id'  => $country->id,
@@ -76,28 +68,40 @@ class CreateAuroraOrganisation extends Command
         ];
 
 
-        $res=StoreOrganisation::run($organisationData);
+        $res = StoreOrganisation::run($organisationData);
 
-        $organisation = $res->model;
 
-        $token=$organisation->createToken('au-bridge',['bridge'])->plainTextToken;
+        $token = $res->model->createToken('au-bridge', ['bridge'])->plainTextToken;
         DB::connection('aurora')->table('Account Data')
             ->update(['pika_token' => $token]);
 
+        $res->data['token']=$token;
+
+        return $res;
+    }
+
+    public function asCommand(Command $command): void
+    {
+        if ($organisation = Organisation::where('code', $command->argument('aurora_db'))->first()) {
+            $command->error("Organisation $organisation->code already exists");
+
+            return;
+        }
 
 
-        $this->table(
+        $res = $this->handle($command->argument('code'),$command->argument('aurora_db'));
+
+
+        $command->table(
             ['Organisation', 'Token'],
             [
                 [
-                    $organisation->code,
-                    $token
+                    $res->model->code,
+                    $res->data['token']
                 ],
 
             ]
         );
-
-
-        return 0;
     }
+
 }

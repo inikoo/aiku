@@ -1,37 +1,31 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 19 Aug 2022 15:02:53 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Tue, 23 Aug 2022 13:13:31 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Inikoo
  *  Version 4.0
  */
 
-namespace App\Actions\Setup;
+namespace App\Actions\Organisations\Setup;
 
 use App\Models\Organisations\User;
-use App\Models\Organisations\UserLinkCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Illuminate\Validation\Validator;
-
 
 /**
- * @property UserLinkCode userLinkCode
- * @property User user
+ * @property User $user
  */
-class SetupAccessCode
+class SetupUsername
 {
     use AsAction;
 
-
-    public function handle(): void
+    public function handle(array $data): void
     {
-        $this->userLinkCode->organisation->users()->attach($this->userLinkCode->id);
-        $this->userLinkCode->delete();
+        $this->user->update($data);
     }
-
 
     public function authorize(): bool
     {
@@ -41,26 +35,23 @@ class SetupAccessCode
     public function rules(): array
     {
         return [
-            'code' => 'required|exists:App\Models\Organisations\UserLinkCode',
+            'username' => 'required|alpha_dash|unique:App\Models\Organisations\User,username',
         ];
     }
 
     /** @noinspection PhpUnused */
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        $this->userLinkCode = UserLinkCode::where('code', $request->get('code'))->withTrashed()->first();
-
-        if ($this->userLinkCode->trashed()) {
-            $validator->errors()->add('expired_code', 'Access code expired.');
+        if ($request->get('username')!=strtolower($request->get('username'))  ) {
+            $validator->errors()->add('invalid_username', 'Username must be lowercase.');
         }
     }
-
 
     /** @noinspection PhpUnused */
     public function asController(ActionRequest $request): RedirectResponse
     {
         $this->user = $request->user();
-        $this->handle();
+        $this->handle($request->only(['username']));
 
         return Redirect::route('setup.root');
     }

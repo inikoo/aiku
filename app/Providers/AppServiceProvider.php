@@ -8,6 +8,8 @@
 
 namespace App\Providers;
 
+use App\Managers\Organisation\OrganisationManager;
+use App\Managers\Organisation\SourceOrganisationManager;
 use Illuminate\Support\ServiceProvider;
 use Lorisleiva\Actions\Facades\Actions;
 
@@ -16,7 +18,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        //
+        $this->app->bind(SourceOrganisationManager::class, function () {
+            return new OrganisationManager();
+        });
     }
 
 

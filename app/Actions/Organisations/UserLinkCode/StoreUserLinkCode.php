@@ -49,9 +49,8 @@ class StoreUserLinkCode
     public function rules(ActionRequest $request): array
     {
         return [
-            'organisation_user_id' => [
+            'source_user_id' => [
                 'required'
-
             ],
         ];
 
@@ -61,8 +60,8 @@ class StoreUserLinkCode
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
 
-        if($userLinkCode=UserLinkCode::where('organisation_id',$request->user()->id)->where('organisation_user_id',$request->get('organisation_user_id'))->first()){
-            $validator->errors()->add('organisation_user_id_taken',$userLinkCode);
+        if($userLinkCode=UserLinkCode::where('organisation_id',$request->user()->id)->where('source_user_id',$request->get('source_user_id'))->first()){
+            $validator->errors()->add('source_user_id_taken',$userLinkCode);
 
         }
 

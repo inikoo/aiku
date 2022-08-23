@@ -19,7 +19,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organisation_id');
             $table->string('code',20)->unique();
-            $table->string('organisation_user_id');
+            $table->string('source_user_id');
             $table->timestampsTz();
             $table->softDeletesTz();
         });

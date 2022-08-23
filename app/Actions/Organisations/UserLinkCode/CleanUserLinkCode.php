@@ -9,8 +9,6 @@
 
 namespace App\Actions\Organisations\UserLinkCode;
 
-
-
 use App\Models\Organisations\UserLinkCode;
 use Carbon\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;

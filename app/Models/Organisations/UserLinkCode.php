@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property int $organisation_id
  * @property string $code
- * @property string $organisation_user_id
+ * @property string $source_user_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
@@ -39,6 +39,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Query\Builder|UserLinkCode onlyTrashed()
  * @method static \Illuminate\Database\Query\Builder|UserLinkCode withTrashed()
  * @method static \Illuminate\Database\Query\Builder|UserLinkCode withoutTrashed()
+ * @method static Builder|UserLinkCode whereSourceUserId($value)
  */
 class UserLinkCode extends Model
 {
@@ -47,7 +48,7 @@ class UserLinkCode extends Model
 
     protected $fillable = [
         'code',
-        'organisation_user_id',
+        'source_user_id',
     ];
 
 

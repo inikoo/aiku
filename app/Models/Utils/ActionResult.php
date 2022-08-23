@@ -20,6 +20,7 @@ class ActionResult
     public int|null $model_id;
     public array $data;
     public string $message;
+    public string $status;
 
     public function __construct()
     {

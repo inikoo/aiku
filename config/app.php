@@ -194,7 +194,6 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
     ],
 
     /*
@@ -213,6 +212,7 @@ return [
     ])->toArray(),
 
     'po_editor_api_key' => env('PO_EDITOR_READ_ONLY_API_KEY', ''),
+    'aurora_image_path'=>env('AURORA_IMAGE_PATH')
 
 
 ];

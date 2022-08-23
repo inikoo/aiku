@@ -6,9 +6,9 @@
  *  Version 4.0
  */
 
-use App\Actions\Setup\SetupAccessCode;
-use App\Actions\Setup\SetupUsername;
-use App\Actions\Setup\ShowSetup;
+use App\Actions\Organisations\Setup\SetupAccessCode;
+use App\Actions\Organisations\Setup\SetupUsername;
+use App\Actions\Organisations\Setup\ShowSetup;
 
 Route::get('/', ShowSetup::class)->name('root');
 Route::post('/username', SetupUsername::class)->name('username');

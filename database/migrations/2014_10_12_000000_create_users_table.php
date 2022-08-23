@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('google_id')->nullable()->index();
             $table->rememberToken();
             $table->unsignedSmallInteger('number_organisations')->default(0);
+            $table->jsonb('data');
+            $table->jsonb('settings');
             $table->timestampsTz();
         });
     }
