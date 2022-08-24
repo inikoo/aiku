@@ -136,7 +136,7 @@ class User extends Authenticatable implements HasMedia
              'navigation'=>[
                  [
                      'name'=>'Home',
-                     'icon'=>'HomeIcon'
+                     'icon'=>['far', 'fa-home']
                  ],
                  [
                      'name'=>'My tasks',

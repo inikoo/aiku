@@ -22,7 +22,12 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "@fortawesome/free-brands-svg-icons": "^6.1.2",
+        "@fortawesome/free-regular-svg-icons": "^6.1.2",
+        "@fortawesome/free-solid-svg-icons": "^6.1.2",
+        "@fortawesome/vue-fontawesome": "^3.0.1",
         "@headlessui/vue": "^1.6.7",
-        "@heroicons/vue": "^1.0.6"
+        "@heroicons/vue": "^1.0.6",
+        "pinia": "^2.0.20"
     }
 }

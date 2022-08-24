@@ -46,8 +46,8 @@
                                             <a v-for="team in teams" :key="team.name" :href="team.href" class="group flex items-center px-3 py-2 text-base leading-5 font-medium text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-50">
                                                 <span :class="[team.bgColorClass, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
                                                 <span class="truncate">
-                          {{ team.name }}
-                        </span>
+                                                    {{ team.name }}
+                                                </span>
                                             </a>
                                         </div>
                                     </div>
@@ -73,12 +73,13 @@
             <div class="pt-5 h-0 flex-1 flex flex-col overflow-y-auto">
 
 
-                <!-- Navigation -->
+                <!-- Navigation desktop -->
 
                 <nav class="px-3 ">
                     <div class="space-y-1">
-                        <a v-for="item in navigation" :key="item.name" :href="item.href" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
-                            <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
+                        <a v-for="item in layout.navigation" :key="item.name" :href="item.href" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
+                            <font-awesome-icon aria-hidden="true"  :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'mr-3 flex-shrink-0 h-6 w-6']" :icon="item.icon"  size="lg" />
+
                             {{ item.name }}
                         </a>
                     </div>
@@ -89,8 +90,8 @@
                             <a v-for="team in teams" :key="team.name" :href="team.href" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:text-gray-900 hover:bg-gray-50">
                                 <span :class="[team.bgColorClass, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
                                 <span class="truncate">
-                  {{ team.name }}
-                </span>
+                                    {{ team.name }}
+                                </span>
                             </a>
                         </div>
                     </div>
@@ -115,12 +116,14 @@
 
                         <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                             <span class="sr-only">Search</span>
-                            <SearchIcon class="h-6 w-6" aria-hidden="true" />
+                            <font-awesome-icon aria-hidden="true"  icon="fa-regular fa-search"  size="lg" />
+
                         </button>
 
                         <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                             <span class="sr-only">View notifications</span>
-                            <BellIcon class="h-6 w-6" aria-hidden="true" />
+                            <font-awesome-icon aria-hidden="true"  icon="fa-regular fa-bell"  size="lg" />
+
                         </button>
 
 
