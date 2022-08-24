@@ -28,7 +28,11 @@
                                 </div>
                             </TransitionChild>
 
+                            <div class="pt-0 text-center text-sm font-semibold">
+                                {{$page.props.organisation.name}}
+                            </div>
                             <div class="mt-5 flex-1 h-0 overflow-y-auto">
+
                                 <nav class="px-2">
                                     <div class="space-y-1">
                                         <a v-for="item in navigation" :key="item.name" :href="item.href" :class="[item.current ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
@@ -59,13 +63,18 @@
         </TransitionRoot>
 
         <!-- Static sidebar for desktop -->
-        <div class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:pt-5 lg:pb-4 lg:bg-gray-100">
+        <div class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200  lg:pb-4 lg:bg-gray-100">
+
+            <div class="pt-5 text-center text-sm font-semibold">
+            {{$page.props.organisation.name}}
+            </div>
 
             <!-- Sidebar component, swap this element with another sidebar if you like -->
-            <div class=" h-0 flex-1 flex flex-col overflow-y-auto">
+            <div class="pt-5 h-0 flex-1 flex flex-col overflow-y-auto">
 
 
                 <!-- Navigation -->
+
                 <nav class="px-3 ">
                     <div class="space-y-1">
                         <a v-for="item in navigation" :key="item.name" :href="item.href" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">

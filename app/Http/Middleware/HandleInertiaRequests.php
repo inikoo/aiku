@@ -8,7 +8,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\UI\Localisation\GetUITranslations;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 
@@ -25,6 +28,7 @@ class HandleInertiaRequests extends Middleware
      * Determine the current asset version.
      *
      * @param  \Illuminate\Http\Request  $request
+     *
      * @return string|null
      */
     public function version(Request $request): ?string
@@ -36,19 +40,42 @@ class HandleInertiaRequests extends Middleware
      * Define the props that are shared by default.
      *
      * @param  \Illuminate\Http\Request  $request
+     *
      * @return array
      */
     public function share(Request $request): array
     {
-        return array_merge(parent::share($request), [
-            'auth' => [
-                'user' => $request->user(),
-            ],
-            'ziggy' => function () use ($request) {
-                return array_merge((new Ziggy)->toArray(), [
-                    'location' => $request->url(),
-                ]);
-            },
-        ]);
+        /** @var \App\Models\Organisations\User $user */
+        $user=$request->user();
+
+        $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
+
+            'organisation' => $user ? $user->organisation->only('name', 'code') : [],
+            'language'     => App::currentLocale(),
+            'translations' => fn() => GetUITranslations::run(),
+            'layout' => function () use ($user) {
+                if ($user) {
+                    return $user->getIULayout();
+                } else {
+                    return [];
+                }
+            }
+        ] : [];
+
+        return array_merge(
+            parent::share($request),
+            $firstLoadOnlyProps,
+            [
+                'auth'   => [
+                    'user' => $request->user(),
+                ],
+                'ziggy'  => function () use ($request) {
+                    return array_merge((new Ziggy)->toArray(), [
+                        'location' => $request->url(),
+                    ]);
+                },
+
+            ]
+        );
     }
 }

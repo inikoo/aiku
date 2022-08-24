@@ -129,4 +129,21 @@ class User extends Authenticatable implements HasMedia
             });
     }
 
+    public function getIULayout(): array
+    {
+     return
+         [
+             'navigation'=>[
+                 [
+                     'name'=>'Home',
+                     'icon'=>'HomeIcon'
+                 ],
+                 [
+                     'name'=>'My tasks',
+                     'icon'=>'ViewListIcon'
+                 ]
+             ]
+         ];
+    }
+
 }
