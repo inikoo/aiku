@@ -19,6 +19,7 @@
         "lorisleiva/laravel-actions": "^2.4",
         "phlak/semver": "^4.0",
         "spatie/laravel-medialibrary": "^10.0.0",
+        "spatie/laravel-permission": "^5.5",
         "tightenco/ziggy": "^1.0",
         "vlucas/phpdotenv": "^5.4"
     },

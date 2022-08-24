@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
                         CountrySeeder::class,
                         TimezoneSeeder::class,
                         LanguageSeeder::class,
-
+                        PermissionSeeder::class,
                     ]);
     }
 }
