@@ -9,52 +9,15 @@
 namespace App\Services\Organisation;
 
 
-use App\Models\Assets\Language;
 use App\Models\Organisations\Organisation;
-use Exception;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
+use App\Services\Organisation\Aurora\FetchAuroraUser;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property \App\Models\Organisations\Organisation $organisation
+ */
 class AuroraOrganisationService implements SourceOrganisationService
 {
-
-
-    /**
-     * @var \App\Models\Organisations\Organisation
-     */
-    private Organisation $organisation;
-
-    public function fetchUser($id): array|null
-    {
-        $userData = null;
-        if (!$id) {
-            return null;
-        }
-
-
-        if ($auData = DB::connection('aurora')->table('User Dimension')
-            ->where('User Key', $id)->first()) {
-            $userData         = [];
-            $userData['user'] = [
-                'status'      => $auData->{'User Active'} == 'Yes',
-                'language_id' => $this->parseLanguageID($auData->{'User Preferred Locale'}),
-            ];
-
-            $profile_images=collect();
-            if ($auData->{'User Type'} == 'Staff') {
-                $profile_images=$this->getModelImagesCollection(
-                    'Staff',
-                    $auData->{'User Parent Key'}
-                )->map(function ($auroraImage) use ($profile_images) {
-                    return $this->fetchImage($auroraImage);
-                });
-            }
-            $userData['profile_images'] =$profile_images->toArray();
-        }
-
-        return $userData;
-    }
 
     public function initialisation(Organisation $organisation)
     {
@@ -67,63 +30,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         $this->organisation = $organisation;
     }
 
-    protected function parseLanguageID($locale): int|null
+    public function fetchUser($id): array|null
     {
-        if ($locale != '') {
-            try {
-                return Language::where(
-                    'code',
-                    match ($locale) {
-                        'zh_CN.UTF-8' => 'zh-CN',
-                        default => substr($locale, 0, 2)
-                    }
-                )->first()->id;
-            } catch (Exception) {
-                //print "Locale $locale not found\n";
-
-                return null;
-            }
-        }
-
-        return null;
+        return (new FetchAuroraUser($this->organisation))->fetch($id);
     }
 
-    protected function getModelImagesCollection($model, $id): Collection
-    {
-        return DB::connection('aurora')
-            ->table('Image Subject Bridge')
-            ->leftJoin('Image Dimension', 'Image Subject Image Key', '=', 'Image Key')
-            ->where('Image Subject Object', $model)
-            ->where('Image Subject Object Key', $id)
-            ->orderByRaw("FIELD(`Image Subject Is Principal`, 'Yes','No')")
-            ->get();
-    }
-
-    protected function fetchImage($auroraImageData): array
-    {
-        $image_path = sprintf(
-            config('app.aurora_image_path'),
-            Arr::get($this->organisation->data, 'account_code')
-        );
-
-
-        $image_path .= '/'
-            .$auroraImageData->{'Image File Checksum'}[0].'/'
-            .$auroraImageData->{'Image File Checksum'}[1].'/'
-            .$auroraImageData->{'Image File Checksum'}.'.'
-            .$auroraImageData->{'Image File Format'};
-
-
-
-        if (file_exists($image_path)) {
-            return [
-                'image_path' => $image_path,
-                'filename'   => $auroraImageData->{'Image Filename'},
-                'mime'       => $auroraImageData->{'Image MIME Type'},
-
-            ];
-        } else {
-            return [];
-        }
-    }
 }

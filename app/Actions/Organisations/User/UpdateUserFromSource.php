@@ -20,6 +20,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * @property \App\Models\Organisations\User $user
+ * @property \App\Models\Organisations\Organisation|null $organisation
  */
 class UpdateUserFromSource
 {
@@ -36,10 +37,13 @@ class UpdateUserFromSource
     {
 
         $this->user=$user;
-        $validScopes=['ProfileImage'];
+        // todo get organisation id from arguments (user case: user below multiple organisations)
+        $this->organisation=$user->organisation;
 
-        $organisationSource = app(SourceOrganisationManager::class)->make($user->organisation->type);
-        $organisationSource->initialisation($user->organisation);
+        $validScopes=['ProfileImage','Permissions'];
+
+        $organisationSource = app(SourceOrganisationManager::class)->make($this->organisation->type);
+        $organisationSource->initialisation($this->organisation);
 
         $userData=$organisationSource->fetchUser(Arr::get($user->data,'source_id'));
 
@@ -59,6 +63,15 @@ class UpdateUserFromSource
 
     }
 
+    protected function updatePermissions($userData): void
+    {
+        $roles=$userData['roles']??[];
+        setPermissionsTeamId($this->organisation->id);
+        $this->user->syncRoles($roles);
+
+
+
+    }
 
     protected function updateProfileImage($userData): void
     {
