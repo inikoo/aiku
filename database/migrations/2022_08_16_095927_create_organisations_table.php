@@ -34,8 +34,10 @@ class CreateOrganisationsTable extends Migration
 
         Schema::create('organisation_user', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('organisation_id')->nullable();
+
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('organisation_id')->nullable()->constrained();
+
             $table->timestampsTz();
             $table->unique(['user_id', 'organisation_id']);
         });
