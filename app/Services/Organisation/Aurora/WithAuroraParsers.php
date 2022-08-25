@@ -8,7 +8,9 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
+use App\Models\Assets\Timezone;
 use Carbon\Carbon;
 use Exception;
 
@@ -42,22 +44,28 @@ trait WithAuroraParsers
         return null;
     }
 
-    protected function parseJobPosition($isSupervisor, $sourceCode): string
+
+    protected function parseCurrencyID($currencyCode): int|null
     {
-        return match ($sourceCode) {
-            'WAHM' => 'wah-m',
-            'WAHSK' => 'wah-sk',
-            'WAHSC' => 'wah-sc',
-            'PICK' => 'dist-pik,dist-pak',
-            'OHADM' => 'dist-m',
-            'PRODM' => 'prod-m',
-            'PRODO' => 'prod-w',
-            'CUSM' => 'cus-m',
-            'CUS' => 'cus-c',
-            'MRK' => $isSupervisor ? 'mrk-m' : 'mrk-c',
-            'WEB' => $isSupervisor ? 'web-m' : 'web-c',
-            'HR' => $isSupervisor ? 'hr-m' : 'hr-c',
-            default => strtolower($sourceCode)
-        };
+        if ($currencyCode != '') {
+            if ($currencyCode == 'LEU') {
+                $currencyCode = 'RON';
+            }
+
+            return Currency::where('code', $currencyCode)->firstOrFail()->id;
+        }
+
+        return null;
     }
+
+    protected function parseTimezoneID($timezone): int|null
+    {
+        if ($timezone != '') {
+            return Timezone::where('name', $timezone)->first()->id;
+        }
+
+        return null;
+    }
+
+
 }

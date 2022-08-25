@@ -1,16 +1,17 @@
 <?php
-/** @noinspection PhpUnused */
-
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 25 Aug 2022 20:54:50 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Fri, 26 Aug 2022 01:31:05 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-namespace App\Actions\HumanResources\Employee;
+/** @noinspection PhpUnused */
+
+
+namespace App\Actions\Marketing\Shop;
 
 use App\Managers\Organisation\SourceOrganisationManager;
-use App\Models\HumanResources\Employee;
+use App\Models\Marketing\Shop;
 use App\Models\Organisations\Organisation;
 use Exception;
 use Illuminate\Console\Command;
@@ -20,14 +21,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 
 /**
- * @property \App\Models\Organisations\Organisation $organisation
- * @property \App\Models\HumanResources\Employee $employee
+ * @property Organisation $organisation
+ * @property Shop $shop
  */
-class UpsertEmployeesFromSource
+class UpsertShopsFromSource
 {
     use AsAction;
 
-    public string $commandSignature = 'source-update:employees {organisation_code} {scopes?*}';
+    public string $commandSignature = 'source-update:shops {organisation_code} {scopes?*}';
 
 
     /**
@@ -39,21 +40,19 @@ class UpsertEmployeesFromSource
         $this->organisation = $organisation;
 
 
-        $validScopes = ['upsertEmployee', 'updateEmployeePhoto', 'syncJobPositions'];
+        $validScopes = ['upsertShop'];
 
         $organisationSource = app(SourceOrganisationManager::class)->make($this->organisation->type);
         $organisationSource->initialisation($this->organisation);
 
         foreach (
             DB::connection('aurora')
-                ->table('Staff Dimension')
-                ->select('Staff Key')
-                ->where('Staff Currently Working', 'Yes')
-                ->where('Staff Type', '!=', 'Contractor')
+                ->table('Store Dimension')
+                ->select('Store Key')
+                ->whereIn('Store Status', ['Normal','ClosingDown'])
                 ->get() as $auroraData
         ) {
-            $employeeData = $organisationSource->fetchEmployee($auroraData->{'Staff Key'});
-
+            $shopData = $organisationSource->fetchShop($auroraData->{'Store Key'});
 
             if ($scopes == null) {
                 $scopes = $validScopes;
@@ -63,34 +62,24 @@ class UpsertEmployeesFromSource
                 if (!method_exists($this, $scope)) {
                     throw new Exception("Scope $scope is not supported");
                 }
-                $this->{$scope}($employeeData);
+                $this->{$scope}($shopData);
             }
         }
     }
 
-    protected function upsertEmployee($employeeData): void
+    protected function upsertShop($shopData): void
     {
-        if ($employee = Employee::where('organisation_source_id', $employeeData['employee']['organisation_source_id'])
+        if ($shop = Shop::where('organisation_source_id', $shopData['shop']['organisation_source_id'])
             ->where('organisation_id',$this->organisation->id)
             ->first()) {
-            $res = UpdateEmployee::run($employee, $employeeData['employee']);
+            $res = UpdateShop::run($shop, $shopData['shop']);
         } else {
-            $res = StoreEmployee::run($this->organisation, $employeeData['employee']);
+            $res = StoreShop::run($this->organisation, $shopData['shop']);
         }
-        $this->employee = $res->model;
+        $this->shop = $res->model;
     }
 
-    protected function syncJobPositions($employeeData): void
-    {
-        $this->employee->jobPositions()->sync($employeeData['job-positions']);
-    }
 
-    protected function updateEmployeePhoto($employeeData): void
-    {
-        foreach ($employeeData['photo'] ?? [] as $profileImage) {
-            SetEmployeePhoto::run($this->employee, $profileImage['image_path'], $profileImage['filename']);
-        }
-    }
 
 
     /**
@@ -101,10 +90,8 @@ class UpsertEmployeesFromSource
         $organisation = Organisation::where('code', $command->argument('organisation_code'))->first();
         if (!$organisation) {
             $command->error('Organisation not found');
-
             return;
         }
-
 
         $this->handle($organisation);
     }

@@ -10,6 +10,7 @@ namespace App\Models\Organisations;
 
 
 use App\Models\HumanResources\Employee;
+use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -63,6 +64,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read \Illuminate\Database\Eloquent\Collection|Employee[] $employees
  * @property-read int|null $employees_count
  * @method static Builder|Organisation whereCurrencyId($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|Shop[] $shops
+ * @property-read int|null $shops_count
  */
 class Organisation extends Authenticatable
 {
@@ -93,6 +96,11 @@ class Organisation extends Authenticatable
     public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
+    }
+
+    public function shops(): HasMany
+    {
+        return $this->hasMany(Shop::class);
     }
 
 

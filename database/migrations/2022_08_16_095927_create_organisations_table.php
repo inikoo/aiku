@@ -41,7 +41,7 @@ class CreateOrganisationsTable extends Migration
         });
 
         Schema::table('users', function($table) {
-            $table->foreignId('organisation_id')->nullable();
+            $table->foreignId('organisation_id')->constrained()->nullable();
         });
 
     }

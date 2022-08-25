@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::create('user_link_codes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organisation_id');
+            $table->foreignId('organisation_id')->constrained();
             $table->string('code',20)->unique();
             $table->string('source_user_id');
             $table->timestampsTz();
