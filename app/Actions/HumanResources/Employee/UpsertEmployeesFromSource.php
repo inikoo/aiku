@@ -71,11 +71,11 @@ class UpsertEmployeesFromSource
     protected function upsertEmployee($employeeData): void
     {
         if ($employee = Employee::where('organisation_source_id', $employeeData['employee']['organisation_source_id'])->first()) {
-            $this->employee = $employee;
+            $res = UpdateEmployee::run($employee, $employeeData['employee']);
         } else {
-            $res            = StoreEmployee::run($this->organisation, $employeeData['employee']);
-            $this->employee = $res->model;
+            $res = StoreEmployee::run($this->organisation, $employeeData['employee']);
         }
+        $this->employee = $res->model;
     }
 
     protected function syncJobPositions($employeeData): void
