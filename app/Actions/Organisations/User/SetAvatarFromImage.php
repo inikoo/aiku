@@ -32,7 +32,7 @@ class SetAvatarFromImage
 
         $checksum = md5_file($image_path);
 
-        if ($user->getMedia('profiles', ['checksum' => $checksum])->count() == 0) {
+        if ($user->getMedia('profile', ['checksum' => $checksum])->count() == 0) {
             $user->addMedia($image_path)
                 ->preservingOriginal()
                 ->withCustomProperties(['checksum' => $checksum])

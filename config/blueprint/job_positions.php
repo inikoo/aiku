@@ -58,7 +58,22 @@ return [
                 'guest'
             ]
         ],
-
+        'web-m' => [
+            'slug'  => 'web-m',
+            'grade' => 'manager',
+            'name'  => 'Webmaster supervisor',
+            'roles' => [
+                'guest'
+            ]
+        ],
+        'web-c' => [
+            'slug'  => 'web-c',
+            'grade' => 'clerk',
+            'name'  => 'Webmaster clerk',
+            'roles' => [
+                'guest'
+            ]
+        ],
         'buy'      => [
             'slug'  => 'buy',
             'name'  => 'Buyer',

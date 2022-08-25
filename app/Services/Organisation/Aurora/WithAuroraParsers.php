@@ -5,12 +5,21 @@
  *  Copyright (c) 2022, Inikoo
  *  Version 4.0
  */
+
 namespace App\Services\Organisation\Aurora;
 
 use App\Models\Assets\Language;
+use Carbon\Carbon;
 use Exception;
 
-trait WithAuroraParsers{
+trait WithAuroraParsers
+{
+
+    protected function parseDate($value): ?string
+    {
+        return ($value != '' && $value != '0000-00-00 00:00:00'
+            && $value != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+    }
 
     protected function parseLanguageID($locale): int|null
     {
@@ -31,5 +40,24 @@ trait WithAuroraParsers{
         }
 
         return null;
+    }
+
+    protected function parseJobPosition($isSupervisor, $sourceCode): string
+    {
+        return match ($sourceCode) {
+            'WAHM' => 'wah-m',
+            'WAHSK' => 'wah-sk',
+            'WAHSC' => 'wah-sc',
+            'PICK' => 'dist-pik,dist-pak',
+            'OHADM' => 'dist-m',
+            'PRODM' => 'prod-m',
+            'PRODO' => 'prod-w',
+            'CUSM' => 'cus-m',
+            'CUS' => 'cus-c',
+            'MRK' => $isSupervisor ? 'mrk-m' : 'mrk-c',
+            'WEB' => $isSupervisor ? 'web-m' : 'web-c',
+            'HR' => $isSupervisor ? 'hr-m' : 'hr-c',
+            default => strtolower($sourceCode)
+        };
     }
 }

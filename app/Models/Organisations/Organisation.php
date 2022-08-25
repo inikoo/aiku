@@ -9,6 +9,7 @@
 namespace App\Models\Organisations;
 
 
+use App\Models\HumanResources\Employee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -58,6 +59,10 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Query\Builder|Organisation withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Organisation withoutTrashed()
  * @mixin \Eloquent
+ * @property int $currency_id Organisation accounting currency
+ * @property-read \Illuminate\Database\Eloquent\Collection|Employee[] $employees
+ * @property-read int|null $employees_count
+ * @method static Builder|Organisation whereCurrencyId($value)
  */
 class Organisation extends Authenticatable
 {
@@ -83,6 +88,11 @@ class Organisation extends Authenticatable
     public function userLinkCodes(): HasMany
     {
         return $this->hasMany(UserLinkCode::class);
+    }
+
+    public function employees(): HasMany
+    {
+        return $this->hasMany(Employee::class);
     }
 
 

@@ -33,7 +33,8 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::morphMap(
             [
-                'User'            => 'App\Models\Organisations\User',
+                'User' => 'App\Models\Organisations\User',
+                'Employee' => 'App\Models\HumanResources\Employee',
             ]
         );
     }
