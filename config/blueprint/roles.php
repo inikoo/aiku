@@ -9,24 +9,63 @@
 
 return
     [
-        'supervisor' => [
-            'admin_users',
-            'look-and-field',
-            'deliveries',
+        'super-admin'           => [
+            'organisation',
+            'users',
+            'assets',
+            'inventory',
+            'warehouses',
         ],
-        'observer'   => [
-            'deliveries',
-            'users.view',
-        ],
-        'picker'      => [
-            'deliveries',
 
+        'system-admin'          => [
+            'users',
+            'look-and-field',
         ],
-        'packer'      => [
-            'deliveries',
+
+
+        'human-resources-clerk' => [
+            'employees.view',
+            'employees.edit',
+            'employees.payroll',
+            'employees.attendance',
         ],
+        'human-resources-admin' => [
+            'employees.view',
+            'employees.edit',
+            'employees.payroll',
+            'employees.attendance',
+        ],
+
+        'distribution-admin'             => [
+            'inventory',
+            'warehouses',
+        ],
+        'distribution-clerk'             => [
+            'inventory.stocks',
+            'warehouses.view',
+            'warehouses.stock',
+        ],
+        'distribution-dispatcher-admin'  => [
+
+            'inventory.stocks.view',
+            'warehouses.view',
+            'warehouses.dispatching',
+        ],
+        'distribution-dispatcher-picker' => [
+
+            'inventory.stocks.view',
+            'warehouses.view',
+            'warehouses.dispatching.pick',
+        ],
+        'distribution-dispatcher-packer' => [
+
+            'inventory.stocks.view',
+            'warehouses.view',
+            'warehouses.dispatching.pack',
+        ],
+
         'guest'      => [
-            'deliveries.view',
+            'warehouses.view',
         ],
 
     ];

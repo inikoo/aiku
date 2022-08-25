@@ -12,11 +12,7 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     *
-     * @return void
-     */
+
     public function run()
     {
         $this->call([
@@ -24,6 +20,7 @@ class DatabaseSeeder extends Seeder
                         TimezoneSeeder::class,
                         LanguageSeeder::class,
                         PermissionSeeder::class,
+                        JobPositionSeeder::class,
                     ]);
     }
 }

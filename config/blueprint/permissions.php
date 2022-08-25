@@ -7,6 +7,10 @@
  */
 
 return [
+
+    'organisation',
+    'organisation.view',
+
     'users',
     'users.view',
     'users.create',
@@ -14,12 +18,25 @@ return [
     'users.delete',
     'look-and-field',
 
+    'employees',
+    'employees.view',
+    'employees.edit',
+    'employees.payroll',
+    'employees.attendance',
 
 
-    'deliveries',
-    'deliveries.view',
-    'deliveries.edit',
-    'deliveries.delete',
+
+    'inventory',
+    'inventory.stocks',
+    'inventory.stocks.view',
+
+    'warehouses',
+    'warehouses.view',
+    'warehouses.dispatching',
+    'warehouses.dispatching.pick',
+    'warehouses.dispatching.pack',
+
+
 
 
 

@@ -9,6 +9,7 @@
         "ext-curl": "*",
         "ext-pdo": "*",
         "commerceguys/addressing": "^1.4",
+        "commerceguys/intl": "^1.1",
         "guzzlehttp/guzzle": "^7.2",
         "inertiajs/inertia-laravel": "^0.5.4",
         "laravel/framework": "^9.19",
