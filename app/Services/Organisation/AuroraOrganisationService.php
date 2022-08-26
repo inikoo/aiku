@@ -11,6 +11,7 @@ namespace App\Services\Organisation;
 
 use App\Models\Organisations\Organisation;
 use App\Services\Organisation\Aurora\FetchAuroraEmployee;
+use App\Services\Organisation\Aurora\FetchAuroraShipper;
 use App\Services\Organisation\Aurora\FetchAuroraShop;
 use App\Services\Organisation\Aurora\FetchAuroraUser;
 use Illuminate\Support\Facades\DB;
@@ -45,6 +46,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchShop($id): array|null
     {
         return (new FetchAuroraShop($this->organisation))->fetch($id);
+    }
+
+    public function fetchShipper($id): array|null
+    {
+        return (new FetchAuroraShipper($this->organisation))->fetch($id);
     }
 
 }

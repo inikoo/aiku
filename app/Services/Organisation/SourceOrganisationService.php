@@ -15,6 +15,12 @@ interface SourceOrganisationService
 {
     public function fetchUser($id);
 
+    public function fetchEmployee($id);
+
+    public function fetchShop($id);
+
+    public function fetchShipper($id);
+
     public function initialisation(Organisation $organisation);
 }
 

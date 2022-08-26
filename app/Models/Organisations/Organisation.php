@@ -9,6 +9,8 @@
 namespace App\Models\Organisations;
 
 
+use App\Models\Delivery\OrganisationShipper;
+use App\Models\Delivery\Shipper;
 use App\Models\HumanResources\Employee;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
@@ -66,6 +68,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static Builder|Organisation whereCurrencyId($value)
  * @property-read \Illuminate\Database\Eloquent\Collection|Shop[] $shops
  * @property-read int|null $shops_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Shipper[] $shippers
+ * @property-read int|null $shippers_count
  */
 class Organisation extends Authenticatable
 {
@@ -103,5 +107,9 @@ class Organisation extends Authenticatable
         return $this->hasMany(Shop::class);
     }
 
+    public function shippers(): BelongsToMany
+    {
+        return $this->belongsToMany(Shipper::class)->using(OrganisationShipper::class)->withTimestamps();
+    }
 
 }
