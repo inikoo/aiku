@@ -25,12 +25,6 @@ class UpdateShop
         $shop->update(Arr::except($modelData, ['data', 'settings']));
         $shop->update($this->extractJson($modelData, ['data', 'settings']));
 
-        $res->changes = array_merge($res->changes, $shop->getChanges());
-
-        $res->model    = $shop;
-        $res->model_id = $shop->id;
-        $res->status   = $res->changes ? 'updated' : 'unchanged';
-
-        return $res;
+        return $this->postUpdate($res,$shop);
     }
 }
