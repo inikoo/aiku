@@ -8,24 +8,11 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Models\Organisations\Organisation;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraUser
+class FetchAuroraUser extends FetchAurora
 {
     use WithAuroraImages;
-    use WithAuroraParsers;
-
-
-    private Organisation $organisation;
-    private array $parsedData;
-    private object $auroraModelData;
-
-    function __construct(Organisation $organisation)
-    {
-        $this->organisation = $organisation;
-        $this->parsedData   = [];
-    }
 
     public function fetch(int $id): ?array
     {
@@ -41,7 +28,7 @@ class FetchAuroraUser
         return $this->parsedData;
     }
 
-    private function parseModel(): void
+    protected function parseModel(): void
     {
         $this->parsedData['user'] = [
             'status'      => $this->auroraModelData->{'User Active'} == 'Yes',
@@ -97,7 +84,7 @@ class FetchAuroraUser
     }
 
 
-    private function fetchData($id): object|null
+    protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
             ->table('User Dimension')

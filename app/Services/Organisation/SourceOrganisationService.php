@@ -21,6 +21,14 @@ interface SourceOrganisationService
 
     public function fetchShipper($id);
 
+    public function fetchDeliveryNote($id);
+
+    public function fetchCustomer($id);
+
+    public function fetchCustomerClient($id);
+
+    public function fetchOrder($id);
+
     public function initialisation(Organisation $organisation);
 }
 

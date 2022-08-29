@@ -10,31 +10,10 @@ namespace App\Services\Organisation\Aurora;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class FetchAuroraShipper
+class FetchAuroraShipper extends FetchAurora
 {
-    use WithAuroraParsers;
 
-
-    private array $parsedData;
-    private object $auroraModelData;
-
-    function __construct()
-    {
-        $this->parsedData = [];
-    }
-
-    public function fetch(int $id): ?array
-    {
-        $this->auroraModelData = $this->fetchData($id);
-
-        if ($this->auroraModelData) {
-            $this->parseModel();
-        }
-
-        return $this->parsedData;
-    }
-
-    private function parseModel(): void
+    protected function parseModel(): void
     {
         $this->parsedData['shipper'] = [
 
@@ -55,7 +34,7 @@ class FetchAuroraShipper
     }
 
 
-    private function fetchData($id): object|null
+    protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
             ->table('Shipper Dimension')

@@ -7,39 +7,13 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Models\Organisations\Organisation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class FetchAuroraCustomer
+class FetchAuroraCustomer extends FetchAurora
 {
-    use WithAuroraParsers;
 
-
-    private Organisation $organisation;
-    private array $parsedData;
-    private ?object $auroraModelData;
-
-    function __construct(Organisation $organisation)
-    {
-        $this->organisation = $organisation;
-        $this->parsedData   = [];
-    }
-
-    public function fetch(int $id): ?array
-    {
-
-        if($this->auroraModelData = $this->fetchData($id)){
-                $this->parseModel();
-
-
-            return $this->parsedData;
-        }
-        return null;
-
-    }
-
-    private function parseModel(): void
+    protected function parseModel(): void
     {
         $status = 'approved';
         $state  = 'active';
@@ -99,7 +73,7 @@ class FetchAuroraCustomer
     }
 
 
-    private function fetchData($id): object|null
+    protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
             ->table('Customer Dimension')

@@ -10,6 +10,9 @@ namespace App\Services\Organisation;
 
 
 use App\Models\Organisations\Organisation;
+use App\Services\Organisation\Aurora\FetchAuroraCustomer;
+use App\Services\Organisation\Aurora\FetchAuroraCustomerClient;
+use App\Services\Organisation\Aurora\FetchAuroraDeliveryNote;
 use App\Services\Organisation\Aurora\FetchAuroraEmployee;
 use App\Services\Organisation\Aurora\FetchAuroraOrder;
 use App\Services\Organisation\Aurora\FetchAuroraShipper;
@@ -34,24 +37,45 @@ class AuroraOrganisationService implements SourceOrganisationService
         $this->organisation = $organisation;
     }
 
-    public function fetchUser($id): array|null
+    public function fetchUser($id): ?array
     {
-        return (new FetchAuroraUser($this->organisation))->fetch($id);
+        return (new FetchAuroraUser($this))->fetch($id);
     }
 
-    public function fetchEmployee($id): array|null
+    public function fetchEmployee($id): ?array
     {
-        return (new FetchAuroraEmployee($this->organisation))->fetch($id);
+        return (new FetchAuroraEmployee($this))->fetch($id);
     }
 
-    public function fetchShop($id): array|null
+    public function fetchShop($id): ?array
     {
-        return (new FetchAuroraShop($this->organisation))->fetch($id);
+        return (new FetchAuroraShop($this))->fetch($id);
     }
 
-    public function fetchShipper($id): array|null
+    public function fetchShipper($id): ?array
     {
-        return (new FetchAuroraShipper($this->organisation))->fetch($id);
+        return (new FetchAuroraShipper($this))->fetch($id);
     }
 
+    public function fetchDeliveryNote($id): ?array
+    {
+        return (new FetchAuroraDeliveryNote($this))->fetch($id);
+
+    }
+
+    public function fetchCustomer($id): ?array
+    {
+        return (new FetchAuroraCustomer($this))->fetch($id);
+    }
+
+    public function fetchOrder($id): ?array
+    {
+
+        return (new FetchAuroraOrder($this))->fetch($id);
+    }
+
+    public function fetchCustomerClient($id): ?array
+    {
+        return (new FetchAuroraCustomerClient($this))->fetch($id);
+    }
 }

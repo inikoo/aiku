@@ -13,9 +13,10 @@ return new class extends Migration {
 
     public function up()
     {
-
         Schema::create('delivery_notes', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('organisation_id')->constrained();
 
             $table->unsignedMediumInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
@@ -81,8 +82,8 @@ return new class extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedBigInteger('organisation_source_id')->nullable()->index();
+            $table->unique(['organisation_id', 'organisation_source_id']);
         });
-
     }
 
 

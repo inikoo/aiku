@@ -7,37 +7,14 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Models\Organisations\Organisation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class FetchAuroraShop
+class FetchAuroraShop extends FetchAurora
 {
-    use WithAuroraParsers;
 
 
-    private Organisation $organisation;
-    private array $parsedData;
-    private object $auroraModelData;
-
-    function __construct(Organisation $organisation)
-    {
-        $this->organisation = $organisation;
-        $this->parsedData   = [];
-    }
-
-    public function fetch(int $id): ?array
-    {
-        $this->auroraModelData = $this->fetchData($id);
-
-        if ($this->auroraModelData) {
-            $this->parseModel();
-        }
-
-        return $this->parsedData;
-    }
-
-    private function parseModel(): void
+    protected function parseModel(): void
     {
         $this->parsedData['shop'] = [
 
@@ -73,7 +50,7 @@ class FetchAuroraShop
     }
 
 
-    private function fetchData($id): object|null
+    protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
             ->table('Store Dimension')

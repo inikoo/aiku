@@ -8,12 +8,15 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Marketing\Shop;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Str;
 
 trait WithAuroraParsers
 {
@@ -66,6 +69,51 @@ trait WithAuroraParsers
         }
 
         return null;
+    }
+
+    protected function parseCountryID($country, $source = '', $auAddressData = null): int|null
+    {
+        if ($country != '') {
+            try {
+                if (strlen($country) == 2) {
+                    return Country::withTrashed()->where('code', $country)->firstOrFail()->id;
+                } elseif (strlen($country) == 3) {
+                    return Country::withTrashed()->where('iso3', $country)->firstOrFail()->id;
+                } else {
+                    return Country::withTrashed()->where('name', $country)->firstOrFail()->id;
+                }
+            } catch (Exception) {
+                abort(404, "Country not found: $country ($source)\n");
+            }
+        }
+
+        return null;
+    }
+
+    protected function parseAddress($prefix, $auAddressData): array
+    {
+        $addressData                        = [];
+        $addressData['address_line_1']      = (string)Str::of($auAddressData->{$prefix.' Address Line 1'} ?? null)->limit(251);
+        $addressData['address_line_2']      = (string)Str::of($auAddressData->{$prefix.' Address Line 2'} ?? null)->limit(251);
+        $addressData['sorting_code']        = (string)Str::of($auAddressData->{$prefix.' Address Sorting Code'} ?? null)->limit(187);
+        $addressData['postal_code']         = (string)Str::of($auAddressData->{$prefix.' Address Postal Code'} ?? null)->limit(187);
+        $addressData['locality']            = (string)Str::of($auAddressData->{$prefix.' Address Locality'} ?? null)->limit(187);
+        $addressData['dependant_locality']  = (string)Str::of($auAddressData->{$prefix.' Address Dependent Locality'} ?? null)->limit(187);
+        $addressData['administrative_area'] = (string)Str::of($auAddressData->{$prefix.' Address Administrative Area'} ?? null)->limit(187);
+        $addressData['country_id']          = $this->parseCountryID($auAddressData->{$prefix.' Address Country 2 Alpha Code'} ?? null, $prefix, $auAddressData);
+
+        return $addressData;
+    }
+
+
+    function parseShop($organisation_source_id): Shop
+    {
+        try {
+            return Shop::where('organisation_source_id', $organisation_source_id)
+                ->where('organisation_id', $this->organisation->id)->firstOrFail();
+        } catch (Exception) {
+            abort(404, 'Shop not found');
+        }
     }
 
 

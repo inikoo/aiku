@@ -39,17 +39,7 @@ class UpdateOrder
 
         $order->update( Arr::except($modelData, ['data']));
         $order->update($this->extractJson($modelData));
+        return $this->postUpdate($res,$order);
 
-        $res->changes = array_merge($res->changes, $order->getChanges());
-
-
-
-
-
-        $res->model    = $order;
-        $res->model_id = $order->id;
-        $res->status   = $res->changes ? 'updated' : 'unchanged';
-
-        return $res;
     }
 }

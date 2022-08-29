@@ -10,42 +10,13 @@ namespace App\Services\Organisation\Aurora;
 use App\Actions\SourceUpserts\Aurora\Single\UpsertCustomerClientFromSource;
 use App\Actions\SourceUpserts\Aurora\Single\UpsertCustomerFromSource;
 use App\Models\Helpers\Address;
-use App\Models\Organisations\Organisation;
-use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class FetchAuroraOrder
+class FetchAuroraOrder extends FetchAurora
 {
-    use WithAuroraParsers;
 
-
-    private Organisation $organisation;
-    private array $parsedData;
-    private ?object $auroraModelData;
-    private SourceOrganisationService $organisationSource;
-
-    function __construct(SourceOrganisationService $organisationSource)
-    {
-        $this->organisationSource=$organisationSource;
-        $this->organisation = $organisationSource->organisation;
-        $this->parsedData   = [];
-    }
-
-    public function fetch(int $id): ?array
-    {
-
-        if($this->auroraModelData = $this->fetchData($id)){
-                $this->parseModel();
-            return $this->parsedData;
-        }else{
-            abort(404,"Order $id not found in aurora");
-        }
-
-
-    }
-
-    private function parseModel(): void
+    protected function parseModel(): void
     {
 
 
@@ -81,7 +52,7 @@ class FetchAuroraOrder
     }
 
 
-    private function fetchData($id): object|null
+    protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
             ->table('Order Dimension')

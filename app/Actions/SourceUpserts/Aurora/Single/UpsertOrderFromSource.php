@@ -11,7 +11,6 @@
 namespace App\Actions\SourceUpserts\Aurora\Single;
 
 
-
 use App\Actions\Sales\Order\StoreOrder;
 use App\Actions\Sales\Order\UpdateOrder;
 use App\Models\Sales\Order;
@@ -37,7 +36,7 @@ class UpsertOrderFromSource
             if ($order = Order::where('organisation_source_id', $orderData['order']['organisation_source_id'])
                 ->where('organisation_id', $organisationSource->organisation->id)
                 ->first()) {
-                $res = UpdateOrder::run($order, $orderData['order']);
+                $res = UpdateOrder::run($order, $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
             } else {
                 $res = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
             }
@@ -48,7 +47,6 @@ class UpsertOrderFromSource
 
         return null;
     }
-
 
 
 }

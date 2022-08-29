@@ -8,25 +8,16 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Models\HumanResources\JobPosition;
-use App\Models\Organisations\Organisation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class FetchAuroraEmployee
+class FetchAuroraEmployee extends FetchAurora
 {
     use WithAuroraImages;
     use WithAuroraParsers;
 
 
-    private Organisation $organisation;
-    private array $parsedData;
-    private object $auroraModelData;
 
-    function __construct(Organisation $organisation)
-    {
-        $this->organisation = $organisation;
-        $this->parsedData   = [];
-    }
 
     public function fetch(int $id): ?array
     {
@@ -42,7 +33,7 @@ class FetchAuroraEmployee
         return $this->parsedData;
     }
 
-    private function parseModel(): void
+    protected function parseModel(): void
     {
         $data   = [];
         $errors = [];
@@ -146,7 +137,7 @@ class FetchAuroraEmployee
     }
 
 
-    private function fetchData($id): object|null
+    protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
             ->table('Staff Dimension')

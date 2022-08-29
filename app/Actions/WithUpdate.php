@@ -31,5 +31,13 @@ trait WithUpdate{
         return $data;
     }
 
+    function postUpdate($res,$model){
+        $res->changes = array_merge($res->changes, $model->getChanges());
+        $res->model    = $model;
+        $res->model_id = $model->id;
+        $res->status   = $res->changes ? 'updated' : 'unchanged';
+        return $res;
+    }
+
 }
 
