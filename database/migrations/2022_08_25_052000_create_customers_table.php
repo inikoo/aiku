@@ -45,7 +45,7 @@ return new class extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
 
-            $table->unsignedBigInteger('organisation_source_id')->nullable()->unique();
+            $table->unsignedBigInteger('organisation_source_id')->nullable();
             $table->unique(['organisation_id','organisation_source_id']);
             $table->index([DB::raw('name(64)')]);
         });

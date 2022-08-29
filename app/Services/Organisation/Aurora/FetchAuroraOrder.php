@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Actions\SourceUpserts\Aurora\Single\UpsertCustomerClientFromSource;
 use App\Actions\SourceUpserts\Aurora\Single\UpsertCustomerFromSource;
 use App\Models\Helpers\Address;
 use App\Models\Organisations\Organisation;
@@ -49,7 +50,7 @@ class FetchAuroraOrder
 
 
         if ($this->auroraModelData->{'Order Customer Client Key'} != '') {
-           // $parent=UpsertCustomerClientFromSource::run($this->organisationSource,$this->auroraModelData->{'Order Customer Client Key'});
+           $parent=UpsertCustomerClientFromSource::run($this->organisationSource,$this->auroraModelData->{'Order Customer Client Key'});
 
         } else {
 
