@@ -1,14 +1,12 @@
-<?php /** @noinspection PhpUnused */
-
-/*
+<?php /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 23 Aug 2022 16:37:48 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
- */
+ *  Created: Mon, 29 Aug 2022 13:35:31 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia F
+ */ /** @noinspection PhpUnused */
 
-namespace App\Actions\Organisations\User;
+namespace App\Actions\SourceUpserts\Aurora\Single;
 
+use App\Actions\Organisations\User\SetAvatarFromImage;
 use App\Managers\Organisation\SourceOrganisationManager;
 use App\Models\Organisations\User;
 use Exception;

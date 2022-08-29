@@ -1,20 +1,21 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 26 Aug 2022 01:31:05 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Mon, 29 Aug 2022 13:36:52 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
 /** @noinspection PhpUnused */
 
 
-namespace App\Actions\Marketing\Shop;
+namespace App\Actions\SourceUpserts\Aurora\Mass;
 
+use App\Actions\Marketing\Shop\StoreShop;
+use App\Actions\Marketing\Shop\UpdateShop;
 use App\Managers\Organisation\SourceOrganisationManager;
 use App\Models\Marketing\Shop;
 use App\Models\Organisations\Organisation;
 use Exception;
-use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,6 +28,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class UpsertShopsFromSource
 {
     use AsAction;
+    use WithMassFromSourceCommand;
 
     public string $commandSignature = 'source-update:shops {organisation_code} {scopes?*}';
 
@@ -79,22 +81,6 @@ class UpsertShopsFromSource
         $this->shop = $res->model;
     }
 
-
-
-
-    /**
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    public function asCommand(Command $command): void
-    {
-        $organisation = Organisation::where('code', $command->argument('organisation_code'))->first();
-        if (!$organisation) {
-            $command->error('Organisation not found');
-            return;
-        }
-
-        $this->handle($organisation);
-    }
 
 
 }

@@ -1,19 +1,21 @@
 <?php
-/** @noinspection PhpUnused */
-
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 25 Aug 2022 20:54:50 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Mon, 29 Aug 2022 13:34:28 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-namespace App\Actions\HumanResources\Employee;
+/** @noinspection PhpUnused */
 
+namespace App\Actions\SourceUpserts\Aurora\Mass;
+
+use App\Actions\HumanResources\Employee\SetEmployeePhoto;
+use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Managers\Organisation\SourceOrganisationManager;
 use App\Models\HumanResources\Employee;
 use App\Models\Organisations\Organisation;
 use Exception;
-use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,6 +28,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class UpsertEmployeesFromSource
 {
     use AsAction;
+    use WithMassFromSourceCommand;
 
     public string $commandSignature = 'source-update:employees {organisation_code} {scopes?*}';
 
@@ -91,23 +94,5 @@ class UpsertEmployeesFromSource
             SetEmployeePhoto::run($this->employee, $profileImage['image_path'], $profileImage['filename']);
         }
     }
-
-
-    /**
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    public function asCommand(Command $command): void
-    {
-        $organisation = Organisation::where('code', $command->argument('organisation_code'))->first();
-        if (!$organisation) {
-            $command->error('Organisation not found');
-
-            return;
-        }
-
-
-        $this->handle($organisation);
-    }
-
 
 }
