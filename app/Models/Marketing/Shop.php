@@ -7,11 +7,16 @@
 
 namespace App\Models\Marketing;
 
+use App\Models\CRM\Customer;
+use App\Models\Helpers\Address;
 use App\Models\Organisations\Organisation;
 use App\Models\Traits\HasAddress;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  * App\Models\Marketing\Shop
@@ -43,46 +48,46 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
- * @method static \Illuminate\Database\Eloquent\Builder|Shop newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Shop newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Shop query()
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereAddressId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereAuroraId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereClosedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereCompanyName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereContactName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereIdentityDocumentNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereIdentityDocumentType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereLanguageId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereLocation($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereOpenAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereSettings($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereSubtype($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereTaxNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereTaxNumberStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereTimezoneId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereWebsite($value)
+ * @method static Builder|Shop newModelQuery()
+ * @method static Builder|Shop newQuery()
+ * @method static Builder|Shop query()
+ * @method static Builder|Shop whereAddressId($value)
+ * @method static Builder|Shop whereAuroraId($value)
+ * @method static Builder|Shop whereClosedAt($value)
+ * @method static Builder|Shop whereCode($value)
+ * @method static Builder|Shop whereCompanyName($value)
+ * @method static Builder|Shop whereContactName($value)
+ * @method static Builder|Shop whereCreatedAt($value)
+ * @method static Builder|Shop whereCurrencyId($value)
+ * @method static Builder|Shop whereData($value)
+ * @method static Builder|Shop whereDeletedAt($value)
+ * @method static Builder|Shop whereEmail($value)
+ * @method static Builder|Shop whereId($value)
+ * @method static Builder|Shop whereIdentityDocumentNumber($value)
+ * @method static Builder|Shop whereIdentityDocumentType($value)
+ * @method static Builder|Shop whereLanguageId($value)
+ * @method static Builder|Shop whereLocation($value)
+ * @method static Builder|Shop whereName($value)
+ * @method static Builder|Shop whereOpenAt($value)
+ * @method static Builder|Shop wherePhone($value)
+ * @method static Builder|Shop whereSettings($value)
+ * @method static Builder|Shop whereState($value)
+ * @method static Builder|Shop whereSubtype($value)
+ * @method static Builder|Shop whereTaxNumber($value)
+ * @method static Builder|Shop whereTaxNumberStatus($value)
+ * @method static Builder|Shop whereTimezoneId($value)
+ * @method static Builder|Shop whereType($value)
+ * @method static Builder|Shop whereUpdatedAt($value)
+ * @method static Builder|Shop whereWebsite($value)
  * @mixin \Eloquent
  * @property int|null $organisation_source_id
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereOrganisationSourceId($value)
+ * @method static Builder|Shop whereOrganisationSourceId($value)
  * @property int $organisation_id
  * @property-read \App\Models\Helpers\Address|null $address
  * @property-read string $formatted_address
  * @property-read Organisation|null $organisation
  * @property-read \App\Models\Marketing\ShopStats|null $stats
- * @method static \Illuminate\Database\Eloquent\Builder|Shop whereOrganisationId($value)
+ * @method static Builder|Shop whereOrganisationId($value)
  */
 class Shop extends Model
 {
@@ -106,9 +111,20 @@ class Shop extends Model
         return $this->hasOne(ShopStats::class);
     }
 
+    public function addresses(): MorphToMany
+    {
+        return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
+    }
+
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
     }
+
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
+
 
 }

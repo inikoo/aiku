@@ -11,6 +11,7 @@ namespace App\Services\Organisation\Aurora;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
+use App\Models\Marketing\Shop;
 use Carbon\Carbon;
 use Exception;
 

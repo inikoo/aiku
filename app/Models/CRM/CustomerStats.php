@@ -2,8 +2,9 @@
 
 namespace App\Models\CRM;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\CRM\CustomerStats
@@ -22,26 +23,37 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_invoices_type_refund
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereCustomerId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereLastDispatchedDeliveryAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereLastInvoicedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereLastSubmittedOrderAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereNumberDeliveries($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereNumberDeliveriesTypeOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereNumberDeliveriesTypeReplacement($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereNumberInvoices($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereNumberInvoicesTypeInvoice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereNumberInvoicesTypeRefund($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereOrganisationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerStats whereUpdatedAt($value)
+ * @method static Builder|CustomerStats newModelQuery()
+ * @method static Builder|CustomerStats newQuery()
+ * @method static Builder|CustomerStats query()
+ * @method static Builder|CustomerStats whereCreatedAt($value)
+ * @method static Builder|CustomerStats whereCustomerId($value)
+ * @method static Builder|CustomerStats whereId($value)
+ * @method static Builder|CustomerStats whereLastDispatchedDeliveryAt($value)
+ * @method static Builder|CustomerStats whereLastInvoicedAt($value)
+ * @method static Builder|CustomerStats whereLastSubmittedOrderAt($value)
+ * @method static Builder|CustomerStats whereNumberDeliveries($value)
+ * @method static Builder|CustomerStats whereNumberDeliveriesTypeOrder($value)
+ * @method static Builder|CustomerStats whereNumberDeliveriesTypeReplacement($value)
+ * @method static Builder|CustomerStats whereNumberInvoices($value)
+ * @method static Builder|CustomerStats whereNumberInvoicesTypeInvoice($value)
+ * @method static Builder|CustomerStats whereNumberInvoicesTypeRefund($value)
+ * @method static Builder|CustomerStats whereOrganisationId($value)
+ * @method static Builder|CustomerStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class CustomerStats extends Model
 {
-    use HasFactory;
+    protected $casts = [
+        'last_submitted_order_at' => 'datetime',
+        'last_dispatched_delivery_at' => 'datetime',
+        'last_invoiced_at' => 'datetime',
+    ];
+    protected $guarded = [];
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
 }

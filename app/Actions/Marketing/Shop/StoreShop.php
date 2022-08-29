@@ -25,11 +25,20 @@ class StoreShop
         $shop = $organisation->shops()->create($modelData);
         $shop->stats()->create();
 
-        $address = StoreAddress::run($addressData);
 
-        $shop->address_id = $address->id;
-        $shop->location   = $shop->getLocation();
-        $shop->save();
+        if (count($addressData) > 0) {
+            $addresses = [];
+
+            $address = StoreAddress::run($addressData);
+
+            $addresses[$address->id] = ['scope' => 'collection'];
+
+            $shop->addresses()->sync($addresses);
+            $shop->address_id = $address->id;
+            $shop->location   = $shop->getLocation();
+            $shop->save();
+        }
+
 
         $res->model    = $shop;
         $res->model_id = $shop->id;
