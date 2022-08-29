@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Organisations\Organisation;
+use App\Models\Sales\Order;
 use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -126,5 +127,9 @@ class Shop extends Model
         return $this->hasMany(Customer::class);
     }
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
 
 }

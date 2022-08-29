@@ -40,6 +40,7 @@ class StoreOrder
             $modelData['customer_client_id']=$parent->id;
 
         }
+        $modelData['organisation_id']=$parent->organisation_id;
 
         $modelData['currency_id']=$parent->shop->currency_id;
         $modelData['shop_id']=$parent->shop_id;

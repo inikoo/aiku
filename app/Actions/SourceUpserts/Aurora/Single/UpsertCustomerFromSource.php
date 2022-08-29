@@ -28,7 +28,7 @@ class UpsertCustomerFromSource
     use AsAction;
     use WithSingleFromSourceCommand;
 
-    public string $commandSignature = 'source-update:customer  {organisation_code} {organisation_source_id} ';
+    public string $commandSignature = 'source-update:customer {organisation_code} {organisation_source_id}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Customer
@@ -37,7 +37,7 @@ class UpsertCustomerFromSource
             if ($customer = Customer::where('organisation_source_id', $customerData['customer']['organisation_source_id'])
                 ->where('organisation_id', $organisationSource->organisation->id)
                 ->first()) {
-                $res = UpdateCustomer::run($customer, $customerData['order']);
+                $res = UpdateCustomer::run($customer, $customerData['customer']);
             } else {
                 $res = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['addresses']);
             }
