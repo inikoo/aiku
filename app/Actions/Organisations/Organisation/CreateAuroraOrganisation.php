@@ -9,6 +9,7 @@
 namespace App\Actions\Organisations\Organisation;
 
 use App\Models\Assets\Country;
+use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Organisations\Organisation;
@@ -55,6 +56,7 @@ class CreateAuroraOrganisation
         $country  = Country::where('code', $auData->{'Account Country 2 Alpha Code'})->firstOrFail();
         $language = Language::where('code', $language)->firstOrFail();
         $timezone = Timezone::where('name', $auData->{'Account Timezone'})->firstOrFail();
+        $currency = Currency::where('code', $auData->{'Account Currency'})->firstOrFail();
 
         $organisationData = [
             'code'        => $code,
@@ -63,6 +65,7 @@ class CreateAuroraOrganisation
             'country_id'  => $country->id,
             'language_id' => $language->id,
             'timezone_id' => $timezone->id,
+            'currency_id' => $currency->id,
             'data'        => $data,
 
         ];

@@ -26,7 +26,8 @@ class CreateOrganisationsTable extends Migration
             $table->foreign('language_id')->references('id')->on('languages');
             $table->unsignedSmallInteger('timezone_id');
             $table->foreign('timezone_id')->references('id')->on('timezones');
-
+            $table->unsignedSmallInteger('currency_id')->comment('Organisation accounting currency');
+            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->unsignedSmallInteger('number_users')->default(0);
             $table->timestampsTz();
             $table->softDeletesTz();

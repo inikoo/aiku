@@ -8,6 +8,7 @@
 
 namespace App\Models\Assets;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 
@@ -22,17 +23,17 @@ use Illuminate\Database\Eloquent\Model;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|Language newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Language newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Language query()
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereOriginalName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereUpdatedAt($value)
+ * @method static Builder|Language newModelQuery()
+ * @method static Builder|Language newQuery()
+ * @method static Builder|Language query()
+ * @method static Builder|Language whereCode($value)
+ * @method static Builder|Language whereCreatedAt($value)
+ * @method static Builder|Language whereData($value)
+ * @method static Builder|Language whereId($value)
+ * @method static Builder|Language whereName($value)
+ * @method static Builder|Language whereOriginalName($value)
+ * @method static Builder|Language whereStatus($value)
+ * @method static Builder|Language whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Language extends Model
