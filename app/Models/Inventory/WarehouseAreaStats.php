@@ -25,6 +25,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|WarehouseAreaStats whereId($value)
  * @method static Builder|WarehouseAreaStats whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property int $warehouse_area_id
+ * @property int $number_locations
+ * @property int $number_empty_locations
+ * @property string $stock_value
+ * @method static Builder|WarehouseAreaStats whereNumberEmptyLocations($value)
+ * @method static Builder|WarehouseAreaStats whereNumberLocations($value)
+ * @method static Builder|WarehouseAreaStats whereStockValue($value)
+ * @method static Builder|WarehouseAreaStats whereWarehouseAreaId($value)
  */
 class WarehouseAreaStats extends Model
 {
