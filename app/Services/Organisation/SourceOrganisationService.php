@@ -29,6 +29,12 @@ interface SourceOrganisationService
 
     public function fetchOrder($id);
 
+    public function fetchWarehouse($id);
+
+    public function fetchWarehouseArea($id);
+
+    public function fetchLocation($id);
+
     public function initialisation(Organisation $organisation);
 }
 

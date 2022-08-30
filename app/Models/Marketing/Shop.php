@@ -89,6 +89,12 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read Organisation|null $organisation
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @method static Builder|Shop whereOrganisationId($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
+ * @property-read int|null $addresses_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Customer[] $customers
+ * @property-read int|null $customers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
+ * @property-read int|null $orders_count
  */
 class Shop extends Model
 {

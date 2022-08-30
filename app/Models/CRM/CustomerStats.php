@@ -41,6 +41,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|CustomerStats whereOrganisationId($value)
  * @method static Builder|CustomerStats whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \App\Models\CRM\Customer $customer
  */
 class CustomerStats extends Model
 {

@@ -79,6 +79,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|DeliveryNote whereType($value)
  * @method static Builder|DeliveryNote whereUpdatedAt($value)
  * @method static Builder|DeliveryNote whereWeight($value)
+ * @property int $organisation_id
+ * @property-read Customer $customer
+ * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $order
+ * @property-read int|null $order_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
+ * @property-read int|null $orders_count
+ * @property-read Shop $shop
+ * @method static \Illuminate\Database\Query\Builder|DeliveryNote onlyTrashed()
+ * @method static Builder|DeliveryNote whereOrganisationId($value)
+ * @method static \Illuminate\Database\Query\Builder|DeliveryNote withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|DeliveryNote withoutTrashed()
  */
 class DeliveryNote extends Model
 {

@@ -14,10 +14,13 @@ use App\Services\Organisation\Aurora\FetchAuroraCustomer;
 use App\Services\Organisation\Aurora\FetchAuroraCustomerClient;
 use App\Services\Organisation\Aurora\FetchAuroraDeliveryNote;
 use App\Services\Organisation\Aurora\FetchAuroraEmployee;
+use App\Services\Organisation\Aurora\FetchAuroraLocation;
 use App\Services\Organisation\Aurora\FetchAuroraOrder;
 use App\Services\Organisation\Aurora\FetchAuroraShipper;
 use App\Services\Organisation\Aurora\FetchAuroraShop;
 use App\Services\Organisation\Aurora\FetchAuroraUser;
+use App\Services\Organisation\Aurora\FetchAuroraWarehouse;
+use App\Services\Organisation\Aurora\FetchAuroraWarehouseArea;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -70,12 +73,26 @@ class AuroraOrganisationService implements SourceOrganisationService
 
     public function fetchOrder($id): ?array
     {
-
         return (new FetchAuroraOrder($this))->fetch($id);
     }
 
     public function fetchCustomerClient($id): ?array
     {
         return (new FetchAuroraCustomerClient($this))->fetch($id);
+    }
+
+    public function fetchWarehouse($id): ?array
+    {
+        return (new FetchAuroraWarehouse($this))->fetch($id);
+    }
+
+    public function fetchWarehouseArea($id): ?array
+    {
+        return (new FetchAuroraWarehouseArea($this))->fetch($id);
+    }
+
+    public function fetchLocation($id): ?array
+    {
+        return (new FetchAuroraLocation($this))->fetch($id);
     }
 }
