@@ -95,6 +95,8 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read int|null $customers_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
  * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
+ * @property-read int|null $products_count
  */
 class Shop extends Model
 {
@@ -136,6 +138,11 @@ class Shop extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
     }
 
 }

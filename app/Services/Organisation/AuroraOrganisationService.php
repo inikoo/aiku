@@ -12,10 +12,15 @@ namespace App\Services\Organisation;
 use App\Models\Organisations\Organisation;
 use App\Services\Organisation\Aurora\FetchAuroraCustomer;
 use App\Services\Organisation\Aurora\FetchAuroraCustomerClient;
-use App\Services\Organisation\Aurora\FetchAuroraDeliveryNote;
 use App\Services\Organisation\Aurora\FetchAuroraEmployee;
+use App\Services\Organisation\Aurora\FetchAuroraHistoricProduct;
 use App\Services\Organisation\Aurora\FetchAuroraLocation;
 use App\Services\Organisation\Aurora\FetchAuroraOrder;
+use App\Services\Organisation\Aurora\FetchAuroraProduct;
+use App\Services\Organisation\Aurora\FetchAuroraProductStocks;
+use App\Services\Organisation\Aurora\FetchAuroraStock;
+use App\Services\Organisation\Aurora\FetchAuroraTradeUnit;
+use App\Services\Organisation\Aurora\FetchAuroraTransactionHistoricProduct;
 use App\Services\Organisation\Aurora\FetchAuroraShipper;
 use App\Services\Organisation\Aurora\FetchAuroraShop;
 use App\Services\Organisation\Aurora\FetchAuroraUser;
@@ -60,12 +65,6 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraShipper($this))->fetch($id);
     }
 
-    public function fetchDeliveryNote($id): ?array
-    {
-        return (new FetchAuroraDeliveryNote($this))->fetch($id);
-
-    }
-
     public function fetchCustomer($id): ?array
     {
         return (new FetchAuroraCustomer($this))->fetch($id);
@@ -94,5 +93,40 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchLocation($id): ?array
     {
         return (new FetchAuroraLocation($this))->fetch($id);
+    }
+
+    public function fetchTransaction($type, $id): ?array
+    {
+        if ($type == 'HistoricProduct') {
+            return (new FetchAuroraTransactionHistoricProduct($this))->fetch($id);
+        } else {
+            //  return (new FetchAuroraNoProductTransaction($this))->fetch($id);
+            return [];
+        }
+    }
+
+    public function fetchHistoricProduct($id): ?array
+    {
+        return (new FetchAuroraHistoricProduct($this))->fetch($id);
+    }
+
+    public function fetchProductStocks($id): ?array
+    {
+        return (new FetchAuroraProductStocks($this))->fetch($id);
+    }
+
+    public function fetchProduct($id): ?array
+    {
+        return (new FetchAuroraProduct($this))->fetch($id);
+    }
+
+    public function fetchStock($id): ?array
+    {
+        return (new FetchAuroraStock($this))->fetch($id);
+    }
+
+    public function fetchTradeUnit($id): ?array
+    {
+        return (new FetchAuroraTradeUnit($this))->fetch($id);
     }
 }

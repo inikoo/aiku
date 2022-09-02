@@ -8,24 +8,20 @@
 
 namespace App\Actions\Delivery\Shipper;
 
+use App\Actions\StoreModelAction;
 use App\Models\Utils\ActionResult;
 use App\Models\Delivery\Shipper;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class StoreShipper
+class StoreShipper extends StoreModelAction
 {
     use AsAction;
 
-    public function handle(array $data): ActionResult
+    public function handle(array $modelData): ActionResult
     {
-        $res           = new ActionResult();
-        $shipper       = Shipper::create($data);
-        $res->model    = $shipper;
-        $res->model_id = $shipper->id;
-        $res->status   = $res->model_id ? 'inserted' : 'error';
-
-        return $res;
+        $shipper       = Shipper::create($modelData);
+        return $this->finalise($shipper);
     }
 
 

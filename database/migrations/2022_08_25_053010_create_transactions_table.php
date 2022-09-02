@@ -15,6 +15,8 @@ return new class extends Migration {
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('organisation_id')->constrained();
+
             $table->unsignedBigInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedBigInteger('customer_id')->index();
@@ -29,8 +31,8 @@ return new class extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('aurora_id')->nullable()->index();
-            $table->unsignedBigInteger('aurora_no_product_id')->nullable()->index();
+            $table->unsignedBigInteger('organisation_source_id')->nullable();
+            $table->unique(['organisation_id','organisation_source_id']);
         });
     }
 

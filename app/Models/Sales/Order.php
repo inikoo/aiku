@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * App\Models\Sales\Order
@@ -72,6 +73,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @method static Builder|Order whereTax($value)
  * @method static Builder|Order whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Transaction[] $transactions
+ * @property-read int|null $transactions_count
  */
 class Order extends Model
 {
@@ -101,4 +104,11 @@ class Order extends Model
     {
         return $this->belongsToMany(DeliveryNote::class)->withTimestamps();
     }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+
 }

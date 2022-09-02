@@ -21,7 +21,7 @@ interface SourceOrganisationService
 
     public function fetchShipper($id);
 
-    public function fetchDeliveryNote($id);
+    public function fetchTransaction($type, $id);
 
     public function fetchCustomer($id);
 
@@ -34,6 +34,16 @@ interface SourceOrganisationService
     public function fetchWarehouseArea($id);
 
     public function fetchLocation($id);
+
+    public function fetchHistoricProduct($id);
+
+    public function fetchProduct($id);
+
+    public function fetchProductStocks($id);
+
+    public function fetchStock($id);
+
+    public function fetchTradeUnit($id);
 
     public function initialisation(Organisation $organisation);
 }

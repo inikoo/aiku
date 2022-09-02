@@ -12,12 +12,15 @@ namespace App\Models\Organisations;
 use App\Models\Delivery\OrganisationShipper;
 use App\Models\Delivery\Shipper;
 use App\Models\HumanResources\Employee;
+use App\Models\Inventory\Stock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Marketing\Shop;
+use App\Models\Marketing\TradeUnit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
@@ -73,6 +76,10 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read int|null $shippers_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Warehouse[] $warehouses
  * @property-read int|null $warehouses_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Stock[] $stocks
+ * @property-read int|null $stocks_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|TradeUnit[] $tradeUnits
+ * @property-read int|null $trade_units_count
  */
 class Organisation extends Authenticatable
 {
@@ -118,6 +125,16 @@ class Organisation extends Authenticatable
     public function warehouses(): HasMany
     {
         return $this->hasMany(Warehouse::class);
+    }
+
+    public function stocks(): MorphMany
+    {
+        return $this->morphMany(Stock::class, 'owner');
+    }
+
+    public function tradeUnits(): HasMany
+    {
+        return $this->hasMany(TradeUnit::class);
     }
 
 }

@@ -23,7 +23,6 @@ return new class extends Migration
             $table->enum('quantity_status', ['surplus', 'optimal', 'low', 'critical', 'out-of-stock', 'error'])->nullable()->index();
             $table->boolean('sellable')->default(1)->index();
             $table->boolean('raw_material')->default(0)->index();
-            $table->string('slug')->index();
             $table->string('code')->index();
             $table->string('barcode')->index()->nullable();
             $table->text('description')->nullable();

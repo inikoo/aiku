@@ -52,8 +52,6 @@ class UpdateModelAction
             $this->model->update(Arr::except($this->modelData,$jsonFields));
             $this->model->update($this->extractJson($jsonFields));
 
-
-
     }
 
     protected function updateAndFinalise($jsonFields=[]): ActionResult
