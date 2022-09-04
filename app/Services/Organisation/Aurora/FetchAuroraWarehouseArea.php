@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\SourceUpserts\Aurora\Single\UpsertWarehouseFromSource;
+use App\Actions\SourceFetch\Aurora\FetchWarehouse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -17,7 +17,7 @@ class FetchAuroraWarehouseArea extends FetchAurora
 
     protected function parseModel(): void
     {
-        $this->parsedData['warehouse'] = UpsertWarehouseFromSource::run($this->organisationSource, $this->auroraModelData->{'Warehouse Area Warehouse Key'});
+        $this->parsedData['warehouse'] = FetchWarehouse::run($this->organisationSource, $this->auroraModelData->{'Warehouse Area Warehouse Key'});
 
         $this->parsedData['warehouse_area'] = [
             'name'                   => $this->auroraModelData->{'Warehouse Area Name'} ?? 'Name not set',

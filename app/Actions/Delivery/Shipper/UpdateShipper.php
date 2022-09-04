@@ -8,34 +8,22 @@
 
 namespace App\Actions\Delivery\Shipper;
 
+use App\Actions\UpdateModelAction;
 use App\Models\Utils\ActionResult;
 use App\Actions\WithUpdate;
 use App\Models\Delivery\Shipper;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateShipper
+class UpdateShipper extends UpdateModelAction
 {
     use AsAction;
     use WithUpdate;
 
-    public function handle(
-        Shipper $shipper,
-        array $modelData
-    ): ActionResult {
-        $res = new ActionResult();
+    public function handle( Shipper $shipper, array $modelData): ActionResult {
 
+        $this->model=$shipper;
+        $this->modelData=$modelData;
+        return $this->updateAndFinalise(jsonFields:['data']);
 
-
-        $shipper->update(Arr::except($modelData, ['data']));
-        $shipper->update($this->extractJson($modelData, ['data']));
-
-        $res->changes = $shipper->getChanges();
-
-        $res->model    = $shipper;
-        $res->model_id = $shipper->id;
-        $res->status   = $res->changes ? 'updated' : 'unchanged';
-
-        return $res;
     }
 }

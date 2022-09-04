@@ -8,9 +8,9 @@
 namespace App\Actions\SourceUpserts\Aurora\Single;
 
 use App\Actions\Sales\Order\StoreOrder;
-use App\Actions\SourceUpserts\Aurora\Mass\InsertTransactionsFromSource;
 use App\Models\Sales\Order;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -28,18 +28,32 @@ class InsertOrderFromSource
                 ->where('organisation_id', $organisationSource->organisation->id)
                 ->first()) {
                 print "duplicated\n";
-                InsertTransactionsFromSource::run($organisationSource, $order);
+
+                $this->fetchTransactions($organisationSource, $order);
             }
             else{
                 $res   = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
                 $order = $res->model;
-                InsertTransactionsFromSource::run($organisationSource, $order);
+                $this->fetchTransactions($organisationSource, $order);
 
                 return $order;
             }
         }
 
         return null;
+    }
+
+    private function fetchTransactions($organisationSource, $order): void
+    {
+        foreach (
+            DB::connection('aurora')
+                ->table('Order Transaction Fact')
+                ->select('Order Transaction Fact Key')
+                ->where('Order Key', $order->organisation_source_id)
+                ->get() as $auroraData
+        ) {
+            InsertTransactionFromSource::run($organisationSource, $auroraData->{'Order Transaction Fact Key'},$order);
+        }
     }
 
 

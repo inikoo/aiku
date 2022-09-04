@@ -7,7 +7,6 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\SourceUpserts\Aurora\Single\UpsertStockFromSource;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraProductStocks extends FetchAurora
@@ -16,7 +15,7 @@ class FetchAuroraProductStocks extends FetchAurora
     {
         $productStocks = [];
         foreach($this->auroraModelData as $modelData){
-           $stock=UpsertStockFromSource::run($this->organisationSource,$modelData->{'Product Part Part SKU'});
+           $stock= \App\Actions\SourceFetch\Aurora\FetchStock::run($this->organisationSource, $modelData->{'Product Part Part SKU'});
             foreach ($stock->tradeUnits as $tradeUnit) {
                 $productStocks[$tradeUnit->id] = [
                     'quantity' => $tradeUnit->pivot->quantity,

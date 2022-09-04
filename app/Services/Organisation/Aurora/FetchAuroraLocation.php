@@ -7,8 +7,8 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\SourceUpserts\Aurora\Single\UpsertWarehouseAreaFromSource;
-use App\Actions\SourceUpserts\Aurora\Single\UpsertWarehouseFromSource;
+use App\Actions\SourceFetch\Aurora\FetchWarehouse;
+use App\Actions\SourceFetch\Aurora\FetchWarehouseArea;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -23,10 +23,10 @@ class FetchAuroraLocation extends FetchAurora
         $parent=null;
 
         if(is_numeric($this->auroraModelData->{'Location Warehouse Area Key'})){
-            $parent= UpsertWarehouseAreaFromSource::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Area Key'});
+            $parent= FetchWarehouseArea::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Area Key'});
         }
         if(!$parent){
-            $parent= UpsertWarehouseFromSource::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Key'});
+            $parent= FetchWarehouse::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Key'});
         }
 
         $this->parsedData['parent'] =$parent;

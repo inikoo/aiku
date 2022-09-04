@@ -8,35 +8,22 @@
 namespace App\Actions\HumanResources\Employee;
 
 
+use App\Actions\StoreModelAction;
 use App\Models\Organisations\Organisation;
 use App\Models\Utils\ActionResult;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class StoreEmployee
+class StoreEmployee extends StoreModelAction
 {
     use AsAction;
 
     public function handle(Organisation $organisation, array $modelData): ActionResult
     {
-        $res = new ActionResult();
-
-
-
-        /** @var \App\Models\HumanResources\Employee $employee */
         $employee = $organisation->employees()->create($modelData);
 
-
-
-        $res->model    = $employee;
-        $res->model_id = $employee->id;
-        $res->status   = $res->model_id ? 'inserted' : 'error';
-
-
-        return $res;
+        return $this->finalise($employee);
     }
-
-
 
 
 }

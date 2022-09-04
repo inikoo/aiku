@@ -20,20 +20,20 @@ class UpdateEmployee
     use AsAction;
     use WithUpdate;
 
-    public function handle(Employee $employee, array $employeeData): ActionResult
+    public function handle(Employee $employee, array $modelData): ActionResult
     {
         $res = new ActionResult();
 
 
         $employee->update(
-            Arr::except($employeeData, [
+            Arr::except($modelData, [
                 'data',
                 'salary',
                 'working_hours',
 
             ])
         );
-        $employee->update($this->extractJson($employeeData, ['data', 'salary', 'working_hours']));
+        $employee->update($this->extractJson($modelData, ['data', 'salary', 'working_hours']));
 
         $res->changes = $employee->getChanges();
 

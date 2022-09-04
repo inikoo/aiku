@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\SourceUpserts\Aurora\Single\UpsertLocationFromSource;
+use App\Actions\SourceFetch\Aurora\FetchLocation;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraStockLocations extends FetchAurora
@@ -17,7 +17,7 @@ class FetchAuroraStockLocations extends FetchAurora
         $stockLocations = [];
         foreach ($this->auroraModelData as $modelData) {
 
-            $location = UpsertLocationFromSource::run($this->organisationSource, $modelData->{'Location Key'});
+            $location = FetchLocation::run($this->organisationSource, $modelData->{'Location Key'});
             $settings = [];
             if ($modelData->{'Minimum Quantity'}) {
                 $settings['min_stock'] = $modelData->{'Minimum Quantity'};

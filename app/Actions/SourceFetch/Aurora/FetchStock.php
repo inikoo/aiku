@@ -1,27 +1,27 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sat, 03 Sept 2022 01:44:48 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Mon, 05 Sept 2022 00:35:52 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SourceUpserts\Aurora\Single;
+namespace App\Actions\SourceFetch\Aurora;
 
 
 use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Inventory\Stock\UpdateStock;
+use App\Actions\SourceUpserts\Aurora\Single\UpsertTradeUnitFromSource;
 use App\Models\Inventory\Stock;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class UpsertStockFromSource
+class FetchStock extends FetchModel
 {
-    use AsAction;
-    use WithSingleFromSourceCommand;
 
-    public string $commandSignature = 'source-update:stock {organisation_code} {organisation_source_id}';
+
+    public string $commandSignature = 'fetch:stocks {organisation_code} {organisation_source_id?}';
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Stock
     {
@@ -47,10 +47,11 @@ class UpsertStockFromSource
                                            ]
                                        ]);
 
-            $locationsData=$organisationSource->fetchStockLocations($organisation_source_id);
+            $locationsData = $organisationSource->fetchStockLocations($organisation_source_id);
 
             $stock->locations()->sync($locationsData['stock_locations']);
 
+            $this->progressBar?->advance();
 
             return $stock;
         }
@@ -59,5 +60,22 @@ class UpsertStockFromSource
         return null;
     }
 
+    function fetchAll(SourceOrganisationService $organisationSource): void
+    {
+        foreach (
+            DB::connection('aurora')
+                ->table('Part Dimension')
+                ->select('Part SKU')
+                ->where('Part Status', '!=', 'Not In Use')
+                ->get() as $auroraData
+        ) {
+            $this->handle($organisationSource, $auroraData->{'Part SKU'});
+        }
+    }
+
+    function count(): ?int
+    {
+        return DB::connection('aurora')->table('Part Dimension')->where('Part Status', '!=', 'Not In Use')->count();
+    }
 
 }

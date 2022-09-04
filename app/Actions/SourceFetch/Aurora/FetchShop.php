@@ -1,31 +1,26 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 29 Aug 2022 22:38:20 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia F
+ *  Created: Mon, 05 Sept 2022 01:27:39 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
-/** @noinspection PhpUnused */
-
-
-namespace App\Actions\SourceUpserts\Aurora\Single;
+namespace App\Actions\SourceFetch\Aurora;
 
 
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
 use App\Models\Marketing\Shop;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class UpsertShopFromSource
+class FetchShop extends FetchModel
 {
-    use AsAction;
-    use WithSingleFromSourceCommand;
 
-    public string $commandSignature = 'source-update:shop {organisation_code} {organisation_source_id}';
+
+    public string $commandSignature = 'fetch:shops {organisation_code} {organisation_source_id?}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Shop
@@ -45,6 +40,7 @@ class UpsertShopFromSource
                     addressData:  []
                 );
             }
+            $this->progressBar?->advance();
 
             return $res->model;
         }
@@ -52,5 +48,23 @@ class UpsertShopFromSource
         return null;
     }
 
+    function fetchAll(SourceOrganisationService $organisationSource): void
+    {
+        foreach (
+            DB::connection('aurora')
+                ->table('Store Dimension')
+                ->select('Store Key')
+                ->whereIn('Store Status', ['Normal', 'ClosingDown'])
+                ->get() as $auroraData
+        ) {
+            $this->handle($organisationSource, $auroraData->{'Store Key'});
+        }
+    }
+
+    function count(): ?int
+    {
+        return DB::connection('aurora')->table('Store Dimension')
+            ->whereIn('Store Status', ['Normal', 'ClosingDown'])->count();
+    }
 
 }

@@ -1,27 +1,24 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 30 Aug 2022 14:02:49 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Mon, 05 Sept 2022 01:11:27 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SourceUpserts\Aurora\Single;
-
+namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Models\Inventory\Location;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-
-class UpsertLocationFromSource
+class FetchLocation extends FetchModel
 {
-    use AsAction;
-    use WithSingleFromSourceCommand;
 
-    public string $commandSignature = 'source-update:location {organisation_code} {organisation_source_id}';
+
+    public string $commandSignature = 'fetch:locations {organisation_code} {organisation_source_id?}';
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Location
     {
@@ -39,11 +36,29 @@ class UpsertLocationFromSource
                     modelData: $locationData['location'],
                 );
             }
+            $this->progressBar?->advance();
+
             return $res->model;
         }
 
         return null;
     }
 
+    function fetchAll(SourceOrganisationService $organisationSource): void
+    {
+        foreach (
+            DB::connection('aurora')
+                ->table('Location Dimension')
+                ->select('Location Key')
+                ->get() as $auroraData
+        ) {
+            $this->handle($organisationSource, $auroraData->{'Location Key'});
+        }
+    }
+
+    function count(): ?int
+    {
+        return DB::connection('aurora')->table('Location Dimension')->count();
+    }
 
 }

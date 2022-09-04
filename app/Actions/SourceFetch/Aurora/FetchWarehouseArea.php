@@ -1,27 +1,26 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 30 Aug 2022 13:24:50 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Mon, 05 Sept 2022 01:44:05 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SourceUpserts\Aurora\Single;
+namespace App\Actions\SourceFetch\Aurora;
 
 
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Models\Inventory\WarehouseArea;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class UpsertWarehouseAreaFromSource
+class FetchWarehouseArea extends FetchModel
 {
-    use AsAction;
-    use WithSingleFromSourceCommand;
 
-    public string $commandSignature = 'source-update:warehouse-area {organisation_code} {organisation_source_id}';
+
+    public string $commandSignature = 'fetch:warehouse-area {organisation_code} {organisation_source_id?}';
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?WarehouseArea
     {
@@ -39,10 +38,29 @@ class UpsertWarehouseAreaFromSource
                     modelData: $warehouseAreaData['warehouse_area'],
                 );
             }
+            $this->progressBar?->advance();
+
             return $res->model;
         }
 
         return null;
+    }
+
+    function fetchAll(SourceOrganisationService $organisationSource): void
+    {
+        foreach (
+            DB::connection('aurora')
+                ->table('Warehouse Area Dimension')
+                ->select('Warehouse Area Key')
+                ->get() as $auroraData
+        ) {
+            $this->handle($organisationSource, $auroraData->{'Warehouse Area Key'});
+        }
+    }
+
+    function count(): ?int
+    {
+        return DB::connection('aurora')->table('Warehouse Area Dimension')->count();
     }
 
 
