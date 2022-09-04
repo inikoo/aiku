@@ -115,17 +115,6 @@ class Stock extends Model
 
     protected $guarded = [];
 
-    public function setQuantityAttribute($val)
-    {
-        $this->attributes['quantity'] = sprintf('%.3f', $val);
-    }
-
-    public function setValueAttribute($val)
-    {
-        $this->attributes['quantity'] = sprintf('%.3f', $val);
-    }
-
-
     public function tradeUnits(): BelongsToMany
     {
         return $this->belongsToMany(TradeUnit::class)->withPivot('quantity')->withTimestamps();
@@ -133,7 +122,8 @@ class Stock extends Model
 
     public function locations(): BelongsToMany
     {
-        return $this->belongsToMany(Location::class)->using(LocationStock::class)->withTimestamps();
+        return $this->belongsToMany(Location::class)->using(LocationStock::class)->withTimestamps()
+            ->withPivot('quantity');
     }
 
     public function owner(): MorphTo

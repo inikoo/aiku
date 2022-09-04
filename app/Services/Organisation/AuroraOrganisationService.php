@@ -10,6 +10,7 @@ namespace App\Services\Organisation;
 
 
 use App\Models\Organisations\Organisation;
+use App\Services\Organisation\Aurora\FetchAurora;
 use App\Services\Organisation\Aurora\FetchAuroraCustomer;
 use App\Services\Organisation\Aurora\FetchAuroraCustomerClient;
 use App\Services\Organisation\Aurora\FetchAuroraEmployee;
@@ -19,6 +20,7 @@ use App\Services\Organisation\Aurora\FetchAuroraOrder;
 use App\Services\Organisation\Aurora\FetchAuroraProduct;
 use App\Services\Organisation\Aurora\FetchAuroraProductStocks;
 use App\Services\Organisation\Aurora\FetchAuroraStock;
+use App\Services\Organisation\Aurora\FetchAuroraStockLocations;
 use App\Services\Organisation\Aurora\FetchAuroraTradeUnit;
 use App\Services\Organisation\Aurora\FetchAuroraTransactionHistoricProduct;
 use App\Services\Organisation\Aurora\FetchAuroraShipper;
@@ -128,5 +130,10 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchTradeUnit($id): ?array
     {
         return (new FetchAuroraTradeUnit($this))->fetch($id);
+    }
+
+    public function fetchStockLocations($id): ?array
+    {
+        return (new FetchAuroraStockLocations($this))->fetch($id);
     }
 }

@@ -24,7 +24,6 @@ trait WithSingleFromSourceCommand
         $organisation = Organisation::where('code', $command->argument('organisation_code'))->first();
         if (!$organisation) {
             $command->error('Organisation not found');
-
             return;
         }
 

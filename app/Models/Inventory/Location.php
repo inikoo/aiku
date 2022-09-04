@@ -10,6 +10,7 @@ namespace App\Models\Inventory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -50,6 +51,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Query\Builder|Location withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Location withoutTrashed()
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\Stock[] $stocks
+ * @property-read int|null $stocks_count
  */
 class Location extends Model
 {
@@ -68,20 +71,20 @@ class Location extends Model
 
     public function warehouse(): BelongsTo
     {
-        return $this->belongsTo('App\Models\Inventory\Warehouse');
+        return $this->belongsTo(Warehouse::class);
     }
 
     public function warehouseArea(): BelongsTo
     {
-        return $this->belongsTo('App\Models\Inventory\WarehouseArea');
+        return $this->belongsTo(WarehouseArea::class);
     }
 
-    /*
+
     public function stocks(): BelongsToMany
     {
         return $this->belongsToMany(Stock::class)->using(LocationStock::class);
     }
-    */
+
 
     public function stats(): HasOne
     {

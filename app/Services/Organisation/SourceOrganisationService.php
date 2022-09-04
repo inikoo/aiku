@@ -45,6 +45,8 @@ interface SourceOrganisationService
 
     public function fetchTradeUnit($id);
 
+    public function fetchStockLocations($id);
+
     public function initialisation(Organisation $organisation);
 }
 

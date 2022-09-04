@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('scope');
 
             $periods           = ['all', '1y', '1q', '1m', '1w', 'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'yda', 'tdy'];
-            $periods_last_year = ['1y', '1q', '1m', ',1w', 'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'yda', 'tdy'];
+            $periods_last_year = ['1y', '1q', '1m', '1w', 'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'yda', 'tdy'];
             $previous_years    = ['py1', 'py2', 'py3', 'py4', 'py5'];
             $previous_quarters = ['pq1', 'pq2', 'pq3', 'pq4', 'pq5'];
 

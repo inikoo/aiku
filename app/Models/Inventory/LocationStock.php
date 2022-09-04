@@ -7,9 +7,12 @@
 
 namespace App\Models\Inventory;
 
+use App\Actions\Hydrators\HydrateLocation;
+use App\Actions\Hydrators\HydrateStock;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+
 
 /**
  * App\Models\Inventory\LocationStock
@@ -48,9 +51,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|LocationStock whereStockId($value)
  * @method static Builder|LocationStock whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property int|null $organisation_source_stock_id
+ * @property int|null $organisation_source_location_id
+ * @method static Builder|LocationStock whereOrganisationSourceLocationId($value)
+ * @method static Builder|LocationStock whereOrganisationSourceStockId($value)
+ * @property string $type
+ * @method static Builder|LocationStock whereType($value)
  */
-class LocationStock extends Model
+class LocationStock extends Pivot
 {
+
     protected $casts = [
         'data'     => 'array',
         'settings' => 'array'
@@ -62,6 +72,22 @@ class LocationStock extends Model
     ];
 
     protected $guarded = [];
+
+    protected static function booted()
+    {
+        static::created(
+            function (LocationStock $locationStock) {
+                HydrateLocation::make()->stocks($locationStock->location);
+                HydrateStock::run($locationStock->stock);
+            }
+        );
+        static::deleted(
+            function (LocationStock $locationStock) {
+                HydrateLocation::make()->stocks($locationStock->location);
+                HydrateStock::run($locationStock->stock);
+            }
+        );
+    }
 
     public function stock(): BelongsTo
     {

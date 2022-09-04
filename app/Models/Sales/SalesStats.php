@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 
+
 /**
  * App\Models\Sales\SalesStats
  *
@@ -35,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string $1y_ly
  * @property string $1q_ly
  * @property string $1m_ly
- * @property string $,1w_ly
+ * @property string $1w_ly
  * @property string $ytd_ly
  * @property string $qtd_ly
  * @property string $mtd_ly
@@ -60,12 +61,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|SalesStats newModelQuery()
  * @method static Builder|SalesStats newQuery()
  * @method static Builder|SalesStats query()
- * @method static Builder|SalesStats where,1wLy($value)
  * @method static Builder|SalesStats where1m($value)
  * @method static Builder|SalesStats where1mLy($value)
  * @method static Builder|SalesStats where1q($value)
  * @method static Builder|SalesStats where1qLy($value)
  * @method static Builder|SalesStats where1w($value)
+ * @method static Builder|SalesStats where1wLy($value)
  * @method static Builder|SalesStats where1y($value)
  * @method static Builder|SalesStats where1yLy($value)
  * @method static Builder|SalesStats whereAll($value)

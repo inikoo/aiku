@@ -14,34 +14,29 @@ return new class extends Migration
 
     public function up()
     {
-        Schema::create('location_stocks', function (Blueprint $table) {
+        Schema::create('location_stock', function (Blueprint $table) {
             $table->id();
             $table->foreignId('organisation_id')->constrained();
             $table->unsignedBigInteger('stock_id');
             $table->foreign('stock_id')->references('id')->on('stocks');
             $table->unsignedMediumInteger('location_id');
             $table->foreign('location_id')->references('id')->on('locations');
-
             $table->decimal('quantity', 16, 3);
-            $table->smallInteger('picking_priority')->default(0)->index();
-
+            $table->enum('type',['picking','storing']);
+            $table->smallInteger('picking_priority')->nullable()->index();
             $table->string('notes')->nullable();
-
             $table->jsonb('data');
             $table->jsonb('settings');
-
             $table->dateTimeTz('audited_at')->nullable()->index();
             $table->timestampsTz();
-            $table->unsignedBigInteger('aurora_part_id')->nullable();
-            $table->unsignedBigInteger('aurora_location_id')->nullable();
-
+            $table->unsignedBigInteger('organisation_source_stock_id')->nullable();
+            $table->unsignedBigInteger('organisation_source_location_id')->nullable();
             $table->unique(['stock_id', 'location_id']);
         });
     }
 
-
     public function down()
     {
-        Schema::dropIfExists('location_stocks');
+        Schema::dropIfExists('location_stock');
     }
 };

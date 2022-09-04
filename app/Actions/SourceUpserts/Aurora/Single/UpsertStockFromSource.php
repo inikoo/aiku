@@ -35,17 +35,21 @@ class UpsertStockFromSource
                 );
             } else {
                 $res = StoreStock::run(
-                    owner: $organisationSource->organisation,
-                    modelData:    $stockData['stock']
+                    owner:     $organisationSource->organisation,
+                    modelData: $stockData['stock']
                 );
             }
-            $stock=$res->model;
+            $stock     = $res->model;
             $tradeUnit = UpsertTradeUnitFromSource::run($organisationSource, $res->model->organisation_source_id);
             $stock->tradeUnits()->sync([
                                            $tradeUnit->id => [
                                                'quantity' => $stockData['units_per_package']
                                            ]
                                        ]);
+
+            $locationsData=$organisationSource->fetchStockLocations($organisation_source_id);
+
+            $stock->locations()->sync($locationsData['stock_locations']);
 
 
             return $stock;

@@ -27,7 +27,6 @@ trait WithMassFromSourceCommand{
         $organisationSource = app(SourceOrganisationManager::class)->make($organisation->type);
         $organisationSource->initialisation($organisation);
 
-
         $this->handle($organisationSource);
     }
 
