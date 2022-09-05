@@ -13,6 +13,7 @@ use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Models\HumanResources\Employee;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -22,9 +23,9 @@ class FetchEmployee extends FetchModel
 
     public string $commandSignature = 'fetch:employees {organisation_code} {organisation_source_id?}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Employee
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
-        if ($employeeData = $organisationSource->fetchEmployee($organisation_source_id)) {
+        if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
             if ($employee = Employee::where('organisation_source_id', $employeeData['employee']['organisation_source_id'])
                 ->where('organisation_id', $organisationSource->organisation->id)
                 ->first()) {
@@ -53,19 +54,14 @@ class FetchEmployee extends FetchModel
         return null;
     }
 
-
-    function fetchAll(SourceOrganisationService $organisationSource): void
+    function getModelsQuery(): Builder
     {
-        foreach (
-            DB::connection('aurora')
-                ->table('Staff Dimension')
-                ->select('Staff Key')
-                ->where('Staff Currently Working', 'Yes')
-                ->where('Staff Type', '!=', 'Contractor')
-                ->get() as $auroraData
-        ) {
-            $this->handle($organisationSource, $auroraData->{'Staff Key'});
-        }
+        return DB::connection('aurora')
+            ->table('Staff Dimension')
+            ->select('Staff Key as source_id')
+            ->where('Staff Currently Working', 'Yes')
+            ->where('Staff Type', '!=', 'Contractor')
+            ->orderBy('source_id');
     }
 
     function count(): ?int

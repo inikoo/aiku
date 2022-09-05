@@ -11,6 +11,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Delivery\Shipper\StoreShipper;
 use App\Models\Delivery\Shipper;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -21,9 +22,9 @@ class FetchShipper extends FetchModel
 
     public string $commandSignature = 'fetch:shippers {organisation_code} {organisation_source_id?*}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Shipper
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shipper
     {
-        if ($shipperData = $organisationSource->fetchShipper($organisation_source_id)) {
+        if ($shipperData = $organisationSource->fetchShipper($organisationSourceId)) {
             $shipper = Shipper::where('code', $shipperData['shipper']['code'])
                 ->first();
 
@@ -41,19 +42,15 @@ class FetchShipper extends FetchModel
         return null;
     }
 
-
-    function fetchAll(SourceOrganisationService $organisationSource): void
+    function getModelsQuery(): Builder
     {
-        foreach (
-            DB::connection('aurora')
-                ->table('Shipper Dimension')
-                ->select('Shipper Key')
-                ->where('Shipper Active', 'Yes')
-                ->get() as $auroraData
-        ) {
-            $this->handle($organisationSource, $auroraData->{'Shipper Key'});
-        }
+        return DB::connection('aurora')
+            ->table('Shipper Dimension')
+            ->select('Shipper Key as source_id')
+            ->where('Shipper Active', 'Yes')
+            ->orderBy('source_id');
     }
+
 
     function count(): ?int
     {

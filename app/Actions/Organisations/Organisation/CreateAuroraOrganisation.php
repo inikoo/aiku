@@ -1,4 +1,6 @@
 <?php
+/** @noinspection PhpUnused */
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Fri, 12 Aug 2022 17:41:58 Malaysia Time, Kuala Lumpur, Malaysia
@@ -8,6 +10,12 @@
 
 namespace App\Actions\Organisations\Organisation;
 
+use App\Actions\SourceFetch\Aurora\FetchLocation;
+use App\Actions\SourceFetch\Aurora\FetchShop;
+use App\Actions\SourceFetch\Aurora\FetchStock;
+use App\Actions\SourceFetch\Aurora\FetchWarehouse;
+use App\Actions\SourceFetch\Aurora\FetchWarehouseArea;
+use App\Managers\Organisation\SourceOrganisationManager;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -15,6 +23,7 @@ use App\Models\Assets\Timezone;
 use App\Models\Organisations\Organisation;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -26,7 +35,10 @@ class CreateAuroraOrganisation
     public string $commandSignature = 'org:aurora {code} {aurora_db}';
     public string $commandDescription = 'Crete new Aurora organisation';
 
-    public function handle($code,$aurora_db)
+    /**
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function handle($code, $aurora_db)
     {
         $data = [];
 
@@ -78,11 +90,27 @@ class CreateAuroraOrganisation
         DB::connection('aurora')->table('Account Data')
             ->update(['pika_token' => $token]);
 
-        $res->data['token']=$token;
+        $res->data['token'] = $token;
+
+        $organisation       = $res->model;
+        $organisationSource = app(SourceOrganisationManager::class)->make($organisation->type);
+        $organisationSource->initialisation($organisation);
+
+        FetchShop::dispatch($organisationSource);
+
+        Bus::chain([
+                       FetchWarehouse::makeJob($organisationSource),
+                       FetchWarehouseArea::makeJob($organisationSource),
+                       FetchLocation::makeJob($organisationSource),
+                       FetchStock::makeJob($organisationSource),
+                   ])->dispatch();
 
         return $res;
     }
 
+    /**
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function asCommand(Command $command): void
     {
         if ($organisation = Organisation::where('code', $command->argument('aurora_db'))->first()) {
@@ -92,7 +120,7 @@ class CreateAuroraOrganisation
         }
 
 
-        $res = $this->handle($command->argument('code'),$command->argument('aurora_db'));
+        $res = $this->handle($command->argument('code'), $command->argument('aurora_db'));
 
 
         $command->table(

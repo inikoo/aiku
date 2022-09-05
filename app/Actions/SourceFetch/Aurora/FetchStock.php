@@ -13,6 +13,7 @@ use App\Actions\Inventory\Stock\UpdateStock;
 use App\Actions\SourceUpserts\Aurora\Single\UpsertTradeUnitFromSource;
 use App\Models\Inventory\Stock;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -20,12 +21,11 @@ use JetBrains\PhpStorm\NoReturn;
 class FetchStock extends FetchModel
 {
 
-
     public string $commandSignature = 'fetch:stocks {organisation_code} {organisation_source_id?}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Stock
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
     {
-        if ($stockData = $organisationSource->fetchStock($organisation_source_id)) {
+        if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
             if ($stock = Stock::where('organisation_source_id', $stockData['stock']['organisation_source_id'])
                 ->where('organisation_id', $organisationSource->organisation->id)
                 ->first()) {
@@ -47,7 +47,7 @@ class FetchStock extends FetchModel
                                            ]
                                        ]);
 
-            $locationsData = $organisationSource->fetchStockLocations($organisation_source_id);
+            $locationsData = $organisationSource->fetchStockLocations($organisationSourceId);
 
             $stock->locations()->sync($locationsData['stock_locations']);
 
@@ -60,17 +60,13 @@ class FetchStock extends FetchModel
         return null;
     }
 
-    function fetchAll(SourceOrganisationService $organisationSource): void
+    function getModelsQuery(): Builder
     {
-        foreach (
-            DB::connection('aurora')
-                ->table('Part Dimension')
-                ->select('Part SKU')
-                ->where('Part Status', '!=', 'Not In Use')
-                ->get() as $auroraData
-        ) {
-            $this->handle($organisationSource, $auroraData->{'Part SKU'});
-        }
+        return DB::connection('aurora')
+            ->table('Part Dimension')
+            ->select('Part SKU as source_id')
+            ->where('Part Status', '!=', 'Not In Use')
+            ->orderBy('source_id');
     }
 
     function count(): ?int

@@ -13,15 +13,16 @@ class FetchAuroraStock extends FetchAurora
 {
     protected function parseModel(): void
     {
+
         $this->parsedData['units_per_package'] = $this->auroraModelData->{'Part Units Per Package'};
 
         $this->parsedData['stock'] = [
             'description'            => $this->auroraModelData->{'Part Recommended Product Unit Name'},
             'code'                   => strtolower($this->auroraModelData->{'Part Reference'}),
             'organisation_source_id' => $this->auroraModelData->{'Part SKU'},
-            'created_at'             => $this->auroraModelData->{'Part Valid From'} ?? null,
-            'activated_at'           => $this->auroraModelData->{'Part Active From'} ?? null,
-            'discontinued_at'        => ($this->auroraModelData->{'Part Valid To'} && $this->auroraModelData->{'Part Status'} == 'Not In Use') ? $this->auroraModelData->{'Part Valid To'} : null,
+            'created_at'             => $this->parseDate($this->auroraModelData->{'Part Valid From'}),
+            'activated_at'           => $this->parseDate($this->auroraModelData->{'Part Active From'}),
+            'discontinued_at'        => ($this->auroraModelData->{'Part Valid To'} && $this->auroraModelData->{'Part Status'} == 'Not In Use') ? $this->parseDate($this->auroraModelData->{'Part Valid To'}):null,
 
 
             'state' => match ($this->auroraModelData->{'Part Status'}) {

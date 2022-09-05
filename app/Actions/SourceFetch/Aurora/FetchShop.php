@@ -12,6 +12,7 @@ use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
 use App\Models\Marketing\Shop;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -23,9 +24,9 @@ class FetchShop extends FetchModel
     public string $commandSignature = 'fetch:shops {organisation_code} {organisation_source_id?}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Shop
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shop
     {
-        if ($shopData = $organisationSource->fetchShop($organisation_source_id)) {
+        if ($shopData = $organisationSource->fetchShop($organisationSourceId)) {
             if ($shop = Shop::where('organisation_source_id', $shopData['shop']['organisation_source_id'])
                 ->where('organisation_id', $organisationSource->organisation->id)
                 ->first()) {
@@ -48,17 +49,13 @@ class FetchShop extends FetchModel
         return null;
     }
 
-    function fetchAll(SourceOrganisationService $organisationSource): void
+    function getModelsQuery(): Builder
     {
-        foreach (
-            DB::connection('aurora')
-                ->table('Store Dimension')
-                ->select('Store Key')
-                ->whereIn('Store Status', ['Normal', 'ClosingDown'])
-                ->get() as $auroraData
-        ) {
-            $this->handle($organisationSource, $auroraData->{'Store Key'});
-        }
+        return DB::connection('aurora')
+            ->table('Store Dimension')
+            ->select('Store Key as source_id')
+            ->whereIn('Store Status', ['Normal', 'ClosingDown'])
+            ->orderBy('source_id');
     }
 
     function count(): ?int

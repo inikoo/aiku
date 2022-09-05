@@ -9,12 +9,15 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Jobs\Middleware\InitialiseSourceOrganisation;
 use App\Managers\Organisation\SourceOrganisationManager;
 use App\Models\Organisations\Organisation;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Decorators\JobDecorator;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 
@@ -30,13 +33,28 @@ class FetchModel
         $this->progressBar = null;
     }
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Model
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Model
+    {
+        return null;
+    }
+
+    function getModelsQuery(): ?Builder
     {
         return null;
     }
 
     public function fetchAll(SourceOrganisationService $organisationSource): void
     {
+        foreach ($this->getModelsQuery()->get() as $auroraData) {
+            $this->handle($organisationSource, $auroraData->{'source_id'});
+        }
+    }
+
+    public function fetchSome(SourceOrganisationService $organisationSource, array $organisationIds): void
+    {
+        foreach ($organisationIds as $sourceID) {
+            $this->handle($organisationSource, $sourceID);
+        }
     }
 
     public function count(): ?int
@@ -70,6 +88,31 @@ class FetchModel
             $this->fetchAll($organisationSource);
             $this->progressBar->finish();
         }
+    }
+
+    public function asJob(SourceOrganisationService $organisationSource, ?array $organisationIds = null): void
+    {
+        if (is_array($organisationIds)) {
+            $this->fetchSome($organisationSource, $organisationIds);
+        } else {
+            $this->getModelsQuery()
+                ->chunk(100, function ($organisationIds) use ($organisationSource) {
+                    $this->dispatch($organisationSource, $organisationIds->pluck('source_id')->all());
+                });
+        }
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [new InitialiseSourceOrganisation()];
+    }
+
+    public function configureJob(JobDecorator $job): void
+    {
+        $job->onQueue('fetches')
+            ->setTries(5)
+            ->setMaxExceptions(3)
+            ->setTimeout(1800);
     }
 
 }

@@ -12,6 +12,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command(CleanUserLinkCode::class)->hourly();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes();
+
 
     }
 

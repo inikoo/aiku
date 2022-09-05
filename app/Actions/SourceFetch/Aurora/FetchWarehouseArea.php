@@ -12,6 +12,7 @@ use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Models\Inventory\WarehouseArea;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -22,9 +23,9 @@ class FetchWarehouseArea extends FetchModel
 
     public string $commandSignature = 'fetch:warehouse-area {organisation_code} {organisation_source_id?}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?WarehouseArea
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WarehouseArea
     {
-        if ($warehouseAreaData = $organisationSource->fetchWarehouseArea($organisation_source_id)) {
+        if ($warehouseAreaData = $organisationSource->fetchWarehouseArea($organisationSourceId)) {
             if ($warehouseArea = WarehouseArea::where('organisation_source_id', $warehouseAreaData['warehouse_area']['organisation_source_id'])
                 ->where('organisation_id', $organisationSource->organisation->id)
                 ->first()) {
@@ -46,16 +47,12 @@ class FetchWarehouseArea extends FetchModel
         return null;
     }
 
-    function fetchAll(SourceOrganisationService $organisationSource): void
+    function getModelsQuery(): Builder
     {
-        foreach (
-            DB::connection('aurora')
-                ->table('Warehouse Area Dimension')
-                ->select('Warehouse Area Key')
-                ->get() as $auroraData
-        ) {
-            $this->handle($organisationSource, $auroraData->{'Warehouse Area Key'});
-        }
+        return DB::connection('aurora')
+            ->table('Warehouse Area Dimension')
+            ->select('Warehouse Area Key as source_id')
+            ->orderBy('source_id');
     }
 
     function count(): ?int

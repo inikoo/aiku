@@ -11,6 +11,7 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Models\Inventory\Location;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -20,9 +21,9 @@ class FetchLocation extends FetchModel
 
     public string $commandSignature = 'fetch:locations {organisation_code} {organisation_source_id?}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisation_source_id): ?Location
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Location
     {
-        if ($locationData = $organisationSource->fetchLocation($organisation_source_id)) {
+        if ($locationData = $organisationSource->fetchLocation($organisationSourceId)) {
             if ($location = Location::where('organisation_source_id', $locationData['location']['organisation_source_id'])
                 ->where('organisation_id', $organisationSource->organisation->id)
                 ->first()) {
@@ -44,17 +45,14 @@ class FetchLocation extends FetchModel
         return null;
     }
 
-    function fetchAll(SourceOrganisationService $organisationSource): void
+    function getModelsQuery(): Builder
     {
-        foreach (
-            DB::connection('aurora')
-                ->table('Location Dimension')
-                ->select('Location Key')
-                ->get() as $auroraData
-        ) {
-            $this->handle($organisationSource, $auroraData->{'Location Key'});
-        }
+        return DB::connection('aurora')
+            ->table('Location Dimension')
+            ->select('Location Key as source_id')
+            ->orderBy('source_id');
     }
+
 
     function count(): ?int
     {
