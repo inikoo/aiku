@@ -5,7 +5,7 @@ namespace App\Http;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\EnsureUserIsNew;
-use App\Http\Middleware\EnsureUserIsSetup;
+use App\Http\Middleware\SetOrganisation;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -65,10 +65,10 @@ class Kernel extends HttpKernel
             HandleInertiaRequests::class,
         ],
 
-        'api' => [
+        'api'     => [
             'throttle:api',
             SubstituteBindings::class,
-             'auth:admin'
+            'auth:admin'
         ],
         'api-org' => [
             'throttle:api',
@@ -95,7 +95,7 @@ class Kernel extends HttpKernel
         'signed'           => ValidateSignature::class,
         'throttle'         => ThrottleRequests::class,
         'verified'         => EnsureEmailIsVerified::class,
-        'verify.setup'     => EnsureUserIsSetup::class,
+        'set.organisation' => SetOrganisation::class,
         'verify.new'       => EnsureUserIsNew::class
     ];
 }

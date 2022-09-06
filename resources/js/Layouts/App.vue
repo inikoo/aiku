@@ -29,16 +29,16 @@
                             </TransitionChild>
 
                             <div class="pt-0 text-center text-sm font-semibold">
-                                {{$page.props.organisation.name}}
+                                {{layout.organisation.name}}
                             </div>
                             <div class="mt-5 flex-1 h-0 overflow-y-auto">
 
                                 <nav class="px-2">
                                     <div class="space-y-1">
-                                        <a v-for="item in navigation" :key="item.name" :href="item.href" :class="[item.current ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
-                                            <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
+                                        <Link v-for="item in layout.navigation" :key="item.name" :href="route(item.route)" :class="[item.current ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
+                                            <font-awesome-icon aria-hidden="true"  :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'mr-3 flex-shrink-0 h-6 w-6']" :icon="item.icon"  size="lg" />
                                             {{ item.name }}
-                                        </a>
+                                        </Link>
                                     </div>
                                     <div class="mt-8">
                                         <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="mobile-teams-headline">Teams</h3>
@@ -66,7 +66,7 @@
         <div class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200  lg:pb-4 lg:bg-gray-100">
 
             <div class="pt-5 text-center text-sm font-semibold">
-            {{$page.props.organisation.name}}
+            {{layout.organisation.name}}
             </div>
 
             <!-- Sidebar component, swap this element with another sidebar if you like -->
@@ -77,11 +77,10 @@
 
                 <nav class="px-3 ">
                     <div class="space-y-1">
-                        <a v-for="item in layout.navigation" :key="item.name" :href="item.href" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
+                        <Link v-for="item in layout.navigation" :href="route(item.route)" :key="item.name" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
                             <font-awesome-icon aria-hidden="true"  :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'mr-3 flex-shrink-0 h-6 w-6']" :icon="item.icon"  size="lg" />
-
                             {{ item.name }}
-                        </a>
+                        </Link>
                     </div>
                     <div class="mt-8">
                         <!-- Secondary navigation -->
@@ -186,7 +185,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {ref, watchEffect} from 'vue';
 import {
     Dialog,
     DialogPanel,
@@ -199,8 +198,21 @@ import {
 } from '@headlessui/vue'
 import { BellIcon,ChevronDownIcon,ClockIcon, HomeIcon, MenuAlt1Icon, ViewListIcon, XIcon } from '@heroicons/vue/outline'
 import { ChevronRightIcon, DotsVerticalIcon, SearchIcon, SelectorIcon } from '@heroicons/vue/solid'
-import { Link } from '@inertiajs/inertia-vue3';
+import { usePage,Link } from '@inertiajs/inertia-vue3';
+import {useLayoutStore} from '@/Stores/layout.js';
 
+const layout = useLayoutStore();
+
+
+watchEffect(() => {
+  //  if (usePage().props.value.language) {locale.language = usePage().props.value.language;}
+  //  if (usePage().props.value.translations) {locale.translations = usePage().props.value.translations;}
+    if (usePage().props.value.layout) {layout.navigation = usePage().props.value.layout.navigation??null;}
+    if (usePage().props.value.organisation) {layout.organisation = usePage().props.value.organisation??null;}
+
+//    if (usePage().props.value.currentModels) {layout.currentModels = usePage().props.value.currentModels;}
+
+});
 const navigation = [
     { name: 'Home', href: '#', icon: HomeIcon, current: true },
     { name: 'My tasks', href: '#', icon: ViewListIcon, current: false },

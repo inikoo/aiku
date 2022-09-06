@@ -20,7 +20,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified','verify.setup'])->name('dashboard');
+})->middleware(['auth', 'verified','set.organisation'])->name('dashboard');
 
 
 Route::prefix('setup')->middleware(['auth', 'verified','verify.new'])->name('setup.')

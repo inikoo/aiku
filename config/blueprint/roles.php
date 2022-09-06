@@ -12,6 +12,7 @@ return
         'super-admin'           => [
             'organisation',
             'users',
+            'employees',
             'assets',
             'inventory',
             'warehouses',
