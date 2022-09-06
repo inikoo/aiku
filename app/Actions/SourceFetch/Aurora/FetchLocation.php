@@ -15,7 +15,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-class FetchLocation extends FetchModel
+class FetchLocation extends Fetch
 {
 
 

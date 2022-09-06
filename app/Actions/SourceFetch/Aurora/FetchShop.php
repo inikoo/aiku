@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
 
-class FetchShop extends FetchModel
+class FetchShop extends Fetch
 {
 
 

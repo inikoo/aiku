@@ -6,9 +6,9 @@
 
 namespace App\Actions\SourceUpserts\Aurora\Single;
 
-use App\Actions\Organisations\User\SetAvatarFromImage;
+use App\Actions\Auth\User\SetAvatarFromImage;
 use App\Managers\Organisation\SourceOrganisationManager;
-use App\Models\Organisations\User;
+use App\Models\Auth\User;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -17,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 
 /**
- * @property \App\Models\Organisations\User $user
+ * @property \App\Models\Auth\User $user
  * @property \App\Models\Organisations\Organisation|null $organisation
  */
 class UpdateUserFromSource

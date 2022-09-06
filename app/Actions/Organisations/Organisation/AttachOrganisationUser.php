@@ -9,9 +9,9 @@
 namespace App\Actions\Organisations\Organisation;
 
 
+use App\Models\Auth\User;
 use App\Models\Organisations\Organisation;
 use App\Models\Organisations\OrganisationUser;
-use App\Models\Organisations\User;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

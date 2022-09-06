@@ -21,7 +21,7 @@ use Spatie\Permission\Models\Role as SpatieRole;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\Permission\Models\Permission[] $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organisations\User[] $users
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Auth\User[] $users
  * @property-read int|null $users_count
  * @method static Builder|Role newModelQuery()
  * @method static Builder|Role newQuery()

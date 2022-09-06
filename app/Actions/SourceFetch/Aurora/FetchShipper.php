@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
 
-class FetchShipper extends FetchModel
+class FetchShipper extends Fetch
 {
 
 

@@ -92,20 +92,10 @@ class CreateAuroraOrganisation
 
         $res->data['token'] = $token;
 
-        $organisation       = $res->model;
-        $organisationSource = app(SourceOrganisationManager::class)->make($organisation->type);
-        $organisationSource->initialisation($organisation);
 
-        FetchShop::dispatch($organisationSource);
-
-        Bus::chain([
-                       FetchWarehouse::makeJob($organisationSource),
-                       FetchWarehouseArea::makeJob($organisationSource),
-                       FetchLocation::makeJob($organisationSource),
-                       FetchStock::makeJob($organisationSource),
-                   ])->dispatch();
 
         return $res;
+
     }
 
     /**

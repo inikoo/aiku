@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
 
-class FetchWarehouseArea extends FetchModel
+class FetchWarehouseArea extends Fetch
 {
 
 

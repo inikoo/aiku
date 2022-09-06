@@ -1,14 +1,15 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 16 Aug 2022 20:48:21 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ *  Created: Tue, 06 Sept 2022 15:36:03 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Organisations;
+namespace App\Models\Auth;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Organisations\Organisation;
+use App\Models\Organisations\OrganisationUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,7 +22,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * App\Models\Organisations\User
+ * App\Models\Auth\User
  *
  * @property int $id
  * @property string|null $username
@@ -136,12 +137,19 @@ class User extends Authenticatable implements HasMedia
              'navigation'=>[
                  [
                      'name'=>'Home',
-                     'icon'=>['far', 'fa-home']
+                     'icon'=>['fal', 'fa-home'],
+                     'route'=>'dashboard'
                  ],
                  [
-                     'name'=>'My tasks',
-                     'icon'=>'ViewListIcon'
-                 ]
+                     'name'=>'Picking',
+                     'icon'=>['fal', 'fa-dolly-flatbed-alt'],
+                     'route'=>'dashboard'
+                 ],
+                 [
+                     'name'=>'Packing',
+                     'icon'=>['fal', 'fa-conveyor-belt-alt'],
+                     'route'=>'dashboard'
+                 ],
              ]
          ];
     }

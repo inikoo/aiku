@@ -8,10 +8,10 @@
 
 namespace App\Actions\Organisations\Setup;
 
-use App\Actions\Organisations\User\SetAvatar;
-use App\Actions\Organisations\User\UpdateUser;
+use App\Actions\Auth\User\SetAvatar;
+use App\Actions\Auth\User\UpdateUser;
 use App\Actions\SourceUpserts\Aurora\Single\UpdateUserFromSource;
-use App\Models\Organisations\User;
+use App\Models\Auth\User;
 use App\Models\Organisations\UserLinkCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;

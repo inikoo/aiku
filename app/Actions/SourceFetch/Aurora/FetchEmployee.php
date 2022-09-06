@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
 
-class FetchEmployee extends FetchModel
+class FetchEmployee extends Fetch
 {
 
     public string $commandSignature = 'fetch:employees {organisation_code} {organisation_source_id?}';

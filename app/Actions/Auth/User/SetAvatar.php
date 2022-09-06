@@ -1,16 +1,13 @@
-<?php /** @noinspection PhpUnused */
-
-/*
+<?php /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 29 Mar 2022 00:42:13 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
- */
+ *  Created: Tue, 06 Sept 2022 15:34:51 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */ /** @noinspection PhpUnused */
 
-namespace App\Actions\Organisations\User;
+namespace App\Actions\Auth\User;
 
 use App\Actions\WithUpdate;
-use App\Models\Organisations\User;
+use App\Models\Auth\User;
 use App\Models\Utils\ActionResult;
 use Illuminate\Console\Command;
 use Laravolt\Avatar\Avatar;
@@ -18,7 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 
 /**
- * @property User $user
+ * @property \App\Models\Auth\User $user
  */
 class SetAvatar
 {

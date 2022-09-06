@@ -24,7 +24,7 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\Permission\Models\Role[] $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organisations\User[] $users
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Auth\User[] $users
  * @property-read int|null $users_count
  * @method static Builder|Permission newModelQuery()
  * @method static Builder|Permission newQuery()

@@ -9,6 +9,7 @@
 namespace App\Models\Organisations;
 
 
+use App\Models\Auth\User;
 use App\Models\Delivery\OrganisationShipper;
 use App\Models\Delivery\Shipper;
 use App\Models\HumanResources\Employee;
@@ -45,7 +46,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read int|null $tokens_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organisations\UserLinkCode[] $userLinkCodes
  * @property-read int|null $user_link_codes_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organisations\User[] $users
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Auth\User[] $users
  * @property-read int|null $users_count
  * @method static Builder|Organisation newModelQuery()
  * @method static Builder|Organisation newQuery()

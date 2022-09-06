@@ -21,7 +21,7 @@ use Lorisleiva\Actions\Decorators\JobDecorator;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 
-class FetchModel
+class Fetch
 {
     use AsAction;
 
@@ -71,7 +71,6 @@ class FetchModel
         $organisation = Organisation::where('code', $command->argument('organisation_code'))->first();
         if (!$organisation) {
             $command->error('Organisation not found');
-
             return;
         }
 
