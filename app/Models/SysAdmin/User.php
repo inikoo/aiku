@@ -130,53 +130,6 @@ class User extends Authenticatable implements HasMedia
             });
     }
 
-    public function getIULayout(): array
-    {
-        $navigation = [
-            [
-                'name'  => 'Home',
-                'icon'  => ['fal', 'fa-home'],
-                'route' => 'dashboard'
-            ]
-        ];
 
-
-        if ($this->can('warehouses.dispatching.pick')) {
-            $navigation[] = [
-                'name'  => 'Picking',
-                'icon'  => ['fal', 'fa-dolly-flatbed-alt'],
-                'route' => 'dashboard'
-            ];
-        }
-
-        if ($this->can('warehouses.dispatching.pack')) {
-            $navigation[] = [
-                'name'  => 'Packing',
-                'icon'  => ['fal', 'fa-conveyor-belt-alt'],
-                'route' => 'dashboard'
-            ];
-        }
-
-        if ($this->can('employees.view')) {
-            $navigation[] = [
-                'name'  => 'Employees',
-                'icon'  => ['fal', 'fa-user-hard-hat'],
-                'route' => 'hr.employees.index'
-            ];
-        }
-
-        if ($this->can('users.view')) {
-            $navigation[] = [
-                'name'  => 'Users',
-                'icon'  => ['fal', 'fa-users'],
-                'route' => 'dashboard'
-            ];
-        }
-
-
-        return [
-            'navigation' => $navigation
-        ];
-    }
 
 }

@@ -16,10 +16,7 @@
 
         <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
             <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                <ValidationErrors class="mb-4" />
-                <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-                    {{ status }}
-                </div>
+
                 <form class="space-y-6" @submit.prevent="submit">
                     <div>
                         <label for="login" class="block text-sm font-medium text-gray-700"> Email address or username</label>
@@ -100,9 +97,7 @@ import Password from '@/Components/Password.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import ValidationErrors from '@/Components/ValidationErrors.vue';
 
-defineProps({
-                status: String,
-            });
+
 
 const form = useForm({
                          login: '',

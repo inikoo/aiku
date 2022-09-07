@@ -96,6 +96,7 @@ class Kernel extends HttpKernel
         'throttle'         => ThrottleRequests::class,
         'verified'         => EnsureEmailIsVerified::class,
         'set.organisation' => SetOrganisation::class,
+        'inertia'          => HandleInertiaRequests::class,
         'verify.new'       => EnsureUserIsNew::class
     ];
 }

@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\User;
+namespace App\Actions\SysAdmin\User;
 
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
@@ -44,7 +44,7 @@ class StoreUser extends StoreModelAction
     public function rules(): array
     {
         return [
-            'username' => 'required|alpha_dash|unique:App\Models\Auth\User,username',
+            'username' => 'required|alpha_dash|unique:App\Models\SysAdmin\User,username',
             'password' => ['required', app()->isLocal() ? null : Password::min(8)->uncompromised()],
             'name'     => 'sometimes|required',
             'email'    => 'sometimes|required|email'

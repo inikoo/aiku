@@ -8,6 +8,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\UI\GetLayout;
 use App\Actions\UI\Localisation\GetUITranslations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -48,19 +49,24 @@ class HandleInertiaRequests extends Middleware
         /** @var \App\Models\SysAdmin\User $user */
         $user=$request->user();
 
-        $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
+
+        $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin') or true ) ? [
 
             'organisation' => $user ? $user->organisation->only('name', 'code') : [],
             'language'     => App::currentLocale(),
             'translations' => fn() => GetUITranslations::run(),
             'layout' => function () use ($user) {
                 if ($user) {
-                    return $user->getIULayout();
+
+                    return GetLayout::run($user);
                 } else {
                     return [];
                 }
             }
         ] : [];
+
+        Session::forget('redirectFromLogin');
+
 
         return array_merge(
             parent::share($request),

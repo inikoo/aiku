@@ -35,7 +35,7 @@ class SetupUsername
     public function rules(): array
     {
         return [
-            'username' => 'required|alpha_dash|unique:App\Models\Auth\User,username',
+            'username' => 'required|alpha_dash|unique:App\Models\SysAdmin\User,username',
         ];
     }
 

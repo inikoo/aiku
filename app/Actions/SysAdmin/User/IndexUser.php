@@ -1,17 +1,16 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 23 Sep 2021 02:39:37 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2021, Inikoo
- *  Version 4.0
+ *  Created: Wed, 07 Sept 2022 20:07:27 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee;
+namespace App\Actions\SysAdmin\User;
 
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\HumanResources\EmployeeInertiaResource;
-use App\Http\Resources\HumanResources\EmployeeResource;
-use App\Models\HumanResources\Employee;
+use App\Http\Resources\SysAdmin\UserInertiaResource;
+use App\Http\Resources\SysAdmin\UserResource;
+use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -22,12 +21,8 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-/**
- * @property array $breadcrumbs
- * @property bool $canEdit
- * @property string $title
- */
-class IndexEmployee
+
+class IndexUser
 {
     use AsAction;
     use WithInertia;
@@ -37,16 +32,17 @@ class IndexEmployee
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.name', 'LIKE', "%$value%")
-                    ->orWhere('employees.code', 'LIKE', "%$value%");
+                $query->where('user.username', 'LIKE', "%$value%")
+                    ->orWhere('user.email', 'LIKE', "%$value%")
+                    ->orWhere('user.name', 'LIKE', "%$value%");
             });
         });
 
 
-        return QueryBuilder::for(Employee::class)
-            ->defaultSort('employees.code')
-            ->select(['code', 'id', 'worker_number', 'name'])
-            ->allowedSorts(['code', 'worker_number', 'name'])
+        return QueryBuilder::for(User::class)
+            ->defaultSort('username')
+            ->select(['username', 'email', 'name','id'])
+            ->allowedSorts(['username', 'email', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? 15)
             ->withQueryString();
@@ -57,42 +53,39 @@ class IndexEmployee
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('employees.view')
+                $request->user()->hasPermissionTo('users.view')
             );
     }
 
 
     public function jsonResponse(): AnonymousResourceCollection
     {
-        return EmployeeResource::collection($this->handle());
+        return UserResource::collection($this->handle());
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees)
+    public function htmlResponse(LengthAwarePaginator $users)
     {
         return Inertia::render(
-            'HumanResources/Employees',
+            'SysAdmin/Users',
             [
-
-
                 'labels' => [
-                    'headTitle' => __('Employees'),
-                    'title'     => __('Employees'),
+                    'headTitle' => __('Users'),
+                    'title'     => __('Users'),
+                    'usernameNoSet'=>__('username no set')
                 ],
-                'employees' => EmployeeInertiaResource::collection($employees),
+                'users' => UserInertiaResource::collection($users),
 
 
             ]
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'code', canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'username', canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->defaultSort('username');
         });
     }
-
-
 
 
     public function asController(Request $request): LengthAwarePaginator
