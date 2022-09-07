@@ -7,12 +7,14 @@
 
 namespace App\Models\HumanResources;
 
+use App\Models\Auth\User;
 use App\Models\Organisations\Organisation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -21,7 +23,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  *
  * @property int $id
  * @property int $organisation_id
- * @property string $nickname
+ * @property string $code
  * @property string|null $name
  * @property string|null $email
  * @property string|null $phone
@@ -66,7 +68,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @method static Builder|Employee whereJobPositionScopes($value)
  * @method static Builder|Employee whereJobTitle($value)
  * @method static Builder|Employee whereName($value)
- * @method static Builder|Employee whereNickname($value)
+ * @method static Builder|Employee wherecode($value)
  * @method static Builder|Employee whereOrganisationId($value)
  * @method static Builder|Employee whereOrganisationSourceId($value)
  * @method static Builder|Employee wherePhone($value)
@@ -80,6 +82,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection|\Spatie\MediaLibrary\MediaCollections\Models\Media[] $media
  * @property-read int|null $media_count
  * @property-read Organisation|null $organisation
+ * @property-read User|null $user
  */
 class Employee extends Model implements HasMedia
 {
@@ -127,5 +130,11 @@ class Employee extends Model implements HasMedia
     {
         return $this->belongsTo(Organisation::class);
     }
+
+    public function user(): MorphOne
+    {
+        return $this->morphOne(User::class, 'userable');
+    }
+
 
 }

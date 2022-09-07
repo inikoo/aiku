@@ -30,7 +30,7 @@ class FetchEssentialModels
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource): void
     {
         FetchShop::dispatch($organisationSource);
-
+        FetchEmployee::dispatch($organisationSource);
         Bus::chain([
                        FetchWarehouse::makeJob($organisationSource),
                        FetchWarehouseArea::makeJob($organisationSource),

@@ -75,7 +75,7 @@ class FetchAuroraEmployee extends FetchAurora
             'identity_document_number' => $this->auroraModelData->{'Staff Official ID'},
             'date_of_birth'            => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
             'worker_number'            => $this->auroraModelData->{'Staff ID'},
-            'nickname'                 => strtolower($this->auroraModelData->{'Staff Alias'}),
+            'code'                 => strtolower($this->auroraModelData->{'Staff Alias'}),
             'employment_start_at'      => $this->parseDate($this->auroraModelData->{'Staff Valid From'}),
             'created_at'               => $this->auroraModelData->{'Staff Valid From'},
             'emergency_contact'        => $this->auroraModelData->{'Staff Next of Kind'},

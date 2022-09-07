@@ -22,6 +22,10 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified','set.organisation'])->name('dashboard');
 
+Route::prefix('hr')
+    ->middleware(['auth', 'verified','set.organisation'])
+    ->name('hr.')
+    ->group(__DIR__.'/human_resources.php');
 
 Route::prefix('setup')->middleware(['auth', 'verified','verify.new'])->name('setup.')
     ->group(__DIR__.'/setup.php');

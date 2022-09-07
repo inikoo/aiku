@@ -161,7 +161,7 @@ class User extends Authenticatable implements HasMedia
             $navigation[] = [
                 'name'  => 'Employees',
                 'icon'  => ['fal', 'fa-user-hard-hat'],
-                'route' => 'dashboard'
+                'route' => 'hr.employees.index'
             ];
         }
 

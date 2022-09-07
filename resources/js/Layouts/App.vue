@@ -108,7 +108,7 @@
                 <div class="flex-1 flex justify-between px-4 sm:px-6 lg:px-8">
                     <div class="flex-1 flex">
                         <div class="flex-shrink-0 flex items-center px-4">
-                            <img class="h-8 w-auto" src="art/logo-name.png" alt="Pika" />
+                            <img class="h-8 w-auto" src="/art/logo-name.png" alt="Pika" />
                         </div>
                     </div>
                     <div class="flex items-center">
