@@ -1,16 +1,15 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sun, 14 Aug 2022 20:22:33 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ *  Created: Wed, 07 Sept 2022 17:20:22 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Admin\AdminUser;
+namespace App\Actions\SysAdmin\AdminUser;
 
-use App\Models\Admin\Admin;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
+use App\Models\SysAdmin\Admin;
 use App\Models\Utils\ActionResult;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -36,7 +35,7 @@ class StoreAdminUser
 
 
 
-        /** @var \App\Models\Admin\AdminUser $adminUser */
+        /** @var \App\Models\SysAdmin\AdminUser $adminUser */
         $adminUser= $admin->adminUser()->create($userData);
         $res->model    = $adminUser;
         $res->model_id = $adminUser->id;

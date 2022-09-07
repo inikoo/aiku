@@ -9,7 +9,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -25,7 +25,7 @@ class RegisteredUserController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('SysAdmin/Register');
     }
 
     /**

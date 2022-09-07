@@ -8,7 +8,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;

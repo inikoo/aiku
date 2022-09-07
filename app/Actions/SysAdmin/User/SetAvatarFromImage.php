@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\WithUpdate;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use App\Models\Utils\ActionResult;
 use Lorisleiva\Actions\Concerns\AsAction;
 

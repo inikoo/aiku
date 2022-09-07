@@ -7,7 +7,7 @@
 
 namespace App\Models\HumanResources;
 
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use App\Models\Organisations\Organisation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

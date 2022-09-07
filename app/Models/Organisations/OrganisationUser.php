@@ -8,7 +8,7 @@
 
 namespace App\Models\Organisations;
 
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @method static Builder|OrganisationUser whereUserId($value)
  * @mixin \Eloquent
  * @property-read \App\Models\Organisations\Organisation|null $organisation
- * @property-read \App\Models\Auth\User|null $user
+ * @property-read \App\Models\SysAdmin\User|null $user
  */
 class OrganisationUser extends Pivot
 {

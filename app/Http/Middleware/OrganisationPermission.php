@@ -7,7 +7,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Closure;
 use Illuminate\Http\Request;
 

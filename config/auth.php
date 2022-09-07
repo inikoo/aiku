@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Admin\AdminUser;
-use App\Models\Auth\User;
 use App\Models\Organisations\Organisation;
+use App\Models\SysAdmin\AdminUser;
+use App\Models\SysAdmin\User;
 
 return [
 

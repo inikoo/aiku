@@ -8,7 +8,7 @@ namespace App\Actions\SourceUpserts\Aurora\Single;
 
 use App\Actions\Auth\User\SetAvatarFromImage;
 use App\Managers\Organisation\SourceOrganisationManager;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -17,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 
 /**
- * @property \App\Models\Auth\User $user
+ * @property \App\Models\SysAdmin\User $user
  * @property \App\Models\Organisations\Organisation|null $organisation
  */
 class UpdateUserFromSource

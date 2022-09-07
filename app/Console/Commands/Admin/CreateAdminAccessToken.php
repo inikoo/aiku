@@ -8,7 +8,6 @@
 
 namespace App\Console\Commands\Admin;
 
-use App\Models\Admin\Admin;
 use Illuminate\Console\Command;
 
 
@@ -22,7 +21,7 @@ class CreateAdminAccessToken extends Command
 
     public function handle(): int
     {
-        if ($admin = Admin::firstWhere('slug', $this->argument('slug'))) {
+        if ($admin = \App\Models\SysAdmin\Admin::firstWhere('slug', $this->argument('slug'))) {
 
             $token= $admin->adminUser->createToken($this->argument('token_name'),$this->argument('scopes'))->plainTextToken;
             $this->line("Admin access token: $token");

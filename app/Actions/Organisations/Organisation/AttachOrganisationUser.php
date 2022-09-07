@@ -9,7 +9,7 @@
 namespace App\Actions\Organisations\Organisation;
 
 
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use App\Models\Organisations\Organisation;
 use App\Models\Organisations\OrganisationUser;
 use Illuminate\Console\Command;

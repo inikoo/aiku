@@ -8,7 +8,7 @@
 
 namespace App\Actions\Organisations\Setup;
 
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Validator;
@@ -16,7 +16,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * @property \App\Models\Auth\User $user
+ * @property \App\Models\SysAdmin\User $user
  */
 class SetupUsername
 {

@@ -7,7 +7,7 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\WithUpdate;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use App\Models\Utils\ActionResult;
 use Illuminate\Console\Command;
 use Laravolt\Avatar\Avatar;
@@ -15,7 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 
 /**
- * @property \App\Models\Auth\User $user
+ * @property \App\Models\SysAdmin\User $user
  */
 class SetAvatar
 {

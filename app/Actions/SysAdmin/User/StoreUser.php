@@ -7,8 +7,8 @@
 
 namespace App\Actions\Auth\User;
 
-use App\Models\Auth\Role;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\Role;
+use App\Models\SysAdmin\User;
 use Illuminate\Console\Command;
 use App\Actions\StoreModelAction;
 use App\Models\Organisations\Organisation;

@@ -6,10 +6,8 @@
  *  Version 4.0
  */
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
 
 
 Route::get('/', function () {
@@ -18,16 +16,22 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified','set.organisation'])->name('dashboard');
+Route::middleware(['auth', 'verified', 'set.organisation'])->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
 
-Route::prefix('hr')
-    ->middleware(['auth', 'verified','set.organisation'])
-    ->name('hr.')
-    ->group(__DIR__.'/human_resources.php');
+    Route::prefix('hr')
+        ->name('hr.')
+        ->group(__DIR__.'/hr.php');
 
-Route::prefix('setup')->middleware(['auth', 'verified','verify.new'])->name('setup.')
+    Route::prefix('sysadmin')
+        ->name('sysadmin.')
+        ->group(__DIR__.'/sysadmin.php');
+});
+
+
+Route::prefix('setup')->middleware(['auth', 'verified', 'verify.new'])->name('setup.')
     ->group(__DIR__.'/setup.php');
 
 

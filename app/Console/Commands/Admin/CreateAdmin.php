@@ -9,8 +9,8 @@
 namespace App\Console\Commands\Admin;
 
 
-use App\Actions\Admin\AdminUser\StoreAdminUser;
-use App\Models\Admin\Admin;
+use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
+use App\Models\SysAdmin\Admin;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -36,8 +36,8 @@ class CreateAdmin extends Command
             }
         }
 
-        /** @var Admin $admin */
-        $admin = new Admin([
+        /** @var \App\Models\SysAdmin\Admin $admin */
+        $admin = new \App\Models\SysAdmin\Admin([
                                       'name' => $this->argument('name'),
                                       'email' => $this->argument('email'),
 

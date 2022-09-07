@@ -1,12 +1,11 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sun, 14 Aug 2022 20:12:49 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ *  Created: Wed, 07 Sept 2022 17:21:07 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Admin;
+namespace App\Models\SysAdmin;
 
 
 use Illuminate\Database\Eloquent\Builder;
@@ -14,11 +13,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
-
 /**
- * App\Models\Admin\Admin
+ * App\Models\SysAdmin\Admin
  *
- * @property-read \App\Models\Admin\AdminUser|null $adminUser
+ * @property-read \App\Models\SysAdmin\AdminUser|null $adminUser
  * @method static Builder|Admin newModelQuery()
  * @method static Builder|Admin newQuery()
  * @method static Builder|Admin query()

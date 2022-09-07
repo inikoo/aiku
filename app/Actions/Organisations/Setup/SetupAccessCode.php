@@ -11,7 +11,7 @@ namespace App\Actions\Organisations\Setup;
 use App\Actions\Auth\User\SetAvatar;
 use App\Actions\Auth\User\UpdateUser;
 use App\Actions\SourceUpserts\Aurora\Single\UpdateUserFromSource;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use App\Models\Organisations\UserLinkCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;

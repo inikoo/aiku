@@ -5,9 +5,9 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Auth;
+namespace App\Models\SysAdmin;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\SysAdmin\MustVerifyEmail;
 use App\Models\Organisations\Organisation;
 use App\Models\Organisations\OrganisationUser;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +22,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * App\Models\Auth\User
+ * App\Models\SysAdmin\User
  *
  * @property int $id
  * @property string|null $username

@@ -6,14 +6,14 @@
  *  Version 4.0
  */
 
-namespace App\Models\Auth;
+namespace App\Models\SysAdmin;
 
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 
 
 /**
- * App\Models\Auth\Permission
+ * App\Models\SysAdmin\Permission
  *
  * @property int $id
  * @property string $name
@@ -24,7 +24,7 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\Permission\Models\Role[] $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Auth\User[] $users
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\SysAdmin\User[] $users
  * @property-read int|null $users_count
  * @method static Builder|Permission newModelQuery()
  * @method static Builder|Permission newQuery()

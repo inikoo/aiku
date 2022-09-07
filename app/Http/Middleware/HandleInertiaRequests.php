@@ -45,7 +45,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        /** @var \App\Models\Auth\User $user */
+        /** @var \App\Models\SysAdmin\User $user */
         $user=$request->user();
 
         $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
