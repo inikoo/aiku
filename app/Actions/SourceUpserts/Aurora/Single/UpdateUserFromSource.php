@@ -6,7 +6,7 @@
 
 namespace App\Actions\SourceUpserts\Aurora\Single;
 
-use App\Actions\Auth\User\SetAvatarFromImage;
+use App\Actions\SysAdmin\User\SetAvatarFromImage;
 use App\Managers\Organisation\SourceOrganisationManager;
 use App\Models\SysAdmin\User;
 use Exception;

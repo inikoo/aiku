@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\User;
+namespace App\Actions\SysAdmin\User;
 
 use App\Actions\WithUpdate;
 use App\Models\SysAdmin\User;

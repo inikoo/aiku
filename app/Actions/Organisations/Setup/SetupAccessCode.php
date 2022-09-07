@@ -8,8 +8,8 @@
 
 namespace App\Actions\Organisations\Setup;
 
-use App\Actions\Auth\User\SetAvatar;
-use App\Actions\Auth\User\UpdateUser;
+use App\Actions\SysAdmin\User\SetAvatar;
+use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SourceUpserts\Aurora\Single\UpdateUserFromSource;
 use App\Models\SysAdmin\User;
 use App\Models\Organisations\UserLinkCode;
