@@ -20,7 +20,7 @@ const appName = window.document.getElementsByTagName('title')[0]?.innerText ||
 import {createPinia} from 'pinia';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
-import {faSearch, faBell,faAngleUp} from '../private/pro-regular-svg-icons';
+import {faSearch, faBell, faAngleUp} from '../private/pro-regular-svg-icons';
 import {
     faHome,
     faDollyFlatbedAlt,
@@ -40,21 +40,24 @@ library.add(faSearch,
             faUserHardHat
             );
 
-
-const initialiseApp = () =>{
+const initialiseApp = () => {
     const layout = useLayoutStore();
-    if(usePage().props.value.language){
-        loadLanguageAsync(usePage().props.value.language)
+    if (usePage().props.value.language) {
+        loadLanguageAsync(usePage().props.value.language);
     }
     watchEffect(() => {
-        if (usePage().props.value.layout) {layout.navigation = usePage().props.value.layout.navigation??null;}
-        if (usePage().props.value.organisation) {layout.organisation = usePage().props.value.organisation??null;}
+        if (usePage().props.value.layout) {
+            layout.navigation = usePage().props.value.layout.navigation ?? null;
+        }
+        if (usePage().props.value.organisation) {
+            layout.organisation = usePage().props.value.organisation ?? null;
+        }
     });
     return layout;
-}
+};
 
 createInertiaApp({
-                     title  : (title) => `${title} - ${appName}`,
+                     title: (title) => `${title} - ${appName}`,
                      resolve: (name) => resolvePageComponent(
                          `./Pages/${name}.vue`,
                          import.meta.glob('./Pages/**/*.vue')),
@@ -66,12 +69,13 @@ createInertiaApp({
                              component('font-awesome-icon', FontAwesomeIcon).
                              use(i18nVue, {
                                  resolve: async lang => {
-                                     const languages = import.meta.glob('../../lang/*.json');
+                                     const languages = import.meta.glob(
+                                         '../../lang/*.json');
                                      return await languages[`../../lang/${lang}.json`]();
-                                 }
+                                 },
                              }).
                              provide(
-                                 'initialiseApp',initialiseApp
+                                 'initialiseApp', initialiseApp,
                              ).
                              mount(el);
                      },

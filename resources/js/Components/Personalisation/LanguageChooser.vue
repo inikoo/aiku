@@ -9,9 +9,9 @@
         <div>
             <MenuButton
                 class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-language" size="lg" />
+                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-language" size="lg"/>
                 <span class="mx-1"> {{ languageCode }}</span>
-                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-angle-up" />
+                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-angle-up"/>
             </MenuButton>
         </div>
 
@@ -20,7 +20,7 @@
             <MenuItems class="sm:absolute sm:bottom-12 sm:right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div class="py-1">
 
-                        <MenuItem v-for="language in languages" key="language.code" v-slot="{ active }">
+                    <MenuItem v-for="language in languages" key="language.code" v-slot="{ active }">
                           <span @click="setLanguage(language.code)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'cursor-pointer  block px-4 py-2 text-sm']">
                               {{ language.name.value }}
                               <span v-if="language.name.value!== language.nativeName" :id="`${language.code}-description`" class="ml-2 text-gray-500">({{
@@ -29,7 +29,7 @@
 
                           </span>
 
-                        </MenuItem>
+                    </MenuItem>
 
 
                 </div>
@@ -41,13 +41,12 @@
 <script setup>
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faLanguage} from '@/../private/pro-regular-svg-icons';
-import {getActiveLanguage, loadLanguageAsync,wTrans} from 'laravel-vue-i18n';
+import {getActiveLanguage, loadLanguageAsync, wTrans} from 'laravel-vue-i18n';
 import {usePage} from '@inertiajs/inertia-vue3';
 import VueCookies from 'vue-cookies';
-import { Inertia } from '@inertiajs/inertia'
+import {Inertia} from '@inertiajs/inertia';
+
 library.add(faLanguage);
-
-
 
 import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/vue';
 import {ref} from 'vue';
@@ -67,19 +66,18 @@ const languages = [
     },
 
 ];
+
 function setLanguage(code) {
     open.value = false;
     loadLanguageAsync(code);
     languageCode.value = code;
-
     VueCookies.set('language', code, '1y');
-
     if (usePage().props.value.auth.user) {
         Inertia.patch('/profile', {
             language: code,
-        })
+        });
 
-     }
+    }
 
 }
 </script>
