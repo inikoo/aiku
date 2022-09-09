@@ -16,7 +16,7 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
-Route::middleware(['auth', 'verified', 'set.organisation'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
@@ -24,6 +24,11 @@ Route::middleware(['auth', 'verified', 'set.organisation'])->group(function () {
     Route::prefix('hr')
         ->name('hr.')
         ->group(__DIR__.'/hr.php');
+
+    Route::prefix('profile')
+        ->name('profile.')
+        ->group(__DIR__.'/profile.php');
+
 
     Route::prefix('sysadmin')
         ->name('sysadmin.')

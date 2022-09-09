@@ -1,4 +1,3 @@
-
 <!--
   -  Author: Raul Perusquia <raul@inikoo.com>
   -  Created: Thu, 11 Aug 2022 11:08:49 Malaysia Time, Kuala Lumpur, Malaysia
@@ -7,8 +6,8 @@
   -->
 
 
+<!--suppress JSUnresolvedFunction -->
 <template>
-
     <div class="min-h-full">
         <TransitionRoot as="template" :show="sidebarOpen">
             <Dialog as="div" class="relative z-40 lg:hidden" @close="sidebarOpen = false">
@@ -41,12 +40,12 @@
                                         </Link>
                                     </div>
                                     <div class="mt-8">
-                                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="mobile-teams-headline">Teams</h3>
-                                        <div class="mt-1 space-y-1" role="group" aria-labelledby="mobile-teams-headline">
-                                            <a v-for="team in teams" :key="team.name" :href="team.href" class="group flex items-center px-3 py-2 text-base leading-5 font-medium text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-50">
-                                                <span :class="[team.bgColorClass, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
+                                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="mobile-shortcuts-headline">{{$t('Shortcuts')}}</h3>
+                                        <div class="mt-1 space-y-1" role="group" aria-labelledby="mobile-shortcuts-headline">
+                                            <a v-for="shortcut in shortcuts" :key="shortcut.name" :href="shortcut.href" class="group flex items-center px-3 py-2 text-base leading-5 font-medium text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-50">
+                                                <span :class="[shortcut.bgColorClass, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
                                                 <span class="truncate">
-                                                    {{ team.name }}
+                                                    {{ shortcut.name }}
                                                 </span>
                                             </a>
                                         </div>
@@ -77,19 +76,19 @@
 
                 <nav class="px-3 ">
                     <div class="space-y-1">
-                        <Link v-for="item in layout.navigation" :href="route(item.route)" :key="item.name" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
+                        <Link v-for="item in layout.navigation" :href="route(item.route)" :key="item.name" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'capitalize group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
                             <font-awesome-icon aria-hidden="true"  :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'mr-3 flex-shrink-0 h-6 w-6']" :icon="item.icon"  size="lg" />
                             {{ item.name }}
                         </Link>
                     </div>
                     <div class="mt-8">
                         <!-- Secondary navigation -->
-                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="desktop-teams-headline">Teams</h3>
-                        <div class="mt-1 space-y-1" role="group" aria-labelledby="desktop-teams-headline">
-                            <a v-for="team in teams" :key="team.name" :href="team.href" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:text-gray-900 hover:bg-gray-50">
-                                <span :class="[team.bgColorClass, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
+                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="desktop-shortcuts-headline">shortcuts</h3>
+                        <div class="mt-1 space-y-1" role="group" aria-labelledby="desktop-shortcuts-headline">
+                            <a v-for="shortcut in shortcuts" :key="shortcut.name" :href="shortcut.href" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:text-gray-900 hover:bg-gray-50">
+                                <span :class="[shortcut.bgColorClass, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
                                 <span class="truncate">
-                                    {{ team.name }}
+                                    {{ shortcut.name }}
                                 </span>
                             </a>
                         </div>
@@ -147,10 +146,10 @@
                                 <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                                     <div class="py-1">
                                         <MenuItem v-slot="{ active }">
-                                            <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">View profile</a>
+                                            <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{ $t('View profile')}}  </a>
                                         </MenuItem>
                                         <MenuItem v-slot="{ active }">
-                                            <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Settings</a>
+                                            <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{ $t('Settings')}} </a>
                                         </MenuItem>
                                         <MenuItem v-slot="{ active }">
                                             <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Notifications</a>
@@ -158,7 +157,7 @@
                                     </div>
                                     <div class="py-1">
                                         <MenuItem v-slot="{ active }">
-                                            <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Get desktop app</a>
+                                            <Link :href="route('welcome')" href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{$t('Homepage')}}</Link>
                                         </MenuItem>
                                         <MenuItem v-slot="{ active }">
                                             <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Support</a>
@@ -185,7 +184,7 @@
 </template>
 
 <script setup>
-import {ref, watchEffect} from 'vue';
+import {ref, inject} from 'vue';
 import {
     Dialog,
     DialogPanel,
@@ -196,29 +195,16 @@ import {
     TransitionChild,
     TransitionRoot,
 } from '@headlessui/vue'
-import { BellIcon,ChevronDownIcon,ClockIcon, HomeIcon, MenuAlt1Icon, ViewListIcon, XIcon } from '@heroicons/vue/outline'
-import { ChevronRightIcon, DotsVerticalIcon, SearchIcon, SelectorIcon } from '@heroicons/vue/solid'
-import { usePage,Link } from '@inertiajs/inertia-vue3';
-import {useLayoutStore} from '@/Stores/layout.js';
-
-const layout = useLayoutStore();
+import { ChevronDownIcon, MenuAlt1Icon, XIcon } from '@heroicons/vue/outline'
+import { Link } from '@inertiajs/inertia-vue3';
 
 
-watchEffect(() => {
-  //  if (usePage().props.value.language) {locale.language = usePage().props.value.language;}
-  //  if (usePage().props.value.translations) {locale.translations = usePage().props.value.translations;}
-    if (usePage().props.value.layout) {layout.navigation = usePage().props.value.layout.navigation??null;}
-    if (usePage().props.value.organisation) {layout.organisation = usePage().props.value.organisation??null;}
+const initialiseApp = inject('initialiseApp')
+const layout= initialiseApp();
 
-//    if (usePage().props.value.currentModels) {layout.currentModels = usePage().props.value.currentModels;}
 
-});
-const navigation = [
-    { name: 'Home', href: '#', icon: HomeIcon, current: true },
-    { name: 'My tasks', href: '#', icon: ViewListIcon, current: false },
-    { name: 'Recent', href: '#', icon: ClockIcon, current: false },
-]
-const teams = [
+
+const shortcuts = [
     { name: 'Engineering', href: '#', bgColorClass: 'bg-indigo-500' },
     { name: 'Human Resources', href: '#', bgColorClass: 'bg-green-500' },
     { name: 'Customer Success', href: '#', bgColorClass: 'bg-yellow-500' },

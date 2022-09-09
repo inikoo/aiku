@@ -29,6 +29,8 @@
         "@headlessui/vue": "^1.6.7",
         "@heroicons/vue": "^1.0.6",
         "@protonemedia/inertiajs-tables-laravel-query-builder": "^2.1.0",
-        "pinia": "^2.0.20"
+        "laravel-vue-i18n": "^2.2.2",
+        "pinia": "^2.0.20",
+        "vue-cookies": "^1.8.1"
     }
 }

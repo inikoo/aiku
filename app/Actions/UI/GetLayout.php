@@ -19,17 +19,16 @@ class GetLayout
     {
         $navigation = [
             [
-                'name'  => 'Home',
+                'name'  => __('dashboard'),
                 'icon'  => ['fal', 'fa-home'],
                 'route' => 'dashboard'
             ]
         ];
 
 
-
         if ($user->can('warehouses.dispatching.pick')) {
             $navigation[] = [
-                'name'  => 'Picking',
+                'name'  => __('picking'),
                 'icon'  => ['fal', 'fa-dolly-flatbed-alt'],
                 'route' => 'dashboard'
             ];
@@ -37,7 +36,7 @@ class GetLayout
 
         if ($user->can('warehouses.dispatching.pack')) {
             $navigation[] = [
-                'name'  => 'Packing',
+                'name'  => __('packing'),
                 'icon'  => ['fal', 'fa-conveyor-belt-alt'],
                 'route' => 'dashboard'
             ];
@@ -53,7 +52,7 @@ class GetLayout
 
         if ($user->can('users.view')) {
             $navigation[] = [
-                'name'  => 'Users',
+                'name'  => __('users'),
                 'icon'  => ['fal', 'fa-users'],
                 'route' => 'sysadmin.users.index'
             ];

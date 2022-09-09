@@ -26,7 +26,9 @@
         "spatie/laravel-permission": "^5.5",
         "spatie/laravel-query-builder": "^5.0",
         "tightenco/ziggy": "^1.0",
-        "vlucas/phpdotenv": "^5.4"
+        "vemcogroup/laravel-translation": "^3.0",
+        "vlucas/phpdotenv": "^5.4",
+        "ext-intl": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",

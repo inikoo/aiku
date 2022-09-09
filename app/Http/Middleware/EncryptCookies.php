@@ -1,4 +1,9 @@
 <?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Fri, 09 Sept 2022 14:58:13 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
 
 namespace App\Http\Middleware;
 
@@ -12,6 +17,6 @@ class EncryptCookies extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'language'
     ];
 }

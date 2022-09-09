@@ -9,6 +9,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\SysAdmin\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class AuthenticatedSessionController extends Controller
     {
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
-            'status' => session('status'),
+            'status'           => session('status'),
         ]);
     }
 
@@ -39,6 +40,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
         Session::put('redirectFromLogin', '1');
+
+        /** @var User $user */
+        $user   = auth()->user();
+        $locale = $user->settings['language'];
+
+        app()->setLocale($locale);
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class SetOrganisation
 {
@@ -14,13 +15,10 @@ class SetOrganisation
     public function handle(Request $request, Closure $next): Response|RedirectResponse|JsonResponse
     {
 
-
-
-        if (! $request->user()->username or  !$request->user()->organisation_id) {
-            return redirect('setup');
+        if(Auth::check()){
+            setPermissionsTeamId($request->user()->organisation_id);
         }
 
-        setPermissionsTeamId($request->user()->organisation_id);
         return $next($request);
     }
 }

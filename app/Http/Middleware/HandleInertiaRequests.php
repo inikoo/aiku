@@ -9,7 +9,6 @@
 namespace App\Http\Middleware;
 
 use App\Actions\UI\GetLayout;
-use App\Actions\UI\Localisation\GetUITranslations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
@@ -47,17 +46,15 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         /** @var \App\Models\SysAdmin\User $user */
-        $user=$request->user();
+        $user = $request->user();
 
 
-        $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin') or true ) ? [
+        $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
 
             'organisation' => $user ? $user->organisation->only('name', 'code') : [],
-            'language'     => App::currentLocale(),
-            'translations' => fn() => GetUITranslations::run(),
-            'layout' => function () use ($user) {
+            'language'     => $user ? $user->settings['language'] : App::currentLocale(),
+            'layout'       => function () use ($user) {
                 if ($user) {
-
                     return GetLayout::run($user);
                 } else {
                     return [];
@@ -72,10 +69,10 @@ class HandleInertiaRequests extends Middleware
             parent::share($request),
             $firstLoadOnlyProps,
             [
-                'auth'   => [
+                'auth' => [
                     'user' => $request->user(),
                 ],
-                'ziggy'  => function () use ($request) {
+                'ziggy' => function () use ($request) {
                     return array_merge((new Ziggy)->toArray(), [
                         'location' => $request->url(),
                     ]);

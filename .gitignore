@@ -19,3 +19,5 @@ yarn-error.log
 /_ide_helper.php
 /deployment/install_pika.sh
 /resources/private/
+lang/php_*.json
+

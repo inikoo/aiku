@@ -8,6 +8,7 @@
 
 namespace App\Actions;
 
+use App\Models\Utils\ActionResult;
 use Illuminate\Support\Arr;
 
 trait WithUpdate{
@@ -32,6 +33,8 @@ trait WithUpdate{
     }
 
     function postUpdate($res,$model){
+        $res = new ActionResult();
+
         $res->changes = array_merge($res->changes, $model->getChanges());
         $res->model    = $model;
         $res->model_id = $model->id;

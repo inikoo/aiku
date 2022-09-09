@@ -11,6 +11,8 @@ namespace App\Providers;
 use App\Managers\Organisation\OrganisationManager;
 use App\Managers\Organisation\SourceOrganisationManager;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Lorisleiva\Actions\Facades\Actions;
 
@@ -34,6 +36,19 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             Actions::registerCommands();
         }
+
+        Request::macro('validatedShiftToArray', function ($map = []): array {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $validated = $this->validated();
+            foreach ($map as $field => $destination) {
+                if (array_key_exists($field, $validated)) {
+                    Arr::set($validated, "$destination.$field", $validated[$field]);
+                    Arr::forget($validated, $field);
+                }
+            }
+
+            return $validated;
+        });
 
         Relation::morphMap(
             [

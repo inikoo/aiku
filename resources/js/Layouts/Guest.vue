@@ -6,7 +6,7 @@
                     <div class="flex justify-start lg:w-0 lg:flex-1">
                         <a href="#">
                             <span class="sr-only">Pika</span>
-                            <img class="h-8 w-auto sm:h-10" src="art/logo.png" alt="" />
+                            <img class="h-8 w-auto sm:h-10" src="/art/logo.png" alt="" />
                         </a>
                     </div>
                     <div class="-mr-2 -my-2 md:hidden">
@@ -99,23 +99,19 @@
                     <div class="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
 
                         <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="text-sm text-gray-700 underline">
-                            Dashboard
+                            {{$t('Dashboard')}}
                         </Link>
 
                         <template v-else>
                             <Link :href="route('register')" class="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900">
-                                Register
+                                {{$t('Register')}}
                             </Link>
 
                             <Link :href="route('login')" class="ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-                                Log in
+                                {{$t('Log in')}}
                             </Link>
                         </template>
-
                     </div>
-
-
-
                 </div>
             </div>
 
@@ -155,7 +151,7 @@
                                 </a>
                             </div>
                             <div>
-                                <Link :href="route('login')" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"> Log in </Link>
+                                <Link :href="route('login')" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"> {{$t('Log in')}} </Link>
                                 <p class="mt-6 text-center text-base font-medium text-gray-500">
                                     New user?
                                     <Link :href="route('register')" class="text-indigo-600 hover:text-indigo-500"> Register </Link>
@@ -168,13 +164,15 @@
         </Popover>
 
         <main class="lg:relative">
-           <slot/>
+            <slot/>
         </main>
+        <guest-footer/>
     </div>
 </template>
 
 <script setup>
-import { Head, Link } from '@inertiajs/inertia-vue3';
+import {Link,} from '@inertiajs/inertia-vue3';
+import {inject} from 'vue';
 
 import { Popover, PopoverButton, PopoverGroup, PopoverPanel } from '@headlessui/vue'
 import {
@@ -192,6 +190,13 @@ import {
     XIcon,
 } from '@heroicons/vue/outline'
 import { ChevronDownIcon } from '@heroicons/vue/solid'
+import GuestFooter from '@/Components/Footer/GuestFooter.vue';
+
+
+
+const initialiseApp = inject('initialiseApp')
+const layout= initialiseApp();
+
 
 const features = [
     {
@@ -250,7 +255,6 @@ const recentPosts = [
     { id: 2, name: 'How to use search engine optimization to drive traffic to your site', href: '#' },
     { id: 3, name: 'Improve your customer experience', href: '#' },
 ]
-
 
 
 </script>

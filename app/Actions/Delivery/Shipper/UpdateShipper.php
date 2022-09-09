@@ -10,14 +10,12 @@ namespace App\Actions\Delivery\Shipper;
 
 use App\Actions\UpdateModelAction;
 use App\Models\Utils\ActionResult;
-use App\Actions\WithUpdate;
 use App\Models\Delivery\Shipper;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateShipper extends UpdateModelAction
 {
     use AsAction;
-    use WithUpdate;
 
     public function handle( Shipper $shipper, array $modelData): ActionResult {
 

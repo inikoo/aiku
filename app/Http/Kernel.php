@@ -4,7 +4,9 @@ namespace App\Http;
 
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EncryptCookies;
-use App\Http\Middleware\EnsureUserIsNew;
+use App\Http\Middleware\EnsureSetupUser;
+use App\Http\Middleware\EnsureUserIsNotSetup;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetOrganisation;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
@@ -62,7 +64,10 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
+            EnsureSetupUser::class,
+            SetOrganisation::class,
             HandleInertiaRequests::class,
+            SetLocale::class
         ],
 
         'api'     => [
@@ -97,6 +102,7 @@ class Kernel extends HttpKernel
         'verified'         => EnsureEmailIsVerified::class,
         'set.organisation' => SetOrganisation::class,
         'inertia'          => HandleInertiaRequests::class,
-        'verify.new'       => EnsureUserIsNew::class
+        'ensure.setup'     => EnsureSetupUser::class,
+        'ensure.noSetup'   => EnsureUserIsNotSetup::class
     ];
 }
