@@ -8,6 +8,7 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\HumanResources\ShowHumanResourcesDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
@@ -73,13 +74,12 @@ class IndexEmployee
         return Inertia::render(
             'HumanResources/Employees',
             [
-
-
-                'labels' => [
-                    'headTitle' => __('Employees'),
-                    'title'     => __('Employees'),
+                'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __('employees'),
+                'pageHead'    => [
+                    'title' => __('employees'),
                 ],
-                'employees' => EmployeeInertiaResource::collection($employees),
+                'employees'   => EmployeeInertiaResource::collection($employees),
 
 
             ]
@@ -93,13 +93,26 @@ class IndexEmployee
     }
 
 
-
-
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
+
         return $this->handle();
     }
 
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            [
+                'hr.employees.index' => [
+                    'route'      => 'hr.employees.index',
+                    'modelLabel' => [
+                        'label' => __('employees')
+                    ],
+                ],
+            ]
+        );
+    }
 
 }

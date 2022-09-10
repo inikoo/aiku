@@ -53,7 +53,7 @@ class GetLayout
         if ($user->can('users.view')) {
             $navigation[] = [
                 'name'  => __('users'),
-                'icon'  => ['fal', 'fa-users'],
+                'icon'  => ['fal', 'fa-users-cog'],
                 'route' => 'sysadmin.users.index'
             ];
         }

@@ -175,6 +175,7 @@
                 </div>
             </div>
             <main class="flex-1">
+                <Breadcrumbs :breadcrumbs="$page.props.breadcrumbs??[]"/>
 
 
                 <slot/>
@@ -197,6 +198,7 @@ import {
 } from '@headlessui/vue'
 import { ChevronDownIcon, MenuAlt1Icon, XIcon } from '@heroicons/vue/outline'
 import { Link } from '@inertiajs/inertia-vue3';
+import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
 
 
 const initialiseApp = inject('initialiseApp')
