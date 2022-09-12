@@ -11,30 +11,30 @@ return
     [
         'super-admin'           => [
             'organisation',
-            'users',
-            'employees',
+            'sysadmin',
+            'hr',
             'assets',
             'inventory',
             'warehouses',
         ],
 
         'system-admin'          => [
-            'users',
+            'sysadmin',
             'look-and-field',
         ],
 
 
         'human-resources-clerk' => [
-            'employees.view',
-            'employees.edit',
-            'employees.payroll',
-            'employees.attendance',
+            'hr.view',
+            'hr.edit',
+            'hr.payroll',
+            'hr.attendance',
         ],
         'human-resources-admin' => [
-            'employees.view',
-            'employees.edit',
-            'employees.payroll',
-            'employees.attendance',
+            'hr.view',
+            'hr.edit',
+            'hr.payroll',
+            'hr.attendance',
         ],
 
         'distribution-admin'             => [

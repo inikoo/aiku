@@ -13,6 +13,7 @@ use App\Models\SysAdmin\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -43,7 +44,7 @@ class AuthenticatedSessionController extends Controller
 
         /** @var User $user */
         $user   = auth()->user();
-        $locale = $user->settings['language'];
+        $locale = Arr::get($user->settings,'language');
 
         app()->setLocale($locale);
 

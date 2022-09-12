@@ -10,6 +10,7 @@ namespace App\Http\Middleware;
 use App\Models\SysAdmin\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cookie;
 
 class SetLocale
@@ -19,7 +20,7 @@ class SetLocale
     {
         /** @var User $user */
         if ($user = auth()->user()) {
-            $locale = $user->settings['language'];
+            $locale =Arr::get($user->settings, 'language');
         } else {
             $locale = Cookie::get('language');
 

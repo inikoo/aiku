@@ -11,18 +11,18 @@ return [
     'organisation',
     'organisation.view',
 
-    'users',
-    'users.view',
-    'users.create',
-    'users.edit',
-    'users.delete',
-    'look-and-field',
+    'sysadmin',
+    'sysadmin.view',
+    'sysadmin.create',
+    'sysadmin.edit',
+    'sysadmin.delete',
+    'sysadmin.look-and-field',
 
-    'employees',
-    'employees.view',
-    'employees.edit',
-    'employees.payroll',
-    'employees.attendance',
+    'hr',
+    'hr.view',
+    'hr.edit',
+    'hr.payroll',
+    'hr.attendance',
 
 
 

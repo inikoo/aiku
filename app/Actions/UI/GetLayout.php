@@ -20,7 +20,7 @@ class GetLayout
         $navigation = [
             [
                 'name'  => __('dashboard'),
-                'icon'  => ['fal', 'fa-home'],
+                'icon'  => ['fal', 'fa-tachometer-alt-fast'],
                 'route' => 'dashboard'
             ]
         ];
@@ -42,7 +42,7 @@ class GetLayout
             ];
         }
 
-        if ($user->can('employees.view')) {
+        if ($user->can('hr.view')) {
             $navigation[] = [
                 'name'  => 'Employees',
                 'icon'  => ['fal', 'fa-user-hard-hat'],
@@ -50,11 +50,11 @@ class GetLayout
             ];
         }
 
-        if ($user->can('users.view')) {
+        if ($user->can('sysadmin.view')) {
             $navigation[] = [
-                'name'  => __('users'),
+                'name'  => __('Sysadmin'),
                 'icon'  => ['fal', 'fa-users-cog'],
-                'route' => 'sysadmin.users.index'
+                'route' => 'sysadmin.dashboard'
             ];
         }
 

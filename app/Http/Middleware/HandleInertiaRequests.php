@@ -10,6 +10,7 @@ namespace App\Http\Middleware;
 
 use App\Actions\UI\GetLayout;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
@@ -52,7 +53,7 @@ class HandleInertiaRequests extends Middleware
         $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
 
             'organisation' => $user ? $user->organisation->only('name', 'code') : [],
-            'language'     => $user ? $user->settings['language'] : App::currentLocale(),
+            'language'     => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
             'layout'       => function () use ($user) {
                 if ($user) {
                     return GetLayout::run($user);

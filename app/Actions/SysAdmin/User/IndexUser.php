@@ -7,6 +7,8 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Actions\HumanResources\ShowHumanResourcesDashboard;
+use App\Actions\SysAdmin\ShowSysAdminDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\UserInertiaResource;
 use App\Http\Resources\SysAdmin\UserResource;
@@ -41,7 +43,7 @@ class IndexUser
 
         return QueryBuilder::for(User::class)
             ->defaultSort('username')
-            ->select(['username', 'email', 'name','id'])
+            ->select(['username', 'email', 'name', 'id'])
             ->allowedSorts(['username', 'email', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? 15)
@@ -69,12 +71,15 @@ class IndexUser
         return Inertia::render(
             'SysAdmin/Users',
             [
-                'labels' => [
-                    'headTitle' => __('Users'),
-                    'title'     => __('Users'),
-                    'usernameNoSet'=>__('username no set')
+                'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __('users'),
+                'pageHead'    => [
+                    'title' => __('users'),
                 ],
-                'users' => UserInertiaResource::collection($users),
+                'labels'      => [
+                    'usernameNoSet' => __('username no set')
+                ],
+                'users'       => UserInertiaResource::collection($users),
 
 
             ]
@@ -91,7 +96,23 @@ class IndexUser
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
+
         return $this->handle();
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            (new ShowSysAdminDashboard())->getBreadcrumbs(),
+            [
+                'sysadmin.users.index' => [
+                    'route' => 'sysadmin.users.index',
+                    'modelLabel' => [
+                        'label' => __('users')
+                    ],
+                ],
+            ]
+        );
     }
 
 
