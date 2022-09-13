@@ -9,6 +9,8 @@
 namespace App\Models\Organisations;
 
 
+use App\Models\HumanResources\JobPosition;
+use App\Models\JobPositionOrganisation;
 use App\Models\SysAdmin\User;
 use App\Models\Delivery\OrganisationShipper;
 use App\Models\Delivery\Shipper;
@@ -81,6 +83,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read int|null $stocks_count
  * @property-read \Illuminate\Database\Eloquent\Collection|TradeUnit[] $tradeUnits
  * @property-read int|null $trade_units_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|JobPosition[] $jobPositions
+ * @property-read int|null $job_positions_count
  */
 class Organisation extends Authenticatable
 {
@@ -136,6 +140,14 @@ class Organisation extends Authenticatable
     public function tradeUnits(): HasMany
     {
         return $this->hasMany(TradeUnit::class);
+    }
+
+    public function jobPositions(): BelongsToMany
+    {
+        return $this->belongsToMany(JobPosition::class)
+            ->using(JobPositionOrganisation::class)
+            ->withTimestamps()
+            ->withPivot(['number_employees','number_work_time','share_work_time']);
     }
 
 }

@@ -10,20 +10,15 @@
 
 namespace App\Actions\Organisations\Organisation;
 
-use App\Actions\SourceFetch\Aurora\FetchLocation;
-use App\Actions\SourceFetch\Aurora\FetchShop;
-use App\Actions\SourceFetch\Aurora\FetchStock;
-use App\Actions\SourceFetch\Aurora\FetchWarehouse;
-use App\Actions\SourceFetch\Aurora\FetchWarehouseArea;
-use App\Managers\Organisation\SourceOrganisationManager;
+
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
+use App\Models\HumanResources\JobPosition;
 use App\Models\Organisations\Organisation;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -84,6 +79,13 @@ class CreateAuroraOrganisation
 
 
         $res = StoreOrganisation::run($organisationData);
+
+        /** @var Organisation $organisation */
+        $organisation=$res->model;
+
+        $organisation->jobPositions()->sync(
+            JobPosition::all()->pluck('id')
+        );
 
 
         $token = $res->model->createToken('au-bridge', ['bridge'])->plainTextToken;

@@ -49,9 +49,14 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int|null $organisation_source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\HumanResources\JobPosition[] $jobPositions
  * @property-read int|null $job_positions_count
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection|\Spatie\MediaLibrary\MediaCollections\Models\Media[] $media
+ * @property-read int|null $media_count
+ * @property-read Organisation $organisation
+ * @property-read User|null $user
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
  * @method static Builder|Employee query()
+ * @method static Builder|Employee whereCode($value)
  * @method static Builder|Employee whereCreatedAt($value)
  * @method static Builder|Employee whereData($value)
  * @method static Builder|Employee whereDateOfBirth($value)
@@ -68,7 +73,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @method static Builder|Employee whereJobPositionScopes($value)
  * @method static Builder|Employee whereJobTitle($value)
  * @method static Builder|Employee whereName($value)
- * @method static Builder|Employee wherecode($value)
  * @method static Builder|Employee whereOrganisationId($value)
  * @method static Builder|Employee whereOrganisationSourceId($value)
  * @method static Builder|Employee wherePhone($value)
@@ -79,10 +83,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @method static Builder|Employee whereWorkerNumber($value)
  * @method static Builder|Employee whereWorkingHours($value)
  * @mixin \Eloquent
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection|\Spatie\MediaLibrary\MediaCollections\Models\Media[] $media
- * @property-read int|null $media_count
- * @property-read Organisation|null $organisation
- * @property-read User|null $user
  */
 class Employee extends Model implements HasMedia
 {
@@ -123,7 +123,10 @@ class Employee extends Model implements HasMedia
 
     public function jobPositions(): BelongsToMany
     {
-        return $this->belongsToMany(JobPosition::class)->withTimestamps();
+        return $this->belongsToMany(JobPosition::class)
+            ->using(EmployeeJobPosition::class)
+            ->withTimestamps()
+            ->withPivot('share');
     }
 
     public function organisation(): BelongsTo

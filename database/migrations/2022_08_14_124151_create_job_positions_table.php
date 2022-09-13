@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('team')->nullable();
             $table->json('roles');
             $table->json('data')->nullable();
+
+
             $table->timestampsTz();
         });
     }

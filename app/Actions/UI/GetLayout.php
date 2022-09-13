@@ -44,9 +44,9 @@ class GetLayout
 
         if ($user->can('hr.view')) {
             $navigation[] = [
-                'name'  => 'Employees',
+                'name'  => __('human resources'),
                 'icon'  => ['fal', 'fa-user-hard-hat'],
-                'route' => 'hr.employees.index'
+                'route' => 'hr.dashboard'
             ];
         }
 

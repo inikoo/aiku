@@ -49,21 +49,12 @@ return new class extends Migration
 
         });
 
-        Schema::create('employee_job_position', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('job_position_id')->index();
-            $table->foreign('job_position_id')->references('id')->on('job_positions');
-            $table->unsignedBigInteger('employee_id')->index();
-            $table->foreign('employee_id')->references('id')->on('employees');
-            $table->timestampsTz();
-            $table->unique(['job_position_id', 'employee_id']);
-        });
+
     }
 
 
     public function down()
     {
-        Schema::dropIfExists('employee_job_position');
         Schema::dropIfExists('employees');
     }
 };

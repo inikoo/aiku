@@ -1,17 +1,17 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 23 Sep 2021 02:39:37 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2021, Inikoo
- *  Version 4.0
+ *  Created: Mon, 12 Sept 2022 17:45:29 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee;
+namespace App\Actions\HumanResources\JobPosition;
 
 use App\Actions\HumanResources\ShowHumanResourcesDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Models\HumanResources\Employee;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
  * @property bool $canEdit
  * @property string $title
  */
-class IndexEmployee
+class IndexJobPosition
 {
     use AsAction;
     use WithInertia;
@@ -38,17 +38,16 @@ class IndexEmployee
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.name', 'LIKE', "%$value%")
-                    ->orWhere('employees.code', 'LIKE', "%$value%");
+                $query->where('employees.slug', 'LIKE', "%$value%")
+                    ->orWhere('employees.name', 'LIKE', "%$value%");
             });
         });
 
 
         return QueryBuilder::for(Employee::class)
-            ->defaultSort('employees.code')
-            ->select(['code', 'id', 'worker_number', 'name'])
-            ->with('jobPositions')
-            ->allowedSorts(['code', 'worker_number', 'name'])
+            ->defaultSort('job_positions.slug')
+            ->select(['slug', 'id', 'name'])
+            ->allowedSorts(['slug', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? 15)
             ->withQueryString();
@@ -66,28 +65,28 @@ class IndexEmployee
 
     public function jsonResponse(): AnonymousResourceCollection
     {
-        return EmployeeResource::collection($this->handle());
+        return JobPositionResource::collection($this->handle());
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees)
+    public function htmlResponse(LengthAwarePaginator $jobPositions)
     {
         return Inertia::render(
-            'HumanResources/Employees',
+            'HumanResources/JobPositions',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('employees'),
+                'title'       => __('job positions'),
                 'pageHead'    => [
-                    'title' => __('employees'),
+                    'title' => __('positions'),
                 ],
-                'employees'   => EmployeeInertiaResource::collection($employees),
+                'jobPositions'   => JobPositionResource::collection($jobPositions),
 
 
             ]
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'code',label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'slug',label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name',label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_positions',label: __('position'), canBeHidden: false, sortable: true, searchable: true)
 

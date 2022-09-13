@@ -7,7 +7,12 @@
 
 use App\Actions\HumanResources\Employee\IndexEmployee;
 use App\Actions\HumanResources\Employee\ShowEmployee;
+use App\Actions\HumanResources\ShowHumanResourcesDashboard;
 
 
+Route::get('/', ShowHumanResourcesDashboard::class)->name('dashboard');
 Route::get('/employees', IndexEmployee::class)->name('employees.index');
 Route::get('/employees/{employee}', ShowEmployee::class)->name('employees.show');
+
+//Route::get('/positions', IndexJobPosition::class)->name('job-positions.index');
+//Route::get('/positions/{jobPosition}', ShowJobPosition::class)->name('employees.show');

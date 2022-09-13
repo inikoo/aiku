@@ -7,6 +7,9 @@
                 {{ employee.code }}
             </Link>
         </template>
+        <template #cell(job_positions)="{ item: employee }">
+            <job-position-badges :job_positions="employee['job_positions']"/>
+        </template>
     </Table>
 </template>
 
@@ -14,6 +17,7 @@
 import {Head, Link} from '@inertiajs/inertia-vue3';
 import {Table} from '@protonemedia/inertiajs-tables-laravel-query-builder';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import JobPositionBadges from '@/Components/Elements/Badges/JobPositionBadges.vue';
 
 defineProps(['employees', 'title','pageHead']);
 
