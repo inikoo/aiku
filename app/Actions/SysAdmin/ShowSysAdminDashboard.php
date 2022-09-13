@@ -8,13 +8,15 @@
 namespace App\Actions\SysAdmin;
 
 use App\Actions\UI\WithInertia;
-use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
+/**
+ * @property $organisation
+ */
 class ShowSysAdminDashboard
 {
     use AsAction;
@@ -26,8 +28,9 @@ class ShowSysAdminDashboard
     }
 
 
-    public function asController(): bool
+    public function asController(ActionRequest $request): bool
     {
+        $this->organisation=$request->user()->currentUiOrganisation;
         return true;
     }
 
@@ -35,6 +38,7 @@ class ShowSysAdminDashboard
     public function htmlResponse(): Response
     {
         $this->validateAttributes();
+
 
         return Inertia::render(
             'SysAdmin/SysAdminDashboard',
@@ -47,7 +51,7 @@ class ShowSysAdminDashboard
                 'stats' => [
                     [
                         'name' => __('users'),
-                        'stat' => User::count(),
+                        'stat' => $this->organisation->stats->number_users_status_active,
                         'href' => ['sysadmin.users.index']
                     ]
                 ]

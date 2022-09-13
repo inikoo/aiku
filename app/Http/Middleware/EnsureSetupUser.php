@@ -22,7 +22,7 @@ class EnsureSetupUser
     {
 
         if(Auth::check()){
-            if (! $request->user()->username or  !$request->user()->organisation_id) {
+            if (! $request->user()->username or  !$request->user()->current_ui_organisation_id) {
                 return redirect('setup');
             }
 

@@ -8,10 +8,14 @@
 
 namespace App\Models\Organisations;
 
+use App\Actions\Hydrators\HydrateOrganisation;
+use App\Actions\Hydrators\HydrateUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+
+
 
 /**
  * App\Models\Organisations\OrganisationUser
@@ -19,19 +23,25 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $id
  * @property int $user_id
  * @property int|null $organisation_id
+ * @property string|null $userable_type
+ * @property int|null $userable_id
+ * @property bool $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Organisations\Organisation|null $organisation
+ * @property-read User $user
  * @method static Builder|OrganisationUser newModelQuery()
  * @method static Builder|OrganisationUser newQuery()
  * @method static Builder|OrganisationUser query()
  * @method static Builder|OrganisationUser whereCreatedAt($value)
  * @method static Builder|OrganisationUser whereId($value)
  * @method static Builder|OrganisationUser whereOrganisationId($value)
+ * @method static Builder|OrganisationUser whereStatus($value)
  * @method static Builder|OrganisationUser whereUpdatedAt($value)
  * @method static Builder|OrganisationUser whereUserId($value)
+ * @method static Builder|OrganisationUser whereUserableId($value)
+ * @method static Builder|OrganisationUser whereUserableType($value)
  * @mixin \Eloquent
- * @property-read \App\Models\Organisations\Organisation|null $organisation
- * @property-read \App\Models\SysAdmin\User|null $user
  */
 class OrganisationUser extends Pivot
 {
@@ -43,46 +53,22 @@ class OrganisationUser extends Pivot
         parent::boot();
 
         static::created(function ($item) {
-            $item->organisation->update(
-                [
-                    'number_users' => $item->organisation->users->count()
-                ]
-            );
-
-            $numberOrganisations= $item->user->organisations->count();
-
-            $item->user->number_organisations=$numberOrganisations;
-            if($numberOrganisations==1){
-                $item->user->organisation_id=$item->organisation->id;
-            }
-            $item->user->save();
-
+            HydrateOrganisation::make()->userStats($item->organisation);
+            HydrateUser::make()->organisationStats($item->user);
         });
 
         static::deleted(function ($item) {
-            $item->organisation->update(
-                [
-                    'number_users' => $item->organisation->users->count()
-                ]
-            );
-
-            $numberOrganisations= $item->user->organisations->count();
-
-            $item->user->number_organisations=$numberOrganisations;
-
-            if($item->user->organisation_id==$item->organisation->id){
-
-                if($currentOrganisation=$item->user->organisation_id=$item->user->organisations()->first()){
-                    $item->user->organisation_id=$currentOrganisation->id;
-
-                }
-
-            }
-            $item->user->save();
-
+            HydrateOrganisation::make()->userStats($item->organisation);
+            HydrateUser::make()->organisationStats($item->user);
         });
 
+        static::updated(function ($item) {
+            if ($item->wasChanged('status')) {
+                HydrateOrganisation::make()->userStats($item->organisation);
+                HydrateUser::make()->organisationStats($item->user);
+            }
 
+        });
     }
 
     public function user(): BelongsTo

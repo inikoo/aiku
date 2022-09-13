@@ -16,17 +16,17 @@ use JsonSerializable;
 class UserInertiaResource extends JsonResource
 {
 
+    /** @noinspection PhpUndefinedFieldInspection */
     public function toArray($request): array|Arrayable|JsonSerializable
     {
-        /** @var User $user */
-        $user = $this;
-
         return [
-            'id'         => $user->id,
-            'username'   => $user->username,
-            'name'       => $user->name,
-            'created_at' => $user->created_at,
-            'updated_at' => $user->updated_at,
+            'id'            => $this->id,
+            'username'      => $this->username,
+            'name'          => $this->name,
+            'userable_type' => $this->userable_type,
+            'userable_id'   => $this->userable_id,
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at,
         ];
     }
 }

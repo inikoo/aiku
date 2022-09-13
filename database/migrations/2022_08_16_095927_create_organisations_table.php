@@ -33,29 +33,11 @@ class CreateOrganisationsTable extends Migration
             $table->softDeletesTz();
         });
 
-        Schema::create('organisation_user', function (Blueprint $table) {
-            $table->id();
-
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('organisation_id')->nullable()->constrained();
-
-            $table->timestampsTz();
-            $table->unique(['user_id', 'organisation_id']);
-        });
-
-        Schema::table('users', function($table) {
-            $table->foreignId('organisation_id')->nullable()->constrained();
-        });
-
     }
 
 
     public function down(): void
     {
-        Schema::table('users', function($table) {
-            $table->dropColumn('organisation_id');
-        });
-        Schema::dropIfExists('organisation_user');
         Schema::dropIfExists('organisations');
     }
 }

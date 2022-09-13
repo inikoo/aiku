@@ -83,6 +83,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @method static Builder|Employee whereWorkerNumber($value)
  * @method static Builder|Employee whereWorkingHours($value)
  * @mixin \Eloquent
+ * @property string $week_working_hours
+ * @method static Builder|Employee whereWeekWorkingHours($value)
  */
 class Employee extends Model implements HasMedia
 {
@@ -136,7 +138,7 @@ class Employee extends Model implements HasMedia
 
     public function user(): MorphOne
     {
-        return $this->morphOne(User::class, 'userable');
+        return $this->morphOne(User::class, 'userable','organisation_user');
     }
 
 

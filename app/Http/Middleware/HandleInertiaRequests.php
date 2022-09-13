@@ -52,7 +52,7 @@ class HandleInertiaRequests extends Middleware
 
         $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
 
-            'organisation' => $user ? $user->organisation->only('name', 'code') : [],
+            'organisation' => $user ? $user->currentUiOrganisation->only('name', 'code') : [],
             'language'     => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
             'layout'       => function () use ($user) {
                 if ($user) {

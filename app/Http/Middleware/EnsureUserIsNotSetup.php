@@ -18,11 +18,10 @@ class EnsureUserIsNotSetup
 
     public function handle(Request $request, Closure $next): Response|RedirectResponse|JsonResponse
     {
-
-
-        if ($request->user()->username and $request->user()->number_organisations>0) {
+        if ($request->user()->username and $request->user()->current_ui_organisation_id) {
             return redirect('dashboard');
         }
+
         return $next($request);
     }
 }

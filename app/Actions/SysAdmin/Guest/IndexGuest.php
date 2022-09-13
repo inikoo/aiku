@@ -1,18 +1,18 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 07 Sept 2022 20:07:27 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Wed, 14 Sept 2022 00:56:10 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\User;
+namespace App\Actions\SysAdmin\Guest;
 
 use App\Actions\SysAdmin\ShowSysAdminDashboard;
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\SysAdmin\UserInertiaResource;
-use App\Http\Resources\SysAdmin\UserResource;
+use App\Http\Resources\SysAdmin\GuestInertiaResource;
+use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\Organisations\Organisation;
-use App\Models\Organisations\OrganisationUser;
+use App\Models\SysAdmin\Guest;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,7 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 
-class IndexUser
+class IndexGuest
 {
     use AsAction;
     use WithInertia;
@@ -34,19 +34,17 @@ class IndexUser
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('user.username', 'LIKE', "%$value%")
-                    ->orWhere('user.email', 'LIKE', "%$value%")
-                    ->orWhere('user.name', 'LIKE', "%$value%");
+                $query->where('guest.name', 'LIKE', "%$value%")
+                ->orWhere('guest.code', 'LIKE', "%$value%");
             });
         });
 
 
-        return QueryBuilder::for(OrganisationUser::class)
-            ->leftJoin('users', 'user_id', '=', 'users.id')
+        return QueryBuilder::for(Guest::class)
             ->where('organisation_id', $organisation->id)
-            ->defaultSort('username')
-            ->select(['username', 'email', 'name', 'users.id', 'userable_type', 'userable_id'])
-            ->allowedSorts(['username', 'email', 'name', 'userable_type'])
+            ->defaultSort('code')
+            ->select(['id', 'code', 'name',])
+            ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? 15)
             ->withQueryString();
@@ -57,41 +55,37 @@ class IndexUser
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('users.view')
+                $request->user()->hasPermissionTo('sysadmin.view')
             );
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $users): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $guests): AnonymousResourceCollection
     {
-        return UserResource::collection($users);
+        return GuestResource::collection($guests);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $users)
+    public function htmlResponse(LengthAwarePaginator $guests)
     {
         return Inertia::render(
-            'SysAdmin/Users',
+            'SysAdmin/Guests',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('users'),
+                'title'       => __('guests'),
                 'pageHead'    => [
-                    'title' => __('users'),
+                    'title' => __('guests'),
                 ],
-                'labels'      => [
-                    'usernameNoSet' => __('username no set')
-                ],
-                'users'       => UserInertiaResource::collection($users),
+                'guests'       => GuestInertiaResource::collection($guests),
 
 
             ]
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'userable_type', label: __('type'), canBeHidden: false, sortable: true)
-                ->defaultSort('username');
+                ->defaultSort('code');
         });
     }
 
@@ -108,10 +102,10 @@ class IndexUser
         return array_merge(
             (new ShowSysAdminDashboard())->getBreadcrumbs(),
             [
-                'sysadmin.users.index' => [
-                    'route' => 'sysadmin.users.index',
+                'sysadmin.guests.index' => [
+                    'route' => 'sysadmin.guests.index',
                     'modelLabel' => [
-                        'label' => __('users')
+                        'label' => __('guests')
                     ],
                 ],
             ]

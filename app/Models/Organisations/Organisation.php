@@ -11,6 +11,7 @@ namespace App\Models\Organisations;
 
 use App\Models\HumanResources\JobPosition;
 use App\Models\JobPositionOrganisation;
+use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use App\Models\Delivery\OrganisationShipper;
 use App\Models\Delivery\Shipper;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -85,6 +87,9 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read int|null $trade_units_count
  * @property-read \Illuminate\Database\Eloquent\Collection|JobPosition[] $jobPositions
  * @property-read int|null $job_positions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Guest[] $guests
+ * @property-read int|null $guests_count
+ * @property-read \App\Models\Organisations\OrganisationStats|null $stats
  */
 class Organisation extends Authenticatable
 {
@@ -115,6 +120,11 @@ class Organisation extends Authenticatable
     public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
+    }
+
+    public function guests(): HasMany
+    {
+        return $this->hasMany(Guest::class);
     }
 
     public function shops(): HasMany
@@ -148,6 +158,11 @@ class Organisation extends Authenticatable
             ->using(JobPositionOrganisation::class)
             ->withTimestamps()
             ->withPivot(['number_employees','number_work_time','share_work_time']);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(OrganisationStats::class);
     }
 
 }

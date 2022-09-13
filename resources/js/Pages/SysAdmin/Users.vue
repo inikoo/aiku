@@ -10,9 +10,13 @@
     <Table :resource="users" class="mt-5">
         <template #cell(username)="{ item: user }">
             <Link :href="route('sysadmin.users.show',user.id)">
-                <template v-if="!user.username">{{ user.username }}</template>
+                <template v-if="user.username">{{ user.username }}</template>
                 <span v-else class="italic">{{ labels['usernameNoSet'] }}</span>
             </Link>
+        </template>
+        <template #cell(userable_type)="{ item: user }">
+            <Link v-if="user['userable_type']==='Employee'" :href="route('hr.employees.show',user.userable_id)">{{$t('Employee')}}</Link>
+            <Link v-else-if="user['userable_type']==='Guest'" :href="route('sysadmin.guests.show',user.userable_id)">{{$t('Guest')}}</Link>
         </template>
     </Table>
 

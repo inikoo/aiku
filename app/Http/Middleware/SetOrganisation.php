@@ -16,7 +16,7 @@ class SetOrganisation
     {
 
         if(Auth::check()){
-            setPermissionsTeamId($request->user()->organisation_id);
+            setPermissionsTeamId($request->user()->current_ui_organisation_id);
         }
 
         return $next($request);
