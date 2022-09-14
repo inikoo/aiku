@@ -89,15 +89,17 @@
                 />
 
                 <p class="hidden lg:block text-sm text-gray-700 flex-grow">
+                    <template v-if="perPage<=pagination.total">
                     <span class="font-medium">{{ pagination.from }}</span>
                     {{ $t('to') }}
                     <span class="font-medium">{{ pagination.to }}</span>
                     {{ $t('of') }}
+                    </template>
                     <span class="font-medium">{{ pagination.total }}</span>
                     {{ $t('results') }}
                 </p>
             </div>
-            <div>
+            <div v-if="perPage<=pagination.total">
                 <nav
                     class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
                     aria-label="Pagination"
@@ -219,6 +221,8 @@ const props = defineProps({
                                   required: false,
                               }
                           });
+
+
 
 const hasLinks = computed(() => {
     if(!("links" in pagination.value)) {
