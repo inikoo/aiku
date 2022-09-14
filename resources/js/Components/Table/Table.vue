@@ -117,20 +117,15 @@
                     <slot name="table">
                         <table class="min-w-full divide-y divide-gray-200 bg-white">
                             <thead class="bg-gray-50">
-                            <slot
-                                name="head"
-                                :show="show"
-                                :sort-by="sortBy"
-                                :header="header"
-                            >
-                                <tr class="font-medium text-xs uppercase text-left tracking-wider text-gray-500 py-3 px-6">
+
+                                <tr class="border-t border-gray-200">
                                     <HeaderCell
                                         v-for="column in queryBuilderProps.columns"
                                         :key="`table-${name}-header-${column.key}`"
                                         :cell="header(column.key)"
                                     />
                                 </tr>
-                            </slot>
+
                             </thead>
 
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -191,8 +186,9 @@
 
 <script setup>
 import Pagination from '@/Components/Table/Pagination.vue';
+import HeaderCell from '@/Components/Table/HeaderCell.vue';
+
 import {
-    HeaderCell,
     TableAddSearchRow,
     TableColumns,
     TableFilter,

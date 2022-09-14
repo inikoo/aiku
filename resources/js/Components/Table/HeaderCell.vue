@@ -1,6 +1,7 @@
 <template>
     <th
-        v-show="!cell.hidden"
+        v-show="!cell.hidden" class="border-b border-gray-200 bg-gray-50  text-left text-sm font-semibold text-gray-900"
+        scope="col"
     >
         <component
             :is="cell.sortable ? 'button' : 'div'"
@@ -9,7 +10,7 @@
             @click.prevent="onClick"
         >
       <span class="flex flex-row items-center">
-        <slot name="label"><span class="uppercase">{{ cell.label }}</span></slot>
+        <slot name="label"><span class="capitalize">{{ cell.label }}</span></slot>
 
         <slot name="sort">
           <svg
