@@ -11,7 +11,7 @@
             :key="option"
             :value="option"
         >
-            {{ option }} {{ translations.per_page }}
+            {{ option }} {{ $t('per page') }}
         </option>
     </select>
 </template>
@@ -19,9 +19,6 @@
 <script setup>
 import { computed } from "vue";
 import uniq from "lodash-es/uniq";
-import { getTranslations } from "../translations.js";
-
-const translations = getTranslations();
 
 const props = defineProps({
                               dusk: {

@@ -4,7 +4,7 @@
         class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
     >
         <p v-if="!hasData || pagination.total < 1">
-            {{ translations.no_results_found }}
+            {{ $t('No results found') }}
         </p>
 
         <!-- simple and mobile -->
@@ -38,7 +38,7 @@
                         d="M7 16l-4-4m0 0l4-4m-4 4h18"
                     />
                 </svg>
-                <span class="hidden sm:inline ml-2">{{ translations.previous }}</span>
+                <span class="hidden sm:inline ml-2">{{ $t('previous') }}</span>
             </component>
             <PerPageSelector
                 dusk="per-page-mobile"
@@ -57,7 +57,7 @@
                 class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md bg-white"
                 @click.prevent="onClick(nextPageUrl)"
             >
-                <span class="hidden sm:inline mr-2">{{ translations.next }}</span>
+                <span class="hidden sm:inline mr-2">{{ $t('next') }}</span>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     class="h-5 w-5 text-gray-400"
@@ -90,11 +90,11 @@
 
                 <p class="hidden lg:block text-sm text-gray-700 flex-grow">
                     <span class="font-medium">{{ pagination.from }}</span>
-                    {{ translations.to }}
+                    {{ $t('to') }}
                     <span class="font-medium">{{ pagination.to }}</span>
-                    {{ translations.of }}
+                    {{ $t('of') }}
                     <span class="font-medium">{{ pagination.total }}</span>
-                    {{ translations.results }}
+                    {{ $t('results') }}
                 </p>
             </div>
             <div>
@@ -113,7 +113,7 @@
                         class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium"
                         @click.prevent="onClick(previousPageUrl)"
                     >
-                        <span class="sr-only">{{ translations.previous }}</span>
+                        <span class="sr-only">{{ $t('previous') }}</span>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             class="h-5 w-5"
@@ -164,7 +164,7 @@
                         class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium"
                         @click.prevent="onClick(nextPageUrl)"
                     >
-                        <span class="sr-only">{{ translations.next }}</span>
+                        <span class="sr-only">{{ $t('next') }}</span>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             class="h-5 w-5"
@@ -185,11 +185,11 @@
 </template>
 
 <script setup>
-import PerPageSelector from "./PerPageSelector.vue";
-import { computed } from "vue";
-import { getTranslations } from "../translations.js";
 
-const translations = getTranslations();
+import PerPageSelector from '@/Components/Table/PerPageSelector.vue'
+
+import { computed } from "vue";
+
 
 const props = defineProps({
                               onClick: {

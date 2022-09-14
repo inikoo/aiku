@@ -190,15 +190,19 @@
 </template>
 
 <script setup>
-import Pagination from "./Pagination.vue";
-import HeaderCell from "./HeaderCell.vue";
-import TableAddSearchRow from "./TableAddSearchRow.vue";
-import TableColumns from "./TableColumns.vue";
-import TableFilter from "./TableFilter.vue";
-import TableGlobalSearch from "./TableGlobalSearch.vue";
-import TableSearchRows from "./TableSearchRows.vue";
-import TableReset from "./TableReset.vue";
-import TableWrapper from "./TableWrapper.vue";
+import Pagination from '@/Components/Table/Pagination.vue';
+import {
+    HeaderCell,
+    TableAddSearchRow,
+    TableColumns,
+    TableFilter,
+    TableGlobalSearch,
+    TableSearchRows,
+    TableReset,
+    TableWrapper
+} from '@protonemedia/inertiajs-tables-laravel-query-builder';
+
+
 import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from "vue";
 import qs from "qs";
 import clone from "lodash-es/clone";
