@@ -8,19 +8,19 @@
 namespace App\Actions\Marketing\Shop;
 
 use App\Actions\Helpers\Address\StoreAddress;
+use App\Actions\StoreModelAction;
 use App\Models\Marketing\Shop;
 use App\Models\Organisations\Organisation;
 use App\Models\Utils\ActionResult;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class StoreShop
+class StoreShop extends StoreModelAction
 {
     use AsAction;
 
     public function handle(Organisation $organisation,array $modelData, array $addressData = []): ActionResult
     {
-        $res  = new ActionResult();
         /** @var Shop $shop */
         $shop = $organisation->shops()->create($modelData);
         $shop->stats()->create();
@@ -39,12 +39,7 @@ class StoreShop
             $shop->save();
         }
 
-
-        $res->model    = $shop;
-        $res->model_id = $shop->id;
-        $res->status   = $res->model_id ? 'inserted' : 'error';
-
-        return $res;
+        return $this->finalise($shop);
     }
 
 

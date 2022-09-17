@@ -24,6 +24,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('hr')
         ->name('hr.')
         ->group(__DIR__.'/hr.php');
+    Route::prefix('inventory')
+        ->name('inventory.')
+        ->group(__DIR__.'/inventory.php');
 
     Route::prefix('profile')
         ->name('profile.')

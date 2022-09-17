@@ -7,6 +7,8 @@
 
 namespace App\Models\HumanResources;
 
+use App\Actions\Hydrators\HydrateEmployee;
+use App\Actions\Hydrators\HydrateOrganisation;
 use App\Models\SysAdmin\User;
 use App\Models\Organisations\Organisation;
 use Illuminate\Database\Eloquent\Builder;
@@ -109,7 +111,35 @@ class Employee extends Model implements HasMedia
         'job_position_scopes' => '{}',
     ];
 
+
     protected $guarded = [];
+
+    protected static function booted()
+    {
+        static::created(
+            function (Employee $employee) {
+                HydrateEmployee::make()->weekWorkingHours($employee);
+                HydrateOrganisation::make()->employeesStats($employee->organisation);
+            }
+        );
+        static::deleted(
+            function (Employee $employee) {
+                HydrateEmployee::make()->weekWorkingHours($employee);
+                HydrateOrganisation::make()->employeesStats($employee->organisation);
+            }
+        );
+
+        static::updated(function (Employee $employee) {
+            if (!$employee->wasRecentlyCreated) {
+                if ($employee->wasChanged('state')) {
+                    HydrateOrganisation::make()->employeesStats($employee->organisation);
+                }
+                if ($employee->wasChanged('working_hours')) {
+                    HydrateEmployee::make()->weekWorkingHours($employee);
+                }
+            }
+        });
+    }
 
     public function registerMediaCollections(): void
     {
@@ -138,7 +168,7 @@ class Employee extends Model implements HasMedia
 
     public function user(): MorphOne
     {
-        return $this->morphOne(User::class, 'userable','organisation_user');
+        return $this->morphOne(User::class, 'userable', 'organisation_user');
     }
 
 

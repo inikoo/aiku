@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('emergency_contact', 1024)->nullable();
             $table->jsonb('salary')->nullable();
             $table->jsonb('working_hours')->nullable();
+            $table->decimal('week_working_hours',4,2)->default(0);
 
             $table->jsonb('data');
             $table->jsonb('job_position_scopes');

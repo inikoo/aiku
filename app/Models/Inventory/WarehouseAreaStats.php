@@ -41,6 +41,8 @@ class WarehouseAreaStats extends Model
     protected $guarded = [];
 
 
+
+
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(WarehouseArea::class);

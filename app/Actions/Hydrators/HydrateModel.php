@@ -19,6 +19,8 @@ class HydrateModel
 {
     use AsAction;
 
+    protected Organisation $organisation;
+
     protected function getModel(int $id):?Model{
        return null;
     }
@@ -31,11 +33,23 @@ class HydrateModel
     public function asCommand(Command $command): void
     {
 
-        $organisation = Organisation::where('code', $command->argument('organisation_code'))->first();
-        if (!$organisation) {
-            $command->error('Organisation not found');
+        if($command->argument('organisation_code')){
+            $organisation = Organisation::where('code', $command->argument('organisation_code'))->first();
+            if (!$organisation) {
+                $command->error('Organisation not found');
+                return;
+            }
+            $this->organisation=$organisation;
+        }else{
+            foreach(Organisation::all() as $organisation){
+
+                $this->organisation=$organisation;
+                $command->line("Organisation: ".$this->organisation->code);
+                $this->loopAll($command);
+            }
             return;
         }
+
 
         if($command->argument('id')){
             $model=$this->getModel($command->argument('id'));

@@ -17,11 +17,13 @@ class StoreWarehouse extends StoreModelAction
 {
     use AsAction;
 
-    public function handle(Organisation $organisation,$modelData): ActionResult
+    public function handle(Organisation $organisation, $modelData): ActionResult
     {
         /** @var Warehouse $warehouse */
         $warehouse = $organisation->warehouses()->create($modelData);
-        $warehouse->stats()->create();
+        $warehouse->stats()->create([
+                                        'organisation_id' => $warehouse->organisation_id
+                                    ]);
 
         return $this->finalise($warehouse);
     }

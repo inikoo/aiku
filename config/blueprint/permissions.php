@@ -30,13 +30,15 @@ return [
     'inventory.stocks',
     'inventory.stocks.view',
 
-    'warehouses',
-    'warehouses.view',
-    'warehouses.dispatching',
-    'warehouses.dispatching.pick',
-    'warehouses.dispatching.pack',
+    'inventory.warehouses',
+    'inventory.warehouses.view',
+    'inventory.warehouses.dispatching',
+    'inventory.warehouses.dispatching.pick',
+    'inventory.warehouses.dispatching.pack',
 
-
+    'dispatching',
+    'dispatching.pick',
+    'dispatching.pack',
 
 
 

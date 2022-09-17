@@ -7,6 +7,7 @@
 
 namespace App\Models\Inventory;
 
+use App\Actions\Hydrators\HydrateWarehouse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -51,6 +52,29 @@ class WarehouseArea extends Model
 {
     use SoftDeletes;
     protected $guarded = [];
+
+    protected static function booted()
+    {
+        static::created(
+            function (WarehouseArea $warehouseArea) {
+                HydrateWarehouse::make()->warehouseAreas($warehouseArea->warehouse);
+            }
+        );
+        static::deleted(
+            function (WarehouseArea $warehouseArea) {
+                HydrateWarehouse::make()->warehouseAreas($warehouseArea->warehouse);
+
+            }
+        );
+
+        static::updated(function (WarehouseArea $warehouseArea) {
+            if (!$warehouseArea->wasRecentlyCreated) {
+                if ($warehouseArea->wasChanged('warehouse_id')) {
+                    HydrateWarehouse::make()->warehouseAreas($warehouseArea->warehouse);
+                }
+            }
+        });
+    }
 
     public function warehouse(): BelongsTo
     {

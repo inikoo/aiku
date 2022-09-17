@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./resources",
+        "paths": {
+            "@/*": ["js/*"]
+        }
+    },
+    "include": [
+        "env.d.ts",
+        "resources/js/**/*",
+    ],
+}

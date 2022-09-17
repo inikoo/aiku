@@ -90,6 +90,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read \Illuminate\Database\Eloquent\Collection|Guest[] $guests
  * @property-read int|null $guests_count
  * @property-read \App\Models\Organisations\OrganisationStats|null $stats
+ * @property-read \App\Models\Organisations\OrganisationInventoryStats|null $inventoryStats
+ * @property-read Warehouse|null $firstWarehouse
  */
 class Organisation extends Authenticatable
 {
@@ -141,6 +143,10 @@ class Organisation extends Authenticatable
     {
         return $this->hasMany(Warehouse::class);
     }
+    public function firstWarehouse() {
+        return $this->hasOne(Warehouse::class)->oldestOfMany();
+
+    }
 
     public function stocks(): MorphMany
     {
@@ -163,6 +169,11 @@ class Organisation extends Authenticatable
     public function stats(): HasOne
     {
         return $this->hasOne(OrganisationStats::class);
+    }
+
+    public function inventoryStats(): HasOne
+    {
+        return $this->hasOne(OrganisationInventoryStats::class);
     }
 
 }

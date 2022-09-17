@@ -15,7 +15,7 @@ return
             'hr',
             'assets',
             'inventory',
-            'warehouses',
+            'dispatching',
         ],
 
         'system-admin'          => [
@@ -39,34 +39,33 @@ return
 
         'distribution-admin'             => [
             'inventory',
-            'warehouses',
         ],
         'distribution-clerk'             => [
             'inventory.stocks',
-            'warehouses.view',
-            'warehouses.stock',
+            'inventory.warehouses.view',
+            'inventory.warehouses.stock',
         ],
         'distribution-dispatcher-admin'  => [
 
             'inventory.stocks.view',
-            'warehouses.view',
-            'warehouses.dispatching',
+            'inventory.warehouses.view',
+            'dispatching',
         ],
         'distribution-dispatcher-picker' => [
 
             'inventory.stocks.view',
-            'warehouses.view',
-            'warehouses.dispatching.pick',
+            'inventory.warehouses.view',
+            'dispatching.pick',
         ],
         'distribution-dispatcher-packer' => [
 
             'inventory.stocks.view',
-            'warehouses.view',
-            'warehouses.dispatching.pack',
+            'inventory.warehouses.view',
+            'dispatching.pack',
         ],
 
         'guest'      => [
-            'warehouses.view',
+
         ],
 
     ];

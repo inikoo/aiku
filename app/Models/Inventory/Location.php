@@ -7,6 +7,8 @@
 
 namespace App\Models\Inventory;
 
+use App\Actions\Hydrators\HydrateWarehouse;
+use App\Actions\Hydrators\HydrateWarehouseArea;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -59,7 +61,7 @@ class Location extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'data' => 'array',
+        'data'       => 'array',
         'audited_at' => 'array'
     ];
 
@@ -68,6 +70,38 @@ class Location extends Model
     ];
 
     protected $guarded = [];
+
+    protected static function booted()
+    {
+        static::created(
+            function (Location $location) {
+                HydrateWarehouse::make()->locations($location->warehouse);
+                if($location->warehouse_area_id){
+                    HydrateWarehouseArea::make()->locations($location->warehouseArea);
+                }
+
+            }
+        );
+        static::deleted(
+            function (Location $location) {
+                HydrateWarehouse::make()->locations($location->warehouse);
+                if($location->warehouse_area_id){
+                    HydrateWarehouseArea::make()->locations($location->warehouseArea);
+                }
+            }
+        );
+
+        static::updated(function (Location $location) {
+            if (!$location->wasRecentlyCreated) {
+                if ($location->wasChanged('warehouse_area_id')) {
+                    HydrateWarehouseArea::make()->locations($location->warehouseArea);
+                }
+                if ($location->wasChanged('warehouse_id')) {
+                    HydrateWarehouse::make()->locations($location->warehouse);
+                }
+            }
+        });
+    }
 
     public function warehouse(): BelongsTo
     {
@@ -84,7 +118,6 @@ class Location extends Model
     {
         return $this->belongsToMany(Stock::class)->using(LocationStock::class);
     }
-
 
     public function stats(): HasOne
     {

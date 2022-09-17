@@ -21,7 +21,7 @@ class FetchWarehouseArea extends Fetch
 {
 
 
-    public string $commandSignature = 'fetch:warehouse-area {organisation_code} {organisation_source_id?}';
+    public string $commandSignature = 'fetch:warehouse-areas {organisation_code} {organisation_source_id?}';
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WarehouseArea
     {

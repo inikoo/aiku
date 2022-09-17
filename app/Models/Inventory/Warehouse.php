@@ -7,8 +7,11 @@
 
 namespace App\Models\Inventory;
 
+use App\Actions\Hydrators\HydrateOrganisation;
+use App\Models\Organisations\Organisation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -44,6 +47,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static Builder|Warehouse whereSettings($value)
  * @method static Builder|Warehouse whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read Organisation $organisation
  */
 class Warehouse extends Model
 {
@@ -59,6 +63,23 @@ class Warehouse extends Model
 
     protected $guarded = [];
 
+    protected static function booted()
+    {
+        static::created(
+            function (Warehouse $warehouse) {
+                HydrateOrganisation::make()->warehouseStats($warehouse->organisation);
+            }
+        );
+        static::deleted(
+            function (Warehouse $warehouse) {
+                HydrateOrganisation::make()->warehouseStats($warehouse->organisation);
+
+            }
+        );
+
+
+    }
+
     public function warehouseAreas(): HasMany
     {
         return $this->hasMany(WarehouseArea::class);
@@ -72,5 +93,10 @@ class Warehouse extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(WarehouseStats::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 }

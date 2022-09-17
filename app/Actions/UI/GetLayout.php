@@ -24,9 +24,15 @@ class GetLayout
                 'route' => 'dashboard'
             ]
         ];
+        if ($user->can('inventory.view')) {
+            $navigation[] = [
+                'name'  => __('inventory'),
+                'icon'  => ['fal', 'fa-inventory'],
+                'route' => 'inventory.dashboard'
+            ];
+        }
 
-
-        if ($user->can('warehouses.dispatching.pick')) {
+        if ($user->can('dispatching.pick')) {
             $navigation[] = [
                 'name'  => __('picking'),
                 'icon'  => ['fal', 'fa-dolly-flatbed-alt'],
@@ -34,7 +40,7 @@ class GetLayout
             ];
         }
 
-        if ($user->can('warehouses.dispatching.pack')) {
+        if ($user->can('dispatching.pack')) {
             $navigation[] = [
                 'name'  => __('packing'),
                 'icon'  => ['fal', 'fa-conveyor-belt-alt'],

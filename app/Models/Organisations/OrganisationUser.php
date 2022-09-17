@@ -63,9 +63,11 @@ class OrganisationUser extends Pivot
         });
 
         static::updated(function ($item) {
-            if ($item->wasChanged('status')) {
-                HydrateOrganisation::make()->userStats($item->organisation);
-                HydrateUser::make()->organisationStats($item->user);
+            if(!$item->wasRecentlyCreated) {
+                if ($item->wasChanged('status')) {
+                    HydrateOrganisation::make()->userStats($item->organisation);
+                    HydrateUser::make()->organisationStats($item->user);
+                }
             }
 
         });

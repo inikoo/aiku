@@ -9,26 +9,21 @@
 namespace App\Actions\Organisations\Organisation;
 
 
+use App\Actions\StoreModelAction;
 use App\Models\Organisations\Organisation;
 use App\Models\Utils\ActionResult;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreOrganisation
+class StoreOrganisation extends StoreModelAction
 {
     use AsAction;
 
     public function handle(array $organisationData): ActionResult
     {
-        $res = new ActionResult();
-
-
         $organisation = Organisation::create($organisationData);
+        $organisation->stats()->create();
+        $organisation->inventoryStats()->create();
 
-
-        $res->model    = $organisation;
-        $res->model_id = $organisation->id;
-        $res->status   = $res->model_id ? 'inserted' : 'error';
-
-        return $res;
+        return $this->finalise($organisation);
     }
 }

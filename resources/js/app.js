@@ -25,8 +25,8 @@ import {
     faDollyFlatbedAlt,
     faConveyorBeltAlt,
     faUsers,
-    faUserHardHat, faBars,faUsersCog,faTachometerAltFast
-
+    faUserHardHat, faBars,faUsersCog,faTachometerAltFast,
+    faInventory
 } from '../private/pro-light-svg-icons';
 import {useLayoutStore} from '@/Stores/layout';
 
@@ -40,7 +40,8 @@ library.add(faSearch,
             faBars,
             faAngleUp,
             faUsersCog,
-            faTachometerAltFast
+            faTachometerAltFast,
+            faInventory
 );
 
 const initialiseApp = () => {
