@@ -25,17 +25,6 @@ class HandleInertiaRequests extends Middleware
      */
     protected $rootView = 'app';
 
-    /**
-     * Determine the current asset version.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     *
-     * @return string|null
-     */
-    public function version(Request $request): ?string
-    {
-        return parent::version($request);
-    }
 
     /**
      * Define the props that are shared by default.
