@@ -9,7 +9,6 @@
 namespace App\Actions\HumanResources;
 
 use App\Actions\UI\WithInertia;
-use App\Models\HumanResources\Employee;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -35,8 +34,9 @@ class ShowHumanResourcesDashboard
 
     public function htmlResponse(): Response
     {
-        $this->validateAttributes();
 
+        $tenant=tenant();
+        $tenantStats=$tenant->tenantStats;
         return Inertia::render(
             'HumanResources/HumanResourcesDashboard',
             [
@@ -48,7 +48,7 @@ class ShowHumanResourcesDashboard
                 'stats' => [
                     [
                         'name' => __('employees'),
-                        'stat' => Employee::count(),
+                        'stat' => $tenantStats->number_employees,
                         'href' => ['hr.employees.index']
                     ]
                 ]

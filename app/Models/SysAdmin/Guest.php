@@ -7,20 +7,17 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Actions\Hydrators\HydrateOrganisation;
-use App\Models\Organisations\Organisation;
+use App\Actions\Central\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+
+
 
 /**
  * App\Models\SysAdmin\Guest
  *
  * @property int $id
- * @property int $organisation_id
- * @property string $code
- * @property bool $status linked to user status
  * @property string|null $name
  * @property string|null $email
  * @property string|null $phone
@@ -32,11 +29,11 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
+ * @property-read \App\Models\SysAdmin\User|null $user
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest query()
- * @method static Builder|Guest whereCode($value)
  * @method static Builder|Guest whereCreatedAt($value)
  * @method static Builder|Guest whereData($value)
  * @method static Builder|Guest whereDateOfBirth($value)
@@ -47,13 +44,10 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @method static Builder|Guest whereIdentityDocumentNumber($value)
  * @method static Builder|Guest whereIdentityDocumentType($value)
  * @method static Builder|Guest whereName($value)
- * @method static Builder|Guest whereOrganisationId($value)
- * @method static Builder|Guest whereOrganisationSourceId($value)
  * @method static Builder|Guest wherePhone($value)
- * @method static Builder|Guest whereStatus($value)
+ * @method static Builder|Guest whereSourceId($value)
  * @method static Builder|Guest whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property-read Organisation $organisation
  */
 class Guest extends Model
 {
@@ -72,31 +66,29 @@ class Guest extends Model
     protected static function booted()
     {
         static::created(
-            function (Guest $guest) {
-                HydrateOrganisation::make()->userStats($guest->organisation);
+            function () {
+                HydrateTenant::make()->userStats();
             }
         );
         static::deleted(
-            function (Guest $guest) {
-                HydrateOrganisation::make()->userStats($guest->organisation);
+            function () {
+                HydrateTenant::make()->userStats();
             }
         );
         static::updated(function (Guest $guest) {
-            if ($guest->wasChanged('status')) {
-                HydrateOrganisation::make()->userStats($guest->organisation);
+            if(!$guest->wasRecentlyCreated) {
+                if ($guest->wasChanged('status')) {
+                    HydrateTenant::make()->userStats();
+                }
             }
         });
     }
 
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
 
     public function user(): MorphOne
     {
-        return $this->morphOne(User::class, 'userable','organisation_user');
+        return $this->morphOne(User::class, 'parent');
     }
 
 }

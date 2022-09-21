@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Organisations\Organisation;
+use App\Models\Central\Tenant;
 use App\Models\SysAdmin\AdminUser;
 use App\Models\SysAdmin\User;
 
@@ -51,7 +51,7 @@ return [
         ],
         'org' => [
             'driver' => 'sanctum',
-            'provider' => 'organisations',
+            'provider' => 'tenants',
             'hash' => false,
         ],
     ],
@@ -82,9 +82,9 @@ return [
             'driver' => 'eloquent',
             'model' => AdminUser::class,
         ],
-        'organisations' => [
+        'tenants' => [
             'driver' => 'eloquent',
-            'model' => Organisation::class,
+            'model' => Tenant::class,
         ],
         // 'users' => [
         //     'driver' => 'database',

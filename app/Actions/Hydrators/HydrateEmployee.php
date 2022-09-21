@@ -17,7 +17,7 @@ class HydrateEmployee extends HydrateModel
 
     use WithNormalise;
 
-    public string $commandSignature = 'hydrate:employee {organisation_code} {id?}';
+    public string $commandSignature = 'hydrate:employee {tenant_code?} {id?}';
 
 
     public function handle(Employee $employee): void

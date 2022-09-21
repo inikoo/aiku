@@ -8,9 +8,11 @@
 
 namespace App\Models\Assets;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 
 /**
@@ -32,24 +34,24 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Assets\Timezone[] $timezones
  * @property-read int|null $timezones_count
- * @method static \Illuminate\Database\Eloquent\Builder|Country newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Country newQuery()
+ * @method static Builder|Country newModelQuery()
+ * @method static Builder|Country newQuery()
  * @method static \Illuminate\Database\Query\Builder|Country onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Country query()
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCapital($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereContinent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereIso3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country wherePhoneCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereTimezoneId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereUpdatedAt($value)
+ * @method static Builder|Country query()
+ * @method static Builder|Country whereCapital($value)
+ * @method static Builder|Country whereCode($value)
+ * @method static Builder|Country whereContinent($value)
+ * @method static Builder|Country whereCreatedAt($value)
+ * @method static Builder|Country whereCurrencyId($value)
+ * @method static Builder|Country whereData($value)
+ * @method static Builder|Country whereDeletedAt($value)
+ * @method static Builder|Country whereId($value)
+ * @method static Builder|Country whereIso3($value)
+ * @method static Builder|Country whereName($value)
+ * @method static Builder|Country wherePhoneCode($value)
+ * @method static Builder|Country whereTimezoneId($value)
+ * @method static Builder|Country whereType($value)
+ * @method static Builder|Country whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|Country withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Country withoutTrashed()
  * @mixin \Eloquent

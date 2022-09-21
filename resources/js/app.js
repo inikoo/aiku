@@ -53,8 +53,8 @@ const initialiseApp = () => {
         if (usePage().props.value.layout) {
             layout.navigation = usePage().props.value.layout.navigation ?? null;
         }
-        if (usePage().props.value.organisation) {
-            layout.organisation = usePage().props.value.organisation ?? null;
+        if (usePage().props.value.tenant) {
+            layout.tenant = usePage().props.value.tenant ?? null;
         }
     });
     return layout;

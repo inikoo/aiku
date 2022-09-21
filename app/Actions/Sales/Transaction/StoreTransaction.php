@@ -7,23 +7,21 @@
 
 namespace App\Actions\Sales\Transaction;
 
-use App\Actions\StoreModelAction;
-use App\Models\Utils\ActionResult;
+use App\Models\Sales\Transaction;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreTransaction extends StoreModelAction
+class StoreTransaction
 {
     use AsAction;
 
-    public function handle(Order $order, array $modelData): ActionResult
+    public function handle(Order $order, array $modelData): Transaction
     {
-        $modelData['organisation_id'] = $order->organisation_id;
         $modelData['shop_id']         = $order->shop_id;
         $modelData['customer_id']     = $order->customer_id;
 
+        /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);
-
-        return $this->finalise($transaction);
+        return $transaction;
     }
 }

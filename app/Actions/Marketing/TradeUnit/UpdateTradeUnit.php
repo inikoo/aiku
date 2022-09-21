@@ -7,21 +7,15 @@
 
 namespace App\Actions\Marketing\TradeUnit;
 
-use App\Actions\UpdateModelAction;
-use App\Models\Utils\ActionResult;
+use App\Actions\WithActionUpdate;
 use App\Models\Marketing\TradeUnit;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateTradeUnit extends UpdateModelAction
+class UpdateTradeUnit
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(TradeUnit $tradeUnit, array $modelData): ActionResult
+    public function handle(TradeUnit $tradeUnit, array $modelData): TradeUnit
     {
-
-        $this->model=$tradeUnit;
-        $this->modelData=$modelData;
-        return $this->updateAndFinalise(jsonFields:['data','dimensions']);
-
+        return $this->update($tradeUnit, $modelData, ['data', 'dimensions']);
     }
 }

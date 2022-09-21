@@ -13,7 +13,6 @@ use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Organisations\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -23,7 +22,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * @property WarehouseArea $warehouseArea
- * @property Organisation $organisation
  */
 class ShowWarehouseArea
 {
@@ -31,34 +29,30 @@ class ShowWarehouseArea
     use WithInertia;
 
 
-    private Organisation|Warehouse|null $parent;
     private ?string $routeName = null;
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $user               = $request->user();
-        $this->organisation = $user->currentUiOrganisation;
         $this->routeName    = $request->route()->getName();
     }
 
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.view") && $this->organisation->id === $this->warehouseArea->organisation_id;
+        return $request->user()->hasPermissionTo("inventory.view");
     }
 
     public function inOrganisation(WarehouseArea $warehouseArea): void
     {
         $this->warehouseArea = $warehouseArea;
         $this->validateAttributes();
-        $this->parent = $this->organisation;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse,WarehouseArea $warehouseArea): void
     {
         $this->warehouseArea = $warehouseArea;
         $this->validateAttributes();
-        $this->parent = $warehouse;
     }
 
     public function htmlResponse(): Response
@@ -76,8 +70,8 @@ class ShowWarehouseArea
                             'name'     => trans_choice('location|locations', $this->warehouseArea->stats->number_locations),
                             'number'   => $this->warehouseArea->stats->number_locations,
                             'href'     =>
-                                match (class_basename($this->parent)) {
-                                    'Warehouse' => [
+                                match ($this->routeName) {
+                                    'inventory.warehouses.show.warehouse_areas.show' => [
                                         'inventory.warehouses.show.warehouse_areas.show.locations.index',
                                         [$this->warehouseArea->warehouse_id, $this->warehouseArea->id]
                                     ],

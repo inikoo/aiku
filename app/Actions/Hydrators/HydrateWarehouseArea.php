@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 class HydrateWarehouseArea extends HydrateModel
 {
 
-    public string $commandSignature = 'hydrate:warehouse-area {organisation_code} {id?}';
+    public string $commandSignature = 'hydrate:warehouse-area {tenant_code?} {id?}';
 
     public function handle(WarehouseArea $warehouseArea): void
     {
@@ -42,7 +42,7 @@ class HydrateWarehouseArea extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return WarehouseArea::get();
+        return WarehouseArea::all();
     }
 
 }

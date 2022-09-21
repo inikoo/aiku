@@ -29,7 +29,7 @@ class ShowLocation extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.view") && $this->organisation->id === $this->location->organisation_id;
+        return $request->user()->hasPermissionTo("inventory.view");
     }
 
 

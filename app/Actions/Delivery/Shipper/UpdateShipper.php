@@ -8,20 +8,15 @@
 
 namespace App\Actions\Delivery\Shipper;
 
-use App\Actions\UpdateModelAction;
-use App\Models\Utils\ActionResult;
+use App\Actions\WithActionUpdate;
 use App\Models\Delivery\Shipper;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateShipper extends UpdateModelAction
+class UpdateShipper
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle( Shipper $shipper, array $modelData): ActionResult {
-
-        $this->model=$shipper;
-        $this->modelData=$modelData;
-        return $this->updateAndFinalise(jsonFields:['data']);
-
+    public function handle(Shipper $shipper, array $modelData): Shipper
+    {
+        return $this->update($shipper, $modelData, ['data']);
     }
 }

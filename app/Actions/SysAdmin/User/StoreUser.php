@@ -7,25 +7,20 @@
 
 namespace App\Actions\SysAdmin\User;
 
+
+use App\Models\Central\CentralUser;
+use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;
-use App\Models\Organisations\Organisation;
 use App\Models\SysAdmin\Guest;
-use App\Actions\StoreModelAction;
 use App\Models\SysAdmin\User;
-use App\Models\Utils\ActionResult;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 
-class StoreUser extends StoreModelAction
+class StoreUser
 {
     use AsAction;
-    use WithAttributes;
 
-
-    public function handle(array $modelData): ActionResult
+    public function handle(Tenant $tenant, Guest|Employee $parent, CentralUser $centralUser): User
     {
         $modelData['password'] = Hash::make($modelData['password']);
 
@@ -36,16 +31,6 @@ class StoreUser extends StoreModelAction
 
 
         return $this->finalise($user);
-    }
-
-    public function rules(): array
-    {
-        return [
-            'username' => 'required|alpha_dash|unique:App\Models\SysAdmin\User,username',
-            'password' => ['required', app()->isLocal() ? null : Password::min(8)->uncompromised()],
-            'name'     => 'sometimes|required',
-            'email'    => 'sometimes|required|email'
-        ];
     }
 
 

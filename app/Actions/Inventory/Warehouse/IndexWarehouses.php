@@ -11,7 +11,6 @@ use App\Actions\Inventory\ShowInventoryDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Warehouse;
-use App\Models\Organisations\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -25,7 +24,6 @@ use Spatie\QueryBuilder\QueryBuilder;
  * @property array $breadcrumbs
  * @property bool $canEdit
  * @property string $title
- * @property Organisation $organisation
  */
 class IndexWarehouses
 {
@@ -47,7 +45,6 @@ class IndexWarehouses
             ->defaultSort('warehouses.code')
             ->select(['code', 'warehouses.id', 'name', 'number_warehouse_areas', 'number_locations'])
             ->leftJoin('warehouse_stats', 'warehouse_stats.warehouse_id', 'warehouses.id')
-            ->where('warehouses.organisation_id', $this->organisation->id)
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? 15)
@@ -66,8 +63,6 @@ class IndexWarehouses
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $request->validate();
-        $user               = $request->user();
-        $this->organisation = $user->currentUiOrganisation;
 
 
         return $this->handle();
@@ -112,7 +107,7 @@ class IndexWarehouses
             (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 'inventory.warehouses.index' => [
-                    'route'      => 'inventory.warehouses.index',
+                    'route' => 'inventory.warehouses.index',
                     'modelLabel' => [
                         'label' => __('warehouses')
                     ],

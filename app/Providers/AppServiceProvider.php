@@ -8,26 +8,33 @@
 
 namespace App\Providers;
 
-use App\Managers\Organisation\OrganisationManager;
-use App\Managers\Organisation\SourceOrganisationManager;
+use App\Managers\Tenant\TenantManager;
+use App\Managers\Tenant\SourceTenantManager;
+use App\Models\Central\Tenant;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Lorisleiva\Actions\Facades\Actions;
+use Stancl\Tenancy\DatabaseConfig;
 
 class AppServiceProvider extends ServiceProvider
 {
 
     public function register(): void
     {
-        $this->app->bind(SourceOrganisationManager::class, function () {
-            return new OrganisationManager();
+        $this->app->bind(SourceTenantManager::class, function () {
+            return new TenantManager();
         });
         if ($this->app->environment('local')) {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
         }
+
+        DatabaseConfig::$databaseNameGenerator=function (Tenant $tenant) {
+            return config('tenancy.database.prefix') . $tenant->code . config('tenancy.database.suffix');
+        };
+
     }
 
 
@@ -52,13 +59,13 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::morphMap(
             [
-                'User'         => 'App\Models\SysAdmin\User',
-                'Employee'     => 'App\Models\HumanResources\Employee',
-                'Guest'        => 'App\Models\SysAdmin\Guest',
-                'Customer'     => 'App\Models\CRM\Customer',
-                'Shop'         => 'App\Models\Marketing\Shop',
-                'Organisation' => 'App\Models\Organisations\Organisation',
-
+                'User'     => 'App\Models\SysAdmin\User',
+                'Employee' => 'App\Models\HumanResources\Employee',
+                'Guest'    => 'App\Models\SysAdmin\Guest',
+                'Customer' => 'App\Models\CRM\Customer',
+                'Shop'     => 'App\Models\Marketing\Shop',
+                'Tenant'   => 'App\Models\Central\Tenant',
+                'AdminUser'   => 'App\Models\SysAdmin\AdminUser',
             ]
         );
     }

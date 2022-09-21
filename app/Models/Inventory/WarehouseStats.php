@@ -7,8 +7,8 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Hydrators\HydrateOrganisation;
-use App\Models\Organisations\Organisation;
+use App\Actions\Central\Tenant\HydrateTenant;
+use App\Models\Central\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $warehouse_id
  * @property int $number_warehouse_areas
  * @property int $number_locations
+ * @property int $number_locations_state_operational
+ * @property int $number_locations_state_broken
  * @property int $number_empty_locations
  * @property string $stock_value
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -32,18 +34,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|WarehouseStats whereId($value)
  * @method static Builder|WarehouseStats whereNumberEmptyLocations($value)
  * @method static Builder|WarehouseStats whereNumberLocations($value)
+ * @method static Builder|WarehouseStats whereNumberLocationsStateBroken($value)
+ * @method static Builder|WarehouseStats whereNumberLocationsStateOperational($value)
  * @method static Builder|WarehouseStats whereNumberWarehouseAreas($value)
  * @method static Builder|WarehouseStats whereStockValue($value)
  * @method static Builder|WarehouseStats whereUpdatedAt($value)
  * @method static Builder|WarehouseStats whereWarehouseId($value)
  * @mixin \Eloquent
- * @property int $organisation_id
- * @property int $number_locations_state_operational
- * @property int $number_locations_state_broken
- * @method static Builder|WarehouseStats whereNumberLocationsStateBroken($value)
- * @method static Builder|WarehouseStats whereNumberLocationsStateOperational($value)
- * @method static Builder|WarehouseStats whereOrganisationId($value)
- * @property-read Organisation $organisation
  */
 class WarehouseStats extends Model
 {
@@ -55,15 +52,11 @@ class WarehouseStats extends Model
     {
         static::updated(function (WarehouseStats $warehouseStats) {
             if (!$warehouseStats->wasRecentlyCreated) {
-                HydrateOrganisation::make()->warehouseStats($warehouseStats->organisation);
+                HydrateTenant::make()->warehouseStats();
             }
         });
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
 
     public function warehouse(): BelongsTo
     {

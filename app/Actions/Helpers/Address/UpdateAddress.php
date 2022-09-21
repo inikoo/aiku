@@ -8,25 +8,15 @@
 
 namespace App\Actions\Helpers\Address;
 
-use App\Models\Utils\ActionResult;
+use App\Actions\WithActionUpdate;
 use App\Models\Helpers\Address;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateAddress
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(Address $address,array $data): ActionResult
+    public function handle(Address $address, array $modelData): Address
     {
-        $res = new ActionResult();
-        $address->update($data);
-        $res->changes = array_merge($res->changes, $address->getChanges());
-
-        $res->model    = $address;
-        $res->model_id = $address->id;
-        $res->status   = $res->changes ? 'updated' : 'unchanged';
-
-
-        return $res;
+        return $this->update($address, $modelData);
     }
 }

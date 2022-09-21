@@ -8,31 +8,31 @@
 
 namespace App\Actions\Marketing\Product;
 
-use App\Actions\StoreModelAction;
+use App\Models\Central\Tenant;
 use App\Models\Marketing\Product;
-use App\Models\Utils\ActionResult;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreProduct extends StoreModelAction
+class StoreProduct
 {
     use AsAction;
 
-    public function handle(Shop $shop, array $modelData): ActionResult
+    public function handle(Shop $shop, array $modelData): Product
     {
-        $modelData['organisation_id']=$shop->organisation_id;
         /** @var Product $product */
         $product = $shop->products()->create($modelData);
 
         $product->salesStats()->create([
                                            'scope' => 'sales'
                                        ]);
-        if ($product->shop->currency_id != $shop->organisation->currency_id) {
+       /** @var Tenant $tenant */
+        $tenant=tenant();
+        if ($product->shop->currency_id != $tenant->currency_id) {
             $product->salesStats()->create([
-                                               'scope' => 'sales-organisation-currency'
+                                               'scope' => 'sales-tenant-currency'
                                            ]);
         }
 
-        return $this->finalise($product);
+        return $product;
     }
 }

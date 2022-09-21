@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * App\Models\Inventory\StockMovement
  *
  * @property int $id
- * @property int $organisation_id
  * @property string $type
  * @property string $stockable_type
  * @property int $stockable_id
@@ -25,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read Model|\Eloquent $stockable
  * @method static Builder|StockMovement newModelQuery()
  * @method static Builder|StockMovement newQuery()
@@ -35,9 +34,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|StockMovement whereData($value)
  * @method static Builder|StockMovement whereId($value)
  * @method static Builder|StockMovement whereLocationId($value)
- * @method static Builder|StockMovement whereOrganisationId($value)
- * @method static Builder|StockMovement whereOrganisationSourceId($value)
  * @method static Builder|StockMovement whereQuantity($value)
+ * @method static Builder|StockMovement whereSourceId($value)
  * @method static Builder|StockMovement whereStockableId($value)
  * @method static Builder|StockMovement whereStockableType($value)
  * @method static Builder|StockMovement whereType($value)

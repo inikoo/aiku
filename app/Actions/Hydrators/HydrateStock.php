@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 class HydrateStock extends HydrateModel
 {
 
-    public string $commandSignature = 'hydrate:stock {organisation_code} {id?} ';
+    public string $commandSignature = 'hydrate:stock {tenant_code?} {id?} ';
 
 
     public function handle(Stock $stock): void
@@ -50,7 +50,7 @@ class HydrateStock extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return Stock::withTrashed()->get();
+        return Stock::withTrashed()->all();
     }
 
 }

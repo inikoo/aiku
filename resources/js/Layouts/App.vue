@@ -28,7 +28,7 @@
                             </TransitionChild>
 
                             <div class="pt-0 text-center text-sm font-semibold">
-                                {{layout.organisation.name}}
+                                {{layout.tenant.name}}
                             </div>
                             <div class="mt-5 flex-1 h-0 overflow-y-auto">
 
@@ -65,7 +65,7 @@
         <div class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200  lg:pb-4 lg:bg-gray-100">
 
             <div class="pt-5 text-center text-sm font-semibold">
-            {{layout.organisation.name}}
+            {{layout.tenant.name}}
             </div>
 
             <!-- Sidebar component, swap this element with another sidebar if you like -->
@@ -156,9 +156,7 @@
                                         </MenuItem>
                                     </div>
                                     <div class="py-1">
-                                        <MenuItem v-slot="{ active }">
-                                            <Link :href="route('welcome')" href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{$t('Homepage')}}</Link>
-                                        </MenuItem>
+
                                         <MenuItem v-slot="{ active }">
                                             <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Support</a>
                                         </MenuItem>

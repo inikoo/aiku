@@ -7,19 +7,16 @@
 
 namespace App\Actions\Marketing\TradeUnit;
 
-use App\Actions\StoreModelAction;
-use App\Models\Organisations\Organisation;
-use App\Models\Utils\ActionResult;
+use App\Models\Marketing\TradeUnit;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class StoreTradeUnit extends StoreModelAction
+class StoreTradeUnit
 {
     use AsAction;
 
-    public function handle(Organisation $organisation,$modelData): ActionResult
+    public function handle($modelData): TradeUnit
     {
-        $tradeUnit = $organisation->tradeUnits()->create($modelData);
-        return $this->finalise($tradeUnit);
+        return TradeUnit::create($modelData);
     }
 }

@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property bool $status
  * @property \Illuminate\Support\Carbon|null $created_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $product_id
  * @property string $price unit price
  * @property string|null $code
@@ -28,8 +28,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $carton units per carton
  * @property string|null $cbm to be deleted
  * @property int|null $currency_id
+ * @property int|null $source_id
+ * @property-read \App\Models\Marketing\Product|null $product
  * @method static Builder|HistoricProduct newModelQuery()
  * @method static Builder|HistoricProduct newQuery()
+ * @method static \Illuminate\Database\Query\Builder|HistoricProduct onlyTrashed()
  * @method static Builder|HistoricProduct query()
  * @method static Builder|HistoricProduct whereCarton($value)
  * @method static Builder|HistoricProduct whereCbm($value)
@@ -43,16 +46,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|HistoricProduct wherePack($value)
  * @method static Builder|HistoricProduct wherePrice($value)
  * @method static Builder|HistoricProduct whereProductId($value)
+ * @method static Builder|HistoricProduct whereSourceId($value)
  * @method static Builder|HistoricProduct whereStatus($value)
- * @mixin \Eloquent
- * @property int $organisation_id
- * @property int|null $organisation_source_id
- * @property-read \App\Models\Marketing\Product|null $product
- * @method static \Illuminate\Database\Query\Builder|HistoricProduct onlyTrashed()
- * @method static Builder|HistoricProduct whereOrganisationId($value)
- * @method static Builder|HistoricProduct whereOrganisationSourceId($value)
  * @method static \Illuminate\Database\Query\Builder|HistoricProduct withTrashed()
  * @method static \Illuminate\Database\Query\Builder|HistoricProduct withoutTrashed()
+ * @mixin \Eloquent
  */
 class HistoricProduct extends Model
 {

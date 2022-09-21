@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * App\Models\Sales\Order
  *
  * @property int $id
- * @property int $organisation_id
  * @property int $shop_id
  * @property int $customer_id
  * @property int|null $customer_client_id
@@ -41,11 +40,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|DeliveryNote[] $deliveryNotes
  * @property-read int|null $delivery_notes_count
  * @property-read Shop $shop
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Transaction[] $transactions
+ * @property-read int|null $transactions_count
  * @method static Builder|Order newModelQuery()
  * @method static Builder|Order newQuery()
  * @method static Builder|Order query()
@@ -65,16 +66,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder|Order whereItemsNet($value)
  * @method static Builder|Order whereNet($value)
  * @method static Builder|Order whereNumber($value)
- * @method static Builder|Order whereOrganisationId($value)
- * @method static Builder|Order whereOrganisationSourceId($value)
  * @method static Builder|Order whereShipping($value)
  * @method static Builder|Order whereShopId($value)
+ * @method static Builder|Order whereSourceId($value)
  * @method static Builder|Order whereState($value)
  * @method static Builder|Order whereTax($value)
  * @method static Builder|Order whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Transaction[] $transactions
- * @property-read int|null $transactions_count
  */
 class Order extends Model
 {

@@ -9,7 +9,7 @@
 namespace App\Actions\Delivery\DeliveryNote;
 
 use App\Actions\Helpers\Address\StoreImmutableAddress;
-use App\Models\Utils\ActionResult;
+use App\Models\Delivery\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -23,11 +23,9 @@ class StoreDeliveryNote
         Address $deliveryAddress,
         array $modelData
 
-    ): ActionResult
+    ): DeliveryNote
     {
-        $res = new ActionResult();
 
-        $modelData['organisation_id']=$order->organisation_id;
         $modelData['shop_id']=$order->shop_id;
         $modelData['customer_id']=$order->customer_id;
         $modelData['order_id']=$order->id;
@@ -35,15 +33,9 @@ class StoreDeliveryNote
         $deliveryAddress=StoreImmutableAddress::run($deliveryAddress);
         $modelData['delivery_address_id']=$deliveryAddress->id;
 
-        /** @var \App\Models\Delivery\DeliveryNote $deliveryNote */
+        /** @var DeliveryNote $deliveryNote */
         $deliveryNote = $order->deliveryNotes()->create($modelData);
 
-
-
-        $res->model    = $deliveryNote;
-        $res->model_id = $deliveryNote->id;
-        $res->status   = $res->model_id ? 'inserted' : 'error';
-
-        return $res;
+        return $deliveryNote;
     }
 }

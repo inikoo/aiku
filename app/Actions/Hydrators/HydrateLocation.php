@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 class HydrateLocation extends HydrateModel
 {
 
-    public string $commandSignature = 'hydrate:location {organisation_code} {id?}';
+    public string $commandSignature = 'hydrate:location {tenant_code?} {id?}';
 
 
     public function handle(Location $location): void
@@ -42,7 +42,7 @@ class HydrateLocation extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return Location::withTrashed()->get();
+        return Location::withTrashed()->all();
     }
 
 }

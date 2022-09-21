@@ -7,24 +7,16 @@
 
 namespace App\Actions\Marketing\Shop;
 
-use App\Models\Utils\ActionResult;
-use App\Actions\WithUpdate;
+use App\Actions\WithActionUpdate;
 use App\Models\Marketing\Shop;
-use Illuminate\Support\Arr;
-use Lorisleiva\Actions\Concerns\AsAction;
+
 
 class UpdateShop
 {
-    use AsAction;
-    use WithUpdate;
+    use WithActionUpdate;
 
-    public function handle(Shop $shop, array $modelData): ActionResult
+    public function handle(Shop $shop, array $modelData): Shop
     {
-        $res = new ActionResult();
-
-        $shop->update(Arr::except($modelData, ['data', 'settings']));
-        $shop->update($this->extractJson($modelData, ['data', 'settings']));
-
-        return $this->postUpdate($res,$shop);
+        return $this->update($shop, $modelData, ['data', 'settings']);
     }
 }

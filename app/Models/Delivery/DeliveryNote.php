@@ -19,10 +19,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * App\Models\Delivery\DeliveryNote
  *
- * @method static Builder|DeliveryNote newModelQuery()
- * @method static Builder|DeliveryNote newQuery()
- * @method static Builder|DeliveryNote query()
- * @mixin \Eloquent
  * @property int $id
  * @property int $shop_id
  * @property int $customer_id
@@ -37,20 +33,30 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $number_picks
  * @property int|null $picker_id Main picker
  * @property int|null $packer_id Main packer
- * @property string $date
- * @property string|null $order_submitted_at
- * @property string|null $assigned_at
- * @property string|null $picking_at
- * @property string|null $picked_at
- * @property string|null $packing_at
- * @property string|null $packed_at
- * @property string|null $dispatched_at
- * @property string|null $cancelled_at
- * @property mixed $data
+ * @property \Illuminate\Support\Carbon $date
+ * @property \Illuminate\Support\Carbon|null $order_submitted_at
+ * @property \Illuminate\Support\Carbon|null $assigned_at
+ * @property \Illuminate\Support\Carbon|null $picking_at
+ * @property \Illuminate\Support\Carbon|null $picked_at
+ * @property \Illuminate\Support\Carbon|null $packing_at
+ * @property \Illuminate\Support\Carbon|null $packed_at
+ * @property \Illuminate\Support\Carbon|null $dispatched_at
+ * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $source_id
+ * @property-read Customer $customer
+ * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $order
+ * @property-read int|null $order_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
+ * @property-read int|null $orders_count
+ * @property-read Shop $shop
+ * @method static Builder|DeliveryNote newModelQuery()
+ * @method static Builder|DeliveryNote newQuery()
+ * @method static \Illuminate\Database\Query\Builder|DeliveryNote onlyTrashed()
+ * @method static Builder|DeliveryNote query()
  * @method static Builder|DeliveryNote whereAssignedAt($value)
  * @method static Builder|DeliveryNote whereCancelledAt($value)
  * @method static Builder|DeliveryNote whereCreatedAt($value)
@@ -66,7 +72,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|DeliveryNote whereNumberStocks($value)
  * @method static Builder|DeliveryNote whereOrderId($value)
  * @method static Builder|DeliveryNote whereOrderSubmittedAt($value)
- * @method static Builder|DeliveryNote whereOrganisationSourceId($value)
  * @method static Builder|DeliveryNote wherePackedAt($value)
  * @method static Builder|DeliveryNote wherePackerId($value)
  * @method static Builder|DeliveryNote wherePackingAt($value)
@@ -75,21 +80,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|DeliveryNote wherePickingAt($value)
  * @method static Builder|DeliveryNote whereShipperId($value)
  * @method static Builder|DeliveryNote whereShopId($value)
+ * @method static Builder|DeliveryNote whereSourceId($value)
  * @method static Builder|DeliveryNote whereState($value)
  * @method static Builder|DeliveryNote whereType($value)
  * @method static Builder|DeliveryNote whereUpdatedAt($value)
  * @method static Builder|DeliveryNote whereWeight($value)
- * @property int $organisation_id
- * @property-read Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $order
- * @property-read int|null $order_count
- * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
- * @property-read int|null $orders_count
- * @property-read Shop $shop
- * @method static \Illuminate\Database\Query\Builder|DeliveryNote onlyTrashed()
- * @method static Builder|DeliveryNote whereOrganisationId($value)
  * @method static \Illuminate\Database\Query\Builder|DeliveryNote withTrashed()
  * @method static \Illuminate\Database\Query\Builder|DeliveryNote withoutTrashed()
+ * @mixin \Eloquent
  */
 class DeliveryNote extends Model
 {

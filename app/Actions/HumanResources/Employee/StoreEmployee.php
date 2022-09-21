@@ -8,21 +8,18 @@
 namespace App\Actions\HumanResources\Employee;
 
 
-use App\Actions\StoreModelAction;
-use App\Models\Organisations\Organisation;
-use App\Models\Utils\ActionResult;
+use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class StoreEmployee extends StoreModelAction
+class StoreEmployee
 {
     use AsAction;
 
-    public function handle(Organisation $organisation, array $modelData): ActionResult
+    public function handle(array $modelData): Employee
     {
-        $employee = $organisation->employees()->create($modelData);
+        return Employee::create($modelData);
 
-        return $this->finalise($employee);
     }
 
 

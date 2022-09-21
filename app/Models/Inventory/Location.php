@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\Inventory\Location
  *
  * @property int $id
- * @property int $organisation_id
  * @property int $warehouse_id
  * @property int|null $warehouse_area_id
  * @property string $state
@@ -30,8 +29,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read \App\Models\Inventory\LocationStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\Stock[] $stocks
+ * @property-read int|null $stocks_count
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
  * @method static Builder|Location newModelQuery()
@@ -44,8 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Location whereDeletedAt($value)
  * @method static Builder|Location whereId($value)
  * @method static Builder|Location whereIsEmpty($value)
- * @method static Builder|Location whereOrganisationId($value)
- * @method static Builder|Location whereOrganisationSourceId($value)
+ * @method static Builder|Location whereSourceId($value)
  * @method static Builder|Location whereState($value)
  * @method static Builder|Location whereUpdatedAt($value)
  * @method static Builder|Location whereWarehouseAreaId($value)
@@ -53,8 +53,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Query\Builder|Location withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Location withoutTrashed()
  * @mixin \Eloquent
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\Stock[] $stocks
- * @property-read int|null $stocks_count
  */
 class Location extends Model
 {

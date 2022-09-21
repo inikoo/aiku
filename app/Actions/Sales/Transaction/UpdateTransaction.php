@@ -7,21 +7,15 @@
 
 namespace App\Actions\Sales\Transaction;
 
-use App\Actions\UpdateModelAction;
-use App\Models\Utils\ActionResult;
+use App\Actions\WithActionUpdate;
 use App\Models\Sales\Transaction;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateTransaction extends UpdateModelAction
+class UpdateTransaction
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(Transaction $transaction, array $modelData): ActionResult
+    public function handle(Transaction $transaction, array $modelData): Transaction
     {
-
-        $this->model=$transaction;
-        $this->modelData=$modelData;
-        return $this->updateAndFinalise(jsonFields:['data']);
-
+        return $this->update($transaction, $modelData, ['data']);
     }
 }

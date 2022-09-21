@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\Inventory\Stock
  *
  * @property int $id
- * @property int $organisation_id
  * @property string $owner_type
  * @property int $owner_id
  * @property string $composition
@@ -28,7 +27,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $quantity_status
  * @property bool $sellable
  * @property bool $raw_material
- * @property string $slug
  * @property string $code
  * @property string|null $barcode
  * @property string|null $description
@@ -48,7 +46,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $discontinuing_at
  * @property \Illuminate\Support\Carbon|null $discontinued_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\Location[] $locations
  * @property-read int|null $locations_count
  * @property-read Model|\Eloquent $owner
@@ -75,8 +73,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Stock whereDiscontinuingAt($value)
  * @method static Builder|Stock whereId($value)
  * @method static Builder|Stock whereImageId($value)
- * @method static Builder|Stock whereOrganisationId($value)
- * @method static Builder|Stock whereOrganisationSourceId($value)
  * @method static Builder|Stock whereOuter($value)
  * @method static Builder|Stock whereOwnerId($value)
  * @method static Builder|Stock whereOwnerType($value)
@@ -87,7 +83,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Stock whereRawMaterial($value)
  * @method static Builder|Stock whereSellable($value)
  * @method static Builder|Stock whereSettings($value)
- * @method static Builder|Stock whereSlug($value)
+ * @method static Builder|Stock whereSourceId($value)
  * @method static Builder|Stock whereState($value)
  * @method static Builder|Stock whereUpdatedAt($value)
  * @method static Builder|Stock whereValue($value)

@@ -21,20 +21,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static Builder|Admin newQuery()
  * @method static Builder|Admin query()
  * @mixin \Eloquent
- * @property int $id
- * @property string $name
- * @property string $slug
- * @property string $email
- * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static Builder|Admin whereCreatedAt($value)
- * @method static Builder|Admin whereData($value)
- * @method static Builder|Admin whereEmail($value)
- * @method static Builder|Admin whereId($value)
- * @method static Builder|Admin whereName($value)
- * @method static Builder|Admin whereSlug($value)
- * @method static Builder|Admin whereUpdatedAt($value)
  */
 class Admin extends Model
 {

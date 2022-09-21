@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\Marketing\TradeUnit
  *
  * @property int $id
- * @property int $organisation_id
  * @property string|null $slug
  * @property string $code
  * @property string|null $name
@@ -31,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|Stock[] $stocks
  * @property-read int|null $stocks_count
  * @method static Builder|TradeUnit newModelQuery()
@@ -48,9 +47,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|TradeUnit whereId($value)
  * @method static Builder|TradeUnit whereImageId($value)
  * @method static Builder|TradeUnit whereName($value)
- * @method static Builder|TradeUnit whereOrganisationId($value)
- * @method static Builder|TradeUnit whereOrganisationSourceId($value)
  * @method static Builder|TradeUnit whereSlug($value)
+ * @method static Builder|TradeUnit whereSourceId($value)
  * @method static Builder|TradeUnit whereType($value)
  * @method static Builder|TradeUnit whereUpdatedAt($value)
  * @method static Builder|TradeUnit whereWeight($value)

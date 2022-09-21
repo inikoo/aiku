@@ -7,7 +7,6 @@
 
 namespace App\Actions;
 
-use App\Models\Organisations\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -17,13 +16,10 @@ class InertiaAction
     use AsAction;
     use WithAttributes;
     protected ?string $routeName = null;
-    protected Organisation $organisation;
 
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $user               = $request->user();
-        $this->organisation = $user->currentUiOrganisation;
         $this->routeName    = $request->route()->getName();
     }
 

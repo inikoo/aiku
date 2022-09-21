@@ -4,10 +4,8 @@ namespace App\Http;
 
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EncryptCookies;
-use App\Http\Middleware\EnsureSetupUser;
-use App\Http\Middleware\EnsureUserIsNotSetup;
+use App\Http\Middleware\HandleCentralInertiaRequests;
 use App\Http\Middleware\SetLocale;
-use App\Http\Middleware\SetOrganisation;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -30,7 +28,6 @@ use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 class Kernel extends HttpKernel
 {
@@ -57,15 +54,23 @@ class Kernel extends HttpKernel
      * @var array<string, array<int, class-string|string>>
      */
     protected $middlewareGroups = [
-        'web' => [
+        'central' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            EnsureSetupUser::class,
-            SetOrganisation::class,
+            HandleCentralInertiaRequests::class,
+            SetLocale::class
+        ],
+        'web'     => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
             HandleInertiaRequests::class,
             SetLocale::class
         ],
@@ -100,9 +105,7 @@ class Kernel extends HttpKernel
         'signed'           => ValidateSignature::class,
         'throttle'         => ThrottleRequests::class,
         'verified'         => EnsureEmailIsVerified::class,
-        'set.organisation' => SetOrganisation::class,
         'inertia'          => HandleInertiaRequests::class,
-        'ensure.setup'     => EnsureSetupUser::class,
-        'ensure.noSetup'   => EnsureUserIsNotSetup::class
+
     ];
 }

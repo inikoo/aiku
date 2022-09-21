@@ -7,16 +7,18 @@
 
 namespace App\Models\Delivery;
 
-use App\Models\Organisations\Organisation;
+use App\Models\Central\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 
 /**
  * App\Models\Delivery\Shipper
  *
  * @property int $id
  * @property string $code
+ * @property string|null $api_shipper
  * @property bool $status
  * @property string $name
  * @property string|null $contact_name
@@ -29,11 +31,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection|Organisation[] $organisations
- * @property-read int|null $organisations_count
+ * @property int|null $source_id
  * @method static Builder|Shipper newModelQuery()
  * @method static Builder|Shipper newQuery()
  * @method static Builder|Shipper query()
+ * @method static Builder|Shipper whereApiShipper($value)
  * @method static Builder|Shipper whereCode($value)
  * @method static Builder|Shipper whereCompanyName($value)
  * @method static Builder|Shipper whereContactName($value)
@@ -44,6 +46,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @method static Builder|Shipper whereId($value)
  * @method static Builder|Shipper whereName($value)
  * @method static Builder|Shipper wherePhone($value)
+ * @method static Builder|Shipper whereSourceId($value)
  * @method static Builder|Shipper whereStatus($value)
  * @method static Builder|Shipper whereTrackingUrl($value)
  * @method static Builder|Shipper whereUpdatedAt($value)
@@ -63,8 +66,5 @@ class Shipper extends Model
 
     protected $guarded = [];
 
-    public function organisations(): BelongsToMany
-    {
-        return $this->belongsToMany(Organisation::class)->using(OrganisationShipper::class)->withTimestamps();
-    }
+
 }

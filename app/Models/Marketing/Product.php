@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\Marketing\Product
  *
  * @property int $id
- * @property int $organisation_id
  * @property string $composition
  * @property string|null $slug
  * @property int|null $shop_id
@@ -39,14 +38,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\HistoricProduct[] $historicRecords
+ * @property-read int|null $historic_records_count
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\TradeUnit[] $tradeUnits
  * @property-read int|null $trade_units_count
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Product onlyTrashed()
  * @method static Builder|Product query()
  * @method static Builder|Product whereAvailable($value)
  * @method static Builder|Product whereCarton($value)
@@ -59,23 +61,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Product whereId($value)
  * @method static Builder|Product whereImageId($value)
  * @method static Builder|Product whereName($value)
- * @method static Builder|Product whereOrganisationId($value)
- * @method static Builder|Product whereOrganisationSourceId($value)
  * @method static Builder|Product whereOuter($value)
  * @method static Builder|Product wherePack($value)
  * @method static Builder|Product wherePrice($value)
  * @method static Builder|Product whereSettings($value)
  * @method static Builder|Product whereShopId($value)
  * @method static Builder|Product whereSlug($value)
+ * @method static Builder|Product whereSourceId($value)
  * @method static Builder|Product whereState($value)
  * @method static Builder|Product whereStatus($value)
  * @method static Builder|Product whereUpdatedAt($value)
- * @mixin \Eloquent
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\HistoricProduct[] $historicRecords
- * @property-read int|null $historic_records_count
- * @method static \Illuminate\Database\Query\Builder|Product onlyTrashed()
  * @method static \Illuminate\Database\Query\Builder|Product withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Product withoutTrashed()
+ * @mixin \Eloquent
  */
 class Product extends Model
 {

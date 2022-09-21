@@ -12,10 +12,10 @@ use App\Actions\Inventory\ShowInventoryDashboard;
 use App\Actions\Inventory\Warehouse\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\ShowWarehouseArea;
 use App\Http\Resources\Inventory\LocationResource;
+use App\Models\Central\Tenant;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Organisations\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -29,7 +29,7 @@ class IndexLocations extends InertiaAction
 {
 
     protected ?Warehouse $warehouse = null;
-    protected WarehouseArea|Warehouse|Organisation|null $parent = null;
+    protected WarehouseArea|Warehouse|Tenant|null $parent = null;
 
 
     public function handle(): LengthAwarePaginator
@@ -43,7 +43,7 @@ class IndexLocations extends InertiaAction
 
         return QueryBuilder::for(Location::class)
             ->defaultSort('locations.code')
-            ->select(['locations.id', 'code','warehouse_id','warehouse_area_id'])
+            ->select(['locations.id', 'code', 'warehouse_id', 'warehouse_area_id'])
             ->leftJoin('location_stats', 'location_stats.location_id', 'locations.id')
             ->when($this->parent, function ($query) {
                 switch (class_basename($this->parent)) {
@@ -53,11 +53,7 @@ class IndexLocations extends InertiaAction
                     case 'Warehouse':
                         $query->where('locations.warehouse_id', $this->parent->id);
                         break;
-                    default:
-                        $query->where('locations.organisation_id', $this->organisation->id);
                 }
-            }, function ($query) {
-                $query->where('locations.organisation_id', $this->organisation->id);
             })
             ->allowedSorts(['code'])
             ->allowedFilters([$globalSearch])
@@ -66,20 +62,15 @@ class IndexLocations extends InertiaAction
     }
 
 
-
     public function inOrganisation(): LengthAwarePaginator
     {
-
         $this->validateAttributes();
-        $this->parent = $this->organisation;
 
         return $this->handle();
     }
 
     public function inWarehouse(Warehouse $warehouse): LengthAwarePaginator
     {
-
-
         $this->parent = $warehouse;
 
         $this->validateAttributes();
@@ -95,9 +86,10 @@ class IndexLocations extends InertiaAction
         return $this->handle();
     }
 
-    public function InWarehouseInWarehouseArea(Warehouse $warehouse,WarehouseArea $warehouseArea): LengthAwarePaginator
-    {
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function InWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea): LengthAwarePaginator
+    {
         $this->parent = $warehouseArea;
         $this->validateAttributes();
 
@@ -106,10 +98,6 @@ class IndexLocations extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent and $this->parent->organisation_id != $this->organisation->id) {
-            return false;
-        }
-
         return
             (
                 $request->user()->tokenCan('root') or
@@ -144,7 +132,7 @@ class IndexLocations extends InertiaAction
         });
     }
 
-    public function getBreadcrumbs(string $routeName, WarehouseArea|Warehouse|Organisation|null $parent): array
+    public function getBreadcrumbs(string $routeName, WarehouseArea|Warehouse|Tenant|null $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [

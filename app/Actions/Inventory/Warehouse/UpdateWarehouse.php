@@ -8,20 +8,17 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
-use App\Actions\UpdateModelAction;
-use App\Models\Utils\ActionResult;
+use App\Actions\WithActionUpdate;
 use App\Models\Inventory\Warehouse;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class UpdateWarehouse extends UpdateModelAction
+class UpdateWarehouse
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(Warehouse $warehouse, array $modelData): ActionResult
+    public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {
-        $this->model=$warehouse;
-        $this->modelData=$modelData;
-        return $this->updateAndFinalise(jsonFields:['data', 'settings']);
+        return $this->update($warehouse, $modelData, ['data','settings']);
+
     }
 }

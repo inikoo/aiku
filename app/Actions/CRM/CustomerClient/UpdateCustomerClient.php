@@ -9,33 +9,14 @@
 namespace App\Actions\CRM\CustomerClient;
 
 use App\Models\CRM\CustomerClient;
-use App\Models\Utils\ActionResult;
-use App\Actions\WithUpdate;
-use Illuminate\Support\Arr;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Actions\WithActionUpdate;
 
 class UpdateCustomerClient
 {
-    use AsAction;
-    use WithUpdate;
+    use WithActionUpdate;
 
-    public function handle(
-        CustomerClient $customerClient,
-        array $modelData,
-    ): ActionResult {
-        $res = new ActionResult();
-
-
-        $customerClient->update(Arr::except($modelData, ['data']));
-        $customerClient->update($this->extractJson($modelData));
-
-
-        $res->changes = $customerClient->getChanges();
-
-        $res->model    = $customerClient;
-        $res->model_id = $customerClient->id;
-        $res->status   = $res->changes ? 'updated' : 'unchanged';
-
-        return $res;
+    public function handle(CustomerClient $customerClient, array $modelData): CustomerClient
+    {
+        return $this->update($customerClient, $modelData, ['data']);
     }
 }

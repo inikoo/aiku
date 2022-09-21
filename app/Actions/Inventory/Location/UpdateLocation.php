@@ -7,22 +7,17 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Actions\UpdateModelAction;
-use App\Models\Utils\ActionResult;
+use App\Actions\WithActionUpdate;
 use App\Models\Inventory\Location;
 
-use Lorisleiva\Actions\Concerns\AsAction;
 
-
-class UpdateLocation extends UpdateModelAction
+class UpdateLocation
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(Location $location, array $modelData): ActionResult
+    public function handle(Location $location, array $modelData): Location
     {
-        $this->model=$location;
-        $this->modelData=$modelData;
-        return $this->updateAndFinalise(jsonFields:['data']);
+        return $this->update($location, $modelData, ['data']);
     }
 
 }

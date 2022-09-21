@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * App\Models\Sales\Transaction
  *
  * @property int $id
- * @property int $organisation_id
  * @property int $shop_id
  * @property int $customer_id
  * @property int $order_id
@@ -36,7 +35,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|DeliveryNoteItem[] $deliveryNoteItems
  * @property-read int|null $delivery_note_items_count
@@ -56,10 +55,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|Transaction whereItemType($value)
  * @method static Builder|Transaction whereNet($value)
  * @method static Builder|Transaction whereOrderId($value)
- * @method static Builder|Transaction whereOrganisationId($value)
- * @method static Builder|Transaction whereOrganisationSourceId($value)
  * @method static Builder|Transaction whereQuantity($value)
  * @method static Builder|Transaction whereShopId($value)
+ * @method static Builder|Transaction whereSourceId($value)
  * @method static Builder|Transaction whereTaxBandId($value)
  * @method static Builder|Transaction whereUpdatedAt($value)
  * @mixin \Eloquent

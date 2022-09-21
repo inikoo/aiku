@@ -8,24 +8,26 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Actions\StoreModelAction;
+use App\Models\Central\Tenant;
+use App\Models\CRM\Customer;
 use App\Models\Inventory\Stock;
-use App\Models\Organisations\Organisation;
-use App\Models\Utils\ActionResult;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class StoreStock extends StoreModelAction
+class StoreStock
 {
     use AsAction;
 
-    public function handle(Organisation $owner, $modelData): ActionResult
+    public function handle(Tenant|Customer $owner,$modelData): Stock
     {
-        $modelData['organisation_id']=$owner->id;
+
+        $modelData['owner_id']=$owner->id;
+        $modelData['owner_type']=$owner::class;
+
         /** @var Stock $stock */
-        $stock = $owner->stocks()->create($modelData);
+        $stock = Stock::create($modelData);
         $stock->stats()->create();
 
-        return $this->finalise($stock);
+        return $stock;
     }
 }

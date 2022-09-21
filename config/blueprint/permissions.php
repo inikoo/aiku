@@ -8,8 +8,8 @@
 
 return [
 
-    'organisation',
-    'organisation.view',
+    'tenant',
+    'tenant.view',
 
     'sysadmin',
     'sysadmin.view',

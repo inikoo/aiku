@@ -7,24 +7,18 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
-use App\Actions\StoreModelAction;
 use App\Models\Inventory\Warehouse;
-use App\Models\Organisations\Organisation;
-use App\Models\Utils\ActionResult;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreWarehouse extends StoreModelAction
+class StoreWarehouse
 {
     use AsAction;
 
-    public function handle(Organisation $organisation, $modelData): ActionResult
+    public function handle( $modelData): Warehouse
     {
-        /** @var Warehouse $warehouse */
-        $warehouse = $organisation->warehouses()->create($modelData);
-        $warehouse->stats()->create([
-                                        'organisation_id' => $warehouse->organisation_id
-                                    ]);
+        $warehouse = Warehouse::create($modelData);
+        $warehouse->stats()->create();
 
-        return $this->finalise($warehouse);
+        return $warehouse;
     }
 }

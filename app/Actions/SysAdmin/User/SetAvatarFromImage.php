@@ -7,9 +7,8 @@
 
 namespace App\Actions\SysAdmin\User;
 
-use App\Actions\WithUpdate;
+use App\Actions\WithActionUpdate;
 use App\Models\SysAdmin\User;
-use App\Models\Utils\ActionResult;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
@@ -19,16 +18,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SetAvatarFromImage
 {
     use AsAction;
-    use WithUpdate;
+    use WithActionUpdate;
 
     /**
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
      */
-    public function handle(User $user, string $image_path, string $filename): ActionResult
+    public function handle(User $user, string $image_path, string $filename): User
     {
-        $res = new ActionResult();
-
         $checksum = md5_file($image_path);
 
         if ($user->getMedia('profile', ['checksum' => $checksum])->count() == 0) {
@@ -42,18 +39,14 @@ class SetAvatarFromImage
 
             $user->update(
                 [
-                    'data->profile_url' => $user->refresh()->getFirstMediaUrl('profile'),
+                    'data->profile_url'    => $user->refresh()->getFirstMediaUrl('profile'),
                     'data->profile_source' => 'Media'
                 ]
             );
-            $res->changes = array_merge($res->changes, $user->getChanges());
         }
 
-        $res->model    = $user;
-        $res->model_id = $user->id;
-        $res->status   = $res->changes ? 'updated' : 'unchanged';
 
-        return $res;
+        return $user;
     }
 
 

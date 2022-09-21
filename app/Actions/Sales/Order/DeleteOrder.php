@@ -8,7 +8,6 @@
 
 namespace App\Actions\Sales\Order;
 
-use App\Models\Utils\ActionResult;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -16,21 +15,8 @@ class DeleteOrder
 {
     use AsAction;
 
-    public function handle(Order $order): ActionResult
+    public function handle(Order $order): void
     {
-        $res = new ActionResult();
-        $res->model_id = $order->id;
-
         $order->transactions()->delete();
-
-
-        if ($order->delete()) {
-            $res->status  ='deleted';
-        }else{
-            $res->status  ='error';
-
-        }
-        return $res;
-
     }
 }

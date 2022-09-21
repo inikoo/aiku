@@ -7,10 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\WithUpdate;
+use App\Actions\WithActionUpdate;
 use App\Models\HumanResources\Employee;
-use App\Models\Utils\ActionResult;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 
 /**
@@ -18,17 +16,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
  */
 class SetEmployeePhoto
 {
-    use AsAction;
-    use WithUpdate;
+    use WithActionUpdate;
 
     /**
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
      */
-    public function handle(Employee $employee, string $image_path, string $filename): ActionResult
+    public function handle(Employee $employee, string $image_path, string $filename): Employee
     {
-        $res = new ActionResult();
-
         $checksum = md5_file($image_path);
 
         if ($employee->getMedia('photo', ['checksum' => $checksum])->count() == 0) {
@@ -38,15 +33,10 @@ class SetEmployeePhoto
                 ->usingName($filename)
                 ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
                 ->toMediaCollection('photo');
-
-            $res->changes = array_merge($res->changes, $employee->getChanges());
         }
 
-        $res->model    = $employee;
-        $res->model_id = $employee->id;
-        $res->status   = $res->changes ? 'updated' : 'unchanged';
 
-        return $res;
+        return $employee;
     }
 
 

@@ -9,7 +9,6 @@
 namespace App\Actions\CRM\Customer;
 
 use App\Actions\Helpers\Address\StoreAddress;
-use App\Models\Utils\ActionResult;
 use App\Models\CRM\Customer;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -18,18 +17,12 @@ class StoreCustomer
 {
     use AsAction;
 
-    public function handle(
-        Shop $shop,
-        array $customerData,
-        array $customerAddressesData = []
-    ): ActionResult {
-        $res = new ActionResult();
-
-        $customerData['organisation_id']=$shop->organisation_id;
+    public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
+    {
 
         /** @var Customer $customer */
         $customer = $shop->customers()->create($customerData);
-        $customer->stats()->create(['organisation_id'=>$customer->organisation_id]);
+        $customer->stats()->create();
         $addresses = [];
 
         $billing_address_id  = null;
@@ -62,13 +55,7 @@ class StoreCustomer
 
         }
 
-
         $customer->save();
-
-        $res->model    = $customer;
-        $res->model_id = $customer->id;
-        $res->status   = $res->model_id ? 'inserted' : 'error';
-
-        return $res;
+        return $customer;
     }
 }

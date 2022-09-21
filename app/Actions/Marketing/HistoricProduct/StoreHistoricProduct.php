@@ -8,21 +8,19 @@
 
 namespace App\Actions\Marketing\HistoricProduct;
 
-use App\Actions\StoreModelAction;
-use App\Models\Utils\ActionResult;
+use App\Models\Marketing\HistoricProduct;
 use App\Models\Marketing\Product;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreHistoricProduct extends StoreModelAction
+class StoreHistoricProduct
 {
     use AsAction;
 
-    public function handle(Product $product, array $modelData): ActionResult
+    public function handle(Product $product, array $modelData): HistoricProduct
     {
+        /** @var HistoricProduct $historicProduct */
+         $historicProduct= $product->historicRecords()->create($modelData);
+         return $historicProduct;
 
-        $modelData['organisation_id']=$product->organisation_id;
-        $historicProduct = $product->historicRecords()->create($modelData);
-
-       return $this->finalise($historicProduct);
     }
 }

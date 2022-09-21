@@ -11,7 +11,6 @@ use App\Actions\SysAdmin\ShowSysAdminDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\GuestInertiaResource;
 use App\Http\Resources\SysAdmin\GuestResource;
-use App\Models\Organisations\Organisation;
 use App\Models\SysAdmin\Guest;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
@@ -30,7 +29,7 @@ class IndexGuest
     use WithInertia;
 
 
-    public function handle(Organisation $organisation): LengthAwarePaginator
+    public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -41,7 +40,6 @@ class IndexGuest
 
 
         return QueryBuilder::for(Guest::class)
-            ->where('organisation_id', $organisation->id)
             ->defaultSort('code')
             ->select(['id', 'code', 'name',])
             ->allowedSorts(['code', 'name'])
@@ -94,7 +92,7 @@ class IndexGuest
     {
         $this->fillFromRequest($request);
 
-        return $this->handle($request->user()->currentUiOrganisation);
+        return $this->handle();
     }
 
     public function getBreadcrumbs(): array

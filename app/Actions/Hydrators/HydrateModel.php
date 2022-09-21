@@ -8,7 +8,8 @@
 
 namespace App\Actions\Hydrators;
 
-use App\Models\Organisations\Organisation;
+use App\Actions\WithTenantsArgument;
+use App\Models\Central\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -18,57 +19,52 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class HydrateModel
 {
     use AsAction;
+    use WithTenantsArgument;
 
-    protected Organisation $organisation;
-
-    protected function getModel(int $id):?Model{
-       return null;
-    }
-
-    protected function getAllModels():Collection{
-       return new Collection();
-    }
+    protected Tenant $tenant;
 
 
-    public function asCommand(Command $command): void
+    protected function getModel(int $id): ?Model
     {
+        return null;
+    }
 
-        if($command->argument('organisation_code')){
-            $organisation = Organisation::where('code', $command->argument('organisation_code'))->first();
-            if (!$organisation) {
-                $command->error('Organisation not found');
-                return;
-            }
-            $this->organisation=$organisation;
-        }else{
-            foreach(Organisation::all() as $organisation){
+    protected function getAllModels(): Collection
+    {
+        return new Collection();
+    }
 
-                $this->organisation=$organisation;
-                $command->line("Organisation: ".$this->organisation->code);
-                $this->loopAll($command);
+
+    public function asCommand(Command $command): int
+    {
+        $tenants  = $this->getTenants($command);
+        $exitCode = 0;
+
+        foreach ($tenants as $tenant) {
+            $result = (int)$tenant->run(function () use ($command) {
+                if ($command->argument('id')) {
+                    if ($model = $this->getModel($command->argument('id'))) {
+                        $this->handle($model);
+                        $command->info('Done!');
+                    }
+                } else {
+                    $this->loopAll($command);
+                }
+            });
+
+            if ($result !== 0) {
+                $exitCode = $result;
             }
-            return;
         }
 
-
-        if($command->argument('id')){
-            $model=$this->getModel($command->argument('id'));
-            if($model){
-                $this->handle($model);
-                $command->info('Done!');
-            }
-        }else{
-            $this->loopAll($command);
-        }
-
-
+        return $exitCode;
     }
 
 
     protected function loopAll(Command $command): void
     {
         $command->withProgressBar($this->getAllModels(), function ($model) {
-            if($model){
+            if ($model) {
                 $this->handle($model);
             }
         });

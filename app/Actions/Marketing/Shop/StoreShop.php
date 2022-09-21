@@ -8,21 +8,18 @@
 namespace App\Actions\Marketing\Shop;
 
 use App\Actions\Helpers\Address\StoreAddress;
-use App\Actions\StoreModelAction;
 use App\Models\Marketing\Shop;
-use App\Models\Organisations\Organisation;
-use App\Models\Utils\ActionResult;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class StoreShop extends StoreModelAction
+class StoreShop
 {
     use AsAction;
 
-    public function handle(Organisation $organisation,array $modelData, array $addressData = []): ActionResult
+    public function handle(array $modelData, array $addressData = []): Shop
     {
         /** @var Shop $shop */
-        $shop = $organisation->shops()->create($modelData);
+        $shop = Shop::create($modelData);
         $shop->stats()->create();
 
 
@@ -39,7 +36,7 @@ class StoreShop extends StoreModelAction
             $shop->save();
         }
 
-        return $this->finalise($shop);
+        return $shop;
     }
 
 

@@ -35,9 +35,8 @@ class PermissionSeeder extends Seeder
 
         $roles->each(function ($permission_names, $role_name)  {
             if (!$role = (new Role())->where('name', $role_name)
-                ->where('organisation_id')
                 ->first()) {
-                $role = Role::create(['name' => $role_name,  'organisation_id' => null]);
+                $role = Role::create(['name' => $role_name]);
             }
             $permissions = [];
             foreach ($permission_names as $permission_name) {

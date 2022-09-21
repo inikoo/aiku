@@ -18,45 +18,39 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * App\Models\Inventory\LocationStock
  *
  * @property int $id
- * @property int $organisation_id
  * @property int $stock_id
  * @property int $location_id
  * @property string $quantity
- * @property int $picking_priority
+ * @property string $type
+ * @property int|null $picking_priority
  * @property string|null $notes
  * @property array $data
  * @property array $settings
  * @property string|null $audited_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $aurora_part_id
- * @property int|null $aurora_location_id
+ * @property int|null $source_stock_id
+ * @property int|null $source_location_id
  * @property-read \App\Models\Inventory\Location $location
  * @property-read \App\Models\Inventory\Stock $stock
  * @method static Builder|LocationStock newModelQuery()
  * @method static Builder|LocationStock newQuery()
  * @method static Builder|LocationStock query()
  * @method static Builder|LocationStock whereAuditedAt($value)
- * @method static Builder|LocationStock whereAuroraLocationId($value)
- * @method static Builder|LocationStock whereAuroraPartId($value)
  * @method static Builder|LocationStock whereCreatedAt($value)
  * @method static Builder|LocationStock whereData($value)
  * @method static Builder|LocationStock whereId($value)
  * @method static Builder|LocationStock whereLocationId($value)
  * @method static Builder|LocationStock whereNotes($value)
- * @method static Builder|LocationStock whereOrganisationId($value)
  * @method static Builder|LocationStock wherePickingPriority($value)
  * @method static Builder|LocationStock whereQuantity($value)
  * @method static Builder|LocationStock whereSettings($value)
+ * @method static Builder|LocationStock whereSourceLocationId($value)
+ * @method static Builder|LocationStock whereSourceStockId($value)
  * @method static Builder|LocationStock whereStockId($value)
+ * @method static Builder|LocationStock whereType($value)
  * @method static Builder|LocationStock whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property int|null $organisation_source_stock_id
- * @property int|null $organisation_source_location_id
- * @method static Builder|LocationStock whereOrganisationSourceLocationId($value)
- * @method static Builder|LocationStock whereOrganisationSourceStockId($value)
- * @property string $type
- * @method static Builder|LocationStock whereType($value)
  */
 class LocationStock extends Pivot
 {

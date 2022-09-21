@@ -28,8 +28,8 @@ return new class extends Migration
             $table->string('status')->nullable()->index();
             $table->timestampsTz();
             $table->unique(['country_id', 'language_id']);
-            $table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade');
-            $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
+            $table->foreign('country_id')->references('id')->on('central.countries')->onDelete('cascade');
+            $table->foreign('language_id')->references('id')->on('central.languages')->onDelete('cascade');
         });
 
         Schema::create('country_timezone', function (Blueprint $table) {
@@ -40,12 +40,12 @@ return new class extends Migration
             $table->string('type')->nullable()->index();
             $table->timestampsTz();
             $table->unique(['country_id', 'timezone_id']);
-            $table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade');
-            $table->foreign('timezone_id')->references('id')->on('timezones')->onDelete('cascade');
+            $table->foreign('country_id')->references('id')->on('central.countries')->onDelete('cascade');
+            $table->foreign('timezone_id')->references('id')->on('central.timezones')->onDelete('cascade');
         });
 
         Schema::table('countries', function (Blueprint $table) {
-            $table->foreign('timezone_id')->references('id')->on('timezones');
+            $table->foreign('timezone_id')->references('id')->on('central.timezones');
         });
     }
 

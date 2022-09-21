@@ -20,8 +20,8 @@ class DatabaseSeeder extends Seeder
                         CurrencySeeder::class,
                         TimezoneSeeder::class,
                         LanguageSeeder::class,
-                        PermissionSeeder::class,
-                        JobPositionSeeder::class,
+                        //PermissionSeeder::class,
+                        //JobPositionSeeder::class,
                     ]);
     }
 }

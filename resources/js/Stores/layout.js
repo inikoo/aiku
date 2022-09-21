@@ -11,7 +11,7 @@ export const useLayoutStore = defineStore('layout', {
         {
             navigation   : [],
             currentModels: [],
-            organisation : {},
+            tenant : {},
         }
     ),
 

@@ -1,4 +1,9 @@
 <?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Tue, 20 Sept 2022 14:53:20 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,16 +16,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('username')->unique()->nullable();
-            $table->string('name')->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('username')->unique();
+            $table->string('email');
+            $table->nullableMorphs('userable');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('facebook_id')->nullable()->index();
-            $table->string('twitter_id')->nullable()->index();
-            $table->string('google_id')->nullable()->index();
             $table->rememberToken();
-            $table->unsignedSmallInteger('number_organisations')->default(0);
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->timestampsTz();

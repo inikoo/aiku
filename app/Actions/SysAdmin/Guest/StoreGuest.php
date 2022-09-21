@@ -7,23 +7,16 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
-
-use App\Actions\StoreModelAction;
-use App\Models\Organisations\Organisation;
-use App\Models\Utils\ActionResult;
+use App\Models\SysAdmin\Guest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
-class StoreGuest extends StoreModelAction
+class StoreGuest
 {
     use AsAction;
 
-    public function handle(Organisation $organisation, array $modelData): ActionResult
+    public function handle(array $modelData): Guest
     {
-        $employee = $organisation->guests()->create($modelData);
-
-        return $this->finalise($employee);
+        return Guest::create($modelData);
     }
-
 
 }

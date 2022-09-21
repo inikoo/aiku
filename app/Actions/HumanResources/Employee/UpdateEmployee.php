@@ -8,46 +8,22 @@
 namespace App\Actions\HumanResources\Employee;
 
 
-use App\Models\Utils\ActionResult;
-use App\Actions\WithUpdate;
+use App\Actions\WithActionUpdate;
 use App\Models\HumanResources\Employee;
-use Illuminate\Support\Arr;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 
 class UpdateEmployee
 {
-    use AsAction;
-    use WithUpdate;
+    use WithActionUpdate;
 
-    public function handle(Employee $employee, array $modelData): ActionResult
+    public function handle(Employee $employee, array $modelData): Employee
     {
-        $res = new ActionResult();
-
-
-        $employee->update(
-            Arr::except($modelData, [
-                'data',
-                'salary',
-                'working_hours',
-
-            ])
-        );
-        $employee->update($this->extractJson($modelData, ['data', 'salary', 'working_hours']));
-
-        $res->changes = $employee->getChanges();
-
-
-
-        $res->model = $employee;
-
-        $res->model_id = $employee->id;
-        $res->status   = $res->changes ? 'updated' : 'unchanged';
-
-
-        return $res;
+        return $this->update($employee, $modelData, [
+            'data',
+            'salary',
+            'working_hours'
+        ]);
     }
-
 
 
 }

@@ -6,11 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+
     public function up()
     {
         Schema::create('admin_users', function (Blueprint $table) {
@@ -24,9 +20,9 @@ return new class extends Migration
 
             $table->boolean('status')->default(true)->index();
             $table->unsignedSmallInteger('language_id');
-            $table->foreign('language_id')->references('id')->on('languages');
+            $table->foreign('language_id')->references('id')->on('central.languages');
             $table->unsignedSmallInteger('timezone_id');
-            $table->foreign('timezone_id')->references('id')->on('timezones');
+            $table->foreign('timezone_id')->references('id')->on('central.timezones');
 
             $table->jsonb('data');
             $table->jsonb('settings');
@@ -38,11 +34,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
+
     public function down()
     {
         Schema::dropIfExists('admin_users');

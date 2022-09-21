@@ -9,7 +9,6 @@ namespace App\Actions\Hydrators;
 
 
 use App\Models\SysAdmin\User;
-use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -18,32 +17,29 @@ class HydrateUser extends HydrateModel
 {
 
 
-    public string $commandSignature = 'hydrate:user {id?}';
+    public string $commandSignature = 'hydrate:users {tenant_code?} {id?}';
 
 
     public function handle(User $user): void
     {
-        $this->organisationStats($user);
+        $this->tenantStats($user);
     }
 
-    public function organisationStats(User $user)
+    public function tenantStats(User $user)
     {
-        $numberOrganisations = DB::table('organisation_user')->where('user_id', $user->id)->where('status', true)
+        $numberOtherTenants       = DB::table('central.tenant_users')->where('global_user_id', $user->global_id)->whereNot('tenant_id', tenant('id'))->count();
+        $numberOtherActiveTenants = DB::table('central.tenant_users')->where('global_user_id', $user->global_id)
+            ->whereNot('tenant_id', tenant('id'))
+            ->where('status', true)
             ->count();
 
 
-        $current_ui_organisation_id = $user->current_ui_organisation_id;
-        if ($numberOrganisations == 0) {
-            $current_ui_organisation_id = null;
-        } elseif (
-            !$user->current_ui_organisation_id  or
-            !$user->organisations->pluck('pivot.organisation_id')->contains($user->current_ui_organisation_id)) {
-            $current_ui_organisation_id = $user->organisations->first()->pivot->organisation_id;
-        }
         $user->update(
             [
-                'number_organisations'       => $numberOrganisations,
-                'current_ui_organisation_id' => $current_ui_organisation_id
+                'data' => [
+                    'number_other_tenants'        => $numberOtherTenants,
+                    'number_other_active_tenants' => $numberOtherActiveTenants
+                ]
             ]
         );
     }
@@ -55,18 +51,9 @@ class HydrateUser extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return User::get();
+        return User::all();
     }
 
-    public function asCommand(Command $command): void
-    {
-        if ($command->argument('id')) {
-            $this->handle($this->getModel($command->argument('id')));
-            $command->info('Done!');
-        } else {
-            $this->loopAll($command);
-        }
-    }
 
 }
 

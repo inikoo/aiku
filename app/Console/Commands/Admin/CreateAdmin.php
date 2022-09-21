@@ -21,7 +21,7 @@ class CreateAdmin extends Command
 
     protected $signature = 'admin:new {--randomPassword} {name} {email} {slug?} {username?}';
 
-    protected $description = 'Create new admin';
+    protected $description = 'Create new admin user';
 
     public function handle(): int
     {
@@ -36,13 +36,12 @@ class CreateAdmin extends Command
             }
         }
 
-        /** @var \App\Models\SysAdmin\Admin $admin */
-        $admin = new \App\Models\SysAdmin\Admin([
-                                      'name' => $this->argument('name'),
-                                      'email' => $this->argument('email'),
+        $admin = new Admin([
+                               'name' => $this->argument('name'),
+                               'email' => $this->argument('email'),
 
 
-                                  ]);
+                           ]);
         if ($this->argument('slug')) {
             $admin->slug = $this->argument('slug');
         }
@@ -54,13 +53,13 @@ class CreateAdmin extends Command
         $admin->save();
 
 
-        $res = StoreAdminUser::run($admin,
-                                    [
-                                          'username' => $username,
-                                          'password' => Hash::make($password)
-                                      ]
+        $res = StoreAdminUser::run(
+            $admin,
+            [
+                'username' => $username,
+                'password' => Hash::make($password)
+            ]
         );
-
 
 
         $this->line("Account admin created $admin->slug");

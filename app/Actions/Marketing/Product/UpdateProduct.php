@@ -7,20 +7,15 @@
 
 namespace App\Actions\Marketing\Product;
 
-use App\Actions\UpdateModelAction;
-use App\Models\Utils\ActionResult;
+use App\Actions\WithActionUpdate;
 use App\Models\Marketing\Product;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateProduct extends UpdateModelAction
+class UpdateProduct
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(Product $product, array $modelData): ActionResult
+    public function handle(Product $product, array $modelData): Product
     {
-        $this->model=$product;
-        $this->modelData=$modelData;
-        return $this->updateAndFinalise(jsonFields:['data','settings']);
-
+        return $this->update($product, $modelData, ['data', 'settings']);
     }
 }

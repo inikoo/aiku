@@ -7,28 +7,25 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Actions\StoreModelAction;
 use App\Models\Inventory\Location;
-use App\Models\Utils\ActionResult;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreLocation extends StoreModelAction
+class StoreLocation
 {
     use AsAction;
 
-    public function handle(WarehouseArea|Warehouse $parent, array $modelData): ActionResult
+    public function handle(WarehouseArea|Warehouse $parent, array $modelData):Location
     {
 
         if (class_basename($parent::class) == 'WarehouseArea') {
             $modelData['warehouse_id'] = $parent->warehouse_id;
         }
-        $modelData['organisation_id']=$parent->organisation_id;
         /** @var Location $location */
         $location = $parent->locations()->create($modelData);
         $location->stats()->create();
 
-        return $this->finalise($location);
+        return $location;
     }
 }

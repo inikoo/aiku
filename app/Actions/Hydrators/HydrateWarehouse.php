@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 class HydrateWarehouse extends HydrateModel
 {
 
-    public string $commandSignature = 'hydrate:warehouse {organisation_code?} {id?}';
+    public string $commandSignature = 'hydrate:warehouse {tenant_code?} {id?}';
 
 
     public function handle(Warehouse $warehouse): void
@@ -52,12 +52,12 @@ class HydrateWarehouse extends HydrateModel
 
     protected function getModel(int $id): Warehouse
     {
-        return Warehouse::where('organisation_id',$this->organisation->id)->find($id);
+        return Warehouse::find($id);
     }
 
     protected function getAllModels(): Collection
     {
-        return Warehouse::where('organisation_id',$this->organisation->id)->get();
+        return Warehouse::all();
     }
 
 }

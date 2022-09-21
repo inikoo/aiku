@@ -7,19 +7,15 @@
 
 namespace App\Actions\Marketing\HistoricProduct;
 
-use App\Actions\UpdateModelAction;
-use App\Models\Utils\ActionResult;
+use App\Actions\WithActionUpdate;
 use App\Models\Marketing\HistoricProduct;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateHistoricProduct extends UpdateModelAction
+class UpdateHistoricProduct
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(HistoricProduct $historicProduct, array $modelData): ActionResult
+    public function handle(HistoricProduct $historicProduct, array $modelData): HistoricProduct
     {
-        $this->model=$historicProduct;
-        $this->modelData=$modelData;
-        return $this->updateAndFinalise();
+        return $this->update($historicProduct, $modelData);
     }
 }

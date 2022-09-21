@@ -1,29 +1,30 @@
 <?php
-
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Wed, 21 Sept 2022 14:21:31 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
 
 namespace App\Actions\SysAdmin\Profile;
 
-use App\Actions\UpdateModelAction;
-use App\Http\Resources\Utils\ActionResultResource;
+use App\Actions\WithActionUpdate;
+use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\User;
-use App\Models\Utils\ActionResult;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * @property \App\Models\SysAdmin\User $user
+ * @property User $user
  */
-class UpdateProfile extends UpdateModelAction
+class UpdateProfile
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(User $user, array $modelData): ActionResult
+    public function handle(User $user, array $modelData): User
     {
-        $this->model     = $user;
-        $this->modelData = $modelData;
-        return $this->updateAndFinalise(jsonFields: ['data', 'settings']);
+        return $this->update($user, $modelData, ['data', 'settings']);
     }
 
 
@@ -37,9 +38,8 @@ class UpdateProfile extends UpdateModelAction
     }
 
 
-    public function asController(ActionRequest $request): ActionResult
+    public function asController(ActionRequest $request): User
     {
-
         $validated = $request
             ->validatedShiftToArray([
                                         'language' => 'settings'
@@ -47,18 +47,16 @@ class UpdateProfile extends UpdateModelAction
 
 
         return $this->handle($request->user(), $validated);
-
     }
 
-    public function HtmlResponse(): \Illuminate\Http\RedirectResponse
+    public function HtmlResponse(): RedirectResponse
     {
         return Redirect::route('welcome');
     }
 
-    public function JsonResponse(ActionResult $actionResult): ActionResultResource
+    public function JsonResponse(User $user): UserResource
     {
-
-        return new ActionResultResource($actionResult);
+        return new UserResource($user);
     }
 
 }

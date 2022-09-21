@@ -9,7 +9,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-
+/*
 Route::get('/', function () {
     return Inertia::render('Welcome', [
 
@@ -42,7 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::prefix('setup')->middleware(['auth', 'verified', 'verify.new'])->name('setup.')
     ->group(__DIR__.'/setup.php');
 
-
+*/
 require __DIR__.'/auth.php';
 
 

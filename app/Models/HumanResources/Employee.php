@@ -7,14 +7,12 @@
 
 namespace App\Models\HumanResources;
 
+use App\Actions\Central\Tenant\HydrateTenant;
 use App\Actions\Hydrators\HydrateEmployee;
-use App\Actions\Hydrators\HydrateOrganisation;
 use App\Models\SysAdmin\User;
-use App\Models\Organisations\Organisation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\MediaLibrary\HasMedia;
@@ -24,7 +22,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * App\Models\HumanResources\Employee
  *
  * @property int $id
- * @property int $organisation_id
  * @property string $code
  * @property string|null $name
  * @property string|null $email
@@ -42,18 +39,18 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string|null $emergency_contact
  * @property array|null $salary
  * @property array|null $working_hours
+ * @property string $week_working_hours
  * @property array $data
  * @property array $job_position_scopes
  * @property array $errors
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\HumanResources\JobPosition[] $jobPositions
  * @property-read int|null $job_positions_count
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection|\Spatie\MediaLibrary\MediaCollections\Models\Media[] $media
  * @property-read int|null $media_count
- * @property-read Organisation $organisation
  * @property-read User|null $user
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
@@ -75,18 +72,16 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @method static Builder|Employee whereJobPositionScopes($value)
  * @method static Builder|Employee whereJobTitle($value)
  * @method static Builder|Employee whereName($value)
- * @method static Builder|Employee whereOrganisationId($value)
- * @method static Builder|Employee whereOrganisationSourceId($value)
  * @method static Builder|Employee wherePhone($value)
  * @method static Builder|Employee whereSalary($value)
+ * @method static Builder|Employee whereSourceId($value)
  * @method static Builder|Employee whereState($value)
  * @method static Builder|Employee whereType($value)
  * @method static Builder|Employee whereUpdatedAt($value)
+ * @method static Builder|Employee whereWeekWorkingHours($value)
  * @method static Builder|Employee whereWorkerNumber($value)
  * @method static Builder|Employee whereWorkingHours($value)
  * @mixin \Eloquent
- * @property string $week_working_hours
- * @method static Builder|Employee whereWeekWorkingHours($value)
  */
 class Employee extends Model implements HasMedia
 {
@@ -119,20 +114,20 @@ class Employee extends Model implements HasMedia
         static::created(
             function (Employee $employee) {
                 HydrateEmployee::make()->weekWorkingHours($employee);
-                HydrateOrganisation::make()->employeesStats($employee->organisation);
+                HydrateTenant::make()->employeesStats();
             }
         );
         static::deleted(
             function (Employee $employee) {
                 HydrateEmployee::make()->weekWorkingHours($employee);
-                HydrateOrganisation::make()->employeesStats($employee->organisation);
+                HydrateTenant::make()->employeesStats();
             }
         );
 
         static::updated(function (Employee $employee) {
             if (!$employee->wasRecentlyCreated) {
                 if ($employee->wasChanged('state')) {
-                    HydrateOrganisation::make()->employeesStats($employee->organisation);
+                    HydrateTenant::make()->employeesStats();
                 }
                 if ($employee->wasChanged('working_hours')) {
                     HydrateEmployee::make()->weekWorkingHours($employee);
@@ -161,14 +156,10 @@ class Employee extends Model implements HasMedia
             ->withPivot('share');
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
 
     public function user(): MorphOne
     {
-        return $this->morphOne(User::class, 'userable', 'organisation_user');
+        return $this->morphOne(User::class, 'parent');
     }
 
 

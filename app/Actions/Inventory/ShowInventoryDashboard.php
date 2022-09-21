@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory;
 
 use App\Actions\UI\WithInertia;
-use App\Models\Organisations\Organisation;
+use App\Models\Central\Tenant;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 
 /**
- * @property Organisation|null $organisation
+ * @property Tenant $tenant
  * @property User $user
  */
 class ShowInventoryDashboard
@@ -33,8 +33,8 @@ class ShowInventoryDashboard
 
     public function asController(ActionRequest $request): void
     {
-        $this->user         = $request->user();
-        $this->organisation = $this->user->currentUiOrganisation;
+        $this->user   = $request->user();
+        $this->tenant = tenant();
     }
 
 
@@ -43,9 +43,9 @@ class ShowInventoryDashboard
         $this->validateAttributes();
 
 
-        if ($this->organisation->inventoryStats->number_warehouses == 1) {
+        if ($this->tenant->inventoryStats->number_warehouses == 1) {
 
-            $warehouseID=$this->organisation->firstWarehouse->id;
+            $warehouseID=$this->tenant->firstWarehouse->id;
 
             $warehousesNode    = [
                 'name' => __('warehouse'),
@@ -58,7 +58,7 @@ class ShowInventoryDashboard
                 'icon'  => ['fal', 'fa-map-signs'],
                 'href'  => ['inventory.warehouses.show.warehouse_areas.index',$warehouseID],
                 'index' => [
-                    'number' => $this->organisation->inventoryStats->number_warehouse_areas
+                    'number' => $this->tenant->inventoryStats->number_warehouse_areas
                 ]
             ];
             $locationsNode    = [
@@ -66,7 +66,7 @@ class ShowInventoryDashboard
                 'icon'  => ['fal', 'fa-inventory'],
                 'href'  => ['inventory.warehouses.show.locations.index',$warehouseID],
                 'index' => [
-                    'number' => $this->organisation->inventoryStats->number_locations
+                    'number' => $this->tenant->inventoryStats->number_locations
                 ]
 
             ];
@@ -76,7 +76,7 @@ class ShowInventoryDashboard
                 'icon'  => ['fal', 'fa-warehouse'],
                 'href'  => ['inventory.warehouses.index'],
                 'index' => [
-                    'number' => $this->organisation->inventoryStats->number_warehouses
+                    'number' => $this->tenant->inventoryStats->number_warehouses
                 ]
             ];
             $warehouseAreasNode = [
@@ -84,7 +84,7 @@ class ShowInventoryDashboard
                 'icon'  => ['fal', 'fa-map-signs'],
                 'href'  => ['inventory.warehouse_areas.index'],
                 'index' => [
-                    'number' => $this->organisation->inventoryStats->number_warehouse_areas
+                    'number' => $this->tenant->inventoryStats->number_warehouse_areas
                 ]
             ];
             $locationsNode    = [
@@ -92,7 +92,7 @@ class ShowInventoryDashboard
                 'icon'  => ['fal', 'fa-inventory'],
                 'href'  => ['inventory.locations.index'],
                 'index' => [
-                    'number' => $this->organisation->inventoryStats->number_locations
+                    'number' => $this->tenant->inventoryStats->number_locations
                 ]
 
             ];

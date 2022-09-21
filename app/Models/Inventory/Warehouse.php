@@ -7,8 +7,8 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Hydrators\HydrateOrganisation;
-use App\Models\Organisations\Organisation;
+use App\Actions\Central\Tenant\HydrateTenant;
+use App\Models\Central\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * App\Models\Inventory\Warehouse
  *
  * @property int $id
- * @property int $organisation_id
  * @property string $code
  * @property string $name
  * @property array $settings
@@ -27,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\Location[] $locations
  * @property-read int|null $locations_count
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
@@ -42,12 +41,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static Builder|Warehouse whereDeletedAt($value)
  * @method static Builder|Warehouse whereId($value)
  * @method static Builder|Warehouse whereName($value)
- * @method static Builder|Warehouse whereOrganisationId($value)
- * @method static Builder|Warehouse whereOrganisationSourceId($value)
  * @method static Builder|Warehouse whereSettings($value)
+ * @method static Builder|Warehouse whereSourceId($value)
  * @method static Builder|Warehouse whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property-read Organisation $organisation
  */
 class Warehouse extends Model
 {
@@ -66,18 +63,16 @@ class Warehouse extends Model
     protected static function booted()
     {
         static::created(
-            function (Warehouse $warehouse) {
-                HydrateOrganisation::make()->warehouseStats($warehouse->organisation);
+            function () {
+                HydrateTenant::make()->warehouseStats();
             }
         );
         static::deleted(
-            function (Warehouse $warehouse) {
-                HydrateOrganisation::make()->warehouseStats($warehouse->organisation);
+            function () {
+                HydrateTenant::make()->warehouseStats();
 
             }
         );
-
-
     }
 
     public function warehouseAreas(): HasMany
@@ -95,8 +90,5 @@ class Warehouse extends Model
         return $this->hasOne(WarehouseStats::class);
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
+
 }

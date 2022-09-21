@@ -38,6 +38,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int|null $country_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string $formatted_address
+ * @property-read Model|\Eloquent $owner
  * @method static Builder|Address newModelQuery()
  * @method static Builder|Address newQuery()
  * @method static Builder|Address query()
@@ -59,8 +61,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|Address whereSortingCode($value)
  * @method static Builder|Address whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property-read string $formatted_address
- * @property-read Model|\Eloquent $owner
  */
 class Address extends Model
 {

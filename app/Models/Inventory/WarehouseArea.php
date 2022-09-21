@@ -19,14 +19,13 @@ use Illuminate\Database\Query\Builder;
  * App\Models\Inventory\WarehouseArea
  *
  * @property int $id
- * @property int $organisation_id
  * @property int $warehouse_id
  * @property string $code
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\Location[] $locations
  * @property-read int|null $locations_count
  * @property-read \App\Models\Inventory\WarehouseAreaStats|null $stats
@@ -40,8 +39,7 @@ use Illuminate\Database\Query\Builder;
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereOrganisationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereOrganisationSourceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereSourceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereWarehouseId($value)
  * @method static Builder|WarehouseArea withTrashed()

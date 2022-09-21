@@ -20,4 +20,5 @@ yarn-error.log
 /deployment/install_pika.sh
 /resources/private/
 lang/php_*.json
+/storage/tenants
 

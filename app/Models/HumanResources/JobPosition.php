@@ -20,13 +20,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $department
  * @property string|null $team
  * @property array $roles
- * @property array|null $data
+ * @property array $data
  * @property int $number_employees
  * @property float $number_work_time
+ * @property string|null $share_work_time
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\HumanResources\Employee[] $employees
- * @property-read int|null $employees_count
  * @method static Builder|JobPosition newModelQuery()
  * @method static Builder|JobPosition newQuery()
  * @method static Builder|JobPosition query()
@@ -36,8 +35,9 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder|JobPosition whereId($value)
  * @method static Builder|JobPosition whereName($value)
  * @method static Builder|JobPosition whereNumberEmployees($value)
+ * @method static Builder|JobPosition whereNumberWorkTime($value)
  * @method static Builder|JobPosition whereRoles($value)
- * @method static Builder|JobPosition whereShareWorkforce($value)
+ * @method static Builder|JobPosition whereShareWorkTime($value)
  * @method static Builder|JobPosition whereSlug($value)
  * @method static Builder|JobPosition whereTeam($value)
  * @method static Builder|JobPosition whereUpdatedAt($value)
@@ -45,6 +45,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class JobPosition extends Model
 {
+
     protected $casts = [
         'data'  => 'array',
         'roles' => 'array',
@@ -55,7 +56,9 @@ class JobPosition extends Model
         'roles' => '{}',
     ];
 
+
     protected $guarded = [];
+
 
 
 }

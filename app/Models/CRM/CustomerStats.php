@@ -10,11 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\CRM\CustomerStats
  *
  * @property int $id
- * @property int $organisation_id
  * @property int $customer_id
- * @property string|null $last_submitted_order_at
- * @property string|null $last_dispatched_delivery_at
- * @property string|null $last_invoiced_at
+ * @property \Illuminate\Support\Carbon|null $last_submitted_order_at
+ * @property \Illuminate\Support\Carbon|null $last_dispatched_delivery_at
+ * @property \Illuminate\Support\Carbon|null $last_invoiced_at
  * @property int $number_deliveries
  * @property int $number_deliveries_type_order
  * @property int $number_deliveries_type_replacement
@@ -23,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices_type_refund
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\CRM\Customer $customer
  * @method static Builder|CustomerStats newModelQuery()
  * @method static Builder|CustomerStats newQuery()
  * @method static Builder|CustomerStats query()
@@ -38,10 +38,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|CustomerStats whereNumberInvoices($value)
  * @method static Builder|CustomerStats whereNumberInvoicesTypeInvoice($value)
  * @method static Builder|CustomerStats whereNumberInvoicesTypeRefund($value)
- * @method static Builder|CustomerStats whereOrganisationId($value)
  * @method static Builder|CustomerStats whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property-read \App\Models\CRM\Customer $customer
  */
 class CustomerStats extends Model
 {

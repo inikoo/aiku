@@ -8,20 +8,17 @@
 
 namespace App\Actions\Delivery\Shipper;
 
-use App\Actions\StoreModelAction;
-use App\Models\Utils\ActionResult;
 use App\Models\Delivery\Shipper;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
-class StoreShipper extends StoreModelAction
+class StoreShipper
 {
     use AsAction;
 
-    public function handle(array $modelData): ActionResult
+    public function handle(array $modelData): Shipper
     {
-        $shipper       = Shipper::create($modelData);
-        return $this->finalise($shipper);
+        return Shipper::create($modelData);
     }
 
 

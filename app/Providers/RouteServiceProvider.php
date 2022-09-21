@@ -1,4 +1,9 @@
 <?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Tue, 20 Sept 2022 12:26:11 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
 
 namespace App\Providers;
 
@@ -28,6 +33,11 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
+        $this->mapApiRoutes();
+        $this->mapWebRoutes();
+
+        /*
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
@@ -38,6 +48,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+        */
     }
 
     /**
@@ -51,4 +62,34 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
     }
+
+    protected function mapWebRoutes()
+    {
+
+
+        foreach ($this->centralDomains() as $domain) {
+            Route::middleware('central')
+                ->domain($domain)
+                ->namespace($this->namespace)
+                ->name('central')
+                ->group(base_path('routes/central/web.php'));
+        }
+    }
+
+    protected function mapApiRoutes()
+    {
+        foreach ($this->centralDomains() as $domain) {
+            Route::prefix('api')
+                ->domain($domain)
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/api.php'));
+        }
+    }
+
+    protected function centralDomains(): array
+    {
+        return config('tenancy.central_domains', []);
+    }
+
 }

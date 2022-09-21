@@ -7,21 +7,15 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Actions\UpdateModelAction;
-use App\Models\Utils\ActionResult;
-use App\Actions\WithUpdate;
+use App\Actions\WithActionUpdate;
 use App\Models\Inventory\Stock;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateStock extends UpdateModelAction
+class UpdateStock
 {
-    use AsAction;
-    use WithUpdate;
+    use WithActionUpdate;
 
-    public function handle(Stock $stock, array $modelData): ActionResult
+    public function handle(Stock $stock, array $modelData): Stock
     {
-        $this->model=$stock;
-        $this->modelData=$modelData;
-        return $this->updateAndFinalise(jsonFields:['data','settings']);
+        return $this->update($stock, $modelData, ['data', 'settings']);
     }
 }

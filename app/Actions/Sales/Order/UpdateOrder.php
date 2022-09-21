@@ -9,37 +9,30 @@
 namespace App\Actions\Sales\Order;
 
 use App\Actions\Helpers\Address\StoreImmutableAddress;
-use App\Models\Utils\ActionResult;
-use App\Actions\WithUpdate;
+use App\Actions\WithActionUpdate;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Order;
 use Illuminate\Support\Arr;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateOrder
 {
-    use AsAction;
-    use WithUpdate;
+    use WithActionUpdate;
 
     public function handle(
         Order $order,
         array $modelData,
         Address $billingAddress,
         Address $deliveryAddress
-    ): ActionResult
-    {
-        $res = new ActionResult();
+    ): Order {
+        $billingAddress  = StoreImmutableAddress::run($billingAddress);
+        $deliveryAddress = StoreImmutableAddress::run($deliveryAddress);
 
+        $modelData['delivery_address_id'] = $deliveryAddress->id;
+        $modelData['billing_address_id']  = $billingAddress->id;
 
-        $billingAddress=StoreImmutableAddress::run($billingAddress);
-        $deliveryAddress=StoreImmutableAddress::run($deliveryAddress);
-
-        $modelData['delivery_address_id']=$deliveryAddress->id;
-        $modelData['billing_address_id']=$billingAddress->id;
-
-        $order->update( Arr::except($modelData, ['data']));
+        $order->update(Arr::except($modelData, ['data']));
         $order->update($this->extractJson($modelData));
-        return $this->postUpdate($res,$order);
 
+        return $this->update($order, $modelData, ['data']);
     }
 }

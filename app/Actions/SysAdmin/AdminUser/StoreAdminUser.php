@@ -10,7 +10,7 @@ namespace App\Actions\SysAdmin\AdminUser;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\SysAdmin\Admin;
-use App\Models\Utils\ActionResult;
+use App\Models\SysAdmin\AdminUser;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreAdminUser
@@ -18,29 +18,20 @@ class StoreAdminUser
     use AsAction;
 
 
-    public function handle(Admin $admin, array $userData): ActionResult
+    public function handle(Admin $admin, array $userData): AdminUser
     {
-        $res  = new ActionResult();
-
-
-        if(empty($userData['language_id'])){
-            $language = Language::where('code', config('app.locale'))->firstOrFail();
-            $userData['language_id']=$language->id;
+        if (empty($userData['language_id'])) {
+            $language                = Language::where('code', config('app.locale'))->firstOrFail();
+            $userData['language_id'] = $language->id;
         }
 
-        if(empty($userData['timezone_id'])){
-            $timezone = Timezone::where('name', config('app.timezone'))->firstOrFail();
-            $userData['timezone_id']=$timezone->id;
+        if (empty($userData['timezone_id'])) {
+            $timezone                = Timezone::where('name', config('app.timezone'))->firstOrFail();
+            $userData['timezone_id'] = $timezone->id;
         }
 
-
-
-        /** @var \App\Models\SysAdmin\AdminUser $adminUser */
-        $adminUser= $admin->adminUser()->create($userData);
-        $res->model    = $adminUser;
-        $res->model_id = $adminUser->id;
-        $res->status   = $res->model_id ? 'inserted' : 'error';
-
-        return $res;
+        /** @var AdminUser $adminUser */
+        $adminUser = $admin->adminUser()->create($userData);
+        return $adminUser;
     }
 }

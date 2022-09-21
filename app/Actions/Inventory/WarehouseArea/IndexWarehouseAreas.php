@@ -11,9 +11,9 @@ use App\Actions\InertiaAction;
 use App\Actions\Inventory\ShowInventoryDashboard;
 use App\Actions\Inventory\Warehouse\ShowWarehouse;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
+use App\Models\Central\Tenant;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Organisations\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -22,14 +22,12 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-/**
- * @property Organisation $organisation
- */
+
 class IndexWarehouseAreas extends InertiaAction
 {
 
 
-    private Warehouse|Organisation|null $parent = null;
+    private Warehouse|Tenant $parent;
 
     public function handle(): LengthAwarePaginator
     {
@@ -46,15 +44,9 @@ class IndexWarehouseAreas extends InertiaAction
             ->select(['code', 'warehouse_areas.id', 'name', 'number_locations', 'warehouse_id'])
             ->leftJoin('warehouse_area_stats', 'warehouse_area_stats.warehouse_area_id', 'warehouse_areas.id')
             ->when($this->parent, function ($query) {
-                switch (class_basename($this->parent)) {
-                    case 'Warehouse':
-                        $query->where('warehouse_areas.warehouse_id', $this->parent->id);
-                        break;
-                    default:
-                        $query->where('warehouse_areas.organisation_id', $this->organisation->id);
+                if (class_basename($this->parent) == 'Warehouse') {
+                    $query->where('warehouse_areas.warehouse_id', $this->parent->id);
                 }
-            }, function ($query) {
-                $query->where('warehouse_areas.organisation_id', $this->organisation->id);
             })
             ->allowedSorts(['code', 'name', 'number_locations'])
             ->allowedFilters([$globalSearch])
@@ -64,9 +56,7 @@ class IndexWarehouseAreas extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent and $this->parent->organisation_id != $this->organisation->id) {
-            return false;
-        }
+
 
         return
             (
@@ -79,7 +69,7 @@ class IndexWarehouseAreas extends InertiaAction
     public function inOrganisation(): LengthAwarePaginator
     {
         $this->validateAttributes();
-        $this->parent = $this->organisation;
+        $this->parent = tenant();
 
         return $this->handle();
     }
@@ -124,7 +114,7 @@ class IndexWarehouseAreas extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, Warehouse|Organisation $parent): array
+    public function getBreadcrumbs(string $routeName, Warehouse|Tenant $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -148,7 +138,7 @@ class IndexWarehouseAreas extends InertiaAction
             'inventory.warehouses.show.warehouse_areas.index' =>
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($parent),
-                $headCrumb([$this->parent->id])
+                $headCrumb([$parent->id])
             ),
             default => []
         };

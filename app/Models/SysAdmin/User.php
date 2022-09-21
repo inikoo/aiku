@@ -7,53 +7,40 @@
 
 namespace App\Models\SysAdmin;
 
-// use Illuminate\Contracts\SysAdmin\MustVerifyEmail;
-use App\Models\HumanResources\Employee;
-use App\Models\Organisations\Organisation;
-use App\Models\Organisations\OrganisationUser;
+use App\Models\Central\CentralUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
+use Stancl\Tenancy\Contracts\Syncable;
+use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
 
 
 /**
  * App\Models\SysAdmin\User
  *
  * @property int $id
- * @property string|null $username
- * @property string|null $name
- * @property string|null $email
- * @property \Illuminate\Support\Carbon|null $email_verified_at
- * @property string $password
- * @property string|null $facebook_id
- * @property string|null $twitter_id
- * @property string|null $google_id
+ * @property string $username
+ * @property bool $status
+ * @property string|null $parent_type
+ * @property int|null $parent_id
  * @property string|null $remember_token
- * @property int $number_organisations
  * @property array $data
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $current_ui_organisation_id
- * @property-read \Illuminate\Database\Eloquent\Collection|Employee[] $employees
- * @property-read int|null $employees_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\SysAdmin\Guest[] $guests
- * @property-read int|null $guests_count
+ * @property string $password
+ * @property string $global_id
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection|\Spatie\MediaLibrary\MediaCollections\Models\Media[] $media
  * @property-read int|null $media_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @property-read int|null $notifications_count
- * @property-read Organisation $organisation
- * @property-read \Illuminate\Database\Eloquent\Collection|Organisation[] $organisations
- * @property-read int|null $organisations_count
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parent
  * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\Permission\Models\Permission[] $permissions
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\Permission\Models\Role[] $roles
@@ -67,29 +54,24 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static Builder|User role($roles, $guard = null)
  * @method static Builder|User whereCreatedAt($value)
  * @method static Builder|User whereData($value)
- * @method static Builder|User whereEmail($value)
- * @method static Builder|User whereEmailVerifiedAt($value)
- * @method static Builder|User whereFacebookId($value)
- * @method static Builder|User whereGoogleId($value)
+ * @method static Builder|User whereGlobalId($value)
  * @method static Builder|User whereId($value)
- * @method static Builder|User whereName($value)
- * @method static Builder|User whereNumberOrganisations($value)
+ * @method static Builder|User whereParentId($value)
+ * @method static Builder|User whereParentType($value)
  * @method static Builder|User wherePassword($value)
  * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereSettings($value)
- * @method static Builder|User whereTwitterId($value)
- * @method static Builder|User whereUiCurrentOrganisationId($value)
+ * @method static Builder|User whereStatus($value)
  * @method static Builder|User whereUpdatedAt($value)
  * @method static Builder|User whereUsername($value)
  * @mixin \Eloquent
- * @property-read Organisation|null $currentUiOrganisation
- * @method static Builder|User whereCurrentUiOrganisationId($value)
  */
-class User extends Authenticatable implements HasMedia
+class User extends Authenticatable implements HasMedia, Syncable
 {
     use HasApiTokens, HasFactory, Notifiable;
     use InteractsWithMedia;
     use HasRoles;
+    use ResourceSyncing;
 
 
     protected $guarded = [
@@ -100,17 +82,14 @@ class User extends Authenticatable implements HasMedia
         'remember_token',
     ];
 
+    public string $global_id = 'global_id';
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
+
         'data'              => 'array',
         'settings'          => 'array',
     ];
 
-    public function organisations(): BelongsToMany
-    {
-        return $this->belongsToMany(Organisation::class)->using(OrganisationUser::class)->withTimestamps();
-    }
 
     protected $attributes = [
         'data'     => '{}',
@@ -118,10 +97,57 @@ class User extends Authenticatable implements HasMedia
     ];
 
 
-    public function currentUiOrganisation(): BelongsTo
+    /*
+    public static function boot()
     {
-        return $this->belongsTo(Organisation::class,'current_ui_organisation_id');
+        parent::boot();
+
+        static::created(function ($item) {
+
+            HydrateTenant::make()->userStats($item->tenant);
+        });
+
+        static::deleted(function ($item) {
+            HydrateTenant::make()->userStats($item->tenant);
+        });
+
+        static::updated(function ($item) {
+            if(!$item->wasRecentlyCreated) {
+                if ($item->wasChanged('status')) {
+                    HydrateTenant::make()->userStats($item->tenant);
+                }
+            }
+
+        });
+
     }
+    */
+
+    public function getGlobalIdentifierKey()
+    {
+        return $this->getAttribute($this->getGlobalIdentifierKeyName());
+    }
+
+    public function getGlobalIdentifierKeyName(): string
+    {
+        return $this->global_id;
+    }
+
+    public function getCentralModelName(): string
+    {
+        return CentralUser::class;
+    }
+
+    public function getSyncedAttributeNames(): array
+    {
+        return [
+
+            'password',
+
+        ];
+    }
+
+
 
     public function registerMediaCollections(): void
     {
@@ -136,15 +162,12 @@ class User extends Authenticatable implements HasMedia
     }
 
 
-    public function employees(): MorphToMany
+    public function parent(): MorphTo
     {
-        return $this->morphedByMany(Employee::class, 'userable','organisation_user')->withTimestamps();
+        return $this->morphTo();
 
     }
 
-    public function guests(): MorphToMany
-    {
-        return $this->morphedByMany(Guest::class, 'userable','organisation_user')->withTimestamps();
-    }
+
 
 }

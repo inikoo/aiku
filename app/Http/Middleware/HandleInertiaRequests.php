@@ -52,9 +52,9 @@ class HandleInertiaRequests extends Middleware
 
         $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
 
-            'organisation' => $user ? $user->currentUiOrganisation->only('name', 'code') : [],
-            'language'     => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
-            'layout'       => function () use ($user) {
+            'tenant'   => tenant()->only('name', 'code'),
+            'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
+            'layout'   => function () use ($user) {
                 if ($user) {
                     return GetLayout::run($user);
                 } else {
@@ -70,7 +70,7 @@ class HandleInertiaRequests extends Middleware
             parent::share($request),
             $firstLoadOnlyProps,
             [
-                'auth' => [
+                'auth'  => [
                     'user' => $request->user(),
                 ],
                 'ziggy' => function () use ($request) {

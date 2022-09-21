@@ -10,7 +10,7 @@
 return
     [
         'super-admin'           => [
-            'organisation',
+            'tenant',
             'sysadmin',
             'hr',
             'assets',

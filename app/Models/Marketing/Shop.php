@@ -7,9 +7,9 @@
 
 namespace App\Models\Marketing;
 
+use App\Models\Central\Tenant;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
-use App\Models\Organisations\Organisation;
 use App\Models\Sales\Order;
 use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property int|null $address_id
- * @property mixed $location
+ * @property array $location
  * @property string $state
  * @property string $type
  * @property string|null $subtype
@@ -44,16 +44,28 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property int $language_id
  * @property int $currency_id
  * @property int $timezone_id
- * @property mixed $data
- * @property mixed $settings
+ * @property array $data
+ * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
+ * @property int|null $source_id
+ * @property-read Address|null $address
+ * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
+ * @property-read int|null $addresses_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Customer[] $customers
+ * @property-read int|null $customers_count
+ * @property-read string $formatted_address
+ * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
+ * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
+ * @property-read int|null $products_count
+ * @property-read \App\Models\Marketing\ShopStats|null $stats
+ * @property-read Tenant|null $tenant
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop query()
  * @method static Builder|Shop whereAddressId($value)
- * @method static Builder|Shop whereAuroraId($value)
  * @method static Builder|Shop whereClosedAt($value)
  * @method static Builder|Shop whereCode($value)
  * @method static Builder|Shop whereCompanyName($value)
@@ -72,6 +84,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static Builder|Shop whereOpenAt($value)
  * @method static Builder|Shop wherePhone($value)
  * @method static Builder|Shop whereSettings($value)
+ * @method static Builder|Shop whereSourceId($value)
  * @method static Builder|Shop whereState($value)
  * @method static Builder|Shop whereSubtype($value)
  * @method static Builder|Shop whereTaxNumber($value)
@@ -81,22 +94,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static Builder|Shop whereUpdatedAt($value)
  * @method static Builder|Shop whereWebsite($value)
  * @mixin \Eloquent
- * @property int|null $organisation_source_id
- * @method static Builder|Shop whereOrganisationSourceId($value)
- * @property int $organisation_id
- * @property-read \App\Models\Helpers\Address|null $address
- * @property-read string $formatted_address
- * @property-read Organisation|null $organisation
- * @property-read \App\Models\Marketing\ShopStats|null $stats
- * @method static Builder|Shop whereOrganisationId($value)
- * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
- * @property-read int|null $addresses_count
- * @property-read \Illuminate\Database\Eloquent\Collection|Customer[] $customers
- * @property-read int|null $customers_count
- * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
- * @property-read int|null $orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
- * @property-read int|null $products_count
  */
 class Shop extends Model
 {
@@ -125,9 +122,9 @@ class Shop extends Model
         return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
     }
 
-    public function organisation(): BelongsTo
+    public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Organisation::class);
+        return $this->belongsTo(Tenant::class);
     }
 
     public function customers(): HasMany

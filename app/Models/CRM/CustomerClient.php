@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * App\Models\CRM\CustomerClient
  *
  * @property int $id
- * @property int $organisation_id
  * @property bool $status
  * @property int|null $shop_id
  * @property int|null $customer_id
@@ -27,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property int|null $organisation_source_id
+ * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
  * @property-read \App\Models\CRM\Customer|null $customer
@@ -47,10 +46,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereOrganisationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereOrganisationSourceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereShopId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereSourceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereUpdatedAt($value)
  * @mixin \Eloquent

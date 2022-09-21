@@ -8,23 +8,20 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
-use App\Actions\StoreModelAction;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Utils\ActionResult;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreWarehouseArea extends StoreModelAction
+class StoreWarehouseArea
 {
     use AsAction;
 
-    public function handle(Warehouse $warehouse, array $modelData): ActionResult
+    public function handle(Warehouse $warehouse, array $modelData): WarehouseArea
     {
-        $modelData['organisation_id']=$warehouse->organisation_id;
 
         /** @var WarehouseArea $warehouseArea */
         $warehouseArea= $warehouse->warehouseAreas()->create($modelData);
         $warehouseArea->stats()->create();
-        return $this->finalise($warehouseArea);
+        return $warehouseArea;
     }
 }

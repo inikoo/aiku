@@ -11,6 +11,7 @@ namespace App\Models\SysAdmin;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Models\Role as SpatieRole;
 
+
 /**
  * App\Models\SysAdmin\Role
  *
@@ -25,7 +26,7 @@ use Spatie\Permission\Models\Role as SpatieRole;
  * @property-read int|null $users_count
  * @method static Builder|Role newModelQuery()
  * @method static Builder|Role newQuery()
- * @method static Builder|Role permission($permissions)
+ * @method static \Illuminate\Database\Eloquent\Builder|Role permission($permissions)
  * @method static Builder|Role query()
  * @method static Builder|Role whereCreatedAt($value)
  * @method static Builder|Role whereGuardName($value)
@@ -33,8 +34,6 @@ use Spatie\Permission\Models\Role as SpatieRole;
  * @method static Builder|Role whereName($value)
  * @method static Builder|Role whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property int|null $organisation_id
- * @method static Builder|Role whereOrganisationId($value)
  */
 class Role extends SpatieRole
 {

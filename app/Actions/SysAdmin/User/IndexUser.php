@@ -11,9 +11,11 @@ use App\Actions\SysAdmin\ShowSysAdminDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\UserInertiaResource;
 use App\Http\Resources\SysAdmin\UserResource;
-use App\Models\Organisations\Organisation;
-use App\Models\Organisations\OrganisationUser;
+use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Guest;
+use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -30,23 +32,25 @@ class IndexUser
     use WithInertia;
 
 
-    public function handle(Organisation $organisation): LengthAwarePaginator
+    public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('user.username', 'LIKE', "%$value%")
-                    ->orWhere('user.email', 'LIKE', "%$value%")
-                    ->orWhere('user.name', 'LIKE', "%$value%");
+                $query->where('user.username', 'LIKE', "%$value%");
             });
         });
 
 
-        return QueryBuilder::for(OrganisationUser::class)
-            ->leftJoin('users', 'user_id', '=', 'users.id')
-            ->where('organisation_id', $organisation->id)
+        return QueryBuilder::for(User::class)
+            ->with(['parent' => function (MorphTo $morphTo) {
+                $morphTo->morphWith([
+                                        Employee::class => ['name'],
+                                        Guest::class => ['name'],
+                                    ]);
+            }])
             ->defaultSort('username')
-            ->select(['username', 'email', 'name', 'users.id', 'userable_type', 'userable_id'])
-            ->allowedSorts(['username', 'email', 'name', 'userable_type'])
+            ->select(['username', 'users.id', 'parent_type', 'parent_id'])
+            ->allowedSorts(['username', 'email', 'name', 'parent_type'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? 15)
             ->withQueryString();
@@ -57,7 +61,7 @@ class IndexUser
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('users.view')
+                $request->user()->hasPermissionTo('sysadmin.view')
             );
     }
 
@@ -90,7 +94,7 @@ class IndexUser
                 ->withGlobalSearch()
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'userable_type', label: __('type'), canBeHidden: false, sortable: true)
+                ->column(key: 'parent_type', label: __('type'), canBeHidden: false, sortable: true)
                 ->defaultSort('username');
         });
     }
@@ -100,7 +104,7 @@ class IndexUser
     {
         $this->fillFromRequest($request);
 
-        return $this->handle($request->user()->currentUiOrganisation);
+        return $this->handle();
     }
 
     public function getBreadcrumbs(): array
