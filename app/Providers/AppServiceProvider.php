@@ -8,8 +8,8 @@
 
 namespace App\Providers;
 
-use App\Managers\Tenant\TenantManager;
 use App\Managers\Tenant\SourceTenantManager;
+use App\Managers\Tenant\TenantManager;
 use App\Models\Central\Tenant;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -65,7 +65,7 @@ class AppServiceProvider extends ServiceProvider
                 'Customer' => 'App\Models\CRM\Customer',
                 'Shop'     => 'App\Models\Marketing\Shop',
                 'Tenant'   => 'App\Models\Central\Tenant',
-                'AdminUser'   => 'App\Models\SysAdmin\AdminUser',
+                'AdminUser'   => 'App\Models\Central\AdminUser',
             ]
         );
     }

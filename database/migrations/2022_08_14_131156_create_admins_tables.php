@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('admins', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->string('code')->unique()->index();
             $table->string('name');
-            $table->string('slug')->unique()->index();
             $table->string('email')->unique();
 
             $table->jsonb('data');

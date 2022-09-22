@@ -10,7 +10,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateLatestDeploymentRequest;
-use App\Models\SysAdmin\Deployment;
+use App\Models\Central\Deployment;
 use Illuminate\Http\JsonResponse;
 use PHLAK\SemVer\Version;
 use Symfony\Component\Process\Exception\RuntimeException;
@@ -22,7 +22,7 @@ class DeploymentController extends Controller
 
     public function updateLatest(UpdateLatestDeploymentRequest $request): JsonResponse
     {
-        if ($deployment = \App\Models\SysAdmin\Deployment::latest()->first()) {
+        if ($deployment = \App\Models\Central\Deployment::latest()->first()) {
             $deployment->update($request->all());
             $changes= $deployment->getChanges();
             return response()->json(
@@ -44,9 +44,9 @@ class DeploymentController extends Controller
         }
     }
 
-    public function latest(): JsonResponse|\App\Models\SysAdmin\Deployment
+    public function latest(): JsonResponse|\App\Models\Central\Deployment
     {
-        if ($deployment = \App\Models\SysAdmin\Deployment::latest()->first()) {
+        if ($deployment = \App\Models\Central\Deployment::latest()->first()) {
             return $deployment;
         } else {
             return response()->json(
@@ -58,9 +58,9 @@ class DeploymentController extends Controller
         }
     }
 
-    public function show($deploymentID): JsonResponse|\App\Models\SysAdmin\Deployment
+    public function show($deploymentID): JsonResponse|\App\Models\Central\Deployment
     {
-        if ($deployment = \App\Models\SysAdmin\Deployment::find($deploymentID)) {
+        if ($deployment = \App\Models\Central\Deployment::find($deploymentID)) {
             return $deployment;
         } else {
             return response()->json(
@@ -75,7 +75,7 @@ class DeploymentController extends Controller
     /**
      * @throws \PHLAK\SemVer\Exceptions\InvalidVersionException
      */
-    public function store(): \App\Models\SysAdmin\Deployment|JsonResponse
+    public function store(): \App\Models\Central\Deployment|JsonResponse
     {
         $data = [
             'skip' => []
@@ -83,7 +83,7 @@ class DeploymentController extends Controller
 
 
         $currentHash = $this->runGitCommand('git describe --always');
-        if ($latestDeployment = \App\Models\SysAdmin\Deployment::latest()->first()) {
+        if ($latestDeployment = \App\Models\Central\Deployment::latest()->first()) {
             $latestHash = $latestDeployment->hash;
 
 

@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\Central\AdminUser;
 use App\Models\Central\Tenant;
-use App\Models\SysAdmin\AdminUser;
 use App\Models\SysAdmin\User;
 
 return [

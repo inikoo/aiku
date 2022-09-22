@@ -9,8 +9,8 @@ namespace App\Actions\SysAdmin\AdminUser;
 
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
-use App\Models\SysAdmin\Admin;
-use App\Models\SysAdmin\AdminUser;
+use App\Models\Central\Admin;
+use App\Models\Central\AdminUser;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreAdminUser

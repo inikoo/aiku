@@ -46,7 +46,7 @@ return new class extends Migration {
             $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
             $table->foreign('delivery_address_id')->references('id')->on('addresses');
             $table->unsignedMediumInteger('shipper_id')->nullable()->index();
-            $table->foreign('shipper_id')->references('id')->on('central.shippers');
+            $table->foreign('shipper_id')->references('id')->on('shippers');
 
             $table->decimal('weight', 16)->nullable()->default(0);
             $table->unsignedMediumInteger('number_stocks')->default(0);
