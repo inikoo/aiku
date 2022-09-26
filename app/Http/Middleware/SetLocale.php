@@ -25,7 +25,7 @@ class SetLocale
             $locale = Cookie::get('language');
 
             if (!$locale) {
-                $locale = substr(locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']), 0, 2);
+                $locale = substr(locale_accept_from_http(Arr::get($_SERVER,'HTTP_ACCEPT_LANGUAGE','en')), 0, 2);
             }
         }
 

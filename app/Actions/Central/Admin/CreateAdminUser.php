@@ -8,8 +8,11 @@
 namespace App\Actions\Central\Admin;
 
 
+use App;
 use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
 use App\Models\Central\Admin;
+use App\Rules\AlphaDashDot;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -39,21 +42,22 @@ class CreateAdminUser
     public function rules(): array
     {
         return [
-            'code'     => 'required|alpha_dash|unique:App\Models\Central\Admin,code',
+            'code'     => ['required', new AlphaDashDot, 'unique:App\Models\Central\Admin,code'],
             'password' => ['required', app()->isLocal() ? null : Password::min(8)->uncompromised()],
             'name'     => 'sometimes|required',
             'email'    => 'sometimes|required|email',
-            'username' => 'sometimes|required|alpha_dash|unique:App\Models\Central\AdminUser,username',
+            'username' => ['sometimes', 'required', new AlphaDashDot, 'unique:App\Models\Central\AdminUser,username'],
 
         ];
     }
 
     public function prepareForValidation(): void
     {
-        if(!$this->has('username')){
+        if (!$this->has('username')) {
             $this->fill(['username' => $this->get('code')]);
         }
     }
+
 
     public function asCommand(Command $command): int
     {
@@ -74,7 +78,10 @@ class CreateAdminUser
                 $this->fill([$option => $command->option($option)]);
             }
         }
+
+
         $validatedData = $this->validateAttributes();
+
 
         $admin = $this->handle($validatedData);
         $command->line("Account admin created $admin->code");

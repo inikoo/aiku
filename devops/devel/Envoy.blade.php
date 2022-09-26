@@ -11,27 +11,27 @@
 @endsetup
 
 @story('install')
-    initalise-dbs
+    initialise-dbs
     create-admins
 @endstory
 
-@story('initalise-dbs')
-    initalise-dbs
+@story('initialise-dbs')
+    initialise-dbs
     @if ($dump_database)
         dump-database
     @endif
 @endstory
 
 @story('snapshot')
-    initalise-dbs
+    initialise-dbs
     @if ($buildStep > 0)
         create-admins
     @endif
     dump-database
 @endstory
 
-@task('initalise-dbs')
-    echo "initalise-dbs" > step
+@task('initialise-dbs')
+    echo "initialise-dbs" > step
     @if ($_ENV['APP_ENV'] === 'local')
         cd ../../
     @endif
