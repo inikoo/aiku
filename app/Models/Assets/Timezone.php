@@ -8,8 +8,10 @@
 
 namespace App\Models\Assets;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 /**
  * App\Models\Assets\Timezone
@@ -26,23 +28,25 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Assets\Country[] $countries
  * @property-read int|null $countries_count
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone query()
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereLatitude($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereLocation($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereLongitude($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereOffset($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereUpdatedAt($value)
+ * @method static Builder|Timezone newModelQuery()
+ * @method static Builder|Timezone newQuery()
+ * @method static Builder|Timezone query()
+ * @method static Builder|Timezone whereCountryId($value)
+ * @method static Builder|Timezone whereCreatedAt($value)
+ * @method static Builder|Timezone whereData($value)
+ * @method static Builder|Timezone whereId($value)
+ * @method static Builder|Timezone whereLatitude($value)
+ * @method static Builder|Timezone whereLocation($value)
+ * @method static Builder|Timezone whereLongitude($value)
+ * @method static Builder|Timezone whereName($value)
+ * @method static Builder|Timezone whereOffset($value)
+ * @method static Builder|Timezone whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Timezone extends Model
 {
+
+    use CentralConnection;
 
     protected $casts = [
         'data' => 'array'

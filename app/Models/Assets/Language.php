@@ -10,6 +10,7 @@ namespace App\Models\Assets;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 
 /**
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Language extends Model
 {
+    use CentralConnection;
 
     protected $casts = [
         'data' => 'array'

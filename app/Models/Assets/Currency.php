@@ -7,7 +7,9 @@
 
 namespace App\Models\Assets;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 /**
  * App\Models\Assets\Currency
@@ -21,22 +23,23 @@ use Illuminate\Database\Eloquent\Model;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|Currency newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Currency newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Currency query()
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereFractionDigits($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereSymbol($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereUpdatedAt($value)
+ * @method static Builder|Currency newModelQuery()
+ * @method static Builder|Currency newQuery()
+ * @method static Builder|Currency query()
+ * @method static Builder|Currency whereCode($value)
+ * @method static Builder|Currency whereCreatedAt($value)
+ * @method static Builder|Currency whereData($value)
+ * @method static Builder|Currency whereFractionDigits($value)
+ * @method static Builder|Currency whereId($value)
+ * @method static Builder|Currency whereName($value)
+ * @method static Builder|Currency whereStatus($value)
+ * @method static Builder|Currency whereSymbol($value)
+ * @method static Builder|Currency whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Currency extends Model
 {
+    use CentralConnection;
 
     protected $casts = [
         'data' => 'array'
