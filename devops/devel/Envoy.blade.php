@@ -7,26 +7,25 @@
     $adminName = empty($adminName) ? $_ENV['ADMIN_NAME'] : $adminName;
     $adminEmail = empty($adminEmail) ? $_ENV['ADMIN_EMAIL'] : $adminEmail;
 
-    $buildStep = empty($buildStep) ? 0 : $buildStep;
 @endsetup
 
 @story('install')
     initialise-dbs
     create-admins
+    migrate-aurora-tenants
+    tenant-guest-admin
+    tenant-fetch
 @endstory
 
-@story('initialise-dbs')
-    initialise-dbs
-    @if ($dump_database)
-        dump-database
-    @endif
-@endstory
 
 @story('snapshot')
     initialise-dbs
-    @if ($buildStep > 0)
-        create-admins
-    @endif
+    dump-database
+    create-admins
+    dump-database
+    migrate-aurora-tenants
+    dump-database
+    tenant-guest-admin
     dump-database
 @endstory
 
@@ -52,6 +51,34 @@
     php artisan create:admin-token {{ $adminCode }} admin root
 @endtask
 
+@task('migrate-aurora-tenants')
+    echo "migrate-aurora-tenants" > step
+    @if ($_ENV['APP_ENV'] === 'local')
+        cd ../../
+    @endif
+    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $auroraDB)
+        echo "Tenant {{ $auroraDB }}"
+        php artisan create:tenant-aurora {{$tenant}} {{$auroraDB}}
+    @endforeach
+@endtask
+
+@task('tenant-guest-admin')
+echo "tenant-guest-admin" > step
+@if ($_ENV['APP_ENV'] === 'local')
+    cd ../../
+@endif
+php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin
+@endtask
+
+@task('tenant-fetch')
+    echo "migrate-aurora-tenants" > step
+    @if ($_ENV['APP_ENV'] === 'local')
+        cd ../../
+    @endif
+    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $auroraDB)
+        php artisan fetch:shops {{$tenant}}
+    @endforeach
+@endtask
 
 @task('dump-database')
     pg_dump -Fc -f "snapshots/$(cat step).dump" {{ $_ENV['DB_DATABASE'] }}

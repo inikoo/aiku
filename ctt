@@ -1,0 +1,2 @@
+ cd devops/devel
+ php ../../vendor/bin/envoy run snapshot

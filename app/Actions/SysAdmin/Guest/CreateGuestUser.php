@@ -12,9 +12,11 @@ use App\Actions\Central\CentralUser\StoreCentralUser;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\WithTenantsArgument;
 
+use App\Models\Central\CentralUser;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
+use App\Rules\AlphaDashDot;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -31,6 +33,10 @@ class CreateGuestUser
 
 
     public string $commandSignature = 'create:guest-user {username} {name} {tenants?*} {--E|email=} {--N|name=} {--r|roles=*} {--a|autoPassword}';
+    /**
+     * @var \App\Models\Central\CentralUser|array|\ArrayAccess|\Illuminate\Database\Eloquent\Model|mixed|null
+     */
+    private ?CentralUser $centralUser = null;
 
     public function getCommandDescription(): string
     {
@@ -42,8 +48,15 @@ class CreateGuestUser
      */
     public function handle($guestUserData, $roles): User
     {
-        $guest       = StoreGuest::run(Arr::only($guestUserData, ['name', 'email']));
-        $centralUser = StoreCentralUser::run(Arr::only($guestUserData, ['username', 'password']));
+        $guest = StoreGuest::run(Arr::only($guestUserData, ['name', 'email']));
+
+
+        $centralUser = StoreCentralUser::run(
+            array_merge(
+                Arr::only($guestUserData, ['username', 'password']),
+                ['data' => Arr::only($guestUserData, ['name', 'email'])]
+            )
+        );
         $user        = StoreUser::run(tenant(), $guest, $centralUser);
 
 
@@ -59,7 +72,8 @@ class CreateGuestUser
     public function rules(): array
     {
         return [
-            'username' => 'required|alpha_dash|unique:App\Models\Central\CentralUser,username',
+
+            'username' => ['required', new AlphaDashDot, 'unique:App\Models\Central\CentralUser,username'],
             'password' => ['required', app()->isLocal() ? null : Password::min(8)->uncompromised()],
             'name'     => 'sometimes|required',
             'email'    => 'sometimes|required|email'
@@ -89,19 +103,15 @@ class CreateGuestUser
         $validatedData = $this->validateAttributes();
 
 
-
-
-
         $tenants  = $this->getTenants($command);
         $exitCode = 0;
+
 
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(
             /**
              * @throws \Illuminate\Validation\ValidationException
-             */ function () use ($validatedData, $command) {
-
-
+             */ function () use ($validatedData, $command, $tenant) {
                 $roles = [];
                 foreach ($command->option('roles') as $roleName) {
                     /** @var Role $role */
@@ -113,18 +123,27 @@ class CreateGuestUser
                 }
 
 
-                $user = $this->handle($validatedData, $roles);
+                if (!$this->centralUser) {
+                    $user              = $this->handle($validatedData, $roles);
+                    $this->centralUser = CentralUser::where('global_id', $user->getGlobalIdentifierKey())->firstOrFail();
+                } else {
+                    $user = CreateGuestFromExistingUser::run($this->centralUser, $roles);
+                }
+
+
                 /** @var Guest $guest */
                 $guest = $user->parent;
 
                 $command->line("Guest user created $user->username");
 
                 $command->table(
-                    ['Username', 'Password', 'Email', 'Name', 'Roles'],
+                    ['Tenant', 'Username', 'Global Id', 'Password', 'Email', 'Name', 'Roles'],
                     [
                         [
+                            $tenant->code,
                             $user->username,
-                            ($command->option('autoPassword') ? Arr::get($validatedData,'password') : '*****'),
+                            $user->getGlobalIdentifierKey(),
+                            ($command->option('autoPassword') ? Arr::get($validatedData, 'password') : '*****'),
                             $guest->email,
                             $guest->name,
                             $user->getRoleNames()->implode(',')

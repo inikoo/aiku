@@ -1,3 +1,2 @@
-if [ "$1" -eq 0 ]; then
-    pg_restore -c -d pika < devel/snapshots/initialise-dbs.dump
-fi
+pg_restore  -U raul -c -d pika < "$1"
+echo "$1"

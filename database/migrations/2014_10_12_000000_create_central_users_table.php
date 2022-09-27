@@ -17,11 +17,9 @@ return new class extends Migration {
             $table->id();
             $table->uuid('global_id')->unique()->index();
             $table->string('username')->unique()->index();
-
             $table->string('password');
-
+            $table->jsonb('data');
             $table->unsignedSmallInteger('number_tenants')->default(0);
-
             $table->timestampsTz();
         });
     }

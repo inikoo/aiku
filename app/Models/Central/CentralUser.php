@@ -25,6 +25,7 @@ use Stancl\Tenancy\Database\Models\TenantPivot;
  * @property string $global_id
  * @property string $username
  * @property string $password
+ * @property array $data
  * @property int $number_tenants
  * @property string|null $created_at
  * @property string|null $updated_at
@@ -34,6 +35,7 @@ use Stancl\Tenancy\Database\Models\TenantPivot;
  * @method static Builder|CentralUser newQuery()
  * @method static Builder|CentralUser query()
  * @method static Builder|CentralUser whereCreatedAt($value)
+ * @method static Builder|CentralUser whereData($value)
  * @method static Builder|CentralUser whereGlobalId($value)
  * @method static Builder|CentralUser whereId($value)
  * @method static Builder|CentralUser whereNumberTenants($value)
@@ -50,6 +52,15 @@ class CentralUser extends Model implements SyncMaster
 
     protected $guarded = [];
     public $timestamps = false;
+
+    protected $casts = [
+        'data'          => 'array',
+    ];
+
+    protected $attributes = [
+        'data' => '{}',
+    ];
+
 
     public function tenants(): BelongsToMany
     {
