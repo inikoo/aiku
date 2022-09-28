@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->boolean('status')->default(true);
             $table->nullableMorphs('parent');
+            // Used for tables
+            $table->string('name')->nullable()->comment('No normal, mirror parent name');
             $table->rememberToken();
             $table->jsonb('data');
             $table->jsonb('settings');

@@ -30,6 +30,7 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
  * @property bool $status
  * @property string|null $parent_type
  * @property int|null $parent_id
+ * @property string|null $name No normal, mirror parent name
  * @property string|null $remember_token
  * @property array $data
  * @property array $settings
@@ -57,6 +58,7 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
  * @method static Builder|User whereData($value)
  * @method static Builder|User whereGlobalId($value)
  * @method static Builder|User whereId($value)
+ * @method static Builder|User whereName($value)
  * @method static Builder|User whereParentId($value)
  * @method static Builder|User whereParentType($value)
  * @method static Builder|User wherePassword($value)

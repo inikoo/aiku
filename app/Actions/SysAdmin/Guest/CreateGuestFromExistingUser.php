@@ -41,7 +41,8 @@ class CreateGuestFromExistingUser
     public function handle(CentralUser $centralUser, $roles): User
     {
         $guest = StoreGuest::run(
-            Arr::only($centralUser->data, ['name', 'email'])
+            Arr::only($centralUser->data, ['name', 'email']),
+            $centralUser->username
         );
         $user  = StoreUser::run(tenant(), $guest, $centralUser);
         foreach ($roles as $roleName) {

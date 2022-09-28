@@ -49,7 +49,10 @@ class CreateGuestUser
      */
     public function handle($guestUserData, $roles): User
     {
-        $guest = StoreGuest::run(Arr::only($guestUserData, ['name', 'email']));
+        $guest = StoreGuest::run(
+            Arr::only($guestUserData, ['name', 'email']),
+            Arr::get($guestUserData,'username')
+        );
 
 
         $centralUser = StoreCentralUser::run(
@@ -58,7 +61,8 @@ class CreateGuestUser
                 ['data' => Arr::only($guestUserData, ['name', 'email'])]
             )
         );
-        $user        = StoreUser::run(tenant(), $guest, $centralUser);
+
+        $user = StoreUser::run(tenant(), $guest, $centralUser);
 
 
         foreach ($roles as $roleName) {
@@ -83,6 +87,7 @@ class CreateGuestUser
 
     public function asCommand(Command $command): int
     {
+        $this->centralUser = null;
         if ($command->option('autoPassword')) {
             $password = (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true));
         } else {
@@ -124,11 +129,11 @@ class CreateGuestUser
                 }
 
 
-                if (!$this->centralUser) {
+                if ($this->centralUser && $this->centralUser->id) {
+                    $user = CreateGuestFromExistingUser::run($this->centralUser, $roles);
+                } else {
                     $user              = $this->handle($validatedData, $roles);
                     $this->centralUser = CentralUser::where('global_id', $user->getGlobalIdentifierKey())->firstOrFail();
-                } else {
-                    $user = CreateGuestFromExistingUser::run($this->centralUser, $roles);
                 }
 
 

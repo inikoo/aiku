@@ -14,9 +14,9 @@
                 <span v-else class="italic">{{ labels['usernameNoSet'] }}</span>
             </Link>
         </template>
-        <template #cell(userable_type)="{ item: user }">
-            <Link v-if="user['userable_type']==='Employee'" :href="route('hr.employees.show',user.userable_id)">{{$t('Employee')}}</Link>
-            <Link v-else-if="user['userable_type']==='Guest'" :href="route('sysadmin.guests.show',user.userable_id)">{{$t('Guest')}}</Link>
+        <template #cell(parent_type)="{ item: user }">
+            <Link v-if="user['parent_type']==='Employee'" :href="route('hr.employees.show',user['parent_id'])">{{trans('Employee')}}</Link>
+            <Link v-else-if="user['parent_type']==='Guest'" :href="route('sysadmin.guests.show',user['parent_id'])">{{trans('Guest')}}</Link>
         </template>
     </Table>
 
@@ -28,5 +28,6 @@ import {Head, Link} from '@inertiajs/inertia-vue3';
 import {Table} from '@protonemedia/inertiajs-tables-laravel-query-builder';
 import  PageHeading from '@/Components/Headings/PageHeading.vue'
 defineProps(['users', 'title', 'pageHead', 'labels']);
+import { trans } from 'laravel-vue-i18n';
 
 </script>

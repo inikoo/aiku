@@ -14,6 +14,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\WarehouseStats;
+use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -139,6 +140,25 @@ class HydrateTenant extends HydrateModel
     protected function getAllModels(): Collection
     {
         return Tenant::all();
+    }
+
+    public function asCommand(Command $command): int
+    {
+        $tenants = $this->getTenants($command);
+
+        $exitCode = 0;
+
+        foreach ($tenants as $tenant) {
+            $result = (int)$tenant->run(function () {
+                $this->handle();
+            });
+
+            if ($result !== 0) {
+                $exitCode = $result;
+            }
+        }
+
+        return $exitCode;
     }
 
 

@@ -52,6 +52,11 @@ class ShowSysAdminDashboard
                         'name' => __('users'),
                         'stat' => $tenant->stats->number_users_status_active,
                         'href' => ['sysadmin.users.index']
+                    ],
+                    [
+                        'name' => __('guests'),
+                        'stat' => $tenant->stats->number_guests_status_active,
+                        'href' => ['sysadmin.guests.index']
                     ]
                 ]
 

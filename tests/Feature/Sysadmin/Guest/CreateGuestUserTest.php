@@ -5,8 +5,9 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace Tests\Feature\Central\Admin;
+namespace Tests\Feature\Sysadmin\Guest;
 
+use App\Models\Central\Tenant;
 use Illuminate\Validation\ValidationException;
 use stdClass;
 use Symfony\Component\Process\Process as Process;
@@ -30,14 +31,35 @@ class CreateGuestUserTest extends TestCase
         $adminUserAData->email    = fake()->unique()->safeEmail();
         $adminUserAData->username = fake()->userName();
 
+        $tenant=Tenant::where('code',env('TENANT'))->firstOrFail();
+
+        $this->assertEquals(0, $tenant->stats->number_guests);
+        $this->assertEquals(0, $tenant->stats->number_users);
 
         $this->artisan("create:guest-user  $adminUserAData->username '$adminUserAData->name'  -a -r super-admin")->assertExitCode(0);
+
+        $tenant->refresh();
+
+        $this->assertEquals(1, $tenant->stats->number_users);
+        $this->assertEquals(1, $tenant->stats->number_guests);
+
+
+        $adminUserAData->name     = fake()->name();
+        $adminUserAData->email    = fake()->unique()->safeEmail();
+        $adminUserAData->username = fake()->userName();
+
+        $this->artisan("create:guest-user  $adminUserAData->username '$adminUserAData->name' ".env('TENANT')."  -a -r super-admin")->assertExitCode(0);
+        $tenant->refresh();
+        $this->assertEquals(2, $tenant->stats->number_guests);
+        $this->assertEquals(2, $tenant->stats->number_users);
+
         $this->expectException(ValidationException::class);
-        $this->artisan("create:guest-user  $adminUserAData->username '$adminUserAData->name'  -a -r super-admin")->assertExitCode(1);
+        $this->artisan("create:guest-user  $adminUserAData->username '$adminUserAData->name' env('TENANT') -a -r super-admin")->assertExitCode(1);
 
 
 
     }
+
 
 
 }

@@ -14,9 +14,16 @@ class StoreGuest
 {
     use AsAction;
 
-    public function handle(array $modelData): Guest
+    public function handle(array $modelData, ?string $slug = null): Guest
     {
-        return Guest::create($modelData);
+        $guest= Guest::create($modelData);
+        if($slug){
+            $guest->code=$slug;
+            $guest->save();
+        }
+
+
+        return $guest;
     }
 
 }

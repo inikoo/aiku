@@ -9,15 +9,12 @@ namespace App\Actions\SysAdmin\User;
 
 use App\Actions\SysAdmin\ShowSysAdminDashboard;
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\SysAdmin\UserInertiaResource;
 use App\Http\Resources\SysAdmin\UserResource;
-use App\Models\HumanResources\Employee;
-use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -36,20 +33,15 @@ class IndexUser
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('user.username', 'LIKE', "%$value%");
+                $query->where('user.username', 'LIKE', "%$value%")
+                    ->where('user.name', 'LIKE', "%$value%");
             });
         });
 
 
         return QueryBuilder::for(User::class)
-            ->with(['parent' => function (MorphTo $morphTo) {
-                $morphTo->morphWith([
-                                        Employee::class => ['name'],
-                                        Guest::class => ['name'],
-                                    ]);
-            }])
             ->defaultSort('username')
-            ->select(['username', 'users.id', 'parent_type', 'parent_id'])
+            ->select(['username', 'users.id', 'parent_type', 'parent_id','name'])
             ->allowedSorts(['username', 'email', 'name', 'parent_type'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? 15)
@@ -85,7 +77,7 @@ class IndexUser
                 'labels'      => [
                     'usernameNoSet' => __('username no set')
                 ],
-                'users'       => UserInertiaResource::collection($users),
+                'users'       => JsonResource::collection($users),
 
 
             ]

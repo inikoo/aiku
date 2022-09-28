@@ -38,6 +38,7 @@ class HydrateModel
     public function asCommand(Command $command): int
     {
         $tenants  = $this->getTenants($command);
+
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {

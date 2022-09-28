@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->index();
+            $table->string('code')->unique()->index();
             //these are no normal, hydra-table from contact
             $table->string('name', 256)->nullable()->index();
             $table->string('email')->nullable();

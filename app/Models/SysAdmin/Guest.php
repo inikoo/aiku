@@ -11,12 +11,16 @@ use App\Actions\Central\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 
 /**
  * App\Models\SysAdmin\Guest
  *
  * @property int $id
+ * @property string $code
+ * @property bool $status
  * @property string|null $name
  * @property string|null $email
  * @property string|null $phone
@@ -33,6 +37,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest query()
+ * @method static Builder|Guest whereCode($value)
  * @method static Builder|Guest whereCreatedAt($value)
  * @method static Builder|Guest whereData($value)
  * @method static Builder|Guest whereDateOfBirth($value)
@@ -45,11 +50,14 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @method static Builder|Guest whereName($value)
  * @method static Builder|Guest wherePhone($value)
  * @method static Builder|Guest whereSourceId($value)
+ * @method static Builder|Guest whereStatus($value)
  * @method static Builder|Guest whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Guest extends Model
 {
+    use HasSlug;
+
     protected $casts = [
         'data'          => 'array',
         'date_of_birth' => 'datetime:Y-m-d',
@@ -62,6 +70,13 @@ class Guest extends Model
 
     protected $guarded = [];
 
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('code');
+    }
 
     protected static function booted()
     {
@@ -79,6 +94,20 @@ class Guest extends Model
             if (!$guest->wasRecentlyCreated) {
                 if ($guest->wasChanged('status')) {
                     HydrateTenant::make()->guestsStats();
+                    if (!$guest->status) {
+                        $guest->user->update(
+                            [
+                                'status' => $guest->status
+                            ]
+                        );
+                    }
+                }
+                if ($guest->wasChanged('name')) {
+                    $guest->user->update(
+                        [
+                            'name' => $guest->name
+                        ]
+                    );
                 }
             }
         });

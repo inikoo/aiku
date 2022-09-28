@@ -9,6 +9,7 @@ namespace App\Actions\Inventory;
 
 use App\Actions\UI\WithInertia;
 use App\Models\Central\Tenant;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -45,18 +46,18 @@ class ShowInventoryDashboard
 
         if ($this->tenant->inventoryStats->number_warehouses == 1) {
 
-            $warehouseID=$this->tenant->firstWarehouse->id;
 
+            $warehouse=Warehouse::first();
             $warehousesNode    = [
                 'name' => __('warehouse'),
                 'icon' => ['fal', 'fa-warehouse'],
-                'href' => ['inventory.warehouses.show', $warehouseID],
+                'href' => ['inventory.warehouses.show', $warehouse->id],
 
             ];
             $warehouseAreasNode = [
                 'name'  => __('warehouses areas'),
                 'icon'  => ['fal', 'fa-map-signs'],
-                'href'  => ['inventory.warehouses.show.warehouse_areas.index',$warehouseID],
+                'href'  => ['inventory.warehouses.show.warehouse_areas.index',$warehouse->id],
                 'index' => [
                     'number' => $this->tenant->inventoryStats->number_warehouse_areas
                 ]
@@ -64,7 +65,7 @@ class ShowInventoryDashboard
             $locationsNode    = [
                 'name'  => __('locations'),
                 'icon'  => ['fal', 'fa-inventory'],
-                'href'  => ['inventory.warehouses.show.locations.index',$warehouseID],
+                'href'  => ['inventory.warehouses.show.locations.index',$warehouse->id],
                 'index' => [
                     'number' => $this->tenant->inventoryStats->number_locations
                 ]

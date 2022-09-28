@@ -16,6 +16,8 @@ return new class extends Migration
     {
         Schema::create('guests', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->unique()->index();
+
             $table->boolean('status')->index()->default(true);
             $table->string('name',256)->nullable()->index();
             $table->string('email')->nullable();

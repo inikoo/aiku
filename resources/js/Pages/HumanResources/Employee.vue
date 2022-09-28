@@ -21,9 +21,6 @@
                             {{ trans('Create user') }}
                         </button>
 
-                        <button type="button" class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm">
-                            Produce access code
-                        </button>
                     </div>
                 </div>
             </div>
@@ -35,7 +32,7 @@
 </template>
 
 <script setup>
-import { Head,Link } from '@inertiajs/inertia-vue3';
+import { Head } from '@inertiajs/inertia-vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faIdCard} from '@/../private/pro-light-svg-icons';
 import PageHeading from '@/Components/Headings/PageHeading.vue';

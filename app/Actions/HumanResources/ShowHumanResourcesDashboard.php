@@ -34,9 +34,9 @@ class ShowHumanResourcesDashboard
 
     public function htmlResponse(): Response
     {
+        /** @var \App\Models\Central\Tenant $tenant */
+        $tenant = tenant();
 
-        $tenant=tenant();
-        $tenantStats=$tenant->tenantStats;
         return Inertia::render(
             'HumanResources/HumanResourcesDashboard',
             [
@@ -45,10 +45,10 @@ class ShowHumanResourcesDashboard
                 'pageHead'    => [
                     'title' => __('human resources'),
                 ],
-                'stats' => [
+                'stats'       => [
                     [
                         'name' => __('employees'),
-                        'stat' => $tenantStats->number_employees,
+                        'stat' => $tenant->stats->number_employees,
                         'href' => ['hr.employees.index']
                     ]
                 ]
