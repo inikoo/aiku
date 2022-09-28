@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Stancl\Tenancy\Contracts\SyncMaster;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
 use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
-use Stancl\Tenancy\Database\Models\TenantPivot;
 
 
 /**

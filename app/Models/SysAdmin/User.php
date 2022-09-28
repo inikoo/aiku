@@ -7,6 +7,7 @@
 
 namespace App\Models\SysAdmin;
 
+use App\Actions\Central\Tenant\HydrateTenant;
 use App\Models\Central\CentralUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -86,8 +87,9 @@ class User extends Authenticatable implements HasMedia, Syncable
 
     protected $casts = [
 
-        'data'              => 'array',
-        'settings'          => 'array',
+        'data'     => 'array',
+        'settings' => 'array',
+        'status'   => 'boolean'
     ];
 
 
@@ -97,31 +99,20 @@ class User extends Authenticatable implements HasMedia, Syncable
     ];
 
 
-    /*
     public static function boot()
     {
         parent::boot();
 
-        static::created(function ($item) {
-
-            HydrateTenant::make()->userStats($item->tenant);
-        });
-
-        static::deleted(function ($item) {
-            HydrateTenant::make()->userStats($item->tenant);
-        });
 
         static::updated(function ($item) {
-            if(!$item->wasRecentlyCreated) {
+            if (!$item->wasRecentlyCreated) {
                 if ($item->wasChanged('status')) {
-                    HydrateTenant::make()->userStats($item->tenant);
+                    HydrateTenant::make()->userStats();
                 }
             }
-
         });
-
     }
-    */
+
 
     public function getGlobalIdentifierKey()
     {
@@ -148,7 +139,6 @@ class User extends Authenticatable implements HasMedia, Syncable
     }
 
 
-
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('profile')
@@ -165,9 +155,7 @@ class User extends Authenticatable implements HasMedia, Syncable
     public function parent(): MorphTo
     {
         return $this->morphTo();
-
     }
-
 
 
 }

@@ -18,7 +18,7 @@ yarn-error.log
 /.vscode
 /.phpstorm.meta.php
 /_ide_helper.php
-/deployment/install_pika.sh
+/devops/deployment/install_pika.sh
 /resources/private/
 lang/php_*.json
 /storage/tenants

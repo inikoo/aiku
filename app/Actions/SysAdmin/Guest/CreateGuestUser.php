@@ -38,6 +38,7 @@ class CreateGuestUser
      */
     private ?CentralUser $centralUser = null;
 
+
     public function getCommandDescription(): string
     {
         return 'Create tenant guest user.';

@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 
-
 /**
  * App\Models\SysAdmin\Guest
  *
@@ -54,6 +53,7 @@ class Guest extends Model
     protected $casts = [
         'data'          => 'array',
         'date_of_birth' => 'datetime:Y-m-d',
+        'status'        => 'boolean'
     ];
 
     protected $attributes = [
@@ -67,23 +67,22 @@ class Guest extends Model
     {
         static::created(
             function () {
-                HydrateTenant::make()->userStats();
+                HydrateTenant::make()->guestsStats();
             }
         );
         static::deleted(
             function () {
-                HydrateTenant::make()->userStats();
+                HydrateTenant::make()->guestsStats();
             }
         );
         static::updated(function (Guest $guest) {
-            if(!$guest->wasRecentlyCreated) {
+            if (!$guest->wasRecentlyCreated) {
                 if ($guest->wasChanged('status')) {
-                    HydrateTenant::make()->userStats();
+                    HydrateTenant::make()->guestsStats();
                 }
             }
         });
     }
-
 
 
     public function user(): MorphOne

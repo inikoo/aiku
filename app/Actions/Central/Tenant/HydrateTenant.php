@@ -30,6 +30,7 @@ class HydrateTenant extends HydrateModel
     public function handle(): void
     {
         $this->employeesStats();
+        $this->guestsStats();
         $this->userStats();
         $this->warehouseStats();
     }
@@ -71,6 +72,31 @@ class HydrateTenant extends HydrateModel
         $tenant->stats->update($stats);
     }
 
+    public function guestsStats()
+    {
+        /** @var Tenant $tenant */
+        $tenant = tenant();
+
+
+        $numberGuests       = DB::table('guests')
+            ->count();
+        $numberActiveGuests = DB::table('guests')
+            ->where('status', true)
+            ->count();
+
+
+        $stats = [
+            'number_guests'                 => $numberGuests,
+            'number_guests_status_active'   => $numberActiveGuests,
+            'number_guests_status_inactive' => $numberGuests - $numberActiveGuests,
+        ];
+
+
+
+
+        $tenant->stats->update($stats);
+    }
+
     public function userStats()
     {
         /** @var Tenant $tenant */
@@ -80,20 +106,8 @@ class HydrateTenant extends HydrateModel
         $numberActiveUsers = DB::table('users')->where('status', true)->count();
 
 
-        $numberGuests       = DB::table('users')
-            ->where('parent_type', 'Guest')
-            ->count();
-        $numberActiveGuests = DB::table('users')
-            ->where('parent_type', 'Guest')
-            ->where('status', true)
-            ->count();
-
 
         $stats = [
-
-            'number_guests'                 => $numberGuests,
-            'number_guests_status_active'   => $numberActiveGuests,
-            'number_guests_status_inactive' => $numberGuests - $numberActiveGuests,
             'number_users'                  => $numberUsers,
             'number_users_status_active'    => $numberActiveUsers,
             'number_users_status_inactive'  => $numberUsers - $numberActiveUsers
@@ -117,7 +131,6 @@ class HydrateTenant extends HydrateModel
         ) {
             $stats['number_users_type_'.$row->parent_type] = Arr::get($row->total, $row->parent_type, 0);
         }
-
 
         $tenant->stats->update($stats);
     }
