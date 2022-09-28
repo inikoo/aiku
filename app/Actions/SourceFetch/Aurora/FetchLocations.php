@@ -15,7 +15,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-class FetchActionLocation extends FetchAction
+class FetchLocations extends FetchAction
 {
 
 
@@ -27,16 +27,16 @@ class FetchActionLocation extends FetchAction
             if ($location = Location::where('source_id', $locationData['location']['source_id'])
                 ->first()) {
                 $location = UpdateLocation::run(
-                    location: $location,
-                    modelData:     $locationData['location']
+                    location:  $location,
+                    modelData: $locationData['location']
                 );
             } else {
                 $location = StoreLocation::run(
-                    parent: $locationData['parent'],
+                    parent:    $locationData['parent'],
                     modelData: $locationData['location'],
                 );
             }
-            $this->progressBar?->advance();
+
 
             return $location;
         }
@@ -49,7 +49,10 @@ class FetchActionLocation extends FetchAction
         return DB::connection('aurora')
             ->table('Location Dimension')
             ->select('Location Key as source_id')
-            ->orderBy('source_id');
+            ->orderBy('source_id')
+            ->when(app()->environment('testing'), function ($query) {
+                return $query->limit(20);
+            });
     }
 
 

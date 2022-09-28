@@ -37,7 +37,7 @@ class FetchModels
         Bus::chain([
                        FetchWarehouses::makeJob($tenantSource),
                        FetchWarehouseAreas::makeJob($tenantSource),
-                       FetchActionLocation::makeJob($tenantSource),
+                       FetchLocations::makeJob($tenantSource),
                        FetchStocks::makeJob($tenantSource),
                    ])->dispatch();
     }

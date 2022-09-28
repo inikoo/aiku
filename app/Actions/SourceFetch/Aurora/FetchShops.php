@@ -39,7 +39,7 @@ class FetchShops extends FetchAction
                     addressData:  []
                 );
             }
-            $this->progressBar?->advance();
+
 
             return $shop;
         }

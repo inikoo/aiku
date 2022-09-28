@@ -26,6 +26,8 @@ class FetchShippers extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Shipper
     {
         if ($shipperData = $tenantSource->fetchShipper($tenantSourceId)) {
+
+
             if ($shipper = Shipper::where('source_id', $shipperData['shipper']['source_id'])
                 ->first()) {
                 $shipper = UpdateShipper::run(
@@ -37,7 +39,7 @@ class FetchShippers extends FetchAction
                     modelData: $shipperData['shipper'],
                 );
             }
-            $this->progressBar?->advance();
+
 
             return $shipper;
         }

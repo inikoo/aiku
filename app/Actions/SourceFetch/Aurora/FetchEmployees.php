@@ -42,7 +42,7 @@ class FetchEmployees extends FetchAction
                 SetEmployeePhoto::run($employee, $profileImage['image_path'], $profileImage['filename']);
             }
 
-            $this->progressBar?->advance();
+
 
             return $employee;
         }
@@ -56,7 +56,12 @@ class FetchEmployees extends FetchAction
             ->table('Staff Dimension')
             ->select('Staff Key as source_id')
             ->where('Staff Currently Working', 'Yes')
-            ->where('Staff Type', '!=', 'Contractor');
+            ->where('Staff Type', '!=', 'Contractor')
+            ->orderBy('source_id')
+            ->when(app()->environment('testing'), function ($query) {
+                return $query->limit(20);
+            });
+
     }
 
     function count(): ?int

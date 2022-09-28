@@ -42,7 +42,7 @@ class FetchProducts extends FetchAction
             $tradeUnits= $tenantSource->fetchProductStocks($productData['stock']['source_id']);
             $product->tradeUnits()->sync($tradeUnits['product_stocks']);
 
-            $this->progressBar?->advance();
+
 
             return $product;
         }

@@ -27,6 +27,8 @@
     dump-database
     tenant-guest-admin
     dump-database
+    tenant-fetch
+    dump-database
 @endstory
 
 @task('initialise-dbs')
@@ -75,9 +77,20 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     @if ($_ENV['APP_ENV'] === 'local')
         cd ../../
     @endif
-    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $auroraDB)
-        php artisan fetch:shops {{$tenant}}
-    @endforeach
+    echo "shippers"
+    php artisan fetch:shippers -q
+    echo "employees"
+    php artisan fetch:employees -q
+    echo "warehouses"
+    php artisan fetch:warehouses  -q
+    echo "warehouse-areas"
+    php artisan fetch:warehouse-areas  -q
+    echo "locations"
+    php artisan fetch:locations  -q
+    echo "stocks"
+    php artisan fetch:stocks  -q
+    echo "shops"
+    php artisan fetch:shops  -q
 @endtask
 
 @task('dump-database')

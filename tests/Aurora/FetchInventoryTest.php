@@ -1,7 +1,7 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 27 Sept 2022 13:51:05 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Tue, 27 Sept 2022 14:39:15 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
@@ -12,7 +12,7 @@ use stdClass;
 use Symfony\Component\Process\Process as Process;
 use Tests\TestCase;
 
-class FetchShopsTest extends TestCase
+class FetchInventoryTest extends TestCase
 {
 
 
@@ -30,7 +30,11 @@ class FetchShopsTest extends TestCase
     {
 
         foreach(json_decode(env('TENANTS')) as $tenantCode){
-            $this->artisan("fetch:shops $tenantCode")->assertExitCode(0);
+            $this->artisan("fetch:warehouses $tenantCode")->assertExitCode(0);
+            $this->artisan("fetch:warehouse-areas $tenantCode")->assertExitCode(0);
+            $this->artisan("fetch:locations $tenantCode")->assertExitCode(0);
+            $this->artisan("fetch:stocks $tenantCode")->assertExitCode(0);
+
 
         }
 

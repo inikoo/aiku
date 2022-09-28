@@ -38,7 +38,7 @@ class FetchWarehouseAreas extends FetchAction
                     modelData: $warehouseAreaData['warehouse_area'],
                 );
             }
-            $this->progressBar?->advance();
+
 
             return $warehouseArea;
         }

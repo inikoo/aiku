@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 class FetchOrders extends FetchAction
 {
 
-    public string $commandSignature = 'fetch:order {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
     {

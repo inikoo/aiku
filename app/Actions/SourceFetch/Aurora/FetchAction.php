@@ -26,12 +26,14 @@ class FetchAction
     use AsAction;
     use WithTenantsArgument;
 
+    protected  Int $counter=0;
 
     protected ?ProgressBar $progressBar;
 
     public function __construct()
     {
         $this->progressBar = null;
+
     }
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Model
@@ -46,8 +48,10 @@ class FetchAction
 
     public function fetchAll(SourceTenantService $tenantSource): void
     {
+
         foreach ($this->getModelsQuery()->get() as $auroraData) {
             $this->handle($tenantSource, $auroraData->{'source_id'});
+            $this->progressBar?->advance();
         }
     }
 
@@ -69,26 +73,30 @@ class FetchAction
      */
     public function asCommand(Command $command): int
     {
-
-        $tenants = $this->getTenants($command);
+        $tenants  = $this->getTenants($command);
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {
-
-
-            $result = (int) $tenant->run(function () use ($command){
-                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source,'type'));
+            $result = (int)$tenant->run(function () use ($command,$tenant) {
+                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));
                 $tenantSource->initialisation(tenant());
+                $command->info('');
 
                 if ($command->option('source_id')) {
                     $this->handle($tenantSource, $command->option('source_id'));
                 } else {
-                    $this->progressBar = $command->getOutput()->createProgressBar($this->count());
-                    $this->progressBar->setFormat('debug');
-                    $this->progressBar->start();
+
+                    if(!$command->option('quiet')) {
+                        $this->progressBar = $command->getOutput()->createProgressBar($this->count());
+                        $this->progressBar->setFormat('debug');
+                        $this->progressBar->start();
+                    }else{
+                        $command->line('sss '.$this->count());
+                    }
 
                     $this->fetchAll($tenantSource);
-                    $this->progressBar->finish();
+                    $this->progressBar?->finish();
+
                 }
             });
 
@@ -98,8 +106,6 @@ class FetchAction
         }
 
         return $exitCode;
-
-
     }
 
     public function asJob(SourceTenantService $tenantSource, ?array $tenantIds = null): void

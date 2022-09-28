@@ -48,7 +48,7 @@ class FetchStocks extends FetchAction
 
             $stock->locations()->sync($locationsData['stock_locations']);
 
-            $this->progressBar?->advance();
+
 
             return $stock;
         }
@@ -63,7 +63,11 @@ class FetchStocks extends FetchAction
             ->table('Part Dimension')
             ->select('Part SKU as source_id')
             ->where('Part Status', '!=', 'Not In Use')
-            ->orderBy('source_id');
+            ->orderBy('source_id')
+            ->when(app()->environment('testing'), function ($query) {
+                return $query->limit(20);
+            });
+
     }
 
     function count(): ?int

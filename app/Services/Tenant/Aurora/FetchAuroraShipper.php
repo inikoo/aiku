@@ -25,10 +25,8 @@ class FetchAuroraShipper extends FetchAurora
             'phone'        => $this->auroraModelData->{'Shipper Telephone'},
             'status'       => $this->auroraModelData->{'Shipper Active'} === 'Yes',
             'tracking_url' => $this->auroraModelData->{'Shipper Tracking URL'},
+            'source_id'    => $this->auroraModelData->{'Shipper Key'},
 
-        ];
-        $this->parsedData['source']  = [
-            'source_id' => $this->auroraModelData->{'Shipper Key'},
 
         ];
     }

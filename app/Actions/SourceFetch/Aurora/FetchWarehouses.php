@@ -36,7 +36,7 @@ class FetchWarehouses extends FetchAction
                     modelData:    $warehouseData['warehouse'],
                 );
             }
-            $this->progressBar?->advance();
+
 
             return $warehouse;
         }
