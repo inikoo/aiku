@@ -22,4 +22,6 @@ yarn-error.log
 /resources/private/
 lang/php_*.json
 /storage/tenants
+tt
+ctt
 

@@ -1,1 +1,0 @@
-./devops/load_snapshot.sh devops/devel/snapshots/migrate-aurora-tenants.dump
