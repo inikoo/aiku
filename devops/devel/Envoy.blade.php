@@ -12,7 +12,7 @@
 @story('install')
     initialise-dbs
     create-admins
-    migrate-aurora-tenants
+    empty-aurora-tenants
     tenant-guest-admin
     tenant-fetch
 @endstory
@@ -23,7 +23,7 @@
     dump-database
     create-admins
     dump-database
-    migrate-aurora-tenants
+    empty-aurora-tenants
     dump-database
     tenant-guest-admin
     dump-database
@@ -53,8 +53,8 @@
     php artisan create:admin-token {{ $adminCode }} admin root
 @endtask
 
-@task('migrate-aurora-tenants')
-    echo "migrate-aurora-tenants" > step
+@task('empty-aurora-tenants')
+    echo "empty-aurora-tenants" > step
     @if ($_ENV['APP_ENV'] === 'local')
         cd ../../
     @endif

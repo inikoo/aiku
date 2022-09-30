@@ -21,7 +21,7 @@ class FetchInventoryTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        $process = new Process(['devops/load_test_snapshot.sh','devops/devel/snapshots/migrate-aurora-tenants.dump']);
+        $process = new Process(['devops/load_test_snapshot.sh','devops/devel/snapshots/empty-aurora-tenants.dump']);
         $process->run();
 
     }

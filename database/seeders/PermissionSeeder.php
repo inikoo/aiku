@@ -25,9 +25,25 @@ class PermissionSeeder extends Seeder
         $permissions = collect(config("blueprint.permissions"));
         $roles       = collect(config("blueprint.roles"));
 
-        $permissions->each(function ($permission) {
+
+        $currentPermissions=Permission::all()->pluck('name');
+        $currentPermissions->diff($permissions)
+            ->each(function ($permissionName) {
+            Permission::where('name',$permissionName)->first()->delete();
+
+        });
+
+
+        $currentRoles=Role::all()->pluck('name');
+        $currentRoles->diff(collect(config("blueprint.roles"))->keys())
+            ->each(function ($roleName) {
+                Role::where('name',$roleName)->first()->delete();
+            });
+
+
+        $permissions->each(function ($permissionName) {
             try {
-                Permission::create(['name' => $permission]);
+                Permission::create(['name' => $permissionName]);
             } catch (Exception) {
             }
         });

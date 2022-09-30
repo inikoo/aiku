@@ -51,7 +51,7 @@ class CreateGuestUser
     {
         $guest = StoreGuest::run(
             Arr::only($guestUserData, ['name', 'email']),
-            Arr::get($guestUserData,'username')
+            Arr::get($guestUserData, 'username')
         );
 
 
@@ -79,7 +79,7 @@ class CreateGuestUser
         return [
 
             'username' => ['required', new AlphaDashDot, 'unique:App\Models\Central\CentralUser,username'],
-            'password' => ['required', app()->isLocal() ? null : Password::min(8)->uncompromised()],
+            'password' => ['required', app()->isProduction() ? Password::min(8)->uncompromised() : null],
             'name'     => 'sometimes|required',
             'email'    => 'sometimes|required|email'
         ];
