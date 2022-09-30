@@ -35,18 +35,23 @@ class CreateGuestFromExistingUser
         return 'Create tenant guest from existing user.';
     }
 
+
     /**
-     * @throws \Illuminate\Validation\ValidationException
+     * @param  \App\Models\Central\CentralUser  $centralUser
+     * @param  array  $roles  array of Role models
+     *
+     * @return \App\Models\SysAdmin\User
      */
-    public function handle(CentralUser $centralUser, $roles): User
+    public function handle(CentralUser $centralUser, array $roles): User
     {
         $guest = StoreGuest::run(
             Arr::only($centralUser->data, ['name', 'email']),
             $centralUser->username
         );
-        $user  = StoreUser::run(tenant(), $guest, $centralUser);
-        foreach ($roles as $roleName) {
-            $user->assignRole($roleName);
+        /** @var User $user */
+        $user = StoreUser::run(tenant(), $guest, $centralUser);
+        foreach ($roles as $role) {
+            $user->assignDirectRole($role);
         }
 
         return $user;
@@ -63,39 +68,37 @@ class CreateGuestFromExistingUser
 
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(
-            /**
-             * @throws \Illuminate\Validation\ValidationException
-             */ function () use ($centralUser, $command) {
-                $roles = [];
-                foreach ($command->option('roles') as $roleName) {
-                    /** @var Role $role */
-                    if ($role = Role::where('name', $roleName)->first()) {
-                        $roles[] = $role->name;
-                    } else {
-                        $command->error("Role $roleName not found");
+                function () use ($centralUser, $command) {
+                    $roles = [];
+                    foreach ($command->option('roles') as $roleName) {
+                        /** @var Role $role */
+                        if ($role = Role::where('name', $roleName)->first()) {
+                            $roles[] = $role;
+                        } else {
+                            $command->error("Role $roleName not found");
+                        }
                     }
-                }
 
 
-                $user = $this->handle($centralUser, $roles);
-                /** @var Guest $guest */
-                $guest = $user->parent;
+                    $user = $this->handle($centralUser, $roles);
+                    /** @var Guest $guest */
+                    $guest = $user->parent;
 
-                $command->line("Guest user created $user->username");
+                    $command->line("Guest user created $user->username");
 
-                $command->table(
-                    ['Username', 'Email', 'Name', 'Roles'],
-                    [
+                    $command->table(
+                        ['Username', 'Email', 'Name', 'Roles'],
                         [
-                            $user->username,
-                            $guest->email,
-                            $guest->name,
-                            $user->getRoleNames()->implode(',')
-                        ],
+                            [
+                                $user->username,
+                                $guest->email,
+                                $guest->name,
+                                $user->getRoleNames()->implode(',')
+                            ],
 
-                    ]
-                );
-            }
+                        ]
+                    );
+                }
             );
 
             if ($result !== 0) {

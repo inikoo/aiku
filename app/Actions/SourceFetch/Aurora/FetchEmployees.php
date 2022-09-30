@@ -36,6 +36,9 @@ class FetchEmployees extends FetchAction
                     modelData:    $employeeData['employee'],
                 );
             }
+
+
+
             $employee->jobPositions()->sync($employeeData['job-positions']);
 
             foreach ($employeeData['photo'] ?? [] as $profileImage) {

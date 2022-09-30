@@ -44,10 +44,14 @@ class CreateGuestUser
         return 'Create tenant guest user.';
     }
 
+
     /**
-     * @throws \Illuminate\Validation\ValidationException
+     * @param  array  $guestUserData
+     * @param  array  $roles array of Role models
+     *
+     * @return User
      */
-    public function handle($guestUserData, $roles): User
+    public function handle(array $guestUserData, array $roles): User
     {
         $guest = StoreGuest::run(
             Arr::only($guestUserData, ['name', 'email']),
@@ -62,11 +66,12 @@ class CreateGuestUser
             )
         );
 
+        /** @var User $user */
         $user = StoreUser::run(tenant(), $guest, $centralUser);
 
 
-        foreach ($roles as $roleName) {
-            $user->assignRole($roleName);
+        foreach ($roles as $role) {
+            $user->assignDirectRole($role);
         }
 
 
@@ -115,14 +120,12 @@ class CreateGuestUser
 
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(
-            /**
-             * @throws \Illuminate\Validation\ValidationException
-             */ function () use ($validatedData, $command, $tenant) {
+             function () use ($validatedData, $command, $tenant) {
                 $roles = [];
                 foreach ($command->option('roles') as $roleName) {
                     /** @var Role $role */
                     if ($role = Role::where('name', $roleName)->first()) {
-                        $roles[] = $role->name;
+                        $roles[] = $role;
                     } else {
                         $command->error("Role $roleName not found");
                     }
