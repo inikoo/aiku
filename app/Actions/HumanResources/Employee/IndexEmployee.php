@@ -90,6 +90,7 @@ class IndexEmployee
                 ->column(key: 'code',label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name',label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_positions',label: __('position'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'actions',label: __('actions'))
 
                 ->defaultSort('code');
         });

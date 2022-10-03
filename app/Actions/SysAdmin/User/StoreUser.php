@@ -23,15 +23,20 @@ class StoreUser
 
     public function handle(Tenant $tenant, Guest|Employee $parent, CentralUser $centralUser): User
     {
-        $modelData['password'] = Hash::make($modelData['password']);
+        tenancy()->central(function () use ($centralUser, $tenant) {
+            $centralUser->tenants()->attach($tenant);
+        });
+        $user = User::where('global_id', $centralUser->global_id)->first();
+        $user->parent()->associate($parent);
+        $user->name=$parent->name;
+        $user->save();
+        /** Run Hydrate here because boot() static::created is not call in User.php
+         because tenancy package Synced resources between tenants
+         * https://tenancyforlaravel.com/docs/v3/synced-resources-between-tenants
+         */
+        HydrateTenant::make()->userStats();
 
-
-        $user=User::create($modelData);
-
-
-
-
-        return $this->finalise($user);
+        return $user;
     }
 
 

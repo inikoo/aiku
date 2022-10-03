@@ -27,7 +27,11 @@
     dump-database
     tenant-guest-admin
     dump-database
-    tenant-fetch
+    tenant-fetch-employees
+    dump-database
+    tenant-fetch-inventory
+    dump-database
+    tenant-fetch-sales
     dump-database
 @endstory
 
@@ -72,15 +76,24 @@ echo "tenant-guest-admin" > step
 php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin
 @endtask
 
-@task('tenant-fetch')
-    echo "migrate-aurora-tenants" > step
+@task('tenant-fetch-employees')
+    echo "tenant-fetch-employees" > step
+    @if ($_ENV['APP_ENV'] === 'local')
+        cd ../../
+    @endif
+
+    echo "employees"
+    php artisan fetch:employees -q
+
+@endtask
+
+@task('tenant-fetch-inventory')
+    echo "tenant-fetch-inventory" > step
     @if ($_ENV['APP_ENV'] === 'local')
         cd ../../
     @endif
     echo "shippers"
     php artisan fetch:shippers -q
-    echo "employees"
-    php artisan fetch:employees -q
     echo "warehouses"
     php artisan fetch:warehouses  -q
     echo "warehouse-areas"
@@ -89,9 +102,17 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     php artisan fetch:locations  -q
     echo "stocks"
     php artisan fetch:stocks  -q
+@endtask
+
+@task('tenant-fetch-sales')
+    echo "tenant-fetch-sales" > step
+    @if ($_ENV['APP_ENV'] === 'local')
+        cd ../../
+    @endif
     echo "shops"
     php artisan fetch:shops  -q
 @endtask
+
 
 @task('dump-database')
     pg_dump -Fc -f "snapshots/$(cat step).dump" {{ $_ENV['DB_DATABASE'] }}

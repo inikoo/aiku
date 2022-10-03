@@ -2,6 +2,8 @@
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
     <Table :resource="employees" class="mt-5">
+
+
         <template #cell(code)="{ item: employee }">
             <Link :href="route('hr.employees.show',employee.id)">
                 {{ employee.code }}
@@ -15,9 +17,9 @@
 
 <script setup>
 import {Head, Link} from '@inertiajs/inertia-vue3';
-import {Table} from '@protonemedia/inertiajs-tables-laravel-query-builder';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import JobPositionBadges from '@/Components/Elements/Badges/JobPositionBadges.vue';
+import Table from '@/Components/Table/Table.vue';
 
 defineProps(['employees', 'title','pageHead']);
 

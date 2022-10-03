@@ -26,9 +26,9 @@ class ShowHumanResourcesDashboard
     }
 
 
-    public function asController(): bool
+    public function asController(): void
     {
-        return true;
+        $this->validateAttributes();
     }
 
 

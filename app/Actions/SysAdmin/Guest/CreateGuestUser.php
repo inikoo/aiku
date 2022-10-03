@@ -94,7 +94,7 @@ class CreateGuestUser
     {
         $this->centralUser = null;
         if ($command->option('autoPassword')) {
-            $password = (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true));
+            $password = (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello');
         } else {
             $password = $this->$command('What is the password?');
         }
@@ -133,7 +133,7 @@ class CreateGuestUser
 
 
                 if ($this->centralUser && $this->centralUser->id) {
-                    $user = CreateGuestFromExistingUser::run($this->centralUser, $roles);
+                    $user = CreateGuestFromUser::run($this->centralUser, $roles);
                 } else {
                     $user              = $this->handle($validatedData, $roles);
                     $this->centralUser = CentralUser::where('global_id', $user->getGlobalIdentifierKey())->firstOrFail();

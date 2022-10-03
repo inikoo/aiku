@@ -20,7 +20,7 @@ use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class CreateGuestFromExistingUser
+class CreateGuestFromUser
 {
 
     use AsAction;

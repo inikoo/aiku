@@ -12,6 +12,8 @@ use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use Stancl\Tenancy\Contracts\SyncMaster;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
 use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
@@ -46,7 +48,7 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
 class CentralUser extends Model implements SyncMaster
 {
     use ResourceSyncing, CentralConnection;
-
+    use HasSlug;
 
 
     protected $guarded = [];
@@ -59,6 +61,13 @@ class CentralUser extends Model implements SyncMaster
     protected $attributes = [
         'data' => '{}',
     ];
+
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('username')
+            ->saveSlugsTo('username');
+    }
 
 
     public function tenants(): BelongsToMany
