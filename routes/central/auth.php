@@ -28,7 +28,7 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
                 ->name('central.login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('central.login.store');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
                 ->name('central.password.request');
@@ -43,8 +43,8 @@ Route::middleware('guest')->group(function () {
                 ->name('central.password.update');
 
 
-    Route::get('auth/facebook', [FacebookAuthController::class, 'facebookRedirect']);
-    Route::get('auth/facebook/callback', [FacebookAuthController::class, 'loginWithFacebook']);
+    Route::get('auth/facebook', [FacebookAuthController::class, 'facebookRedirect'])->name('central.facebook.store');;
+    Route::get('auth/facebook/callback', [FacebookAuthController::class, 'loginWithFacebook'])->name('central.facebook.callback');;
 
 });
 
@@ -63,8 +63,9 @@ Route::middleware('auth')->group(function () {
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
                 ->name('central.password.confirm');
 
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
+    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store'])->name('central.password.confirm.store');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('central.logout');
 });
+
