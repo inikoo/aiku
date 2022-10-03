@@ -17,7 +17,7 @@ const props = defineProps({
 
 </script>
 
-<template layout="app">
+<template layout="App">
    <Error status="status"  title="title"  description="description" ></Error>
 </template>
 
