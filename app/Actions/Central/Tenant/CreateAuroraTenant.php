@@ -77,8 +77,11 @@ class CreateAuroraTenant
         $tenant = StoreTenant::run($tenantData);
 
 
+
+
         $tenant->domains()->create([
-                                       'domain' => $tenant->code,
+                                       'domain' =>
+                                           $tenant->code.app()->isProduction() ? config('domain') : '',
                                    ]);
 
 

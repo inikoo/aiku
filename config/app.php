@@ -214,7 +214,9 @@ return [
     ])->toArray(),
 
     'po_editor_api_key' => env('PO_EDITOR_READ_ONLY_API_KEY', ''),
-    'aurora_image_path'=>env('AURORA_IMAGE_PATH')
+    'aurora_image_path'=>env('AURORA_IMAGE_PATH'),
 
+
+    'domain'=>env('APP_CENTRAL_DOMAIN')
 
 ];
