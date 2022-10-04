@@ -120,7 +120,7 @@ cd {{ $new_release_dir }}
         echo "Dropping tenant datgabases {{ $auroraDB }}"
         psql -d {{ $_ENV['DB_DATABASE'] }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
 @endforeach
-{{$php}} artisan config:clear
+{{$php}} artisan optimize:clear
 {{$php}} artisan migrate:refresh --force
 {{$php}} artisan db:seed --force
 {{$php}} artisan create:first-deployment
