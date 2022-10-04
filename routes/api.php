@@ -6,12 +6,14 @@
  *  Version 4.0
  */
 
-use App\Http\Controllers\Admin\DeploymentController;
+use App\Actions\Central\Deployment\ShowDeployment;
+use App\Actions\Central\Deployment\StoreDeployment;
+use App\Actions\Central\Deployment\UpdateDeployment;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/deployments/latest', [DeploymentController::class, 'latest'])->name('deployments.latest');
-Route::get('/deployments/{deploymentId}', [DeploymentController::class, 'show'])->name('deployments.show');
-Route::post('/deployments/create', [DeploymentController::class, 'store'])->name('deployments.store');
-Route::post('/deployments/latest/edit', [DeploymentController::class, 'updateLatest'])->name('deployments.edit.latest');
+Route::get('/deployments/latest', [ShowDeployment::class, 'latest'])->name('deployments.latest');
+Route::get('/deployments/{deployment}', ShowDeployment::class)->name('deployments.show');
+Route::post('/deployments/create', StoreDeployment::class)->name('deployments.store');
+Route::post('/deployments/latest/edit', [UpdateDeployment::class, 'latest'])->name('deployments.edit.latest');
 

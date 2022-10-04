@@ -1,0 +1,139 @@
+<?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Tue, 04 Oct 2022 11:28:53 Central European Summer Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Central\Deployment;
+
+use App\Models\Central\Deployment;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
+use Lorisleiva\Actions\Concerns\AsAction;
+use PHLAK\SemVer\Version;
+use Symfony\Component\Process\Exception\RuntimeException;
+use Symfony\Component\Process\Process;
+use Throwable;
+
+
+class StoreDeployment
+{
+    use AsAction;
+
+    public string $commandSignature = 'create:deployment';
+
+    public function getCommandDescription(): string
+    {
+        return 'Create deployment.';
+    }
+
+    public function handle(array $modelData): Deployment
+    {
+        return tenancy()->central(function () use ($modelData) {
+            return Deployment::create($modelData);
+        });
+    }
+
+
+    public function getCurrentHash(): string
+    {
+        return $this->runGitCommand('git describe --always');
+    }
+
+    public function runGitCommand($command): string
+    {
+
+        $path    = config('deployments.repo_path');
+
+
+        try {
+            if (method_exists(Process::class, 'fromShellCommandline')) {
+                $process = Process::fromShellCommandline($command, $path);
+            } else {
+                $process = new Process([$command], $path);
+            }
+
+            $process->mustRun();
+
+            return trim($process->getOutput());
+        } catch (RuntimeException) {
+            return '';
+        }
+    }
+
+    /**
+     * @throws \PHLAK\SemVer\Exceptions\InvalidVersionException
+     */
+    public function asController(): Model|Deployment|JsonResponse
+    {
+        $data = [
+            'skip' => []
+        ];
+
+
+        $currentHash = $this->getCurrentHash();
+        if ($latestDeployment = Deployment::latest()->first()) {
+            $latestHash = $latestDeployment->hash;
+
+
+            if (!$this->validateHash($currentHash) or !$this->validateHash($latestHash)) {
+                return response()->json([
+                                            'msg' => "Invalid hash $currentHash or $latestHash",
+
+                                        ], 400);
+            } else {
+                $filesChanged = $this->runGitCommand("git diff --name-only $currentHash $latestHash");
+
+                if (!preg_match('/composer\.lock/', $filesChanged)) {
+                    $data['skip']['composer_install'] = true;
+                }
+                if (!preg_match('/package\.lock/', $filesChanged)) {
+                    $data['skip']['npm_install'] = true;
+                }
+
+                if (!str_contains($filesChanged, 'resources')) {
+                    $data['skip']['build'] = true;
+                }
+            }
+
+            $version = Version::parse($latestDeployment->version);
+
+            if ($currentHash == $latestHash) {
+                $build = (int)$version->build ?? 0;
+                $build++;
+
+                $version->setBuild(sprintf('%03d', $build));
+            } else {
+                $version->incrementPatch();
+            }
+        } else {
+            $version = new Version();
+        }
+
+        try {
+            return Deployment::create([
+                                          'version' => (string)$version,
+                                          'hash'    => $currentHash,
+                                          'data'    => $data
+                                      ]);
+        } catch (Throwable $e) {
+            report($e);
+
+            return response()->json(
+                [
+                    'message' => 'Error creating the deployment.'
+                ],
+                404
+            );
+        }
+    }
+
+
+
+    private function validateHash($hash): bool
+    {
+        return preg_match('/^[0-9a-f]{7,40}$/', $hash) == true;
+    }
+
+}

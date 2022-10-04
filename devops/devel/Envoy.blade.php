@@ -53,6 +53,7 @@
     @if ($_ENV['APP_ENV'] === 'local')
         cd ../../
     @endif
+    php artisan create:first-deployment
     php artisan create:admin-user {{ $adminCode }} '{{ $adminName }}' -e={{ $adminEmail }} -a
     php artisan create:admin-token {{ $adminCode }} admin root
 @endtask

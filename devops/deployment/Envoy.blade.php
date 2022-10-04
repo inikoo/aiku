@@ -59,8 +59,8 @@ $skip_build=false;
 
 DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/create' --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
 echo DEPLOY
-echo $DEPLOY | jq -r '.version'
 echo $DEPLOY > {{$path}}/deploy-manifest.json
+echo "cp {{$path}}/deploy-manifest.json {{ $staging_dir }}/"
 cp {{$path}}/deploy-manifest.json {{ $staging_dir }}/
 
 
