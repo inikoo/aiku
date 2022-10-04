@@ -8,6 +8,6 @@
 
 return [
 
-    'repo_path'=>(env('APP_ENV')=='local'?base_path(''):env('REPO_DIR'))
+    'repo_path'=>(env('APP_ENV')=='local'?base_path('.git'):env('REPO_DIR'))
 ];
 

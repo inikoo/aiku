@@ -38,7 +38,7 @@ class StoreDeployment
 
     public function getCurrentHash(): string
     {
-        return $this->runGitCommand('git --git-dir '.config('deployments.repo_path').'/.git describe --always');
+        return $this->runGitCommand('git --git-dir '.config('deployments.repo_path').' describe --always');
     }
 
     public function runGitCommand($command): string
@@ -81,7 +81,7 @@ class StoreDeployment
 
                                         ], 400);
             } else {
-                $filesChanged = $this->runGitCommand("git --git-dir ".config('deployments.repo_path')."/.git   diff --name-only $currentHash $latestHash");
+                $filesChanged = $this->runGitCommand("git --git-dir ".config('deployments.repo_path')."   diff --name-only $currentHash $latestHash");
 
                 if (!preg_match('/composer\.lock/', $filesChanged)) {
                     $data['skip']['composer_install'] = true;
