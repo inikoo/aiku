@@ -18,7 +18,6 @@ use Spatie\Permission\PermissionRegistrar;
 use Stancl\JobPipeline\JobPipeline;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Events\TenancyBootstrapped;
-use Stancl\Tenancy\Events\TenancyEnded;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
 use Stancl\Tenancy\Middleware;
@@ -151,9 +150,9 @@ class TenancyServiceProvider extends ServiceProvider
             // Even higher priority than the initialization middleware
             Middleware\PreventAccessFromCentralDomains::class,
 
-            Middleware\InitializeTenancyByDomain::class,
+           // Middleware\InitializeTenancyByDomain::class,
             Middleware\InitializeTenancyBySubdomain::class,
-            Middleware\InitializeTenancyByDomainOrSubdomain::class,
+            //Middleware\InitializeTenancyByDomainOrSubdomain::class,
             Middleware\InitializeTenancyByPath::class,
             Middleware\InitializeTenancyByRequestData::class,
         ];
