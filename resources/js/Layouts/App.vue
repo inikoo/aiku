@@ -5,8 +5,40 @@
   -  Version 4.0
   -->
 
-
 <!--suppress JSUnresolvedFunction -->
+
+<script setup>
+import {ref, inject} from 'vue';
+import {
+    Dialog,
+    DialogPanel,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuItems,
+    TransitionChild,
+    TransitionRoot,
+} from '@headlessui/vue'
+import { ChevronDownIcon, MenuAlt1Icon, XIcon } from '@heroicons/vue/outline'
+import { Link } from '@inertiajs/inertia-vue3';
+import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
+
+
+const initialiseApp = inject('initialiseApp')
+const layout= initialiseApp();
+
+
+
+const shortcuts = [
+    { name: 'Engineering', href: '#', bgColorClass: 'bg-indigo-500' },
+    { name: 'Human Resources', href: '#', bgColorClass: 'bg-green-500' },
+    { name: 'Customer Success', href: '#', bgColorClass: 'bg-yellow-500' },
+]
+
+
+const sidebarOpen = ref(false)
+</script>
+
 <template>
     <div class="min-h-full">
         <TransitionRoot as="template" :show="sidebarOpen">
@@ -182,34 +214,4 @@
     </div>
 </template>
 
-<script setup>
-import {ref, inject} from 'vue';
-import {
-    Dialog,
-    DialogPanel,
-    Menu,
-    MenuButton,
-    MenuItem,
-    MenuItems,
-    TransitionChild,
-    TransitionRoot,
-} from '@headlessui/vue'
-import { ChevronDownIcon, MenuAlt1Icon, XIcon } from '@heroicons/vue/outline'
-import { Link } from '@inertiajs/inertia-vue3';
-import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
 
-
-const initialiseApp = inject('initialiseApp')
-const layout= initialiseApp();
-
-
-
-const shortcuts = [
-    { name: 'Engineering', href: '#', bgColorClass: 'bg-indigo-500' },
-    { name: 'Human Resources', href: '#', bgColorClass: 'bg-green-500' },
-    { name: 'Customer Success', href: '#', bgColorClass: 'bg-yellow-500' },
-]
-
-
-const sidebarOpen = ref(false)
-</script>
