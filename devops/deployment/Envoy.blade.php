@@ -61,7 +61,7 @@ DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/creat
 echo DEPLOY
 echo $DEPLOY | jq -r '.version'
 echo $DEPLOY > {{$path}}/deploy-manifest.json
-mv {{$path}}/deploy-manifest.json {{ $staging_dir }}/
+cp {{$path}}/deploy-manifest.json {{ $staging_dir }}/
 
 
 mkdir -p {{ $new_release_dir }}
