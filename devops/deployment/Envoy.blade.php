@@ -82,7 +82,7 @@ ln -nsf {{ $path }}/storage {{ $new_release_dir }}/storage
 ln -nsf {{ $path }}/storage/app/public {{ $new_release_dir }}/public/storage
 
 
-DEPLOY=$(cat {{ $staging_dir }}/deploy-manifest.json | jq -r '.skip_composer_install' )
+DEPLOY=$(cat {{ $path }}/deploy-manifest.json | jq -r '.skip_composer_install' )
 if [ $DEPLOY != true ]
 then
     echo "***********************************************************************"
@@ -91,24 +91,20 @@ then
     {{$php}}  /usr/local/bin/composer install --no-ansi --no-dev --no-interaction --no-plugins --no-progress --no-scripts --optimize-autoloader --prefer-dist
 fi
 
-DEPLOY=$(cat {{ $staging_dir }}/deploy-manifest.json | jq -r '.skip_npm_install' )
-if [ $DEPLOY != true ]
-then
-    echo "***********************************************************************"
-    echo "* NPM install *"
-    cd {{$staging_dir}}
-    npm install
-fi
 
-DEPLOY=$(cat {{ $staging_dir }}/deploy-manifest.json | jq -r '.skip_build' )
-if [ $DEPLOY != true ]
-then
-    echo "***********************************************************************"
-    echo "* build VUE *"
-    cd {{$staging_dir}}
-    ln -sf {{ $path }}/private/ {{ $staging_dir }}/resources/js/
-    npm run build
-fi
+echo "***********************************************************************"
+echo "* NPM install *"
+cd {{$staging_dir}}
+npm install
+
+
+
+echo "***********************************************************************"
+echo "* build VUE *"
+cd {{$staging_dir}}
+ln -sf {{ $path }}/private/ {{ $staging_dir }}/resources
+npm run build
+
 
 echo "***********************************************************************"
 echo "* (D) Sync code from {{ $staging_dir }}  to {{ $new_release_dir }} *"
