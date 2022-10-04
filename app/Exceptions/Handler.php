@@ -104,7 +104,7 @@ class Handler extends ExceptionHandler
             return [
                 'status'      => 404,
                 'title'       => __('Account not found'),
-                'description' => __('')
+                'description' => __('Account could not be identified on domain')
             ];
         }
 

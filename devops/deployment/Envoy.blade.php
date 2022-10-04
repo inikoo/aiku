@@ -9,7 +9,7 @@
 
 
 @setup
-$dotenv = Dotenv\Dotenv::createImmutable('../');
+$dotenv = Dotenv\Dotenv::createImmutable('../../');
 $dotenv->load();
 
 $api_url=$_ENV['PRODUCTION_API_URL'];
@@ -71,87 +71,6 @@ $skip_build=false;
 @endsetup
 
 @servers(['production' => $user.'@'.$host,'localhost' => '127.0.0.1'])
-
-
-
-@task('install', ['on' => 'production','confirm' => true])
-
-mkdir -p {{ $new_release_dir }}
-mkdir -p {{ $new_release_dir }}/public/
-
-echo "***********************************************************************"
-echo "* Pulling repo *"
-cd {{$repo_dir}}
-git pull origin {{ $branch }}
-
-echo "***********************************************************************"
-echo "* staging code from {{ $repo_dir }} to {{ $staging_dir }} *"
-rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{ $repo_dir }}/deployment/deployment-exclude-list.txt {{ $repo_dir }}/ {{ $staging_dir }}
-sudo chgrp www-data {{ $staging_dir }}/bootstrap/cache
-
-ln -nsf {{ $path }}/.env {{ $new_release_dir }}/.env
-ln -nsf {{ $path }}/storage {{ $new_release_dir }}/storage
-ln -nsf {{ $path }}/storage/app/public {{ $new_release_dir }}/public/storage
-
-echo "***********************************************************************"
-echo "* Composer install *"
-cd {{$staging_dir}}
-{{$php}}  /usr/local/bin/composer install --no-ansi --no-dev --no-interaction --no-plugins --no-progress --no-scripts --optimize-autoloader --prefer-dist
-
-echo "***********************************************************************"
-echo "* NPM install *"
-cd {{$staging_dir}}
-npm install
-
-echo "***********************************************************************"
-echo "* build VUE *"
-cd {{$staging_dir}}
-ln -sf {{ $path }}/private/ {{ $staging_dir }}/resources/js/
-npm run build
-
-
-touch {{ $staging_dir }}/deploy-manifest.json
-echo "***********************************************************************"
-echo "* Sync code from {{ $staging_dir }}  to {{ $new_release_dir }} *"
-sudo rsync -auz --exclude 'node_modules' {{ $staging_dir }}/ {{ $new_release_dir }}
-
-echo "***********************************************************************"
-echo "migrating DB and seeding"
-cd {{ $new_release_dir }}
-{{$php}} artisan migrate:refresh --force
-{{$php}} artisan db:seed --force
-{{$php}} artisan admin:new --randomPassword '{{$adminName}}' {{$adminEmail}} {{$adminSlug}}
-{{$php}} artisan admin:token {{$adminSlug}} admin root
-
-
-echo "***********************************************************************"
-echo '* Clearing cache and optimising *'
-
-cd {{ $new_release_dir }}
-{{ $php }} artisan --version
-
-
-cd {{ $new_release_dir }}
-{{ $php }} artisan optimize:clear --quiet
-{{$php}}  /usr/local/bin/composer dump-autoload -o
-echo "Queue restarted"
-#{{ $php }} artisan queue:restart --quiet
-
-echo "Cache"
-{{ $php }} artisan config:cache
-{{ $php }} artisan view:cache
-
-# Only use when no closure used in routes
-#{{ $php }} artisan optimize
-{{ $php }} artisan route:cache
-
-echo "***********************************************************************"
-echo "* Activating new release ({{ $new_release_dir }} -> {{ $current_release_dir }}) *"
-ln -nsf {{ $new_release_dir }} {{ $current_release_dir }}
-
-
-@endtask
-
 
 @task('deploy', ['on' => 'production'])
 
