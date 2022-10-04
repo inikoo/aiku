@@ -1,0 +1,4 @@
+*
+!deployment-exclude-list.txt
+!Envoy.blade.php
+!.gitignore

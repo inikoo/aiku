@@ -5,7 +5,7 @@
 //  Version 4.0
 --}}
 
-@include('../vendor/autoload.php')
+@include('../../vendor/autoload.php')
 
 
 @setup
@@ -34,23 +34,6 @@ exit('ERROR: DEPLOYMENT_PATH var empty or not defined');
 }
 $path=$_ENV['DEPLOYMENT_PATH'];
 
-
-if (empty($_ENV['PRODUCTION_ADMIN_EMAIL'])) {
-exit('ERROR: PRODUCTION_ADMIN_EMAIL var empty or not defined');
-}
-$adminEmail=$_ENV['PRODUCTION_ADMIN_EMAIL'];
-
-if (empty($_ENV['PRODUCTION_ADMIN_SLUG'])) {
-exit('ERROR: PRODUCTION_ADMIN_SLUG var empty or not defined');
-}
-$adminSlug=$_ENV['PRODUCTION_ADMIN_SLUG'];
-
-if (empty($_ENV['PRODUCTION_ADMIN_NANE'])) {
-exit('ERROR: PRODUCTION_ADMIN_NANE var empty or not defined');
-}
-$adminName=$_ENV['PRODUCTION_ADMIN_NANE'];
-
-
 $date = ( new DateTime )->format('Y-m-d_H_i_s');
 
 $current_release_dir = $path . '/current';
@@ -74,7 +57,7 @@ $skip_build=false;
 
 @task('deploy', ['on' => 'production'])
 
-DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/create' --header 'Authorization: Bearer {{$api_key}}')
+DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/create' --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
 echo DEPLOY
 echo $DEPLOY | jq -r '.version'
 echo $DEPLOY > {{$path}}/deploy-manifest.json
@@ -91,7 +74,7 @@ git pull origin {{ $branch }}
 
 echo "***********************************************************************"
 echo "* staging code from {{ $repo_dir }} to {{ $staging_dir }} *"
-rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{ $repo_dir }}/deployment/deployment-exclude-list.txt {{ $repo_dir }}/ {{ $staging_dir }}
+rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{ $repo_dir }}/devops/deployment/deployment-exclude-list.txt {{ $repo_dir }}/ {{ $staging_dir }}
 sudo chgrp www-data {{ $staging_dir }}/bootstrap/cache
 
 ln -nsf {{ $path }}/.env {{ $new_release_dir }}/.env
@@ -164,7 +147,7 @@ echo "* Executing cleanup command in {{ $releases_dir }} *"
 cd {{$releases_dir}}
 ls -r | tail -n +2 | xargs rm -rf
 
-DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/latest/edit?state=deployed' --header 'Authorization: Bearer {{$api_key}}')
+DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/latest/edit?state=deployed'  --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
 echo $DEPLOY
 
 
