@@ -21,6 +21,7 @@
         "laravel/tinker": "^2.7",
         "laravolt/avatar": "^4.1",
         "lorisleiva/laravel-actions": "^2.4",
+        "monicahq/laravel-cloudflare": "^3.3",
         "opcodesio/log-viewer": "^1.2",
         "phlak/semver": "^4.0",
         "protonemedia/inertiajs-tables-laravel-query-builder": "^2.0",
