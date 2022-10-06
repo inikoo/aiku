@@ -23,6 +23,7 @@ use Stancl\Tenancy\Database\TenantCollection;
  *
  * @property int $id
  * @property string $code
+ * @property string $uuid
  * @property string $name
  * @property array $data
  * @property int $country_id
@@ -56,6 +57,7 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @method static Builder|Tenant whereName($value)
  * @method static Builder|Tenant whereTimezoneId($value)
  * @method static Builder|Tenant whereUpdatedAt($value)
+ * @method static Builder|Tenant whereUuid($value)
  * @mixin \Eloquent
  */
 class Tenant extends BaseTenant implements TenantWithDatabase
@@ -79,6 +81,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return [
             'code',
+            'uuid',
             'type',
             'name',
             'country_id',

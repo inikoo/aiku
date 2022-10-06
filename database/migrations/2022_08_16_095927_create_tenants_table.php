@@ -18,6 +18,7 @@ return new class extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique();
+            $table->uuid();
             $table->string('name');
             $table->jsonb('data');
             $table->unsignedSmallInteger('country_id');

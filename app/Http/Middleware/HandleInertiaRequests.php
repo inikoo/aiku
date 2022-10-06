@@ -55,12 +55,13 @@ class HandleInertiaRequests extends Middleware
         Session::forget('redirectFromLogin');
 
 
+
         return array_merge(
             parent::share($request),
             $firstLoadOnlyProps,
             [
                 'auth'  => [
-                    'user' => $request->user(),
+                    'user' => $request->user()?$request->user()->only('username','email','avatar'):null,
                 ],
                 'ziggy' => function () use ($request) {
                     return array_merge((new Ziggy)->toArray(), [

@@ -10,6 +10,7 @@
 @endsetup
 
 @story('install')
+    clean-storage
     initialise-dbs
     create-admins
     empty-aurora-tenants
@@ -19,6 +20,7 @@
 
 
 @story('snapshot')
+    clean-storage
     initialise-dbs
     dump-database
     create-admins
@@ -35,11 +37,17 @@
     dump-database
 @endstory
 
+@task('clean-storage')
+
+    cd ../../
+    rm -rf public/tenants
+    rm -rf storage/tenants
+  
+@endtask
+
 @task('initialise-dbs')
     echo "initialise-dbs" > step
-    @if ($_ENV['APP_ENV'] === 'local')
-        cd ../../
-    @endif
+    cd ../../
     @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $auroraDB)
         echo "Tenant {{ $auroraDB }}"
         psql -d {{ $_ENV['DB_DATABASE'] }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
@@ -50,9 +58,7 @@
 
 @task('create-admins')
     echo "create-admins" > step
-    @if ($_ENV['APP_ENV'] === 'local')
-        cd ../../
-    @endif
+    cd ../../
     php artisan create:first-deployment
     php artisan create:admin-user {{ $adminCode }} '{{ $adminName }}' -e={{ $adminEmail }} -a
     php artisan create:admin-token {{ $adminCode }} admin root
@@ -60,9 +66,7 @@
 
 @task('empty-aurora-tenants')
     echo "empty-aurora-tenants" > step
-    @if ($_ENV['APP_ENV'] === 'local')
-        cd ../../
-    @endif
+    cd ../../
     @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $auroraDB)
         echo "Tenant {{ $auroraDB }}"
         php artisan create:tenant-aurora {{$tenant}} {{$auroraDB}}
@@ -79,9 +83,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
 
 @task('tenant-fetch-employees')
     echo "tenant-fetch-employees" > step
-    @if ($_ENV['APP_ENV'] === 'local')
-        cd ../../
-    @endif
+    cd ../../
 
     echo "employees"
     php artisan fetch:employees -q
@@ -90,9 +92,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
 
 @task('tenant-fetch-inventory')
     echo "tenant-fetch-inventory" > step
-    @if ($_ENV['APP_ENV'] === 'local')
-        cd ../../
-    @endif
+    cd ../../
     echo "shippers"
     php artisan fetch:shippers -q
     echo "warehouses"
@@ -107,9 +107,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
 
 @task('tenant-fetch-sales')
     echo "tenant-fetch-sales" > step
-    @if ($_ENV['APP_ENV'] === 'local')
-        cd ../../
-    @endif
+    cd ../../
     echo "shops"
     php artisan fetch:shops  -q
 @endtask

@@ -19,7 +19,7 @@ const appName = window.document.getElementsByTagName('title')[0]?.innerText || '
 import {createPinia} from 'pinia';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
-import {faSearch, faBell, faAngleUp} from '../private/pro-regular-svg-icons';
+import {faSearch, faBell, faAngleUp,faChevronRight,faChevronDown,faTimes, faBars as farBars,faEllipsisV} from '../private/pro-regular-svg-icons';
 import {
     faHome,
     faDollyFlatbedAlt,
@@ -41,7 +41,12 @@ library.add(faSearch,
             faAngleUp,
             faUsersCog,
             faTachometerAltFast,
-            faInventory
+            faInventory,
+            faChevronRight,
+            faChevronDown,
+            farBars,
+            faTimes,
+            faEllipsisV
 );
 
 const initialiseApp = () => {

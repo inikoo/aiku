@@ -151,7 +151,7 @@ class Employee extends Model implements HasMedia
     {
         $this->addMediaCollection('photo')
             ->singleFile()
-            ->useDisk('local')
+            ->useDisk('public')
             ->registerMediaConversions(function () {
                 $this->addMediaConversion('thumb')
                     ->width(256)

@@ -95,6 +95,8 @@ class User extends Authenticatable implements HasMedia, Syncable
     ];
 
 
+
+
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
@@ -159,5 +161,13 @@ class User extends Authenticatable implements HasMedia, Syncable
         return $this->morphTo();
     }
 
+    public function getAvatarAttribute(): string
+    {
+        $mediaItems = $this->getMedia('profile');
+        if(count($mediaItems)>0){
+            return  $mediaItems[0]->getUrl();
+        }
+        return '';
+    }
 
 }

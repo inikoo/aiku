@@ -73,7 +73,7 @@ import {
 
     ChevronDownIcon,
 
-} from '@heroicons/vue/solid'
+} from '@vue-hero-icons/solid'
 import {Link} from '@inertiajs/inertia-vue3';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 

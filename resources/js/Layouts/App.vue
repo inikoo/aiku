@@ -19,7 +19,6 @@ import {
     TransitionChild,
     TransitionRoot,
 } from '@headlessui/vue'
-import { ChevronDownIcon, MenuAlt1Icon, XIcon } from '@heroicons/vue/outline'
 import { Link } from '@inertiajs/inertia-vue3';
 import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
 
@@ -54,7 +53,8 @@ const sidebarOpen = ref(false)
                                 <div class="absolute top-0 right-0 -mr-12 pt-2">
                                     <button type="button" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" @click="sidebarOpen = false">
                                         <span class="sr-only">Close sidebar</span>
-                                        <XIcon class="h-6 w-6 text-white" aria-hidden="true" />
+                                        <font-awesome-icon aria-hidden="true"  class="h-6 w-6 text-white"  icon="fa-regular fa-times"/>
+
                                     </button>
                                 </div>
                             </TransitionChild>
@@ -134,7 +134,8 @@ const sidebarOpen = ref(false)
             <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 ">
                 <button type="button" class="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 lg:hidden" @click="sidebarOpen = true">
                     <span class="sr-only">Open sidebar</span>
-                    <MenuAlt1Icon class="h-6 w-6" aria-hidden="true" />
+                    <font-awesome-icon aria-hidden="true"  class="h-6 w-6" icon="fa-regular fa-bars"/>
+
                 </button>
                 <div class="flex-1 flex justify-between px-4 sm:px-6 lg:px-8">
                     <div class="flex-1 flex">
@@ -162,15 +163,14 @@ const sidebarOpen = ref(false)
                             <div>
                                 <MenuButton class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                                     <span class="sr-only">Open user menu</span>
-                                    <img v-if="$page.props.auth.user.data['profile_url']"  class="h-8 w-8 rounded-full"
-                                         :src="$page.props.auth.user.data['profile_url']??null"
+                                    <img v-if="$page.props.auth.user['avatar']"  class="h-8 w-8 rounded-full"
+                                         :src="$page.props.auth.user['avatar']??null"
                                          alt="" />
 
                                     <span class="flex-1 ml-3 mr-1  flex-col min-w-0 hidden lg:flex">
-                                        <span class="text-gray-900 text-sm font-medium truncate">{{ $page.props.auth.user.name }}</span>
-                                        <span class="text-gray-500 text-sm truncate">{{ $page.props.auth.user.username }}</span>
+                                        <span class="text-gray-900 text-sm font-medium truncate">{{ $page.props.auth.user.username }}</span>
                                     </span>
-                                    <ChevronDownIcon class="hidden flex-shrink-0 ml-1 h-5 w-5 text-gray-400 lg:block" aria-hidden="true" />
+                                    <font-awesome-icon aria-hidden="true" icon="fa-regular fa-chevron-down" class="hidden flex-shrink-0 ml-1 h-4 w-4 text-gray-400 lg:block"/>
 
                                 </MenuButton>
                             </div>

@@ -4,6 +4,19 @@
   -  Copyright (c) 2021, Inikoo
   -  Version 4.0
   -->
+<script setup>
+import {  computed } from 'vue'
+
+import {Link} from '@inertiajs/inertia-vue3';
+
+const props = defineProps(['breadcrumbs']);
+
+
+const displayBreadcrumbs = computed(() => {
+    return Object.keys(props.breadcrumbs).length > 0
+})
+
+</script>
 
 <template>
     <div v-if="displayBreadcrumbs">
@@ -23,7 +36,7 @@
                 </li>
                 <li v-for="(breadcrumb, breadcrumbIdx) in  breadcrumbs" :key="breadcrumbIdx" class="flex">
                     <div class="flex items-center">
-                        <ChevronRightIcon class="flex-shrink-0 h-5 w-5 mr-2" aria-hidden="true"/>
+                        <font-awesome-icon class="flex-shrink-0 h-5 w-5 mr-2" icon="fa-regular fa-chevron-right" aria-hidden="true" />
 
                         <Link class="mr-2 hover:text-gray-700" v-if="breadcrumb.index" :href="route(breadcrumb.index.route,breadcrumb.index['routeParameters'])">
                             <font-awesome-icon
@@ -69,17 +82,3 @@
     </div>
 </template>
 
-<script setup>
-import {  computed } from 'vue'
-
-import {ChevronRightIcon} from '@heroicons/vue/solid';
-import {Link} from '@inertiajs/inertia-vue3';
-
-const props = defineProps(['breadcrumbs']);
-
-
-const displayBreadcrumbs = computed(() => {
-    return Object.keys(props.breadcrumbs).length > 0
-})
-
-</script>

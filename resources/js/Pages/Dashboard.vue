@@ -28,7 +28,8 @@
                     <Menu as="div" class="flex-shrink-0 pr-2">
                         <MenuButton class="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-400 rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                             <span class="sr-only">Open options</span>
-                            <DotsVerticalIcon class="w-5 h-5" aria-hidden="true" />
+                            <font-awesome-icon aria-hidden="true" class="w-5 h-5" icon="fa-regular fa-ellipsis-v"/>
+
                         </MenuButton>
                         <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                             <MenuItems class="z-10 mx-3 origin-top-right absolute right-10 top-3 w-48 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
@@ -69,7 +70,8 @@
                     <span class="truncate font-normal text-gray-500">in {{ project.team }}</span>
                   </span>
                 </span>
-                    <ChevronRightIcon class="ml-4 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                    <font-awesome-icon class="ml-4 h-5 w-5 text-gray-400 group-hover:text-gray-500" icon="fa-regular fa-chevron-right" aria-hidden="true" />
+
                 </a>
             </li>
         </ul>
@@ -139,7 +141,6 @@ import {
     TransitionChild,
     TransitionRoot,
 } from '@headlessui/vue'
-import { ChevronRightIcon, DotsVerticalIcon } from '@heroicons/vue/solid'
 
 const projects = [
     {

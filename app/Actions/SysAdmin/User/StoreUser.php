@@ -30,6 +30,9 @@ class StoreUser
         $user->parent()->associate($parent);
         $user->name=$parent->name;
         $user->save();
+
+        $user=SetAvatar::run($user);
+
         /** Run Hydrate here because boot() static::created is not call in User.php
          because tenancy package Synced resources between tenants
          * https://tenancyforlaravel.com/docs/v3/synced-resources-between-tenants

@@ -9,12 +9,11 @@ namespace App\Helpers;
 
 use Spatie\MediaLibrary\Support\UrlGenerator\DefaultUrlGenerator;
 
-class TenantAwareMediaUrlGenerator extends DefaultUrlGenerator
+class TenantAwareUrlGenerator extends DefaultUrlGenerator
 {
     public function getUrl(): string
     {
-        $url = asset($this->getPathRelativeToRoot());
-
+        $url = 'tenants/'.tenant('uuid').'/'.$this->getPathRelativeToRoot();
         return $this->versionUrl($url);
     }
 }

@@ -16,8 +16,8 @@ import {
     SupportIcon,
     ViewGridIcon,
     XIcon,
-} from '@heroicons/vue/outline'
-import { ChevronDownIcon } from '@heroicons/vue/solid'
+} from '@vue-hero-icons/outline'
+import { ChevronDownIcon } from '@vue-hero-icons/solid'
 import GuestFooter from '@/Components/Footer/GuestFooter.vue';
 
 
