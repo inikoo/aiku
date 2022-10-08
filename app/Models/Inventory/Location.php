@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Inventory\Location
@@ -57,6 +59,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Location extends Model
 {
     use SoftDeletes;
+    use HasSlug;
 
     protected $casts = [
         'data'       => 'array',
@@ -68,6 +71,13 @@ class Location extends Model
     ];
 
     protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('code');
+    }
 
     protected static function booted()
     {
