@@ -74,6 +74,10 @@ $skip_build=false;
 
 @task('install', ['on' => 'production','confirm' => true])
 
+
+rm -rf {{ $path }}/storage/tenants
+rm -rf {{ $path }}/storage/logs/*
+
 mkdir -p {{ $new_release_dir }}
 mkdir -p {{ $new_release_dir }}/public/
 
@@ -161,6 +165,5 @@ echo "Tenant {{ $auroraDB }}"
 @endforeach
 
 {{ $php }} artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin
-
 @endtask
 

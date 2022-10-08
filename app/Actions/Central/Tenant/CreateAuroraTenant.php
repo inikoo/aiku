@@ -87,7 +87,8 @@ class CreateAuroraTenant
             ->update(['pika_token' => $token]);
 
 
-        Artisan::call('tenants:seed ');
+        Artisan::call('tenants:seed');
+        Artisan::call('create:tenant-storage-link');
 
 
         return ['tenant' => $tenant, 'token' => $token];
