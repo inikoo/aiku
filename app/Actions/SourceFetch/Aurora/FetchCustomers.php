@@ -15,6 +15,8 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Models\CRM\Customer;
 use App\Services\Tenant\SourceTenantService;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
 
@@ -41,5 +43,17 @@ class FetchCustomers extends FetchAction
         return null;
     }
 
+    function getModelsQuery(): Builder
+    {
+        return DB::connection('aurora')
+            ->table('Customer Dimension')
+            ->select('Customer Key as source_id')
+            ->orderBy('source_id');
+    }
+
+    function count(): ?int
+    {
+        return DB::connection('aurora')->table('Customer Dimension')->count();
+    }
 
 }
