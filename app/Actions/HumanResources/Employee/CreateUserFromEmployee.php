@@ -37,12 +37,7 @@ class CreateUserFromEmployee
     {
         $modelData = [
             'username' => $username ?? $employee->code,
-            'password' => $password ?? (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello'),
-            'data'     => [
-                [
-                    'name' => $employee->name
-                ]
-            ]
+            'password' => $password ?? (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello')
         ];
 
 

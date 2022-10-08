@@ -60,7 +60,7 @@ class CreateGuestUser
 
 
         $centralUser = StoreCentralUser::run(
-            Arr::only($guestUserData, ['username', 'password', 'name', 'email']),
+            Arr::only($guestUserData, ['username', 'password', 'email']),
         );
 
         /** @var User $user */
@@ -100,6 +100,7 @@ class CreateGuestUser
         $this->fill([
                         'username' => $command->argument('username'),
                         'password' => $password,
+                        'name'     => $command->argument('name'),
                     ]);
         if ($command->option('email')) {
             $this->fill([

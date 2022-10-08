@@ -36,7 +36,6 @@ trait HasRoles
             if ($currentRole && $currentRole->pivot->direct_role) {
                 $this->roles()->updateExistingPivot($roleID, ['job_position_role' => false]);
             } else {
-                print  "xxxx $roleID xxxx";
                 $this->removeRole($roleID);
             }
         }

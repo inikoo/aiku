@@ -8,6 +8,7 @@
 namespace Tests\Feature\Sysadmin\Guest;
 
 use App\Models\Central\Tenant;
+use App\Models\SysAdmin\Guest;
 use Illuminate\Validation\ValidationException;
 use stdClass;
 use Symfony\Component\Process\Process as Process;
@@ -36,12 +37,27 @@ class CreateGuestUserTest extends TestCase
         $this->assertEquals(0, $tenant->stats->number_guests);
         $this->assertEquals(0, $tenant->stats->number_users);
 
-        $this->artisan("create:guest-user  $adminUserAData->username '$adminUserAData->name'  -a -r super-admin")->assertExitCode(0);
+        $this->artisan("create:guest-user $adminUserAData->username '$adminUserAData->name' -a -r super-admin")->assertExitCode(0);
 
         $tenant->refresh();
 
         $this->assertEquals(1, $tenant->stats->number_users);
         $this->assertEquals(1, $tenant->stats->number_guests);
+
+        $_tenant=Tenant::find(1);
+        $_tenant->run(function () use($adminUserAData) {
+            $guest=Guest::find(1);
+            $this->assertEquals($adminUserAData->name, $guest->name);
+
+        });
+        $_tenant=Tenant::find(2);
+        $_tenant->run(function () use($adminUserAData) {
+            $guest=Guest::find(1);
+            $this->assertEquals($adminUserAData->name, $guest->name);
+
+        });
+
+
 
 
         $adminUserAData->name     = fake()->name();
