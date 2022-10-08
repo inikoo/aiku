@@ -131,8 +131,9 @@ echo "Cache"
 {{ $php }} artisan view:cache
 
 # Only use when no closure used in routes
-#{{ $php }} artisan optimize
+{{ $php }} artisan optimize
 {{ $php }} artisan route:cache
+{{ $php }} artisan create:tenant-storage-link
 
 echo "***********************************************************************"
 echo "* Activating new release ({{ $new_release_dir }} -> {{ $current_release_dir }}) *"

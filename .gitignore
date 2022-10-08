@@ -24,4 +24,5 @@ lang/php_*.json
 /storage/tenants
 tt
 ctt
+deploy
 /public/tenants/
