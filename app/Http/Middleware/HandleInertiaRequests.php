@@ -38,7 +38,6 @@ class HandleInertiaRequests extends Middleware
         /** @var \App\Models\SysAdmin\User $user */
         $user = $request->user();
 
-
         $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
 
             'tenant'   => tenant()->only('name', 'code'),
@@ -54,7 +53,7 @@ class HandleInertiaRequests extends Middleware
 
         Session::forget('redirectFromLogin');
 
-
+        //dd($firstLoadOnlyProps);
 
         return array_merge(
             parent::share($request),

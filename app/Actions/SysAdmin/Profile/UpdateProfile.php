@@ -11,9 +11,14 @@ use App\Actions\WithActionUpdate;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Validation\Rules\File;
 
 /**
  * @property User $user
@@ -22,36 +27,68 @@ class UpdateProfile
 {
     use WithActionUpdate;
 
-    public function handle(User $user, array $modelData): User
+    /**
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
+     */
+    public function handle(User $user, array $modelData, ?UploadedFile $avatar): User
     {
-        return $this->update($user, $modelData, ['data', 'settings']);
+
+        if (Arr::has($modelData, 'password')) {
+            $modelData['password'] = Hash::make($modelData['password']);
+        }
+
+        $user= $this->update($user, $modelData, ['profile', 'settings']);
+
+        if($avatar){
+            $user->addMedia($avatar)
+                ->preservingOriginal()
+                ->toMediaCollection('profile');
+        }
+
+        return $user;
+
+
+
+
+
     }
 
 
-    public function rules(): array
+    public function rules(ActionRequest $request): array
     {
         return [
-            'username' => 'sometimes|required|alpha_dash|unique:App\Models\SysAdmin\User,username',
+            'username' => ['sometimes', 'required', 'alpha_dash', Rule::unique('users', 'username')->ignore($request->user())],
+            'about'    => 'sometimes|string',
+            'email'    => 'sometimes|nullable|email',
             'password' => ['sometimes', 'required', Password::min(8)->uncompromised()],
-            'language' => 'sometimes|required|exists:languages,code'
+            'language' => 'sometimes|required|exists:languages,code',
+            'avatar'   => [
+                'sometimes','nullable',
+                File::image()
+                    ->max(12 * 1024)
+            ],
         ];
     }
 
 
+    /**
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
+     */
     public function asController(ActionRequest $request): User
     {
-        $validated = $request
-            ->validatedShiftToArray([
-                                        'language' => 'settings'
-                                    ]);
+        $validated = $request->validatedShiftToArray([
+                                                         'language' => 'settings',
+                                                     ]);
 
 
-        return $this->handle($request->user(), $validated);
+        return $this->handle($request->user(), Arr::except($validated, 'avatar'), Arr::get($validated, 'avatar'));
     }
 
     public function HtmlResponse(): RedirectResponse
     {
-        return Redirect::route('welcome');
+        return Redirect::route('profile.show');
     }
 
     public function JsonResponse(User $user): UserResource

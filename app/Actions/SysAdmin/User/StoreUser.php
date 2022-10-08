@@ -28,7 +28,6 @@ class StoreUser
         });
         $user = User::where('global_id', $centralUser->global_id)->first();
         $user->parent()->associate($parent);
-        $user->name=$parent->name;
         $user->save();
 
         $user=SetAvatar::run($user);

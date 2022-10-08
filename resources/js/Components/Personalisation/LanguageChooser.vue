@@ -41,6 +41,9 @@
 <script setup>
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faLanguage} from '@/../private/pro-regular-svg-icons';
+
+
+
 import {getActiveLanguage, loadLanguageAsync, wTrans} from 'laravel-vue-i18n';
 import {usePage} from '@inertiajs/inertia-vue3';
 import VueCookies from 'vue-cookies';

@@ -5,7 +5,6 @@
   -  Version 4.0
   -->
 
-<!--suppress JSUnresolvedFunction -->
 
 <script setup>
 import {ref, inject} from 'vue';
@@ -21,11 +20,11 @@ import {
 } from '@headlessui/vue'
 import { Link } from '@inertiajs/inertia-vue3';
 import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
+import {trans} from 'laravel-vue-i18n';
 
 
 const initialiseApp = inject('initialiseApp')
 const layout= initialiseApp();
-
 
 
 const shortcuts = [
@@ -72,7 +71,7 @@ const sidebarOpen = ref(false)
                                         </Link>
                                     </div>
                                     <div class="mt-8">
-                                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="mobile-shortcuts-headline">{{$t('Shortcuts')}}</h3>
+                                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="mobile-shortcuts-headline">{{trans('Shortcuts')}}</h3>
                                         <div class="mt-1 space-y-1" role="group" aria-labelledby="mobile-shortcuts-headline">
                                             <a v-for="shortcut in shortcuts" :key="shortcut.name" :href="shortcut.href" class="group flex items-center px-3 py-2 text-base leading-5 font-medium text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-50">
                                                 <span :class="[shortcut.bgColorClass, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
@@ -158,8 +157,11 @@ const sidebarOpen = ref(false)
                         </button>
 
 
-                        <!-- Profile dropdown -->
-                        <Menu as="div" class="ml-3 relative">
+                        <!-- Profile dropdown
+
+                        todo https://github.com/tailwindlabs/headlessui/issues/1630
+                        -->
+                        <Menu as="div" class="ml-3 relative" >
                             <div>
                                 <MenuButton class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                                     <span class="sr-only">Open user menu</span>
@@ -174,32 +176,24 @@ const sidebarOpen = ref(false)
 
                                 </MenuButton>
                             </div>
+                            <div>
                             <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                                <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
+                                <MenuItems  class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                                     <div class="py-1">
                                         <MenuItem v-slot="{ active }">
-                                            <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{ $t('View profile')}}  </a>
+                                            <Link as="ul" type="button" :href="route('profile.show')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">{{ trans('View profile')}}  </Link>
                                         </MenuItem>
-                                        <MenuItem v-slot="{ active }">
-                                            <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{ $t('Settings')}} </a>
-                                        </MenuItem>
-                                        <MenuItem v-slot="{ active }">
-                                            <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Notifications</a>
-                                        </MenuItem>
-                                    </div>
-                                    <div class="py-1">
 
-                                        <MenuItem v-slot="{ active }">
-                                            <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Support</a>
-                                        </MenuItem>
                                     </div>
+
                                     <div class="py-1">
                                         <MenuItem v-slot="{ active }">
-                                            <Link method="post"  :href="route('logout')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Logout</Link>
+                                            <Link as="ul" type="button" method="post"  :href="route('logout')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">Logout</Link>
                                         </MenuItem>
                                     </div>
                                 </MenuItems>
                             </transition>
+                            </div>
                         </Menu>
                     </div>
                 </div>

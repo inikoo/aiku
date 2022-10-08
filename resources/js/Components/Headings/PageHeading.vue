@@ -1,4 +1,17 @@
-<!-- This example requires Tailwind CSS v2.0+ -->
+
+<!--
+  -  Author: Raul Perusquia <raul@inikoo.com>
+  -  Created: Fri, 07 Oct 2022 09:34:00 Central European Summer Time, Kuala Lumpur, Malaysia
+  -  Copyright (c) 2022, Raul A Perusquia Flores
+  -->
+
+<script setup>
+import {Link} from '@inertiajs/inertia-vue3';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+
+const props = defineProps(['data']);
+
+</script>
 <template>
     <div class="m-4  lg:flex lg:items-center lg:justify-between">
         <div class="min-w-0 flex-1">
@@ -50,7 +63,8 @@
             <Menu as="div" class="relative ml-3 sm:hidden">
                 <MenuButton class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     More
-                    <ChevronDownIcon class="-mr-1 ml-2 h-5 w-5 text-gray-500" aria-hidden="true" />
+                    <font-awesome-icon aria-hidden="true"  class="-mr-1 ml-2 h-5 w-5 text-gray-500"  icon="fa-regular fa-chevron-down"/>
+
                 </MenuButton>
 
                 <transition enter-active-class="transition ease-out duration-200" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
@@ -68,15 +82,4 @@
     </div>
 </template>
 
-<script setup>
-import {
 
-    ChevronDownIcon,
-
-} from '@vue-hero-icons/solid'
-import {Link} from '@inertiajs/inertia-vue3';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-
-const props = defineProps(['data']);
-
-</script>

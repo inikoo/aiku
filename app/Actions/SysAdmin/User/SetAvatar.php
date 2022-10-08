@@ -36,7 +36,7 @@ class SetAvatar
     public function handle(User $user): User
     {
         try {
-            $seed=md5(tenant('id').'-'.$user->id);
+            $seed=$user->global_id;
             $user->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
                 ->preservingOriginal()
                 ->toMediaCollection('profile');

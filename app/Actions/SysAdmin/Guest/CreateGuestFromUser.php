@@ -16,7 +16,6 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -28,7 +27,7 @@ class CreateGuestFromUser
     use WithTenantsArgument;
 
 
-    public string $commandSignature = 'create:guest-existing-user {global_id}  {tenants?*}  {--r|roles=*}';
+    public string $commandSignature = 'create:guest-existing-user {global_id} {name} {tenants?*}  {--r|roles=*}';
 
     public function getCommandDescription(): string
     {
@@ -37,15 +36,13 @@ class CreateGuestFromUser
 
 
     /**
-     * @param  \App\Models\Central\CentralUser  $centralUser
      * @param  array  $roles  array of Role models
      *
-     * @return \App\Models\SysAdmin\User
      */
-    public function handle(CentralUser $centralUser, array $roles): User
+    public function handle(CentralUser $centralUser, array $modelData, array $roles): Guest
     {
         $guest = StoreGuest::run(
-            Arr::only($centralUser->data, ['name', 'email']),
+            $modelData,
             $centralUser->username
         );
         /** @var User $user */
@@ -54,7 +51,7 @@ class CreateGuestFromUser
             $user->assignDirectRole($role);
         }
 
-        return $user;
+        return $guest;
     }
 
 
@@ -79,10 +76,13 @@ class CreateGuestFromUser
                         }
                     }
 
-
-                    $user = $this->handle($centralUser, $roles);
-                    /** @var Guest $guest */
-                    $guest = $user->parent;
+                    $modelData = array_merge(
+                        ['email' => $centralUser->email],
+                        ['name' => $command->argument('name')]
+                        ,
+                    );
+                    $guest     = $this->handle($centralUser, $modelData, $roles);
+                    $user      = $guest->user;
 
                     $command->line("Guest user created $user->username");
 

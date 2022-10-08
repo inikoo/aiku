@@ -19,13 +19,14 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->boolean('status')->default(true);
             $table->nullableMorphs('parent');
-            // Used for tables
-            $table->string('name')->nullable()->comment('No normal, mirror parent name');
+            $table->string('email')->nullable();
+            $table->string('about')->nullable();
             $table->rememberToken();
-            $table->jsonb('data');
+            $table->jsonb('profile');
             $table->jsonb('settings');
             $table->timestampsTz();
             $table->string('password');
+            $table->unsignedSmallInteger('number_tenants')->default(0);
             $table->uuid('global_id')->index();
 
         });

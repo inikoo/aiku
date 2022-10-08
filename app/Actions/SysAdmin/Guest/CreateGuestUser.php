@@ -47,7 +47,7 @@ class CreateGuestUser
 
     /**
      * @param  array  $guestUserData
-     * @param  array  $roles array of Role models
+     * @param  array  $roles  array of Role models
      *
      * @return User
      */
@@ -60,10 +60,7 @@ class CreateGuestUser
 
 
         $centralUser = StoreCentralUser::run(
-            array_merge(
-                Arr::only($guestUserData, ['username', 'password']),
-                ['data' => Arr::only($guestUserData, ['name', 'email'])]
-            )
+            Arr::only($guestUserData, ['username', 'password', 'name', 'email']),
         );
 
         /** @var User $user */
@@ -103,7 +100,6 @@ class CreateGuestUser
         $this->fill([
                         'username' => $command->argument('username'),
                         'password' => $password,
-                        'name'     => $command->argument('name'),
                     ]);
         if ($command->option('email')) {
             $this->fill([
@@ -120,47 +116,56 @@ class CreateGuestUser
 
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(
-             function () use ($validatedData, $command, $tenant) {
-                $roles = [];
-                foreach ($command->option('roles') as $roleName) {
-                    /** @var Role $role */
-                    if ($role = Role::where('name', $roleName)->first()) {
-                        $roles[] = $role;
-                    } else {
-                        $command->error("Role $roleName not found");
+                function () use ($validatedData, $command, $tenant) {
+                    $roles = [];
+                    foreach ($command->option('roles') as $roleName) {
+                        /** @var Role $role */
+                        if ($role = Role::where('name', $roleName)->first()) {
+                            $roles[] = $role;
+                        } else {
+                            $command->error("Role $roleName not found");
+                        }
                     }
-                }
 
 
-                if ($this->centralUser && $this->centralUser->id) {
-                    $user = CreateGuestFromUser::run($this->centralUser, $roles);
-                } else {
-                    $user              = $this->handle($validatedData, $roles);
-                    $this->centralUser = CentralUser::where('global_id', $user->getGlobalIdentifierKey())->firstOrFail();
-                }
+                    if ($this->centralUser && $this->centralUser->id) {
+                        $guest = CreateGuestFromUser::run(
+                            $this->centralUser,
+                            array_merge(
+                                ['email' => $this->centralUser->email],
+                                ['name' => $command->argument('name')]
+                                ,
+                            ),
+                            $roles
+                        );
+                        $user  = $guest->user;
+                    } else {
+                        $user              = $this->handle($validatedData, $roles);
+                        $this->centralUser = CentralUser::where('global_id', $user->getGlobalIdentifierKey())->firstOrFail();
+                    }
 
 
-                /** @var Guest $guest */
-                $guest = $user->parent;
+                    /** @var Guest $guest */
+                    $guest = $user->parent;
 
-                $command->line("Guest user created $user->username");
+                    $command->line("Guest user created $user->username");
 
-                $command->table(
-                    ['Tenant', 'Username', 'Global Id', 'Password', 'Email', 'Name', 'Roles'],
-                    [
+                    $command->table(
+                        ['Tenant', 'Username', 'Global Id', 'Password', 'Email', 'Name', 'Roles'],
                         [
-                            $tenant->code,
-                            $user->username,
-                            $user->getGlobalIdentifierKey(),
-                            ($command->option('autoPassword') ? Arr::get($validatedData, 'password') : '*****'),
-                            $guest->email,
-                            $guest->name,
-                            $user->getRoleNames()->implode(',')
-                        ],
+                            [
+                                $tenant->code,
+                                $user->username,
+                                $user->getGlobalIdentifierKey(),
+                                ($command->option('autoPassword') ? Arr::get($validatedData, 'password') : '*****'),
+                                $guest->email,
+                                $guest->name,
+                                $user->getRoleNames()->implode(',')
+                            ],
 
-                    ]
-                );
-            }
+                        ]
+                    );
+                }
             );
 
             if ($result !== 0) {

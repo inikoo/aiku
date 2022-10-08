@@ -22,6 +22,10 @@ return new class extends Migration
             $table->unique(['tenant_id', 'global_user_id']);
             $table->boolean('status')->default('true')->index();
 
+            //$table->string('name')->nullable();
+            //$table->string('email')->nullable();
+
+
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('global_user_id')->references('global_id')->on('central_users')->onUpdate('cascade')->onDelete('cascade');
         });

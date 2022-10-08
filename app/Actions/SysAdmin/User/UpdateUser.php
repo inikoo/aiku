@@ -24,22 +24,17 @@ class UpdateUser
 
     public function handle(User $user, array $modelData): User
     {
-
-        return $this->update($user, $modelData, ['data','settings']);
-
+        return $this->update($user, $modelData, ['profile', 'settings']);
     }
 
 
-
-
-    public function authorize(User $user,ActionRequest $request): bool
+    public function authorize(User $user, ActionRequest $request): bool
     {
+        if ($user->id == $request->user()) {
+            return true;
+        }
 
-       if($user->id==$request->user()){
-           return true;
-       }
         return false;
-
     }
 
 
@@ -54,24 +49,21 @@ class UpdateUser
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        if ($request->exists('username')  and  $request->get('username')!=strtolower($request->get('username'))  ) {
+        if ($request->exists('username') and $request->get('username') != strtolower($request->get('username'))) {
             $validator->errors()->add('invalid_username', 'Username must be lowercase.');
         }
     }
 
 
-    public function asController(User $user,ActionRequest $request): User
+    public function asController(User $user, ActionRequest $request): User
     {
-        return $this->handle($user,$request->validated());
-
-
+        return $this->handle($user, $request->validated());
     }
 
     public function htmlResponse(User $user): RedirectResponse
     {
-        return Redirect::route('account.users.edit',$user->id);
+        return Redirect::route('account.users.edit', $user->id);
     }
-
 
 
 }

@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Listeners\UpdateSyncedResource;
+//use App\Listeners\UpdateSyncedResource;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +20,7 @@ use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Events\TenancyBootstrapped;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
+use Stancl\Tenancy\Listeners\UpdateSyncedResource;
 use Stancl\Tenancy\Middleware;
 
 class TenancyServiceProvider extends ServiceProvider
