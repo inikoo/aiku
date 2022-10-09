@@ -28,7 +28,7 @@ class FetchHistoricProducts
         if ($historicProductData = $tenantSource->fetchHistoricProduct($source_id)) {
 
 
-            if ($historicProduct = HistoricProduct::where('source_id', $historicProductData['historic_product']['source_id'])
+            if ($historicProduct = HistoricProduct::withTrashed()->where('source_id', $historicProductData['historic_product']['source_id'])
                 ->first()) {
                 $historicProduct = UpdateHistoricProduct::run(
                     historicProduct: $historicProduct,
