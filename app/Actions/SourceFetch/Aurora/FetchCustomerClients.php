@@ -26,7 +26,7 @@ class FetchCustomerClients extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id): ?CustomerClient
     {
         if ($customerClientData = $tenantSource->fetchCustomerClient($source_id)) {
-            if ($customerClient = CustomerClient::withTrasheed()->where('source_id', $customerClientData['customer_client']['source_id'])
+            if ($customerClient = CustomerClient::withTrashed()->where('source_id', $customerClientData['customer_client']['source_id'])
                 ->first()) {
                 $customerClient = UpdateCustomerClient::run(
                     customerClient: $customerClient,
