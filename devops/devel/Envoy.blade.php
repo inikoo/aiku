@@ -31,9 +31,9 @@
     dump-database
     tenant-fetch-employees
     dump-database
-    tenant-fetch-shops
-    dump-database
     tenant-fetch-inventory
+    dump-database
+    tenant-fetch-shops
     dump-database
     tenant-fetch-sales
     dump-database
@@ -96,7 +96,8 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     cd ../../
     echo "shops"
     php artisan fetch:shops -q
-
+    php artisan fetch:products -q
+    php artisan fetch:customers -q
 @endtask
 
 @task('tenant-fetch-inventory')
@@ -117,8 +118,8 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
 @task('tenant-fetch-sales')
     echo "tenant-fetch-sales" > step
     cd ../../
-    echo "shops"
-    php artisan fetch:shops  -q
+    echo "orders"
+    php artisan fetch:orders  -q
 @endtask
 
 

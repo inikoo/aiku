@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Actions\SourceFetch\Aurora\FetchStocks;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraProductStocks extends FetchAurora
@@ -14,17 +15,21 @@ class FetchAuroraProductStocks extends FetchAurora
     protected function parseModel(): void
     {
         $productStocks = [];
-        foreach($this->auroraModelData as $modelData){
-           $stock= \App\Actions\SourceFetch\Aurora\FetchStocks::run($this->tenantSource, $modelData->{'Product Part Part SKU'});
-            foreach ($stock->tradeUnits as $tradeUnit) {
-                $productStocks[$tradeUnit->id] = [
-                    'quantity' => $tradeUnit->pivot->quantity,
-                    'notes'    => $modelData->{'Product Part Note'} ?? null
-                ];
+        foreach ($this->auroraModelData as $modelData) {
+            $stock = FetchStocks::run($this->tenantSource, $modelData->{'Product Part Part SKU'});
+            if ($stock) {
+                foreach ($stock->tradeUnits as $tradeUnit) {
+                    $productStocks[$tradeUnit->id] = [
+                        'quantity' => $tradeUnit->pivot->quantity,
+                        'notes'    => $modelData->{'Product Part Note'} ?? null
+                    ];
+                }
+            } else {
+                print "\nWarning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Product Part Bridge`\n";
+                //abort(404, "Error fetching products-stock relation");
             }
         }
-        $this->parsedData['product_stocks']=$productStocks;
-
+        $this->parsedData['product_stocks'] = $productStocks;
     }
 
 
