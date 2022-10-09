@@ -16,19 +16,26 @@ class FetchAuroraTransactionHistoricProduct extends FetchAurora
 
     protected function parseModel(): void
     {
-        $historicProduct = FetchHistoricProducts::run($this->tenantSource, $this->auroraModelData->{'Product Key'});
 
-        $this->parsedData['transaction'] = [
-            'item_type'   => 'HistoricProduct',
-            'item_id'     => $historicProduct->id,
-            'tax_band_id' => $taxBand->id ?? null,
+        if($this->auroraModelData->{'Product Key'}){
+            $historicProduct = FetchHistoricProducts::run($this->tenantSource, $this->auroraModelData->{'Product Key'});
 
-            'quantity'               => $this->auroraModelData->{'Order Quantity'},
-            'discounts'              => $this->auroraModelData->{'Order Transaction Total Discount Amount'},
-            'net'                    => $this->auroraModelData->{'Order Transaction Amount'},
-            'source_id' => $this->auroraModelData->{'Order Transaction Fact Key'},
+            $this->parsedData['transaction'] = [
+                'item_type'   => 'HistoricProduct',
+                'item_id'     => $historicProduct->id,
+                'tax_band_id' => $taxBand->id ?? null,
 
-        ];
+                'quantity'               => $this->auroraModelData->{'Order Quantity'},
+                'discounts'              => $this->auroraModelData->{'Order Transaction Total Discount Amount'},
+                'net'                    => $this->auroraModelData->{'Order Transaction Amount'},
+                'source_id' => $this->auroraModelData->{'Order Transaction Fact Key'},
+
+            ];
+        }else{
+            print "Warning Product Key missing in transaction $this->auroraModelData->{'Order Transaction Fact Key'}\n";
+        }
+
+
     }
 
 
