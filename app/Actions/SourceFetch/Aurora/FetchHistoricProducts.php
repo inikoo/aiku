@@ -26,6 +26,8 @@ class FetchHistoricProducts
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id): ?HistoricProduct
     {
         if ($historicProductData = $tenantSource->fetchHistoricProduct($source_id)) {
+
+
             if ($historicProduct = HistoricProduct::where('source_id', $historicProductData['historic_product']['source_id'])
                 ->first()) {
                 $historicProduct = UpdateHistoricProduct::run(

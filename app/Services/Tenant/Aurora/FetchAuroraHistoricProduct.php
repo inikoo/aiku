@@ -20,7 +20,7 @@ class FetchAuroraHistoricProduct extends FetchAurora
         $this->parsedData['product'] = FetchProducts::run($this->tenantSource, $this->auroraModelData->{'Product ID'});
 
 
-        $deleted_at = $this->auroraModelData->{'Product History Valid To'};
+        $deleted_at = $this->parseDate($this->auroraModelData->{'Product History Valid To'});
 
         $status = 0;
         if (DB::connection('aurora')->table('Product Dimension')->where('Product Current Key', '=', $this->auroraModelData->{'Product Key'})->exists()) {
@@ -43,7 +43,7 @@ class FetchAuroraHistoricProduct extends FetchAurora
 
             'status' => $status,
 
-            'created_at' => $this->auroraModelData->{'Product History Valid From'},
+            'created_at' => $this->parseDate($this->auroraModelData->{'Product History Valid From'}),
             'deleted_at' => $deleted_at,
             'source_id'  => $this->auroraModelData->{'Product Key'}
         ];

@@ -24,7 +24,6 @@ class FetchOrders extends FetchAction
         if ($orderData = $tenantSource->fetchOrder($tenantSourceId)) {
             if ($order=Order::where('source_id', $orderData['order']['source_id'])
                 ->first()) {
-                print "duplicated\n";
                 $this->fetchTransactions($tenantSource, $order);
             }
             else{
@@ -57,7 +56,8 @@ class FetchOrders extends FetchAction
         return DB::connection('aurora')
             ->table('Order Dimension')
             ->select('Order Key as source_id')
-            ->orderBy('source_id');
+            ->where('Order State','!=','InBasket')
+            ->orderByDesc('Order Date');
     }
 
     function count(): ?int

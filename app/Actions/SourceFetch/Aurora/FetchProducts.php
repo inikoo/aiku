@@ -25,21 +25,22 @@ class FetchProducts extends FetchAction
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
     {
-        if ($productData = $tenantSource->fetchStock($tenantSourceId)) {
-            if ($product = Product::where('source_id', $productData['stock']['source_id'])
+        if ($productData = $tenantSource->fetchProduct($tenantSourceId)) {
+
+            if ($product = Product::where('source_id', $productData['product']['source_id'])
                 ->first()) {
                 $product = UpdateProduct::run(
                     product:     $product,
-                    modelData: $productData['stock'],
+                    modelData: $productData['product'],
                 );
             } else {
                 $product = StoreProduct::run(
                     shop:      $productData['shop'],
-                    modelData: $productData['stock']
+                    modelData: $productData['product']
                 );
             }
 
-            $tradeUnits= $tenantSource->fetchProductStocks($productData['stock']['source_id']);
+            $tradeUnits= $tenantSource->fetchProductStocks($productData['product']['source_id']);
             $product->tradeUnits()->sync($tradeUnits['product_stocks']);
 
 
