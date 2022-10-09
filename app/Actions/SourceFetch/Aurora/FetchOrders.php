@@ -35,9 +35,6 @@ class FetchOrders extends FetchAction
                     return $order;
                 }
                 print "Warning order $tenantSourceId do not have customer\n";
-
-
-
             }
         }
 
