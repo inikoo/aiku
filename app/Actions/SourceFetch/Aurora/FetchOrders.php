@@ -27,11 +27,17 @@ class FetchOrders extends FetchAction
                 $this->fetchTransactions($tenantSource, $order);
             }
             else{
-                $order   = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
 
-                $this->fetchTransactions($tenantSource, $order);
+                if($orderData['parent']){
+                    $order   = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
+                    $this->fetchTransactions($tenantSource, $order);
 
-                return $order;
+                    return $order;
+                }
+                print "Warning order $tenantSourceId do not have customer\n";
+
+
+
             }
         }
 
