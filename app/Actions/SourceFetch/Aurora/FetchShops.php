@@ -39,8 +39,6 @@ class FetchShops extends FetchAction
                     addressData:  []
                 );
             }
-
-
             return $shop;
         }
 
@@ -52,14 +50,12 @@ class FetchShops extends FetchAction
         return DB::connection('aurora')
             ->table('Store Dimension')
             ->select('Store Key as source_id')
-            ->whereIn('Store Status', ['Normal', 'ClosingDown'])
             ->orderBy('source_id');
     }
 
     function count(): ?int
     {
-        return DB::connection('aurora')->table('Store Dimension')
-            ->whereIn('Store Status', ['Normal', 'ClosingDown'])->count();
+        return DB::connection('aurora')->table('Store Dimension')->count();
     }
 
 }

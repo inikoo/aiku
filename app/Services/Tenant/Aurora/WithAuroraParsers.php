@@ -111,7 +111,7 @@ trait WithAuroraParsers
             return Shop::where('source_id', $source_id)
                 ->firstOrFail();
         } catch (Exception) {
-            abort(404, 'Shop not found');
+            abort(404, 'Shop not found, source_id='.$source_id);
         }
     }
 
