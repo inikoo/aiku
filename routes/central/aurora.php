@@ -6,7 +6,18 @@
  */
 
 use App\Actions\SourceFetch\Aurora\FetchCustomers;
+use App\Actions\SourceFetch\Aurora\FetchLocations;
+use App\Actions\SourceFetch\Aurora\FetchShops;
+use App\Actions\SourceFetch\Aurora\FetchStocks;
+use App\Actions\SourceFetch\Aurora\FetchWarehouseAreas;
+use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use Illuminate\Support\Facades\Route;
 
 
+Route::post('/{tenant:uuid}/shop', FetchShops::class)->name('aurora.shops');
 Route::post('/{tenant:uuid}/customer', FetchCustomers::class)->name('aurora.customers');
+
+Route::post('/{tenant:uuid}/warehouse', FetchWarehouses::class)->name('aurora.warehouses');
+Route::post('/{tenant:uuid}/warehouse_area', FetchWarehouseAreas::class)->name('aurora.warehouse_areas');
+Route::post('/{tenant:uuid}/location', FetchLocations::class)->name('aurora.locations');
+Route::post('/{tenant:uuid}/stock', FetchStocks::class)->name('aurora.stocks');

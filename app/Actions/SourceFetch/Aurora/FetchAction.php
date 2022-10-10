@@ -172,7 +172,7 @@ class FetchAction
         );
     }
 
-    public function jsonResponse($model)
+    public function jsonResponse($model): array
     {
 
         if($model){
