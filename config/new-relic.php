@@ -91,7 +91,7 @@ return [
     |
     */
     'http'         => [
-        'middleware' => env('APP_ENV') == 'production' ? NewRelicMiddleware::class : null,
+        'middleware' =>  NewRelicMiddleware::class,
 
         'visitors' => [
             'record_user_id'    => true,
