@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use Akempes\RequestLogging\LogRequest;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\HandleCentralInertiaRequests;
@@ -83,6 +84,7 @@ class Kernel extends HttpKernel
         'api-aurora' => [
             'throttle:api',
             SubstituteBindings::class,
+            LogRequest::class,
             'auth:tenant'
         ],
     ];

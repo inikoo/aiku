@@ -7,9 +7,10 @@
     "require": {
         "php": "^8.1",
         "ext-curl": "*",
+        "ext-gd": "*",
         "ext-intl": "*",
         "ext-pdo": "*",
-        "ext-gd": "*",
+        "akempes/laravel-request-logging": "^1.2",
         "commerceguys/addressing": "^1.4",
         "commerceguys/intl": "^1.1",
         "guzzlehttp/guzzle": "^7.2",
