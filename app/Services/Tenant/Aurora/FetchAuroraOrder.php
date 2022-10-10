@@ -18,14 +18,12 @@ class FetchAuroraOrder extends FetchAurora
 
     protected function parseModel(): void
     {
-
-
         if ($this->auroraModelData->{'Order Customer Client Key'} != '') {
-           $parent=FetchCustomerClients::run($this->tenantSource, $this->auroraModelData->{'Order Customer Client Key'});
+            $parent = FetchCustomerClients::run($this->tenantSource, $this->auroraModelData->{'Order Customer Client Key'});
         } else {
-            $parent=FetchCustomers::run($this->tenantSource, $this->auroraModelData->{'Order Customer Key'});
+            $parent = FetchCustomers::run($this->tenantSource, $this->auroraModelData->{'Order Customer Key'});
         }
-        $this->parsedData['parent'] =$parent;
+        $this->parsedData['parent'] = $parent;
 
         $state = Str::snake($this->auroraModelData->{'Order State'}, '-');
 
@@ -42,10 +40,10 @@ class FetchAuroraOrder extends FetchAurora
 
         ];
 
-        $deliveryAddressData                 = $this->parseAddress(prefix: 'Order Delivery', auAddressData: $this->auroraModelData);
+        $deliveryAddressData                  = $this->parseAddress(prefix: 'Order Delivery', auAddressData: $this->auroraModelData);
         $this->parsedData['delivery_address'] = new Address($deliveryAddressData);
 
-        $billingAddressData                 = $this->parseAddress(prefix: 'Order Invoice', auAddressData: $this->auroraModelData);
+        $billingAddressData                  = $this->parseAddress(prefix: 'Order Invoice', auAddressData: $this->auroraModelData);
         $this->parsedData['billing_address'] = new Address($billingAddressData);
     }
 

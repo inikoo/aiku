@@ -80,10 +80,10 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             'auth:admin'
         ],
-        'api-org' => [
+        'api-aurora' => [
             'throttle:api',
             SubstituteBindings::class,
-            'auth:org'
+            'auth:tenant'
         ],
     ];
 

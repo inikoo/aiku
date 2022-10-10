@@ -79,11 +79,16 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapApiRoutes()
     {
         foreach ($this->centralDomains() as $domain) {
+            Route::prefix('aurora')
+                ->domain($domain)
+                ->middleware('api-aurora')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/central/aurora.php'));
             Route::prefix('api')
                 ->domain($domain)
                 ->middleware('api')
                 ->namespace($this->namespace)
-                ->group(base_path('routes/api.php'));
+                ->group(base_path('routes/central/api.php'));
         }
     }
 

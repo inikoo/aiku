@@ -49,7 +49,7 @@ return [
             'provider' => 'admin',
             'hash' => false,
         ],
-        'org' => [
+        'tenant' => [
             'driver' => 'sanctum',
             'provider' => 'tenants',
             'hash' => false,

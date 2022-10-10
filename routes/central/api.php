@@ -12,6 +12,9 @@ use App\Actions\Central\Deployment\UpdateDeployment;
 use Illuminate\Support\Facades\Route;
 
 
+
+
+
 Route::get('/deployments/latest', [ShowDeployment::class, 'latest'])->name('deployments.latest');
 Route::get('/deployments/{deployment}', ShowDeployment::class)->name('deployments.show');
 Route::post('/deployments/create', StoreDeployment::class)->name('deployments.store');

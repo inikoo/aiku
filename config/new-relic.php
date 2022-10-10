@@ -91,7 +91,7 @@ return [
     |
     */
     'http'         => [
-        'middleware' => NewRelicMiddleware::class,
+        'middleware' => env('APP_ENV') == 'production' ? NewRelicMiddleware::class : null,
 
         'visitors' => [
             'record_user_id'    => true,
@@ -225,7 +225,7 @@ return [
         'app_id'   => env('NEW_RELIC_APP_ID'),
         'endpoint' => env('NEW_RELIC_API_ENDPOINT', 'https://api.newrelic.com/v2/'),
 
-        'user'        => env('NEW_RELIC_USER'),
+        'user' => env('NEW_RELIC_USER'),
 
         'detect_hash' => true,
     ],

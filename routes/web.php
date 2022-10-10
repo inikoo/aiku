@@ -43,6 +43,6 @@ Route::prefix('setup')->middleware(['auth', 'verified', 'verify.new'])->name('se
     ->group(__DIR__.'/setup.php');
 
 */
-require __DIR__.'/auth.php';
+//require __DIR__.'/auth.php';
 
 

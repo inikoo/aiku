@@ -11,12 +11,15 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\WithTenantsArgument;
 use App\Jobs\Middleware\InitialiseSourceTenant;
 use App\Managers\Tenant\SourceTenantManager;
+use App\Models\Central\Tenant;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -25,6 +28,7 @@ class FetchAction
 {
     use AsAction;
     use WithTenantsArgument;
+    use WithAttributes;
 
     protected  Int $counter=0;
 
@@ -132,6 +136,58 @@ class FetchAction
             ->setMaxExceptions(3)
             ->setTimeout(1800);
     }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        /** @var Tenant $tenant */
+        $tenant=$this->get('tenant');
+        return $request->user()->id===$tenant->id;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'id' => ['required', 'integer'],
+        ];
+    }
+
+    function asController(Tenant $tenant, ActionRequest $request)
+    {
+
+        $this->fillFromRequest($request);
+        $request->validate();
+        $validatedData = $this->validateAttributes();
+
+
+
+        return $tenant->run(
+        /**
+         * @throws \Illuminate\Contracts\Container\BindingResolutionException
+         */ function () use ($tenant, $validatedData) {
+            $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));
+            $tenantSource->initialisation(tenant());
+
+            return $this->handle($tenantSource, Arr::get($validatedData, 'id'));
+        }
+        );
+    }
+
+    public function jsonResponse($model)
+    {
+
+        if($model){
+            return [
+                'model'     => $model->getMorphClass(),
+                'id'        => $model->id,
+                'source_id' => $model->source_id,
+            ];
+        }else{
+            abort('404','Source id not found');
+        }
+
+
+    }
+
 
 }
 

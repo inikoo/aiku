@@ -32,7 +32,7 @@ class FetchAuroraTransactionHistoricProduct extends FetchAurora
 
             ];
         }else{
-            print "Warning Product Key missing in transaction $this->auroraModelData->{'Order Transaction Fact Key'}\n";
+            print "Warning Product Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
         }
 
 
