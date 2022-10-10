@@ -108,8 +108,8 @@ return [
             'debugbar.**',
             'horizon.**',
             'telescope.**',
-            'aurora.**',
-            'deployments.**',
+            //'aurora.**',
+            //'deployments.**',
         ],
     ],
 
