@@ -1,6 +1,7 @@
 <?php
 
-use JackWH\LaravelNewRelic\Middleware\NewRelicMiddleware;
+
+use App\Http\Middleware\NewRelicMiddleware;
 
 return [
 
