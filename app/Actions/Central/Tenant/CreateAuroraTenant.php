@@ -87,9 +87,13 @@ class CreateAuroraTenant
             ->update(['pika_token' => $token]);
 
 
+
         Artisan::call('tenants:seed');
         Artisan::call('create:tenant-storage-link');
 
+
+        DB::connection('aurora')->table('Account Data')
+            ->update(['pika_url' => $tenant->uuid]);
 
         return ['tenant' => $tenant, 'token' => $token];
     }

@@ -182,7 +182,9 @@ class FetchAction
                 'source_id' => $model->source_id,
             ];
         }else{
-            abort('404','Source id not found');
+            return [
+                'error'=>'model not returned'
+            ];
         }
 
 

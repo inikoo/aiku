@@ -142,7 +142,7 @@ ln -nsf {{ $new_release_dir }} {{ $current_release_dir }}
 
 echo "* Executing cleanup command in {{ $releases_dir }} *"
 cd {{$releases_dir}}
-ls -r | tail -n +2 | xargs rm -rf
+ls -r | tail -n +10 | xargs rm -rf
 
 DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/latest/edit?state=deployed'  --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
 echo $DEPLOY
