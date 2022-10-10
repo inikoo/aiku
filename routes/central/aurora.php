@@ -9,4 +9,4 @@ use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use Illuminate\Support\Facades\Route;
 
 
-Route::post('/{tenant:uuid}/customer', FetchCustomers::class);
+Route::post('/{tenant:uuid}/customer', FetchCustomers::class)->name('aurora.customers');
