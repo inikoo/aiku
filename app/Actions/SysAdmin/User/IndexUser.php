@@ -41,8 +41,8 @@ class IndexUser
 
         return QueryBuilder::for(User::class)
             ->defaultSort('username')
-            ->select(['username', 'users.id', 'parent_type', 'parent_id','name'])
-            ->allowedSorts(['username', 'email', 'name', 'parent_type'])
+            ->select(['username', 'users.id', 'parent_type', 'parent_id'])
+            ->allowedSorts(['username', 'email', 'parent_type'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? 15)
             ->withQueryString();
