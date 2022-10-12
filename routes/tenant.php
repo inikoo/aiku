@@ -38,6 +38,9 @@ Route::middleware([
         Route::prefix('inventory')
             ->name('inventory.')
             ->group(__DIR__.'/inventory.php');
+        Route::prefix('shops')
+            ->name('shops.')
+            ->group(__DIR__.'/shops.php');
 
         Route::prefix('profile')
             ->name('profile.')

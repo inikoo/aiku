@@ -16,6 +16,7 @@ return
             'assets',
             'inventory',
             'dispatching',
+            'shops'
         ],
 
         'system-admin'          => [
@@ -63,6 +64,16 @@ return
             'inventory.warehouses.view',
             'dispatching.pack',
         ],
+
+        'shop-manager' => [
+            'shops',
+        ],
+
+        'customer-services' => [
+            'shops.view',
+            'shops.customers',
+        ],
+
 
         'guest'      => [
 

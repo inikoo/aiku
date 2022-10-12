@@ -24,6 +24,16 @@ class GetLayout
                 'route' => 'dashboard'
             ]
         ];
+
+        if ($user->can('shops.view')) {
+            $navigation[] = [
+                'name'  => __('shops'),
+                'icon'  => ['fal', 'fa-store-alt'],
+                'route' => 'shops.index'
+            ];
+        }
+
+
         if ($user->can('inventory.view')) {
             $navigation[] = [
                 'name'  => __('inventory'),
@@ -32,21 +42,6 @@ class GetLayout
             ];
         }
 
-        if ($user->can('dispatching.pick')) {
-            $navigation[] = [
-                'name'  => __('picking'),
-                'icon'  => ['fal', 'fa-dolly-flatbed-alt'],
-                'route' => 'dashboard'
-            ];
-        }
-
-        if ($user->can('dispatching.pack')) {
-            $navigation[] = [
-                'name'  => __('packing'),
-                'icon'  => ['fal', 'fa-conveyor-belt-alt'],
-                'route' => 'dashboard'
-            ];
-        }
 
         if ($user->can('hr.view')) {
             $navigation[] = [
@@ -64,9 +59,30 @@ class GetLayout
             ];
         }
 
+        $actions = [];
+
+        if ($user->can('dispatching.pick')) {
+            $actions[] = [
+                'name'  => __('picking'),
+                'icon'  => ['fal', 'fa-dolly-flatbed-alt'],
+                'route' => 'dashboard',
+                'color' => 'bg-indigo-500'
+            ];
+        }
+
+        if ($user->can('dispatching.pack')) {
+            $actions[] = [
+                'name'  => __('packing'),
+                'icon'  => ['fal', 'fa-conveyor-belt-alt'],
+                'route' => 'dashboard',
+                'color' => 'bg-green-500'
+            ];
+        }
+
 
         return [
-            'navigation' => $navigation
+            'navigation' => $navigation,
+            'actions'    => $actions
         ];
     }
 

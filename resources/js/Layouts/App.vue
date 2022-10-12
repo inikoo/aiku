@@ -21,17 +21,38 @@ import {
 import { Link } from '@inertiajs/inertia-vue3';
 import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
 import {trans} from 'laravel-vue-i18n';
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {
+    faHome,
+    faDollyFlatbedAlt,
+    faConveyorBeltAlt,
+    faUsers,
+    faUserHardHat,
+    faBars,
+    faUsersCog,
+    faTachometerAltFast,
+    faInventory,
+    faStoreAlt
+} from '@/../private/pro-light-svg-icons';
+
+library.add(
+            faHome,
+            faDollyFlatbedAlt,
+            faConveyorBeltAlt,
+            faUsers,
+            faUserHardHat,
+            faBars,
+            faUsersCog,
+            faTachometerAltFast,
+            faInventory,
+            faStoreAlt
+);
 
 
 const initialiseApp = inject('initialiseApp')
 const layout= initialiseApp();
 
 
-const shortcuts = [
-    { name: 'Engineering', href: '#', bgColorClass: 'bg-indigo-500' },
-    { name: 'Human Resources', href: '#', bgColorClass: 'bg-green-500' },
-    { name: 'Customer Success', href: '#', bgColorClass: 'bg-yellow-500' },
-]
 
 
 const sidebarOpen = ref(false)
@@ -70,13 +91,15 @@ const sidebarOpen = ref(false)
                                             {{ item.name }}
                                         </Link>
                                     </div>
+                                    <!-- Actions mobile -->
+
                                     <div class="mt-8">
-                                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="mobile-shortcuts-headline">{{trans('Shortcuts')}}</h3>
-                                        <div class="mt-1 space-y-1" role="group" aria-labelledby="mobile-shortcuts-headline">
-                                            <a v-for="shortcut in shortcuts" :key="shortcut.name" :href="shortcut.href" class="group flex items-center px-3 py-2 text-base leading-5 font-medium text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-50">
-                                                <span :class="[shortcut.bgColorClass, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
+                                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="mobile-actions-headline">{{trans('Actions')}}</h3>
+                                        <div class="mt-1 space-y-1" role="group" aria-labelledby="mobile-actions-headline">
+                                            <a v-for="action in layout.actions" :key="action.name" :href="route(action.href)" class="group flex items-center px-3 py-2 text-base leading-5 font-medium text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-50">
+                                                <span :class="[action.color, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
                                                 <span class="truncate">
-                                                    {{ shortcut.name }}
+                                                    {{ action.name }}
                                                 </span>
                                             </a>
                                         </div>
@@ -113,13 +136,14 @@ const sidebarOpen = ref(false)
                         </Link>
                     </div>
                     <div class="mt-8">
-                        <!-- Secondary navigation -->
-                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="desktop-shortcuts-headline">shortcuts</h3>
-                        <div class="mt-1 space-y-1" role="group" aria-labelledby="desktop-shortcuts-headline">
-                            <a v-for="shortcut in shortcuts" :key="shortcut.name" :href="shortcut.href" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:text-gray-900 hover:bg-gray-50">
-                                <span :class="[shortcut.bgColorClass, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
+                        <!-- Actions desktop -->
+
+                        <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="desktop-actions-headline">{{trans('Actions')}}</h3>
+                        <div class="mt-1 space-y-1" role="group" aria-labelledby="desktop-actions-headline">
+                            <a v-for="action in layout.actions" :key="action.name" :href="route(action.route)" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:text-gray-900 hover:bg-gray-50">
+                                <span :class="[action.color, 'w-2.5 h-2.5 mr-4 rounded-full']" aria-hidden="true" />
                                 <span class="truncate">
-                                    {{ shortcut.name }}
+                                    {{ action.name }}
                                 </span>
                             </a>
                         </div>
@@ -132,7 +156,7 @@ const sidebarOpen = ref(false)
             <!-- Search header -->
             <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 ">
                 <button type="button" class="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 lg:hidden" @click="sidebarOpen = true">
-                    <span class="sr-only">Open sidebar</span>
+                    <span class="sr-only">{{trans('Open sidebar')}}</span>
                     <font-awesome-icon aria-hidden="true"  class="h-6 w-6" icon="fa-regular fa-bars"/>
 
                 </button>
@@ -145,7 +169,7 @@ const sidebarOpen = ref(false)
                     <div class="flex items-center">
 
                         <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                            <span class="sr-only">Search</span>
+                            <span class="sr-only">{{trans('Search')}}</span>
                             <font-awesome-icon aria-hidden="true"  icon="fa-regular fa-search"  size="lg" />
 
                         </button>

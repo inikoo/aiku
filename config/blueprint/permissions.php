@@ -21,6 +21,12 @@ return [
     'hr.edit',
     'hr.payroll',
     'hr.attendance',
+
+    'shops',
+    'shops.view',
+    'shops.products',
+    'shops.customers',
+
     'inventory',
     'inventory.stocks',
     'inventory.stocks.view',

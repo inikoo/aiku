@@ -57,6 +57,8 @@ const initialiseApp = () => {
     watchEffect(() => {
         if (usePage().props.value.layout) {
             layout.navigation = usePage().props.value.layout.navigation ?? null;
+            layout.actions = usePage().props.value.layout.actions ?? null;
+
         }
         if (usePage().props.value.tenant) {
             layout.tenant = usePage().props.value.tenant ?? null;
