@@ -11,7 +11,6 @@ use App\Actions\HumanResources\ShowHumanResourcesDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -59,10 +58,19 @@ class ShowEmployee
                                 'icon'=>'fal fa-id-card',
                                 'tooltip'=>__('Worker number')
                             ]
-                        ]
+                        ],
+
+                        $employee->user?
+                        [
+                            'name'=>$employee->user->username,
+                            'leftIcon'=>[
+                                'icon'=>'fal fa-user',
+                                'tooltip'=>__('User')
+                            ]
+                        ]:[]
                     ]
                 ],
-                'employee'    => $employee
+                'employee'    => new EmployeeResource($employee)
             ]
         );
     }

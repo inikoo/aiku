@@ -14,10 +14,15 @@ use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\User;
 use Illuminate\Console\Command;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
+/**
+ * @property string $newPassword
+ */
 class CreateUserFromEmployee
 {
 
@@ -35,9 +40,10 @@ class CreateUserFromEmployee
 
     public function handle(Employee $employee, ?string $password = null, ?string $username = null): User
     {
-        $modelData = [
+        $this->newPassword = $password ?? (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello');
+        $modelData         = [
             'username' => $username ?? $employee->code,
-            'password' => $password ?? (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello')
+            'password' => $this->newPassword
         ];
 
 
@@ -52,6 +58,36 @@ class CreateUserFromEmployee
         return $user;
     }
 
+    public function asController(Employee $employee): User
+    {
+        if ($employee->user) {
+            return $employee->user;
+        }
+
+        return $this->handle($employee);
+    }
+
+    public function HtmlResponse(User $user): RedirectResponse
+    {
+        /** @var Employee $employee */
+        $employee = $user->parent;
+
+        return Redirect::route('hr.employees.show', $employee->id)->with('notification', [
+            'type' => 'newUser',
+            'message'=>__('New user created'),
+            'fields' => [
+                'username' => [
+                    'label' => __('username'),
+                    'value' => $user->username
+                ],
+                'password' => [
+                    'label' => __('password'),
+                    'value' => $this->newPassword
+                ]
+            ]
+
+        ]);
+    }
 
     public function asCommand(Command $command): int
     {

@@ -62,6 +62,9 @@ class HandleInertiaRequests extends Middleware
                 'auth'  => [
                     'user' => $request->user()?$request->user()->only('username','email','avatar'):null,
                 ],
+                'flash' => [
+                    'notification' => fn () => $request->session()->get('notification')
+                ],
                 'ziggy' => function () use ($request) {
                     return array_merge((new Ziggy)->toArray(), [
                         'location' => $request->url(),
