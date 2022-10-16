@@ -27,6 +27,7 @@ use App\Services\Tenant\Aurora\FetchAuroraTransactionHistoricProduct;
 use App\Services\Tenant\Aurora\FetchAuroraUser;
 use App\Services\Tenant\Aurora\FetchAuroraWarehouse;
 use App\Services\Tenant\Aurora\FetchAuroraWarehouseArea;
+use App\Services\Tenant\Aurora\FetchAuroraWebsite;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -60,6 +61,11 @@ class AuroraTenantService implements SourceTenantService
     public function fetchShop($id): ?array
     {
         return (new FetchAuroraShop($this))->fetch($id);
+    }
+
+    public function fetchWebsite($id): ?array
+    {
+        return (new FetchAuroraWebsite($this))->fetch($id);
     }
 
     public function fetchShipper($id): ?array

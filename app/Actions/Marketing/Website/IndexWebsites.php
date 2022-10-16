@@ -1,15 +1,15 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 16:30:07 Central European Summer Time, Kuala Lumpur, Malaysia
+ *  Created: Thu, 13 Oct 2022 15:49:29 Central European Summer Time, Plane Malaga - East Midlands UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Shop;
+namespace App\Actions\Marketing\Website;
 
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Marketing\ShopResource;
-use App\Models\Marketing\Shop;
+use App\Models\Marketing\Website;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,12 +20,8 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-/**
- * @property array $breadcrumbs
- * @property bool $canEdit
- * @property string $title
- */
-class IndexShops
+
+class IndexWebsites
 {
     use AsAction;
     use WithInertia;
@@ -35,18 +31,18 @@ class IndexShops
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('shops.name', 'LIKE', "%$value%")
-                    ->orWhere('shops.code', 'LIKE', "%$value%");
+                $query->where('websites.name', 'LIKE', "%$value%")
+                    ->orWhere('websites.code', 'LIKE', "%$value%");
             });
         });
 
 
-        return QueryBuilder::for(Shop::class)
-            ->defaultSort('shops.code')
+        return QueryBuilder::for(Website::class)
+            ->defaultSort('websites.code')
             ->select(['code', 'id', 'name'])
             ->allowedSorts(['code',  'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? 15)
+            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
     }
 
@@ -55,7 +51,7 @@ class IndexShops
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.view')
+                $request->user()->hasPermissionTo('webpages.view')
             );
     }
 

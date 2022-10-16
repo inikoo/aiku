@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
@@ -48,6 +48,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\CRM\CustomerStats|null $stats
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Customer onlyTrashed()
  * @method static Builder|Customer query()
  * @method static Builder|Customer whereBillingAddressId($value)
  * @method static Builder|Customer whereCompanyName($value)
@@ -72,6 +73,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Customer whereTradeState($value)
  * @method static Builder|Customer whereUpdatedAt($value)
  * @method static Builder|Customer whereWebsite($value)
+ * @method static \Illuminate\Database\Query\Builder|Customer withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Customer withoutTrashed()
  * @mixin \Eloquent
  */
 class Customer extends Model

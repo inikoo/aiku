@@ -96,6 +96,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     cd ../../
     echo "shops"
     php artisan fetch:shops -q
+    php artisan fetch:websites -q
     php artisan fetch:products -q
     php artisan fetch:customers -q
 @endtask

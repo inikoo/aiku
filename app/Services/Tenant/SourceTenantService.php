@@ -19,6 +19,8 @@ interface SourceTenantService
 
     public function fetchShop($id);
 
+    public function fetchWebsite($id);
+
     public function fetchShipper($id);
 
     public function fetchTransaction($type, $id);

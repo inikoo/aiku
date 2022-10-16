@@ -43,7 +43,7 @@ class AuthorisationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->originalNumberPermissionsInSuperAdmin = 5;
+        $this->originalNumberPermissionsInSuperAdmin = 6;
         $this->tenant = Tenant::find(1);
 
     }

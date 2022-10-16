@@ -1,4 +1,9 @@
 <?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Thu, 21 Sep 2022  Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
 
 declare(strict_types=1);
 
@@ -6,19 +11,6 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-
-/*
-|--------------------------------------------------------------------------
-| Tenant Routes
-|--------------------------------------------------------------------------
-|
-| Here you can register the tenant routes for your application.
-| These routes are loaded by the TenantRouteServiceProvider.
-|
-| Feel free to customize them however you want. Good luck!
-|
-*/
-
 
 
 
@@ -41,7 +33,9 @@ Route::middleware([
         Route::prefix('shops')
             ->name('shops.')
             ->group(__DIR__.'/shops.php');
-
+        Route::prefix('websites')
+            ->name('websites.')
+            ->group(__DIR__.'/websites.php');
         Route::prefix('profile')
             ->name('profile.')
             ->group(__DIR__.'/profile.php');

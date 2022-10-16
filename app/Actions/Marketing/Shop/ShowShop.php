@@ -8,7 +8,7 @@
 namespace App\Actions\Marketing\Shop;
 
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\ShopResource;
+use App\Http\Resources\Marketing\ShopResource;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;

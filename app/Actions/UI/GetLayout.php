@@ -33,6 +33,14 @@ class GetLayout
             ];
         }
 
+        if ($user->can('websites.view')) {
+            $navigation[] = [
+                'name'  => __('websites'),
+                'icon'  => ['fal', 'fa-globe'],
+                'route' => 'websites.index'
+            ];
+        }
+
 
         if ($user->can('inventory.view')) {
             $navigation[] = [

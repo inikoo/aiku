@@ -10,6 +10,7 @@ namespace App\Models\Central;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Sanctum\HasApiTokens;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
@@ -33,6 +34,8 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\CentralDomain[] $centralDomains
+ * @property-read int|null $central_domains_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\Stancl\Tenancy\Database\Models\Domain[] $domains
  * @property-read int|null $domains_count
  * @property-read \App\Models\Central\TenantInventoryStats|null $inventoryStats
@@ -110,6 +113,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function inventoryStats(): HasOne
     {
         return $this->hasOne(TenantInventoryStats::class);
+    }
+
+    public function centralDomains(): HasMany
+    {
+        return $this->hasMany(CentralDomain::class);
     }
 
 }

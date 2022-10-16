@@ -26,6 +26,14 @@ return [
     'shops.view',
     'shops.products',
     'shops.customers',
+    'shops.websites',
+
+    'websites',
+    'websites.view',
+    'websites.edit',
+
+
+
 
     'inventory',
     'inventory.stocks',

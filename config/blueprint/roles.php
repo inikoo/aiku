@@ -13,7 +13,6 @@ return
             'tenant',
             'sysadmin',
             'hr',
-            'assets',
             'inventory',
             'dispatching',
             'shops'
@@ -72,6 +71,10 @@ return
         'customer-services' => [
             'shops.view',
             'shops.customers',
+        ],
+
+        'webmaster' => [
+            'websites',
         ],
 
 

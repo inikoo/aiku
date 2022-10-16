@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deactivated_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read Shop|null $shop
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient newQuery()
+ * @method static \Illuminate\Database\Query\Builder|CustomerClient onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient query()
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereCompanyName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereContactName($value)
@@ -52,6 +53,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereSourceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|CustomerClient withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|CustomerClient withoutTrashed()
  * @mixin \Eloquent
  */
 class CustomerClient extends Model

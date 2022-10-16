@@ -7,14 +7,12 @@
 
 namespace App\Models\Marketing;
 
-use App\Models\Central\Tenant;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Order;
 use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -29,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property string|null $contact_name
  * @property string|null $email
  * @property string|null $phone
- * @property string|null $website
+ * @property \App\Models\Marketing\Website|null $website
  * @property string|null $tax_number
  * @property string|null $tax_number_status
  * @property string|null $identity_document_type
@@ -61,7 +59,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
  * @property-read int|null $products_count
  * @property-read \App\Models\Marketing\ShopStats|null $stats
- * @property-read Tenant|null $tenant
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop query()
@@ -122,10 +119,6 @@ class Shop extends Model
         return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
     }
 
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class);
-    }
 
     public function customers(): HasMany
     {
@@ -141,5 +134,11 @@ class Shop extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function website(): HasOne
+    {
+        return $this->hasOne(Website::class);
+    }
+
 
 }
