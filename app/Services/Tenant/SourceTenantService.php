@@ -17,6 +17,8 @@ interface SourceTenantService
 
     public function fetchEmployee($id);
 
+    public function fetchGuest($id);
+
     public function fetchShop($id);
 
     public function fetchWebsite($id);

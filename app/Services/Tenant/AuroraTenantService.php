@@ -13,6 +13,7 @@ use App\Models\Central\Tenant;
 use App\Services\Tenant\Aurora\FetchAuroraCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraCustomerClient;
 use App\Services\Tenant\Aurora\FetchAuroraEmployee;
+use App\Services\Tenant\Aurora\FetchAuroraGuest;
 use App\Services\Tenant\Aurora\FetchAuroraHistoricProduct;
 use App\Services\Tenant\Aurora\FetchAuroraLocation;
 use App\Services\Tenant\Aurora\FetchAuroraOrder;
@@ -56,6 +57,11 @@ class AuroraTenantService implements SourceTenantService
     public function fetchEmployee($id): ?array
     {
         return (new FetchAuroraEmployee($this))->fetch($id);
+    }
+
+    public function fetchGuest($id): ?array
+    {
+        return (new FetchAuroraGuest($this))->fetch($id);
     }
 
     public function fetchShop($id): ?array

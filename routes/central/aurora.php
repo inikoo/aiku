@@ -7,6 +7,7 @@
 
 use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use App\Actions\SourceFetch\Aurora\FetchEmployees;
+use App\Actions\SourceFetch\Aurora\FetchGuests;
 use App\Actions\SourceFetch\Aurora\FetchLocations;
 use App\Actions\SourceFetch\Aurora\FetchOrders;
 use App\Actions\SourceFetch\Aurora\FetchShops;
@@ -26,3 +27,4 @@ Route::post('/{tenant:uuid}/location', FetchLocations::class)->name('aurora.loca
 Route::post('/{tenant:uuid}/stock', FetchStocks::class)->name('aurora.stocks');
 
 Route::post('/{tenant:uuid}/employee', FetchEmployees::class)->name('aurora.employee');
+Route::post('/{tenant:uuid}/guest', FetchGuests::class)->name('aurora.guest');

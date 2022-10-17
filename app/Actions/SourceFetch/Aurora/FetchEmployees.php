@@ -8,9 +8,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\HumanResources\Employee\SetEmployeePhoto;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\Utils\SetPhoto;
 use App\Models\HumanResources\Employee;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -42,7 +42,7 @@ class FetchEmployees extends FetchAction
             $employee->jobPositions()->sync($employeeData['job-positions']);
 
             foreach ($employeeData['photo'] ?? [] as $profileImage) {
-                SetEmployeePhoto::run($employee, $profileImage['image_path'], $profileImage['filename']);
+                SetPhoto::run($employee, $profileImage['image_path'], $profileImage['filename']);
             }
 
 

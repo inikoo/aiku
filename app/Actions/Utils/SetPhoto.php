@@ -1,20 +1,19 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 26 Aug 2022 00:19:27 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia F
+ *  Created: Mon, 17 Oct 2022 14:50:21 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee;
+namespace App\Actions\Utils;
 
 use App\Actions\WithActionUpdate;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Guest;
 
 
-/**
- * @property Employee $employee
- */
-class SetEmployeePhoto
+
+class SetPhoto
 {
     use WithActionUpdate;
 
@@ -22,12 +21,12 @@ class SetEmployeePhoto
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
      */
-    public function handle(Employee $employee, string $image_path, string $filename): Employee
+    public function handle(Employee|Guest $subject, string $image_path, string $filename): Employee|Guest
     {
         $checksum = md5_file($image_path);
 
-        if ($employee->getMedia('photo', ['checksum' => $checksum])->count() == 0) {
-            $employee->addMedia($image_path)
+        if ($subject->getMedia('photo', ['checksum' => $checksum])->count() == 0) {
+            $subject->addMedia($image_path)
                 ->preservingOriginal()
                 ->withCustomProperties(['checksum' => $checksum])
                 ->usingName($filename)
@@ -36,7 +35,7 @@ class SetEmployeePhoto
         }
 
 
-        return $employee;
+        return $subject;
     }
 
 
