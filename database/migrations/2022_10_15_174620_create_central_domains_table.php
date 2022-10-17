@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreignId('tenant_id')->constrained();
             $table->unsignedMediumInteger('website_id')->index();
             $table->string('domain')->unique();
+            $table->enum('state',['created','iris-enabled'])->default('created');
+
             $table->timestampsTz();
         });
     }

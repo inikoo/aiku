@@ -22,6 +22,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $tenant_id
  * @property int $website_id
  * @property string $domain
+ * @property string $state
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Central\CentralDomainStats|null $stats
@@ -33,6 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|CentralDomain whereDomain($value)
  * @method static Builder|CentralDomain whereId($value)
  * @method static Builder|CentralDomain whereSlug($value)
+ * @method static Builder|CentralDomain whereState($value)
  * @method static Builder|CentralDomain whereTenantId($value)
  * @method static Builder|CentralDomain whereUpdatedAt($value)
  * @method static Builder|CentralDomain whereWebsiteId($value)

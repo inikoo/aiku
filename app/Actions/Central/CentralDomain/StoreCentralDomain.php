@@ -17,11 +17,10 @@ class StoreCentralDomain
 
     public function handle(Tenant $tenant, array $modelData):CentralDomain
     {
-
-
         /** @var CentralDomain $centralDomain */
         $centralDomain = $tenant->centralDomains()->create($modelData);
         $centralDomain->stats()->create();
+        EnableIris::run($centralDomain);
 
         return $centralDomain;
     }
