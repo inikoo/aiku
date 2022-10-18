@@ -15,12 +15,13 @@ class InertiaAction
 {
     use AsAction;
     use WithAttributes;
+
     protected ?string $routeName = null;
 
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $this->routeName    = $request->route()->getName();
+        $this->routeName = $request->route()->getName();
     }
 
 
@@ -32,7 +33,6 @@ class InertiaAction
     {
         abort(422);
     }
-
 
 
 }

@@ -44,7 +44,7 @@ class IndexUser
             ->select(['username', 'users.id', 'parent_type', 'parent_id'])
             ->allowedSorts(['username', 'email', 'parent_type'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? 15)
+            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
     }
 

@@ -1,16 +1,15 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 13 Oct 2021 20:00:51 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2021, Inikoo
- *  Version 4.0
+ *  Created: Mon, 17 Oct 2022 17:54:17 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\Customer;
+namespace App\Actions\Sales\Customer;
 
 use App\Actions\Helpers\Address\StoreAddress;
-use App\Models\CRM\Customer;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreCustomer
@@ -20,7 +19,7 @@ class StoreCustomer
     public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
     {
 
-        /** @var Customer $customer */
+        /** @var \App\Models\Sales\Customer $customer */
         $customer = $shop->customers()->create($customerData);
         $customer->stats()->create();
         $addresses = [];

@@ -7,8 +7,6 @@
 
 namespace App\Models\Sales;
 
-use App\Models\CRM\Customer;
-//use App\Models\Delivery\DeliveryNoteItem;
 use App\Models\Delivery\DeliveryNoteItem;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+
+//use App\Models\Delivery\DeliveryNoteItem;
 
 
 /**
@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property int|null $source_id
- * @property-read Customer $customer
+ * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|DeliveryNoteItem[] $deliveryNoteItems
  * @property-read int|null $delivery_note_items_count
  * @property-read Model|\Eloquent $item

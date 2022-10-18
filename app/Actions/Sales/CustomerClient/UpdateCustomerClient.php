@@ -1,15 +1,14 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sat, 29 Jan 2022 01:05:42 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ *  Created: Mon, 17 Oct 2022 17:54:17 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\CustomerClient;
+namespace App\Actions\Sales\CustomerClient;
 
-use App\Models\CRM\CustomerClient;
 use App\Actions\WithActionUpdate;
+use App\Models\Sales\CustomerClient;
 
 class UpdateCustomerClient
 {

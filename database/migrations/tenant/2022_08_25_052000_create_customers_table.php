@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->id();
 
             $table->unsignedMediumInteger('shop_id')->index()->nullable();
+            $table->string('reference')->index()->comment('customer public id');
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('name', 256)->nullable()->fulltext();
             $table->string('contact_name', 256)->nullable()->index()->fulltext();
@@ -31,8 +32,12 @@ return new class extends Migration {
             $table->jsonb('location');
 
             $table->enum('status', ['pending-approval', 'approved', 'rejected', 'banned'])->index();
-            $table->enum('state', ['in-process', 'active', 'losing', 'lost', 'registered'])->index()->nullable();
-            $table->enum('trade_state', ['none', 'one', 'many'])->index()->nullable()->default('none')->comment('number of invoices');
+
+            $customerStates = ['in-process', 'active', 'losing', 'lost', 'registered'];
+            $table->enum('state', $customerStates)->index()->nullable();
+
+            $customerTradeStates = ['none', 'one', 'many'];
+            $table->enum('trade_state', $customerTradeStates)->index()->nullable()->default('none')->comment('number of invoices');
 
             $table->unsignedBigInteger('billing_address_id')->nullable()->index();
             $table->foreign('billing_address_id')->references('id')->on('addresses');
@@ -48,8 +53,6 @@ return new class extends Migration {
 
             $table->index([DB::raw('name(64)')]);
         });
-
-
     }
 
 

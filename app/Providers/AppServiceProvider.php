@@ -62,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
                 'User'     => 'App\Models\SysAdmin\User',
                 'Employee' => 'App\Models\HumanResources\Employee',
                 'Guest'    => 'App\Models\SysAdmin\Guest',
-                'Customer' => 'App\Models\CRM\Customer',
+                'Customer' => 'App\Models\Sales\Customer',
                 'Shop'     => 'App\Models\Marketing\Shop',
                 'Tenant'   => 'App\Models\Central\Tenant',
                 'AdminUser'   => 'App\Models\Central\AdminUser',

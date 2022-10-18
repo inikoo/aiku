@@ -28,9 +28,10 @@ class FetchAuroraCustomer extends FetchAurora
             $state = 'lost';
         }
 
-       $this->parsedData['customer'] =
+        $this->parsedData['customer'] =
             [
                 'name'                     => $this->auroraModelData->{'Customer Name'},
+                'reference'                => sprintf('%05d',$this->auroraModelData->{'Customer Key'}),
                 'state'                    => $state,
                 'status'                   => $status,
                 'contact_name'             => $this->auroraModelData->{'Customer Main Contact Name'},
@@ -49,11 +50,9 @@ class FetchAuroraCustomer extends FetchAurora
                     },
                 'source_id'                => $this->auroraModelData->{'Customer Key'},
                 'created_at'               => $this->auroraModelData->{'Customer First Contacted Date'}
-            ]
-        ;
+            ];
 
-        $this->parsedData['shop']=$this->parseShop($this->auroraModelData->{'Customer Store Key'});
-
+        $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Customer Store Key'});
 
 
         $addresses = [];
@@ -69,7 +68,7 @@ class FetchAuroraCustomer extends FetchAurora
                 $deliveryAddress
             ];
         }
-       $this->parsedData['addresses'] = $addresses;
+        $this->parsedData['addresses'] = $addresses;
     }
 
 

@@ -18,17 +18,18 @@ class StoreTenant
 
     public function handle(array $modelData): Tenant
     {
-        $modelData['uuid']=Str::uuid();
-        $tenant = Tenant::create($modelData);
+        $modelData['uuid'] = Str::uuid();
+        $tenant            = Tenant::create($modelData);
+
         $tenant->stats()->create();
         $tenant->inventoryStats()->create();
+        $tenant->marketingStats()->create();
+        $tenant->salesStats()->create();
         $tenant->refresh();
 
         $tenant->run(function () {
             CreateTenantStorageLink::run();
         });
-
-
 
         return $tenant;
     }

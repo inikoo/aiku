@@ -35,7 +35,9 @@ return new class extends Migration
 
             $table->enum('state', ['in-process', 'open', 'closing-down', 'closed'])->index();
             $table->enum('type', ['shop', 'fulfilment_house', 'agent'])->index();
-            $table->enum('subtype', ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'])->nullable();
+            $shopSubtypes = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
+
+            $table->enum('subtype', $shopSubtypes)->nullable();
 
             $table->date('open_at')->nullable();
             $table->date('closed_at')->nullable();

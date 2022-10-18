@@ -7,8 +7,8 @@
 
 namespace App\Models\Delivery;
 
-use App\Models\CRM\Customer;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

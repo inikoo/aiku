@@ -9,10 +9,10 @@
 namespace App\Actions\Sales\Order;
 
 use App\Actions\Helpers\Address\StoreImmutableAddress;
-use App\Models\CRM\CustomerClient;
-use App\Models\Sales\Order;
-use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
+use App\Models\Sales\Customer;
+use App\Models\Sales\CustomerClient;
+use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreOrder

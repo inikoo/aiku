@@ -44,7 +44,7 @@ class IndexGuest
             ->select(['id', 'code', 'name',])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? 15)
+            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
     }
 

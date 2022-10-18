@@ -6,6 +6,8 @@
     $adminCode = empty($adminCode) ? $_ENV['ADMIN_CODE'] : $adminCode;
     $adminName = empty($adminName) ? $_ENV['ADMIN_NAME'] : $adminName;
     $adminEmail = empty($adminEmail) ? $_ENV['ADMIN_EMAIL'] : $adminEmail;
+    $instance = empty($instance) ? '' : $instance;
+
 
 @endsetup
 
@@ -87,40 +89,40 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     echo "tenant-fetch-employees" > step
     cd ../../
     echo "employees and guests"
-    php artisan fetch:employees -q
-    php artisan fetch:guests -q
+    php artisan fetch:employees {{$instance}} -q
+    php artisan fetch:guests {{$instance}} -q
 @endtask
 
 @task('tenant-fetch-shops')
     echo "tenant-fetch-shops" > step
     cd ../../
     echo "shops"
-    php artisan fetch:shops -q
-    php artisan fetch:websites -q
-    php artisan fetch:products -q
-    php artisan fetch:customers -q
+    php artisan fetch:shops {{$instance}} -q
+    php artisan fetch:websites {{$instance}} -q
+    php artisan fetch:products {{$instance}} -q
+    php artisan fetch:customers {{$instance}} -q
 @endtask
 
 @task('tenant-fetch-inventory')
     echo "tenant-fetch-inventory" > step
     cd ../../
     echo "shippers"
-    php artisan fetch:shippers -q
+    php artisan fetch:shippers {{$instance}} -q
     echo "warehouses"
-    php artisan fetch:warehouses  -q
+    php artisan fetch:warehouses  {{$instance}} -q
     echo "warehouse-areas"
-    php artisan fetch:warehouse-areas  -q
+    php artisan fetch:warehouse-areas {{$instance}}  -q
     echo "locations"
-    php artisan fetch:locations  -q
+    php artisan fetch:locations {{$instance}}  -q
     echo "stocks"
-    php artisan fetch:stocks  -q
+    php artisan fetch:stocks {{$instance}}  -q
 @endtask
 
 @task('tenant-fetch-sales')
     echo "tenant-fetch-sales" > step
     cd ../../
     echo "orders"
-    php artisan fetch:orders  -q
+    php artisan fetch:orders {{$instance}} -q
 @endtask
 
 

@@ -32,7 +32,8 @@ import {
     faUsersCog,
     faTachometerAltFast,
     faInventory,
-    faStoreAlt
+    faStoreAlt,
+    faUser
 } from '@/../private/pro-light-svg-icons';
 
 library.add(
@@ -45,7 +46,8 @@ library.add(
             faUsersCog,
             faTachometerAltFast,
             faInventory,
-            faStoreAlt
+            faStoreAlt,
+            faUser
 );
 
 
@@ -130,7 +132,7 @@ const sidebarOpen = ref(false)
 
                 <nav class="px-3 ">
                     <div class="space-y-1">
-                        <Link v-for="item in layout.navigation" :href="route(item.route)" :key="item.name" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'capitalize group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
+                        <Link v-for="item in layout.navigation" :href="route(item.route,item['routeParameters'])" :key="item.name" :class="[item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50', 'capitalize group flex items-center px-2 py-2 text-sm font-medium rounded-md']" :aria-current="item.current ? 'page' : undefined">
                             <font-awesome-icon aria-hidden="true"  :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'mr-3 flex-shrink-0 h-6 w-6']" :icon="item.icon"  size="lg" />
                             {{ item.name }}
                         </Link>

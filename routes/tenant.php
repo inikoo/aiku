@@ -36,6 +36,9 @@ Route::middleware([
         Route::prefix('websites')
             ->name('websites.')
             ->group(__DIR__.'/websites.php');
+        Route::prefix('customers')
+            ->name('customers.')
+            ->group(__DIR__.'/customers.php');
         Route::prefix('profile')
             ->name('profile.')
             ->group(__DIR__.'/profile.php');

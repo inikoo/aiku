@@ -14,6 +14,8 @@ use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\WarehouseStats;
+use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -34,6 +36,73 @@ class HydrateTenant extends HydrateModel
         $this->guestsStats();
         $this->userStats();
         $this->warehouseStats();
+        $this->marketingStats();
+    }
+
+    public function customersStats()
+    {
+        /** @var Tenant $tenant */
+        $tenant = tenant();
+
+        $stats = [
+            'number_customers' => Customer::count()
+        ];
+
+
+        $customerStates      = ['in-process', 'active', 'losing', 'lost', 'registered'];
+        $customerStatesCount = Customer::selectRaw('state, count(*) as total')
+            ->groupBy('state')
+            ->pluck('total', 'state')->all();
+
+
+
+        foreach ($customerStates as $customerState) {
+            $stats['number_customers_state_'.str_replace('-', '_', $customerState)] = Arr::get($customerStatesCount, $customerState, 0);
+        }
+
+        $customerTradeStates      = ['none', 'one', 'many'];
+        $customerTradeStatesCount = Customer::selectRaw('trade_state, count(*) as total')
+            ->groupBy('trade_state')
+            ->pluck('total', 'trade_state')->all();
+
+        foreach ($customerTradeStates as $customerTradeState) {
+            $stats['number_customers_trade_state_'.$customerTradeState] = Arr::get($customerTradeStatesCount, $customerTradeState, 0);
+        }
+
+
+        $tenant->salesStats->update($stats);
+    }
+
+    public function marketingStats()
+    {
+        /** @var Tenant $tenant */
+        $tenant = tenant();
+
+        $stats = [
+            'number_shops' => Shop::count()
+        ];
+
+        $shopTypes      = ['shop', 'fulfilment_house', 'agent'];
+        $shopTypesCount = Shop::selectRaw('type, count(*) as total')
+            ->groupBy('type')
+            ->pluck('total', 'type')->all();
+
+
+        foreach ($shopTypes as $shopType) {
+            $stats['number_shops_type_'.$shopType] = Arr::get($shopTypesCount, $shopType, 0);
+        }
+
+        $shopSubtypes      = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
+        $shopSubtypesCount = Shop::selectRaw('subtype, count(*) as total')
+            ->groupBy('subtype')
+            ->pluck('total', 'subtype')->all();
+
+
+        foreach ($shopSubtypes as $shopSubtype) {
+            $stats['number_shops_subtype_'.$shopSubtype] = Arr::get($shopSubtypesCount, $shopSubtype, 0);
+        }
+
+        $tenant->marketingStats->update($stats);
     }
 
     public function warehouseStats()
@@ -93,8 +162,6 @@ class HydrateTenant extends HydrateModel
         ];
 
 
-
-
         $tenant->stats->update($stats);
     }
 
@@ -107,11 +174,10 @@ class HydrateTenant extends HydrateModel
         $numberActiveUsers = DB::table('users')->where('status', true)->count();
 
 
-
         $stats = [
-            'number_users'                  => $numberUsers,
-            'number_users_status_active'    => $numberActiveUsers,
-            'number_users_status_inactive'  => $numberUsers - $numberActiveUsers
+            'number_users'                 => $numberUsers,
+            'number_users_status_active'   => $numberActiveUsers,
+            'number_users_status_inactive' => $numberUsers - $numberActiveUsers
 
         ];
 

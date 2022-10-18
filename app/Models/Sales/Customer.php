@@ -1,7 +1,13 @@
 <?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Mon, 17 Oct 2022 17:53:31 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
 
-namespace App\Models\CRM;
+namespace App\Models\Sales;
 
+use App\Actions\Central\Tenant\HydrateTenant;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,10 +19,11 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\Models\CRM\Customer
+ * App\Models\Sales\Customer
  *
  * @property int $id
  * @property int|null $shop_id
+ * @property string $reference customer public id
  * @property string|null $name
  * @property string|null $contact_name
  * @property string|null $company_name
@@ -41,11 +48,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
  * @property-read Address|null $billingAddress
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CRM\CustomerClient[] $clients
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\CustomerClient[] $clients
  * @property-read int|null $clients_count
  * @property-read Address|null $deliveryAddress
  * @property-read Shop|null $shop
- * @property-read \App\Models\CRM\CustomerStats|null $stats
+ * @property-read \App\Models\Sales\CustomerStats|null $stats
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static \Illuminate\Database\Query\Builder|Customer onlyTrashed()
@@ -63,6 +70,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Customer whereLocation($value)
  * @method static Builder|Customer whereName($value)
  * @method static Builder|Customer wherePhone($value)
+ * @method static Builder|Customer whereReference($value)
  * @method static Builder|Customer whereShopId($value)
  * @method static Builder|Customer whereSourceId($value)
  * @method static Builder|Customer whereState($value)
@@ -97,6 +105,21 @@ class Customer extends Model
 
     protected $guarded = [];
 
+    protected static function booted()
+    {
+        static::created(
+            function () {
+                HydrateTenant::make()->customersStats();
+            }
+        );
+        static::deleted(
+            function () {
+                HydrateTenant::make()->customersStats();
+            }
+        );
+
+    }
+
     public function addresses(): MorphToMany
     {
         return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
@@ -128,10 +151,5 @@ class Customer extends Model
     }
 
 
-
-    public function getFormattedID(): string
-    {
-        return sprintf('%05d', $this->id);
-    }
 
 }

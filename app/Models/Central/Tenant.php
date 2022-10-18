@@ -39,6 +39,8 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property-read \Illuminate\Database\Eloquent\Collection|\Stancl\Tenancy\Database\Models\Domain[] $domains
  * @property-read int|null $domains_count
  * @property-read \App\Models\Central\TenantInventoryStats|null $inventoryStats
+ * @property-read \App\Models\Central\TenantMarketingStats|null $marketingStats
+ * @property-read \App\Models\Central\TenantSalesStats|null $salesStats
  * @property-read \App\Models\Central\TenantStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
@@ -114,6 +116,17 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return $this->hasOne(TenantInventoryStats::class);
     }
+
+    public function marketingStats(): HasOne
+    {
+        return $this->hasOne(TenantMarketingStats::class);
+    }
+
+    public function salesStats(): HasOne
+    {
+        return $this->hasOne(TenantSalesStats::class);
+    }
+
 
     public function centralDomains(): HasMany
     {

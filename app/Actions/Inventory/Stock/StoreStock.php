@@ -9,8 +9,8 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Models\Central\Tenant;
-use App\Models\CRM\Customer;
 use App\Models\Inventory\Stock;
+use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 

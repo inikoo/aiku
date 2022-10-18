@@ -8,6 +8,8 @@
 namespace App\Actions\UI;
 
 
+use App\Models\Central\Tenant;
+use App\Models\Marketing\Shop;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,6 +19,14 @@ class GetLayout
 
     public function handle(User $user): array
     {
+        /** @var Tenant $tenant */
+        $tenant    = tenant();
+        $shopCount = $tenant->marketingStats->number_shops;
+        $shop      = null;
+        if ($shopCount == 1) {
+            $shop = Shop::first();
+        }
+
         $navigation = [
             [
                 'name'  => __('dashboard'),
@@ -25,20 +35,53 @@ class GetLayout
             ]
         ];
 
-        if ($user->can('shops.view')) {
-            $navigation[] = [
-                'name'  => __('shops'),
-                'icon'  => ['fal', 'fa-store-alt'],
-                'route' => 'shops.index'
-            ];
-        }
+        if ($shopCount == 1) {
+            if ($user->can('shops.view')) {
+                $navigation[] = [
+                    'name'            => __('shop'),
+                    'icon'            => ['fal', 'fa-store-alt'],
+                    'route'           => 'shops.show',
+                    'routeParameters' => $shop->id
+                ];
+            }
+            if ($user->can('websites.view')) {
+                $navigation[] = [
+                    'name'  => __('websites'),
+                    'icon'  => ['fal', 'fa-globe'],
+                    'route' => 'websites.index'
+                ];
+            }
+            if ($user->can('shops.customers.view')) {
+                $navigation[] = [
+                    'name'            => __('customers'),
+                    'icon'            => ['fal', 'fa-user'],
+                    'route'           => 'shops.show.customers.index',
+                    'routeParameters' => $shop->id
 
-        if ($user->can('websites.view')) {
-            $navigation[] = [
-                'name'  => __('websites'),
-                'icon'  => ['fal', 'fa-globe'],
-                'route' => 'websites.index'
-            ];
+                ];
+            }
+        } else {
+            if ($user->can('shops.view')) {
+                $navigation[] = [
+                    'name'  => __('shops'),
+                    'icon'  => ['fal', 'fa-store-alt'],
+                    'route' => 'shops.index'
+                ];
+            }
+            if ($user->can('websites.view')) {
+                $navigation[] = [
+                    'name'  => __('websites'),
+                    'icon'  => ['fal', 'fa-globe'],
+                    'route' => 'websites.index'
+                ];
+            }
+            if ($user->can('shops.customers.view')) {
+                $navigation[] = [
+                    'name'  => __('customers'),
+                    'icon'  => ['fal', 'fa-user'],
+                    'route' => 'customers.index'
+                ];
+            }
         }
 
 

@@ -11,14 +11,13 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\CRM\Customer\StoreCustomer;
-use App\Actions\CRM\Customer\UpdateCustomer;
-use App\Models\CRM\Customer;
+use App\Actions\Sales\Customer\StoreCustomer;
+use App\Actions\Sales\Customer\UpdateCustomer;
+use App\Models\Sales\Customer;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
-
 
 
 class FetchCustomers extends FetchAction

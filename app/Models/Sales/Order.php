@@ -7,7 +7,6 @@
 
 namespace App\Models\Sales;
 
-use App\Models\CRM\Customer;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
@@ -41,7 +40,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property int|null $source_id
- * @property-read Customer $customer
+ * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|DeliveryNote[] $deliveryNotes
  * @property-read int|null $delivery_notes_count
  * @property-read Shop $shop

@@ -26,11 +26,14 @@ return [
     'shops.view',
     'shops.products',
     'shops.customers',
-    'shops.websites',
+    'shops.customers.view',
+    'shops.customers.edit',
 
-    'websites',
-    'websites.view',
-    'websites.edit',
+    'shops.websites',
+    'shops.websites.view',
+    'shops.websites.edit',
+
+
 
 
 

@@ -21,6 +21,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $code
  * @property bool $status
+ * @property string $type
  * @property string|null $name
  * @property string|null $email
  * @property string|null $phone
@@ -51,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Guest wherePhone($value)
  * @method static Builder|Guest whereSourceId($value)
  * @method static Builder|Guest whereStatus($value)
+ * @method static Builder|Guest whereType($value)
  * @method static Builder|Guest whereUpdatedAt($value)
  * @mixin \Eloquent
  */

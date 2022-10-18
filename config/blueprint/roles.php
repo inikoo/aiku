@@ -15,7 +15,7 @@ return
             'hr',
             'inventory',
             'dispatching',
-            'shops'
+            'shops',
         ],
 
         'system-admin'          => [
@@ -74,7 +74,8 @@ return
         ],
 
         'webmaster' => [
-            'websites',
+            'shops.view',
+            'shops.websites'
         ],
 
 

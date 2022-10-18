@@ -1,16 +1,15 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sat, 29 Jan 2022 00:55:05 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ *  Created: Mon, 17 Oct 2022 17:54:17 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\CustomerClient;
+namespace App\Actions\Sales\CustomerClient;
 
 use App\Actions\Helpers\Address\StoreAddress;
-use App\Models\CRM\Customer;
-use App\Models\CRM\CustomerClient;
+use App\Models\Sales\Customer;
+use App\Models\Sales\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreCustomerClient

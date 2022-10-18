@@ -1,13 +1,18 @@
 <?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Mon, 17 Oct 2022 17:53:31 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
 
-namespace App\Models\CRM;
+namespace App\Models\Sales;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\CRM\CustomerStats
+ * App\Models\Sales\CustomerStats
  *
  * @property int $id
  * @property int $customer_id
@@ -22,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices_type_refund
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \App\Models\Sales\Customer $customer
  * @method static Builder|CustomerStats newModelQuery()
  * @method static Builder|CustomerStats newQuery()
  * @method static Builder|CustomerStats query()

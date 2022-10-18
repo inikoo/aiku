@@ -9,13 +9,12 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 
-use App\Actions\CRM\CustomerClient\StoreCustomerClient;
-use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
 use App\Actions\Helpers\Address\UpdateAddress;
-use App\Models\CRM\CustomerClient;
+use App\Actions\Sales\CustomerClient\StoreCustomerClient;
+use App\Actions\Sales\CustomerClient\UpdateCustomerClient;
+use App\Models\Sales\CustomerClient;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class FetchCustomerClients extends FetchAction
 {

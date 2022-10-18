@@ -7,8 +7,9 @@
 
 namespace App\Models\Marketing;
 
-use App\Models\CRM\Customer;
+use App\Actions\Central\Tenant\HydrateTenant;
 use App\Models\Helpers\Address;
+use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
@@ -95,6 +96,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 class Shop extends Model
 {
     use HasAddress;
+
     protected $casts = [
         'data'     => 'array',
         'settings' => 'array',
@@ -109,6 +111,28 @@ class Shop extends Model
 
     protected $guarded = [];
 
+    protected static function booted()
+    {
+        static::created(
+            function () {
+                HydrateTenant::make()->marketingStats();
+            }
+        );
+        static::deleted(
+            function () {
+                HydrateTenant::make()->marketingStats();
+            }
+        );
+
+        static::updated(function (Shop $shop) {
+            if (!$shop->wasRecentlyCreated) {
+                if ($shop->wasChanged(['type', 'subtype'])) {
+                    HydrateTenant::make()->marketingStats();
+                }
+            }
+        });
+    }
+
     public function stats(): HasOne
     {
         return $this->hasOne(ShopStats::class);
@@ -118,7 +142,6 @@ class Shop extends Model
     {
         return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
     }
-
 
     public function customers(): HasMany
     {

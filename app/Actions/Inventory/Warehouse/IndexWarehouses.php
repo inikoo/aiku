@@ -47,7 +47,7 @@ class IndexWarehouses
             ->leftJoin('warehouse_stats', 'warehouse_stats.warehouse_id', 'warehouses.id')
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? 15)
+            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
     }
 

@@ -1,16 +1,22 @@
 <?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Mon, 17 Oct 2022 17:53:31 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
 
-namespace App\Models\CRM;
+namespace App\Models\Sales;
 
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\Models\CRM\CustomerClient
+ * App\Models\Sales\CustomerClient
  *
  * @property int $id
  * @property bool $status
@@ -30,29 +36,29 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
- * @property-read \App\Models\CRM\Customer|null $customer
+ * @property-read \App\Models\Sales\Customer|null $customer
  * @property-read Address|null $deliveryAddress
  * @property-read Shop|null $shop
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient newQuery()
+ * @method static Builder|CustomerClient newModelQuery()
+ * @method static Builder|CustomerClient newQuery()
  * @method static \Illuminate\Database\Query\Builder|CustomerClient onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient query()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereCompanyName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereContactName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereCustomerId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereDeactivatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereDeliveryAddressId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereLocation($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereShopId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereSourceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClient whereUpdatedAt($value)
+ * @method static Builder|CustomerClient query()
+ * @method static Builder|CustomerClient whereCompanyName($value)
+ * @method static Builder|CustomerClient whereContactName($value)
+ * @method static Builder|CustomerClient whereCreatedAt($value)
+ * @method static Builder|CustomerClient whereCustomerId($value)
+ * @method static Builder|CustomerClient whereDeactivatedAt($value)
+ * @method static Builder|CustomerClient whereDeletedAt($value)
+ * @method static Builder|CustomerClient whereDeliveryAddressId($value)
+ * @method static Builder|CustomerClient whereEmail($value)
+ * @method static Builder|CustomerClient whereId($value)
+ * @method static Builder|CustomerClient whereLocation($value)
+ * @method static Builder|CustomerClient whereName($value)
+ * @method static Builder|CustomerClient wherePhone($value)
+ * @method static Builder|CustomerClient whereShopId($value)
+ * @method static Builder|CustomerClient whereSourceId($value)
+ * @method static Builder|CustomerClient whereStatus($value)
+ * @method static Builder|CustomerClient whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|CustomerClient withTrashed()
  * @method static \Illuminate\Database\Query\Builder|CustomerClient withoutTrashed()
  * @mixin \Eloquent

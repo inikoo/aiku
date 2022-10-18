@@ -7,6 +7,7 @@
 
 namespace App\Models\Central;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -43,37 +44,37 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Central\Tenant $tenant
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereFilesizeAttachments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereFilesizeImages($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereHasAgents($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereHasDropshipping($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereHasFulfilment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereHasProduction($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberAttachments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberEmployees($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberEmployeesStateHired($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberEmployeesStateLeft($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberEmployeesStateWorking($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberGuests($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberGuestsStatusActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberGuestsStatusInactive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberImages($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberUsers($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberUsersStatusActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberUsersStatusInactive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberUsersTypeAgent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberUsersTypeCustomer($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberUsersTypeEmployee($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberUsersTypeGuest($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberUsersTypeSupplier($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereNumberUsersTypeTenant($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereTenantId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantStats whereUpdatedAt($value)
+ * @method static Builder|TenantStats newModelQuery()
+ * @method static Builder|TenantStats newQuery()
+ * @method static Builder|TenantStats query()
+ * @method static Builder|TenantStats whereCreatedAt($value)
+ * @method static Builder|TenantStats whereFilesizeAttachments($value)
+ * @method static Builder|TenantStats whereFilesizeImages($value)
+ * @method static Builder|TenantStats whereHasAgents($value)
+ * @method static Builder|TenantStats whereHasDropshipping($value)
+ * @method static Builder|TenantStats whereHasFulfilment($value)
+ * @method static Builder|TenantStats whereHasProduction($value)
+ * @method static Builder|TenantStats whereId($value)
+ * @method static Builder|TenantStats whereNumberAttachments($value)
+ * @method static Builder|TenantStats whereNumberEmployees($value)
+ * @method static Builder|TenantStats whereNumberEmployeesStateHired($value)
+ * @method static Builder|TenantStats whereNumberEmployeesStateLeft($value)
+ * @method static Builder|TenantStats whereNumberEmployeesStateWorking($value)
+ * @method static Builder|TenantStats whereNumberGuests($value)
+ * @method static Builder|TenantStats whereNumberGuestsStatusActive($value)
+ * @method static Builder|TenantStats whereNumberGuestsStatusInactive($value)
+ * @method static Builder|TenantStats whereNumberImages($value)
+ * @method static Builder|TenantStats whereNumberUsers($value)
+ * @method static Builder|TenantStats whereNumberUsersStatusActive($value)
+ * @method static Builder|TenantStats whereNumberUsersStatusInactive($value)
+ * @method static Builder|TenantStats whereNumberUsersTypeAgent($value)
+ * @method static Builder|TenantStats whereNumberUsersTypeCustomer($value)
+ * @method static Builder|TenantStats whereNumberUsersTypeEmployee($value)
+ * @method static Builder|TenantStats whereNumberUsersTypeGuest($value)
+ * @method static Builder|TenantStats whereNumberUsersTypeSupplier($value)
+ * @method static Builder|TenantStats whereNumberUsersTypeTenant($value)
+ * @method static Builder|TenantStats whereTenantId($value)
+ * @method static Builder|TenantStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class TenantStats extends Model
