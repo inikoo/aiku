@@ -16,6 +16,7 @@ return
             'inventory',
             'dispatching',
             'shops',
+            'production',
         ],
 
         'system-admin'          => [
@@ -78,6 +79,14 @@ return
             'shops.websites'
         ],
 
+
+        'production-manager' => [
+            'production.view',
+        ],
+
+        'production-worker' => [
+            'production.view',
+        ],
 
         'guest'      => [
 

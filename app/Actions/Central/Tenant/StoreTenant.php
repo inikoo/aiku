@@ -23,6 +23,7 @@ class StoreTenant
 
         $tenant->stats()->create();
         $tenant->inventoryStats()->create();
+        $tenant->productionStats()->create();
         $tenant->marketingStats()->create();
         $tenant->salesStats()->create();
         $tenant->refresh();

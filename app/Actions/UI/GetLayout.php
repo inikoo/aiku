@@ -93,6 +93,14 @@ class GetLayout
             ];
         }
 
+        if ($user->can('production.view')) {
+            $navigation[] = [
+                'name'  => __('production'),
+                'icon'  => ['fal', 'fa-industry'],
+                'route' => 'production.dashboard'
+            ];
+        }
+
 
         if ($user->can('hr.view')) {
             $navigation[] = [

@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_shops
  * @property int $number_shops_type_shop
  * @property int $number_shops_type_fulfilment_house
+ * @property int $number_shops_type_agent
  * @property int $number_shops_subtype_b2b
  * @property int $number_shops_subtype_b2c
  * @property int $number_shops_subtype_storage
@@ -40,6 +41,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|TenantMarketingStats whereNumberShopsSubtypeDropshipping($value)
  * @method static Builder|TenantMarketingStats whereNumberShopsSubtypeFulfilment($value)
  * @method static Builder|TenantMarketingStats whereNumberShopsSubtypeStorage($value)
+ * @method static Builder|TenantMarketingStats whereNumberShopsTypeAgent($value)
  * @method static Builder|TenantMarketingStats whereNumberShopsTypeFulfilmentHouse($value)
  * @method static Builder|TenantMarketingStats whereNumberShopsTypeShop($value)
  * @method static Builder|TenantMarketingStats whereTenantId($value)

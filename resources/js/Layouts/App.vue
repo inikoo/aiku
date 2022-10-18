@@ -33,7 +33,8 @@ import {
     faTachometerAltFast,
     faInventory,
     faStoreAlt,
-    faUser
+    faUser,
+    faIndustry
 } from '@/../private/pro-light-svg-icons';
 
 library.add(
@@ -47,7 +48,8 @@ library.add(
             faTachometerAltFast,
             faInventory,
             faStoreAlt,
-            faUser
+            faUser,
+            faIndustry
 );
 
 

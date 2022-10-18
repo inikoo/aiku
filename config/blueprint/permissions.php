@@ -33,11 +33,6 @@ return [
     'shops.websites.view',
     'shops.websites.edit',
 
-
-
-
-
-
     'inventory',
     'inventory.stocks',
     'inventory.stocks.view',
@@ -46,6 +41,10 @@ return [
     'inventory.warehouses.dispatching',
     'inventory.warehouses.dispatching.pick',
     'inventory.warehouses.dispatching.pack',
+
+    'production',
+    'production.view',
+
     'dispatching',
     'dispatching.pick',
     'dispatching.pack',
