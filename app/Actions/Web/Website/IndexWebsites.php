@@ -1,15 +1,15 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 13 Oct 2022 15:49:29 Central European Summer Time, Plane Malaga - East Midlands UK
+ *  Created: Tue, 18 Oct 2022 11:30:40 British Summer Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Website;
+namespace App\Actions\Web\Website;
 
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Marketing\ShopResource;
-use App\Models\Marketing\Website;
+use App\Models\Web\Website;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

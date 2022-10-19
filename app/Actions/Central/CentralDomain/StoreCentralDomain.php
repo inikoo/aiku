@@ -20,7 +20,7 @@ class StoreCentralDomain
         /** @var CentralDomain $centralDomain */
         $centralDomain = $tenant->centralDomains()->create($modelData);
         $centralDomain->stats()->create();
-        EnableIris::run($centralDomain);
+        SetIrisDomain::run($centralDomain);
 
         return $centralDomain;
     }

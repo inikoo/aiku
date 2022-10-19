@@ -25,6 +25,7 @@ return new class extends Migration {
             $table->string('name');
             $table->jsonb('settings');
             $table->jsonb('data');
+            $table->jsonb('webnodes');
             $table->timestampsTz();
             $table->timestampTz('launched_at')->nullable();
             $table->timestampTz('closed_at')->nullable();

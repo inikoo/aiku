@@ -8,33 +8,37 @@
 namespace App\Actions\Central\CentralDomain;
 
 use App\Models\Central\CentralDomain;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Console\Command;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class EnableIris
+class SetIrisDomain
 {
     use AsAction;
 
-    public string $commandSignature = 'create:iris{--d|domain= : central domain code}';
+    public string $commandSignature = 'set:iris-domain {--d|domain= : central domain code}';
 
-    public function handle(CentralDomain $centralDomain): void
+    public function handle(CentralDomain $centralDomain): PromiseInterface|Response
     {
+        $parameters = [
+            'central_domain_id' => $centralDomain->id,
+            'soft'              => true,
+        ];
+
         $response = Http::acceptJson()
             ->withToken(config('iris.token'))
-            ->post(config('iris.url').'/api/domains',
-                   [
-                       'central_domain_id' => $centralDomain->id
-                   ]
+            ->post(
+                config('iris.url').'/api/domains',
+                $parameters
             );
 
-
-
-
-        if($response->status()==201){
-            $centralDomain->update(['state'=>'iris-enabled']);
+        if ($response->status() == 201 or $response->status() == 200) {
+            $centralDomain->update(['state' => 'iris-enabled']);
         }
 
+        return $response;
     }
 
     public function asCommand(Command $command): int
@@ -42,8 +46,11 @@ class EnableIris
         if ($command->option('domain')) {
             $centralDomain = CentralDomain::where('slug', ($command->option('domain')))->firstOrFail();
             if ($centralDomain->state == 'created') {
-                $this->handle($centralDomain);
-
+                $response = $this->handle($centralDomain);
+                if (!($response->status() == 201 or $response->status() == 200)) {
+                    $command->error($response->status());
+                    return 1;
+                }
                 return 0;
             }
             $command->error('Central domain has state:'.$centralDomain->state);

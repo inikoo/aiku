@@ -8,9 +8,9 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 
-use App\Actions\Marketing\Website\StoreWebsite;
-use App\Actions\Marketing\Website\UpdateWebsite;
-use App\Models\Marketing\Website;
+use App\Actions\Web\Website\StoreWebsite;
+use App\Actions\Web\Website\UpdateWebsite;
+use App\Models\Web\Website;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

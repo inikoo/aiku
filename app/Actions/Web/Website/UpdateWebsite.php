@@ -1,14 +1,14 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 18:04:15 Central European Summer Time, Benalmádena, Malaga Spain
+ *  Created: Tue, 18 Oct 2022 11:30:40 British Summer Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Website;
+namespace App\Actions\Web\Website;
 
 use App\Actions\WithActionUpdate;
-use App\Models\Marketing\Website;
+use App\Models\Web\Website;
 
 
 class UpdateWebsite

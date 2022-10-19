@@ -12,6 +12,7 @@ use App\Models\Helpers\Address;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Traits\HasAddress;
+use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -28,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property string|null $contact_name
  * @property string|null $email
  * @property string|null $phone
- * @property \App\Models\Marketing\Website|null $website
+ * @property Website|null $website
  * @property string|null $tax_number
  * @property string|null $tax_number_status
  * @property string|null $identity_document_type

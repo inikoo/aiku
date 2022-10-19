@@ -1,21 +1,23 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 17:38:02 Central European Summer Time, Benalmádena, Malaga Spain
+ *  Created: Tue, 18 Oct 2022 11:32:29 British Summer Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Web;
 
+use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Marketing\Website
+ * App\Models\Web\Website
  *
  * @property int $id
  * @property int $shop_id
@@ -25,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property array $settings
  * @property array $data
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Web\Webnode[] $webnodes
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $launched_at
@@ -32,8 +35,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $current_layout_id
  * @property string|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Marketing\Shop $shop
- * @property-read \App\Models\Marketing\WebsiteStats|null $stats
+ * @property-read Shop $shop
+ * @property-read \App\Models\Web\WebsiteStats|null $stats
+ * @property-read int|null $webnodes_count
  * @method static Builder|Website newModelQuery()
  * @method static Builder|Website newQuery()
  * @method static Builder|Website query()
@@ -52,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Website whereSourceId($value)
  * @method static Builder|Website whereStatus($value)
  * @method static Builder|Website whereUpdatedAt($value)
+ * @method static Builder|Website whereWebnodes($value)
  * @mixin \Eloquent
  */
 class Website extends Model
@@ -61,11 +66,13 @@ class Website extends Model
     protected $casts = [
         'data'     => 'array',
         'settings' => 'array',
+        'webnodes' => 'array',
     ];
 
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
+        'webnodes' => '{}',
     ];
 
     protected $guarded = [];
@@ -86,4 +93,11 @@ class Website extends Model
     {
         return $this->belongsTo(Shop::class);
     }
+
+    public function webnodes(): HasMany
+    {
+        return $this->hasMany(Webnode::class);
+    }
+
+
 }

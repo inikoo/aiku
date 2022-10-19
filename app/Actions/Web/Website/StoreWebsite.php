@@ -1,15 +1,15 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 18:00:02 Central European Summer Time, Benalmádena, Malaga Spain
+ *  Created: Tue, 18 Oct 2022 11:30:40 British Summer Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Website;
+namespace App\Actions\Web\Website;
 
 use App\Actions\Central\CentralDomain\StoreCentralDomain;
 use App\Models\Marketing\Shop;
-use App\Models\Marketing\Website;
+use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
