@@ -1,12 +1,13 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 14 Sept 2022 23:21:20 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Wed, 19 Oct 2022 18:37:19 British Summer Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Hydrators;
+namespace App\Actions\Inventory\WarehouseArea;
 
+use App\Actions\HydrateModel;
 use App\Models\Inventory\WarehouseArea;
 use Illuminate\Support\Collection;
 

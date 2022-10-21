@@ -8,7 +8,7 @@
 namespace App\Models\HumanResources;
 
 use App\Actions\Central\Tenant\HydrateTenant;
-use App\Actions\Hydrators\HydrateEmployee;
+use App\Actions\HumanResources\Employee\HydrateEmployee;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

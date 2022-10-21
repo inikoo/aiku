@@ -31,10 +31,9 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(TelescopeServiceProvider::class);
         }
 
-        DatabaseConfig::$databaseNameGenerator=function (Tenant $tenant) {
-            return config('tenancy.database.prefix') . $tenant->code . config('tenancy.database.suffix');
+        DatabaseConfig::$databaseNameGenerator = function (Tenant $tenant) {
+            return config('tenancy.database.prefix').$tenant->code.config('tenancy.database.suffix');
         };
-
     }
 
 
@@ -59,13 +58,16 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::morphMap(
             [
-                'User'     => 'App\Models\SysAdmin\User',
-                'Employee' => 'App\Models\HumanResources\Employee',
-                'Guest'    => 'App\Models\SysAdmin\Guest',
-                'Customer' => 'App\Models\Sales\Customer',
-                'Shop'     => 'App\Models\Marketing\Shop',
-                'Tenant'   => 'App\Models\Central\Tenant',
-                'AdminUser'   => 'App\Models\Central\AdminUser',
+                'User'       => 'App\Models\SysAdmin\User',
+                'Employee'   => 'App\Models\HumanResources\Employee',
+                'Guest'      => 'App\Models\SysAdmin\Guest',
+                'Customer'   => 'App\Models\Sales\Customer',
+                'Shop'       => 'App\Models\Marketing\Shop',
+                'Tenant'     => 'App\Models\Central\Tenant',
+                'AdminUser'  => 'App\Models\Central\AdminUser',
+                'Department' => 'App\Models\Marketing\Department',
+                'Family'     => 'App\Models\Marketing\Family',
+                'Product'    => 'App\Models\Marketing\Product'
             ]
         );
     }

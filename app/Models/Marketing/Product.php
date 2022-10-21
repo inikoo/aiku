@@ -7,6 +7,8 @@
 
 namespace App\Models\Marketing;
 
+use App\Actions\Marketing\Family\HydrateFamily;
+use App\Actions\Marketing\Shop\HydrateShop;
 use App\Models\Sales\SalesStats;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $composition
  * @property string|null $slug
  * @property int|null $shop_id
+ * @property int|null $family_id
  * @property string|null $state
  * @property bool|null $status
  * @property string $code
@@ -40,6 +43,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read \App\Models\Marketing\Family|null $family
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\HistoricProduct[] $historicRecords
  * @property-read int|null $historic_records_count
  * @property-read SalesStats|null $salesStats
@@ -58,6 +62,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Product whereData($value)
  * @method static Builder|Product whereDeletedAt($value)
  * @method static Builder|Product whereDescription($value)
+ * @method static Builder|Product whereFamilyId($value)
  * @method static Builder|Product whereId($value)
  * @method static Builder|Product whereImageId($value)
  * @method static Builder|Product whereName($value)
@@ -92,6 +97,29 @@ class Product extends Model
 
     protected $guarded = [];
 
+    protected static function booted()
+    {
+        static::created(
+            function (Product $product) {
+                if($product->family_id){
+                    HydrateFamily::make()->productsStats($product->family);
+                }
+                HydrateShop::make()->productStats($product->shop);
+            }
+        );
+        static::deleted(
+            function (Product $product) {
+                HydrateFamily::make()->productsStats($product->family);
+                HydrateShop::make()->productStats($product->shop);
+            }
+        );
+    }
+
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
+
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
@@ -109,6 +137,6 @@ class Product extends Model
 
     public function historicRecords(): HasMany
     {
-        return $this->hasMany(HistoricProduct::class)->withTrashed();
+        return $this->hasMany(HistoricProduct::class);
     }
 }

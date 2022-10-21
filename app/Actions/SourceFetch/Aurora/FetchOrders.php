@@ -25,6 +25,7 @@ class FetchOrders extends FetchAction
             if ($order=Order::where('source_id', $orderData['order']['source_id'])
                 ->first()) {
                 $this->fetchTransactions($tenantSource, $order);
+                return $order;
             }
             else{
 
@@ -41,7 +42,7 @@ class FetchOrders extends FetchAction
         return null;
     }
 
-    private function fetchTransactions($tenantSource, $order): void
+    private function fetchTransactions($tenantSource, $order): Void
     {
         foreach (
             DB::connection('aurora')

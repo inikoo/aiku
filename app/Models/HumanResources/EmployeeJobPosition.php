@@ -7,8 +7,8 @@
 
 namespace App\Models\HumanResources;
 
+use App\Actions\HumanResources\Employee\HydrateEmployee;
 use App\Actions\HumanResources\JobPosition\HydrateJobPosition;
-use App\Actions\Hydrators\HydrateEmployee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;

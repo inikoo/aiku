@@ -1,12 +1,13 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 13 Sept 2022 01:26:49 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Wed, 19 Oct 2022 18:36:28 British Summer Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Hydrators;
+namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\HydrateModel;
 use App\Actions\Traits\WithNormalise;
 use App\Models\HumanResources\Employee;
 use Illuminate\Support\Arr;

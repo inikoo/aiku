@@ -1,0 +1,156 @@
+<?php
+/*
+ *  Author: Raul Perusquia <raul@inikoo.com>
+ *  Created: Thu, 20 Oct 2022 19:01:07 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
+ */
+
+namespace App\Models\Marketing;
+
+
+use App\Actions\Marketing\Department\HydrateDepartment;
+use App\Actions\Marketing\Shop\HydrateShop;
+use App\Models\Sales\SalesStats;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+
+/**
+ * App\Models\Marketing\Family
+ *
+ * @property int $id
+ * @property string|null $slug
+ * @property int|null $shop_id
+ * @property int|null $department_id
+ * @property string|null $state
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $description
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $source_id
+ * @property-read \App\Models\Marketing\Department|null $department
+ * @property-read string $slug_source
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
+ * @property-read int|null $products_count
+ * @property-read SalesStats|null $salesStats
+ * @property-read SalesStats|null $salesTenantCurrencyStats
+ * @property-read \App\Models\Marketing\Shop|null $shop
+ * @property-read \App\Models\Marketing\FamilyStats|null $stats
+ * @method static Builder|Family newModelQuery()
+ * @method static Builder|Family newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Family onlyTrashed()
+ * @method static Builder|Family query()
+ * @method static Builder|Family whereCode($value)
+ * @method static Builder|Family whereCreatedAt($value)
+ * @method static Builder|Family whereData($value)
+ * @method static Builder|Family whereDeletedAt($value)
+ * @method static Builder|Family whereDepartmentId($value)
+ * @method static Builder|Family whereDescription($value)
+ * @method static Builder|Family whereId($value)
+ * @method static Builder|Family whereName($value)
+ * @method static Builder|Family whereShopId($value)
+ * @method static Builder|Family whereSlug($value)
+ * @method static Builder|Family whereSourceId($value)
+ * @method static Builder|Family whereState($value)
+ * @method static Builder|Family whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|Family withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Family withoutTrashed()
+ * @mixin \Eloquent
+ */
+class Family extends Model
+{
+    use HasSlug;
+    use SoftDeletes;
+
+    protected $casts = [
+        'data'       => 'array',
+    ];
+
+    protected $attributes = [
+        'data' => '{}',
+    ];
+
+    protected $guarded = [];
+
+    protected static function booted()
+    {
+        static::created(
+            function (Family $family) {
+                if($family->department_id){
+                    HydrateDepartment::make()->familiesStats($family->department);
+                }
+                HydrateShop::make()->familiesStats($family->shop);
+            }
+        );
+        static::deleted(
+            function (Family $family) {
+                if($family->department_id){
+                    HydrateDepartment::make()->familiesStats($family->department);
+                }
+                HydrateShop::make()->familiesStats($family->shop);
+            }
+        );
+        static::updated(function (Family $family) {
+            if ($family->wasChanged('state')) {
+                if($family->department_id){
+                    HydrateDepartment::make()->familiesStats($family->department);
+                }
+                HydrateShop::make()->familiesStats($family->shop);
+            }
+        });
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('slug_source')
+            ->slugsShouldBeNoLongerThan(32)
+            ->saveSlugsTo('slug');
+    }
+
+    public function getSlugSourceAttribute(): string
+    {
+
+        return strtolower($this->code.'-'.$this->shop->code);
+    }
+
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(Shop::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(FamilyStats::class);
+    }
+
+    public function salesStats(): MorphOne
+    {
+        return $this->morphOne(SalesStats::class, 'model')->where('scope','sales');
+    }
+    public function salesTenantCurrencyStats(): MorphOne
+    {
+        return $this->morphOne(SalesStats::class, 'model')->where('scope','sales-tenant-currency');
+    }
+
+
+}

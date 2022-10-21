@@ -16,6 +16,9 @@ class FetchAuroraShop extends FetchAurora
 
     protected function parseModel(): void
     {
+        $this->parsedData['source_department_key'] = $this->auroraModelData->{'Store Department Category Key'};
+        $this->parsedData['source_family_key']     = $this->auroraModelData->{'Store Family Category Key'};
+
         $this->parsedData['shop'] = [
 
             'type'                     =>

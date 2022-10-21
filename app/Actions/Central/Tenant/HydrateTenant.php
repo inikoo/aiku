@@ -7,7 +7,7 @@
 
 namespace App\Actions\Central\Tenant;
 
-use App\Actions\Hydrators\HydrateModel;
+use App\Actions\HydrateModel;
 use App\Actions\Traits\WithNormalise;
 use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;

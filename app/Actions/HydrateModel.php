@@ -1,14 +1,12 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sun, 30 Jan 2022 21:09:21 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ *  Created: Wed, 19 Oct 2022 18:38:30 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Hydrators;
+namespace App\Actions;
 
-use App\Actions\WithTenantsArgument;
 use App\Models\Central\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;

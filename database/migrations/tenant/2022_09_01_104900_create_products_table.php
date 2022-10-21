@@ -20,6 +20,10 @@ return new class extends Migration {
             $table->string('slug')->nullable()->index();
             $table->unsignedMediumInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
+
+            $table->unsignedSmallInteger('family_id')->nullable();
+            $table->foreign('family_id')->references('id')->on('families');
+
             $table->enum('state', ['creating', 'active', 'suspended', 'discontinuing', 'discontinued'])->nullable()->index();
             $table->boolean('status')->nullable()->index();
 

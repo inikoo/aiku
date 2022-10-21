@@ -7,8 +7,8 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Hydrators\HydrateWarehouse;
-use App\Actions\Hydrators\HydrateWarehouseArea;
+use App\Actions\Inventory\Warehouse\HydrateWarehouse;
+use App\Actions\Inventory\WarehouseArea\HydrateWarehouseArea;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -33,6 +33,8 @@ interface SourceTenantService
 
     public function fetchOrder($id);
 
+    public function fetchInvoice($id);
+
     public function fetchWarehouse($id);
 
     public function fetchWarehouseArea($id);
@@ -40,6 +42,10 @@ interface SourceTenantService
     public function fetchLocation($id);
 
     public function fetchHistoricProduct($id);
+
+    public function fetchDepartment($id);
+
+    public function fetchFamily($id);
 
     public function fetchProduct($id);
 

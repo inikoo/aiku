@@ -7,7 +7,8 @@
 
 namespace App\Models\Sales;
 
-use App\Actions\Central\Tenant\HydrateTenant;
+
+use App\Actions\Marketing\Shop\HydrateShop;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,6 +52,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\CustomerClient[] $clients
  * @property-read int|null $clients_count
  * @property-read Address|null $deliveryAddress
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Invoice[] $invoices
+ * @property-read int|null $invoices_count
  * @property-read Shop|null $shop
  * @property-read \App\Models\Sales\CustomerStats|null $stats
  * @method static Builder|Customer newModelQuery()
@@ -108,16 +111,21 @@ class Customer extends Model
     protected static function booted()
     {
         static::created(
-            function () {
-                HydrateTenant::make()->customersStats();
+            function (Customer $customer) {
+                HydrateShop::make()->customerStats($customer->shop);
             }
         );
         static::deleted(
-            function () {
-                HydrateTenant::make()->customersStats();
+            function (Customer $customer) {
+                HydrateShop::make()->customerStats($customer->shop);
             }
         );
 
+        static::updated(function (Customer $customer) {
+            if ($customer->wasChanged('trade_state')) {
+                HydrateShop::make()->customerNumberInvoicesStats($customer->shop);
+            }
+        });
     }
 
     public function addresses(): MorphToMany
@@ -150,6 +158,10 @@ class Customer extends Model
         return $this->hasOne(CustomerStats::class);
     }
 
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
 
 
 }

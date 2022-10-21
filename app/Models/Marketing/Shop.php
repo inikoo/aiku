@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use App\Actions\Central\Tenant\HydrateTenant;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Customer;
+use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
 use App\Models\Traits\HasAddress;
 use App\Models\Web\Website;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * App\Models\Marketing\Shop
@@ -48,14 +50,20 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Address|null $address
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Customer[] $customers
  * @property-read int|null $customers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Department[] $departments
+ * @property-read int|null $departments_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Family[] $families
+ * @property-read int|null $families_count
  * @property-read string $formatted_address
+ * @property-read \Illuminate\Database\Eloquent\Collection|Invoice[] $invoices
+ * @property-read int|null $invoices_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
@@ -63,6 +71,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Shop onlyTrashed()
  * @method static Builder|Shop query()
  * @method static Builder|Shop whereAddressId($value)
  * @method static Builder|Shop whereClosedAt($value)
@@ -92,11 +101,14 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static Builder|Shop whereType($value)
  * @method static Builder|Shop whereUpdatedAt($value)
  * @method static Builder|Shop whereWebsite($value)
+ * @method static \Illuminate\Database\Query\Builder|Shop withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Shop withoutTrashed()
  * @mixin \Eloquent
  */
 class Shop extends Model
 {
     use HasAddress;
+    use SoftDeletes;
 
     protected $casts = [
         'data'     => 'array',
@@ -162,6 +174,21 @@ class Shop extends Model
     public function website(): HasOne
     {
         return $this->hasOne(Website::class);
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function departments(): HasMany
+    {
+        return $this->hasMany(Department::class);
+    }
+
+    public function families(): HasMany
+    {
+        return $this->hasMany(Family::class);
     }
 
 

@@ -30,15 +30,37 @@ class FetchShops extends FetchAction
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])
                 ->first()) {
                 $shop = UpdateShop::run(
-                    shop: $shop,
+                    shop:      $shop,
                     modelData: $shopData['shop']
                 );
             } else {
                 $shop = StoreShop::run(
-                    modelData:    $shopData['shop'],
-                    addressData:  []
+                    modelData:   $shopData['shop'],
+                    addressData: []
                 );
             }
+
+            foreach (
+                DB::connection('aurora')
+                    ->table('Category Dimension')
+                    ->select('Category Key as source_id')
+                    ->where('Category Branch Type', 'Head')
+                    ->where('Category Root Key', $shopData['source_department_key'])->get() as $auroraDepartment
+            ) {
+                FetchDepartments::run($tenantSource, $auroraDepartment->source_id);
+            }
+
+            foreach (
+                DB::connection('aurora')
+                    ->table('Category Dimension')
+                    ->select('Category Key as source_id')
+                    ->where('Category Branch Type', 'Head')
+                    ->where('Category Root Key', $shopData['source_family_key'])->get() as $auroraFamily
+
+            ) {
+                FetchFamilies::run($tenantSource, $auroraFamily->source_id);
+            }
+
             return $shop;
         }
 

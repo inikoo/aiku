@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
-use App\Actions\Hydrators\HydrateModel;
+use App\Actions\HydrateModel;
 use App\Actions\Traits\WithNormalise;
 use App\Models\HumanResources\JobPosition;
 use Illuminate\Support\Collection;

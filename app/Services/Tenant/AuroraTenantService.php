@@ -12,9 +12,13 @@ namespace App\Services\Tenant;
 use App\Models\Central\Tenant;
 use App\Services\Tenant\Aurora\FetchAuroraCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraCustomerClient;
+use App\Services\Tenant\Aurora\FetchAuroraDepartment;
 use App\Services\Tenant\Aurora\FetchAuroraEmployee;
+use App\Services\Tenant\Aurora\FetchAuroraFamily;
 use App\Services\Tenant\Aurora\FetchAuroraGuest;
 use App\Services\Tenant\Aurora\FetchAuroraHistoricProduct;
+use App\Services\Tenant\Aurora\FetchAuroraInvoice;
+use App\Services\Tenant\Aurora\FetchAuroraInvoiceTransactionHistoricProduct;
 use App\Services\Tenant\Aurora\FetchAuroraLocation;
 use App\Services\Tenant\Aurora\FetchAuroraOrder;
 use App\Services\Tenant\Aurora\FetchAuroraProduct;
@@ -89,6 +93,11 @@ class AuroraTenantService implements SourceTenantService
         return (new FetchAuroraOrder($this))->fetch($id);
     }
 
+    public function fetchInvoice($id): ?array
+    {
+        return (new FetchAuroraInvoice($this))->fetch($id);
+    }
+
     public function fetchCustomerClient($id): ?array
     {
         return (new FetchAuroraCustomerClient($this))->fetch($id);
@@ -119,6 +128,16 @@ class AuroraTenantService implements SourceTenantService
         }
     }
 
+    public function fetchInvoiceTransaction($type, $id): ?array
+    {
+        if ($type == 'HistoricProduct') {
+            return (new FetchAuroraInvoiceTransactionHistoricProduct($this))->fetch($id);
+        } else {
+            //  return (new FetchAuroraNoProductTransaction($this))->fetch($id);
+            return [];
+        }
+    }
+
     public function fetchHistoricProduct($id): ?array
     {
         return (new FetchAuroraHistoricProduct($this))->fetch($id);
@@ -127,6 +146,16 @@ class AuroraTenantService implements SourceTenantService
     public function fetchProductStocks($id): ?array
     {
         return (new FetchAuroraProductStocks($this))->fetch($id);
+    }
+
+    public function fetchDepartment($id): ?array
+    {
+        return (new FetchAuroraDepartment($this))->fetch($id);
+    }
+
+    public function fetchFamily($id): ?array
+    {
+        return (new FetchAuroraFamily($this))->fetch($id);
     }
 
     public function fetchProduct($id): ?array

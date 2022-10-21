@@ -1,13 +1,13 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 17 Mar 2022 01:46:46 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ *  Created: Wed, 19 Oct 2022 18:37:32 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Hydrators;
+namespace App\Actions\Inventory\Stock;
 
+use App\Actions\HydrateModel;
 use App\Models\Inventory\Stock;
 use Illuminate\Support\Collection;
 

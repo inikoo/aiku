@@ -7,7 +7,7 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Hydrators\HydrateWarehouse;
+use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;

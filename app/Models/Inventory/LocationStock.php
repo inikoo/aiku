@@ -7,8 +7,8 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Hydrators\HydrateLocation;
-use App\Actions\Hydrators\HydrateStock;
+use App\Actions\Inventory\Location\HydrateLocation;
+use App\Actions\Inventory\Stock\HydrateStock;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
