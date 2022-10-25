@@ -27,7 +27,7 @@ class HydrateFamily extends HydrateModel
 
     public function productsStats(Family $family)
     {
-        $productStates = ['creating', 'active', 'suspended', 'discontinuing', 'discontinued'];
+        $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Product::where('family_id', $family->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')

@@ -22,6 +22,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_locations_state_operational
  * @property int $number_locations_state_broken
  * @property int $number_empty_locations
+ * @property int $number_stock_families
+ * @property int $number_stock_families_state_in_process
+ * @property int $number_stock_families_state_active
+ * @property int $number_stock_families_state_discontinuing
+ * @property int $number_stock_families_state_discontinued
  * @property int $number_stocks
  * @property int $number_stocks_state_in_process
  * @property int $number_stocks_state_active
@@ -73,6 +78,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|TenantInventoryStats whereNumberLocations($value)
  * @method static Builder|TenantInventoryStats whereNumberLocationsStateBroken($value)
  * @method static Builder|TenantInventoryStats whereNumberLocationsStateOperational($value)
+ * @method static Builder|TenantInventoryStats whereNumberStockFamilies($value)
+ * @method static Builder|TenantInventoryStats whereNumberStockFamiliesStateActive($value)
+ * @method static Builder|TenantInventoryStats whereNumberStockFamiliesStateDiscontinued($value)
+ * @method static Builder|TenantInventoryStats whereNumberStockFamiliesStateDiscontinuing($value)
+ * @method static Builder|TenantInventoryStats whereNumberStockFamiliesStateInProcess($value)
  * @method static Builder|TenantInventoryStats whereNumberStocks($value)
  * @method static Builder|TenantInventoryStats whereNumberStocksQuantityStatusCritical($value)
  * @method static Builder|TenantInventoryStats whereNumberStocksQuantityStatusError($value)

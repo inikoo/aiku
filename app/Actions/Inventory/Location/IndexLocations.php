@@ -113,7 +113,7 @@ class IndexLocations extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $locations)
     {
         return Inertia::render(
-            'Inventory/IndexLocations',
+            'Inventory/Locations.vue',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('locations'),

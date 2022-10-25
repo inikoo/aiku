@@ -26,22 +26,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_customers_trade_state_one
  * @property int $number_customers_trade_state_many
  * @property int $number_departments
- * @property int $number_departments_state_creating
+ * @property int $number_departments_state_in_process
  * @property int $number_departments_state_active
- * @property int $number_departments_state_suspended
  * @property int $number_departments_state_discontinuing
  * @property int $number_departments_state_discontinued
  * @property int $number_families
- * @property int $number_families_state_creating
+ * @property int $number_families_state_in_process
  * @property int $number_families_state_active
- * @property int $number_families_state_suspended
  * @property int $number_families_state_discontinuing
  * @property int $number_families_state_discontinued
  * @property int $number_orphan_families
  * @property int $number_products
- * @property int $number_products_state_creating
+ * @property int $number_products_state_in_process
  * @property int $number_products_state_active
- * @property int $number_products_state_suspended
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
  * @property int $number_orders
@@ -103,16 +100,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|ShopStats whereNumberDeliveriesTypeReplacement($value)
  * @method static Builder|ShopStats whereNumberDepartments($value)
  * @method static Builder|ShopStats whereNumberDepartmentsStateActive($value)
- * @method static Builder|ShopStats whereNumberDepartmentsStateCreating($value)
  * @method static Builder|ShopStats whereNumberDepartmentsStateDiscontinued($value)
  * @method static Builder|ShopStats whereNumberDepartmentsStateDiscontinuing($value)
- * @method static Builder|ShopStats whereNumberDepartmentsStateSuspended($value)
+ * @method static Builder|ShopStats whereNumberDepartmentsStateInProcess($value)
  * @method static Builder|ShopStats whereNumberFamilies($value)
  * @method static Builder|ShopStats whereNumberFamiliesStateActive($value)
- * @method static Builder|ShopStats whereNumberFamiliesStateCreating($value)
  * @method static Builder|ShopStats whereNumberFamiliesStateDiscontinued($value)
  * @method static Builder|ShopStats whereNumberFamiliesStateDiscontinuing($value)
- * @method static Builder|ShopStats whereNumberFamiliesStateSuspended($value)
+ * @method static Builder|ShopStats whereNumberFamiliesStateInProcess($value)
  * @method static Builder|ShopStats whereNumberInvoices($value)
  * @method static Builder|ShopStats whereNumberInvoicesTypeInvoice($value)
  * @method static Builder|ShopStats whereNumberInvoicesTypeRefund($value)
@@ -128,10 +123,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|ShopStats whereNumberOrphanFamilies($value)
  * @method static Builder|ShopStats whereNumberProducts($value)
  * @method static Builder|ShopStats whereNumberProductsStateActive($value)
- * @method static Builder|ShopStats whereNumberProductsStateCreating($value)
  * @method static Builder|ShopStats whereNumberProductsStateDiscontinued($value)
  * @method static Builder|ShopStats whereNumberProductsStateDiscontinuing($value)
- * @method static Builder|ShopStats whereNumberProductsStateSuspended($value)
+ * @method static Builder|ShopStats whereNumberProductsStateInProcess($value)
  * @method static Builder|ShopStats whereShopId($value)
  * @method static Builder|ShopStats whereUpdatedAt($value)
  * @mixin \Eloquent

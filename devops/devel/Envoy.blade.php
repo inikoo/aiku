@@ -46,7 +46,7 @@
     cd ../../
     rm -rf public/tenants
     rm -rf storage/tenants
-  
+
 @endtask
 
 @task('initialise-dbs')
@@ -115,6 +115,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     echo "locations"
     php artisan fetch:locations {{$instance}}  -q
     echo "stocks"
+    php artisan fetch:stock-families {{$instance}}  -q
     php artisan fetch:stocks {{$instance}}  -q
 @endtask
 

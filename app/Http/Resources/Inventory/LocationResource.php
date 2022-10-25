@@ -7,9 +7,26 @@
 
 namespace App\Http\Resources\Inventory;
 
+use App\Models\Inventory\LocationStock;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $code
+ * @property mixed $pivot
+ * @property int $id
+ */
 class LocationResource extends JsonResource
 {
 
+    public function toArray($request): array
+    {
+
+        return [
+            'id'=>$this->id,
+            'code'=>$this->code,
+            'quantity' => $this->whenPivotLoaded(new LocationStock(), function () {
+                return $this->pivot->quantity;
+            }),
+        ];
+    }
 }

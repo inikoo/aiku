@@ -9,16 +9,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
 
     public function up()
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
             $table->morphs('owner');
+            $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
+            $table->foreign('stock_family_id')->references('id')->on('stock_families');
             $table->enum('composition', ['unit', 'multiple', 'mix'])->default('unit');
-            $table->enum('state', ['in-process', 'active', 'discontinuing', 'discontinued'])->nullable()->index();
+            $stockStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
+
+            $table->enum('state', $stockStates)->nullable()->index();
             $table->enum('quantity_status', ['surplus', 'optimal', 'low', 'critical', 'out-of-stock', 'error'])->nullable()->index();
             $table->boolean('sellable')->default(1)->index();
             $table->boolean('raw_material')->default(0)->index();

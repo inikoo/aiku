@@ -1,6 +1,33 @@
+
+<!--
+  -  Author: Raul Perusquia <raul@inikoo.com>
+  -  Created: Sun, 23 Oct 2022 14:06:26 British Summer Time, Sheffield, UK
+  -  Copyright (c) 2022, Raul A Perusquia Flores
+  -->
+
+<script setup>
+const props = defineProps({
+                              cell : {
+                                  type    : Object,
+                                  required: true,
+                              },
+                              type: {
+                                  type    : String,
+                                  required: false,
+                              },
+                          });
+
+function onClick() {
+    if (props.cell.sortable) {
+        props.cell.onSort(props.cell.key);
+    }
+}
+</script>
+
 <template>
     <th
-        v-show="!cell.hidden" class="border-b border-gray-200 bg-gray-50  text-left text-sm font-semibold text-gray-900"
+        v-show="!cell.hidden"
+        class='border-b border-gray-200 bg-gray-50  text-left text-sm font-semibold text-gray-900'
         scope="col"
     >
         <component
@@ -9,7 +36,10 @@
             :dusk="cell.sortable ? `sort-${cell.key}` : null"
             @click.prevent="onClick"
         >
-      <span class="flex flex-row items-center">
+            <span
+                class="flex flex-row- items-center"
+                :class="[type==='number'?'flex-row-reverse':'flex-row', 'flex  items-center']"
+            >
         <slot name="label"><span class="capitalize">{{ cell.label }}</span></slot>
 
         <slot name="sort">
@@ -49,17 +79,3 @@
     </th>
 </template>
 
-<script setup>
-const props = defineProps({
-                              cell: {
-                                  type: Object,
-                                  required: true,
-                              },
-                          });
-
-function onClick() {
-    if (props.cell.sortable) {
-        props.cell.onSort(props.cell.key);
-    }
-}
-</script>

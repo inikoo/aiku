@@ -108,7 +108,7 @@ class HydrateShop extends HydrateModel
 
     public function departmentsStats(Shop $shop)
     {
-        $departmentStates = ['creating', 'active', 'suspended', 'discontinuing', 'discontinued'];
+        $departmentStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Department::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
@@ -124,7 +124,7 @@ class HydrateShop extends HydrateModel
 
     public function familiesStats(Shop $shop)
     {
-        $familyStates = ['creating', 'active', 'suspended', 'discontinuing', 'discontinued'];
+        $familyStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Family::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
@@ -141,7 +141,7 @@ class HydrateShop extends HydrateModel
 
     public function productStats(Shop $shop)
     {
-        $productStates = ['creating', 'active', 'suspended', 'discontinuing', 'discontinued'];
+        $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Product::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')

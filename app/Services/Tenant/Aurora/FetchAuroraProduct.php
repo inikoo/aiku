@@ -24,7 +24,7 @@ class FetchAuroraProduct extends FetchAurora
         }
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
-            'InProcess' => 'creating',
+            'InProcess' => 'in-process',
             'Discontinuing' => 'discontinuing',
             'Discontinued' => 'discontinued',
             default => 'active',

@@ -26,6 +26,7 @@ use App\Services\Tenant\Aurora\FetchAuroraProductStocks;
 use App\Services\Tenant\Aurora\FetchAuroraShipper;
 use App\Services\Tenant\Aurora\FetchAuroraShop;
 use App\Services\Tenant\Aurora\FetchAuroraStock;
+use App\Services\Tenant\Aurora\FetchAuroraStockFamily;
 use App\Services\Tenant\Aurora\FetchAuroraStockLocations;
 use App\Services\Tenant\Aurora\FetchAuroraTradeUnit;
 use App\Services\Tenant\Aurora\FetchAuroraTransactionHistoricProduct;
@@ -166,6 +167,11 @@ class AuroraTenantService implements SourceTenantService
     public function fetchStock($id): ?array
     {
         return (new FetchAuroraStock($this))->fetch($id);
+    }
+
+    public function fetchStockFamily($id): ?array
+    {
+        return (new FetchAuroraStockFamily($this))->fetch($id);
     }
 
     public function fetchTradeUnit($id): ?array

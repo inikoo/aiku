@@ -43,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
             Actions::registerCommands();
         }
 
+
+
         Request::macro('validatedShiftToArray', function ($map = []): array {
             /** @noinspection PhpUndefinedMethodInspection */
             $validated = $this->validated();

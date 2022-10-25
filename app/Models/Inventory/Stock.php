@@ -7,9 +7,12 @@
 
 namespace App\Models\Inventory;
 
+use App\Actions\Central\Tenant\HydrateTenant;
+use App\Actions\Inventory\StockFamily\HydrateStockFamily;
 use App\Models\Marketing\TradeUnit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -22,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property string $owner_type
  * @property int $owner_id
+ * @property int|null $stock_family_id
  * @property string $composition
  * @property string|null $state
  * @property string|null $quantity_status
@@ -51,6 +55,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read int|null $locations_count
  * @property-read Model|\Eloquent $owner
  * @property-read \App\Models\Inventory\StockStats|null $stats
+ * @property-read \App\Models\Inventory\StockFamily|null $stockFamily
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\StockMovement[] $stockMovements
  * @property-read int|null $stock_movements_count
  * @property-read \Illuminate\Database\Eloquent\Collection|TradeUnit[] $tradeUnits
@@ -85,6 +90,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Stock whereSettings($value)
  * @method static Builder|Stock whereSourceId($value)
  * @method static Builder|Stock whereState($value)
+ * @method static Builder|Stock whereStockFamilyId($value)
  * @method static Builder|Stock whereUpdatedAt($value)
  * @method static Builder|Stock whereValue($value)
  * @method static \Illuminate\Database\Query\Builder|Stock withTrashed()
@@ -110,6 +116,28 @@ class Stock extends Model
     ];
 
     protected $guarded = [];
+
+    protected static function booted()
+    {
+        static::created(
+            function (Stock $stock) {
+                HydrateTenant::make()->inventoryStats();
+                if($stock->stock_family_id){
+                    HydrateStockFamily::make()->productsStats($stock->stockFamily);
+                }
+            }
+        );
+        static::deleted(
+            function (Stock $stock) {
+                HydrateTenant::make()->inventoryStats();
+                if($stock->stock_family_id){
+                    HydrateStockFamily::make()->productsStats($stock->stockFamily);
+                }
+            }
+        );
+
+    }
+
 
     public function tradeUnits(): BelongsToMany
     {
@@ -137,7 +165,10 @@ class Stock extends Model
         return $this->hasOne(StockStats::class);
     }
 
-
+    public function stockFamily(): BelongsTo
+    {
+        return $this->belongsTo(StockFamily::class);
+    }
 
 
 }

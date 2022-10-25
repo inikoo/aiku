@@ -9,6 +9,10 @@
 use App\Actions\Inventory\Location\IndexLocations;
 use App\Actions\Inventory\Location\ShowLocation;
 use App\Actions\Inventory\ShowInventoryDashboard;
+use App\Actions\Inventory\Stock\IndexStocks;
+use App\Actions\Inventory\Stock\ShowStock;
+use App\Actions\Inventory\StockFamily\IndexStockFamilies;
+use App\Actions\Inventory\StockFamily\ShowStockFamily;
 use App\Actions\Inventory\Warehouse\IndexWarehouses;
 use App\Actions\Inventory\Warehouse\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\IndexWarehouseAreas;
@@ -44,3 +48,9 @@ Route::scopeBindings()->group(function () {
     Route::get('/warehouses/{warehouse}/locations', [IndexLocations::class, 'inWarehouse'])->name('warehouses.show.locations.index');
     Route::get('/warehouses/{warehouse}/locations/{location}', [ShowLocation::class, 'inWarehouse'])->name('warehouses.show.locations.show');
 });
+
+Route::get('/families', IndexStockFamilies::class)->name('stock-families.index');
+Route::get('/families/{stockFamily:slug}', ShowStockFamily::class)->name('stock-families.show');
+
+Route::get('/stocks', IndexStocks::class)->name('stocks.index');
+Route::get('/stocks/{stock}', ShowStock::class)->name('stocks.show');

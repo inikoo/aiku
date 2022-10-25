@@ -17,15 +17,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $department_id
  * @property int $number_families
- * @property int $number_families_state_creating
+ * @property int $number_families_state_in_process
  * @property int $number_families_state_active
- * @property int $number_families_state_suspended
  * @property int $number_families_state_discontinuing
  * @property int $number_families_state_discontinued
  * @property int $number_products
- * @property int $number_products_state_creating
+ * @property int $number_products_state_in_process
  * @property int $number_products_state_active
- * @property int $number_products_state_suspended
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -39,16 +37,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamilies($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateCreating($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateDiscontinued($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateDiscontinuing($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateSuspended($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateInProcess($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProducts($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateCreating($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateDiscontinued($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateDiscontinuing($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateSuspended($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateInProcess($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */

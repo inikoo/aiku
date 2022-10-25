@@ -11,6 +11,8 @@ use App\Actions\HydrateModel;
 use App\Actions\Traits\WithNormalise;
 use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;
+use App\Models\Inventory\Stock;
+use App\Models\Inventory\StockFamily;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\WarehouseStats;
@@ -36,6 +38,7 @@ class HydrateTenant extends HydrateModel
         $this->guestsStats();
         $this->userStats();
         $this->warehouseStats();
+        $this->inventoryStats();
         $this->marketingStats();
     }
 
@@ -53,7 +56,6 @@ class HydrateTenant extends HydrateModel
         $customerStatesCount = Customer::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
-
 
 
         foreach ($customerStates as $customerState) {
@@ -202,6 +204,37 @@ class HydrateTenant extends HydrateModel
         $tenant->stats->update($stats);
     }
 
+    public function inventoryStats()
+    {
+        /** @var Tenant $tenant */
+        $tenant = tenant();
+        $stats  = [
+            'number_stocks' => Stock::count(),
+            'number_stock_families' => StockFamily::count(),
+        ];
+
+        $stockFamilyStates=['in-process', 'active','discontinuing', 'discontinued'];
+        $stockFamilyStateCount = StockFamily::selectRaw('state, count(*) as total')
+            ->groupBy('state')
+            ->pluck('total', 'state')->all();
+
+
+        foreach ($stockFamilyStates as $stockFamilyState) {
+            $stats['number_stock_families_state_'.str_replace('-', '_', $stockFamilyState)] = Arr::get($stockFamilyStateCount, $stockFamilyState, 0);
+        }
+
+        $stockStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
+        $stockStateCount = Stock::selectRaw('state, count(*) as total')
+            ->groupBy('state')
+            ->pluck('total', 'state')->all();
+
+
+        foreach ($stockStates as $stockState) {
+            $stats['number_stocks_state_'.str_replace('-', '_', $stockState)] = Arr::get($stockStateCount, $stockState, 0);
+        }
+
+        $tenant->inventoryStats->update($stats);
+    }
 
     protected function getAllModels(): Collection
     {

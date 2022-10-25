@@ -3,6 +3,19 @@
   -  Created: Wed, 14 Sept 2022 15:29:08 Malaysia Time, Kuala Lumpur, Malaysia
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
+<script setup>
+import {Head} from '@inertiajs/inertia-vue3';
+import PageHeading from '@/Components/Headings/PageHeading.vue';
+import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
+
+defineProps(['title', 'pageHead', 'treeMaps']);
+
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt} from '@/../private/pro-light-svg-icons';
+
+library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt);
+
+</script>
 
 <template layout="App">
     <Head :title="title"/>
@@ -14,14 +27,3 @@
 
 </template>
 
-<script setup>
-import {Head} from '@inertiajs/inertia-vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
-defineProps(['title', 'pageHead', 'treeMaps']);
-
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInventory,faWarehouse,faMapSigns} from '@/../private/pro-light-svg-icons';
-library.add(faInventory,faWarehouse,faMapSigns);
-
-</script>

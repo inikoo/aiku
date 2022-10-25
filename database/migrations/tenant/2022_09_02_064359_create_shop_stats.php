@@ -29,20 +29,20 @@ return new class extends Migration
             }
 
             $table->unsignedBigInteger('number_departments')->default(0);
-            $departmentStates = ['creating', 'active', 'suspended', 'discontinuing', 'discontinued'];
+            $departmentStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
             foreach ($departmentStates as $departmentState) {
                 $table->unsignedBigInteger('number_departments_state_'.str_replace('-', '_', $departmentState))->default(0);
             }
 
             $table->unsignedBigInteger('number_families')->default(0);
-            $familyStates = ['creating', 'active', 'suspended', 'discontinuing', 'discontinued'];
+            $familyStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
             foreach ($familyStates as $familyState) {
                 $table->unsignedBigInteger('number_families_state_'.str_replace('-', '_', $familyState))->default(0);
             }
             $table->unsignedBigInteger('number_orphan_families')->default(0);
 
             $table->unsignedBigInteger('number_products')->default(0);
-            $productStates = ['creating', 'active', 'suspended', 'discontinuing', 'discontinued'];
+            $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
             foreach ($productStates as $productState) {
                 $table->unsignedBigInteger('number_products_state_'.str_replace('-', '_', $productState))->default(0);
             }

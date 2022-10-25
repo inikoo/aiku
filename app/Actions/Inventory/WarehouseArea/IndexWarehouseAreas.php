@@ -90,7 +90,7 @@ class IndexWarehouseAreas extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $warehousesAreas)
     {
         return Inertia::render(
-            'Inventory/IndexWarehouseAreas',
+            'Inventory/WarehouseAreas.vue',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('warehouse areas'),

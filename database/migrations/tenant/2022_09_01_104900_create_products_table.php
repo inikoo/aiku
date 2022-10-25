@@ -24,7 +24,7 @@ return new class extends Migration {
             $table->unsignedSmallInteger('family_id')->nullable();
             $table->foreign('family_id')->references('id')->on('families');
 
-            $table->enum('state', ['creating', 'active', 'suspended', 'discontinuing', 'discontinued'])->nullable()->index();
+            $table->enum('state', ['in-process', 'active', 'discontinuing', 'discontinued'])->nullable()->index();
             $table->boolean('status')->nullable()->index();
 
             $table->string('code')->index();

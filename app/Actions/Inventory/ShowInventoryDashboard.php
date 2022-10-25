@@ -116,9 +116,22 @@ class ShowInventoryDashboard
                     ],
                     [
                         [
-                            'name' => __('Stocks'),
-                            'icon' => ['fal', 'fa-warehouse'],
-                            'href' => ['inventory.warehouses.index']
+                            'name' => __('families'),
+                            'icon' => ['fal', 'fa-boxes-alt'],
+                            'href' => ['inventory.stock-families.index'],
+                            'index' => [
+                                'number' => $this->tenant->inventoryStats->number_stock_families
+                            ]
+
+                        ],
+                        [
+                            'name' => 'SKUs',
+                            'icon' => ['fal', 'fa-box'],
+                            'href' => ['inventory.stocks.index'],
+                            'index' => [
+                                'number' => $this->tenant->inventoryStats->number_stocks
+                            ]
+
                         ]
                     ]
                 ]

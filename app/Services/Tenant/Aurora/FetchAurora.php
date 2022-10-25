@@ -24,10 +24,10 @@ class FetchAurora
 
     function __construct(SourceTenantService $tenantSource)
     {
-        $this->tenantSource = $tenantSource;
-        $this->tenant       = $tenantSource->tenant;
-        $this->parsedData         = [];
-        $this->auroraModelData    = null;
+        $this->tenantSource    = $tenantSource;
+        $this->tenant          = $tenantSource->tenant;
+        $this->parsedData      = [];
+        $this->auroraModelData = null;
     }
 
     public function fetch(int $id): ?array
@@ -43,12 +43,11 @@ class FetchAurora
 
     protected function fetchData($id): object|null
     {
-      return null;
+        return null;
     }
 
     protected function parseModel(): void
     {
-
     }
 
 }

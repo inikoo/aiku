@@ -25,11 +25,11 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Marketing\Family
  *
  * @property int $id
- * @property string|null $slug
+ * @property string $slug
+ * @property string $code
  * @property int|null $shop_id
  * @property int|null $department_id
  * @property string|null $state
- * @property string $code
  * @property string|null $name
  * @property string|null $description
  * @property array $data

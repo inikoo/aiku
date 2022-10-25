@@ -66,7 +66,7 @@ class ShowLocation extends InertiaAction
 
 
         return Inertia::render(
-            'Inventory/ShowLocation',
+            'Inventory/Location.vue',
             [
                 'title'       => __('location'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->location),

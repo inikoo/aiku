@@ -28,6 +28,15 @@ return new class extends Migration {
             $table->unsignedSmallInteger('number_empty_locations')->default(0);
 
 
+
+
+            $table->unsignedBigInteger('number_stock_families')->default(0);
+
+            $stockFamilyStates=['in-process', 'active','discontinuing', 'discontinued'];
+            foreach ($stockFamilyStates as $stockFamilyState) {
+                $table->unsignedBigInteger('number_stock_families_state_'.str_replace('-', '_', $stockFamilyState))->default(0);
+            }
+
             $table->unsignedBigInteger('number_stocks')->default(0);
             $stockStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
             foreach ($stockStates as $stockState) {

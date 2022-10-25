@@ -51,6 +51,7 @@ library.add(faSearch,
 
 const initialiseApp = () => {
     const layout = useLayoutStore();
+
     if (usePage().props.value.language) {
         loadLanguageAsync(usePage().props.value.language);
     }

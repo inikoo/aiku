@@ -58,7 +58,7 @@ class ShowWarehouseArea
     public function htmlResponse(): Response
     {
         return Inertia::render(
-            'Inventory/ShowWarehouseArea',
+            'Inventory/WarehouseArea.vue',
             [
                 'title'         => __('warehouse area'),
                 'breadcrumbs'   => $this->getBreadcrumbs($this->routeName, $this->warehouseArea),

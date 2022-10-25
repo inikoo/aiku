@@ -9,7 +9,7 @@ namespace App\Actions\Inventory\Warehouse;
 
 use App\Actions\Inventory\ShowInventoryDashboard;
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\Inventory\LocationResource;
+use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -71,21 +71,21 @@ class IndexWarehouses
 
     public function jsonResponse(): AnonymousResourceCollection
     {
-        return LocationResource::collection($this->handle());
+        return WarehouseResource::collection($this->handle());
     }
 
 
     public function htmlResponse(LengthAwarePaginator $warehouses)
     {
         return Inertia::render(
-            'Inventory/IndexWarehouses',
+            'Inventory/Warehouses.vue',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('warehouses'),
                 'pageHead'    => [
                     'title' => __('warehouses'),
                 ],
-                'warehouses'  => LocationResource::collection($warehouses),
+                'warehouses'  => WarehouseResource::collection($warehouses),
 
 
             ]

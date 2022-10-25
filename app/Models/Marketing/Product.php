@@ -109,7 +109,9 @@ class Product extends Model
         );
         static::deleted(
             function (Product $product) {
-                HydrateFamily::make()->productsStats($product->family);
+                if($product->family_id){
+                    HydrateFamily::make()->productsStats($product->family);
+                }
                 HydrateShop::make()->productStats($product->shop);
             }
         );

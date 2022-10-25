@@ -20,6 +20,11 @@ return new class extends Migration
             $table->foreign('family_id')->references('id')->on('families');
             $table->unsignedBigInteger('number_products')->default(0);
 
+            $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
+            foreach ($productStates as $productState) {
+                $table->unsignedBigInteger('number_products_state_'.str_replace('-', '_', $productState))->default(0);
+            }
+
             $table->timestampsTz();
         });
     }

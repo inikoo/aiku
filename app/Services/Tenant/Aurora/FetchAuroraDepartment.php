@@ -19,7 +19,7 @@ class FetchAuroraDepartment extends FetchAurora
             'code'       => $this->auroraModelData->{'Category Code'},
             'name'       => $this->auroraModelData->{'Category Label'},
             'state'      => match ($this->auroraModelData->{'Product Category Status'}) {
-                'In Process' => 'creating',
+                'In Process' => 'in-process',
                 default => strtolower($this->auroraModelData->{'Product Category Status'})
             },
             'created_at' => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),

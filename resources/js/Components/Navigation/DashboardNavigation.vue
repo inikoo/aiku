@@ -3,6 +3,21 @@
   -  Created: Wed, 14 Sept 2022 18:26:10 Malaysia Time, Kuala Lumpur, Malaysia
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
+<script setup>
+import {Link} from '@inertiajs/inertia-vue3';
+import {library} from '@fortawesome/fontawesome-svg-core';
+
+import {
+    faEmptySet
+} from '@/../private/pro-light-svg-icons';
+library.add(
+    faEmptySet
+);
+defineProps(['nodes']);
+import {useLocaleStore} from '@/Stores/locale.js';
+const locale = useLocaleStore();
+
+</script>
 
 <template>
     <nav aria-label="Progress">
@@ -16,12 +31,12 @@
                                            class="flex-shrink-0 "
                                            aria-hidden="true"
                         />
-                        <span class="ml-4  font-medium text-gray-500 group-hover:text-gray-900">
+                        <span class="ml-4 capitalize font-medium text-gray-500 group-hover:text-gray-900">
                             {{ node.name }}
                         </span>
                          <span v-if="node.index" class="ml-4 font-medium text-gray-500 group-hover:text-gray-900 whitespace-nowrap">
                            <font-awesome-icon icon="fal fa-bars" class="mr-1"/>
-                             <span v-if="node.index.number">{{ node.index.number }}</span>
+                             <span v-if="node.index.number">{{ locale.number(node.index.number) }}</span>
                              <font-awesome-icon v-else icon="fal fa-empty-set"/>
 
                         </span>
@@ -41,17 +56,3 @@
     </nav>
 </template>
 
-<script setup>
-import {Link} from '@inertiajs/inertia-vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
-
-import {
-    faEmptySet
-} from '@/../private/pro-light-svg-icons';
-library.add(
-    faEmptySet
-);
-defineProps(['nodes']);
-
-
-</script>

@@ -9,7 +9,7 @@ namespace App\Actions\Sales\Customer;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
-use App\Http\Resources\CustomerResource;
+use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Http\Request;

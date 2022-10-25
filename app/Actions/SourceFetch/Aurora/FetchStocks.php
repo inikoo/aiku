@@ -62,7 +62,6 @@ class FetchStocks extends FetchAction
         return DB::connection('aurora')
             ->table('Part Dimension')
             ->select('Part SKU as source_id')
-            ->where('Part Status', '!=', 'Not In Use')
             ->orderBy('source_id')
             ->when(app()->environment('testing'), function ($query) {
                 return $query->limit(20);
@@ -72,7 +71,8 @@ class FetchStocks extends FetchAction
 
     function count(): ?int
     {
-        return DB::connection('aurora')->table('Part Dimension')->where('Part Status', '!=', 'Not In Use')->count();
+        return DB::connection('aurora')->table('Part Dimension')
+            ->count();
     }
 
 }
