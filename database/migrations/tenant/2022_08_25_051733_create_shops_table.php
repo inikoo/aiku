@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('contact_name', 256)->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
-            $table->string('website', 256)->nullable();
+            $table->string('url', 256)->nullable();
             $table->string('tax_number')->nullable()->index();
             $table->enum('tax_number_status', ['valid', 'invalid', 'na', 'unknown'])->nullable()->default('na');
             $table->string('identity_document_type')->nullable();

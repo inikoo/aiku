@@ -17,43 +17,29 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  *
  * @property int $id
  * @property string $username
- * @property bool $status
- * @property string|null $email
- * @property string|null $parent_type
+ * @property string $email
  * @property string|null $userable_type
- * @property int|null $parent_id
  * @property int|null $userable_id
  * @property string|null $email_verified_at
- * @property string|null $about
  * @property string $password
  * @property string|null $remember_token
- * @property mixed $profile
  * @property array $data
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int $number_tenants
- * @property string $global_id
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
- * @method static Builder|User whereAbout($value)
  * @method static Builder|User whereCreatedAt($value)
  * @method static Builder|User whereData($value)
  * @method static Builder|User whereEmail($value)
  * @method static Builder|User whereEmailVerifiedAt($value)
- * @method static Builder|User whereGlobalId($value)
  * @method static Builder|User whereId($value)
- * @method static Builder|User whereNumberTenants($value)
- * @method static Builder|User whereParentId($value)
- * @method static Builder|User whereParentType($value)
  * @method static Builder|User wherePassword($value)
- * @method static Builder|User whereProfile($value)
  * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereSettings($value)
- * @method static Builder|User whereStatus($value)
  * @method static Builder|User whereUpdatedAt($value)
  * @method static Builder|User whereUserableId($value)
  * @method static Builder|User whereUserableType($value)

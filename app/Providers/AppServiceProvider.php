@@ -69,7 +69,8 @@ class AppServiceProvider extends ServiceProvider
                 'Department' => 'App\Models\Marketing\Department',
                 'Family'     => 'App\Models\Marketing\Family',
                 'Product'    => 'App\Models\Marketing\Product',
-                'Supplier'   => 'App\Models\Procurement\Supplier'
+                'Supplier'   => 'App\Models\Procurement\Supplier',
+                'WebUser'    => 'App\Models\Web\WebUser'
             ]
         );
     }

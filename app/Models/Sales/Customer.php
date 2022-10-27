@@ -11,6 +11,7 @@ namespace App\Models\Sales;
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
+use App\Models\Web\WebUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -56,6 +57,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read int|null $invoices_count
  * @property-read Shop|null $shop
  * @property-read \App\Models\Sales\CustomerStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection|WebUser[] $webUsers
+ * @property-read int|null $web_users_count
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static \Illuminate\Database\Query\Builder|Customer onlyTrashed()
@@ -161,6 +164,11 @@ class Customer extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function webUsers(): HasMany
+    {
+        return $this->hasMany(WebUser::class);
     }
 
 

@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $agent_id
  * @property int $number_suppliers
  * @property int $number_active_suppliers
- * @property int $number_products
+ * @property int $number_products all excluding discontinued
  * @property int $number_products_state_creating
  * @property int $number_products_state_active
  * @property int $number_products_state_no_available

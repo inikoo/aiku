@@ -38,7 +38,7 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property string|null $email
  * @property string|null $phone
  * @property int|null $address_id
- * @property array $agent
+ * @property array $location
  * @property int $currency_id
  * @property array $settings
  * @property array $shared_data

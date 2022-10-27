@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $contact_name
  * @property string|null $email
  * @property string|null $phone
- * @property Website|null $website
+ * @property string|null $url
  * @property string|null $tax_number
  * @property string|null $tax_number_status
  * @property string|null $identity_document_type
@@ -69,6 +69,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
  * @property-read int|null $products_count
  * @property-read \App\Models\Marketing\ShopStats|null $stats
+ * @property-read Website|null $website
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static \Illuminate\Database\Query\Builder|Shop onlyTrashed()
@@ -100,7 +101,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Shop whereTimezoneId($value)
  * @method static Builder|Shop whereType($value)
  * @method static Builder|Shop whereUpdatedAt($value)
- * @method static Builder|Shop whereWebsite($value)
+ * @method static Builder|Shop whereUrl($value)
  * @method static \Illuminate\Database\Query\Builder|Shop withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Shop withoutTrashed()
  * @mixin \Eloquent
