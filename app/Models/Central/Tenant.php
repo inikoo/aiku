@@ -7,11 +7,15 @@
 
 namespace App\Models\Central;
 
+use App\Models\Inventory\Stock;
+use App\Models\Procurement\Agent;
+use App\Models\Procurement\Supplier;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Laravel\Sanctum\HasApiTokens;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
@@ -34,15 +38,22 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|Agent[] $agents
+ * @property-read int|null $agents_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\CentralDomain[] $centralDomains
  * @property-read int|null $central_domains_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\Stancl\Tenancy\Database\Models\Domain[] $domains
  * @property-read int|null $domains_count
  * @property-read \App\Models\Central\TenantInventoryStats|null $inventoryStats
  * @property-read \App\Models\Central\TenantMarketingStats|null $marketingStats
+ * @property-read \App\Models\Central\TenantProcurementStats|null $procurementStats
  * @property-read \App\Models\Central\TenantProductionStats|null $productionStats
  * @property-read \App\Models\Central\TenantSalesStats|null $salesStats
  * @property-read \App\Models\Central\TenantStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection|Stock[] $stocks
+ * @property-read int|null $stocks_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Supplier[] $suppliers
+ * @property-read int|null $suppliers_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\CentralUser[] $users
@@ -112,6 +123,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return $this->hasOne(TenantStats::class);
     }
 
+    public function procurementStats(): HasOne
+    {
+        return $this->hasOne(TenantProcurementStats::class);
+    }
+
     public function inventoryStats(): HasOne
     {
         return $this->hasOne(TenantInventoryStats::class);
@@ -135,6 +151,21 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function centralDomains(): HasMany
     {
         return $this->hasMany(CentralDomain::class);
+    }
+
+    public function suppliers(): MorphMany
+    {
+        return $this->morphMany(Supplier::class, 'owner');
+    }
+
+    public function agents(): MorphMany
+    {
+        return $this->morphMany(Agent::class, 'owner');
+    }
+
+    public function stocks(): MorphMany
+    {
+        return $this->morphMany(Stock::class, 'owner');
     }
 
 }

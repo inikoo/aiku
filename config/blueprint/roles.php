@@ -17,6 +17,7 @@ return
             'dispatching',
             'shops',
             'production',
+            'procurement',
         ],
 
         'system-admin'          => [
@@ -79,7 +80,6 @@ return
             'shops.websites'
         ],
 
-
         'production-manager' => [
             'production.view',
         ],
@@ -87,6 +87,11 @@ return
         'production-worker' => [
             'production.view',
         ],
+
+        'procurement' => [
+            'procurement',
+        ],
+
 
         'guest'      => [
 

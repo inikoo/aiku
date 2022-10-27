@@ -21,11 +21,8 @@ class StoreStock
     public function handle(Tenant|Customer $owner,$modelData): Stock
     {
 
-        $modelData['owner_id']=$owner->id;
-        $modelData['owner_type']=$owner::class;
-
         /** @var Stock $stock */
-        $stock = Stock::create($modelData);
+        $stock = $owner->stocks()->create($modelData);
         $stock->stats()->create();
 
         return $stock;

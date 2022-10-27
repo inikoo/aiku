@@ -17,6 +17,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\WarehouseStats;
 use App\Models\Marketing\Shop;
+use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -39,6 +40,7 @@ class HydrateTenant extends HydrateModel
         $this->userStats();
         $this->warehouseStats();
         $this->inventoryStats();
+        $this->procurementStats();
         $this->marketingStats();
     }
 
@@ -209,11 +211,11 @@ class HydrateTenant extends HydrateModel
         /** @var Tenant $tenant */
         $tenant = tenant();
         $stats  = [
-            'number_stocks' => Stock::count(),
+            'number_stocks'         => Stock::count(),
             'number_stock_families' => StockFamily::count(),
         ];
 
-        $stockFamilyStates=['in-process', 'active','discontinuing', 'discontinued'];
+        $stockFamilyStates     = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stockFamilyStateCount = StockFamily::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -223,7 +225,7 @@ class HydrateTenant extends HydrateModel
             $stats['number_stock_families_state_'.str_replace('-', '_', $stockFamilyState)] = Arr::get($stockFamilyStateCount, $stockFamilyState, 0);
         }
 
-        $stockStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
+        $stockStates     = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stockStateCount = Stock::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -234,6 +236,27 @@ class HydrateTenant extends HydrateModel
         }
 
         $tenant->inventoryStats->update($stats);
+    }
+
+    public function procurementStats()
+    {
+        /** @var Tenant $tenant */
+        $tenant = tenant();
+
+
+        $stats = [
+            'number_suppliers'        => Supplier::where('type', 'supplier')->count(),
+            'number_active_suppliers' => Supplier::where('type', 'supplier')->where('status', true)->count(),
+
+            'number_agents'               => Supplier::where('type', 'agent')->count(),
+            'number_active_agents'        => Supplier::where('type', 'agent')->where('status', true)->count(),
+            'number_active_tenant_agents' => Supplier::where('type', 'agent')->where('status', true)->whereNull('global_id')->count(),
+            'number_active_global_agents' => Supplier::where('type', 'agent')->where('status', true)->whereNotNull('global_id')->count(),
+
+        ];
+
+
+        $tenant->procurementStats->update($stats);
     }
 
     protected function getAllModels(): Collection

@@ -59,6 +59,12 @@ interface SourceTenantService
 
     public function fetchStockLocations($id);
 
+    public function fetchAgent($id);
+
+    public function fetchSupplier($id);
+
+    public function fetchSupplierProduct($id);
+
     public function initialisation(Tenant $tenant);
 }
 

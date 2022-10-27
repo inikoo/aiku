@@ -101,6 +101,14 @@ class GetLayout
             ];
         }
 
+        if ($user->can('procurement.view')) {
+            $navigation[] = [
+                'name'  => __('procurement'),
+                'icon'  => ['fal', 'fa-parachute-box'],
+                'route' => 'procurement.dashboard'
+            ];
+        }
+
 
         if ($user->can('hr.view')) {
             $navigation[] = [

@@ -49,6 +49,9 @@ return [
     'dispatching.pick',
     'dispatching.pack',
 
+    'procurement',
+    'procurement.view'
+
 
 
 ];

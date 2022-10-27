@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 /**
  * App\Models\Inventory\Stock
@@ -100,7 +101,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Stock extends Model
 {
     use SoftDeletes;
-
+    use TenantConnection;
 
     protected $casts = [
         'data' => 'array',

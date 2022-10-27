@@ -44,7 +44,6 @@ class AppServiceProvider extends ServiceProvider
         }
 
 
-
         Request::macro('validatedShiftToArray', function ($map = []): array {
             /** @noinspection PhpUndefinedMethodInspection */
             $validated = $this->validated();
@@ -69,7 +68,8 @@ class AppServiceProvider extends ServiceProvider
                 'AdminUser'  => 'App\Models\Central\AdminUser',
                 'Department' => 'App\Models\Marketing\Department',
                 'Family'     => 'App\Models\Marketing\Family',
-                'Product'    => 'App\Models\Marketing\Product'
+                'Product'    => 'App\Models\Marketing\Product',
+                'Supplier'   => 'App\Models\Procurement\Supplier'
             ]
         );
     }

@@ -33,6 +33,9 @@ Route::middleware([
         Route::prefix('production')
             ->name('production.')
             ->group(__DIR__.'/production.php');
+        Route::prefix('procurement')
+            ->name('procurement.')
+            ->group(__DIR__.'/procurement.php');
         Route::prefix('shops')
             ->name('shops.')
             ->group(__DIR__.'/shops.php');

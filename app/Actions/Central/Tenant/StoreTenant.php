@@ -22,6 +22,7 @@ class StoreTenant
         $tenant            = Tenant::create($modelData);
 
         $tenant->stats()->create();
+        $tenant->procurementStats()->create();
         $tenant->inventoryStats()->create();
         $tenant->productionStats()->create();
         $tenant->marketingStats()->create();

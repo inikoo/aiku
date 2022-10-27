@@ -10,6 +10,7 @@ namespace App\Services\Tenant;
 
 
 use App\Models\Central\Tenant;
+use App\Services\Tenant\Aurora\FetchAuroraAgent;
 use App\Services\Tenant\Aurora\FetchAuroraCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraCustomerClient;
 use App\Services\Tenant\Aurora\FetchAuroraDepartment;
@@ -28,12 +29,15 @@ use App\Services\Tenant\Aurora\FetchAuroraShop;
 use App\Services\Tenant\Aurora\FetchAuroraStock;
 use App\Services\Tenant\Aurora\FetchAuroraStockFamily;
 use App\Services\Tenant\Aurora\FetchAuroraStockLocations;
+use App\Services\Tenant\Aurora\FetchAuroraSupplierProduct;
 use App\Services\Tenant\Aurora\FetchAuroraTradeUnit;
 use App\Services\Tenant\Aurora\FetchAuroraTransactionHistoricProduct;
 use App\Services\Tenant\Aurora\FetchAuroraUser;
 use App\Services\Tenant\Aurora\FetchAuroraWarehouse;
 use App\Services\Tenant\Aurora\FetchAuroraWarehouseArea;
 use App\Services\Tenant\Aurora\FetchAuroraWebsite;
+use App\Services\Tenant\Aurora\FetchAuroraSupplier;
+
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -182,5 +186,20 @@ class AuroraTenantService implements SourceTenantService
     public function fetchStockLocations($id): ?array
     {
         return (new FetchAuroraStockLocations($this))->fetch($id);
+    }
+
+    public function fetchAgent($id): ?array
+    {
+        return (new FetchAuroraAgent($this))->fetch($id);
+    }
+
+    public function fetchSupplier($id): ?array
+    {
+        return (new FetchAuroraSupplier($this))->fetch($id);
+    }
+
+    public function fetchSupplierProduct($id): ?array
+    {
+        return (new FetchAuroraSupplierProduct($this))->fetch($id);
     }
 }
