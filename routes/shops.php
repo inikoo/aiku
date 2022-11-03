@@ -17,7 +17,6 @@ Route::get('/{shop}', ShowShop::class)->name('show');
 
 Route::get('/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('show.customers.index');
 Route::get('/{shop}/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('show.customers.show');
-
 Route::get('/{shop}/customers/{customer}/web-users', [IndexWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web_users.index');
 Route::get('/{shop}/customers/{customer}/create', [CreateWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web_users.create');
 
