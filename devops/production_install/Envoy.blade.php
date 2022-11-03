@@ -145,11 +145,12 @@ echo "Queue restarted"
 #{{ $php }} artisan queue:restart --quiet
 
 echo "Cache"
+{{ $php }} artisan cache:clear
 {{ $php }} artisan config:cache
 {{ $php }} artisan view:cache
 
 # Only use when no closure used in routes
-#{{ $php }} artisan optimize
+{{ $php }} artisan optimize
 {{ $php }} artisan route:cache
 
 echo "***********************************************************************"
