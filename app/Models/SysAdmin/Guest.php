@@ -11,6 +11,7 @@ use App\Actions\Central\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -57,7 +58,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Guest whereUpdatedAt($value)
  * @mixin \Eloquent
  */
-class Guest extends Model
+class Guest extends Model implements HasMedia
 {
     use HasSlug;
     use InteractsWithMedia;
