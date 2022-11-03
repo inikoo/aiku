@@ -40,6 +40,9 @@ class FetchShops extends FetchAction
                 );
             }
 
+            $this->progressBar?->advance();
+
+
             foreach (
                 DB::connection('aurora')
                     ->table('Category Dimension')
@@ -48,6 +51,7 @@ class FetchShops extends FetchAction
                     ->where('Category Root Key', $shopData['source_department_key'])->get() as $auroraDepartment
             ) {
                 FetchDepartments::run($tenantSource, $auroraDepartment->source_id);
+                $this->progressBar?->advance();
             }
 
             foreach (
@@ -59,12 +63,20 @@ class FetchShops extends FetchAction
 
             ) {
                 FetchFamilies::run($tenantSource, $auroraFamily->source_id);
+                $this->progressBar?->advance();
             }
 
             return $shop;
         }
 
         return null;
+    }
+
+    public function fetchAll(SourceTenantService $tenantSource): void
+    {
+        foreach ($this->getModelsQuery()->get() as $auroraData) {
+            $this->handle($tenantSource, $auroraData->{'source_id'});
+        }
     }
 
     function getModelsQuery(): Builder
@@ -77,7 +89,28 @@ class FetchShops extends FetchAction
 
     function count(): ?int
     {
-        return DB::connection('aurora')->table('Store Dimension')->count();
+        $count = DB::connection('aurora')->table('Store Dimension')->count();
+
+
+        foreach (
+            DB::connection('aurora')
+                ->table('Store Dimension')->get() as $storeData
+
+        ) {
+            $count += DB::connection('aurora')
+                ->table('Category Dimension')
+                ->where('Category Branch Type', 'Head')
+                ->where('Category Root Key', $storeData->{'Store Department Category Key'})
+                ->count();
+
+            $count += DB::connection('aurora')
+                ->table('Category Dimension')
+                ->where('Category Branch Type', 'Head')
+                ->where('Category Root Key', $storeData->{'Store Family Category Key'})
+                ->count();
+        }
+
+        return $count;
     }
 
 }
