@@ -11,6 +11,7 @@ use App\Actions\Central\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -59,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
 class Guest extends Model
 {
     use HasSlug;
+    use InteractsWithMedia;
 
     protected $casts = [
         'data'          => 'array',
@@ -119,6 +121,18 @@ class Guest extends Model
     public function user(): MorphOne
     {
         return $this->morphOne(User::class, 'parent');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('photo')
+            ->singleFile()
+            ->useDisk('public')
+            ->registerMediaConversions(function () {
+                $this->addMediaConversion('thumb')
+                    ->width(256)
+                    ->height(256);
+            });
     }
 
 }
