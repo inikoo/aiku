@@ -1,19 +1,21 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 17 Oct 2022 17:54:17 British Summer Time, Sheffield, UK
+ *  Created: Sun, 30 Oct 2022 02:34:12 Greenwich Mean Time, Plane HK-KL
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\Customer;
+namespace App\Actions\Web\WebUser;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\InertiaTableCustomerResource;
+use App\Http\Resources\Web\InertiaTableWebUserResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use App\Models\Web\Website;
+use App\Models\Web\WebUser;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,7 +26,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 
-class IndexCustomers extends InertiaAction
+class IndexWebUser extends InertiaAction
 {
     private Shop|Tenant $parent;
 
@@ -32,22 +34,23 @@ class IndexCustomers extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('customers.name', 'LIKE', "%$value%")
-                    ->orWhere('customers.email', 'LIKE', "%$value%");
+                $query->where('webusers.email', 'LIKE', "%$value%");
             });
         });
 
 
-        return QueryBuilder::for(Customer::class)
-            ->defaultSort('customers.reference')
-            ->select(['reference', 'customers.id', 'customers.name','shops.code as shop_code','shop_id'])
-            ->leftJoin('shops', 'shops.id', 'shop_id')
+        return QueryBuilder::for(WebUser::class)
+            ->defaultSort('customers.email')
+            ->select(['email', 'webusers.id'])
+            //->leftJoin('shops', 'shops.id', 'shop_id')
             ->when($this->parent, function ($query) {
-                if (class_basename($this->parent) == 'Shop') {
-                    $query->where('customers.shop_id', $this->parent->id);
+                if (class_basename($this->parent) == 'Customer') {
+                    $query->where('webusers.customer_id', $this->parent->id);
+                }elseif (class_basename($this->parent) == 'Website') {
+                    $query->where('webusers.website_id', $this->parent->id);
                 }
             })
-            ->allowedSorts(['reference', 'name'])
+            ->allowedSorts(['email'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -72,24 +75,22 @@ class IndexCustomers extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $shops)
     {
         return Inertia::render(
-            'Sales/Customers',
+            'Web/WebUsers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title'       => __('customers'),
+                'title'       => __('web users'),
                 'pageHead'    => [
-                    'title' => __('customers'),
+                    'title' => __('web users'),
                 ],
-                'customers'   => InertiaTableCustomerResource::collection($shops),
+                'customers'   => InertiaTableWebUserResource::collection($shops),
 
 
             ]
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'shop', label: __('shop'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('email');
         });
     }
 
@@ -103,15 +104,15 @@ class IndexCustomers extends InertiaAction
         return $this->handle();
     }
 
-    public function InShop(Shop $shop): LengthAwarePaginator
+    public function InShopInCustomer(Shop $shop,Customer $customer): LengthAwarePaginator
     {
-        $this->parent = $shop;
+        $this->parent = $customer;
         $this->validateAttributes();
 
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
+    public function getBreadcrumbs(string $routeName, Customer|Website|Tenant $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -119,7 +120,7 @@ class IndexCustomers extends InertiaAction
                     'route'           => $routeName,
                     'routeParameters' => $routeParameters,
                     'modelLabel'      => [
-                        'label' => __('customers')
+                        'label' => __('web users')
                     ]
                 ],
             ];

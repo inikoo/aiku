@@ -1,15 +1,15 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 17 Oct 2022 17:54:17 British Summer Time, Sheffield, UK
+ *  Created: Sun, 30 Oct 2022 01:03:02 Greenwich Mean Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\CustomerClient;
+namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\Helpers\Address\StoreAddress;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Sales\Customer;
-use App\Models\Sales\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreCustomerClient

@@ -21,7 +21,12 @@ defineProps(['customers', 'title','pageHead']);
 
         <template #cell(reference)="{ item: customer }">
             <Link :href="route('customers.show',customer.id)">
-                {{ customer.reference }}
+                {{ customer['reference'] }}
+            </Link>
+        </template>
+        <template #cell(shop)="{ item: customer }">
+            <Link :href="route('shops.show.customers.index',customer['shop_id'])">
+                {{ customer['shop'] }}
             </Link>
         </template>
 

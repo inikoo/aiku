@@ -6,13 +6,8 @@
 <script setup>
 import {Link} from '@inertiajs/inertia-vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
-
-import {
-    faEmptySet
-} from '@/../private/pro-light-svg-icons';
-library.add(
-    faEmptySet
-);
+import {faEmptySet} from '@/../private/pro-light-svg-icons';
+library.add(faEmptySet);
 defineProps(['nodes']);
 import {useLocaleStore} from '@/Stores/locale.js';
 const locale = useLocaleStore();

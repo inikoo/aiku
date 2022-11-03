@@ -8,28 +8,18 @@
 namespace App\Actions\Central\Deployment;
 
 use App\Models\Central\Deployment;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
-use PHLAK\SemVer\Version;
-use Symfony\Component\Process\Exception\RuntimeException;
-use Symfony\Component\Process\Process;
-use Throwable;
 
 
 class ShowDeployment
 {
     use AsAction;
 
-
-
-
     public function handle(Deployment $deployment): Deployment
     {
-        return  $deployment;
+        return $deployment;
     }
-
-
 
     public function latest(): JsonResponse|Deployment
     {
@@ -44,7 +34,5 @@ class ShowDeployment
             );
         }
     }
-
-
 
 }

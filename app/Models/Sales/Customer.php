@@ -9,6 +9,7 @@ namespace App\Models\Sales;
 
 
 use App\Actions\Marketing\Shop\HydrateShop;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Web\WebUser;
@@ -50,7 +51,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
  * @property-read Address|null $billingAddress
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\CustomerClient[] $clients
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Dropshipping\CustomerClient[] $clients
  * @property-read int|null $clients_count
  * @property-read Address|null $deliveryAddress
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Invoice[] $invoices

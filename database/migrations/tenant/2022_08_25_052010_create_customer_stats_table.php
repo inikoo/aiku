@@ -18,6 +18,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
+
+            $table->unsignedBigInteger('number_web_users')->default(0);
+            $table->unsignedBigInteger('number_active_web_users')->default(0);
+
             $table->timestampTz('last_submitted_order_at')->nullable();
             $table->timestampTz('last_dispatched_delivery_at')->nullable();
             $table->timestampTz('last_invoiced_at')->nullable();

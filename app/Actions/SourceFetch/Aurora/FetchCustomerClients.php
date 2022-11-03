@@ -9,10 +9,10 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 
+use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
+use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Helpers\Address\UpdateAddress;
-use App\Actions\Sales\CustomerClient\StoreCustomerClient;
-use App\Actions\Sales\CustomerClient\UpdateCustomerClient;
-use App\Models\Sales\CustomerClient;
+use App\Models\Dropshipping\CustomerClient;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 

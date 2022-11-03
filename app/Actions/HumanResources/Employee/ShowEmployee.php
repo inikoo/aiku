@@ -47,27 +47,27 @@ class ShowEmployee
         return Inertia::render(
             'HumanResources/Employee',
             [
-                'title'=>__('employee'),
+                'title'       => __('employee'),
                 'breadcrumbs' => $this->getBreadcrumbs($employee),
-                'pageHead'=>[
-                    'title'=>$employee->name,
-                    'meta'=>[
+                'pageHead'    => [
+                    'title' => $employee->name,
+                    'meta'  => [
                         [
-                            'name'=>$employee->worker_number,
-                            'leftIcon'=>[
-                                'icon'=>'fal fa-id-card',
-                                'tooltip'=>__('Worker number')
+                            'name'     => $employee->worker_number,
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-id-card',
+                                'tooltip' => __('Worker number')
                             ]
                         ],
 
-                        $employee->user?
-                        [
-                            'name'=>$employee->user->username,
-                            'leftIcon'=>[
-                                'icon'=>'fal fa-user',
-                                'tooltip'=>__('User')
-                            ]
-                        ]:[]
+                        $employee->user ?
+                            [
+                                'name'     => $employee->user->username,
+                                'leftIcon' => [
+                                    'icon'    => 'fal fa-user',
+                                    'tooltip' => __('User')
+                                ]
+                            ] : []
                     ]
                 ],
                 'employee'    => new EmployeeResource($employee)

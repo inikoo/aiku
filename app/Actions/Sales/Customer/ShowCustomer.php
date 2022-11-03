@@ -42,6 +42,7 @@ class ShowCustomer extends InertiaAction
         return $this->handle($customer);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function InShop(Shop $shop, Customer $customer, Request $request): Customer
     {
         $this->routeName = $request->route()->getName();
@@ -52,6 +53,19 @@ class ShowCustomer extends InertiaAction
 
     public function htmlResponse(Customer $customer): Response
     {
+        $webUsersMeta = match ($customer->stats->number_web_users) {
+            0 => [
+                'name'=>'add web user',
+                'leftIcon' => [
+                    'icon'    => 'fal fa-globe',
+                    'tooltip' => __('Web user')
+                ],
+                'emptyWithCreateAction'=>[
+                    'label'=>__('web user')
+                ]
+            ]
+        };
+
 
         return Inertia::render(
             'Sales/Customer',
@@ -60,6 +74,9 @@ class ShowCustomer extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $customer),
                 'pageHead'    => [
                     'title' => $customer->name,
+                    'meta'  => [
+                        $webUsersMeta
+                    ]
 
                 ],
                 'customer'    => new CustomerResource($customer)
@@ -83,7 +100,6 @@ class ShowCustomer extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, Customer $customer): array
     {
-
         $headCrumb = function (array $routeParameters = []) use ($customer, $routeName) {
             $indexRouteParameters = $routeParameters;
             array_pop($indexRouteParameters);
@@ -113,7 +129,6 @@ class ShowCustomer extends InertiaAction
             ),
             default => []
         };
-
     }
 
 }

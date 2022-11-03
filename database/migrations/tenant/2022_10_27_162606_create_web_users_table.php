@@ -15,6 +15,7 @@ return new class extends Migration {
     {
         Schema::create('web_users', function (Blueprint $table) {
             $table->id();
+            $table->enum('type', ['web', 'api'])->index();
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
 
@@ -24,12 +25,12 @@ return new class extends Migration {
             $table->boolean('status')->default(true)->index();
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password')->nullable();;
+            $table->string('password')->nullable();
             $table->rememberToken();
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->timestampsTz();
-            $table->unique(['website_id', 'email']);
+            $table->unique(['website_id', 'type', 'email']);
         });
     }
 

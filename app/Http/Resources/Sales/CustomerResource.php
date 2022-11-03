@@ -9,16 +9,30 @@ namespace App\Http\Resources\Sales;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $reference
+ * @property mixed $email
+ * @property mixed $created_at
+ * @property mixed $updated_at
+ * @property mixed $name
+ * @property mixed $contact_name
+ * @property mixed $company_name
+ * @property mixed $phone
+ */
 class CustomerResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
-    public function toArray($request)
+    public function toArray($request): array
     {
-        return parent::toArray($request);
+        return [
+            'reference'    => $this->reference,
+            'name'         => $this->name,
+            'contact_name' => $this->contact_name,
+            'company_name' => $this->company_name,
+            'email'        => $this->email,
+            'phone'        => $this->phone,
+            'created_at'   => $this->created_at,
+            'updated_at'   => $this->updated_at,
+
+        ];
     }
 }

@@ -1,14 +1,15 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 17 Oct 2022 17:53:31 British Summer Time, Sheffield, UK
+ *  Created: Sun, 30 Oct 2022 01:04:09 Greenwich Mean Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Sales;
+namespace App\Models\Dropshipping;
 
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\Models\Sales\CustomerClient
+ * App\Models\Dropshipping\CustomerClient
  *
  * @property int $id
  * @property bool $status

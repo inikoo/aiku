@@ -25,6 +25,23 @@ class HydrateCustomer extends HydrateModel
     {
         $this->contact($customer);
         $this->invoices($customer);
+        $this->webUsers($customer);
+
+    }
+
+    public function webUsers(Customer $customer): void
+    {
+
+
+        $stats = [
+            'number_web_users' =>$customer->webUsers->count(),
+            'number_active_web_users'=>$customer->webUsers->where('status',true)->count(),
+        ];
+
+
+
+
+        $customer->stats->update($stats);
     }
 
     public function invoices(Customer $customer): void

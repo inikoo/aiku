@@ -26,7 +26,7 @@ class CreateAdminUser
     use WithAttributes;
 
     public string $commandSignature = 'create:admin-user
-    {code : ANid,will be used as username}
+    {code : will be used as username}
     {name}
     {--e|email=}
     {--u|username= : use instead of code argument}

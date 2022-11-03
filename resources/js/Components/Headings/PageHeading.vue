@@ -8,7 +8,12 @@
 <script setup>
 import {Link} from '@inertiajs/inertia-vue3';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {faEmptySet} from '@/../private/pro-light-svg-icons';
+import {faPlus} from '@/../private/pro-solid-svg-icons';
+import Button from '@/Components/Elements/Buttons/Button.vue';
 
+library.add(faEmptySet,faPlus);
 const props = defineProps(['data']);
 
 </script>
@@ -22,11 +27,24 @@ const props = defineProps(['data']);
             <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
 
                 <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
-                    <div v-for="item in data.meta" :key="item.name" class="mt-2 flex items-center text-sm text-gray-500">
-                        <font-awesome-icon v-if="item['leftIcon']" :title="item['leftIcon'].tooltip" aria-hidden="true" :icon="item['leftIcon'].icon" size="lg" class="text-gray-400 pr-2"/>
+                    <div v-for="item in data.meta" :key="item.name"
+                         class="mt-2 flex items-center text-sm text-gray-500">
+                        <font-awesome-icon
+                            v-if="item['leftIcon']"
+                            :title="item['leftIcon']['tooltip']"
+                            aria-hidden="true"
+                            :icon="item['leftIcon']['icon']"
+                            size="lg"
+                            class="text-gray-400 pr-2"/>
                         <Link v-if="item.href" :href="route(item.href[0],item.href[1])">
                             {{ item.number }} {{ item.name }}
                         </Link>
+                        <template v-if="item['emptyWithCreateAction']">
+                            <font-awesome-icon icon="fal fa-empty-set" class="mr-2"/>
+                            <Link>
+                                <Button type="primary" size="xs" action="create" >{{item['emptyWithCreateAction']['label']}}</Button>
+                            </Link>
+                        </template>
                         <span v-else>{{ item.number }} {{ item.name }}</span>
                     </div>
                 </div>

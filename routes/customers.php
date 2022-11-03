@@ -8,7 +8,14 @@
 
 use App\Actions\Sales\Customer\IndexCustomers;
 use App\Actions\Sales\Customer\ShowCustomer;
+use App\Actions\Web\WebUser\IndexWebUser;
+use App\Actions\Web\WebUser\CreateWebUser;
 
 
 Route::get('/', IndexCustomers::class)->name('index');
 Route::get('/{customer}', ShowCustomer::class)->name('show');
+
+
+Route::get('/{customer}/web-users', [IndexWebUser::class, 'inCustomer'])->name('show.web_users.index');
+Route::get('/{customer}/web-users/create', [CreateWebUser::class, 'inCustomer'])->name('show.web_users.create');
+
