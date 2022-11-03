@@ -27,6 +27,7 @@ class FetchAuroraFamily extends FetchAurora
             'name'       => $this->auroraModelData->{'Category Label'},
             'state'      => match ($this->auroraModelData->{'Product Category Status'}) {
                 'In Process' => 'in-process',
+                'Suspended' => 'active',
                 default => strtolower($this->auroraModelData->{'Product Category Status'})
             },
             'created_at' => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),
