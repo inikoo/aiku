@@ -36,15 +36,7 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
         $this->mapWebRoutes();
 
-
-
         $this->routes(function () {
-            //Route::middleware('api')
-            //    ->prefix('api')
-            //    ->group(base_path('routes/api.php'));
-            //Route::middleware('api-org')
-            //    ->prefix('api-org')
-            //    ->group(base_path('routes/api-org.php'));
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });

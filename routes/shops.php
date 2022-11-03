@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Actions\Marketing\SHop\IndexShops;
+use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Customer\IndexCustomers;
 use App\Actions\Sales\Customer\ShowCustomer;
