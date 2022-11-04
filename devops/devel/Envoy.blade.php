@@ -44,7 +44,9 @@
     dump-database
     tenant-fetch-customers
     dump-database
-    tenant-fetch-sales
+    tenant-fetch-orders
+    dump-database
+    tenant-fetch-invoices
     dump-database
 @endstory
 
@@ -115,21 +117,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
 @endtask
 
 
-@task('tenant-fetch-products')
-    echo "tenant-fetch-products" > step
-    cd ../../
-    echo "shop products and categories"
-    php artisan fetch:shop-categories {{$instance}} -q
-    php artisan fetch:products {{$instance}} -q
-    php artisan fetch:customers {{$instance}} -q
-@endtask
 
-@task('tenant-fetch-customers')
-    echo "tenant-fetch-customers" > step
-    cd ../../
-    echo "shop customers"
-    php artisan fetch:customers {{$instance}} -q
-@endtask
 
 @task('tenant-fetch-procurement')
     echo "tenant-fetch-procurement" > step
@@ -154,12 +142,35 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     php artisan fetch:stocks {{$instance}}  -q
 @endtask
 
-@task('tenant-fetch-sales')
-    echo "tenant-fetch-sales" > step
+@task('tenant-fetch-products')
+    echo "tenant-fetch-products" > step
+    cd ../../
+    echo "shop products and categories"
+    php artisan fetch:shop-categories {{$instance}} -q
+    php artisan fetch:products {{$instance}} -q
+@endtask
+
+@task('tenant-fetch-customers')
+    echo "tenant-fetch-customers" > step
+    cd ../../
+    echo "shop customers"
+    php artisan fetch:customers {{$instance}} -q
+@endtask
+
+@task('tenant-fetch-orders')
+    echo "tenant-fetch-orders" > step
     cd ../../
     echo "orders"
     php artisan fetch:orders {{$instance}} -q
 @endtask
+
+@task('tenant-fetch-invoices')
+echo "tenant-fetch-invoices" > step
+cd ../../
+echo "orders"
+php artisan fetch:invoices {{$instance}} -q
+@endtask
+
 
 
 @task('dump-database')

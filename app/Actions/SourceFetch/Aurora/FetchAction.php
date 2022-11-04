@@ -91,11 +91,12 @@ class FetchAction
                 } else {
 
                     if(!$command->option('quiet')) {
+                        $command->line('✊ '.$command->getName().' '.$tenant->code);
                         $this->progressBar = $command->getOutput()->createProgressBar($this->count());
                         $this->progressBar->setFormat('debug');
                         $this->progressBar->start();
                     }else{
-                        $command->line('sss '.$this->count());
+                        $command->line('Steps '.$this->count());
                     }
 
                     $this->fetchAll($tenantSource);
