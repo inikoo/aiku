@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 /**
@@ -102,6 +104,7 @@ class Stock extends Model
 {
     use SoftDeletes;
     use TenantConnection;
+    use HasSlug;
 
     protected $casts = [
         'data' => 'array',
@@ -117,6 +120,14 @@ class Stock extends Model
     ];
 
     protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug');
+    }
+
 
     protected static function booted()
     {

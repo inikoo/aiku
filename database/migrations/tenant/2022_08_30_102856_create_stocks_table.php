@@ -15,6 +15,10 @@ return new class extends Migration {
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
+
+
+            $table->string('slug')->index()->unique();
+            $table->string('code')->index();
             $table->morphs('owner');
             $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
@@ -25,7 +29,7 @@ return new class extends Migration {
             $table->enum('quantity_status', ['surplus', 'optimal', 'low', 'critical', 'out-of-stock', 'error'])->nullable()->index();
             $table->boolean('sellable')->default(1)->index();
             $table->boolean('raw_material')->default(0)->index();
-            $table->string('code')->index()->unique();
+
             $table->string('barcode')->index()->nullable();
             $table->text('description')->nullable();
             $table->unsignedMediumInteger('pack')->nullable()->comment('units per pack');
