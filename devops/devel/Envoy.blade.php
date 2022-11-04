@@ -34,11 +34,15 @@
     reset-aurora-db
     tenant-fetch-employees
     dump-database
+    tenant-fetch-shops
+    dump-database
     tenant-fetch-procurement
     dump-database
     tenant-fetch-inventory
     dump-database
-    tenant-fetch-shops
+    tenant-fetch-products
+    dump-database
+    tenant-fetch-customers
     dump-database
     tenant-fetch-sales
     dump-database
@@ -105,10 +109,25 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
 @task('tenant-fetch-shops')
     echo "tenant-fetch-shops" > step
     cd ../../
-    echo "shops"
+    echo "shops and websites"
     php artisan fetch:shops {{$instance}} -q
     php artisan fetch:websites {{$instance}} -q
+@endtask
+
+
+@task('tenant-fetch-products')
+    echo "tenant-fetch-products" > step
+    cd ../../
+    echo "shop products and categories"
+    php artisan fetch:shop-categories {{$instance}} -q
     php artisan fetch:products {{$instance}} -q
+    php artisan fetch:customers {{$instance}} -q
+@endtask
+
+@task('tenant-fetch-customers')
+    echo "tenant-fetch-customers" > step
+    cd ../../
+    echo "shop customers"
     php artisan fetch:customers {{$instance}} -q
 @endtask
 

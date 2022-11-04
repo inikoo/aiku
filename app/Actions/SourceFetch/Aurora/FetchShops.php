@@ -40,44 +40,12 @@ class FetchShops extends FetchAction
                 );
             }
 
-            $this->progressBar?->advance();
-
-
-            foreach (
-                DB::connection('aurora')
-                    ->table('Category Dimension')
-                    ->select('Category Key as source_id')
-                    ->where('Category Branch Type', 'Head')
-                    ->where('Category Root Key', $shopData['source_department_key'])->get() as $auroraDepartment
-            ) {
-                FetchDepartments::run($tenantSource, $auroraDepartment->source_id);
-                $this->progressBar?->advance();
-            }
-
-            foreach (
-                DB::connection('aurora')
-                    ->table('Category Dimension')
-                    ->select('Category Key as source_id')
-                    ->where('Category Branch Type', 'Head')
-                    ->where('Category Root Key', $shopData['source_family_key'])->get() as $auroraFamily
-
-            ) {
-                FetchFamilies::run($tenantSource, $auroraFamily->source_id);
-                $this->progressBar?->advance();
-            }
-
             return $shop;
         }
 
         return null;
     }
 
-    public function fetchAll(SourceTenantService $tenantSource): void
-    {
-        foreach ($this->getModelsQuery()->get() as $auroraData) {
-            $this->handle($tenantSource, $auroraData->{'source_id'});
-        }
-    }
 
     function getModelsQuery(): Builder
     {
@@ -89,28 +57,7 @@ class FetchShops extends FetchAction
 
     function count(): ?int
     {
-        $count = DB::connection('aurora')->table('Store Dimension')->count();
-
-
-        foreach (
-            DB::connection('aurora')
-                ->table('Store Dimension')->get() as $storeData
-
-        ) {
-            $count += DB::connection('aurora')
-                ->table('Category Dimension')
-                ->where('Category Branch Type', 'Head')
-                ->where('Category Root Key', $storeData->{'Store Department Category Key'})
-                ->count();
-
-            $count += DB::connection('aurora')
-                ->table('Category Dimension')
-                ->where('Category Branch Type', 'Head')
-                ->where('Category Root Key', $storeData->{'Store Family Category Key'})
-                ->count();
-        }
-
-        return $count;
+        return DB::connection('aurora')->table('Store Dimension')->count();
     }
 
 }
