@@ -13,6 +13,7 @@ use App\Actions\Sales\Transaction\StoreTransaction;
 use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
 use App\Services\Tenant\SourceTenantService;
+use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -27,10 +28,15 @@ class FetchTransactions
         if ($transactionData = $tenantSource->fetchTransaction(type: 'HistoricProduct', id: $source_id)) {
             if (!Transaction::where('source_id', $transactionData['transaction']['source_id'])
                 ->first()) {
-                return StoreTransaction::run(
+                $transaction= StoreTransaction::run(
                     order:     $order,
                     modelData: $transactionData['transaction']
                 );
+
+                DB::connection('aurora')->table('Order Transaction Fact')
+                    ->update(['aiku_id' => $transaction->id]);
+
+                return $transaction;
             }
         }
 

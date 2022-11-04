@@ -31,6 +31,7 @@
     dump-database
     tenant-guest-admin
     dump-database
+    reset-aurora-db
     tenant-fetch-employees
     dump-database
     tenant-fetch-procurement
@@ -85,6 +86,12 @@ echo "tenant-guest-admin" > step
     cd ../../
 @endif
 php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin
+@endtask
+
+
+@task('reset-aurora-db')
+    cd ../../
+    php artisan fetch:reset {{$instance}}
 @endtask
 
 @task('tenant-fetch-employees')

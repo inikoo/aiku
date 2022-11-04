@@ -48,7 +48,8 @@ class FetchStocks extends FetchAction
 
             $stock->locations()->sync($locationsData['stock_locations']);
 
-
+            DB::connection('aurora')->table('Part Dimension')
+                ->update(['aiku_id' => $stock->id]);
 
             return $stock;
         }

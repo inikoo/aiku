@@ -163,5 +163,10 @@ echo "Tenant {{ $auroraDB }}"
 @endforeach
 
 {{ $php }} artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin
+
+echo "***********************************************************************"
+echo "* Reset aurora db"
+
+{{ $php }} artisan fetch:reset
 @endtask
 

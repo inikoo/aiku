@@ -22,16 +22,18 @@ class FetchOrders extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
     {
         if ($orderData = $tenantSource->fetchOrder($tenantSourceId)) {
-            if ($order=Order::where('source_id', $orderData['order']['source_id'])
+            if ($order = Order::where('source_id', $orderData['order']['source_id'])
                 ->first()) {
                 $this->fetchTransactions($tenantSource, $order);
-                return $order;
-            }
-            else{
+                $this->updateAurora($order->id);
 
-                if($orderData['parent']){
-                    $order   = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
+                return $order;
+            } else {
+                if ($orderData['parent']) {
+                    $order = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
                     $this->fetchTransactions($tenantSource, $order);
+
+                    $this->updateAurora($order->id);
 
                     return $order;
                 }
@@ -42,7 +44,7 @@ class FetchOrders extends FetchAction
         return null;
     }
 
-    private function fetchTransactions($tenantSource, $order): Void
+    private function fetchTransactions($tenantSource, $order): void
     {
         foreach (
             DB::connection('aurora')
@@ -55,12 +57,18 @@ class FetchOrders extends FetchAction
         }
     }
 
+    function updateAurora($id)
+    {
+        DB::connection('aurora')->table('Order Dimension')
+            ->update(['aiku_id' => $id]);
+    }
+
     function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Order Dimension')
             ->select('Order Key as source_id')
-            ->where('Order State','!=','InBasket')
+            ->where('Order State', '!=', 'InBasket')
             ->orderByDesc('Order Date');
     }
 

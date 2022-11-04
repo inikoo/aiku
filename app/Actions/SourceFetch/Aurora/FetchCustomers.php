@@ -36,6 +36,9 @@ class FetchCustomers extends FetchAction
                 $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['addresses']);
             }
 
+            DB::connection('aurora')->table('Customer Dimension')
+                ->update(['aiku_id' => $customer->id]);
+
             return $customer;
         }
 
