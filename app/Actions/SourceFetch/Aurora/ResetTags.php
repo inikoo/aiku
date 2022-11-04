@@ -227,7 +227,8 @@ class ResetTags
                         ->update(['aiku_id' => null]);
                     DB::connection('aurora')->table('Customer Portfolio Fact')
                         ->update(['aiku_id' => null]);
-
+                    DB::connection('aurora')->table('Website User Dimension')
+                        ->update(['aiku_id' => null]);
                     $command->line("✅ customers \t\t".$this->stepTime());
 
 

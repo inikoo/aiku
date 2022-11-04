@@ -36,7 +36,8 @@
         "stancl/tenancy": "^3.5",
         "tightenco/ziggy": "^1.0",
         "vemcogroup/laravel-translation": "^3.0",
-        "vlucas/phpdotenv": "^5.4"
+        "vlucas/phpdotenv": "^5.4",
+        "ext-zlib": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",

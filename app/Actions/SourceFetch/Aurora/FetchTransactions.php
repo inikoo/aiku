@@ -34,6 +34,7 @@ class FetchTransactions
                 );
 
                 DB::connection('aurora')->table('Order Transaction Fact')
+                    ->where('Order Transaction Fact Key', $transaction->source_id)
                     ->update(['aiku_id' => $transaction->id]);
 
                 return $transaction;

@@ -23,6 +23,9 @@ return new class extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers');
 
             $table->boolean('status')->default(true)->index();
+
+            $table->string('username');
+
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
@@ -30,7 +33,12 @@ return new class extends Migration {
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->timestampsTz();
-            $table->unique(['website_id', 'type', 'email']);
+            $table->softDeletesTz();
+            $table->unique(['website_id', 'email']);
+            $table->unique(['website_id', 'username']);
+            $table->enum('web_login_version', ['current', 'au'])->index()->default('current');
+            $table->unsignedBigInteger('source_id')->nullable()->unique()->index();
+
         });
     }
 

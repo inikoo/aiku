@@ -37,6 +37,7 @@ class FetchCustomers extends FetchAction
             }
 
             DB::connection('aurora')->table('Customer Dimension')
+                ->where('Customer Key', $customer->source_id)
                 ->update(['aiku_id' => $customer->id]);
 
             return $customer;

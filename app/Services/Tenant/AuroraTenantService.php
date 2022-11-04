@@ -13,6 +13,7 @@ use App\Models\Central\Tenant;
 use App\Services\Tenant\Aurora\FetchAuroraAgent;
 use App\Services\Tenant\Aurora\FetchAuroraCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraCustomerClient;
+use App\Services\Tenant\Aurora\FetchAuroraDeletedCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraDepartment;
 use App\Services\Tenant\Aurora\FetchAuroraEmployee;
 use App\Services\Tenant\Aurora\FetchAuroraFamily;
@@ -38,6 +39,7 @@ use App\Services\Tenant\Aurora\FetchAuroraWarehouseArea;
 use App\Services\Tenant\Aurora\FetchAuroraWebsite;
 use App\Services\Tenant\Aurora\FetchAuroraSupplier;
 
+use App\Services\Tenant\Aurora\FetchAuroraWebUser;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -91,6 +93,16 @@ class AuroraTenantService implements SourceTenantService
     public function fetchCustomer($id): ?array
     {
         return (new FetchAuroraCustomer($this))->fetch($id);
+    }
+
+    public function fetchDeletedCustomer($id): ?array
+    {
+        return (new FetchAuroraDeletedCustomer($this))->fetch($id);
+    }
+
+    public function fetchWebUser($id): ?array
+    {
+        return (new FetchAuroraWebUser($this))->fetch($id);
     }
 
     public function fetchOrder($id): ?array
