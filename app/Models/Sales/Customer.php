@@ -51,7 +51,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
  * @property-read Address|null $billingAddress
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Dropshipping\CustomerClient[] $clients
+ * @property-read \Illuminate\Database\Eloquent\Collection|CustomerClient[] $clients
  * @property-read int|null $clients_count
  * @property-read Address|null $deliveryAddress
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Invoice[] $invoices

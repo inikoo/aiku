@@ -26,6 +26,8 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * App\Models\Inventory\Stock
  *
  * @property int $id
+ * @property string $slug
+ * @property string $code
  * @property string $owner_type
  * @property int $owner_id
  * @property int|null $stock_family_id
@@ -34,7 +36,6 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property string|null $quantity_status
  * @property bool $sellable
  * @property bool $raw_material
- * @property string $code
  * @property string|null $barcode
  * @property string|null $description
  * @property int|null $pack units per pack
@@ -91,6 +92,7 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Stock whereRawMaterial($value)
  * @method static Builder|Stock whereSellable($value)
  * @method static Builder|Stock whereSettings($value)
+ * @method static Builder|Stock whereSlug($value)
  * @method static Builder|Stock whereSourceId($value)
  * @method static Builder|Stock whereState($value)
  * @method static Builder|Stock whereStockFamilyId($value)

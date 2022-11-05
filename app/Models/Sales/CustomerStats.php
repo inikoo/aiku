@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $customer_id
+ * @property int $number_web_users
+ * @property int $number_active_web_users
  * @property \Illuminate\Support\Carbon|null $last_submitted_order_at
  * @property \Illuminate\Support\Carbon|null $last_dispatched_delivery_at
  * @property \Illuminate\Support\Carbon|null $last_invoiced_at
@@ -37,12 +39,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|CustomerStats whereLastDispatchedDeliveryAt($value)
  * @method static Builder|CustomerStats whereLastInvoicedAt($value)
  * @method static Builder|CustomerStats whereLastSubmittedOrderAt($value)
+ * @method static Builder|CustomerStats whereNumberActiveWebUsers($value)
  * @method static Builder|CustomerStats whereNumberDeliveries($value)
  * @method static Builder|CustomerStats whereNumberDeliveriesTypeOrder($value)
  * @method static Builder|CustomerStats whereNumberDeliveriesTypeReplacement($value)
  * @method static Builder|CustomerStats whereNumberInvoices($value)
  * @method static Builder|CustomerStats whereNumberInvoicesTypeInvoice($value)
  * @method static Builder|CustomerStats whereNumberInvoicesTypeRefund($value)
+ * @method static Builder|CustomerStats whereNumberWebUsers($value)
  * @method static Builder|CustomerStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */

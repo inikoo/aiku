@@ -42,7 +42,9 @@ class FetchEmployees extends FetchAction
             $employee->jobPositions()->sync($employeeData['job-positions']);
 
             foreach ($employeeData['photo'] ?? [] as $profileImage) {
-                SetPhoto::run($employee, $profileImage['image_path'], $profileImage['filename']);
+                if(isset($profileImage['image_path']) and isset($profileImage['filename'])){
+                    SetPhoto::run($employee, $profileImage['image_path'], $profileImage['filename']);
+                }
             }
 
 

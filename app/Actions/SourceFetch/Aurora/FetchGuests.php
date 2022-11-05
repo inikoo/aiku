@@ -38,7 +38,9 @@ class FetchGuests extends FetchAction
 
 
             foreach ($guestData['photo'] ?? [] as $profileImage) {
-                SetPhoto::run($guest, $profileImage['image_path'], $profileImage['filename']);
+                if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
+                    SetPhoto::run($guest, $profileImage['image_path'], $profileImage['filename']);
+                }
             }
 
 
@@ -57,11 +59,8 @@ class FetchGuests extends FetchAction
             ->where('Staff Type', '=', 'Contractor')
             ->where(function ($query) {
                 $query->whereNull('aiku_ignore')
-                    ->orWhere('aiku_ignore','No');
+                    ->orWhere('aiku_ignore', 'No');
             })
-
-
-
             ->orderBy('source_id')
             ->when(app()->environment('testing'), function ($query) {
                 return $query->limit(20);
@@ -75,7 +74,7 @@ class FetchGuests extends FetchAction
             ->where('Staff Type', '=', 'Contractor')
             ->where(function ($query) {
                 $query->whereNull('aiku_ignore')
-                    ->orWhere('aiku_ignore','No');
+                    ->orWhere('aiku_ignore', 'No');
             })
             ->count();
     }

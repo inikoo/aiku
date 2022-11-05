@@ -104,7 +104,6 @@ class FetchAuroraEmployee extends FetchAurora
         )->map(function ($auroraImage) {
             return $this->fetchImage($auroraImage);
         });
-
         $this->parsedData['photo'] = $profile_images->toArray();
     }
 
