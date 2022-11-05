@@ -25,4 +25,5 @@ lang/php_*.json
 tt
 ctt
 deploy
+fetch.sh
 /public/tenants/
