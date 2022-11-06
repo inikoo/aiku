@@ -18,7 +18,10 @@ return new class extends Migration
             $table->id();
             $table->string('username')->unique();
             $table->string('email');
-            $table->nullableMorphs('userable');
+
+            $table->string('tenant_id');
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

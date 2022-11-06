@@ -5,13 +5,28 @@
   -->
 
 <script setup>
-const props = defineProps(['form','layout']);
+const props = defineProps(['form', 'layout', 'url', 'method']);
 import SubmitButtons from '@/Components/Forms/SubmitButtons.vue';
+
+function submit() {
+
+    if (props.method === 'post') {
+        props.form.post(props.url);
+    } else if (props.method === 'put') {
+        props.form.put(props.url);
+    } else {
+        props.form.patch(props.url);
+    }
+
+}
 
 </script>
 
 <template>
-    <form  class="divide-y divide-gray-200 lg:col-span-9" @submit.prevent="form.patch('/profile')">
+    <form class="divide-y divide-gray-200 lg:col-span-9"
+
+          @submit.prevent="submit"
+    >
 
         <div class="py-6 px-4 sm:p-6 lg:pb-8">
             <div>

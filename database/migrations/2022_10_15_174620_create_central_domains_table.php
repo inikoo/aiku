@@ -17,7 +17,8 @@ return new class extends Migration
         Schema::create('central_domains', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->foreignId('tenant_id')->constrained();
+            $table->string('tenant_id');
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedMediumInteger('website_id')->index();
             $table->string('domain')->unique();
             $table->enum('state',['created','iris-enabled'])->default('created');

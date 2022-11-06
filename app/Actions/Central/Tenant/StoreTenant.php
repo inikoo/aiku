@@ -18,8 +18,8 @@ class StoreTenant
 
     public function handle(array $modelData): Tenant
     {
-        $modelData['uuid'] = Str::uuid();
-        $tenant            = Tenant::create($modelData);
+        $modelData['numeric_id'] = $this->getAutoincrementID();
+        $tenant = Tenant::create($modelData);
 
         $tenant->stats()->create();
         $tenant->procurementStats()->create();
@@ -35,4 +35,10 @@ class StoreTenant
 
         return $tenant;
     }
+
+    private function getAutoincrementID(): int
+    {
+        return Tenant::count() + 1;
+    }
+
 }

@@ -10,6 +10,7 @@
         "ext-gd": "*",
         "ext-intl": "*",
         "ext-pdo": "*",
+        "ext-zlib": "*",
         "akempes/laravel-request-logging": "^1.2",
         "commerceguys/addressing": "^1.4",
         "commerceguys/intl": "^1.1",
@@ -22,6 +23,7 @@
         "laravel/socialite": "^5",
         "laravel/tinker": "^2",
         "laravolt/avatar": "^4",
+        "league/flysystem-aws-s3-v3": "^3.0",
         "lorisleiva/laravel-actions": "^2.4",
         "monicahq/laravel-cloudflare": "^3.3",
         "opcodesio/log-viewer": "^1.2",
@@ -36,8 +38,7 @@
         "stancl/tenancy": "^3.5",
         "tightenco/ziggy": "^1.0",
         "vemcogroup/laravel-translation": "^3.0",
-        "vlucas/phpdotenv": "^5.4",
-        "ext-zlib": "*"
+        "vlucas/phpdotenv": "^5.4"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",

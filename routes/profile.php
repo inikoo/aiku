@@ -10,4 +10,4 @@ use App\Actions\SysAdmin\Profile\ShowProfile;
 use App\Actions\SysAdmin\Profile\UpdateProfile;
 
 Route::get('/', ShowProfile::class)->name('show');
-Route::patch('/', UpdateProfile::class)->name('update');
+Route::post('/', UpdateProfile::class)->name('update');

@@ -154,7 +154,7 @@ class User extends Authenticatable implements HasMedia, Syncable
     {
         $this->addMediaCollection('profile')
             ->singleFile()
-            ->useDisk('public')
+            //->useDisk('public')
             ->registerMediaConversions(function () {
                 $this->addMediaConversion('thumb')
                     ->width(256)

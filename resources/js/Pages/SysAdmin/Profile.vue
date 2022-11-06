@@ -36,7 +36,7 @@ const avatarUploaded = (file) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = e => {
-        this.props.profile.avatar = e.target.result;
+        props.profile.avatar = e.target.result;
     };
 
 }
@@ -71,7 +71,7 @@ const avatarUploaded = (file) => {
                     </nav>
                 </aside>
 
-                <Form v-show="current==='profile'"   :form="profileForm"  :layout="pageBody.layout.profile" >
+                <Form v-show="current==='profile'"   :form="profileForm"  :url="'/profile'"  :method="'post'"  :layout="pageBody.layout.profile" >
                     <div class="mt-6 flex flex-col lg:flex-row">
                         <div class="flex-grow space-y-6">
                             <div>
@@ -115,8 +115,8 @@ const avatarUploaded = (file) => {
                                 </div>
                             </div>
 
-
                             <div class="relative hidden overflow-hidden rounded-full lg:block">
+
                                 <img class="relative h-40 w-40 rounded-full" :src="profile.avatar" alt=""/>
                                 <label id="desktop-user-photo-mask" for="desktop-user-photo"
                                        class="absolute inset-0 flex h-full w-full items-center justify-center bg-black bg-opacity-50 text-sm font-medium text-white opacity-0  hover:opacity-100">

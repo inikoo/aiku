@@ -120,8 +120,8 @@ sudo rsync -auz --exclude 'node_modules' {{ $staging_dir }}/ {{ $new_release_dir
 echo "***********************************************************************"
 echo "migrating DB and seeding"
 cd {{ $new_release_dir }}
-@foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $auroraDB)
-        echo "Dropping tenant datgabases {{ $auroraDB }}"
+@foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
+        echo "Dropping tenant databases {{ $tenantData->db }}"
         psql -d {{ $_ENV['DB_DATABASE'] }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
 @endforeach
 {{$php}} artisan optimize:clear
@@ -157,9 +157,9 @@ ln -nsf {{ $new_release_dir }} {{ $current_release_dir }}
 echo "***********************************************************************"
 echo "* Create aurora tenants"
 
-@foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $auroraDB)
-echo "Tenant {{ $auroraDB }}"
-{{ $php }} artisan create:tenant-aurora {{$tenant}} {{$auroraDB}}
+@foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
+    echo "Tenant {{ $tenantData->db }}"
+    {{ $php }} artisan create:tenant-aurora {{$tenant}} {{$tenantData->db}} {{$tenantData->email}}
 @endforeach
 
 {{ $php }} artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin

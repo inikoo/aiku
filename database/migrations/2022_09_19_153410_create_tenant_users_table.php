@@ -16,7 +16,8 @@ return new class extends Migration
     {
         Schema::create('tenant_users', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->uuid('global_user_id')->index();
 
             $table->unique(['tenant_id', 'global_user_id']);
@@ -26,7 +27,7 @@ return new class extends Migration
             //$table->string('email')->nullable();
 
 
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+
             $table->foreign('global_user_id')->references('global_id')->on('central_users')->onUpdate('cascade')->onDelete('cascade');
         });
     }

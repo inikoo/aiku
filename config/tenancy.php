@@ -12,7 +12,8 @@ use Stancl\Tenancy\Database\Models\Domain;
 
 return [
     'tenant_model' => Tenant::class,
-    'id_generator' => null,
+    'id_generator' => Stancl\Tenancy\UUIDGenerator::class,
+
 
     'domain_model' => Domain::class,
 
@@ -30,7 +31,7 @@ return [
         Stancl\Tenancy\Bootstrappers\CacheTenancyBootstrapper::class,
         Stancl\Tenancy\Bootstrappers\FilesystemTenancyBootstrapper::class,
         Stancl\Tenancy\Bootstrappers\QueueTenancyBootstrapper::class,
-        // Stancl\Tenancy\Bootstrappers\RedisTenancyBootstrapper::class, // Note: phpredis is needed
+        Stancl\Tenancy\Bootstrappers\RedisTenancyBootstrapper::class, // Note: phpredis is needed
     ],
 
     /**
@@ -101,7 +102,7 @@ return [
         'disks' => [
             'local',
             'public',
-            // 's3',
+            'r2'
         ],
 
         /**

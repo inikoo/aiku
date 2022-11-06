@@ -61,8 +61,8 @@
 @task('initialise-dbs')
     echo "initialise-dbs" > step
     cd ../../
-    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $auroraDB)
-        echo "Tenant {{ $auroraDB }}"
+    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
+        echo "Tenant {{ $tenantData->db }}"
         psql -d {{ $_ENV['DB_DATABASE'] }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
     @endforeach
     php artisan migrate:refresh
@@ -80,9 +80,9 @@
 @task('empty-aurora-tenants')
     echo "empty-aurora-tenants" > step
     cd ../../
-    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $auroraDB)
-        echo "Tenant {{ $auroraDB }}"
-        php artisan create:tenant-aurora {{$tenant}} {{$auroraDB}}
+    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
+        echo "Tenant {{ $tenantData->db }}"
+        php artisan create:tenant-aurora {{$tenant}} {{$tenantData->db}} {{$tenantData->email}}
     @endforeach
 @endtask
 

@@ -15,6 +15,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
@@ -33,25 +34,20 @@ class UpdateProfile
      */
     public function handle(User $user, array $modelData, ?UploadedFile $avatar): User
     {
-
         if (Arr::has($modelData, 'password')) {
             $modelData['password'] = Hash::make($modelData['password']);
         }
 
-        $user= $this->update($user, $modelData, ['profile', 'settings']);
+        $user = $this->update($user, $modelData, ['profile', 'settings']);
 
-        if($avatar){
+        if ($avatar) {
             $user->addMedia($avatar)
                 ->preservingOriginal()
+                ->usingFileName(Str::orderedUuid().'.'.$avatar->extension())
                 ->toMediaCollection('profile');
         }
 
         return $user;
-
-
-
-
-
     }
 
 
@@ -59,12 +55,13 @@ class UpdateProfile
     {
         return [
             'username' => ['sometimes', 'required', 'alpha_dash', Rule::unique('users', 'username')->ignore($request->user())],
-            'about'    => 'sometimes|string',
+            'about'    => 'sometimes|nullable|string',
             'email'    => 'sometimes|nullable|email',
             'password' => ['sometimes', 'required', Password::min(8)->uncompromised()],
             'language' => 'sometimes|required|exists:languages,code',
             'avatar'   => [
-                'sometimes','nullable',
+                'sometimes',
+                'nullable',
                 File::image()
                     ->max(12 * 1024)
             ],

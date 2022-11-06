@@ -16,9 +16,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tenants', function (Blueprint $table) {
-            $table->id();
+            $table->string('id')->primary();
+            $table->unsignedBigInteger('numeric_id')->unique();
             $table->string('code')->unique();
-            $table->uuid();
             $table->string('name');
             $table->jsonb('data');
             $table->unsignedSmallInteger('country_id');

@@ -9,14 +9,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
 
     public function up()
     {
         Schema::create('suppliers', function (Blueprint $table) {
             $table->mediumIncrements('id');
-            $table->enum('type',['supplier','agent','sub-supplier'])->index();
+            $table->enum('type', ['supplier', 'agent', 'sub-supplier'])->index();
             $table->boolean('status')->default(true)->index();
             $table->string('slug')->unique()->index();
             $table->string('code')->index();
@@ -41,7 +40,6 @@ return new class extends Migration
             $table->uuid('global_id')->index()->nullable();
             $table->unsignedBigInteger('source_id')->index()->nullable();
             $table->unsignedBigInteger('source_agent_id')->index()->nullable();
-
         });
     }
 

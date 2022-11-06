@@ -13,7 +13,6 @@ use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -150,9 +149,6 @@ class Supplier extends Model
     }
 
 
-    public function owner(): MorphTo
-    {
-        return $this->morphTo();
-    }
+
 
 }

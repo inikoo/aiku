@@ -16,7 +16,8 @@ return new class extends Migration
     {
         Schema::create('tenant_production_stats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained();
+            $table->string('tenant_id');
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
 
             $table->unsignedMediumInteger('number_products')->default(0);
 

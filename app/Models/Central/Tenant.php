@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Laravel\Sanctum\HasApiTokens;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
@@ -28,7 +27,6 @@ use Stancl\Tenancy\Database\TenantCollection;
  *
  * @property int $id
  * @property string $code
- * @property string $uuid
  * @property string $name
  * @property array $data
  * @property int $country_id
@@ -80,16 +78,15 @@ use Stancl\Tenancy\Database\TenantCollection;
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasFactory;
-    use HasApiTokens;
 
     use HasDatabase, HasDomains;
 
     protected $casts = [
-        'data'     => 'array',
+        'data' => 'array',
     ];
 
     protected $attributes = [
-        'data'     => '{}',
+        'data' => '{}',
     ];
 
     protected $guarded = [];
@@ -97,8 +94,9 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public static function getCustomColumns(): array
     {
         return [
+            'id',
+            'numeric_id',
             'code',
-            'uuid',
             'type',
             'name',
             'country_id',
@@ -108,13 +106,16 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         ];
     }
 
-    public function users(): BelongsToMany
+    public function tenantUsers(): BelongsToMany
     {
         return $this->belongsToMany(
             CentralUser::class,
             'tenant_users',
-            'tenant_id', 'global_user_id',
-            'id', 'global_id')
+            'tenant_id',
+            'global_user_id',
+            'id',
+            'global_id'
+        )
             ->using(TenantUser::class);
     }
 
@@ -155,17 +156,22 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
     public function suppliers(): MorphMany
     {
-        return $this->morphMany(Supplier::class, 'owner');
+        return $this->morphMany(Supplier::class, 'owner', 'owner_type', 'owner_id', 'numeric_id');
     }
 
     public function agents(): MorphMany
     {
-        return $this->morphMany(Agent::class, 'owner');
+        return $this->morphMany(Agent::class, 'owner', 'owner_type', 'owner_id', 'numeric_id');
     }
 
     public function stocks(): MorphMany
     {
-        return $this->morphMany(Stock::class, 'owner');
+        return $this->morphMany(Stock::class, 'owner', 'owner_type', 'owner_id', 'numeric_id');
+    }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
     }
 
 }

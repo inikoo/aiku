@@ -16,7 +16,8 @@ return new class extends Migration {
     {
         Schema::create('tenant_inventory_stats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained();
+            $table->string('tenant_id');
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
 
             $table->unsignedSmallInteger('number_warehouses')->default(0);
 

@@ -8,8 +8,12 @@
 namespace App\Models\Central;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 /**
@@ -50,6 +54,7 @@ class User extends Authenticatable
 {
     use HasApiTokens;
     use CentralConnection;
+    use HasSlug;
 
     protected $guarded = [
     ];
@@ -58,6 +63,13 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('username')
+            ->saveSlugsTo('username');
+    }
 
     protected $casts = [
 
@@ -70,5 +82,11 @@ class User extends Authenticatable
         'data'     => '{}',
         'settings' => '{}',
     ];
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+
 
 }

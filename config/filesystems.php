@@ -43,7 +43,14 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ],
-
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('CLOUDFLARE_R2_ACCESS_KEY'),
+            'secret' => env('CLOUDFLARE_R2_SECRET_KEY'),
+            'region' => '',
+            'bucket' => env('CLOUDFLARE_R2_BUCKET'),
+            'endpoint' => env('CLOUDFLARE_R2_ENDPOINT'),
+        ],
 
 
 

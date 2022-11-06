@@ -10,6 +10,7 @@
 namespace App\Actions\Central\Tenant;
 
 
+use App\Actions\Central\User\StoreUser;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -19,6 +20,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CreateAuroraTenant
@@ -26,14 +28,25 @@ class CreateAuroraTenant
     use AsAction;
 
 
-    public string $commandSignature = 'create:tenant-aurora {code} {aurora_db}';
+    public string $commandSignature = 'create:tenant-aurora {code} {aurora_db} {email}';
     public string $commandDescription = 'Crete new Aurora tenant';
+
 
     /**
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function handle($code, $aurora_db): ?array
+    public function asCommand(Command $command): int
     {
+        if ($tenant = Tenant::where('code', $command->argument('code'))->first()) {
+            $command->error("Tenant $tenant->code already exists");
+
+            return 1;
+        }
+
+        $aurora_db = $command->argument('aurora_db');
+        $code      = $command->argument('code');
+        $email     = $command->argument('email');
+
         $database_settings = data_get(config('database.connections'), 'aurora');
         data_set($database_settings, 'database', $aurora_db);
         config(['database.connections.aurora' => $database_settings]);
@@ -47,7 +60,7 @@ class CreateAuroraTenant
         } catch (Exception $e) {
             echo $e->getMessage();
 
-            return null;
+            return 1;
         }
 
 
@@ -76,16 +89,25 @@ class CreateAuroraTenant
 
         $tenant = StoreTenant::run($tenantData);
 
-        $domain=$tenant->code;
+        $domain = $tenant->code;
         $tenant->domains()->create([
-                                       'domain' => $domain
+                                       'domain' => $domain,
                                    ]);
 
 
-        $token = $tenant->createToken('au-bridge', ['bridge'])->plainTextToken;
+        $user = StoreUser::run(
+            $tenant,
+            [
+                'username' => $tenant->code,
+                'email'    => $email,
+                'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+            ]
+        );
+
+
+        $token = $user->createToken('au-bridge', ['bridge'])->plainTextToken;
         DB::connection('aurora')->table('Account Data')
             ->update(['pika_token' => $token]);
-
 
 
         Artisan::call('tenants:seed');
@@ -93,36 +115,21 @@ class CreateAuroraTenant
 
 
         DB::connection('aurora')->table('Account Data')
-            ->update(['pika_url' => $tenant->uuid]);
-
-        return ['tenant' => $tenant, 'token' => $token];
-    }
-
-    /**
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    public function asCommand(Command $command): void
-    {
-        if ($tenant = Tenant::where('code', $command->argument('code'))->first()) {
-            $command->error("Tenant $tenant->code already exists");
-
-            return;
-        }
-
-
-        $res = $this->handle($command->argument('code'), $command->argument('aurora_db'));
+            ->update(['pika_url' => $tenant->id]);
 
 
         $command->table(
             ['Tenant', 'Token'],
             [
                 [
-                    $res['tenant']->code,
-                    $res['token']
+                    $tenant->code,
+                    $token
                 ],
 
             ]
         );
+
+        return 0;
     }
 
 }
