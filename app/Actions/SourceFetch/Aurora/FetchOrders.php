@@ -25,7 +25,7 @@ class FetchOrders extends FetchAction
             if ($order = Order::where('source_id', $orderData['order']['source_id'])
                 ->first()) {
                 $this->fetchTransactions($tenantSource, $order);
-                $this->updateAurora($order->id);
+                $this->updateAurora($order);
 
                 return $order;
             } else {
@@ -33,7 +33,7 @@ class FetchOrders extends FetchAction
                     $order = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
                     $this->fetchTransactions($tenantSource, $order);
 
-                    $this->updateAurora($order->id);
+                    $this->updateAurora($order);
 
                     return $order;
                 }
@@ -57,10 +57,11 @@ class FetchOrders extends FetchAction
         }
     }
 
-    function updateAurora($id)
+    function updateAurora(Order $order)
     {
         DB::connection('aurora')->table('Order Dimension')
-            ->update(['aiku_id' => $id]);
+            ->where('Order Key',$order->source_id)
+            ->update(['aiku_id' => $order->id]);
     }
 
     function getModelsQuery(): Builder

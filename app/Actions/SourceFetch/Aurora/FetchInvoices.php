@@ -25,7 +25,7 @@ class FetchInvoices extends FetchAction
             if ($invoice = Invoice::where('source_id', $invoiceData['invoice']['source_id'])
                 ->first()) {
                 $this->fetchInvoiceTransactions($tenantSource, $invoice);
-                $this->updateAurora($invoice->id);
+                $this->updateAurora($invoice);
             } else {
                 if ($invoiceData['invoice']) {
                     $invoice = StoreInvoice::run(
@@ -34,7 +34,7 @@ class FetchInvoices extends FetchAction
                         billingAddress: $invoiceData['billing_address']
                     );
                     $this->fetchInvoiceTransactions($tenantSource, $invoice);
-                    $this->updateAurora($invoice->id);
+                    $this->updateAurora($invoice);
 
                     return $invoice;
                 }
@@ -45,10 +45,11 @@ class FetchInvoices extends FetchAction
         return null;
     }
 
-    function updateAurora($id)
+    function updateAurora(Invoice $invoice)
     {
         DB::connection('aurora')->table('Invoice Dimension')
-            ->update(['aiku_id' => $id]);
+            ->where('Invoice Key', $invoice->source_id)
+            ->update(['aiku_id' => $invoice->id]);
     }
 
     private function fetchInvoiceTransactions($tenantSource, Invoice $invoice): void

@@ -35,9 +35,9 @@ class FetchWebUsers extends FetchAction
                     $webUser = StoreWebUser::run($webUserData['customer'], $webUserData['webUser']);
                 }
 
-                //DB::connection('aurora')->table('Website User Dimension')
-                //    ->where('Website User Key', $webUser->source_id)
-                //    ->update(['aiku_id' => $webUser->id]);
+                DB::connection('aurora')->table('Website User Dimension')
+                    ->where('Website User Key', $webUser->source_id)
+                    ->update(['aiku_id' => $webUser->id]);
 
                 return $webUser;
             }else{
