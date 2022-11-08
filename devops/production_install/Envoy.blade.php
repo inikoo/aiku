@@ -55,7 +55,6 @@ $date = ( new DateTime )->format('Y-m-d_H_i_s');
 
 $current_release_dir = $path . '/current';
 $releases_dir = $path . '/releases';
-$staging_dir = $path . '/staging';
 $repo_dir = $path . '/repo';
 $new_release_dir = $releases_dir . '/' . $date;
 
@@ -87,9 +86,9 @@ cd {{$repo_dir}}
 git pull origin {{ $branch }}
 
 echo "***********************************************************************"
-echo "* staging code from {{ $repo_dir }} to {{ $staging_dir }} *"
-rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{ $repo_dir }}/devops/deployment/deployment-exclude-list.txt {{ $repo_dir }}/ {{ $staging_dir }}
-sudo chgrp www-data {{ $staging_dir }}/bootstrap/cache
+echo "* Copy code from {{ $repo_dir }} to {{ $new_release_dir }} *"
+rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{ $repo_dir }}/devops/deployment/deployment-exclude-list.txt {{ $repo_dir }}/ {{ $new_release_dir }}
+sudo chgrp www-data {{ $new_release_dir }}/bootstrap/cache
 
 ln -nsf {{ $path }}/.env {{ $new_release_dir }}/.env
 ln -nsf {{ $path }}/storage {{ $new_release_dir }}/storage
@@ -97,25 +96,23 @@ ln -nsf {{ $path }}/storage/app/public {{ $new_release_dir }}/public/storage
 
 echo "***********************************************************************"
 echo "* Composer install *"
-cd {{$staging_dir}}
+cd {{$new_release_dir}}
 {{$php}}  /usr/local/bin/composer install --no-ansi --no-dev --no-interaction --no-plugins --no-progress --no-scripts --optimize-autoloader --prefer-dist
 
 echo "***********************************************************************"
 echo "* NPM install *"
-cd {{$staging_dir}}
+cd {{$new_release_dir}}
 npm install
 
 echo "***********************************************************************"
 echo "* build VUE *"
-cd {{$staging_dir}}
-ln -sf {{ $path }}/private/ {{ $staging_dir }}/resources/
+cd {{$new_release_dir}}
+ln -sf {{ $path }}/private/ {{ $new_release_dir }}/resources/
 npm run build
 
 
-touch {{ $staging_dir }}/deploy-manifest.json
-echo "***********************************************************************"
-echo "* Sync code from {{ $staging_dir }}  to {{ $new_release_dir }} *"
-sudo rsync -auz --exclude 'node_modules' {{ $staging_dir }}/ {{ $new_release_dir }}
+touch {{ $new_release_dir }}/deploy-manifest.json
+
 
 echo "***********************************************************************"
 echo "migrating DB and seeding"
@@ -144,11 +141,11 @@ cd {{ $new_release_dir }}
 echo "Queue restarted"
 #{{ $php }} artisan queue:restart --quiet
 
-
-
 # Only use when no closure used in routes
 {{ $php }} artisan optimize
 {{ $php }} artisan route:cache
+
+rm -rf node_modules
 
 echo "***********************************************************************"
 echo "* Activating new release ({{ $new_release_dir }} -> {{ $current_release_dir }}) *"
