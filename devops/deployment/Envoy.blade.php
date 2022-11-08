@@ -56,6 +56,9 @@ $skip_build=false;
 
 @task('deploy', ['on' => 'production'])
 
+mkdir -p {{ $new_release_dir }}
+mkdir -p {{ $new_release_dir }}/public/
+
 DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/create' --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
 echo DEPLOY
 echo $DEPLOY > {{$path}}/deploy-manifest.json
@@ -63,17 +66,16 @@ echo "cp {{$path}}/deploy-manifest.json {{ $new_release_dir }}/"
 cp {{$path}}/deploy-manifest.json {{ $new_release_dir }}/
 
 
-mkdir -p {{ $new_release_dir }}
-mkdir -p {{ $new_release_dir }}/public/
+
 
 echo "***********************************************************************"
 echo "* Pulling repo *"
-cd {{$new_release_dir}}
+cd {{$repo_dir}}
 git pull origin {{ $branch }}
 
 echo "***********************************************************************"
 echo "* copy code from {{ $repo_dir }} to {{ $new_release_dir }} *"
-rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{ $repo_dir }}/devops/deployment/deployment-exclude-list.txt {{ $repo_dir }}/ {{ $staging_dir }}
+rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{ $repo_dir }}/devops/deployment/deployment-exclude-list.txt {{ $repo_dir }}/ {{ $new_release_dir }}
 sudo chgrp www-data {{ $new_release_dir }}/bootstrap/cache
 
 ln -nsf {{ $path }}/.env {{ $new_release_dir }}/.env
@@ -81,14 +83,12 @@ ln -nsf {{ $path }}/storage {{ $new_release_dir }}/storage
 ln -nsf {{ $path }}/storage/app/public {{ $new_release_dir }}/public/storage
 
 
-DEPLOY=$(cat {{ $path }}/deploy-manifest.json | jq -r '.skip_composer_install' )
-if [ $DEPLOY != true ]
-then
-    echo "***********************************************************************"
-    echo "* Composer install *"
-    cd {{$new_release_dir}}
-    {{$php}}  /usr/local/bin/composer install --no-ansi --no-dev --no-interaction --no-plugins --no-progress --no-scripts --optimize-autoloader --prefer-dist
-fi
+
+echo "***********************************************************************"
+echo "* Composer install *"
+cd {{$new_release_dir}}
+{{$php}}  /usr/local/bin/composer install --no-ansi --no-dev --no-interaction --no-plugins --no-progress --no-scripts --optimize-autoloader --prefer-dist
+
 
 
 echo "***********************************************************************"
