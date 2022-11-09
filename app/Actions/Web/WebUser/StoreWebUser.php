@@ -10,6 +10,7 @@ namespace App\Actions\Web\WebUser;
 use App\Models\Sales\Customer;
 
 use App\Models\Web\WebUser;
+use Illuminate\Support\Facades\Hash;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
@@ -19,6 +20,8 @@ class StoreWebUser
 
     public function handle(Customer $customer, array $modelData = []): Webuser
     {
+
+        $modelData['password']=Hash::make($modelData['password']);
         /** @var WebUser $webUser */
         $webUser = $customer->webUsers()->create(
             array_merge(

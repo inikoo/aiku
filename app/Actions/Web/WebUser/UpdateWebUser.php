@@ -9,6 +9,8 @@ namespace App\Actions\Web\WebUser;
 
 use App\Actions\WithActionUpdate;
 use App\Models\Web\WebUser;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 
 
 class UpdateWebUser
@@ -17,6 +19,11 @@ class UpdateWebUser
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
+
+        if(Arr::exists($modelData,'password')){
+            $modelData['password']=Hash::make($modelData['password']);
+        }
+
         return $this->update($webUser, $modelData, ['data', 'settings']);
     }
 }
