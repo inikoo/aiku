@@ -10,6 +10,7 @@ namespace App\Models\HumanResources;
 use App\Actions\Central\Tenant\HydrateTenant;
 use App\Actions\HumanResources\Employee\HydrateEmployee;
 use App\Models\SysAdmin\User;
+use Database\Factories\HumanResources\EmployeeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -54,7 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection|\Spatie\MediaLibrary\MediaCollections\Models\Media[] $media
  * @property-read int|null $media_count
  * @property-read User|null $user
- * @method static \Database\Factories\HumanResources\EmployeeFactory factory(...$parameters)
+ * @method static EmployeeFactory factory(...$parameters)
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
  * @method static Builder|Employee query()
@@ -152,7 +153,6 @@ class Employee extends Model implements HasMedia
     {
         $this->addMediaCollection('photo')
             ->singleFile()
-            ->useDisk('public')
             ->registerMediaConversions(function () {
                 $this->addMediaConversion('thumb')
                     ->width(256)

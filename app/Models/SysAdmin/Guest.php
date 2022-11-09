@@ -130,7 +130,6 @@ class Guest extends Model implements HasMedia
     {
         $this->addMediaCollection('photo')
             ->singleFile()
-            ->useDisk('public')
             ->registerMediaConversions(function () {
                 $this->addMediaConversion('thumb')
                     ->width(256)
