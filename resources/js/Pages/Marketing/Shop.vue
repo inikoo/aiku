@@ -11,10 +11,11 @@ import {faIdCard, faUser} from '@/../private/pro-light-svg-icons';
 import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
 
 library.add(faIdCard, faUser, faCheckCircle);
 
-const props = defineProps(['title', 'pageHead', 'shop']);
+const props = defineProps(['title', 'pageHead', 'shop', 'treeMaps']);
 
 
 </script>
@@ -23,7 +24,9 @@ const props = defineProps(['title', 'pageHead', 'shop']);
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-
+    <div class="m-4">
+        <DashboardNavigation v-for="(treeMap,idx) in treeMaps" :key="idx" :nodes="treeMap"/>
+    </div>
 
 </template>
 

@@ -45,15 +45,26 @@ class ShowShop
         return Inertia::render(
             'Marketing/Shop',
             [
-                'title'=>__('shop'),
+                'title'       => __('shop'),
                 'breadcrumbs' => $this->getBreadcrumbs($shop),
-                'pageHead'=>[
-                    'title'=>$shop->name,
-
+                'pageHead'    => [
+                    'title' => $shop->name,
 
 
                 ],
-                'shop'    => new ShopResource($shop)
+                'shop'        => new ShopResource($shop),
+                'treeMaps'    => [
+                    [
+                        [
+                            'name'  => __('customers'),
+                            'icon'  => ['fal', 'fa-user'],
+                            'href'  => ['shops.show.customers.index', $shop->id],
+                            'index' => [
+                                'number' => $shop->stats->number_customers
+                            ]
+                        ]
+                    ],
+                ]
             ]
         );
     }
