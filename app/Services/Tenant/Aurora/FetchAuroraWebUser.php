@@ -25,7 +25,7 @@ class FetchAuroraWebUser extends FetchAurora
         if ($hasPassword) {
             $data              = [
                 'au_auth'=>[
-                    'au_password'=>$this->auroraModelData->{'Website User Password'},
+                    'password'=>$this->auroraModelData->{'Website User Password'},
                     'tmp_password'=>$password
                 ]
             ];

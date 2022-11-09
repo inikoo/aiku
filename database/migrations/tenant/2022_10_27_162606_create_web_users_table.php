@@ -24,7 +24,7 @@ return new class extends Migration {
 
             $table->boolean('status')->default(true)->index();
 
-            $table->string('username');
+            $table->string('username')->index();
 
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
