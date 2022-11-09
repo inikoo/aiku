@@ -20,15 +20,18 @@ class FetchAuroraWebUser extends FetchAurora
 
         $hasPassword = $this->isSha256($this->auroraModelData->{'Website User Password'});
 
+        $password=wordwrap(Str::random(), 4, '-', true);
+
         if ($hasPassword) {
             $data              = [
-                'au_pwd' => $this->auroraModelData->{'Website User Password'}
+                'au_auth'=>[
+                    'au_password'=>$this->auroraModelData->{'Website User Password'},
+                    'tmp_password'=>$password
+                ]
             ];
             $web_login_version = 'au';
-            $password          = null;
         } else {
             $web_login_version = 'current';
-            $password          = wordwrap(Str::random(), 4, '-', true);
         }
 
 

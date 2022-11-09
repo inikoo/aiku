@@ -156,7 +156,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     echo "shop customers"
     php artisan fetch:customers {{$instance}} -q
     php artisan fetch:deleted-customers {{$instance}} -q
-    php artisan fetch:customers {{$instance}} -q
+    php artisan fetch:web-users {{$instance}} -q
 @endtask
 
 @task('tenant-fetch-orders')
