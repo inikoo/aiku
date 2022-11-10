@@ -86,11 +86,13 @@ class FetchAction
 
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(function () use ($command, $tenant) {
-                if ($command->option('shop')) {
+
+
+
+                if ($command->getName() == 'fetch:customers' and   $command->option('shop')) {
                     $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
                 }
 
-                $this->with=$command->option('with');
 
 
                 $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));
