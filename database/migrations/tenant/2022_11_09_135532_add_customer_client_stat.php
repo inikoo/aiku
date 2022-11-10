@@ -26,8 +26,6 @@ return new class extends Migration
     {
         Schema::table('customer_stats', function (Blueprint $table) {
             $table->dropColumn(['number_clients', 'number_active_clients']);
-
-
         });
     }
 };

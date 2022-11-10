@@ -12,6 +12,7 @@ use App\Actions\WithTenantsArgument;
 use App\Jobs\Middleware\InitialiseSourceTenant;
 use App\Managers\Tenant\SourceTenantManager;
 use App\Models\Central\Tenant;
+use App\Models\Marketing\Shop;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
@@ -30,14 +31,17 @@ class FetchAction
     use WithTenantsArgument;
     use WithAttributes;
 
-    protected  Int $counter=0;
+    protected int $counter = 0;
 
     protected ?ProgressBar $progressBar;
+    protected ?Shop $shop;
+    protected array $with;
 
     public function __construct()
     {
         $this->progressBar = null;
-
+        $this->shop        = null;
+        $this->with     = [];
     }
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Model
@@ -52,7 +56,6 @@ class FetchAction
 
     public function fetchAll(SourceTenantService $tenantSource): void
     {
-
         foreach ($this->getModelsQuery()->get() as $auroraData) {
             $this->handle($tenantSource, $auroraData->{'source_id'});
             $this->progressBar?->advance();
@@ -80,8 +83,16 @@ class FetchAction
         $tenants  = $this->getTenants($command);
         $exitCode = 0;
 
+
         foreach ($tenants as $tenant) {
-            $result = (int)$tenant->run(function () use ($command,$tenant) {
+            $result = (int)$tenant->run(function () use ($command, $tenant) {
+                if ($command->option('shop')) {
+                    $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
+                }
+
+                $this->with=$command->option('with');
+
+
                 $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));
                 $tenantSource->initialisation(tenant());
                 $command->info('');
@@ -89,19 +100,22 @@ class FetchAction
                 if ($command->option('source_id')) {
                     $this->handle($tenantSource, $command->option('source_id'));
                 } else {
+                    if (!$command->option('quiet')) {
+                        $info = '✊ '.$command->getName().' '.$tenant->code;
+                        if ($this->shop) {
+                            $info .= ' shop:'.$this->shop->slug;
+                        }
 
-                    if(!$command->option('quiet')) {
-                        $command->line('✊ '.$command->getName().' '.$tenant->code);
+                        $command->line($info);
                         $this->progressBar = $command->getOutput()->createProgressBar($this->count());
                         $this->progressBar->setFormat('debug');
                         $this->progressBar->start();
-                    }else{
+                    } else {
                         $command->line('Steps '.$this->count());
                     }
 
                     $this->fetchAll($tenantSource);
                     $this->progressBar?->finish();
-
                 }
             });
 
@@ -141,8 +155,9 @@ class FetchAction
     public function authorize(ActionRequest $request): bool
     {
         /** @var Tenant $tenant */
-        $tenant=$this->get('tenant');
-        return $request->user()->id===$tenant->id;
+        $tenant = $this->get('tenant');
+
+        return $request->user()->id === $tenant->id;
     }
 
     public function rules(): array
@@ -154,11 +169,9 @@ class FetchAction
 
     function asController(Tenant $tenant, ActionRequest $request)
     {
-
         $this->fillFromRequest($request);
         $request->validate();
         $validatedData = $this->validateAttributes();
-
 
 
         return $tenant->run(
@@ -175,20 +188,17 @@ class FetchAction
 
     public function jsonResponse($model): array
     {
-
-        if($model){
+        if ($model) {
             return [
                 'model'     => $model->getMorphClass(),
                 'id'        => $model->id,
                 'source_id' => $model->source_id,
             ];
-        }else{
+        } else {
             return [
-                'error'=>'model not returned'
+                'error' => 'model not returned'
             ];
         }
-
-
     }
 
 

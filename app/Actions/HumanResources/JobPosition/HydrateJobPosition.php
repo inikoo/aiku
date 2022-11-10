@@ -19,7 +19,7 @@ class HydrateJobPosition extends HydrateModel
 
     use WithNormalise;
 
-    public string $commandSignature = 'hydrate:job-positions {tenant_code?} {id?}';
+    public string $commandSignature = 'hydrate:job-positions {tenants?*} {--s|source_id=}';
 
     public function handle(JobPosition $jobPosition): void
     {

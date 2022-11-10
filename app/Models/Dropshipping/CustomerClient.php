@@ -7,6 +7,7 @@
 
 namespace App\Models\Dropshipping;
 
+use App\Actions\Sales\Customer\HydrateCustomer;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
@@ -70,8 +71,8 @@ class CustomerClient extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'location' => 'array',
-        'deactivated_at'=>'datetime'
+        'location'       => 'array',
+        'deactivated_at' => 'datetime'
     ];
 
     protected $attributes = [
@@ -79,6 +80,26 @@ class CustomerClient extends Model
     ];
 
     protected $guarded = [];
+
+    protected static function booted()
+    {
+        static::created(
+            function (CustomerClient $customerClient) {
+                HydrateCustomer::make()->clients($customerClient->customer);
+            }
+        );
+        static::deleted(
+            function (CustomerClient $customerClient) {
+                HydrateCustomer::make()->clients($customerClient->customer);
+            }
+        );
+
+        static::updated(function (CustomerClient $customerClient) {
+            if ($customerClient->wasChanged('status')) {
+                HydrateCustomer::make()->clients($customerClient->customer);
+            }
+        });
+    }
 
     public function shop(): BelongsTo
     {

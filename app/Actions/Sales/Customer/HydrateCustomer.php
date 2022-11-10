@@ -18,7 +18,7 @@ use Illuminate\Support\Collection;
 class HydrateCustomer extends HydrateModel
 {
 
-    public string $commandSignature = 'hydrate:customer {tenant_code?} {id?} ';
+    public string $commandSignature = 'hydrate:customer {tenants?*} {--s|source_id=}';
 
 
     public function handle(Customer $customer): void
@@ -26,39 +26,33 @@ class HydrateCustomer extends HydrateModel
         $this->contact($customer);
         $this->invoices($customer);
         $this->webUsers($customer);
-
+        $this->clients($customer);
     }
 
     public function webUsers(Customer $customer): void
     {
-
-
         $stats = [
-            'number_web_users' =>$customer->webUsers->count(),
-            'number_active_web_users'=>$customer->webUsers->where('status',true)->count(),
+            'number_web_users'        => $customer->webUsers->count(),
+            'number_active_web_users' => $customer->webUsers->where('status', true)->count(),
         ];
-
-
-
-
         $customer->stats->update($stats);
     }
 
     public function invoices(Customer $customer): void
     {
         $numberInvoices = $customer->invoices->count();
-        $stats = [
+        $stats          = [
             'number_invoices' => $numberInvoices,
         ];
 
-        $customer->trade_state= match ($numberInvoices) {
+        $customer->trade_state = match ($numberInvoices) {
             0 => 'none',
             1 => 'one',
             default => 'many'
         };
         $customer->save();
 
-        $invoiceTypes = ['invoice', 'refund'];
+        $invoiceTypes      = ['invoice', 'refund'];
         $invoiceTypeCounts = Invoice::where('customer_id', $customer->id)
             ->selectRaw('type, count(*) as total')
             ->groupBy('type')
@@ -74,7 +68,6 @@ class HydrateCustomer extends HydrateModel
     }
 
 
-
     public function contact(Customer $customer): void
     {
         $customer->update(
@@ -82,6 +75,15 @@ class HydrateCustomer extends HydrateModel
                 'location' => $customer->billingAddress->getLocation()
             ]
         );
+    }
+
+    public function clients(Customer $customer): void
+    {
+        $stats = [
+            'number_clients'        => $customer->clients->count(),
+            'number_active_clients' => $customer->clients->where('status', true)->count(),
+        ];
+        $customer->stats->update($stats);
     }
 
     protected function getModel(int $id): Customer

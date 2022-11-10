@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 class HydrateLocation extends HydrateModel
 {
 
-    public string $commandSignature = 'hydrate:location {tenant_code?} {id?}';
+    public string $commandSignature = 'hydrate:location {tenants?*} {--s|source_id=}';
 
 
     public function handle(Location $location): void

@@ -9,7 +9,7 @@ import {Head} from '@inertiajs/inertia-vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faGlobe} from '@/../private/pro-light-svg-icons';
-import { useForm } from '@inertiajs/inertia-vue3'
+import {useForm} from '@inertiajs/inertia-vue3';
 
 library.add(faGlobe);
 
@@ -24,16 +24,16 @@ import {
     TransitionChild, TransitionRoot,
 } from '@headlessui/vue';
 
-const isOpen = ref(true);
+const isOpen = ref(false);
 
 function setIsOpen(value) {
     isOpen.value = value;
 }
 
 const webUserForm = useForm({
-                         username: props['customer'].email,
-                         password: null,
-                     })
+                                username: props['customer'].email,
+                                password: null,
+                            });
 
 
 </script>
@@ -64,7 +64,8 @@ const webUserForm = useForm({
                                 <div class="sm:col-span-4">
                                     <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
                                     <div class="mt-1">
-                                        <input v-model="webUserForm.username" id="username" name="username" type="text" autocomplete="email" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                        <input v-model="webUserForm.username" id="username" name="username" type="text" autocomplete="email"
+                                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"/>
                                     </div>
                                 </div>
 

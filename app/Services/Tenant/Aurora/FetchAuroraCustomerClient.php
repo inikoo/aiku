@@ -32,15 +32,15 @@ class FetchAuroraCustomerClient extends FetchAurora
 
         $this->parsedData['customer_client'] =
             [
-                'name'                   => $this->auroraModelData->{'Customer Client Code'},
-                'status'                 => $status,
-                'contact_name'           => $this->auroraModelData->{'Customer Client Main Contact Name'},
-                'company_name'           => $this->auroraModelData->{'Customer Client Company Name'},
-                'email'                  => $this->auroraModelData->{'Customer Client Main Plain Email'},
-                'phone'                  => $this->auroraModelData->{'Customer Client Main Plain Mobile'},
-                'source_id' => $this->auroraModelData->{'Customer Client Key'},
-                'created_at'             => $this->auroraModelData->{'Customer Client Creation Date'},
-                'deactivated_at'         => $deactivated_at,
+                'name'           => $this->auroraModelData->{'Customer Client Code'},
+                'status'         => $status,
+                'contact_name'   => $this->auroraModelData->{'Customer Client Main Contact Name'},
+                'company_name'   => $this->auroraModelData->{'Customer Client Company Name'},
+                'email'          => $this->auroraModelData->{'Customer Client Main Plain Email'},
+                'phone'          => $this->auroraModelData->{'Customer Client Main Plain Mobile'},
+                'source_id'      => $this->auroraModelData->{'Customer Client Key'},
+                'created_at'     => $this->auroraModelData->{'Customer Client Creation Date'},
+                'deactivated_at' => $deactivated_at,
             ];
 
         $this->parsedData['delivery_address'] = $this->parseAddress(prefix: 'Customer Client Contact', auAddressData: $this->auroraModelData);

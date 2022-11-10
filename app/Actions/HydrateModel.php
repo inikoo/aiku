@@ -41,8 +41,8 @@ class HydrateModel
 
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(function () use ($command) {
-                if ($command->argument('id')) {
-                    if ($model = $this->getModel($command->argument('id'))) {
+                if ($command->option('source_id')) {
+                    if ($model = $this->getModel($command->option('source_id'))) {
                         $this->handle($model);
                         $command->info('Done!');
                     }

@@ -55,16 +55,33 @@ class ShowCustomer extends InertiaAction
     {
         $webUsersMeta = match ($customer->stats->number_web_users) {
             0 => [
-                'name'=>'add web user',
+                'name'                  => 'add web user',
+                'leftIcon'              => [
+                    'icon'    => 'fal fa-globe',
+                    'tooltip' => __('Web user')
+                ],
+                'emptyWithCreateAction' => [
+                    'label' => __('web user')
+                ]
+            ],
+            1 => [
+                'name'     => $customer->webUsers->first()->username,
                 'leftIcon' => [
                     'icon'    => 'fal fa-globe',
                     'tooltip' => __('Web user')
                 ],
-                'emptyWithCreateAction'=>[
-                    'label'=>__('web user')
-                ]
+
+            ],
+            default => [
+                'name'     => $customer->webUsers->count(),
+                'leftIcon' => [
+                    'icon'    => 'fal fa-globe',
+                    'tooltip' => __('Web users')
+                ],
             ]
         };
+
+
 
 
         return Inertia::render(

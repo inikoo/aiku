@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 class HydrateStock extends HydrateModel
 {
 
-    public string $commandSignature = 'hydrate:stock {tenant_code?} {id?} ';
+    public string $commandSignature = 'hydrate:stock {tenants?*} {--s|source_id=} ';
 
 
     public function handle(Stock $stock): void
