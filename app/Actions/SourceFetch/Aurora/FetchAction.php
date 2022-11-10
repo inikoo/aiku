@@ -41,7 +41,7 @@ class FetchAction
     {
         $this->progressBar = null;
         $this->shop        = null;
-        $this->with     = [];
+        $this->with        = [];
     }
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Model
@@ -86,13 +86,15 @@ class FetchAction
 
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(function () use ($command, $tenant) {
-
-
-
-                if ($command->getName() == 'fetch:customers' and   $command->option('shop')) {
+                //shops
+                if ($command->getName() == 'fetch:customers' and $command->option('shop')) {
                     $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
                 }
 
+                //with
+                if ($command->getName() == 'fetch:customers') {
+                    $this->with = $command->option('with');
+                }
 
 
                 $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));

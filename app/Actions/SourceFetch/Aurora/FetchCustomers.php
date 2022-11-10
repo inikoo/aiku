@@ -37,7 +37,6 @@ class FetchCustomers extends FetchAction
                 $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['addresses']);
             }
 
-
             if ($customer->shop->type == 'fulfilment_house' and in_array('clients', $this->with)) {
                 foreach (
                     DB::connection('aurora')
