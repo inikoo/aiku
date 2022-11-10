@@ -109,6 +109,7 @@ npm run build
 
 cd {{ $new_release_dir }}
 {{$php}} artisan migrate --force
+{{$php}} artisan tenants:migrate --force
 
 echo "***********************************************************************"
 echo '* Clearing cache and optimising *'

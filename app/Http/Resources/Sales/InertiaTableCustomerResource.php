@@ -15,6 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $reference
  * @property string $shop_code
  * @property int $shop_id
+ * @property int $number_active_clients
  */
 class InertiaTableCustomerResource extends JsonResource
 {
@@ -27,7 +28,7 @@ class InertiaTableCustomerResource extends JsonResource
             'reference' => $this->reference,
             'shop'      => $this->shop_code,
             'shop_id'   => $this->shop_id,
-
+            'number_active_clients'   => $this->number_active_clients,
         ];
     }
 }

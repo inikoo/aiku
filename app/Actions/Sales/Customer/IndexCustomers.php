@@ -40,14 +40,15 @@ class IndexCustomers extends InertiaAction
 
         return QueryBuilder::for(Customer::class)
             ->defaultSort('customers.reference')
-            ->select(['reference', 'customers.id', 'customers.name','shops.code as shop_code','shop_id'])
+            ->select(['reference', 'customers.id', 'customers.name', 'shops.code as shop_code', 'shop_id', 'number_active_clients'])
+            ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Shop') {
                     $query->where('customers.shop_id', $this->parent->id);
                 }
             })
-            ->allowedSorts(['reference', 'name'])
+            ->allowedSorts(['reference', 'name', 'number_active_clients'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -86,10 +87,18 @@ class IndexCustomers extends InertiaAction
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'shop', label: __('shop'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
+
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+
+            if (class_basename($this->parent) == 'Tenant') {
+                $table->column(key: 'shop', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
+            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if (class_basename($this->parent) == 'Shop' and $this->parent->subtype == 'dropshipping') {
+                $table->column(key: 'number_active_clients', label: __('clients'), canBeHidden: false, sortable: true);
+            }
         });
     }
 

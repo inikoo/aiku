@@ -26,4 +26,5 @@ tt
 ctt
 deploy
 fetch.sh
+prod-diff.sh
 /public/tenants/
