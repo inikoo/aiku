@@ -17,7 +17,7 @@ use Stancl\Tenancy\Contracts\Syncable;
  * App\Models\Central\TenantUser
  *
  * @property int $id
- * @property int $tenant_id
+ * @property string $tenant_id
  * @property string $global_user_id
  * @property bool $status
  * @property-read \App\Models\Central\Tenant $tenant

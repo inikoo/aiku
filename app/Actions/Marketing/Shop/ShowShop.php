@@ -58,7 +58,7 @@ class ShowShop
                         [
                             'name'  => __('customers'),
                             'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['shops.show.customers.index', $shop->id],
+                            'href'  => ['shops.show.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_customers
                             ]

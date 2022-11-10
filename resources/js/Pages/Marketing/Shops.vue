@@ -21,7 +21,7 @@ defineProps(['shops', 'title','pageHead']);
 
 
         <template #cell(code)="{ item: shop }">
-            <Link :href="route('shops.show',shop.id)">
+            <Link :href="route('shops.show',shop.slug)">
                 {{ shop.code }}
             </Link>
         </template>

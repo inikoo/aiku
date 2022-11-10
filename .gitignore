@@ -27,4 +27,5 @@ ctt
 deploy
 fetch.sh
 prod-diff.sh
+ide-helper.sh
 /public/tenants/

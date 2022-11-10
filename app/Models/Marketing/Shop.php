@@ -54,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property string|null $slug
  * @property-read Address|null $address
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
@@ -95,6 +96,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Shop whereOpenAt($value)
  * @method static Builder|Shop wherePhone($value)
  * @method static Builder|Shop whereSettings($value)
+ * @method static Builder|Shop whereSlug($value)
  * @method static Builder|Shop whereSourceId($value)
  * @method static Builder|Shop whereState($value)
  * @method static Builder|Shop whereSubtype($value)
@@ -127,6 +129,11 @@ class Shop extends Model
     ];
 
     protected $guarded = [];
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     protected static function booted()
     {

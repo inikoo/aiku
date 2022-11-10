@@ -50,7 +50,6 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count
  * @property-read string $formatted_address
- * @property-read Model|\Eloquent $owner
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
  * @method static Builder|Supplier newModelQuery()
  * @method static Builder|Supplier newQuery()

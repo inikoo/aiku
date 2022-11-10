@@ -25,7 +25,8 @@ use Stancl\Tenancy\Database\TenantCollection;
 /**
  * App\Models\Central\Tenant
  *
- * @property int $id
+ * @property string $id
+ * @property int $numeric_id
  * @property string $code
  * @property string $name
  * @property array $data
@@ -52,9 +53,9 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property-read int|null $stocks_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Supplier[] $suppliers
  * @property-read int|null $suppliers_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
- * @property-read int|null $tokens_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\CentralUser[] $users
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\CentralUser[] $tenantUsers
+ * @property-read int|null $tenant_users_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\User[] $users
  * @property-read int|null $users_count
  * @method static TenantCollection|static[] all($columns = ['*'])
  * @method static TenantCollection|static[] get($columns = ['*'])
@@ -70,9 +71,9 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @method static Builder|Tenant whereId($value)
  * @method static Builder|Tenant whereLanguageId($value)
  * @method static Builder|Tenant whereName($value)
+ * @method static Builder|Tenant whereNumericId($value)
  * @method static Builder|Tenant whereTimezoneId($value)
  * @method static Builder|Tenant whereUpdatedAt($value)
- * @method static Builder|Tenant whereUuid($value)
  * @mixin \Eloquent
  */
 class Tenant extends BaseTenant implements TenantWithDatabase

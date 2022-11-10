@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\Central\TenantStats
  *
  * @property int $id
- * @property int $tenant_id
+ * @property string $tenant_id
  * @property int $number_employees
  * @property int $number_employees_state_hired
  * @property int $number_employees_state_working

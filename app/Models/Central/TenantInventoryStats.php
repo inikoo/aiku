@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\Central\TenantInventoryStats
  *
  * @property int $id
- * @property int $tenant_id
+ * @property string $tenant_id
  * @property int $number_warehouses
  * @property int $number_warehouse_areas
  * @property int $number_locations

@@ -29,6 +29,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices_type_refund
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_clients
+ * @property int $number_active_clients
  * @property-read \App\Models\Sales\Customer $customer
  * @method static Builder|CustomerStats newModelQuery()
  * @method static Builder|CustomerStats newQuery()
@@ -39,7 +41,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|CustomerStats whereLastDispatchedDeliveryAt($value)
  * @method static Builder|CustomerStats whereLastInvoicedAt($value)
  * @method static Builder|CustomerStats whereLastSubmittedOrderAt($value)
+ * @method static Builder|CustomerStats whereNumberActiveClients($value)
  * @method static Builder|CustomerStats whereNumberActiveWebUsers($value)
+ * @method static Builder|CustomerStats whereNumberClients($value)
  * @method static Builder|CustomerStats whereNumberDeliveries($value)
  * @method static Builder|CustomerStats whereNumberDeliveriesTypeOrder($value)
  * @method static Builder|CustomerStats whereNumberDeliveriesTypeReplacement($value)

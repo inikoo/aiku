@@ -22,8 +22,7 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * @property int $id
  * @property string $username
  * @property string $email
- * @property string|null $userable_type
- * @property int|null $userable_id
+ * @property string $tenant_id
  * @property string|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
@@ -31,6 +30,7 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Central\Tenant $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
  * @method static Builder|User newModelQuery()
@@ -44,9 +44,8 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * @method static Builder|User wherePassword($value)
  * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereSettings($value)
+ * @method static Builder|User whereTenantId($value)
  * @method static Builder|User whereUpdatedAt($value)
- * @method static Builder|User whereUserableId($value)
- * @method static Builder|User whereUserableType($value)
  * @method static Builder|User whereUsername($value)
  * @mixin \Eloquent
  */

@@ -43,8 +43,8 @@ class IndexShops
 
         return QueryBuilder::for(Shop::class)
             ->defaultSort('shops.code')
-            ->select(['code', 'id', 'name'])
-            ->allowedSorts(['code',  'name'])
+            ->select(['code', 'id', 'name', 'slug'])
+            ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -76,17 +76,15 @@ class IndexShops
                 'pageHead'    => [
                     'title' => __('shops'),
                 ],
-                'shops'   => ShopResource::collection($shops),
+                'shops'       => ShopResource::collection($shops),
 
 
             ]
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'code',label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name',label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-
-
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         });
     }
@@ -103,7 +101,7 @@ class IndexShops
     {
         return [
             'shops.index' => [
-                'route'      => 'shops.index',
+                'route' => 'shops.index',
                 'modelLabel' => [
                     'label' => __('shops')
                 ],
