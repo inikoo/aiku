@@ -21,7 +21,7 @@ class CreateAdminAccessToken
 
 
     public string $commandSignature = 'create:admin-token
-    {code : admin ANid}
+    {code : admin code}
     {token_name}
     {scopes?*}';
 

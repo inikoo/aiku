@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Marketing\Shop
@@ -110,6 +112,7 @@ class Shop extends Model
 {
     use HasAddress;
     use SoftDeletes;
+    use HasSlug;
 
     protected $casts = [
         'data'     => 'array',
@@ -145,6 +148,13 @@ class Shop extends Model
                 }
             }
         });
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug');
     }
 
     public function stats(): HasOne
