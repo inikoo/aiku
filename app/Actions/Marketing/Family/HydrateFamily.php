@@ -18,7 +18,7 @@ use Illuminate\Support\Collection;
 class HydrateFamily extends HydrateModel
 {
 
-    public string $commandSignature = 'hydrate:family {tenants?*} {--s|source_id=} ';
+    public string $commandSignature = 'hydrate:family {tenants?*} {--i|id=} ';
 
     public function handle(Family $family): void
     {

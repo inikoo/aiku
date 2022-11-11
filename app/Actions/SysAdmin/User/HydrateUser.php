@@ -18,7 +18,7 @@ class HydrateUser extends HydrateModel
 {
 
 
-    public string $commandSignature = 'hydrate:users {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'hydrate:users {tenants?*} {--i|id=}';
 
 
     public function handle(User $user): void

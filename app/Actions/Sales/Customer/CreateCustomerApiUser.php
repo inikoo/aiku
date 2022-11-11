@@ -10,6 +10,7 @@
 namespace App\Actions\Sales\Customer;
 
 
+use App\Actions\Web\WebUser\HydrateWebUser;
 use App\Actions\Web\WebUser\StoreWebUser;
 use App\Models\Central\Tenant;
 use App\Models\Sales\Customer;
@@ -29,10 +30,12 @@ class CreateCustomerApiUser
         $webUser = StoreWebUser::run($customer);
 
 
-        return $webUser->createToken(
+        $token= $webUser->createToken(
             Arr::get($tokenData, 'name', 'full-access'),
             Arr::get($tokenData, 'abilities', ['*']),
         )->plainTextToken;
+        HydrateWebUser::make()->tokens($webUser);
+        return $token;
     }
 
     public function asCommand(Command $command): int

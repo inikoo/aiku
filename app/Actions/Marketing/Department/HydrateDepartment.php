@@ -19,7 +19,7 @@ use Illuminate\Support\Collection;
 class HydrateDepartment extends HydrateModel
 {
 
-    public string $commandSignature = 'hydrate:department {tenants?*} {--s|source_id=} ';
+    public string $commandSignature = 'hydrate:department {tenants?*} {--i|id=} ';
 
 
     public function handle(Department $department): void

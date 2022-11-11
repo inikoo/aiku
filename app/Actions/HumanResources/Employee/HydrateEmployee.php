@@ -19,7 +19,7 @@ class HydrateEmployee extends HydrateModel
 
     use WithNormalise;
 
-    public string $commandSignature = 'hydrate:employee {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'hydrate:employee {tenants?*} {--i|id=}';
 
 
     public function handle(Employee $employee): void
