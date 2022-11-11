@@ -87,7 +87,7 @@ class FetchAction
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(function () use ($command, $tenant) {
                 //shops
-                if ($command->getName() == 'fetch:customers' and $command->option('shop')) {
+                if ( in_array($command->getName(),['fetch:customers','fetch:web-users'])  and $command->option('shop')) {
                     $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
                 }
 

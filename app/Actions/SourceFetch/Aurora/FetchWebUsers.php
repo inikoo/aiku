@@ -20,7 +20,7 @@ use JetBrains\PhpStorm\NoReturn;
 class FetchWebUsers extends FetchAction
 {
 
-    public string $commandSignature = 'fetch:web-users {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:web-users {tenants?*} {--s|source_id=} {--S|shop= : Shop slug}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?WebUser
@@ -50,15 +50,26 @@ class FetchWebUsers extends FetchAction
 
     function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query= DB::connection('aurora')
             ->table('Website User Dimension')
             ->select('Website User Key as source_id')
             ->orderBy('source_id');
+        if ($this->shop) {
+            $query->where('Website User Website Key', $this->shop->website->source_id);
+        }
+
+        return $query;
     }
 
     function count(): ?int
     {
-        return DB::connection('aurora')->table('Website User Dimension')->count();
+
+        $query = DB::connection('aurora')->table('Website User Dimension');
+        if ($this->shop) {
+            $query->where('Website User Website Key', $this->shop->website->source_id);
+        }
+
+        return $query->count();
     }
 
 }
