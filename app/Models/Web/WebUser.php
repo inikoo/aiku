@@ -34,6 +34,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string $web_login_version
  * @property int|null $source_id
+ * @property int $number_api_tokens
  * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
@@ -48,6 +49,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static Builder|WebUser whereEmail($value)
  * @method static Builder|WebUser whereEmailVerifiedAt($value)
  * @method static Builder|WebUser whereId($value)
+ * @method static Builder|WebUser whereNumberApiTokens($value)
  * @method static Builder|WebUser wherePassword($value)
  * @method static Builder|WebUser whereRememberToken($value)
  * @method static Builder|WebUser whereSettings($value)

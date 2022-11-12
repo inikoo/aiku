@@ -1,7 +1,7 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sun, 16 Oct 2022 10:54:53 British Summer Time, Sheffield, UK
+ *  Created: Sat, 12 Nov 2022 16:35:48 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
@@ -14,37 +14,31 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetIrisDomain
+class RefreshCentralDomainTokens
 {
     use AsAction;
 
-    public string $commandSignature = 'set:iris-domain {--d|domain= : central domain slug}';
+    public string $commandSignature = 'maintenance:refresh-domain-tokens {--d|domain= : central domain slug}';
 
     public function handle(CentralDomain $centralDomain): PromiseInterface|Response
     {
+
         $token = $centralDomain->createToken(
             'iris',
             ['iris'],
         );
 
-        $parameters = [
-            'central_domain_id' => $centralDomain->id,
-            'pika_token'        => $token->plainTextToken,
-            'soft'              => true,
-        ];
-
         $response = Http::acceptJson()
             ->withToken(config('iris.token'))
-            ->post(
-                config('iris.url').'/api/domains',
-                $parameters
+            ->patch(
+                config('iris.url').'/api/domains/'.$centralDomain->slug,
+                [
+                    'pika_token' => $token->plainTextToken
+                ]
             );
 
-        if ($response->status() == 201 or $response->status() == 200) {
-            $centralDomain->update(['state' => 'iris-enabled']);
+        if ($response->status() == 200) {
             $centralDomain->tokens()->where('id', '!=', $token->accessToken->id)->delete();
-
-
         }
 
         return $response;
@@ -54,22 +48,29 @@ class SetIrisDomain
     {
         if ($command->option('domain')) {
             $centralDomain = CentralDomain::where('slug', ($command->option('domain')))->firstOrFail();
-            if ($centralDomain->state == 'created') {
+            if ($centralDomain->state == 'iris-enabled') {
                 $response = $this->handle($centralDomain);
                 if (!($response->status() == 201 or $response->status() == 200)) {
                     $command->error($response->status());
 
                     return 1;
                 }
-
+                 $command->line("Token for $centralDomain->slug updated 👌");
                 return 0;
             }
             $command->error('Central domain has state:'.$centralDomain->state);
 
             return 1;
         } else {
-            foreach (CentralDomain::whereIn('state', ['created','iris-enabled'])->get() as $centralDomain) {
-                $this->handle($centralDomain);
+            foreach (CentralDomain::where('state', 'iris-enabled')->get() as $centralDomain) {
+                $response=$this->handle($centralDomain);
+                if (!($response->status() == 201 or $response->status() == 200)) {
+                    $command->error($centralDomain->slug.': 😭 '.$response->status());
+
+                }else{
+                    $command->line("Token for $centralDomain->slug updated 👌");
+
+                }
             }
         }
 

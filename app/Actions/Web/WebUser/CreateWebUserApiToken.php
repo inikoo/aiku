@@ -15,7 +15,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CreateApiToken
+class CreateWebUserApiToken
 
 {
     use AsAction;
