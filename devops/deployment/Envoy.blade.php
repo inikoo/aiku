@@ -15,8 +15,6 @@ $dotenv->load();
 $api_url=$_ENV['PRODUCTION_API_URL'];
 $api_key=$_ENV['PRODUCTION_API_KEY'];
 
-$host=$_ENV['PRODUCTION_API_KEY'];
-
 // Sanity checks
 
 if (empty($_ENV['DEPLOYMENT_HOST'])) {
