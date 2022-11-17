@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Central\AdminUser;
-use App\Models\Central\Tenant;
 use App\Models\SysAdmin\User;
+use App\Models\Web\WebUser;
 
 return [
 
@@ -18,7 +18,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard'     => 'web',
         'passwords' => 'users',
     ],
 
@@ -40,20 +40,21 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
+        'web'            => [
+            'driver'   => 'session',
             'provider' => 'users',
         ],
-        'admin' => [
-            'driver' => 'sanctum',
-            'provider' => 'admin',
-            'hash' => false,
+        'api-admin-user' => [
+            'driver'   => 'sanctum',
+            'provider' => 'admin-user',
+            'hash'     => false,
         ],
-        'tenant' => [
-            'driver' => 'sanctum',
-            'provider' => 'tenants',
-            'hash' => false,
+        'api-web-users'  => [
+            'driver'   => 'sanctum',
+            'provider' => 'web-user',
+            'hash'     => false,
         ],
+
     ],
 
     /*
@@ -74,22 +75,19 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'users'      => [
             'driver' => 'eloquent',
-            'model' => User::class,
+            'model'  => User::class,
         ],
-        'admin' => [
+        'admin-user' => [
             'driver' => 'eloquent',
-            'model' => AdminUser::class,
+            'model'  => AdminUser::class,
         ],
-        'tenants' => [
+        'web-user'   => [
             'driver' => 'eloquent',
-            'model' => Tenant::class,
+            'model'  => WebUser::class,
         ],
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+
     ],
 
     /*
@@ -110,8 +108,8 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'table' => 'password_resets',
-            'expire' => 60,
+            'table'    => 'password_resets',
+            'expire'   => 60,
             'throttle' => 60,
         ],
     ],

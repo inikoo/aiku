@@ -71,7 +71,7 @@ class AppServiceProvider extends ServiceProvider
                 'Product'       => 'App\Models\Marketing\Product',
                 'Supplier'      => 'App\Models\Procurement\Supplier',
                 'WebUser'       => 'App\Models\Web\WebUser',
-                'CentralDomain' => 'App\Models\Central\CentralDomain'
+                'CentralDomain' => 'App\Models\Central\CentralDomain',
             ]
         );
     }

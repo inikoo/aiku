@@ -1,9 +1,8 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 10 Aug 2022 15:52:49 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ *  Created: Thu, 17 Nov 2022 12:11:55 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -21,51 +20,51 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
-                ->name('central.register');
+                ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
-                ->name('central.login');
+                ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('central.login.store');
+    Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-                ->name('central.password.request');
+                ->name('password.request');
 
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-                ->name('central.password.email');
+                ->name('password.email');
 
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-                ->name('central.password.reset');
+                ->name('password.reset');
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
-                ->name('central.password.update');
+                ->name('password.update');
 
 
-    Route::get('auth/facebook', [FacebookAuthController::class, 'facebookRedirect'])->name('central.facebook.store');;
-    Route::get('auth/facebook/callback', [FacebookAuthController::class, 'loginWithFacebook'])->name('central.facebook.callback');;
+    Route::get('auth/facebook', [FacebookAuthController::class, 'facebookRedirect'])->name('facebook.store');;
+    Route::get('auth/facebook/callback', [FacebookAuthController::class, 'loginWithFacebook'])->name('facebook.callback');;
 
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', [EmailVerificationPromptController::class, '__invoke'])
-                ->name('central.verification.notice');
+                ->name('verification.notice');
 
     Route::get('verify-email/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
                 ->middleware(['signed', 'throttle:6,1'])
-                ->name('central.verification.verify');
+                ->name('verification.verify');
 
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
                 ->middleware('throttle:6,1')
-                ->name('central.verification.send');
+                ->name('verification.send');
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-                ->name('central.password.confirm');
+                ->name('password.confirm');
 
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store'])->name('central.password.confirm.store');
+    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store'])->name('password.confirm.store');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-                ->name('central.logout');
+                ->name('logout');
 });
 

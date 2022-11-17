@@ -10,7 +10,7 @@ namespace App\Models\Central;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 
@@ -51,9 +51,9 @@ class Admin extends Model
     ];
 
 
-    public function adminUser(): HasOne
+    public function adminUser(): MorphOne
     {
-        return $this->hasOne(AdminUser::class);
+        return $this->morphOne(AdminUser::class, 'userable');
     }
 
 }

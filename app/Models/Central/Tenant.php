@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
@@ -37,6 +38,7 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
+ * @property-read \App\Models\Central\AdminUser|null $adminUser
  * @property-read \Illuminate\Database\Eloquent\Collection|Agent[] $agents
  * @property-read int|null $agents_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\CentralDomain[] $centralDomains
@@ -55,8 +57,6 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property-read int|null $suppliers_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\CentralUser[] $tenantUsers
  * @property-read int|null $tenant_users_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\User[] $users
- * @property-read int|null $users_count
  * @method static TenantCollection|static[] all($columns = ['*'])
  * @method static TenantCollection|static[] get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
@@ -170,9 +170,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return $this->morphMany(Stock::class, 'owner', 'owner_type', 'owner_id', 'numeric_id');
     }
 
-    public function users(): HasMany
+    public function adminUser(): MorphOne
     {
-        return $this->hasMany(User::class);
+        return $this->morphOne(AdminUser::class, 'userable', null, null, 'numeric_id');
     }
-
 }

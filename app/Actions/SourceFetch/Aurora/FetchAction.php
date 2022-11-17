@@ -20,7 +20,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -29,13 +28,13 @@ class FetchAction
 {
     use AsAction;
     use WithTenantsArgument;
-    use WithAttributes;
 
     protected int $counter = 0;
 
     protected ?ProgressBar $progressBar;
     protected ?Shop $shop;
     protected array $with;
+    private ?Tenant $tenant;
 
     public function __construct()
     {
@@ -87,7 +86,7 @@ class FetchAction
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(function () use ($command, $tenant) {
                 //shops
-                if ( in_array($command->getName(),['fetch:customers','fetch:web-users'])  and $command->option('shop')) {
+                if (in_array($command->getName(), ['fetch:customers', 'fetch:web-users']) and $command->option('shop')) {
                     $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
                 }
 
@@ -158,30 +157,33 @@ class FetchAction
 
     public function authorize(ActionRequest $request): bool
     {
-        /** @var Tenant $tenant */
-        $tenant = $this->get('tenant');
+        if ($request->user()->userable_type == 'Tenant') {
+            $this->tenant = $request->user()->tenant;
 
-        return $request->user()->id === $tenant->id;
+            if ($this->tenant->id and $request->user()->tokenCan('aurora')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function rules(): array
     {
         return [
-            'id' => ['required', 'integer'],
+            'id' => ['sometimes'],
         ];
     }
 
-    function asController(Tenant $tenant, ActionRequest $request)
+
+    function asController(ActionRequest $request)
     {
-        $this->fillFromRequest($request);
-        $request->validate();
-        $validatedData = $this->validateAttributes();
+        $validatedData = $request->validated();
 
-
-        return $tenant->run(
+        return $this->tenant->run(
         /**
          * @throws \Illuminate\Contracts\Container\BindingResolutionException
-         */ function () use ($tenant, $validatedData) {
+         */ function () use ($validatedData) {
             $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));
             $tenantSource->initialisation(tenant());
 

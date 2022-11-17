@@ -10,7 +10,7 @@
 namespace App\Actions\Central\Tenant;
 
 
-use App\Actions\Central\User\StoreUser;
+use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -59,7 +59,6 @@ class CreateAuroraTenant
                           ->where('Account Key', 1)->get()[0];
         } catch (Exception $e) {
             echo $e->getMessage();
-
             return 1;
         }
 
@@ -95,7 +94,7 @@ class CreateAuroraTenant
                                    ]);
 
 
-        $user = StoreUser::run(
+        $adminUser = StoreAdminUser::run(
             $tenant,
             [
                 'username' => $tenant->code,
@@ -105,7 +104,7 @@ class CreateAuroraTenant
         );
 
 
-        $token = $user->createToken('au-bridge', ['bridge'])->plainTextToken;
+        $token = $adminUser->createToken('au-bridge', ['aurora'])->plainTextToken;
         DB::connection('aurora')->table('Account Data')
             ->update(['pika_token' => $token]);
 

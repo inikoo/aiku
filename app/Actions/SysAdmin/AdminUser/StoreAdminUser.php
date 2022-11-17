@@ -11,6 +11,7 @@ use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Central\Admin;
 use App\Models\Central\AdminUser;
+use App\Models\Central\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreAdminUser
@@ -18,7 +19,7 @@ class StoreAdminUser
     use AsAction;
 
 
-    public function handle(Admin $admin, array $userData): AdminUser
+    public function handle(Admin|Tenant $userable, array $userData): AdminUser
     {
         if (empty($userData['language_id'])) {
             $language                = Language::where('code', config('app.locale'))->firstOrFail();
@@ -31,7 +32,7 @@ class StoreAdminUser
         }
 
         /** @var AdminUser $adminUser */
-        $adminUser = $admin->adminUser()->create($userData);
+        $adminUser = $userable->adminUser()->create($userData);
         return $adminUser;
     }
 }

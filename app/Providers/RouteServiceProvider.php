@@ -63,24 +63,19 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('central')
                 ->domain($domain)
                 ->namespace($this->namespace)
-                ->name('central')
-                ->group(base_path('routes/central/web.php'));
+                ->name('central.')
+                ->group(base_path('routes/central/web/web.php'));
         }
     }
 
     protected function mapApiRoutes()
     {
         foreach ($this->centralDomains() as $domain) {
-            Route::prefix('aurora')
-                ->domain($domain)
-                ->middleware('api-aurora')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/central/aurora.php'));
             Route::prefix('api')
                 ->domain($domain)
-                ->middleware('api')
+                ->middleware('api-admin-user')
                 ->namespace($this->namespace)
-                ->group(base_path('routes/central/api.php'));
+                ->group(base_path('routes/central/api/api.php'));
         }
     }
 

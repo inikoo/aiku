@@ -76,17 +76,25 @@ class Kernel extends HttpKernel
             SetLocale::class
         ],
 
-        'api'     => [
+        'api'            => [
             'throttle:api',
             SubstituteBindings::class,
-            'auth:admin'
+            'auth:admin-user'
         ],
-        'api-aurora' => [
+        'api-admin-user' => [
+            'throttle:api',
+            SubstituteBindings::class,
+            LogRequest::class,
+            'auth:api-admin-user'
+        ],
+        /*
+        'api-tenant' => [
             'throttle:api',
             SubstituteBindings::class,
             LogRequest::class,
             'auth:tenant'
         ],
+        */
     ];
 
     /**
