@@ -16,6 +16,7 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -41,10 +42,10 @@ class CreateGuestFromUser
      */
     public function handle(CentralUser $centralUser, array $modelData, array $roles): Guest
     {
-        $guest = StoreGuest::run(
-            $modelData,
-            $centralUser->username
-        );
+        $modelData['slug'] = Arr::get($modelData, 'slug', $centralUser->username);
+
+
+        $guest = StoreGuest::run($modelData);
         /** @var User $user */
         $user = StoreUser::run(tenant(), $guest, $centralUser);
         foreach ($roles as $role) {

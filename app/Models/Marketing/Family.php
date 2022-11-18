@@ -38,7 +38,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\Department|null $department
- * @property-read string $slug_source
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
  * @property-read int|null $products_count
  * @property-read SalesStats|null $salesStats
@@ -72,7 +71,7 @@ class Family extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'data'       => 'array',
+        'data' => 'array',
     ];
 
     protected $attributes = [
@@ -85,7 +84,7 @@ class Family extends Model
     {
         static::created(
             function (Family $family) {
-                if($family->department_id){
+                if ($family->department_id) {
                     HydrateDepartment::make()->familiesStats($family->department);
                 }
                 HydrateShop::make()->familiesStats($family->shop);
@@ -93,7 +92,7 @@ class Family extends Model
         );
         static::deleted(
             function (Family $family) {
-                if($family->department_id){
+                if ($family->department_id) {
                     HydrateDepartment::make()->familiesStats($family->department);
                 }
                 HydrateShop::make()->familiesStats($family->shop);
@@ -101,7 +100,7 @@ class Family extends Model
         );
         static::updated(function (Family $family) {
             if ($family->wasChanged('state')) {
-                if($family->department_id){
+                if ($family->department_id) {
                     HydrateDepartment::make()->familiesStats($family->department);
                 }
                 HydrateShop::make()->familiesStats($family->shop);
@@ -112,15 +111,8 @@ class Family extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('slug_source')
-            ->slugsShouldBeNoLongerThan(32)
-            ->saveSlugsTo('slug');
-    }
-
-    public function getSlugSourceAttribute(): string
-    {
-
-        return strtolower($this->code.'-'.$this->shop->code);
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 
     public function shop(): BelongsTo
@@ -145,11 +137,12 @@ class Family extends Model
 
     public function salesStats(): MorphOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope','sales');
+        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales');
     }
+
     public function salesTenantCurrencyStats(): MorphOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope','sales-tenant-currency');
+        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-tenant-currency');
     }
 
 

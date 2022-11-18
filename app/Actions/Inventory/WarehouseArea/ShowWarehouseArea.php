@@ -58,7 +58,7 @@ class ShowWarehouseArea
     public function htmlResponse(): Response
     {
         return Inertia::render(
-            'Inventory/WarehouseArea.vue',
+            'Inventory/WarehouseArea',
             [
                 'title'         => __('warehouse area'),
                 'breadcrumbs'   => $this->getBreadcrumbs($this->routeName, $this->warehouseArea),
@@ -73,11 +73,11 @@ class ShowWarehouseArea
                                 match ($this->routeName) {
                                     'inventory.warehouses.show.warehouse_areas.show' => [
                                         'inventory.warehouses.show.warehouse_areas.show.locations.index',
-                                        [$this->warehouseArea->warehouse_id, $this->warehouseArea->id]
+                                        [$this->warehouseArea->warehouse->slug, $this->warehouseArea->slug]
                                     ],
                                     default => [
                                         'inventory.warehouse_areas.show.locations.index',
-                                        $this->warehouseArea->id
+                                        $this->warehouseArea->slug
                                     ]
                                 }
 
@@ -129,12 +129,12 @@ class ShowWarehouseArea
         return match ($routeName) {
             'inventory.warehouse_areas.show' => array_merge(
                 (new ShowInventoryDashboard())->getBreadcrumbs(),
-                $headCrumb([$warehouseArea->id])
+                $headCrumb([$warehouseArea->slug])
 
             ),
             'inventory.warehouses.show.warehouse_areas.show' => array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($warehouseArea->warehouse),
-                $headCrumb([$warehouseArea->warehouse_id, $warehouseArea->id])
+                $headCrumb([$warehouseArea->warehouse->slug, $warehouseArea->slug])
             ),
             default => []
         };

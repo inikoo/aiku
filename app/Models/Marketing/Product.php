@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Marketing\Product
@@ -83,6 +85,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Product extends Model
 {
     use SoftDeletes;
+    use HasSlug;
 
     protected $casts = [
         'data' => 'array',
@@ -96,6 +99,14 @@ class Product extends Model
     ];
 
     protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(64);
+    }
 
     protected static function booted()
     {

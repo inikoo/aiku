@@ -21,7 +21,7 @@ class GuestInertiaResource extends JsonResource
     {
         return [
             'id'     => $this->id,
-            'code'   => $this->code,
+            'slug'   => $this->slug,
             'status' => $this->status,
             'name'   => $this->name
         ];

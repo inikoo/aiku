@@ -21,7 +21,7 @@ return new class extends Migration
     {
         Schema::create('languages', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('code')->unique()->index();
+            $table->string('code')->unique();
             $table->string('name')->nullable()->index();
             $table->string('original_name')->nullable();
             $table->string('status')->default(false)->nullable()->index();

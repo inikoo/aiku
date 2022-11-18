@@ -22,6 +22,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Inventory\Location
  *
  * @property int $id
+ * @property string $slug
  * @property int $warehouse_id
  * @property int|null $warehouse_area_id
  * @property string $state
@@ -47,6 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Location whereDeletedAt($value)
  * @method static Builder|Location whereId($value)
  * @method static Builder|Location whereIsEmpty($value)
+ * @method static Builder|Location whereSlug($value)
  * @method static Builder|Location whereSourceId($value)
  * @method static Builder|Location whereState($value)
  * @method static Builder|Location whereUpdatedAt($value)
@@ -76,7 +78,7 @@ class Location extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
-            ->saveSlugsTo('code');
+            ->saveSlugsTo('slug');
     }
 
     protected static function booted()
@@ -130,6 +132,11 @@ class Location extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(LocationStats::class);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 
 }

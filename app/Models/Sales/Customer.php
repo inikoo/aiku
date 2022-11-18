@@ -20,12 +20,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Sales\Customer
  *
  * @property int $id
  * @property int|null $shop_id
+ * @property string $slug
  * @property string $reference customer public id
  * @property string|null $name
  * @property string|null $contact_name
@@ -79,6 +82,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Customer wherePhone($value)
  * @method static Builder|Customer whereReference($value)
  * @method static Builder|Customer whereShopId($value)
+ * @method static Builder|Customer whereSlug($value)
  * @method static Builder|Customer whereSourceId($value)
  * @method static Builder|Customer whereState($value)
  * @method static Builder|Customer whereStatus($value)
@@ -95,6 +99,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Customer extends Model
 {
     use SoftDeletes;
+    use HasSlug;
 
     protected $casts = [
         'data'            => 'array',
@@ -112,8 +117,21 @@ class Customer extends Model
 
     protected $guarded = [];
 
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('reference')
+            ->saveSlugsTo('slug');
+    }
+
     protected static function booted()
     {
+        static::creating(
+            function (Customer $customer) {
+                $customer->name=$customer->company_name==''?$customer->contact_name:$customer->company_name;
+            }
+        );
+
         static::created(
             function (Customer $customer) {
                 HydrateShop::make()->customerStats($customer->shop);
@@ -128,6 +146,9 @@ class Customer extends Model
         static::updated(function (Customer $customer) {
             if ($customer->wasChanged('trade_state')) {
                 HydrateShop::make()->customerNumberInvoicesStats($customer->shop);
+            }
+            if ($customer->wasChanged(['company_name','contact_name'])) {
+                $customer->name=$customer->company_name==''?$customer->contact_name:$customer->company_name;
             }
         });
     }
@@ -170,6 +191,11 @@ class Customer extends Model
     public function webUsers(): HasMany
     {
         return $this->hasMany(WebUser::class);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 
 

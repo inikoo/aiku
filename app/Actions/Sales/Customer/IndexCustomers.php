@@ -40,7 +40,7 @@ class IndexCustomers extends InertiaAction
 
         return QueryBuilder::for(Customer::class)
             ->defaultSort('customers.reference')
-            ->select(['reference', 'customers.id', 'customers.name', 'shops.code as shop_code', 'shop_id', 'number_active_clients'])
+            ->select(['reference', 'customers.id', 'customers.name','customers.slug', 'shops.code as shop_code', 'shops.slug as shop_slug', 'number_active_clients'])
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
             ->when($this->parent, function ($query) {

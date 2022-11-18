@@ -41,14 +41,15 @@ class IndexWarehouseAreas extends InertiaAction
 
         return QueryBuilder::for(WarehouseArea::class)
             ->defaultSort('warehouse_areas.code')
-            ->select(['code', 'warehouse_areas.id', 'name', 'number_locations', 'warehouse_id'])
+            ->select(['warehouse_areas.code', 'warehouse_areas.id', 'warehouse_areas.name', 'number_locations', 'warehouses.slug as warehouse_slug', 'warehouse_areas.slug'])
             ->leftJoin('warehouse_area_stats', 'warehouse_area_stats.warehouse_area_id', 'warehouse_areas.id')
+            ->leftJoin('warehouses', 'warehouse_areas.warehouse_id', 'warehouses.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Warehouse') {
                     $query->where('warehouse_areas.warehouse_id', $this->parent->id);
                 }
             })
-            ->allowedSorts(['code', 'name', 'number_locations'])
+            ->allowedSorts(['warehouse_areas.code', 'warehouse_areas.name', 'number_locations'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -90,7 +91,7 @@ class IndexWarehouseAreas extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $warehousesAreas)
     {
         return Inertia::render(
-            'Inventory/WarehouseAreas.vue',
+            'Inventory/WarehouseAreas',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('warehouse areas'),
@@ -136,7 +137,7 @@ class IndexWarehouseAreas extends InertiaAction
             'inventory.warehouses.show.warehouse_areas.index' =>
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($parent),
-                $headCrumb([$parent->id])
+                $headCrumb([$parent->slug])
             ),
             default => []
         };

@@ -16,10 +16,10 @@ class FetchAuroraWarehouse extends FetchAurora
     protected function parseModel(): void
     {
         $this->parsedData['warehouse'] = [
-            'name'                   => $this->auroraModelData->{'Warehouse Name'},
-            'code'                   => strtolower($this->auroraModelData->{'Warehouse Code'}),
-            'source_id' => $this->auroraModelData->{'Warehouse Key'},
-            'created_at'             => $this->auroraModelData->{'Warehouse Valid From'} ?? null,
+            'name'       => $this->auroraModelData->{'Warehouse Name'},
+            'code'       => $this->auroraModelData->{'Warehouse Code'},
+            'source_id'  => $this->auroraModelData->{'Warehouse Key'},
+            'created_at' => $this->auroraModelData->{'Warehouse Valid From'} ?? null,
         ];
     }
 

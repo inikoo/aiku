@@ -4,9 +4,9 @@
     <Table :resource="employees" class="mt-5">
 
 
-        <template #cell(code)="{ item: employee }">
-            <Link :href="route('hr.employees.show',employee.id)">
-                {{ employee.code }}
+        <template #cell(slug)="{ item: employee }">
+            <Link :href="route('hr.employees.show',employee.slug)">
+                {{ employee.slug }}
             </Link>
         </template>
         <template #cell(job_positions)="{ item: employee }">

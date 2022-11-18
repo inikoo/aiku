@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->mediumIncrements('id');
             $table->enum('type', ['supplier', 'agent', 'sub-supplier'])->index();
             $table->boolean('status')->default(true)->index();
-            $table->string('slug')->unique()->index();
+            $table->string('slug')->unique();
             $table->string('code')->index();
             $table->morphs('owner');
             $table->string('name');

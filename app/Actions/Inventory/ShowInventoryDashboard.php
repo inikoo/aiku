@@ -45,34 +45,32 @@ class ShowInventoryDashboard
 
 
         if ($this->tenant->inventoryStats->number_warehouses == 1) {
-
-
-            $warehouse=Warehouse::first();
-            $warehousesNode    = [
+            $warehouse          = Warehouse::first();
+            $warehousesNode     = [
                 'name' => __('warehouse'),
                 'icon' => ['fal', 'fa-warehouse'],
-                'href' => ['inventory.warehouses.show', $warehouse->id],
+                'href' => ['inventory.warehouses.show', $warehouse->slug],
 
             ];
             $warehouseAreasNode = [
                 'name'  => __('warehouses areas'),
                 'icon'  => ['fal', 'fa-map-signs'],
-                'href'  => ['inventory.warehouses.show.warehouse_areas.index',$warehouse->id],
+                'href'  => ['inventory.warehouses.show.warehouse_areas.index', $warehouse->id],
                 'index' => [
                     'number' => $this->tenant->inventoryStats->number_warehouse_areas
                 ]
             ];
-            $locationsNode    = [
+            $locationsNode      = [
                 'name'  => __('locations'),
                 'icon'  => ['fal', 'fa-inventory'],
-                'href'  => ['inventory.warehouses.show.locations.index',$warehouse->id],
+                'href'  => ['inventory.warehouses.show.locations.index', $warehouse->id],
                 'index' => [
                     'number' => $this->tenant->inventoryStats->number_locations
                 ]
 
             ];
         } else {
-            $warehousesNode = [
+            $warehousesNode     = [
                 'name'  => __('warehouses'),
                 'icon'  => ['fal', 'fa-warehouse'],
                 'href'  => ['inventory.warehouses.index'],
@@ -88,7 +86,7 @@ class ShowInventoryDashboard
                     'number' => $this->tenant->inventoryStats->number_warehouse_areas
                 ]
             ];
-            $locationsNode    = [
+            $locationsNode      = [
                 'name'  => __('locations'),
                 'icon'  => ['fal', 'fa-inventory'],
                 'href'  => ['inventory.locations.index'],
@@ -116,18 +114,18 @@ class ShowInventoryDashboard
                     ],
                     [
                         [
-                            'name' => __('families'),
-                            'icon' => ['fal', 'fa-boxes-alt'],
-                            'href' => ['inventory.stock-families.index'],
+                            'name'  => __('families'),
+                            'icon'  => ['fal', 'fa-boxes-alt'],
+                            'href'  => ['inventory.stock-families.index'],
                             'index' => [
                                 'number' => $this->tenant->inventoryStats->number_stock_families
                             ]
 
                         ],
                         [
-                            'name' => 'SKUs',
-                            'icon' => ['fal', 'fa-box'],
-                            'href' => ['inventory.stocks.index'],
+                            'name'  => 'SKUs',
+                            'icon'  => ['fal', 'fa-box'],
+                            'href'  => ['inventory.stocks.index'],
                             'index' => [
                                 'number' => $this->tenant->inventoryStats->number_stocks
                             ]

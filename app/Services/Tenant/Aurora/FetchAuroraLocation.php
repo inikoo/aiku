@@ -18,20 +18,18 @@ class FetchAuroraLocation extends FetchAurora
 
     protected function parseModel(): void
     {
+        $parent = null;
 
-
-        $parent=null;
-
-        if(is_numeric($this->auroraModelData->{'Location Warehouse Area Key'})){
-            $parent= FetchWarehouseAreas::run($this->tenantSource, $this->auroraModelData->{'Location Warehouse Area Key'});
+        if (is_numeric($this->auroraModelData->{'Location Warehouse Area Key'})) {
+            $parent = FetchWarehouseAreas::run($this->tenantSource, $this->auroraModelData->{'Location Warehouse Area Key'});
         }
-        if(!$parent){
-            $parent= FetchWarehouses::run($this->tenantSource, $this->auroraModelData->{'Location Warehouse Key'});
+        if (!$parent) {
+            $parent = FetchWarehouses::run($this->tenantSource, $this->auroraModelData->{'Location Warehouse Key'});
         }
 
-        $this->parsedData['parent'] =$parent;
+        $this->parsedData['parent']   = $parent;
         $this->parsedData['location'] = [
-            'code'                   => Str::snake(strtolower($this->auroraModelData->{'Location Code'}), '-'),
+            'code'      => $this->auroraModelData->{'Location Code'},
             'source_id' => $this->auroraModelData->{'Location Key'},
         ];
     }

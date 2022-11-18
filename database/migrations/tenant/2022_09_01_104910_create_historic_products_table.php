@@ -31,7 +31,7 @@ return new class extends Migration
             $table->unsignedDecimal('cbm', 18, 4)->nullable()->comment('to be deleted');
             $table->unsignedSmallInteger('currency_id')->nullable();
             $table->foreign('currency_id')->references('id')->on('central.currencies');
-            $table->unsignedBigInteger('source_id')->nullable()->unique()->index();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
 
         });
     }

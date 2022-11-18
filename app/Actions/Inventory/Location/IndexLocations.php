@@ -43,8 +43,10 @@ class IndexLocations extends InertiaAction
 
         return QueryBuilder::for(Location::class)
             ->defaultSort('locations.code')
-            ->select(['locations.id', 'code', 'warehouse_id', 'warehouse_area_id'])
+            ->select(['locations.id', 'locations.code','locations.slug', 'warehouses.slug as warehouse_slug','warehouse_areas.slug as warehouse_area_slug', 'warehouse_area_id'])
             ->leftJoin('location_stats', 'location_stats.location_id', 'locations.id')
+            ->leftJoin('warehouses', 'locations.warehouse_id', 'warehouses.id')
+            ->leftJoin('warehouse_areas', 'locations.warehouse_area_id', 'warehouse_areas.id')
             ->when($this->parent, function ($query) {
                 switch (class_basename($this->parent)) {
                     case 'WarehouseArea':
@@ -113,7 +115,7 @@ class IndexLocations extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $locations)
     {
         return Inertia::render(
-            'Inventory/Locations.vue',
+            'Inventory/Locations',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('locations'),
@@ -153,15 +155,15 @@ class IndexLocations extends InertiaAction
             ),
             'inventory.warehouses.show.locations.index' => array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($parent),
-                $headCrumb([$parent->id])
+                $headCrumb([$parent->slug])
             ),
             'inventory.warehouse_areas.show.locations.index' => array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouse_areas.show', $parent),
-                $headCrumb([$parent->id])
+                $headCrumb([$parent->slug])
             ),
             'inventory.warehouses.show.warehouse_areas.show.locations.index' => array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouses.show.warehouse_areas.show', $parent),
-                $headCrumb([$parent->warehouse_id, $parent->id])
+                $headCrumb([$parent->warehouse->slug, $parent->slug])
             ),
 
             default => []

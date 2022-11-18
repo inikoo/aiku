@@ -16,7 +16,7 @@ return new class extends Migration {
     {
         Schema::create('websites', function (Blueprint $table) {
             $table->mediumIncrements('id');
-
+            $table->string('slug')->unique();
             $table->unsignedMediumInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->enum('state', ['construction', 'live', 'maintenance', 'closed'])->default('construction')->index();

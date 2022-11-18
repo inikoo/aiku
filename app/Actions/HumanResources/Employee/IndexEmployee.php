@@ -39,16 +39,16 @@ class IndexEmployee
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('employees.name', 'LIKE', "%$value%")
-                    ->orWhere('employees.code', 'LIKE', "%$value%");
+                    ->orWhere('employees.slug', 'LIKE', "%$value%");
             });
         });
 
 
         return QueryBuilder::for(Employee::class)
-            ->defaultSort('employees.code')
-            ->select(['code', 'id', 'worker_number', 'name'])
+            ->defaultSort('employees.slug')
+            ->select(['slug', 'id', 'worker_number', 'name'])
             ->with('jobPositions')
-            ->allowedSorts(['code', 'worker_number', 'name'])
+            ->allowedSorts(['slug', 'worker_number', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -87,12 +87,11 @@ class IndexEmployee
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'code',label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name',label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_positions',label: __('position'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'actions',label: __('actions'))
-
-                ->defaultSort('code');
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'actions', label: __('actions'))
+                ->defaultSort('slug');
         });
     }
 
@@ -110,7 +109,7 @@ class IndexEmployee
             (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
             [
                 'hr.employees.index' => [
-                    'route'      => 'hr.employees.index',
+                    'route' => 'hr.employees.index',
                     'modelLabel' => [
                         'label' => __('employees')
                     ],

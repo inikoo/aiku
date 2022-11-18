@@ -14,11 +14,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Inventory\WarehouseArea
  *
  * @property int $id
+ * @property string $slug
  * @property int $warehouse_id
  * @property string $code
  * @property string $name
@@ -39,6 +42,7 @@ use Illuminate\Database\Query\Builder;
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereSourceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereWarehouseId($value)
@@ -49,7 +53,18 @@ use Illuminate\Database\Query\Builder;
 class WarehouseArea extends Model
 {
     use SoftDeletes;
+    use HasSlug;
+
     protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(8);
+    }
+
 
     protected static function booted()
     {
@@ -61,7 +76,6 @@ class WarehouseArea extends Model
         static::deleted(
             function (WarehouseArea $warehouseArea) {
                 HydrateWarehouse::make()->warehouseAreas($warehouseArea->warehouse);
-
             }
         );
 
@@ -87,6 +101,11 @@ class WarehouseArea extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(WarehouseAreaStats::class);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 
 }

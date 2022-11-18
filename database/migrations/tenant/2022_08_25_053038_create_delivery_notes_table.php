@@ -15,6 +15,7 @@ return new class extends Migration {
     {
         Schema::create('delivery_notes', function (Blueprint $table) {
             $table->id();
+            $table->string('slug')->unique();
             $table->unsignedMediumInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedBigInteger('customer_id')->index();
@@ -74,7 +75,7 @@ return new class extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique()->index();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
 
         });
     }

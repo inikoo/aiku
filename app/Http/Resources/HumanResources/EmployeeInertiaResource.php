@@ -24,7 +24,7 @@ class EmployeeInertiaResource extends JsonResource
 
         return [
             'id'            => $employee->id,
-            'code'          => $employee->code,
+            'slug'          => $employee->slug,
             'worker_number' => $employee->worker_number,
             'name'          => $employee->name,
             'job_positions' => JobPositionLightResource::collection($employee->jobPositions),

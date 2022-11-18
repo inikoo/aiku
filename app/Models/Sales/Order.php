@@ -14,11 +14,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Sales\Order
  *
  * @property int $id
+ * @property string $slug
  * @property int $shop_id
  * @property int $customer_id
  * @property int|null $customer_client_id
@@ -38,7 +42,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|DeliveryNote[] $deliveryNotes
@@ -50,6 +54,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int|null $transactions_count
  * @method static Builder|Order newModelQuery()
  * @method static Builder|Order newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Order onlyTrashed()
  * @method static Builder|Order query()
  * @method static Builder|Order whereBillingAddressId($value)
  * @method static Builder|Order whereCharges($value)
@@ -69,14 +74,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder|Order whereNumber($value)
  * @method static Builder|Order whereShipping($value)
  * @method static Builder|Order whereShopId($value)
+ * @method static Builder|Order whereSlug($value)
  * @method static Builder|Order whereSourceId($value)
  * @method static Builder|Order whereState($value)
  * @method static Builder|Order whereTax($value)
  * @method static Builder|Order whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|Order withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Order withoutTrashed()
  * @mixin \Eloquent
  */
 class Order extends Model
 {
+    use HasSlug;
+    use SoftDeletes;
+
 
     protected $casts = [
         'data' => 'array'
@@ -87,6 +98,13 @@ class Order extends Model
     ];
 
     protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('number')
+            ->saveSlugsTo('slug');
+    }
 
     public function customer(): BelongsTo
     {

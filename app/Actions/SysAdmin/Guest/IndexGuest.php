@@ -34,15 +34,15 @@ class IndexGuest
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('guest.name', 'LIKE', "%$value%")
-                ->orWhere('guest.code', 'LIKE', "%$value%");
+                ->orWhere('guest.slug', 'LIKE', "%$value%");
             });
         });
 
 
         return QueryBuilder::for(Guest::class)
-            ->defaultSort('code')
-            ->select(['id', 'code', 'name',])
-            ->allowedSorts(['code', 'name'])
+            ->defaultSort('slug')
+            ->select(['id', 'slug', 'name',])
+            ->allowedSorts(['slug', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -81,9 +81,9 @@ class IndexGuest
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->defaultSort('slug');
         });
     }
 

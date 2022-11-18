@@ -14,6 +14,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property mixed $pivot
  * @property int $id
+ * @property string $slug
+ * @property string $warehouse_slug
+ * @property string $warehouse_area_slug
  */
 class LocationResource extends JsonResource
 {
@@ -23,10 +26,13 @@ class LocationResource extends JsonResource
 
         return [
             'id'=>$this->id,
+            'slug'=>$this->slug,
             'code'=>$this->code,
             'quantity' => $this->whenPivotLoaded(new LocationStock(), function () {
                 return $this->pivot->quantity;
             }),
+            'warehouse_slug'=>$this->warehouse_slug,
+            'warehouse_area_slug'=>$this->warehouse_area_slug,
         ];
     }
 }

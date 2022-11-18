@@ -17,11 +17,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Sales\Invoice
  *
  * @property int $id
+ * @property string $slug
  * @property string $number
  * @property int $shop_id
  * @property int $customer_id
@@ -65,6 +68,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Invoice wherePaidAt($value)
  * @method static Builder|Invoice wherePayment($value)
  * @method static Builder|Invoice whereShopId($value)
+ * @method static Builder|Invoice whereSlug($value)
  * @method static Builder|Invoice whereSourceId($value)
  * @method static Builder|Invoice whereTotal($value)
  * @method static Builder|Invoice whereType($value)
@@ -77,6 +81,7 @@ class Invoice extends Model
 {
 
     use SoftDeletes;
+    use HasSlug;
 
     protected $casts = [
         'data'    => 'array',
@@ -86,6 +91,13 @@ class Invoice extends Model
     protected $attributes = [
         'data' => '{}',
     ];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('number')
+            ->saveSlugsTo('slug');
+    }
 
     protected static function booted()
     {

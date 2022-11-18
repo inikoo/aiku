@@ -30,7 +30,6 @@ class FetchAuroraCustomer extends FetchAurora
 
         $this->parsedData['customer'] =
             [
-                'name'                     => $this->auroraModelData->{'Customer Name'},
                 'reference'                => sprintf('%05d',$this->auroraModelData->{'Customer Key'}),
                 'state'                    => $state,
                 'status'                   => $status,

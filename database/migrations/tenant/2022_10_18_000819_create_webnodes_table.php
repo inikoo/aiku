@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->id();
             $table->string('slug')->unique();
             $table->enum('type', ['structural', 'content'])->index();
-            $table->string('locus')->index()->unique()->nullable()->comment('for structural type, identification od the node');
+            $table->string('locus')->unique()->nullable()->comment('for structural type, identification od the node');
             $table->unsignedMediumInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
             $table->timestampsTz();

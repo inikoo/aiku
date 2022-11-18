@@ -9,14 +9,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
 
     public function up()
     {
         Schema::create('trade_units', function (Blueprint $table) {
             $table->id();
-            $table->string('slug')->nullable()->index();
+            $table->string('slug')->unique();
             $table->string('code')->index();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
@@ -30,7 +29,7 @@ return new class extends Migration
             $table->timestampsTz();
             $table->softDeletesTz();
 
-            $table->unsignedBigInteger('source_id')->nullable()->unique()->index();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
         });
     }
 

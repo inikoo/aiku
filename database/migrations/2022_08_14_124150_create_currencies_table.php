@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('currencies', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('code')->unique()->index();
+            $table->string('code')->unique();
             $table->string('name')->index();
             $table->string('symbol');
 

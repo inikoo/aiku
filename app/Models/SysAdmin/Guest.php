@@ -21,7 +21,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\SysAdmin\Guest
  *
  * @property int $id
- * @property string $code
+ * @property string $slug
  * @property bool $status
  * @property string $type
  * @property string|null $name
@@ -42,7 +42,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest query()
- * @method static Builder|Guest whereCode($value)
  * @method static Builder|Guest whereCreatedAt($value)
  * @method static Builder|Guest whereData($value)
  * @method static Builder|Guest whereDateOfBirth($value)
@@ -54,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Guest whereIdentityDocumentType($value)
  * @method static Builder|Guest whereName($value)
  * @method static Builder|Guest wherePhone($value)
+ * @method static Builder|Guest whereSlug($value)
  * @method static Builder|Guest whereSourceId($value)
  * @method static Builder|Guest whereStatus($value)
  * @method static Builder|Guest whereType($value)
@@ -81,8 +81,10 @@ class Guest extends Model implements HasMedia
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('name')
-            ->saveSlugsTo('code');
+            ->generateSlugsFrom(function () {
+                return head(explode(' ', trim($this->name)));
+            })
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(16);
     }
 
     protected static function booted()
@@ -135,6 +137,11 @@ class Guest extends Model implements HasMedia
                     ->width(256)
                     ->height(256);
             });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 
 }

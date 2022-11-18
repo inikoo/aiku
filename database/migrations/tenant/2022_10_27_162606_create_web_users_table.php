@@ -15,6 +15,7 @@ return new class extends Migration {
     {
         Schema::create('web_users', function (Blueprint $table) {
             $table->id();
+            $table->string('slug')->unique();
             $table->enum('type', ['web', 'api'])->index();
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
@@ -39,7 +40,7 @@ return new class extends Migration {
             $table->unique(['website_id', 'email']);
             $table->unique(['website_id', 'username']);
             $table->enum('web_login_version', ['current', 'au'])->index()->default('current');
-            $table->unsignedBigInteger('source_id')->nullable()->unique()->index();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
 
         });
     }

@@ -43,7 +43,7 @@ class ShowWarehouse
 
 
         return Inertia::render(
-            'Inventory/Warehouse.vue',
+            'Inventory/Warehouse',
             [
                 'title'       => __('warehouse'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->warehouse),
@@ -97,7 +97,7 @@ class ShowWarehouse
             [
                 'inventory.warehouses.show' => [
                     'route'           => 'inventory.warehouses.show',
-                    'routeParameters' => $warehouse->id,
+                    'routeParameters' => $warehouse->slug,
                     'name'            => $warehouse->code,
                     'index'           => [
                         'route'   => 'inventory.warehouses.index',

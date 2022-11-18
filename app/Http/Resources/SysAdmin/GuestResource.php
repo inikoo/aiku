@@ -19,12 +19,11 @@ class GuestResource extends JsonResource
     /** @noinspection PhpUndefinedFieldInspection */
     public function toArray($request): array|Arrayable|JsonSerializable
     {
-
         $guest = $this;
 
         return [
             'id'         => $guest->id,
-            'code'       => $guest->code,
+            'slug'       => $guest->slug,
             'user'       => $guest->user?->only('username', 'status'),
             'created_at' => $guest->created_at,
             'updated_at' => $guest->updated_at,

@@ -37,7 +37,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Family[] $families
  * @property-read int|null $families_count
- * @property-read string $slug_source
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
  * @property-read int|null $products_count
  * @property-read SalesStats|null $salesStats
@@ -72,7 +71,7 @@ class Department extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'data'       => 'array',
+        'data' => 'array',
     ];
 
     protected $attributes = [
@@ -101,14 +100,9 @@ class Department extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('slug_source')
-            ->slugsShouldBeNoLongerThan(32)
-            ->saveSlugsTo('slug');
-    }
-
-    public function getSlugSourceAttribute(): string
-    {
-        return strtolower($this->code.'-'.$this->shop->code);
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function shop(): BelongsTo
@@ -133,11 +127,12 @@ class Department extends Model
 
     public function salesStats(): MorphOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope','sales');
+        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales');
     }
+
     public function salesTenantCurrencyStats(): MorphOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope','sales-tenant-currency');
+        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-tenant-currency');
     }
 
 }

@@ -16,12 +16,13 @@ return new class extends Migration
     {
         Schema::create('locations', function (Blueprint $table) {
             $table->mediumIncrements('id');
+            $table->string('slug')->unique();
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->unsignedSmallInteger('warehouse_area_id')->nullable()->index();
             $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
             $table->enum('state', ['operational', 'broken'])->index()->default('operational');
-            $table->string('code', 64)->index()->unique();
+            $table->string('code', 64)->unique();
             $table->boolean('is_empty')->default(true);
             $table->jsonb('data');
             $table->timestampsTz();

@@ -15,11 +15,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Delivery\DeliveryNote
  *
  * @property int $id
+ * @property string $slug
  * @property int $shop_id
  * @property int $customer_id
  * @property int $order_id Main order, usually the only one (used for performance)
@@ -80,6 +83,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|DeliveryNote wherePickingAt($value)
  * @method static Builder|DeliveryNote whereShipperId($value)
  * @method static Builder|DeliveryNote whereShopId($value)
+ * @method static Builder|DeliveryNote whereSlug($value)
  * @method static Builder|DeliveryNote whereSourceId($value)
  * @method static Builder|DeliveryNote whereState($value)
  * @method static Builder|DeliveryNote whereType($value)
@@ -92,6 +96,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DeliveryNote extends Model
 {
     use SoftDeletes;
+    use HasSlug;
 
     protected $casts = [
         'data'               => 'array',
@@ -112,6 +117,13 @@ class DeliveryNote extends Model
     ];
 
     protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('number')
+            ->saveSlugsTo('slug');
+    }
 
     public function customer(): BelongsTo
     {

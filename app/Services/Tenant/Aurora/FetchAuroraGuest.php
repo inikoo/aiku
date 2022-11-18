@@ -29,7 +29,7 @@ class FetchAuroraGuest extends FetchAurora
 
     protected function parseModel(): void
     {
-        $data   = [];
+        $data = [];
 
 
         if ($this->auroraModelData->{'Staff Address'}) {
@@ -38,15 +38,15 @@ class FetchAuroraGuest extends FetchAurora
 
         $this->parsedData['guest'] = [
 
-            'code'                     => strtolower($this->auroraModelData->{'Staff Alias'}),
+            'slug'                     => strtolower($this->auroraModelData->{'Staff Alias'}),
             'name'                     => $this->auroraModelData->{'Staff Name'},
             'email'                    => $this->auroraModelData->{'Staff Email'},
             'phone'                    => $this->auroraModelData->{'Staff Telephone'},
             'identity_document_number' => $this->auroraModelData->{'Staff Official ID'},
             'date_of_birth'            => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
-            'created_at' => $this->auroraModelData->{'Staff Valid From'},
-            'data'      => $data,
-            'source_id' => $this->auroraModelData->{'Staff Key'},
+            'created_at'               => $this->auroraModelData->{'Staff Valid From'},
+            'data'                     => $data,
+            'source_id'                => $this->auroraModelData->{'Staff Key'},
 
         ];
     }

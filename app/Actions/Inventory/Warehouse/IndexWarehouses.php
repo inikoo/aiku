@@ -43,7 +43,7 @@ class IndexWarehouses
 
         return QueryBuilder::for(Warehouse::class)
             ->defaultSort('warehouses.code')
-            ->select(['code', 'warehouses.id', 'name', 'number_warehouse_areas', 'number_locations'])
+            ->select(['code', 'warehouses.id', 'name', 'number_warehouse_areas', 'number_locations', 'slug'])
             ->leftJoin('warehouse_stats', 'warehouse_stats.warehouse_id', 'warehouses.id')
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
             ->allowedFilters([$globalSearch])
@@ -78,7 +78,7 @@ class IndexWarehouses
     public function htmlResponse(LengthAwarePaginator $warehouses)
     {
         return Inertia::render(
-            'Inventory/Warehouses.vue',
+            'Inventory/Warehouses',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('warehouses'),

@@ -161,7 +161,8 @@ class Shop extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(6);
     }
 
     public function stats(): HasOne
@@ -208,6 +209,7 @@ class Shop extends Model
     {
         return $this->hasMany(Family::class);
     }
+
 
 
 }

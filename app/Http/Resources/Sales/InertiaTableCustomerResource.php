@@ -14,8 +14,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $name
  * @property string $reference
  * @property string $shop_code
- * @property int $shop_id
+ * @property string $shop_slug
  * @property int $number_active_clients
+ * @property string $slug
  */
 class InertiaTableCustomerResource extends JsonResource
 {
@@ -23,12 +24,13 @@ class InertiaTableCustomerResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'        => $this->id,
-            'name'      => $this->name,
-            'reference' => $this->reference,
-            'shop'      => $this->shop_code,
-            'shop_id'   => $this->shop_id,
-            'number_active_clients'   => $this->number_active_clients,
+            'id'                    => $this->id,
+            'slug'                  => $this->slug,
+            'name'                  => $this->name,
+            'reference'             => $this->reference,
+            'shop'                  => $this->shop_code,
+            'shop_slug'             => $this->shop_slug,
+            'number_active_clients' => $this->number_active_clients,
         ];
     }
 }

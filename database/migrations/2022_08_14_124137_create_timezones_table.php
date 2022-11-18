@@ -21,7 +21,7 @@ return new class extends Migration
     {
         Schema::create('timezones', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('name')->unique()->index();
+            $table->string('name')->unique();
             $table->bigInteger('offset')->nullable()->comment('in hours');
             $table->unsignedSmallInteger('country_id')->nullable();
             $table->foreign('country_id')->references('id')->on('central.countries');

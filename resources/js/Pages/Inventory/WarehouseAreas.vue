@@ -42,9 +42,9 @@ const locationRoute = warehouseAreaRoute + '.locations.index'
 function warehouseAreaRouteParameters(warehouseArea) {
     switch (route().current()) {
         case 'inventory.warehouse_areas.index':
-            return [warehouseArea.id]
+            return [warehouseArea.slug]
         case 'inventory.warehouses.show.warehouse_areas.index':
-            return [warehouseArea.warehouse_id, warehouseArea.id]
+            return [warehouseArea.warehouse_slug, warehouseArea.slug]
         default:
             return []
     }

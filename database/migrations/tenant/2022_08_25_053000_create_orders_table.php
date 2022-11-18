@@ -10,7 +10,7 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-
+            $table->string('slug')->unique();
             $table->unsignedMediumInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
 
@@ -49,7 +49,7 @@ return new class extends Migration {
 
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique()->index();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
         });
     }
 

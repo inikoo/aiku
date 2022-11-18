@@ -40,14 +40,14 @@ class ShowLocation extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseArea(WarehouseArea $warehouseArea,Location $location): void
+    public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location): void
     {
         $this->location = $location;
         $this->validateAttributes();
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function InWarehouseInWarehouseArea(Warehouse $warehouse,WarehouseArea $warehouseArea,Location $location): void
+    public function InWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location): void
     {
         $this->location = $location;
         $this->validateAttributes();
@@ -66,7 +66,7 @@ class ShowLocation extends InertiaAction
 
 
         return Inertia::render(
-            'Inventory/Location.vue',
+            'Inventory/Location',
             [
                 'title'       => __('location'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->location),
@@ -114,19 +114,19 @@ class ShowLocation extends InertiaAction
         return match ($routeName) {
             'inventory.locations.show' => array_merge(
                 (new ShowInventoryDashboard())->getBreadcrumbs(),
-                $headCrumb([$location->id])
+                $headCrumb([$location->slug])
             ),
             'inventory.warehouses.show.locations.show' => array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($location->warehouse),
-                $headCrumb([$location->warehouse_id,$location->id])
+                $headCrumb([$location->warehouse->slug, $location->slug])
             ),
             'inventory.warehouse_areas.show.locations.show' => array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouse_areas.show', $location->warehouseArea),
-                $headCrumb([$location->warehouse_area_id,$location->id])
+                $headCrumb([$location->warehouseArea->slug, $location->slug])
             ),
             'inventory.warehouses.show.warehouse_areas.show.locations.show' => array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouses.show.warehouse_areas.show', $location->warehouseArea),
-                $headCrumb([$location->warehouse_id, $location->warehouse_area_id,$location->id])
+                $headCrumb([$location->warehouse->slug, $location->warehouseArea->slug, $location->slug])
             ),
 
             default => []

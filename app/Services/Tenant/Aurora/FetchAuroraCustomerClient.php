@@ -32,7 +32,7 @@ class FetchAuroraCustomerClient extends FetchAurora
 
         $this->parsedData['customer_client'] =
             [
-                'name'           => $this->auroraModelData->{'Customer Client Code'},
+                'reference'      => $this->auroraModelData->{'Customer Client Code'},
                 'status'         => $status,
                 'contact_name'   => $this->auroraModelData->{'Customer Client Main Contact Name'},
                 'company_name'   => $this->auroraModelData->{'Customer Client Company Name'},

@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->id();
 
 
-            $table->string('slug')->index()->unique();
+            $table->string('slug')->unique();
             $table->string('code')->index();
             $table->morphs('owner');
             $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
@@ -47,7 +47,7 @@ return new class extends Migration {
             $table->dateTimeTz('discontinuing_at')->nullable();
             $table->dateTimeTz('discontinued_at')->nullable();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique()->index();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
         });
     }
 

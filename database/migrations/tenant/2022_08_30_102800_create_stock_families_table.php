@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('stock_families', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique()->index();
+            $table->string('slug')->unique();
 
             $table->string('code')->index();
 

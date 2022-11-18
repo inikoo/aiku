@@ -15,6 +15,8 @@ return new class extends Migration {
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
+            $table->string('slug')->unique();
+
             $table->string('number')->index();
 
             $table->unsignedMediumInteger('shop_id')->index();

@@ -20,6 +20,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Web\Website
  *
  * @property int $id
+ * @property string $slug
  * @property int $shop_id
  * @property string $state
  * @property string $code
@@ -53,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Website whereName($value)
  * @method static Builder|Website whereSettings($value)
  * @method static Builder|Website whereShopId($value)
+ * @method static Builder|Website whereSlug($value)
  * @method static Builder|Website whereSourceId($value)
  * @method static Builder|Website whereState($value)
  * @method static Builder|Website whereUpdatedAt($value)
@@ -81,7 +83,7 @@ class Website extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
-            ->saveSlugsTo('code');
+            ->saveSlugsTo('slug');
     }
 
     public function stats(): HasOne

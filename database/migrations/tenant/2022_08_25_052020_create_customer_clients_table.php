@@ -16,14 +16,16 @@ return new class extends Migration
     {
         Schema::create('customer_clients', function (Blueprint $table) {
             $table->id();
+            $table->string('slug')->unique();
+            $table->string('reference')->nullable()->index();
             $table->boolean('status')->default(true)->index();
             $table->unsignedMediumInteger('shop_id')->index()->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedMediumInteger('customer_id')->index()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->string('name', 256)->nullable();
-            $table->string('contact_name', 256)->nullable()->index();
-            $table->string('company_name', 256)->nullable();
+            $table->string('name')->nullable();
+            $table->string('contact_name')->nullable()->index();
+            $table->string('company_name')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->jsonb('location');
@@ -32,7 +34,7 @@ return new class extends Migration
             $table->dateTimeTz('deactivated_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique()->index();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
 
             $table->index([DB::raw('name(64)')]);
         });

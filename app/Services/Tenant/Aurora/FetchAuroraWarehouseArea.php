@@ -17,13 +17,11 @@ class FetchAuroraWarehouseArea extends FetchAurora
 
     protected function parseModel(): void
     {
-
-
         $this->parsedData['warehouse'] = FetchWarehouses::run($this->tenantSource, $this->auroraModelData->{'Warehouse Area Warehouse Key'});
 
         $this->parsedData['warehouse_area'] = [
             'name'      => $this->auroraModelData->{'Warehouse Area Name'} ?? 'Name not set',
-            'code'      => Str::snake(strtolower($this->auroraModelData->{'Warehouse Area Code'}), '-'),
+            'code'      => $this->auroraModelData->{'Warehouse Area Code'},
             'source_id' => $this->auroraModelData->{'Warehouse Area Key'},
         ];
     }

@@ -15,7 +15,7 @@ class FetchAuroraTradeUnit extends FetchAurora
     {
         $this->parsedData['trade_unit'] = [
             'name'                   => $this->auroraModelData->{'Part Recommended Product Unit Name'},
-            'code'                   => strtolower($this->auroraModelData->{'Part Reference'}),
+            'code'                   => $this->auroraModelData->{'Part Reference'},
             'source_id' => $this->auroraModelData->{'Part SKU'},
         ];
     }

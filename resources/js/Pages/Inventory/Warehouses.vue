@@ -10,12 +10,12 @@
     <PageHeading :data="pageHead"></PageHeading>
     <Table :resource="warehouses" class="mt-5">
         <template #cell(code)="{ item: warehouse }">
-            <Link :href="route('inventory.warehouses.show',warehouse.id)">
+            <Link :href="route('inventory.warehouses.show',warehouse.slug)">
                 {{ warehouse.code }}
             </Link>
         </template>
         <template #cell(number_warehouse_areas)="{ item: warehouse }">
-            <Link :href="route('inventory.warehouses.show.warehouse_areas.index',warehouse.id)">
+            <Link :href="route('inventory.warehouses.show.warehouse_areas.index',warehouse.slug)">
                 {{ warehouse['number_warehouse_areas'] }}
             </Link>
         </template>

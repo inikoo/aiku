@@ -17,7 +17,8 @@ return new class extends Migration {
             $table->id();
 
             $table->unsignedMediumInteger('shop_id')->index()->nullable();
-            $table->string('reference')->index()->comment('customer public id');
+            $table->string('slug')->unique();
+            $table->string('reference')->unique()->comment('customer public id');
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('name', 256)->nullable()->fulltext();
             $table->string('contact_name', 256)->nullable()->index()->fulltext();
@@ -49,7 +50,7 @@ return new class extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
 
-            $table->unsignedBigInteger('source_id')->nullable()->unique()->index();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
 
             $table->index([DB::raw('name(64)')]);
         });

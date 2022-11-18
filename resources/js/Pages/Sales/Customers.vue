@@ -11,6 +11,20 @@ import Table from '@/Components/Table/Table.vue';
 
 defineProps(['customers', 'title','pageHead']);
 
+const itemRoute = route().current().replace(/index$/i, 'show')
+
+function routeParameters(customer) {
+
+    switch (route().current()) {
+        case 'shops.show.customers.index':
+            return [customer['shop_slug'],customer.slug]
+
+        default:
+            return [customer.slug]
+    }
+}
+
+
 </script>
 
 <template layout="App">
@@ -20,7 +34,7 @@ defineProps(['customers', 'title','pageHead']);
 
 
         <template #cell(reference)="{ item: customer }">
-            <Link :href="route('customers.show',customer.id)">
+            <Link :href="route(itemRoute,routeParameters(customer))">
                 {{ customer['reference'] }}
             </Link>
         </template>
@@ -28,6 +42,7 @@ defineProps(['customers', 'title','pageHead']);
             <Link :href="route('shops.show.customers.index',customer['shop_id'])">
                 {{ customer['shop'] }}
             </Link>
+
         </template>
 
     </Table>

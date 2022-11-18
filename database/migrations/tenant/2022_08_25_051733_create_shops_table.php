@@ -16,8 +16,8 @@ return new class extends Migration
     {
         Schema::create('shops', function (Blueprint $table) {
             $table->mediumIncrements('id');
-            $table->string('slug')->unique()->index()->nullable();
-            $table->string('code')->unique()->index();
+            $table->string('slug')->unique()->nullable();
+            $table->string('code')->unique();
             $table->string('name');
             $table->string('company_name', 256)->nullable();
             $table->string('contact_name', 256)->nullable();

@@ -12,12 +12,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Marketing\TradeUnit
  *
  * @property int $id
- * @property string|null $slug
+ * @property string $slug
  * @property string $code
  * @property string|null $name
  * @property string|null $description
@@ -59,19 +61,26 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class TradeUnit extends Model
 {
     use SoftDeletes;
+    use HasSlug;
 
     protected $casts = [
-        'data' => 'array',
+        'data'       => 'array',
         'dimensions' => 'array'
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'       => '{}',
         'dimensions' => '{}',
     ];
 
     protected $guarded = [];
 
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug');
+    }
 
     public function stocks(): BelongsToMany
     {

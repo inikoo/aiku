@@ -16,11 +16,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Dropshipping\CustomerClient
  *
  * @property int $id
+ * @property string $slug
+ * @property string|null $reference
  * @property bool $status
  * @property int|null $shop_id
  * @property int|null $customer_id
@@ -57,7 +61,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|CustomerClient whereLocation($value)
  * @method static Builder|CustomerClient whereName($value)
  * @method static Builder|CustomerClient wherePhone($value)
+ * @method static Builder|CustomerClient whereReference($value)
  * @method static Builder|CustomerClient whereShopId($value)
+ * @method static Builder|CustomerClient whereSlug($value)
  * @method static Builder|CustomerClient whereSourceId($value)
  * @method static Builder|CustomerClient whereStatus($value)
  * @method static Builder|CustomerClient whereUpdatedAt($value)
@@ -69,6 +75,8 @@ class CustomerClient extends Model
 {
 
     use SoftDeletes;
+    use HasSlug;
+
 
     protected $casts = [
         'location'       => 'array',
@@ -81,8 +89,29 @@ class CustomerClient extends Model
 
     protected $guarded = [];
 
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function () {
+                $slug = $this->reference;
+
+                if ($slug=='') {
+                    $slug = $this->customer->reference;
+                }
+
+                return $slug;
+            })
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
+    }
+
     protected static function booted()
     {
+        static::creating(
+            function (CustomerClient $customerClient) {
+                $customerClient->name=$customerClient->company_name==''?$customerClient->contact_name:$customerClient->company_name;
+            }
+        );
+
         static::created(
             function (CustomerClient $customerClient) {
                 HydrateCustomer::make()->clients($customerClient->customer);
@@ -97,6 +126,9 @@ class CustomerClient extends Model
         static::updated(function (CustomerClient $customerClient) {
             if ($customerClient->wasChanged('status')) {
                 HydrateCustomer::make()->clients($customerClient->customer);
+            }
+            if ($customerClient->wasChanged(['company_name','contact_name'])) {
+                $customerClient->name=$customerClient->company_name==''?$customerClient->contact_name:$customerClient->company_name;
             }
         });
     }

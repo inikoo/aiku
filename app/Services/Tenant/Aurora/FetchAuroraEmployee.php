@@ -17,8 +17,6 @@ class FetchAuroraEmployee extends FetchAurora
     use WithAuroraParsers;
 
 
-
-
     public function fetch(int $id): ?array
     {
         $this->auroraModelData = $this->fetchData($id);
@@ -75,7 +73,7 @@ class FetchAuroraEmployee extends FetchAurora
             'identity_document_number' => $this->auroraModelData->{'Staff Official ID'},
             'date_of_birth'            => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
             'worker_number'            => $this->auroraModelData->{'Staff ID'},
-            'code'                 => strtolower($this->auroraModelData->{'Staff Alias'}),
+            'slug'                     => strtolower($this->auroraModelData->{'Staff Alias'}),
             'employment_start_at'      => $this->parseDate($this->auroraModelData->{'Staff Valid From'}),
             'created_at'               => $this->auroraModelData->{'Staff Valid From'},
             'emergency_contact'        => $this->auroraModelData->{'Staff Next of Kind'},
@@ -83,22 +81,22 @@ class FetchAuroraEmployee extends FetchAurora
             'salary'                   => $salary,
             'working_hours'            => $workingHours,
 
-            'employment_end_at'      => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
-            'type'                   => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),
-            'state'                  => match ($this->auroraModelData->{'Staff Currently Working'}) {
+            'employment_end_at' => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
+            'type'              => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),
+            'state'             => match ($this->auroraModelData->{'Staff Currently Working'}) {
                 'No' => 'left',
                 default => 'working'
             },
-            'data'                   => $data,
-            'errors'                 => $errors,
-            'source_id' => $this->auroraModelData->{'Staff Key'},
+            'data'              => $data,
+            'errors'            => $errors,
+            'source_id'         => $this->auroraModelData->{'Staff Key'},
 
         ];
     }
 
     private function parsePhoto(): void
     {
-        $profile_images = $this->getModelImagesCollection(
+        $profile_images            = $this->getModelImagesCollection(
             'Staff',
             $this->auroraModelData->{'Staff Key'}
         )->map(function ($auroraImage) {

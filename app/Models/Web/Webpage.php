@@ -18,6 +18,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Web\Webpage
  *
  * @property int $id
+ * @property string $slug
  * @property string $code
  * @property string $type
  * @property int $webnode_id
@@ -33,6 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Webpage whereComponents($value)
  * @method static Builder|Webpage whereCreatedAt($value)
  * @method static Builder|Webpage whereId($value)
+ * @method static Builder|Webpage whereSlug($value)
  * @method static Builder|Webpage whereType($value)
  * @method static Builder|Webpage whereUpdatedAt($value)
  * @method static Builder|Webpage whereWebnodeId($value)
@@ -41,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
 class Webpage extends Model
 {
     use HasSlug;
+
     protected $casts = [
         'components' => 'array',
     ];
@@ -55,7 +58,7 @@ class Webpage extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
-            ->saveSlugsTo('code');
+            ->saveSlugsTo('slug');
     }
 
 

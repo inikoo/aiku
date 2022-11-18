@@ -21,7 +21,7 @@ return new class extends Migration
     {
         Schema::create('countries', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('code', 2)->unique()->index();
+            $table->string('code', 2)->unique();
             $table->string('iso3', 3)->nullable()->index();
             $table->string('phone_code')->nullable();
             $table->string('name');

@@ -54,8 +54,8 @@ class CreateGuestUser
     public function handle(array $guestUserData, array $roles): User
     {
         $guest = StoreGuest::run(
-            Arr::only($guestUserData, ['name', 'email']),
-            Arr::get($guestUserData, 'username')
+            array_merge( Arr::only($guestUserData, ['name', 'email']) ,['slug'=>Arr::get($guestUserData, 'username')] )
+
         );
 
 

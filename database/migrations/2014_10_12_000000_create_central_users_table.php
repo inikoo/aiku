@@ -15,8 +15,8 @@ return new class extends Migration {
     {
         Schema::create('central_users', function (Blueprint $table) {
             $table->id();
-            $table->uuid('global_id')->unique()->index();
-            $table->string('username')->unique()->index();
+            $table->uuid('global_id')->unique();
+            $table->string('username')->unique();
             $table->string('password');
             $table->string('email')->nullable();
             $table->string('about')->nullable();

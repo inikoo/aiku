@@ -10,7 +10,6 @@ namespace App\Models\HumanResources;
 use App\Actions\Central\Tenant\HydrateTenant;
 use App\Actions\HumanResources\Employee\HydrateEmployee;
 use App\Models\SysAdmin\User;
-use Database\Factories\HumanResources\EmployeeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,7 +24,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\HumanResources\Employee
  *
  * @property int $id
- * @property string $code
+ * @property string $slug
  * @property string|null $name
  * @property string|null $email
  * @property string|null $phone
@@ -59,7 +58,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
  * @method static Builder|Employee query()
- * @method static Builder|Employee whereCode($value)
  * @method static Builder|Employee whereCreatedAt($value)
  * @method static Builder|Employee whereData($value)
  * @method static Builder|Employee whereDateOfBirth($value)
@@ -78,6 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Employee whereName($value)
  * @method static Builder|Employee wherePhone($value)
  * @method static Builder|Employee whereSalary($value)
+ * @method static Builder|Employee whereSlug($value)
  * @method static Builder|Employee whereSourceId($value)
  * @method static Builder|Employee whereState($value)
  * @method static Builder|Employee whereType($value)
@@ -114,12 +113,17 @@ class Employee extends Model implements HasMedia
 
     protected $guarded = [];
 
+
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('name')
-            ->saveSlugsTo('code');
+            ->generateSlugsFrom(function () {
+                return head(explode(' ', trim($this->name)));
+            })
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(16);
     }
+
 
 
     protected static function booted()
@@ -168,10 +172,14 @@ class Employee extends Model implements HasMedia
             ->withPivot('share');
     }
 
-
     public function user(): MorphOne
     {
         return $this->morphOne(User::class, 'parent');
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 
 

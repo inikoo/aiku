@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('guests', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique()->index();
+            $table->string('slug')->unique();
             $table->boolean('status')->index()->default(true);
             $table->enum('type', ['contractor', 'external-employee','external-administrator'])->default('contractor');
             $table->string('name',256)->nullable()->index();

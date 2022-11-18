@@ -18,14 +18,10 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
-
-
 class ShowGuest
 {
     use AsAction;
     use WithInertia;
-
-
 
 
     public function asController(Guest $guest): Guest
@@ -45,24 +41,21 @@ class ShowGuest
 
     public function htmlResponse(Guest $guest): Response
     {
-
         $this->validateAttributes();
+
         return Inertia::render(
             'SysAdmin/Guest',
             [
-                'title'=>__('guest'),
+                'title'       => __('guest'),
                 'breadcrumbs' => $this->getBreadcrumbs($guest),
-                'pageHead'=>[
-                    'title'=>$guest->name,
+                'pageHead'    => [
+                    'title' => $guest->name,
 
                 ],
-                'guest'    => $guest
+                'guest'       => $guest
             ]
         );
-
     }
-
-
 
 
     public function getBreadcrumbs(Guest $guest): array
@@ -72,7 +65,7 @@ class ShowGuest
             [
                 'sysadmin.guests.show' => [
                     'route'           => 'sysadmin.guests.show',
-                    'routeParameters' => $guest->id,
+                    'routeParameters' => $guest->slug,
                     'index'           => [
                         'route'   => 'sysadmin.guests.index',
                         'overlay' => __("guests' list")
@@ -80,7 +73,7 @@ class ShowGuest
                     'modelLabel'      => [
                         'label' => __('guest')
                     ],
-                    'name'            => $guest->code,
+                    'name'            => $guest->slug,
 
                 ],
             ]

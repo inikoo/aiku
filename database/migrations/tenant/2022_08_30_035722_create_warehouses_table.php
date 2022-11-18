@@ -15,7 +15,8 @@ return new class extends Migration {
     {
         Schema::create('warehouses', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('code')->index()->unique();
+            $table->string('slug')->unique();
+            $table->string('code')->index();
             $table->string('name');
             $table->jsonb('settings');
             $table->jsonb('data');

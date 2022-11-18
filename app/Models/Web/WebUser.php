@@ -13,11 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Web\WebUser
  *
  * @property int $id
+ * @property string $slug
  * @property string $type
  * @property int $website_id
  * @property int $customer_id
@@ -53,6 +56,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static Builder|WebUser wherePassword($value)
  * @method static Builder|WebUser whereRememberToken($value)
  * @method static Builder|WebUser whereSettings($value)
+ * @method static Builder|WebUser whereSlug($value)
  * @method static Builder|WebUser whereSourceId($value)
  * @method static Builder|WebUser whereStatus($value)
  * @method static Builder|WebUser whereType($value)
@@ -68,6 +72,7 @@ class WebUser extends Authenticatable
 {
     use HasApiTokens;
     use SoftDeletes;
+    use HasSlug;
 
     protected $guarded = [
     ];
@@ -79,8 +84,8 @@ class WebUser extends Authenticatable
 
     protected $casts = [
 
-        'data'              => 'array',
-        'settings'          => 'array',
+        'data'     => 'array',
+        'settings' => 'array',
     ];
 
 
@@ -88,6 +93,40 @@ class WebUser extends Authenticatable
         'data'     => '{}',
         'settings' => '{}',
     ];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function () {
+                $slug = $this->username;
+                if (filter_var($this->username, FILTER_VALIDATE_EMAIL)) {
+                    $slug = strstr($this->username, '@', true);
+                }
+
+                return $slug;
+            })
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
+    }
+
+    protected static function booted()
+    {
+        static::created(
+            function (WebUser $webUser) {
+                HydrateCustomer::make()->webUsers($webUser->customer);
+            }
+        );
+        static::deleted(
+            function (WebUser $webUser) {
+                HydrateCustomer::make()->webUsers($webUser->customer);
+            }
+        );
+
+        static::updated(function (WebUser $webUser) {
+            if ($webUser->wasChanged('status')) {
+                HydrateCustomer::make()->webUsers($webUser->customer);
+            }
+        });
+    }
 
     public function customer(): BelongsTo
     {

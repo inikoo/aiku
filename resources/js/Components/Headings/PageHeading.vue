@@ -12,9 +12,12 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {faEmptySet} from '@/../private/pro-light-svg-icons';
 import {faPlus} from '@/../private/pro-solid-svg-icons';
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import {useLocaleStore} from '@/Stores/locale.js';
 
 library.add(faEmptySet,faPlus);
 const props = defineProps(['data']);
+const locale = useLocaleStore();
+
 
 </script>
 <template>
@@ -37,15 +40,15 @@ const props = defineProps(['data']);
                             size="lg"
                             class="text-gray-400 pr-2"/>
                         <Link v-if="item.href" :href="route(item.href[0],item.href[1])">
-                            {{ item.number }} {{ item.name }}
+                            <span v-if="item.number">{{ locale.number(item.number) }}</span> {{ item.name }}
                         </Link>
-                        <template v-if="item['emptyWithCreateAction']">
+                        <template v-else-if="item['emptyWithCreateAction']">
                             <font-awesome-icon icon="fal fa-empty-set" class="mr-2"/>
                             <Link>
                                 <Button type="primary" size="xs" action="create" >{{item['emptyWithCreateAction']['label']}}</Button>
                             </Link>
                         </template>
-                        <span v-else>{{ item.number }} {{ item.name }}</span>
+                        <span v-else><span v-if="item.number">{{ locale.number(item.number) }}</span> {{ item.name }} </span>
                     </div>
                 </div>
 

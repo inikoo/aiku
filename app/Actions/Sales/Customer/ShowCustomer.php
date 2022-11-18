@@ -43,7 +43,7 @@ class ShowCustomer extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function InShop(Shop $shop, Customer $customer, Request $request): Customer
+    public function inShop(Shop $shop, Customer $customer, Request $request): Customer
     {
         $this->routeName = $request->route()->getName();
         $this->validateAttributes();
@@ -80,8 +80,6 @@ class ShowCustomer extends InertiaAction
                 ],
             ]
         };
-
-
 
 
         return Inertia::render(
@@ -139,10 +137,10 @@ class ShowCustomer extends InertiaAction
         };
 
         return match ($routeName) {
-            'customers.show' => $headCrumb([$customer->shop_id]),
+            'customers.show' => $headCrumb([$customer->shop->slug]),
             'shops.show.customers.show' => array_merge(
                 (new ShowShop())->getBreadcrumbs($customer->shop),
-                $headCrumb([$customer->shop_id, $customer->id])
+                $headCrumb([$customer->shop->slug, $customer->slug])
             ),
             default => []
         };

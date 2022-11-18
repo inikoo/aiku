@@ -17,7 +17,7 @@ class FetchAuroraShipper extends FetchAurora
     {
         $this->parsedData['shipper'] = [
 
-            'code'         => Str::snake(strtolower($this->auroraModelData->{'Shipper Code'}), '-'),
+            'code'         => $this->auroraModelData->{'Shipper Code'},
             'name'         => $this->auroraModelData->{'Shipper Name'},
             'website'      => $this->auroraModelData->{'Shipper Website'},
             'company_name' => $this->auroraModelData->{'Shipper Fiscal Name'},

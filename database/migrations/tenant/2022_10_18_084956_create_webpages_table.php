@@ -9,16 +9,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
 
     public function up()
     {
         Schema::create('webpages', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique()->index();
-            $webpageTypes=['storefront','product','category','shopping-cart','checkout','store-info','engagement'];
-            $table->enum('type',$webpageTypes)->index();
+            $table->string('slug')->unique();
+            $table->string('code')->index();
+            $webpageTypes = ['storefront', 'product', 'category', 'shopping-cart', 'checkout', 'store-info', 'engagement'];
+            $table->enum('type', $webpageTypes)->index();
             $table->foreignId('webnode_id')->constrained();
             $table->jsonb('components');
             $table->timestampsTz();
@@ -28,8 +28,6 @@ return new class extends Migration
             $table->unsignedSmallInteger('main_webpage_id')->index()->nullable();
             $table->foreign('main_webpage_id')->references('id')->on('webpages');
         });
-
-
     }
 
     public function down()
