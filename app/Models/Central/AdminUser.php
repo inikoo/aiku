@@ -24,11 +24,14 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * App\Models\Central\AdminUser
  *
  * @property int $id
+ * @property string $userable_type
+ * @property int $userable_id
  * @property string $username
  * @property string $password
  * @property bool $status
  * @property int $language_id
  * @property int $timezone_id
+ * @property string|null $email
  * @property array $data
  * @property array $settings
  * @property string|null $two_factor_secret
@@ -37,13 +40,10 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null $userable_type
- * @property int|null $userable_id
- * @property string|null $email
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $tenant
+ * @property-read Model|\Eloquent $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $userable
+ * @property-read Model|\Eloquent $userable
  * @method static Builder|AdminUser newModelQuery()
  * @method static Builder|AdminUser newQuery()
  * @method static \Illuminate\Database\Query\Builder|AdminUser onlyTrashed()
@@ -67,7 +67,7 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * @method static Builder|AdminUser whereUsername($value)
  * @method static \Illuminate\Database\Query\Builder|AdminUser withTrashed()
  * @method static \Illuminate\Database\Query\Builder|AdminUser withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class AdminUser extends Authenticatable
 {

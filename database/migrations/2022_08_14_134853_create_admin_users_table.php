@@ -4,16 +4,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
 
     public function up()
     {
         Schema::create('admin_users', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('admin_id');
-            $table->foreign('admin_id')->references('id')->on('admins');
-
+            $table->morphs('userable');
             $table->string('username')->unique();
             $table->string('password');
 
@@ -23,6 +20,7 @@ return new class extends Migration
             $table->foreign('language_id')->references('id')->on('central.languages');
             $table->unsignedSmallInteger('timezone_id');
             $table->foreign('timezone_id')->references('id')->on('central.timezones');
+            $table->string('email')->nullable()->unique();
 
             $table->jsonb('data');
             $table->jsonb('settings');

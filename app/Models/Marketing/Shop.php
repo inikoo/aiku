@@ -27,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Marketing\Shop
  *
  * @property int $id
+ * @property string|null $slug
  * @property string $code
  * @property string $name
  * @property string|null $company_name
@@ -54,7 +55,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property string|null $slug
  * @property-read Address|null $address
  * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
  * @property-read int|null $addresses_count

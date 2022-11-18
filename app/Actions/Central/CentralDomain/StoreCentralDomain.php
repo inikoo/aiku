@@ -7,9 +7,10 @@
 
 namespace App\Actions\Central\CentralDomain;
 
+use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
 use App\Models\Central\CentralDomain;
 use App\Models\Central\Tenant;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreCentralDomain
@@ -21,6 +22,13 @@ class StoreCentralDomain
         /** @var CentralDomain $centralDomain */
         $centralDomain = $tenant->centralDomains()->create($modelData);
         $centralDomain->stats()->create();
+        StoreAdminUser::run(
+            $centralDomain,
+            [
+                'username'=>'iris-'.$centralDomain->slug,
+                'password'=>wordwrap(Str::random(), 4, '-', true)
+            ]
+        );
         SetIrisDomain::run($centralDomain);
 
         return $centralDomain;

@@ -20,10 +20,10 @@ return new class extends Migration
             $table->string('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedMediumInteger('website_id')->index();
-            $table->string('domain')->unique();
+            $table->string('domain')->index();
             $table->enum('state',['created','iris-enabled'])->default('created');
-
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

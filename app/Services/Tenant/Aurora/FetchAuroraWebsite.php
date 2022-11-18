@@ -18,7 +18,6 @@ class FetchAuroraWebsite extends FetchAurora
         $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Website Store Key'});
 
         $status = match ($this->auroraModelData->{'Website Status'}) {
-            'Maintenance' => 'maintenance',
             'Closed' => 'closed',
             default => 'construction',
         };
@@ -26,10 +25,10 @@ class FetchAuroraWebsite extends FetchAurora
 
         $domain = preg_replace('/^www\./', '', strtolower($this->auroraModelData->{'Website URL'}));
 
-        $code=strtolower($this->auroraModelData->{'Website Code'});
-        $code=preg_replace('/\.com$/','',$code);
-        $code=preg_replace('/\.eu$/','',$code);
-        $code=preg_replace('/\.biz$/','',$code);
+        $code = strtolower($this->auroraModelData->{'Website Code'});
+        $code = preg_replace('/\.com$/', '', $code);
+        $code = preg_replace('/\.eu$/', '', $code);
+        $code = preg_replace('/\.biz$/', '', $code);
 
         $this->parsedData['website'] =
             [
@@ -37,7 +36,7 @@ class FetchAuroraWebsite extends FetchAurora
                 'name'        => $this->auroraModelData->{'Website Name'},
                 'code'        => $code,
                 'domain'      => $domain,
-                'status'      => $status,
+                'state'       => $status,
                 'launched_at' => $this->parseDate($this->auroraModelData->{'Website Launched'}),
                 'created_at'  => $this->parseDate($this->auroraModelData->{'Website From'}),
                 'source_id'   => $this->auroraModelData->{'Website Key'},

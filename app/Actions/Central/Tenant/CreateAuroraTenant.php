@@ -10,7 +10,6 @@
 namespace App\Actions\Central\Tenant;
 
 
-use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -59,6 +58,7 @@ class CreateAuroraTenant
                           ->where('Account Key', 1)->get()[0];
         } catch (Exception $e) {
             echo $e->getMessage();
+
             return 1;
         }
 
@@ -88,23 +88,31 @@ class CreateAuroraTenant
 
         $tenant = StoreTenant::run($tenantData);
 
-        $domain = $tenant->code;
-        $tenant->domains()->create([
-                                       'domain' => $domain,
-                                   ]);
+
+        $domain = $tenant->domains()->create([
+                                                 'domain' => $tenant->code,
+                                             ]);
 
 
-        $adminUser = StoreAdminUser::run(
+        $result = CreateTenantAdminUser::run(
             $tenant,
             [
-                'username' => $tenant->code,
-                'email'    => $email,
-                'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+                [
+                    'username' => $tenant->code,
+                    'email'    => $email,
+                    'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+                ]
+            ],
+            [
+                'name'      => 'aurora',
+                'abilities' => ['aurora']
             ]
         );
 
 
-        $token = $adminUser->createToken('au-bridge', ['aurora'])->plainTextToken;
+        $token = $result->token;
+
+
         DB::connection('aurora')->table('Account Data')
             ->update(['pika_token' => $token]);
 
@@ -114,7 +122,7 @@ class CreateAuroraTenant
 
 
         DB::connection('aurora')->table('Account Data')
-            ->update(['pika_url' => $tenant->id]);
+            ->update(['pika_url' => (app()->isLocal() ? 'http://' : 'https://').$domain->domain.'.'.config('app.domain')]);
 
 
         $command->table(

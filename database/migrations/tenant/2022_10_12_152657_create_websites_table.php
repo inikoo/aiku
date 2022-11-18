@@ -19,7 +19,7 @@ return new class extends Migration {
 
             $table->unsignedMediumInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->enum('status', ['construction', 'live', 'maintenance', 'closed'])->default('construction')->index();
+            $table->enum('state', ['construction', 'live', 'maintenance', 'closed'])->default('construction')->index();
             $table->string('code')->index();
             $table->string('domain')->unique();
             $table->string('name');

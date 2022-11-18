@@ -27,6 +27,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $email_verified_at
  * @property string|null $password
  * @property string|null $remember_token
+ * @property int $number_api_tokens
  * @property array $data
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -34,7 +35,6 @@ use Laravel\Sanctum\HasApiTokens;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string $web_login_version
  * @property int|null $source_id
- * @property int $number_api_tokens
  * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count

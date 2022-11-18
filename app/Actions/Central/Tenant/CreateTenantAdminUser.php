@@ -29,8 +29,16 @@ class CreateTenantAdminUser
 
     public function handle(Tenant $tenant, array $adminUserData, ?array $tokenData = null): object
     {
-        $token     = null;
-        $password  = (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true));
+        $token = null;
+
+
+        $password = Arr::get(
+            $adminUserData,
+            'password',
+            (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+        );
+
+
         $adminUser = StoreAdminUser::run(
             $tenant,
             [
@@ -48,8 +56,8 @@ class CreateTenantAdminUser
         }
 
         return (object)[
-            'password'  => $password,
-            'token'     => $token,
+            'password' => $password,
+            'token' => $token,
             'adminUser' => $adminUser
         ];
     }
@@ -67,15 +75,13 @@ class CreateTenantAdminUser
                 }
 
                 if ($command->option('token')) {
+                    $tokenData = json_decode($command->option('token'), true);
 
-                    $tokenData = json_decode($command->option('token'),true);
-
-                    if(!$tokenData){
+                    if (!$tokenData) {
                         $command->error('Invalid json in token option');
+
                         return 1;
                     }
-
-
                 }
 
                 $result = $this->handle(

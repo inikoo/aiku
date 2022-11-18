@@ -22,11 +22,13 @@ class StoreWebsite
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->stats()->create();
-        StoreCentralDomain::run(tenant(),[
-            'website_id'=>$website->id,
-            'slug'=>$website->code,
-            'domain'=>$website->domain
-        ]);
+        if($website->state!='closed') {
+            StoreCentralDomain::run(tenant(), [
+                'website_id' => $website->id,
+                'slug'       => $website->code,
+                'domain'     => $website->domain
+            ]);
+        }
 
 
         return $website;
