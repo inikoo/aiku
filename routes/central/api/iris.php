@@ -6,6 +6,8 @@
  */
 
 
-use App\Actions\Inventory\Stock\CreateStockFromIris;
+use App\Actions\Inventory\Stock\CreateCustomerStockFromIris;
+use App\Actions\Inventory\Stock\UpdateCustomerStockFromIris;
 
-Route::post('/stocks', CreateStockFromIris::class)->name('create.stock');
+Route::post('/stocks', CreateCustomerStockFromIris::class)->name('create.stock');
+Route::patch('/stocks', UpdateCustomerStockFromIris::class)->name('update.stock');

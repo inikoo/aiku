@@ -15,7 +15,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 
-class CreateStockFromIris extends fromIris
+class CreateCustomerStockFromIris extends fromIris
 {
 
     public function rules(): array
