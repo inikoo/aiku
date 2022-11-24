@@ -11,6 +11,7 @@ namespace App\Models\Sales;
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
+use App\Models\Inventory\Stock;
 use App\Models\Marketing\Shop;
 use App\Models\Web\WebUser;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -196,6 +198,11 @@ class Customer extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function stocks(): MorphMany
+    {
+        return $this->morphMany(Stock::class, 'owner', 'owner_type', 'owner_id', 'id');
     }
 
 

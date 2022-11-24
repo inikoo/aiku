@@ -23,7 +23,7 @@ class RefreshCentralDomainTokens
     public function handle(CentralDomain $centralDomain): PromiseInterface|Response
     {
 
-        $token = $centralDomain->createToken(
+        $token = $centralDomain->adminUser->createToken(
             'iris',
             ['iris'],
         );
@@ -38,7 +38,7 @@ class RefreshCentralDomainTokens
             );
 
         if ($response->status() == 200) {
-            $centralDomain->tokens()->where('id', '!=', $token->accessToken->id)->delete();
+            $centralDomain->adminUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
         }
 
         return $response;
