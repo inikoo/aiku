@@ -51,6 +51,29 @@ class ShowCustomer extends InertiaAction
         return $this->handle($customer);
     }
 
+
+    private function makeRoute(Customer $customer, $suffix = '', $parameters = []): array
+    {
+        $route = $this->routeName;
+        if ($this->routeName == 'shops.show.customers.show') {
+            $routeParameters = [
+                $customer->shop->slug,
+                $customer->slug
+            ];
+        } else {
+            $routeParameters = [
+                $customer->slug
+            ];
+        }
+
+        $route           .= $suffix;
+        $routeParameters = array_merge_recursive($routeParameters, $parameters);
+
+
+        return [$route, $routeParameters];
+    }
+
+
     public function htmlResponse(Customer $customer): Response
     {
         $webUsersMeta = match ($customer->stats->number_web_users) {
@@ -65,10 +88,11 @@ class ShowCustomer extends InertiaAction
                 ]
             ],
             1 => [
-                'name'     => $customer->webUsers->first()->username,
+                'href'     => $this->makeRoute($customer, '.web-users.show', [$customer->webUsers->first()->slug]),
+                'name'     => $customer->webUsers->first()->slug,
                 'leftIcon' => [
                     'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web user')
+                    'tooltip' => __('Web user'),
                 ],
 
             ],

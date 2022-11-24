@@ -7,6 +7,7 @@
 
 namespace App\Models\Web;
 
+use App\Actions\Sales\Customer\HydrateCustomer;
 use App\Models\Sales\Customer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
