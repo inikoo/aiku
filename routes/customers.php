@@ -10,6 +10,7 @@ use App\Actions\Sales\Customer\IndexCustomers;
 use App\Actions\Sales\Customer\ShowCustomer;
 use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\CreateWebUser;
+use App\Actions\Web\WebUser\ShowWebUser;
 
 
 Route::get('/', IndexCustomers::class)->name('index');

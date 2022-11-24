@@ -133,4 +133,9 @@ class WebUser extends Authenticatable
         return $this->belongsTo(Customer::class);
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
 }

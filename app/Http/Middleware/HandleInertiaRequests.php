@@ -40,7 +40,7 @@ class HandleInertiaRequests extends Middleware
 
         $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
 
-            'tenant'   => tenant()->only('name', 'code'),
+            'tenant'   => tenant() ? tenant()->only('name', 'code') : null,
             'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
             'layout'   => function () use ($user) {
                 if ($user) {
@@ -60,10 +60,10 @@ class HandleInertiaRequests extends Middleware
             $firstLoadOnlyProps,
             [
                 'auth'  => [
-                    'user' => $request->user()?$request->user()->only('username','email','avatar'):null,
+                    'user' => $request->user() ? $request->user()->only('username', 'email', 'avatar') : null,
                 ],
                 'flash' => [
-                    'notification' => fn () => $request->session()->get('notification')
+                    'notification' => fn() => $request->session()->get('notification')
                 ],
                 'ziggy' => function () use ($request) {
                     return array_merge((new Ziggy)->toArray(), [
