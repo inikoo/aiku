@@ -45,8 +45,8 @@ class fromIris
 
     public function asController(ActionRequest $request)
     {
-        $centralDomain = CentralDomain::find($request->get('central_domain_id'));
-
+        $validated     = $request->validated();
+        $centralDomain = CentralDomain::findOrFail(Arr::get($validated, 'central_domain_id'));
 
         return $centralDomain->tenant->run(
             function () use ($request) {
