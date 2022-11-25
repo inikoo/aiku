@@ -24,8 +24,7 @@ lang/php_*.json
 /storage/tenants
 tt
 ctt
-deploy
-deplay.sh
+deploy.sh
 fetch.sh
 prod-diff.sh
 ide-helper.sh
