@@ -2,49 +2,58 @@
 
 return [
 
-    'dsn' => env('SENTRY_LARAVEL_DSN', env('SENTRY_DSN')),
+    'dsn'         => env('SENTRY_LARAVEL_DSN', env('SENTRY_DSN')),
 
     // capture release as git sha
-     'release' => trim(exec('git ' .(env('APP_ENV')!='production'?'':'--git-dir '.env('REPO_DIR')) .' log --pretty="%h" -n1 HEAD')),
-
+    'release'     => trim(
+        exec(
+            'git '.(
+            (env('APP_ENV') == 'production' or env('APP_ENV') == 'staging')
+                ?
+                '--git-dir '.env('REPO_DIR')
+                :
+                ''
+            ).' log --pretty="%h" -n1 HEAD'
+        )
+    ),
     // When left empty or `null` the Laravel environment will be used
     'environment' => env('SENTRY_ENVIRONMENT'),
 
     'breadcrumbs' => [
         // Capture Laravel logs in breadcrumbs
-        'logs' => true,
+        'logs'         => true,
 
         // Capture SQL queries in breadcrumbs
-        'sql_queries' => true,
+        'sql_queries'  => true,
 
         // Capture bindings on SQL queries logged in breadcrumbs
         'sql_bindings' => true,
 
         // Capture queue job information in breadcrumbs
-        'queue_info' => true,
+        'queue_info'   => true,
 
         // Capture command information in breadcrumbs
         'command_info' => true,
     ],
 
-    'tracing' => [
+    'tracing'          => [
         // Trace queue jobs as their own transactions
         'queue_job_transactions' => env('SENTRY_TRACE_QUEUE_ENABLED', false),
 
         // Capture queue jobs as spans when executed on the sync driver
-        'queue_jobs' => true,
+        'queue_jobs'             => true,
 
         // Capture SQL queries as spans
-        'sql_queries' => true,
+        'sql_queries'            => true,
 
         // Try to find out where the SQL query originated from and add it to the query spans
-        'sql_origin' => true,
+        'sql_origin'             => true,
 
         // Capture views as spans
-        'views' => true,
+        'views'                  => true,
 
         // Indicates if the tracing integrations supplied by Sentry should be loaded
-        'default_integrations' => true,
+        'default_integrations'   => true,
     ],
 
     // @see: https://docs.sentry.io/platforms/php/configuration/options/#send-default-pii
