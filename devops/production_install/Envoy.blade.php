@@ -6,16 +6,9 @@
 --}}
 
 @include('../../vendor/autoload.php')
-
-
 @setup
 $dotenv = Dotenv\Dotenv::createImmutable('../../');
 $dotenv->load();
-
-$api_url=$_ENV['PRODUCTION_API_URL'];
-$api_key=$_ENV['PRODUCTION_API_KEY'];
-
-$host=$_ENV['PRODUCTION_API_KEY'];
 
 // Sanity checks
 
@@ -32,7 +25,13 @@ $user=$_ENV['DEPLOYMENT_USER'];
 if (empty($_ENV['DEPLOYMENT_PATH'])) {
 exit('ERROR: DEPLOYMENT_PATH var empty or not defined');
 }
-$path=$_ENV['DEPLOYMENT_PATH'];
+
+if(!$environment){
+    $environment='staging';
+}
+
+$base_path=$_ENV['DEPLOYMENT_PATH'];
+$path=$base_path.'/'.$environment;
 
 
 if (empty($_ENV['PRODUCTION_ADMIN_EMAIL'])) {
@@ -55,7 +54,7 @@ $date = ( new DateTime )->format('Y-m-d_H_i_s');
 
 $current_release_dir = $path . '/current';
 $releases_dir = $path . '/releases';
-$repo_dir = $path . '/repo';
+$repo_dir = $base_path . '/repo';
 $new_release_dir = $releases_dir . '/' . $date;
 
 
@@ -69,9 +68,9 @@ $skip_build=false;
 
 @endsetup
 
-@servers(['production' => $user.'@'.$host,'localhost' => '127.0.0.1'])
+@servers(['server' => $user.'@'.$host,'localhost' => '127.0.0.1'])
 
-@task('install', ['on' => 'production','confirm' => true])
+@task('install', ['on' => 'server','confirm' => true])
 
 
 rm -rf {{ $path }}/storage/tenants
@@ -107,7 +106,7 @@ npm install
 echo "***********************************************************************"
 echo "* build VUE *"
 cd {{$new_release_dir}}
-ln -sf {{ $path }}/private/ {{ $new_release_dir }}/resources/
+ln -sf {{ $base_path }}/private/ {{ $new_release_dir }}/resources/
 npm run build
 
 
@@ -154,10 +153,19 @@ ln -nsf {{ $new_release_dir }} {{ $current_release_dir }}
 echo "***********************************************************************"
 echo "* Create aurora tenants"
 
+@if ($environment=='staging')
 @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
-    echo "Tenant {{ $tenantData->db }}"
-    {{ $php }} artisan create:tenant-aurora {{$tenant}} {{$tenantData->db}} {{$tenantData->email}}
+echo "Tenant {{ $tenantData->db_staging }}"
+{{ $php }} artisan create:tenant-aurora {{$tenant}} {{$tenantData->db_staging}} {{$tenantData->email}}
 @endforeach
+@else
+    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
+        echo "Tenant {{ $tenantData->db }}"
+        {{ $php }} artisan create:tenant-aurora {{$tenant}} {{$tenantData->db}} {{$tenantData->email}}
+    @endforeach
+@endif
+
+
 
 {{ $php }} artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin
 

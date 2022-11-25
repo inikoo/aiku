@@ -25,7 +25,7 @@ lang/php_*.json
 tt
 ctt
 deploy
-deploay.sh
+deplay.sh
 fetch.sh
 prod-diff.sh
 ide-helper.sh
