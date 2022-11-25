@@ -105,6 +105,20 @@ class ShowCustomer extends InertiaAction
             ]
         };
 
+        $shopMeta=[];
+
+        if ($this->routeName == 'customers.show') {
+            $shopMeta = [
+                'href' => ['shops.show', $customer->shop->slug],
+                'name'     => $customer->shop->code,
+                'leftIcon' => [
+                    'icon'    => 'fal fa-store-alt',
+                    'tooltip' => __('Shop'),
+                ],
+            ];
+        }
+
+
 
         return Inertia::render(
             'Sales/Customer',
@@ -113,9 +127,10 @@ class ShowCustomer extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $customer),
                 'pageHead'    => [
                     'title' => $customer->name,
-                    'meta'  => [
+                    'meta'  => array_filter([
+                        $shopMeta,
                         $webUsersMeta
-                    ]
+                    ])
 
                 ],
                 'customer'    => new CustomerResource($customer)

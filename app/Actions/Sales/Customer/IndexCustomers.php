@@ -139,7 +139,7 @@ class IndexCustomers extends InertiaAction
             'shops.show.customers.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->id])
+                $headCrumb([$parent->slug])
             ),
             default => []
         };

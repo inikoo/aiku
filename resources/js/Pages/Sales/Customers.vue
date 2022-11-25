@@ -14,7 +14,6 @@ defineProps(['customers', 'title','pageHead']);
 const itemRoute = route().current().replace(/index$/i, 'show')
 
 function routeParameters(customer) {
-
     switch (route().current()) {
         case 'shops.show.customers.index':
             return [customer['shop_slug'],customer.slug]
@@ -39,7 +38,7 @@ function routeParameters(customer) {
             </Link>
         </template>
         <template #cell(shop)="{ item: customer }">
-            <Link :href="route('shops.show.customers.index',customer['shop_id'])">
+            <Link :href="route('shops.show.customers.index',customer['shop_slug'])">
                 {{ customer['shop'] }}
             </Link>
 
