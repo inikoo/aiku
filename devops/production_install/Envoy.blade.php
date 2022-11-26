@@ -119,11 +119,6 @@ cd {{$new_release_dir}}
 ln -sf {{ $base_path }}/assets/private/ {{ $new_release_dir }}/resources/
 npm run build
 
-
-touch {{ $new_release_dir }}/deploy-manifest.json
-touch {{ $path }}/deploy-manifest.json
-
-
 echo "***********************************************************************"
 echo "migrating DB and seeding"
 cd {{ $new_release_dir }}

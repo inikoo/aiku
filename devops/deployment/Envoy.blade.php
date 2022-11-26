@@ -74,16 +74,14 @@ $skip_build=false;
 mkdir -p {{ $new_release_dir }}
 mkdir -p {{ $new_release_dir }}/public/
 
-DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/create' --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
-echo DEPLOY
-echo $DEPLOY > {{$path}}/deploy-manifest.json
-echo "cp {{$path}}/deploy-manifest.json {{ $new_release_dir }}/"
-cp {{$path}}/deploy-manifest.json {{ $new_release_dir }}/
 
 echo "***********************************************************************"
 echo "* Pulling repo *"
 cd {{$repo_dir}}
 git pull origin {{ $branch }}
+
+DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/create' --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
+echo DEPLOY
 
 echo "***********************************************************************"
 echo "* copy code from {{ $repo_dir }} to {{ $new_release_dir }} *"
