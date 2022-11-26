@@ -12,8 +12,7 @@
 $dotenv = Dotenv\Dotenv::createImmutable('../../');
 $dotenv->load();
 
-$api_url=$_ENV['PRODUCTION_API_URL'];
-$api_key=$_ENV['PRODUCTION_API_KEY'];
+
 
 // Sanity checks
 
@@ -31,12 +30,24 @@ if (empty($_ENV['DEPLOYMENT_PATH'])) {
 exit('ERROR: DEPLOYMENT_PATH var empty or not defined');
 }
 
-if(!$environment){
-    $environment='staging';
+if(!$env){
+    $env='staging';
 }
 
+$api_url='';
+$api_key='';
+if($env=='production'){
+    $api_url=$_ENV['PRODUCTION_API_URL'];
+    $api_key=$_ENV['PRODUCTION_API_KEY'];
+}elseif($env=='staging'){
+    $api_url=$_ENV['STAGING_API_URL'];
+    $api_key=$_ENV['STAGING_API_KEY'];
+}
+
+
+
 $base_path=$_ENV['DEPLOYMENT_PATH'];
-$path=$base_path.'/'.$environment;
+$path=$base_path.'/'.$env;
 
 
 $date = ( new DateTime )->format('Y-m-d_H_i_s');
@@ -63,13 +74,11 @@ $skip_build=false;
 mkdir -p {{ $new_release_dir }}
 mkdir -p {{ $new_release_dir }}/public/
 
-@if ($environment=='production')
-    DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/create' --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
-    echo DEPLOY
-    echo $DEPLOY > {{$path}}/deploy-manifest.json
-    echo "cp {{$path}}/deploy-manifest.json {{ $new_release_dir }}/"
-    cp {{$path}}/deploy-manifest.json {{ $new_release_dir }}/
-@endif
+DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/create' --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
+echo DEPLOY
+echo $DEPLOY > {{$path}}/deploy-manifest.json
+echo "cp {{$path}}/deploy-manifest.json {{ $new_release_dir }}/"
+cp {{$path}}/deploy-manifest.json {{ $new_release_dir }}/
 
 echo "***********************************************************************"
 echo "* Pulling repo *"
@@ -82,7 +91,7 @@ echo "* copy code from {{ $repo_dir }} to {{ $new_release_dir }} *"
 rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{ $repo_dir }}/devops/deployment/deployment-exclude-list.txt {{ $repo_dir }}/ {{ $new_release_dir }}
 sudo chgrp www-data {{ $new_release_dir }}/bootstrap/cache
 
-ln -nsf {{ $path }}/.env {{ $new_release_dir }}/.env
+ln -nsf {{ $base_path }}/env.{{$env}} {{ $new_release_dir }}/.env
 ln -nsf {{ $path }}/storage {{ $new_release_dir }}/storage
 ln -nsf {{ $path }}/storage/app/public {{ $new_release_dir }}/public/storage
 
@@ -99,7 +108,7 @@ npm install
 echo "***********************************************************************"
 echo "* build VUE *"
 cd {{$new_release_dir}}
-ln -sf {{ $base_path }}/private/ {{ $new_release_dir }}/resources
+ln -sf {{ $base_path }}/assets/private/ {{ $new_release_dir }}/resources
 npm run build
 
 cd {{ $new_release_dir }}
@@ -140,12 +149,10 @@ echo "* Executing cleanup command in {{ $releases_dir }} *"
 cd {{$releases_dir}}
 ls -r | tail -n +10 | xargs rm -rf
 
-@if ($environment=='production')
-    DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/latest/edit?state=deployed'  --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
-    echo $DEPLOY
-@endif
+DEPLOY=$(curl --silent --location --request POST '{{$api_url}}/deployments/latest/edit?state=deployed'  --header 'Accept: application/json' --header 'Authorization: Bearer {{$api_key}}')
+echo $DEPLOY
 
-echo "Deployment ({{ $date }}) to {{$environment}} finished"
+echo "Deployment ({{ $date }}) to {{$env}} finished"
 
 @endtask
 

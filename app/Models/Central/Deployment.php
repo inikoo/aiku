@@ -50,16 +50,7 @@ class Deployment extends Model
         'data' => 'array'
     ];
 
-    protected $appends = ['skip_build','skip_npm_install','skip_composer_install'];
 
-    public function getSkipComposerInstallAttribute(){
-        return Arr::get($this->data,'skip.composer_install',false);
-    }
-    public function getSkipNpmInstallAttribute(){
-        return Arr::get($this->data,'skip.npm_install',false);
-    }
-    public function getSkipBuildAttribute(){
-        return Arr::get($this->data,'skip.build',false);
-    }
+
 
 }

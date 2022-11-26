@@ -43,8 +43,6 @@ class StoreDeployment
 
     public function runGitCommand($command): string
     {
-
-
         try {
             if (method_exists(Process::class, 'fromShellCommandline')) {
                 $process = Process::fromShellCommandline($command);
@@ -66,7 +64,12 @@ class StoreDeployment
     public function asController(): Model|Deployment|JsonResponse
     {
         $data = [
-            'skip' => []
+            'changes' => [
+                'repo'     => false,
+                'vendors'  => false,
+                'npm'      => false,
+                'frontend' => false,
+            ]
         ];
 
 
@@ -83,15 +86,19 @@ class StoreDeployment
             } else {
                 $filesChanged = $this->runGitCommand("git --git-dir ".config('deployments.repo_path')."   diff --name-only $currentHash $latestHash");
 
-                if (!preg_match('/composer\.lock/', $filesChanged)) {
-                    $data['skip']['composer_install'] = true;
-                }
-                if (!preg_match('/package\.lock/', $filesChanged)) {
-                    $data['skip']['npm_install'] = true;
+                if ($currentHash != $latestHash) {
+                    $data['changes']['repo'] = true;
                 }
 
-                if (!str_contains($filesChanged, 'resources')) {
-                    $data['skip']['build'] = true;
+                if (preg_match('/composer\.lock/', $filesChanged)) {
+                    $data['changes']['vendors'] = true;
+                }
+                if (preg_match('/package\.lock/', $filesChanged)) {
+                    $data['changes']['npm'] = true;
+                }
+
+                if (str_contains($filesChanged, 'resources')) {
+                    $data['changes']['frontend'] = true;
                 }
             }
 
@@ -126,7 +133,6 @@ class StoreDeployment
             );
         }
     }
-
 
 
     private function validateHash($hash): bool

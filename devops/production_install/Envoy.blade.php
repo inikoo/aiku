@@ -26,12 +26,17 @@ if (empty($_ENV['DEPLOYMENT_PATH'])) {
 exit('ERROR: DEPLOYMENT_PATH var empty or not defined');
 }
 
-if(!$environment){
-    $environment='staging';
+if(!$env){
+    $env='staging';
+}
+
+$database=$_ENV['DB_DATABASE'];
+if($env=='staging'){
+    $database.='_staging';
 }
 
 $base_path=$_ENV['DEPLOYMENT_PATH'];
-$path=$base_path.'/'.$environment;
+$path=$base_path.'/'.$env;
 
 
 if (empty($_ENV['PRODUCTION_ADMIN_EMAIL'])) {
@@ -49,14 +54,12 @@ exit('ERROR: PRODUCTION_ADMIN_NANE var empty or not defined');
 }
 $adminName=$_ENV['PRODUCTION_ADMIN_NANE'];
 
-
 $date = ( new DateTime )->format('Y-m-d_H_i_s');
 
 $current_release_dir = $path . '/current';
 $releases_dir = $path . '/releases';
 $repo_dir = $base_path . '/repo';
 $new_release_dir = $releases_dir . '/' . $date;
-
 
 // Command or path to invoke PHP
 $php = empty($php) ? 'php8.1' : $php;
@@ -73,8 +76,7 @@ $skip_build=false;
 @task('install', ['on' => 'server','confirm' => true])
 
 
-rm -rf {{ $path }}/storage/tenants
-rm -rf {{ $path }}/storage/logs/*
+sudo rm -rf {{ $path }}/storage
 
 mkdir -p {{ $new_release_dir }}
 mkdir -p {{ $new_release_dir }}/public/
@@ -84,14 +86,22 @@ echo "* Pulling repo *"
 cd {{$repo_dir}}
 git pull origin {{ $branch }}
 
+cp -R {{$repo_dir}}/storage {{ $path }}
+sudo chgrp -R www-data {{ $path }}/storage
+sudo chmod g+s {{ $path }}/storage
+
+
 echo "***********************************************************************"
 echo "* Copy code from {{ $repo_dir }} to {{ $new_release_dir }} *"
 rsync   -rlptgoDPzSlh  --no-p --chmod=g=rwX  --delete  --stats --exclude-from={{ $repo_dir }}/devops/deployment/deployment-exclude-list.txt {{ $repo_dir }}/ {{ $new_release_dir }}
 sudo chgrp www-data {{ $new_release_dir }}/bootstrap/cache
 
-ln -nsf {{ $path }}/.env {{ $new_release_dir }}/.env
+ln -nsf {{ $base_path }}/env.{{$env}} {{ $new_release_dir }}/.env
 ln -nsf {{ $path }}/storage {{ $new_release_dir }}/storage
 ln -nsf {{ $path }}/storage/app/public {{ $new_release_dir }}/public/storage
+
+
+
 
 echo "***********************************************************************"
 echo "* Composer install *"
@@ -106,19 +116,22 @@ npm install
 echo "***********************************************************************"
 echo "* build VUE *"
 cd {{$new_release_dir}}
-ln -sf {{ $base_path }}/private/ {{ $new_release_dir }}/resources/
+ln -sf {{ $base_path }}/assets/private/ {{ $new_release_dir }}/resources/
 npm run build
 
 
 touch {{ $new_release_dir }}/deploy-manifest.json
+touch {{ $path }}/deploy-manifest.json
 
 
 echo "***********************************************************************"
 echo "migrating DB and seeding"
 cd {{ $new_release_dir }}
+
 @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
-        echo "Dropping tenant databases {{ $tenantData->db }}"
-        psql -d {{ $_ENV['DB_DATABASE'] }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
+        echo "Dropping tenant databases {{ $tenant }}"
+        echo "psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'"
+        psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
 @endforeach
 {{$php}} artisan optimize:clear
 {{$php}} artisan migrate:refresh --force
@@ -153,11 +166,11 @@ ln -nsf {{ $new_release_dir }} {{ $current_release_dir }}
 echo "***********************************************************************"
 echo "* Create aurora tenants"
 
-@if ($environment=='staging')
-@foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
-echo "Tenant {{ $tenantData->db_staging }}"
-{{ $php }} artisan create:tenant-aurora {{$tenant}} {{$tenantData->db_staging}} {{$tenantData->email}}
-@endforeach
+@if ($env=='staging')
+    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
+        echo "Tenant {{ $tenantData->db_staging }}"
+        {{ $php }} artisan create:tenant-aurora {{$tenant}} {{$tenantData->db_staging}} {{$tenantData->email}}
+    @endforeach
 @else
     @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
         echo "Tenant {{ $tenantData->db }}"
