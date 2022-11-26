@@ -9,7 +9,6 @@ namespace App\Models\Central;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 
