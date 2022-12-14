@@ -13,6 +13,7 @@ return [
     ],
 
     'exclude-routes' => [
+        'api/iris/*'
     ],
 
     'exclude-request-fields' => [

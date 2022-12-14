@@ -25,7 +25,7 @@ class FetchTransactions
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id, Order $order): ?Transaction
     {
-        if ($transactionData = $tenantSource->fetchTransaction(type: 'HistoricProduct', id: $source_id)) {
+        if ($transactionData = $tenantSource->fetchTransaction(id: $source_id)) {
             if (!Transaction::where('source_id', $transactionData['transaction']['source_id'])
                 ->first()) {
                 $transaction= StoreTransaction::run(

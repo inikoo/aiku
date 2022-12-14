@@ -7,7 +7,6 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchLocations;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraStockLocations extends FetchAurora
@@ -16,7 +15,7 @@ class FetchAuroraStockLocations extends FetchAurora
     {
         $stockLocations = [];
         foreach ($this->auroraModelData as $modelData) {
-            $location = FetchLocations::run($this->tenantSource, $modelData->{'Location Key'});
+            $location = $this->parseLocation($modelData->{'Location Key'});
             $settings = [];
             if ($modelData->{'Minimum Quantity'}) {
                 $settings['min_stock'] = $modelData->{'Minimum Quantity'};

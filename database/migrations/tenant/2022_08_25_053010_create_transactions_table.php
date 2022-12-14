@@ -21,6 +21,8 @@ return new class extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->unsignedBigInteger('order_id')->index();
             $table->foreign('order_id')->references('id')->on('orders');
+            $table->enum('state', ['submitted', 'in-warehouse', 'packed', 'finalised', 'no-dispatched', 'dispatched', 'cancelled'])->default('submitted')->nullable()->index();
+
             $table->nullableMorphs('item');
             $table->decimal('quantity', 16, 3);
             $table->decimal('discounts', 16)->default(0);

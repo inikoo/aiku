@@ -26,7 +26,7 @@ class FetchWarehouseAreas extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?WarehouseArea
     {
         if ($warehouseAreaData = $tenantSource->fetchWarehouseArea($tenantSourceId)) {
-            if ($warehouseArea = WarehouseArea::where('source_id', $warehouseAreaData['warehouse_area']['source_id'])
+            if ($warehouseArea = WarehouseArea::withTrashed()->where('source_id', $warehouseAreaData['warehouse_area']['source_id'])
                 ->first()) {
                 $warehouseArea = UpdateWarehouseArea::run(
                     warehouseArea: $warehouseArea,

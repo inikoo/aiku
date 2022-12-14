@@ -54,7 +54,7 @@ class SetIrisDomain
     {
         if ($command->option('domain')) {
             $centralDomain = CentralDomain::where('slug', ($command->option('domain')))->firstOrFail();
-            if ($centralDomain->state == 'created') {
+            if ($centralDomain->state == 'created' or $centralDomain->state == 'iris-enabled'  ) {
                 $response = $this->handle($centralDomain);
                 if (!($response->status() == 201 or $response->status() == 200)) {
                     $command->error($response->status());

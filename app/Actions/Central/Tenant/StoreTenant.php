@@ -27,6 +27,7 @@ class StoreTenant
         $tenant->productionStats()->create();
         $tenant->marketingStats()->create();
         $tenant->salesStats()->create();
+        $tenant->fulfilmentStats()->create();
         $tenant->refresh();
 
         $tenant->run(function () {

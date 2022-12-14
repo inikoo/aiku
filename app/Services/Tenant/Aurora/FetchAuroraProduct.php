@@ -13,7 +13,22 @@ class FetchAuroraProduct extends FetchAurora
 {
     protected function parseModel(): void
     {
+        if ($this->auroraModelData->{'Product Type'} != 'Product') {
+            return;
+        }
+
         $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Product Store Key'});
+
+        if ($this->auroraModelData->{'Product Customer Key'}) {
+            $customer = $this->parseCustomer($this->auroraModelData->{'Product Customer Key'});
+
+            $owner_type = 'Customer';
+            $owner_id   = $customer->id;
+        } else {
+            $owner_type = 'Shop';
+            $owner_id   = $this->parsedData['shop']->id;
+        }
+
 
         $data     = [];
         $settings = [];
@@ -46,17 +61,24 @@ class FetchAuroraProduct extends FetchAurora
         $data['raw_price'] = $unit_price;
 
 
-        $this->parsedData['product'] = [
-            'code' => $this->auroraModelData->{'Product Code'},
-            'name' => $this->auroraModelData->{'Product Name'},
-            'price' => round($unit_price, 2),
-            'outer' => round($units, 3),
-            'status' => $status,
-            'state'  => $state,
-            'data'       => $data,
-            'settings'   => $settings,
-            'created_at' => $created_at,
-            'source_id' => $this->auroraModelData->{'Product ID'},
+        $historicProduct = $this->parseHistoricProduct($this->auroraModelData->{'Product Current Key'});
+
+
+        $this->parsedData['historic_product_source_id'] = $this->auroraModelData->{'Product Current Key'};
+        $this->parsedData['product']                    = [
+            'owner_type'                  => $owner_type,
+            'owner_id'                    => $owner_id,
+            'code'                        => $this->auroraModelData->{'Product Code'},
+            'name'                        => $this->auroraModelData->{'Product Name'},
+            'price'                       => round($unit_price, 2),
+            'units'                       => round($units, 3),
+            'status'                      => $status,
+            'state'                       => $state,
+            'data'                        => $data,
+            'settings'                    => $settings,
+            'created_at'                  => $created_at,
+            'source_id'                   => $this->auroraModelData->{'Product ID'},
+            'current_historic_product_id' => $historicProduct->id
         ];
     }
 

@@ -20,27 +20,26 @@ return new class extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedBigInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedBigInteger('order_id')->index()->comment('Main order, usually the only one (used for performance)');
-            $table->foreign('order_id')->references('id')->on('orders');
             $table->string('number')->index();
             $table->enum('type', ['order', 'replacement'])->default('order')->index();
 
             $table->enum(
                 'state',
                 [
-                    'ready-to-be-picked',
+                    'submitted',
                     'picker-assigned',
                     'picking',
                     'picked',
+
                     'packing',
                     'packed',
-                    'packed-done',
-                    'approved',
+                    'finalised',
                     'dispatched',
-                    'cancelled',
-                    'cancelled-to-restock',
                 ]
             )->index();
+
+            $table->boolean('can_dispatch')->nullable();
+
             //$table->string('status')->nullable()->index();
 
 
@@ -61,22 +60,22 @@ return new class extends Migration {
 
             $table->dateTimeTz('date')->index();
 
-            $table->dateTimeTz('order_submitted_at')->nullable();
-
+            $table->dateTimeTz('submitted_at')->nullable();
             $table->dateTimeTz('assigned_at')->nullable();
             $table->dateTimeTz('picking_at')->nullable();
             $table->dateTimeTz('picked_at')->nullable();
+
             $table->dateTimeTz('packing_at')->nullable();
             $table->dateTimeTz('packed_at')->nullable();
+            $table->dateTimeTz('finalised_at')->nullable();
             $table->dateTimeTz('dispatched_at')->nullable();
-            $table->dateTimeTz('cancelled_at')->nullable();
+
+            $table->dateTimeTz('cancelled_at')->nullable()->comment('equivalent to deleted_at');
 
 
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->softDeletesTz();
             $table->unsignedBigInteger('source_id')->nullable()->unique();
-
         });
     }
 

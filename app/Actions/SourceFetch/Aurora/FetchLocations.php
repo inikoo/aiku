@@ -24,7 +24,7 @@ class FetchLocations extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Location
     {
         if ($locationData = $tenantSource->fetchLocation($tenantSourceId)) {
-            if ($location = Location::where('source_id', $locationData['location']['source_id'])
+            if ($location = Location::withTrashed()->where('source_id', $locationData['location']['source_id'])
                 ->first()) {
                 $location = UpdateLocation::run(
                     location:  $location,

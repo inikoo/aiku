@@ -93,7 +93,7 @@ class HydrateShop extends HydrateModel
         $stats       = [
             'number_orders' => $shop->orders->count(),
         ];
-        $orderStates = ['in-basket', 'in-process', 'in-warehouse', 'packed', 'packed-done', 'dispatched', 'returned', 'cancelled'];
+        $orderStates = ['in-basket', 'in-process', 'in-warehouse', 'packed', 'finalised', 'dispatched', 'returned', 'cancelled'];
         $stateCounts = Order::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')

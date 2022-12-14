@@ -25,7 +25,9 @@ interface SourceTenantService
 
     public function fetchShipper($id);
 
-    public function fetchTransaction($type, $id);
+    public function fetchTransaction($id);
+
+    public function fetchInvoiceTransaction($id);
 
     public function fetchCustomer($id);
 
@@ -47,11 +49,15 @@ interface SourceTenantService
 
     public function fetchHistoricProduct($id);
 
+    public function fetchHistoricService($id);
+
     public function fetchDepartment($id);
 
     public function fetchFamily($id);
 
     public function fetchProduct($id);
+
+    public function fetchService($id);
 
     public function fetchProductStocks($id);
 

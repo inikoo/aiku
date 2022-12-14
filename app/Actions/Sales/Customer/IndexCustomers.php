@@ -32,8 +32,11 @@ class IndexCustomers extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('customers.name', 'LIKE', "%$value%")
-                    ->orWhere('customers.email', 'LIKE', "%$value%");
+
+
+                $query->where('customers.name', '~*', "\y$value\y")
+                    ->orWhere('customers.email', 'LIKE', "%$value")
+                    ->orWhere('customers.reference', '=', $value);
             });
         });
 
@@ -87,7 +90,7 @@ class IndexCustomers extends InertiaAction
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->defaultSort('code');
+                ->defaultSort('reference');
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 

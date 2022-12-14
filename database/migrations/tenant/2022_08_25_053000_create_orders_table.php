@@ -1,4 +1,4 @@
-<?php
+\<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,8 +22,12 @@ return new class extends Migration {
             $table->foreign('customer_client_id')->references('id')->on('customers');
 
             $table->string('number')->nullable()->index();
+            $table->enum('type',['b2b','b2c','dropshipping'])->index()->nullable();
+            $table->enum('state', ['submitted', 'in-warehouse','packed', 'finalised', 'dispatched'])->default('in-basket')->index();
 
-            $table->enum('state', ['in-basket', 'in-process', 'in-warehouse', 'packed', 'packed-done', 'dispatched', 'returned', 'cancelled'])->default('in-basket')->index();
+            $table->boolean('is_invoiced')->default('false');
+            $table->boolean('is_picking_on_hold')->nullable();
+            $table->boolean('can_dispatch')->nullable();
 
 
             $table->unsignedMediumInteger('billing_address_id')->nullable()->index();
@@ -48,7 +52,9 @@ return new class extends Migration {
             $table->jsonb('data');
 
             $table->timestampsTz();
-            $table->softDeletesTz();
+            $table->dateTimeTz('cancelled_at')->nullable()->comment('equivalent deleted_at');
+
+
             $table->unsignedBigInteger('source_id')->nullable()->unique();
         });
     }

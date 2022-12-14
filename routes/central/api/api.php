@@ -17,4 +17,4 @@ Route::prefix('aurora')
 
 Route::prefix('iris')
     ->name('iris.')
-    ->group(__DIR__.'/iris.php');
+    ->group(__DIR__.'/iris/iris.php');

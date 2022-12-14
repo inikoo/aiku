@@ -46,24 +46,29 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_orders_state_in_process
  * @property int $number_orders_state_in_warehouse
  * @property int $number_orders_state_packed
- * @property int $number_orders_state_packed_done
+ * @property int $number_orders_state_finalised
  * @property int $number_orders_state_dispatched
  * @property int $number_orders_state_returned
  * @property int $number_orders_state_cancelled
  * @property int $number_deliveries
  * @property int $number_deliveries_type_order
  * @property int $number_deliveries_type_replacement
- * @property int $number_deliveries_state_ready_to_be_picked
+ * @property int $number_deliveries_state_submitted
  * @property int $number_deliveries_state_picker_assigned
  * @property int $number_deliveries_state_picking
  * @property int $number_deliveries_state_picked
  * @property int $number_deliveries_state_packing
  * @property int $number_deliveries_state_packed
- * @property int $number_deliveries_state_packed_done
- * @property int $number_deliveries_state_approved
+ * @property int $number_deliveries_state_finalised
  * @property int $number_deliveries_state_dispatched
- * @property int $number_deliveries_state_cancelled
- * @property int $number_deliveries_state_cancelled_to_restock
+ * @property int $number_deliveries_cancelled_at_state_submitted
+ * @property int $number_deliveries_cancelled_at_state_picker_assigned
+ * @property int $number_deliveries_cancelled_at_state_picking
+ * @property int $number_deliveries_cancelled_at_state_picked
+ * @property int $number_deliveries_cancelled_at_state_packing
+ * @property int $number_deliveries_cancelled_at_state_packed
+ * @property int $number_deliveries_cancelled_at_state_finalised
+ * @property int $number_deliveries_cancelled_at_state_dispatched
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund
@@ -85,17 +90,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|ShopStats whereNumberCustomersTradeStateNone($value)
  * @method static Builder|ShopStats whereNumberCustomersTradeStateOne($value)
  * @method static Builder|ShopStats whereNumberDeliveries($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStateApproved($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStateCancelled($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStateCancelledToRestock($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStateDispatched($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStateFinalised($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePacked($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePacking($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePicked($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePickerAssigned($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePicking($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStateSubmitted($value)
  * @method static Builder|ShopStats whereNumberDeliveriesStateDispatched($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesStateFinalised($value)
  * @method static Builder|ShopStats whereNumberDeliveriesStatePacked($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStatePackedDone($value)
  * @method static Builder|ShopStats whereNumberDeliveriesStatePacking($value)
  * @method static Builder|ShopStats whereNumberDeliveriesStatePicked($value)
  * @method static Builder|ShopStats whereNumberDeliveriesStatePickerAssigned($value)
  * @method static Builder|ShopStats whereNumberDeliveriesStatePicking($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStateReadyToBePicked($value)
+ * @method static Builder|ShopStats whereNumberDeliveriesStateSubmitted($value)
  * @method static Builder|ShopStats whereNumberDeliveriesTypeOrder($value)
  * @method static Builder|ShopStats whereNumberDeliveriesTypeReplacement($value)
  * @method static Builder|ShopStats whereNumberDepartments($value)
@@ -114,11 +124,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|ShopStats whereNumberOrders($value)
  * @method static Builder|ShopStats whereNumberOrdersStateCancelled($value)
  * @method static Builder|ShopStats whereNumberOrdersStateDispatched($value)
+ * @method static Builder|ShopStats whereNumberOrdersStateFinalised($value)
  * @method static Builder|ShopStats whereNumberOrdersStateInBasket($value)
  * @method static Builder|ShopStats whereNumberOrdersStateInProcess($value)
  * @method static Builder|ShopStats whereNumberOrdersStateInWarehouse($value)
  * @method static Builder|ShopStats whereNumberOrdersStatePacked($value)
- * @method static Builder|ShopStats whereNumberOrdersStatePackedDone($value)
  * @method static Builder|ShopStats whereNumberOrdersStateReturned($value)
  * @method static Builder|ShopStats whereNumberOrphanFamilies($value)
  * @method static Builder|ShopStats whereNumberProducts($value)

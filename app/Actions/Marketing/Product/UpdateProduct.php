@@ -14,8 +14,16 @@ class UpdateProduct
 {
     use WithActionUpdate;
 
-    public function handle(Product $product, array $modelData): Product
+    public function handle(Product $product, array $modelData, bool $skipHistoric=false): Product
     {
-        return $this->update($product, $modelData, ['data', 'settings']);
+        $product= $this->update($product, $modelData, ['data', 'settings']);
+        if(!$skipHistoric and $product->wasChanged(
+            ['price', 'code','name','units']
+            )){
+            //todo create HistoricProduct and update current_historic_product_id if
+        }
+
+
+        return $product;
     }
 }

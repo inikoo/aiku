@@ -18,10 +18,7 @@ return new class extends Migration
             $table->id();
             $table->string('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
-
             $table->unsignedMediumInteger('number_products')->default(0);
-
-
             $table->timestampsTz();
         });
     }

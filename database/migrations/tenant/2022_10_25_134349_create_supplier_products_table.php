@@ -20,6 +20,7 @@ return new class extends Migration
 
             $table->string('slug')->nullable()->index();
 
+            $table->unsignedBigInteger('current_historic_supplier_product_id')->index()->nullable();
 
             $table->unsignedMediumInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
@@ -39,9 +40,8 @@ return new class extends Migration
             $table->text('description')->nullable();
 
             $table->unsignedDecimal('cost', 18, 4)->comment('unit cost');
-            $table->unsignedMediumInteger('pack')->nullable()->comment('units per pack');
-            $table->unsignedMediumInteger('outer')->nullable()->comment('units per outer');
-            $table->unsignedMediumInteger('carton')->nullable()->comment('units per carton');
+            $table->unsignedMediumInteger('units_per_pack')->nullable()->comment('units per pack');
+            $table->unsignedMediumInteger('units_per_carton')->nullable()->comment('units per carton');
 
 
             $table->jsonb('settings');

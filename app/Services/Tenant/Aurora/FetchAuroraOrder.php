@@ -7,52 +7,93 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use App\Actions\SourceFetch\Aurora\FetchCustomerClients;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchAuroraOrder extends FetchAurora
 {
-
     protected function parseModel(): void
     {
-        if ($this->auroraModelData->{'Order Customer Client Key'} != '') {
-            $parent = FetchCustomerClients::run($this->tenantSource, $this->auroraModelData->{'Order Customer Client Key'});
+        if ($this->auroraModelData->{'Order State'} == "InBasket") {
+            return;
+        }
+
+        if ($this->auroraModelData->{'Order Customer Client Key'} != "") {
+            $parent = FetchCustomerClients::run(
+                $this->tenantSource,
+                $this->auroraModelData->{'Order Customer Client Key'},
+            );
         } else {
-            $parent = FetchCustomers::run($this->tenantSource, $this->auroraModelData->{'Order Customer Key'});
+            $parent = $this->parseCustomer(
+                $this->auroraModelData->{'Order Customer Key'}
+            );
         }
-        $this->parsedData['parent'] = $parent;
+        $this->parsedData["parent"] = $parent;
 
-        $state = Str::snake($this->auroraModelData->{'Order State'}, '-');
+        $state = match ($this->auroraModelData->{'Order State'}) {
+            "InWarehouse", "Packed" => "in-warehouse",
+            "PackedDone" => "packed",
+            "Approved" => "finalised",
+            "Dispatched" => "dispatched",
+            default => "submitted",
+        };
 
-        if ($state == 'approved') {
-            $state = 'in-warehouse';
+        $cancelled_at = null;
+        if ($this->auroraModelData->{'Order State'} == "Cancelled") {
+            $cancelled_at = $this->auroraModelData->{'Order Cancelled Date'};
+            if (!$cancelled_at) {
+                $cancelled_at = $this->auroraModelData->{'Order Date'};
+            }
+
+            if (
+                $this->auroraModelData->{'Order Invoiced Date'} != "" or
+                $this->auroraModelData->{'Order Dispatched Date'} != ""
+            ) {
+                $state = "finalised";
+            } elseif (
+                $this->auroraModelData->{'Order Packed Date'} != "" or
+                $this->auroraModelData->{'Order Packed Done Date'} != ""
+            ) {
+                $state = "packed";
+            } elseif (
+                $this->auroraModelData->{'Order Send to Warehouse Date'} != ""
+            ) {
+                $state = "in-warehouse";
+            } else {
+                $state = "submitted";
+            }
         }
 
-        $this->parsedData['order'] = [
-            'number'     => $this->auroraModelData->{'Order Public ID'},
-            'state'      => $state,
-            'source_id'  => $this->auroraModelData->{'Order Key'},
-            'exchange'   => $this->auroraModelData->{'Order Currency Exchange'},
-            'created_at' => $this->auroraModelData->{'Order Created Date'},
-
+        $this->parsedData["order"] = [
+            "number" => $this->auroraModelData->{'Order Public ID'},
+            "state" => $state,
+            "source_id" => $this->auroraModelData->{'Order Key'},
+            "exchange" => $this->auroraModelData->{'Order Currency Exchange'},
+            "created_at" => $this->auroraModelData->{'Order Created Date'},
+            "cancelled_at" => $cancelled_at,
         ];
 
-        $deliveryAddressData                  = $this->parseAddress(prefix: 'Order Delivery', auAddressData: $this->auroraModelData);
-        $this->parsedData['delivery_address'] = new Address($deliveryAddressData);
+        $deliveryAddressData = $this->parseAddress(
+            prefix: "Order Delivery",
+            auAddressData: $this->auroraModelData,
+        );
+        $this->parsedData["delivery_address"] = new Address(
+            $deliveryAddressData,
+        );
 
-        $billingAddressData                  = $this->parseAddress(prefix: 'Order Invoice', auAddressData: $this->auroraModelData);
-        $this->parsedData['billing_address'] = new Address($billingAddressData);
+        $billingAddressData = $this->parseAddress(
+            prefix: "Order Invoice",
+            auAddressData: $this->auroraModelData,
+        );
+        $this->parsedData["billing_address"] = new Address($billingAddressData);
     }
-
 
     protected function fetchData($id): object|null
     {
-        return DB::connection('aurora')
-            ->table('Order Dimension')
-            ->where('Order Key', $id)->first();
+        return DB::connection("aurora")
+            ->table("Order Dimension")
+            ->where("Order Key", $id)
+            ->first();
     }
-
 }

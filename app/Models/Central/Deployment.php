@@ -22,9 +22,6 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read mixed $skip_build
- * @property-read mixed $skip_composer_install
- * @property-read mixed $skip_npm_install
  * @method static Builder|Deployment newModelQuery()
  * @method static Builder|Deployment newQuery()
  * @method static Builder|Deployment query()

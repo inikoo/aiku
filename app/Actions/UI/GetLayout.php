@@ -93,6 +93,14 @@ class GetLayout
             ];
         }
 
+        if ($user->can('fulfilment.view')) {
+            $navigation[] = [
+                'name'  => __('fulfilment'),
+                'icon'  => ['fal', 'fa-dolly-empty'],
+                'route' => 'fulfilment.dashboard'
+            ];
+        }
+
         if ($user->can('production.view')) {
             $navigation[] = [
                 'name'  => __('production'),

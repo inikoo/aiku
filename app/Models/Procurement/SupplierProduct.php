@@ -7,6 +7,7 @@
 
 namespace App\Models\Procurement;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -19,6 +20,7 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property int $id
  * @property string $composition
  * @property string|null $slug
+ * @property int|null $current_historic_supplier_product_id
  * @property int|null $supplier_id
  * @property int|null $sub_supplier_id
  * @property string|null $state
@@ -28,9 +30,8 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property string|null $name
  * @property string|null $description
  * @property string $cost unit cost
- * @property int|null $pack units per pack
- * @property int|null $outer units per outer
- * @property int|null $carton units per carton
+ * @property int|null $units_per_pack units per pack
+ * @property int|null $units_per_carton units per carton
  * @property array $settings
  * @property array $shared_data
  * @property array $tenant_data
@@ -39,33 +40,33 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $global_id
  * @property int|null $source_id
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct newQuery()
+ * @method static Builder|SupplierProduct newModelQuery()
+ * @method static Builder|SupplierProduct newQuery()
  * @method static \Illuminate\Database\Query\Builder|SupplierProduct onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct query()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereCarton($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereComposition($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereCost($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereGlobalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereOuter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct wherePack($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereSettings($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereSharedData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereSourceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereStockQuantityStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereSubSupplierId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereSupplierId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereTenantData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProduct whereUpdatedAt($value)
+ * @method static Builder|SupplierProduct query()
+ * @method static Builder|SupplierProduct whereCode($value)
+ * @method static Builder|SupplierProduct whereComposition($value)
+ * @method static Builder|SupplierProduct whereCost($value)
+ * @method static Builder|SupplierProduct whereCreatedAt($value)
+ * @method static Builder|SupplierProduct whereCurrentHistoricSupplierProductId($value)
+ * @method static Builder|SupplierProduct whereDeletedAt($value)
+ * @method static Builder|SupplierProduct whereDescription($value)
+ * @method static Builder|SupplierProduct whereGlobalId($value)
+ * @method static Builder|SupplierProduct whereId($value)
+ * @method static Builder|SupplierProduct whereName($value)
+ * @method static Builder|SupplierProduct whereSettings($value)
+ * @method static Builder|SupplierProduct whereSharedData($value)
+ * @method static Builder|SupplierProduct whereSlug($value)
+ * @method static Builder|SupplierProduct whereSourceId($value)
+ * @method static Builder|SupplierProduct whereState($value)
+ * @method static Builder|SupplierProduct whereStatus($value)
+ * @method static Builder|SupplierProduct whereStockQuantityStatus($value)
+ * @method static Builder|SupplierProduct whereSubSupplierId($value)
+ * @method static Builder|SupplierProduct whereSupplierId($value)
+ * @method static Builder|SupplierProduct whereTenantData($value)
+ * @method static Builder|SupplierProduct whereUnitsPerCarton($value)
+ * @method static Builder|SupplierProduct whereUnitsPerPack($value)
+ * @method static Builder|SupplierProduct whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|SupplierProduct withTrashed()
  * @method static \Illuminate\Database\Query\Builder|SupplierProduct withoutTrashed()
  * @mixin \Eloquent

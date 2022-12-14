@@ -42,6 +42,9 @@ return [
     'inventory.warehouses.dispatching.pick',
     'inventory.warehouses.dispatching.pack',
 
+    'fulfilment',
+    'fulfilment.view',
+
     'production',
     'production.view',
 

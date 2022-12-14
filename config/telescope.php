@@ -100,7 +100,9 @@ return [
     ],
 
     'ignore_commands' => [
-        //
+        'fetch:stocks','fetch:orders','fetch:products','fetch:customers','fetch:invoices','fetch:locations','fetch:models',
+        'fetch:web-users','fetch:supplier-products','fetch:deleted-customers','fetch:stock-families','fetch:shop-categories',
+        'fetch:reset'
     ],
 
     /*

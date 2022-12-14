@@ -18,7 +18,7 @@ class FetchAurora
 
 
     protected Tenant $tenant;
-    protected array $parsedData;
+    protected ?array $parsedData;
     protected ?object $auroraModelData;
     protected SourceTenantService $tenantSource;
 
@@ -26,7 +26,7 @@ class FetchAurora
     {
         $this->tenantSource    = $tenantSource;
         $this->tenant          = $tenantSource->tenant;
-        $this->parsedData      = [];
+        $this->parsedData      = null;
         $this->auroraModelData = null;
     }
 

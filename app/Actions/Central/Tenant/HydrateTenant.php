@@ -42,7 +42,16 @@ class HydrateTenant extends HydrateModel
         $this->inventoryStats();
         $this->procurementStats();
         $this->marketingStats();
+        $this->fulfilmentStats();
     }
+
+    public function fulfilmentStats(){
+        /** @var Tenant $tenant */
+        $tenant = tenant();
+    }
+
+
+
 
     public function customersStats()
     {
@@ -86,6 +95,15 @@ class HydrateTenant extends HydrateModel
             'number_shops' => Shop::count()
         ];
 
+
+        $shopStates = ['in-process', 'open', 'closing-down', 'closed'];
+        $shopStatesCount = Shop::selectRaw('state, count(*) as total')
+            ->groupBy('state')
+            ->pluck('total', 'state')->all();
+        foreach ($shopStates as $shopState) {
+            $stats['number_shops_state_'.preg_replace('/-/','_',$shopState)] = Arr::get($shopStatesCount, preg_replace('/-/','_',$shopState), 0);
+        }
+
         $shopTypes      = ['shop', 'fulfilment_house', 'agent'];
         $shopTypesCount = Shop::selectRaw('type, count(*) as total')
             ->groupBy('type')
@@ -104,6 +122,17 @@ class HydrateTenant extends HydrateModel
 
         foreach ($shopSubtypes as $shopSubtype) {
             $stats['number_shops_subtype_'.$shopSubtype] = Arr::get($shopSubtypesCount, $shopSubtype, 0);
+        }
+
+        $shopStatesSubtypesCount = Shop::selectRaw("concat(state,'_',subtype) as state_subtype, count(*) as total")
+            ->groupBy('state','state_subtype')
+            ->pluck('total', 'state_subtype')->all();
+
+
+        foreach ($shopStates as $shopState) {
+            foreach ($shopSubtypes as $shopSubtype) {
+                $stats['number_shops_state_subtype_'.preg_replace('/-/','_',$shopState).'_'.$shopSubtype] = Arr::get($shopStatesSubtypesCount, preg_replace('/-/','_',$shopState).'_'.$shopSubtype, 0);
+            }
         }
 
         $tenant->marketingStats->update($stats);

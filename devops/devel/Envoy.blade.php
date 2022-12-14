@@ -148,6 +148,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     echo "shop products and categories"
     php artisan fetch:shop-categories {{$instance}} -q
     php artisan fetch:products {{$instance}} -q
+    php artisan fetch:services {{$instance}} -q
 @endtask
 
 @task('tenant-fetch-customers')

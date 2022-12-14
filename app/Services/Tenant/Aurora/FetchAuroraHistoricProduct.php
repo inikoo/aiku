@@ -8,7 +8,6 @@
 namespace App\Services\Tenant\Aurora;
 
 
-use App\Actions\SourceFetch\Aurora\FetchProducts;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraHistoricProduct extends FetchAurora
@@ -17,8 +16,7 @@ class FetchAuroraHistoricProduct extends FetchAurora
 
     protected function parseModel(): void
     {
-        $this->parsedData['product'] = FetchProducts::run($this->tenantSource, $this->auroraModelData->{'Product ID'});
-
+        $this->parsedData['product'] = $this->parseProduct($this->auroraModelData->{'Product ID'});
 
         $deleted_at = $this->parseDate($this->auroraModelData->{'Product History Valid To'});
 
@@ -35,14 +33,11 @@ class FetchAuroraHistoricProduct extends FetchAurora
         }
 
         $this->parsedData['historic_product'] = [
-            'code' => $this->auroraModelData->{'Product History Code'},
-            'name' => $this->auroraModelData->{'Product History Name'},
-
-            'price' => $this->auroraModelData->{'Product History Price'} / $units,
-            'outer' => $units,
-
-            'status' => $status,
-
+            'code'       => $this->auroraModelData->{'Product History Code'},
+            'name'       => $this->auroraModelData->{'Product History Name'},
+            'price'      => $this->auroraModelData->{'Product History Price'} / $units,
+            'units'      => $units,
+            'status'     => $status,
             'created_at' => $this->parseDate($this->auroraModelData->{'Product History Valid From'}),
             'deleted_at' => $deleted_at,
             'source_id'  => $this->auroraModelData->{'Product Key'}

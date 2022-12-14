@@ -8,15 +8,15 @@
 namespace App\Models\Sales;
 
 use App\Models\Delivery\DeliveryNote;
+use App\Models\Fulfilment\FulfilmentOrderStats;
 use App\Models\Marketing\Shop;
+use App\Models\Traits\HasOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Sales\Order
@@ -27,7 +27,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $customer_id
  * @property int|null $customer_client_id
  * @property string|null $number
+ * @property string|null $type
  * @property string $state
+ * @property bool $is_invoiced
+ * @property bool|null $is_picking_on_hold
+ * @property bool|null $can_dispatch
  * @property int|null $billing_address_id
  * @property int|null $delivery_address_id
  * @property int $items number of items
@@ -42,11 +46,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $cancelled_at equivalent deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|DeliveryNote[] $deliveryNotes
  * @property-read int|null $delivery_notes_count
+ * @property-read FulfilmentOrderStats|null $fulfilmentStats
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Invoice[] $invoices
  * @property-read int|null $invoices_count
  * @property-read Shop $shop
@@ -57,16 +62,19 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Query\Builder|Order onlyTrashed()
  * @method static Builder|Order query()
  * @method static Builder|Order whereBillingAddressId($value)
+ * @method static Builder|Order whereCanDispatch($value)
+ * @method static Builder|Order whereCancelledAt($value)
  * @method static Builder|Order whereCharges($value)
  * @method static Builder|Order whereCreatedAt($value)
  * @method static Builder|Order whereCurrencyId($value)
  * @method static Builder|Order whereCustomerClientId($value)
  * @method static Builder|Order whereCustomerId($value)
  * @method static Builder|Order whereData($value)
- * @method static Builder|Order whereDeletedAt($value)
  * @method static Builder|Order whereDeliveryAddressId($value)
  * @method static Builder|Order whereExchange($value)
  * @method static Builder|Order whereId($value)
+ * @method static Builder|Order whereIsInvoiced($value)
+ * @method static Builder|Order whereIsPickingOnHold($value)
  * @method static Builder|Order whereItems($value)
  * @method static Builder|Order whereItemsDiscounts($value)
  * @method static Builder|Order whereItemsNet($value)
@@ -78,6 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Order whereSourceId($value)
  * @method static Builder|Order whereState($value)
  * @method static Builder|Order whereTax($value)
+ * @method static Builder|Order whereType($value)
  * @method static Builder|Order whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|Order withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Order withoutTrashed()
@@ -85,8 +94,11 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Order extends Model
 {
+    use HasOrder;
     use HasSlug;
     use SoftDeletes;
+
+    const DELETED_AT = 'cancelled_at';
 
 
     protected $casts = [
@@ -99,29 +111,6 @@ class Order extends Model
 
     protected $guarded = [];
 
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('number')
-            ->saveSlugsTo('slug');
-    }
-
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
-
-
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
-
-    public function deliveryNotes(): BelongsToMany
-    {
-        return $this->belongsToMany(DeliveryNote::class)->withTimestamps();
-    }
-
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
@@ -130,6 +119,12 @@ class Order extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function fulfilmentStats(): HasOne
+    {
+        return $this->hasOne(FulfilmentOrderStats::class);
+
     }
 
 

@@ -7,21 +7,22 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use Illuminate\Support\Facades\DB;
 
 
-class FetchAuroraInvoiceTransactionHistoricProduct extends FetchAurora
+class FetchAuroraInvoiceTransaction extends FetchAurora
 {
 
     protected function parseModel(): void
     {
         if ($this->auroraModelData->{'Product Key'}) {
-            $historicProduct = FetchHistoricProducts::run($this->tenantSource, $this->auroraModelData->{'Product Key'});
+
+            $historicItem = $this->parseHistoricItem($this->auroraModelData->{'Product Key'});
+
 
             $this->parsedData['transaction'] = [
-                'item_type'   => 'HistoricProduct',
-                'item_id'     => $historicProduct->id,
+                'item_type'   => class_basename($historicItem),
+                'item_id'     => $historicItem->id,
                 'tax_band_id' => $taxBand->id ?? null,
 
                 'quantity'  => $this->auroraModelData->{'Delivery Note Quantity'},

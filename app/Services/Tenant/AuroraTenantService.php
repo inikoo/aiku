@@ -19,12 +19,14 @@ use App\Services\Tenant\Aurora\FetchAuroraEmployee;
 use App\Services\Tenant\Aurora\FetchAuroraFamily;
 use App\Services\Tenant\Aurora\FetchAuroraGuest;
 use App\Services\Tenant\Aurora\FetchAuroraHistoricProduct;
+use App\Services\Tenant\Aurora\FetchAuroraHistoricService;
 use App\Services\Tenant\Aurora\FetchAuroraInvoice;
-use App\Services\Tenant\Aurora\FetchAuroraInvoiceTransactionHistoricProduct;
+use App\Services\Tenant\Aurora\FetchAuroraInvoiceTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraLocation;
 use App\Services\Tenant\Aurora\FetchAuroraOrder;
 use App\Services\Tenant\Aurora\FetchAuroraProduct;
 use App\Services\Tenant\Aurora\FetchAuroraProductStocks;
+use App\Services\Tenant\Aurora\FetchAuroraService;
 use App\Services\Tenant\Aurora\FetchAuroraShipper;
 use App\Services\Tenant\Aurora\FetchAuroraShop;
 use App\Services\Tenant\Aurora\FetchAuroraStock;
@@ -32,7 +34,7 @@ use App\Services\Tenant\Aurora\FetchAuroraStockFamily;
 use App\Services\Tenant\Aurora\FetchAuroraStockLocations;
 use App\Services\Tenant\Aurora\FetchAuroraSupplierProduct;
 use App\Services\Tenant\Aurora\FetchAuroraTradeUnit;
-use App\Services\Tenant\Aurora\FetchAuroraTransactionHistoricProduct;
+use App\Services\Tenant\Aurora\FetchAuroraTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraUser;
 use App\Services\Tenant\Aurora\FetchAuroraWarehouse;
 use App\Services\Tenant\Aurora\FetchAuroraWarehouseArea;
@@ -52,7 +54,7 @@ class AuroraTenantService implements SourceTenantService
     public function initialisation(Tenant $tenant)
     {
         $database_settings = data_get(config('database.connections'), 'aurora');
-        data_set($database_settings, 'database', Arr::get($tenant->source,'db_name'));
+        data_set($database_settings, 'database', Arr::get($tenant->source, 'db_name'));
         config(['database.connections.aurora' => $database_settings]);
         DB::connection('aurora');
         DB::purge('aurora');
@@ -135,29 +137,24 @@ class AuroraTenantService implements SourceTenantService
         return (new FetchAuroraLocation($this))->fetch($id);
     }
 
-    public function fetchTransaction($type, $id): ?array
+    public function fetchTransaction($id): ?array
     {
-        if ($type == 'HistoricProduct') {
-            return (new FetchAuroraTransactionHistoricProduct($this))->fetch($id);
-        } else {
-            //  return (new FetchAuroraNoProductTransaction($this))->fetch($id);
-            return [];
-        }
+        return (new FetchAuroraTransaction($this))->fetch($id);
     }
 
-    public function fetchInvoiceTransaction($type, $id): ?array
+    public function fetchInvoiceTransaction($id): ?array
     {
-        if ($type == 'HistoricProduct') {
-            return (new FetchAuroraInvoiceTransactionHistoricProduct($this))->fetch($id);
-        } else {
-            //  return (new FetchAuroraNoProductTransaction($this))->fetch($id);
-            return [];
-        }
+        return (new FetchAuroraInvoiceTransaction($this))->fetch($id);
     }
 
     public function fetchHistoricProduct($id): ?array
     {
         return (new FetchAuroraHistoricProduct($this))->fetch($id);
+    }
+
+    public function fetchHistoricService($id): ?array
+    {
+        return (new FetchAuroraHistoricService($this))->fetch($id);
     }
 
     public function fetchProductStocks($id): ?array
@@ -178,6 +175,11 @@ class AuroraTenantService implements SourceTenantService
     public function fetchProduct($id): ?array
     {
         return (new FetchAuroraProduct($this))->fetch($id);
+    }
+
+    public function fetchService($id): ?array
+    {
+        return (new FetchAuroraService($this))->fetch($id);
     }
 
     public function fetchStock($id): ?array

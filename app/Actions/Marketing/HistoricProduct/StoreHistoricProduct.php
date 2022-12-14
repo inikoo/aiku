@@ -10,17 +10,42 @@ namespace App\Actions\Marketing\HistoricProduct;
 
 use App\Models\Marketing\HistoricProduct;
 use App\Models\Marketing\Product;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreHistoricProduct
 {
     use AsAction;
 
-    public function handle(Product $product, array $modelData): HistoricProduct
+    public function handle(Product $product, array $modelData = []): HistoricProduct
     {
-        /** @var HistoricProduct $historicProduct */
-         $historicProduct= $product->historicRecords()->create($modelData);
-         return $historicProduct;
+        $historicProductData = [
+            'code'       => Arr::get($modelData, 'code', $product->code),
+            'name'       => Arr::get($modelData, 'name', $product->name),
+            'price'      => Arr::get($modelData, 'price', $product->price),
+            'units'      => Arr::get($modelData, 'units', $product->units),
+            'source_id'  => Arr::get($modelData, 'source_id'),
 
+
+        ];
+        if (Arr::get($modelData, 'created_at')) {
+            $historicProductData['created_at'] = Arr::get($modelData, 'created_at');
+        } else {
+            $historicProductData['created_at'] = $product->created_at;
+        }
+        if (Arr::get($modelData, 'deleted_at')) {
+            $historicProductData['deleted_at'] = Arr::get($modelData, 'deleted_at');
+        }
+        if (Arr::exists($modelData, 'status')) {
+            $historicProductData['status'] = Arr::exists($modelData, 'status');
+        } else {
+            $historicProductData['status'] = true;
+        }
+
+        /** @var HistoricProduct $historicProduct */
+        $historicProduct = $product->historicRecords()->create($historicProductData);
+        $historicProduct->stats()->create();
+
+        return $historicProduct;
     }
 }

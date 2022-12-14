@@ -22,7 +22,7 @@ class FetchInvoices extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
     {
         if ($invoiceData = $tenantSource->fetchInvoice($tenantSourceId)) {
-            if ($invoice = Invoice::where('source_id', $invoiceData['invoice']['source_id'])
+            if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
                 ->first()) {
                 $this->fetchInvoiceTransactions($tenantSource, $invoice);
                 $this->updateAurora($invoice);

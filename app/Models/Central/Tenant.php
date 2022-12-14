@@ -45,6 +45,7 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property-read int|null $central_domains_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\Stancl\Tenancy\Database\Models\Domain[] $domains
  * @property-read int|null $domains_count
+ * @property-read \App\Models\Central\TenantFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\Central\TenantInventoryStats|null $inventoryStats
  * @property-read \App\Models\Central\TenantMarketingStats|null $marketingStats
  * @property-read \App\Models\Central\TenantProcurementStats|null $procurementStats
@@ -138,6 +139,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function productionStats(): HasOne
     {
         return $this->hasOne(TenantProductionStats::class);
+    }
+
+    public function fulfilmentStats(): HasOne
+    {
+        return $this->hasOne(TenantFulfilmentStats::class);
     }
 
     public function marketingStats(): HasOne

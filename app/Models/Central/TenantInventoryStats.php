@@ -41,17 +41,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_deliveries
  * @property int $number_deliveries_type_order
  * @property int $number_deliveries_type_replacement
- * @property int $number_deliveries_state_ready_to_be_picked
+ * @property int $number_deliveries_state_submitted
  * @property int $number_deliveries_state_picker_assigned
  * @property int $number_deliveries_state_picking
  * @property int $number_deliveries_state_picked
  * @property int $number_deliveries_state_packing
  * @property int $number_deliveries_state_packed
- * @property int $number_deliveries_state_packed_done
- * @property int $number_deliveries_state_approved
+ * @property int $number_deliveries_state_finalised
  * @property int $number_deliveries_state_dispatched
- * @property int $number_deliveries_state_cancelled
- * @property int $number_deliveries_state_cancelled_to_restock
+ * @property int $number_deliveries_cancelled_at_state_submitted
+ * @property int $number_deliveries_cancelled_at_state_picker_assigned
+ * @property int $number_deliveries_cancelled_at_state_picking
+ * @property int $number_deliveries_cancelled_at_state_picked
+ * @property int $number_deliveries_cancelled_at_state_packing
+ * @property int $number_deliveries_cancelled_at_state_packed
+ * @property int $number_deliveries_cancelled_at_state_finalised
+ * @property int $number_deliveries_cancelled_at_state_dispatched
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Central\Tenant $tenant
@@ -61,17 +66,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|TenantInventoryStats whereCreatedAt($value)
  * @method static Builder|TenantInventoryStats whereId($value)
  * @method static Builder|TenantInventoryStats whereNumberDeliveries($value)
- * @method static Builder|TenantInventoryStats whereNumberDeliveriesStateApproved($value)
- * @method static Builder|TenantInventoryStats whereNumberDeliveriesStateCancelled($value)
- * @method static Builder|TenantInventoryStats whereNumberDeliveriesStateCancelledToRestock($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesCancelledAtStateDispatched($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesCancelledAtStateFinalised($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesCancelledAtStatePacked($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesCancelledAtStatePacking($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesCancelledAtStatePicked($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesCancelledAtStatePickerAssigned($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesCancelledAtStatePicking($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesCancelledAtStateSubmitted($value)
  * @method static Builder|TenantInventoryStats whereNumberDeliveriesStateDispatched($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesStateFinalised($value)
  * @method static Builder|TenantInventoryStats whereNumberDeliveriesStatePacked($value)
- * @method static Builder|TenantInventoryStats whereNumberDeliveriesStatePackedDone($value)
  * @method static Builder|TenantInventoryStats whereNumberDeliveriesStatePacking($value)
  * @method static Builder|TenantInventoryStats whereNumberDeliveriesStatePicked($value)
  * @method static Builder|TenantInventoryStats whereNumberDeliveriesStatePickerAssigned($value)
  * @method static Builder|TenantInventoryStats whereNumberDeliveriesStatePicking($value)
- * @method static Builder|TenantInventoryStats whereNumberDeliveriesStateReadyToBePicked($value)
+ * @method static Builder|TenantInventoryStats whereNumberDeliveriesStateSubmitted($value)
  * @method static Builder|TenantInventoryStats whereNumberDeliveriesTypeOrder($value)
  * @method static Builder|TenantInventoryStats whereNumberDeliveriesTypeReplacement($value)
  * @method static Builder|TenantInventoryStats whereNumberEmptyLocations($value)

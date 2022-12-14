@@ -32,7 +32,7 @@ return new class extends Migration
             }
 
             $table->unsignedBigInteger('number_orders')->default(0);
-            $orderStates = ['in-basket', 'in-process', 'in-warehouse', 'packed', 'packed-done', 'dispatched', 'returned', 'cancelled'];
+            $orderStates = ['in-basket', 'in-process', 'in-warehouse', 'packed', 'finalised', 'dispatched', 'returned', 'cancelled'];
             foreach ($orderStates as $orderState) {
                 $table->unsignedBigInteger('number_orders_state_'.str_replace('-', '_', $orderState))->default(0);
             }

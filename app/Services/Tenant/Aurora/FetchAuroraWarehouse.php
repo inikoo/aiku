@@ -11,24 +11,22 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWarehouse extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
-        $this->parsedData['warehouse'] = [
-            'name'       => $this->auroraModelData->{'Warehouse Name'},
-            'code'       => $this->auroraModelData->{'Warehouse Code'},
-            'source_id'  => $this->auroraModelData->{'Warehouse Key'},
-            'created_at' => $this->auroraModelData->{'Warehouse Valid From'} ?? null,
+        $this->parsedData["warehouse"] = [
+            "name" => $this->auroraModelData->{'Warehouse Name'},
+            "code" => $this->auroraModelData->{'Warehouse Code'},
+            "source_id" => $this->auroraModelData->{'Warehouse Key'},
+            "created_at" =>
+                $this->auroraModelData->{'Warehouse Valid From'} ?? null,
         ];
     }
 
-
     protected function fetchData($id): object|null
     {
-        return DB::connection('aurora')
-            ->table('Warehouse Dimension')
-            ->where('Warehouse Key', $id)->first();
+        return DB::connection("aurora")
+            ->table("Warehouse Dimension")
+            ->where("Warehouse Key", $id)
+            ->first();
     }
-
 }

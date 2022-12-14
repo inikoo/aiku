@@ -7,7 +7,6 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -20,13 +19,13 @@ class FetchAuroraWebUser extends FetchAurora
 
         $hasPassword = $this->isSha256($this->auroraModelData->{'Website User Password'});
 
-        $password=wordwrap(Str::random(), 4, '-', true);
+        $password = wordwrap(Str::random(), 4, '-', true);
 
         if ($hasPassword) {
             $data              = [
-                'au_auth'=>[
-                    'password'=>$this->auroraModelData->{'Website User Password'},
-                    'tmp_password'=>$password
+                'au_auth' => [
+                    'password'     => $this->auroraModelData->{'Website User Password'},
+                    'tmp_password' => $password
                 ]
             ];
             $web_login_version = 'au';
@@ -35,8 +34,7 @@ class FetchAuroraWebUser extends FetchAurora
         }
 
 
-
-        $this->parsedData['customer'] = FetchCustomers::run($this->tenantSource, $this->auroraModelData->{'Website User Customer Key'});
+        $this->parsedData['customer'] = $this->parseCustomer($this->auroraModelData->{'Website User Customer Key'});
         $this->parsedData['webUser']  =
             [
                 'status'            => $this->auroraModelData->{'Website User Active'} == 'Yes',

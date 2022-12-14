@@ -32,9 +32,8 @@ return new class extends Migration {
 
             $table->string('barcode')->index()->nullable();
             $table->text('description')->nullable();
-            $table->unsignedMediumInteger('pack')->nullable()->comment('units per pack');
-            $table->unsignedMediumInteger('outer')->nullable()->comment('units per outer');
-            $table->unsignedMediumInteger('carton')->nullable()->comment('units per carton');
+            $table->unsignedMediumInteger('units_per_pack')->nullable()->comment('units per pack');
+            $table->unsignedMediumInteger('units_per_carton')->nullable()->comment('units per carton');
             $table->decimal('quantity', 16, 3)->nullable()->default(0)->comment('stock quantity in units');
             $table->float('available_forecast')->nullable()->comment('days');
             $table->decimal('value', 16)->nullable();

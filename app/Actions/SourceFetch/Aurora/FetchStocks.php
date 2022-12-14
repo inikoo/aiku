@@ -25,7 +25,7 @@ class FetchStocks extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Stock
     {
         if ($stockData = $tenantSource->fetchStock($tenantSourceId)) {
-            if ($stock = Stock::where('source_id', $stockData['stock']['source_id'])
+            if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])
                 ->first()) {
                 $stock = UpdateStock::run(
                     stock:     $stock,
@@ -40,7 +40,7 @@ class FetchStocks extends FetchAction
             $tradeUnit = FetchTradeUnits::run($tenantSource, $stock->source_id);
             $stock->tradeUnits()->sync([
                                            $tradeUnit->id => [
-                                               'quantity' => $stockData['units_per_package']
+                                               'quantity' => $stockData['stock']['units_per_pack']
                                            ]
                                        ]);
 

@@ -20,11 +20,14 @@ return new class extends Migration
     {
         Schema::create('delivery_note_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaction_id')->nullable()->constrained();
-            $table->unsignedBigInteger('delivery_note_id')->index();
-            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
-            $table->foreignId('order_id')->nullable()->constrained();
-            $table->foreignId('historic_product_id')->nullable()->constrained();
+
+            $table->foreignId('delivery_note_id')->nullable()->constrained();
+            $table->foreignId('picking_id')->nullable()->constrained();
+
+
+            $table->morphs('order_item');
+
+            $table->foreignId('stock_id')->nullable()->constrained();
             $table->decimal('quantity', 16, 3)->nullable();
             $table->jsonb('data');
             $table->timestampsTz();

@@ -10,44 +10,42 @@ namespace App\Models\Marketing;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Marketing\HistoricProduct
  *
  * @property int $id
+ * @property string $slug
  * @property bool $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $product_id
+ * @property int $product_id
  * @property string $price unit price
  * @property string|null $code
  * @property string|null $name
- * @property string|null $pack units per pack
- * @property string|null $outer units per outer
- * @property string|null $carton units per carton
- * @property string|null $cbm to be deleted
- * @property int|null $currency_id
+ * @property string|null $units units per outer
  * @property int|null $source_id
- * @property-read \App\Models\Marketing\Product|null $product
+ * @property-read \App\Models\Marketing\Product $product
+ * @property-read \App\Models\Marketing\HistoricProductStats|null $stats
  * @method static Builder|HistoricProduct newModelQuery()
  * @method static Builder|HistoricProduct newQuery()
  * @method static \Illuminate\Database\Query\Builder|HistoricProduct onlyTrashed()
  * @method static Builder|HistoricProduct query()
- * @method static Builder|HistoricProduct whereCarton($value)
- * @method static Builder|HistoricProduct whereCbm($value)
  * @method static Builder|HistoricProduct whereCode($value)
  * @method static Builder|HistoricProduct whereCreatedAt($value)
- * @method static Builder|HistoricProduct whereCurrencyId($value)
  * @method static Builder|HistoricProduct whereDeletedAt($value)
  * @method static Builder|HistoricProduct whereId($value)
  * @method static Builder|HistoricProduct whereName($value)
- * @method static Builder|HistoricProduct whereOuter($value)
- * @method static Builder|HistoricProduct wherePack($value)
  * @method static Builder|HistoricProduct wherePrice($value)
  * @method static Builder|HistoricProduct whereProductId($value)
+ * @method static Builder|HistoricProduct whereSlug($value)
  * @method static Builder|HistoricProduct whereSourceId($value)
  * @method static Builder|HistoricProduct whereStatus($value)
+ * @method static Builder|HistoricProduct whereUnits($value)
  * @method static \Illuminate\Database\Query\Builder|HistoricProduct withTrashed()
  * @method static \Illuminate\Database\Query\Builder|HistoricProduct withoutTrashed()
  * @mixin \Eloquent
@@ -55,6 +53,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class HistoricProduct extends Model
 {
     use SoftDeletes;
+    use HasSlug;
 
     protected $casts = [
         'status' => 'boolean',
@@ -66,18 +65,21 @@ class HistoricProduct extends Model
 
     protected $guarded = [];
 
-    public function setPriceAttribute($val)
+    public function getSlugOptions(): SlugOptions
     {
-        $this->attributes['price'] = sprintf('%.2f', $val);
-    }
-
-    public function setCbmAttribute($val)
-    {
-        $this->attributes['cbm'] = sprintf('%.4f', $val);
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(HistoricProductStats::class);
     }
 }

@@ -59,20 +59,23 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::morphMap(
             [
-                'Admin'         => 'App\Models\Central\Admin',
-                'User'          => 'App\Models\SysAdmin\User',
-                'Employee'      => 'App\Models\HumanResources\Employee',
-                'Guest'         => 'App\Models\SysAdmin\Guest',
-                'Customer'      => 'App\Models\Sales\Customer',
-                'Shop'          => 'App\Models\Marketing\Shop',
-                'Tenant'        => 'App\Models\Central\Tenant',
-                'AdminUser'     => 'App\Models\Central\AdminUser',
-                'Department'    => 'App\Models\Marketing\Department',
-                'Family'        => 'App\Models\Marketing\Family',
-                'Product'       => 'App\Models\Marketing\Product',
-                'Supplier'      => 'App\Models\Procurement\Supplier',
-                'WebUser'       => 'App\Models\Web\WebUser',
-                'CentralDomain' => 'App\Models\Central\CentralDomain',
+                'Admin'           => 'App\Models\Central\Admin',
+                'User'            => 'App\Models\SysAdmin\User',
+                'Employee'        => 'App\Models\HumanResources\Employee',
+                'Guest'           => 'App\Models\SysAdmin\Guest',
+                'Customer'        => 'App\Models\Sales\Customer',
+                'Shop'            => 'App\Models\Marketing\Shop',
+                'Tenant'          => 'App\Models\Central\Tenant',
+                'AdminUser'       => 'App\Models\Central\AdminUser',
+                'Department'      => 'App\Models\Marketing\Department',
+                'Family'          => 'App\Models\Marketing\Family',
+                'Product'         => 'App\Models\Marketing\Product',
+                'Service'         => 'App\Models\Marketing\Service',
+                'HistoricProduct' => 'App\Models\Marketing\HistoricProduct',
+                'HistoricService' => 'App\Models\Marketing\HistoricService',
+                'Supplier'        => 'App\Models\Procurement\Supplier',
+                'WebUser'         => 'App\Models\Web\WebUser',
+                'CentralDomain'   => 'App\Models\Central\CentralDomain',
             ]
         );
     }

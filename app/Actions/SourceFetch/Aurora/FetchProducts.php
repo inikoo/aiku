@@ -21,28 +21,28 @@ use JetBrains\PhpStorm\NoReturn;
 class FetchProducts extends FetchAction
 {
 
-    public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=} {--S|shop= : Shop slug}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
     {
         if ($productData = $tenantSource->fetchProduct($tenantSourceId)) {
-
-            if ($product = Product::where('source_id', $productData['product']['source_id'])
+            if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
                 ->first()) {
                 $product = UpdateProduct::run(
-                    product:     $product,
-                    modelData: $productData['product'],
+                    product:      $product,
+                    modelData:    $productData['product'],
+                    skipHistoric: true
                 );
             } else {
                 $product = StoreProduct::run(
-                    shop:      $productData['shop'],
-                    modelData: $productData['product']
+                    shop:         $productData['shop'],
+                    modelData:    $productData['product'],
+                    skipHistoric: true
                 );
             }
 
-            $tradeUnits= $tenantSource->fetchProductStocks($productData['product']['source_id']);
+            $tradeUnits = $tenantSource->fetchProductStocks($productData['product']['source_id']);
             $product->tradeUnits()->sync($tradeUnits['product_stocks']);
-
 
 
             return $product;
@@ -54,14 +54,26 @@ class FetchProducts extends FetchAction
 
     function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Product Dimension')
+            ->where('Product Type', 'Product')
             ->select('Product ID as source_id');
+
+        if ($this->shop) {
+            $query->where('Product Store Key', $this->shop->source_id);
+        }
+
+        return $query;
     }
 
     function count(): ?int
     {
-        return DB::connection('aurora')->table('Product Dimension')->count();
+        $query = DB::connection('aurora')->table('Product Dimension')->where('Product Type', 'Product');
+        if ($this->shop) {
+            $query->where('Product Store Key', $this->shop->source_id);
+        }
+
+        return $query->count();
     }
 
 }

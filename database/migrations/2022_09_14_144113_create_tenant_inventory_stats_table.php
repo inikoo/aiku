@@ -54,21 +54,23 @@ return new class extends Migration {
             $table->unsignedBigInteger('number_deliveries_type_replacement')->default(0);
 
             $deliveryStates = [
-                'ready-to-be-picked',
+                'submitted',
                 'picker-assigned',
                 'picking',
                 'picked',
+
                 'packing',
                 'packed',
-                'packed-done',
-                'approved',
+                'finalised',
                 'dispatched',
-                'cancelled',
-                'cancelled-to-restock',
             ];
 
             foreach ($deliveryStates as $deliveryState) {
                 $table->unsignedBigInteger('number_deliveries_state_'.str_replace('-', '_', $deliveryState))->default(0);
+            }
+
+            foreach ($deliveryStates as $deliveryState) {
+                $table->unsignedBigInteger('number_deliveries_cancelled_at_state_'.str_replace('-', '_', $deliveryState))->default(0);
             }
 
 

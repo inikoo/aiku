@@ -10,8 +10,10 @@ namespace App\Models\Sales;
 
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
+use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Web\WebUser;
 use Illuminate\Database\Eloquent\Builder;
@@ -59,10 +61,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection|CustomerClient[] $clients
  * @property-read int|null $clients_count
  * @property-read Address|null $deliveryAddress
+ * @property-read \Illuminate\Database\Eloquent\Collection|FulfilmentOrder[] $fulfilmentOrders
+ * @property-read int|null $fulfilment_orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Invoice[] $invoices
  * @property-read int|null $invoices_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Order[] $orders
+ * @property-read int|null $orders_count
  * @property-read Shop|null $shop
  * @property-read \App\Models\Sales\CustomerStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection|Stock[] $stocks
+ * @property-read int|null $stocks_count
  * @property-read \Illuminate\Database\Eloquent\Collection|WebUser[] $webUsers
  * @property-read int|null $web_users_count
  * @method static Builder|Customer newModelQuery()
@@ -200,9 +208,25 @@ class Customer extends Model
         return 'slug';
     }
 
+
+    public function products(): MorphMany
+    {
+        return $this->morphMany(Product::class, 'owner', 'owner_type', 'owner_id', 'id');
+    }
+
     public function stocks(): MorphMany
     {
         return $this->morphMany(Stock::class, 'owner', 'owner_type', 'owner_id', 'id');
+    }
+
+    public function fulfilmentOrders(): HasMany
+    {
+        return $this->hasMany(FulfilmentOrder::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 
 

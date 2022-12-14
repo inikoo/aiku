@@ -16,21 +16,19 @@ return new class extends Migration
     {
         Schema::create('historic_products', function (Blueprint $table) {
             $table->id();
+            $table->string('slug')->unique();
             $table->boolean('status')->index();
             $table->dateTimeTz('created_at')->nullable();
             $table->dateTimeTz('deleted_at')->nullable();
-            $table->unsignedBigInteger('product_id')->nullable()->index();
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->foreignid('product_id')->constrained();
+
             $table->unsignedDecimal('price', 18)->comment('unit price');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
-            $table->unsignedDecimal('pack',12,3)->nullable()->comment('units per pack');
-            $table->unsignedDecimal('outer',12,3)->nullable()->comment('units per outer');
-            $table->unsignedDecimal('carton',12,3)->nullable()->comment('units per carton');
+            $table->unsignedDecimal('units',12,3)->nullable()->comment('units per outer');
 
-            $table->unsignedDecimal('cbm', 18, 4)->nullable()->comment('to be deleted');
-            $table->unsignedSmallInteger('currency_id')->nullable();
-            $table->foreign('currency_id')->references('id')->on('central.currencies');
+            //$table->unsignedSmallInteger('currency_id')->nullable();
+            //$table->foreign('currency_id')->references('id')->on('central.currencies');
             $table->unsignedBigInteger('source_id')->nullable()->unique();
 
         });

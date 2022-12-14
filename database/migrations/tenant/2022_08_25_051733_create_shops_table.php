@@ -9,8 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
 
     public function up()
     {
@@ -32,8 +31,9 @@ return new class extends Migration
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
 
+            $shopStates = ['in-process', 'open', 'closing-down', 'closed'];
 
-            $table->enum('state', ['in-process', 'open', 'closing-down', 'closed'])->index();
+            $table->enum('state', $shopStates)->index();
             $table->enum('type', ['shop', 'fulfilment_house', 'agent'])->index();
             $shopSubtypes = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
 
@@ -52,9 +52,7 @@ return new class extends Migration
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedBigInteger('source_id')->nullable()->unique();
-
         });
-
     }
 
     public function down()

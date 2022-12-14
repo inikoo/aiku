@@ -7,7 +7,6 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraCustomerClient extends FetchAurora
@@ -15,8 +14,7 @@ class FetchAuroraCustomerClient extends FetchAurora
 
     protected function parseModel(): void
     {
-        $this->parsedData['customer'] = FetchCustomers::run(
-            $this->tenantSource,
+        $this->parsedData['customer'] = $this->parseCustomer(
             $this->auroraModelData->{'Customer Client Customer Key'}
         );
 

@@ -8,6 +8,7 @@
 namespace App\Models\Marketing;
 
 use App\Actions\Central\Tenant\HydrateTenant;
+use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Invoice;
@@ -64,6 +65,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read int|null $departments_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Family[] $families
  * @property-read int|null $families_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|FulfilmentOrder[] $fulfilmentOrders
+ * @property-read int|null $fulfilment_orders_count
  * @property-read string $formatted_address
  * @property-read \Illuminate\Database\Eloquent\Collection|Invoice[] $invoices
  * @property-read int|null $invoices_count
@@ -71,6 +74,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
  * @property-read int|null $products_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Service[] $services
+ * @property-read int|null $services_count
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @property-read Website|null $website
  * @method static Builder|Shop newModelQuery()
@@ -150,7 +155,7 @@ class Shop extends Model
 
         static::updated(function (Shop $shop) {
             if (!$shop->wasRecentlyCreated) {
-                if ($shop->wasChanged(['type', 'subtype'])) {
+                if ($shop->wasChanged(['type', 'subtype','state'])) {
                     HydrateTenant::make()->marketingStats();
                 }
             }
@@ -185,9 +190,19 @@ class Shop extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function fulfilmentOrders(): HasMany
+    {
+        return $this->hasMany(FulfilmentOrder::class);
+    }
+
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
     }
 
     public function website(): HasOne

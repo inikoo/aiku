@@ -22,7 +22,7 @@ class FetchOrders extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
     {
         if ($orderData = $tenantSource->fetchOrder($tenantSourceId)) {
-            if ($order = Order::where('source_id', $orderData['order']['source_id'])
+            if ($order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
                 ->first()) {
                 $this->fetchTransactions($tenantSource, $order);
                 $this->updateAurora($order);
@@ -60,7 +60,7 @@ class FetchOrders extends FetchAction
     function updateAurora(Order $order)
     {
         DB::connection('aurora')->table('Order Dimension')
-            ->where('Order Key',$order->source_id)
+            ->where('Order Key', $order->source_id)
             ->update(['aiku_id' => $order->id]);
     }
 

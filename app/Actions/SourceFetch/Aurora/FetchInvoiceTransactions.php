@@ -22,11 +22,11 @@ class FetchInvoiceTransactions
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id, Invoice $invoice): ?InvoiceTransaction
     {
-        if ($transactionData = $tenantSource->fetchInvoiceTransaction(type: 'HistoricProduct', id: $source_id)) {
+        if ($transactionData = $tenantSource->fetchInvoiceTransaction(id: $source_id)) {
             if (!InvoiceTransaction::where('source_id', $transactionData['transaction']['source_id'])
                 ->first()) {
                 return StoreInvoiceTransaction::run(
-                    invoice:     $invoice,
+                    invoice:   $invoice,
                     modelData: $transactionData['transaction']
                 );
             }

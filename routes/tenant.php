@@ -12,62 +12,46 @@ use Inertia\Inertia;
 use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
-/*
-Route::prefix('api')
-    ->middleware([
-                     'api-web-user',
-                     InitializeTenancyBySubdomain::class,
-                     PreventAccessFromCentralDomains::class
-                 ]
-    )
-    ->group(
-        function () {
-            Route::prefix('xxx')
-                ->name('xxxx.')
-                ->group(__DIR__.'/api/xxx.php');
-        }
-    );
-*/
 Route::middleware([
-                      'web',
-                      InitializeTenancyBySubdomain::class,
-                      PreventAccessFromCentralDomains::class,
-                  ])->group(function () {
-    Route::middleware(['auth'])->group(
-        function () {
-            Route::get('/', function () {
-                return Inertia::render('Dashboard');
-            })->name('dashboard');
-            Route::prefix('hr')
-                ->name('hr.')
-                ->group(__DIR__.'/hr.php');
-            Route::prefix('inventory')
-                ->name('inventory.')
-                ->group(__DIR__.'/inventory.php');
-            Route::prefix('production')
-                ->name('production.')
-                ->group(__DIR__.'/production.php');
-            Route::prefix('procurement')
-                ->name('procurement.')
-                ->group(__DIR__.'/procurement.php');
-            Route::prefix('shops')
-                ->name('shops.')
-                ->group(__DIR__.'/shops.php');
-            Route::prefix('websites')
-                ->name('websites.')
-                ->group(__DIR__.'/websites.php');
-            Route::prefix('customers')
-                ->name('customers.')
-                ->group(__DIR__.'/customers.php');
-            Route::prefix('profile')
-                ->name('profile.')
-                ->group(__DIR__.'/profile.php');
+    "web",
+    InitializeTenancyBySubdomain::class,
+    PreventAccessFromCentralDomains::class,
+])->group(function () {
+    Route::middleware(["auth"])->group(function () {
+        Route::get("/", function () {
+            return Inertia::render("Dashboard");
+        })->name("dashboard");
+        Route::prefix("hr")
+            ->name("hr.")
+            ->group(__DIR__ . "/hr.php");
+        Route::prefix("inventory")
+            ->name("inventory.")
+            ->group(__DIR__ . "/inventory.php");
+        Route::prefix("fulfilment")
+            ->name("fulfilment.")
+            ->group(__DIR__ . "/fulfilment.php");
+        Route::prefix("production")
+            ->name("production.")
+            ->group(__DIR__ . "/production.php");
+        Route::prefix("procurement")
+            ->name("procurement.")
+            ->group(__DIR__ . "/procurement.php");
+        Route::prefix("shops")
+            ->name("shops.")
+            ->group(__DIR__ . "/shops.php");
+        Route::prefix("websites")
+            ->name("websites.")
+            ->group(__DIR__ . "/websites.php");
+        Route::prefix("customers")
+            ->name("customers.")
+            ->group(__DIR__ . "/customers.php");
+        Route::prefix("profile")
+            ->name("profile.")
+            ->group(__DIR__ . "/profile.php");
 
-
-            Route::prefix('sysadmin')
-                ->name('sysadmin.')
-                ->group(__DIR__.'/sysadmin.php');
-        }
-    );
-    require __DIR__.'/auth.php';
+        Route::prefix("sysadmin")
+            ->name("sysadmin.")
+            ->group(__DIR__ . "/sysadmin.php");
+    });
+    require __DIR__ . "/auth.php";
 });

@@ -16,7 +16,7 @@ class FetchAuroraProductStocks extends FetchAurora
     {
         $productStocks = [];
         foreach ($this->auroraModelData as $modelData) {
-            $stock = FetchStocks::run($this->tenantSource, $modelData->{'Product Part Part SKU'});
+            $stock = $this->parseStock($modelData->{'Product Part Part SKU'});
             if ($stock) {
                 foreach ($stock->tradeUnits as $tradeUnit) {
                     $productStocks[$tradeUnit->id] = [

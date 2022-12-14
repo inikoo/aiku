@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int $shop_id
  * @property int $customer_id
  * @property int $order_id
+ * @property string|null $state
  * @property string|null $item_type
  * @property int|null $item_id
  * @property string $quantity
@@ -58,6 +59,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|Transaction whereQuantity($value)
  * @method static Builder|Transaction whereShopId($value)
  * @method static Builder|Transaction whereSourceId($value)
+ * @method static Builder|Transaction whereState($value)
  * @method static Builder|Transaction whereTaxBandId($value)
  * @method static Builder|Transaction whereUpdatedAt($value)
  * @mixin \Eloquent

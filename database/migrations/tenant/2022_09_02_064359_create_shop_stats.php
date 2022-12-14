@@ -49,7 +49,7 @@ return new class extends Migration
 
 
             $table->unsignedBigInteger('number_orders')->default(0);
-            $orderStates = ['in-basket', 'in-process', 'in-warehouse', 'packed', 'packed-done', 'dispatched', 'returned', 'cancelled'];
+            $orderStates = ['in-basket', 'in-process', 'in-warehouse', 'packed', 'finalised', 'dispatched', 'returned', 'cancelled'];
             foreach ($orderStates as $orderState) {
                 $table->unsignedBigInteger('number_orders_state_'.str_replace('-', '_', $orderState))->default(0);
             }
@@ -58,24 +58,26 @@ return new class extends Migration
             $table->unsignedBigInteger('number_deliveries_type_order')->default(0);
             $table->unsignedBigInteger('number_deliveries_type_replacement')->default(0);
 
+
             $deliveryStates = [
-                'ready-to-be-picked',
+                'submitted',
                 'picker-assigned',
                 'picking',
                 'picked',
+
                 'packing',
                 'packed',
-                'packed-done',
-                'approved',
+                'finalised',
                 'dispatched',
-                'cancelled',
-                'cancelled-to-restock',
             ];
 
             foreach ($deliveryStates as $deliveryState) {
                 $table->unsignedBigInteger('number_deliveries_state_'.str_replace('-', '_', $deliveryState))->default(0);
             }
 
+            foreach ($deliveryStates as $deliveryState) {
+                $table->unsignedBigInteger('number_deliveries_cancelled_at_state_'.str_replace('-', '_', $deliveryState))->default(0);
+            }
 
             $table->unsignedBigInteger('number_invoices')->default(0);
             $table->unsignedBigInteger('number_invoices_type_invoice')->default(0);

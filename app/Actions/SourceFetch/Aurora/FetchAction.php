@@ -56,7 +56,8 @@ class FetchAction
     public function fetchAll(SourceTenantService $tenantSource): void
     {
         foreach ($this->getModelsQuery()->get() as $auroraData) {
-            $this->handle($tenantSource, $auroraData->{'source_id'});
+            $model=$this->handle($tenantSource, $auroraData->{'source_id'});
+            unset($model);
             $this->progressBar?->advance();
         }
     }
@@ -83,10 +84,12 @@ class FetchAction
         $exitCode = 0;
 
 
+
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(function () use ($command, $tenant) {
-                //shops
-                if (in_array($command->getName(), ['fetch:customers', 'fetch:web-users']) and $command->option('shop')) {
+
+
+                if (in_array($command->getName(), ['fetch:customers', 'fetch:web-users', 'fetch:products']) and $command->option('shop')) {
                     $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
                 }
 

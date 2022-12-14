@@ -8,13 +8,27 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Actions\SourceFetch\Aurora\FetchCustomers;
+use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
+use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
+use App\Actions\SourceFetch\Aurora\FetchLocations;
+use App\Actions\SourceFetch\Aurora\FetchProducts;
+use App\Actions\SourceFetch\Aurora\FetchShops;
+use App\Actions\SourceFetch\Aurora\FetchStocks;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
+use App\Models\Inventory\Location;
+use App\Models\Inventory\Stock;
+use App\Models\Marketing\HistoricProduct;
+use App\Models\Marketing\HistoricService;
+use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 trait WithAuroraParsers
@@ -107,12 +121,96 @@ trait WithAuroraParsers
 
     function parseShop($source_id): Shop
     {
-        try {
-            return Shop::where('source_id', $source_id)
-                ->firstOrFail();
-        } catch (Exception) {
-            abort(404, 'Shop not found, source_id='.$source_id);
+        $shop = Shop::where('source_id', $source_id)->first();
+        if (!$shop) {
+            $shop = FetchShops::run($this->tenantSource, $source_id);
         }
+
+        return $shop;
+    }
+
+
+    function parseHistoricProduct($source_id): HistoricProduct
+    {
+        $historicProduct = HistoricProduct::where('source_id', $source_id)->first();
+        if (!$historicProduct) {
+            $historicProduct = FetchHistoricProducts::run($this->tenantSource, $source_id);
+        }
+
+        return $historicProduct;
+    }
+
+    function parseHistoricService($source_id): HistoricService
+    {
+        $historicService = HistoricService::where('source_id', $source_id)->first();
+        if (!$historicService) {
+            $historicService = FetchHistoricServices::run($this->tenantSource, $source_id);
+        }
+
+        return $historicService;
+    }
+
+
+    function parseHistoricItem($source_id): HistoricProduct|HistoricService
+    {
+
+        $auroraData=DB::connection('aurora')
+            ->table('Product History Dimension as PH')
+            ->leftJoin('Product Dimension as P','P.Product ID','PH.Product ID')
+            ->select('Product Type')
+            ->where('PH.Product Key',$source_id)->first();
+
+        if($auroraData->{'Product Type'}=='Product'){
+            $historicItem = HistoricProduct::where('source_id', $source_id)->first();
+            if (!$historicItem) {
+                $historicItem = FetchHistoricProducts::run($this->tenantSource, $source_id);
+            }
+
+        }else{
+            $historicItem = HistoricService::where('source_id', $source_id)->first();
+            if (!$historicItem) {
+                $historicItem = FetchHistoricServices::run($this->tenantSource, $source_id);
+            }
+        }
+        return $historicItem;
+
+    }
+
+    function parseProduct($source_id): Product
+    {
+        $product = Product::where('source_id', $source_id)->first();
+        if (!$product) {
+            $product = FetchProducts::run($this->tenantSource, $source_id);
+        }
+
+        return $product;
+    }
+
+    function parseCustomer($source_id): Customer
+    {
+        $customer = Customer::where('source_id', $source_id)->first();
+        if (!$customer) {
+            $customer = FetchCustomers::run($this->tenantSource, $source_id);
+        }
+        return $customer;
+    }
+
+    function parseStock($source_id): ?Stock
+    {
+        $stock = Stock::where('source_id', $source_id)->first();
+        if (!$stock) {
+            $stock = FetchStocks::run($this->tenantSource, $source_id);
+        }
+        return $stock;
+    }
+
+    function parseLocation($source_id): Location
+    {
+        $location = Location::where('source_id', $source_id)->first();
+        if (!$location) {
+            $location = FetchLocations::run($this->tenantSource, $source_id);
+        }
+        return $location;
     }
 
 

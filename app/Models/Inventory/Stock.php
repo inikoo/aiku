@@ -38,9 +38,8 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property bool $raw_material
  * @property string|null $barcode
  * @property string|null $description
- * @property int|null $pack units per pack
- * @property int|null $outer units per outer
- * @property int|null $carton units per carton
+ * @property int|null $units_per_pack units per pack
+ * @property int|null $units_per_carton units per carton
  * @property string|null $quantity stock quantity in units
  * @property float|null $available_forecast days
  * @property string|null $value
@@ -71,7 +70,6 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Stock whereActivatedAt($value)
  * @method static Builder|Stock whereAvailableForecast($value)
  * @method static Builder|Stock whereBarcode($value)
- * @method static Builder|Stock whereCarton($value)
  * @method static Builder|Stock whereCode($value)
  * @method static Builder|Stock whereComposition($value)
  * @method static Builder|Stock whereCreatedAt($value)
@@ -82,10 +80,8 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Stock whereDiscontinuingAt($value)
  * @method static Builder|Stock whereId($value)
  * @method static Builder|Stock whereImageId($value)
- * @method static Builder|Stock whereOuter($value)
  * @method static Builder|Stock whereOwnerId($value)
  * @method static Builder|Stock whereOwnerType($value)
- * @method static Builder|Stock wherePack($value)
  * @method static Builder|Stock wherePackageImageId($value)
  * @method static Builder|Stock whereQuantity($value)
  * @method static Builder|Stock whereQuantityStatus($value)
@@ -96,6 +92,8 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Stock whereSourceId($value)
  * @method static Builder|Stock whereState($value)
  * @method static Builder|Stock whereStockFamilyId($value)
+ * @method static Builder|Stock whereUnitsPerCarton($value)
+ * @method static Builder|Stock whereUnitsPerPack($value)
  * @method static Builder|Stock whereUpdatedAt($value)
  * @method static Builder|Stock whereValue($value)
  * @method static \Illuminate\Database\Query\Builder|Stock withTrashed()

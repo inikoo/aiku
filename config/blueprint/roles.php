@@ -18,6 +18,7 @@ return
             'shops',
             'production',
             'procurement',
+            'fulfilment'
         ],
 
         'system-admin'          => [
@@ -41,11 +42,13 @@ return
 
         'distribution-admin'             => [
             'inventory',
+            'fulfilment'
         ],
         'distribution-clerk'             => [
             'inventory.stocks',
             'inventory.warehouses.view',
             'inventory.warehouses.stock',
+            'fulfilment.view'
         ],
         'distribution-dispatcher-admin'  => [
 

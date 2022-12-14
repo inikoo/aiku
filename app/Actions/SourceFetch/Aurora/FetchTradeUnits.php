@@ -24,7 +24,7 @@ class FetchTradeUnits
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id): ?TradeUnit
     {
         if ($tradeUnitData = $tenantSource->fetchTradeUnit($source_id)) {
-            if ($tradeUnit = TradeUnit::where('source_id', $tradeUnitData['trade_unit']['source_id'])
+            if ($tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])
                 ->first()) {
                 $tradeUnit = UpdateTradeUnit::run(
                     tradeUnit: $tradeUnit,

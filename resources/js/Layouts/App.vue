@@ -35,7 +35,8 @@ import {
     faStoreAlt,
     faUser,
     faIndustry,
-    faParachuteBox
+    faParachuteBox,
+    faDollyEmpty
 } from '@/../private/pro-light-svg-icons';
 
 library.add(
@@ -51,7 +52,8 @@ library.add(
             faStoreAlt,
             faUser,
             faIndustry,
-            faParachuteBox
+            faParachuteBox,
+            faDollyEmpty
 );
 
 
