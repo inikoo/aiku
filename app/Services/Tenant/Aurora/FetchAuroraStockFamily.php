@@ -20,8 +20,8 @@ class FetchAuroraStockFamily extends FetchAurora
             'state'     => match ($this->auroraModelData->{'Part Category Status'}) {
                 'InUse' => 'active',
                 'Discontinuing' => 'discontinuing',
-                'InProcess' => 'in-process',
-                'NotInUse' => 'discontinued'
+                'NotInUse' => 'discontinued',
+                default => 'in-process',
             }
         ];
     }
