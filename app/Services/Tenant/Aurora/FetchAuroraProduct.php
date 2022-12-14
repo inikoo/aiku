@@ -60,11 +60,8 @@ class FetchAuroraProduct extends FetchAurora
         $unit_price        = $this->auroraModelData->{'Product Price'} / $units;
         $data['raw_price'] = $unit_price;
 
-
-        $historicProduct = $this->parseHistoricProduct($this->auroraModelData->{'Product Current Key'});
-
-
         $this->parsedData['historic_product_source_id'] = $this->auroraModelData->{'Product Current Key'};
+
         $this->parsedData['product']                    = [
             'owner_type'                  => $owner_type,
             'owner_id'                    => $owner_id,
@@ -78,7 +75,6 @@ class FetchAuroraProduct extends FetchAurora
             'settings'                    => $settings,
             'created_at'                  => $created_at,
             'source_id'                   => $this->auroraModelData->{'Product ID'},
-            'current_historic_product_id' => $historicProduct->id
         ];
     }
 

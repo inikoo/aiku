@@ -10,6 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Marketing\Service\StoreService;
 use App\Actions\Marketing\Service\UpdateService;
+use App\Models\Marketing\HistoricService;
 use App\Models\Marketing\Service;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -40,6 +41,18 @@ class FetchServices extends FetchAction
                 );
             }
 
+
+            $historicService = HistoricService::where('source_id', $serviceData['historic_service_source_id'])->first();
+
+            if (!$historicService) {
+                $historicService = FetchHistoricServices::run($tenantSource, $serviceData['historic_service_source_id']);
+            }
+
+            $service->update(
+                [
+                    'current_historic_service_id' => $historicService->id
+                ]
+            );
 
             return $service;
         }

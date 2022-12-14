@@ -37,7 +37,7 @@ class FetchAuroraService extends FetchAurora
         $unit_price = $this->auroraModelData->{'Product Price'};
 
 
-        $historicService = $this->parseHistoricService($this->auroraModelData->{'Product Current Key'});
+        $this->parsedData['historic_service_source_id'] = $this->auroraModelData->{'Product Current Key'};
 
         $this->parsedData['service'] = [
             'code'                        => $this->auroraModelData->{'Product Code'},
@@ -48,7 +48,6 @@ class FetchAuroraService extends FetchAurora
             'settings'                    => $settings,
             'created_at'                  => $created_at,
             'source_id'                   => $this->auroraModelData->{'Product ID'},
-            'current_historic_service_id' => $historicService->id
 
         ];
     }

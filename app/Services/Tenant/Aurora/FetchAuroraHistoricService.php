@@ -18,7 +18,7 @@ class FetchAuroraHistoricService extends FetchAurora
 
     protected function parseModel(): void
     {
-        $this->parsedData['service'] = FetchServices::run($this->tenantSource, $this->auroraModelData->{'Product ID'});
+        $this->parsedData['service'] = $this->parseService($this->auroraModelData->{'Product ID'});
 
 
         $deleted_at = $this->parseDate($this->auroraModelData->{'Product History Valid To'});
@@ -30,14 +30,11 @@ class FetchAuroraHistoricService extends FetchAurora
         }
 
 
-
         $this->parsedData['historic_service'] = [
-            'code' => $this->auroraModelData->{'Product History Code'},
-            'name' => $this->auroraModelData->{'Product History Name'},
-            'price' => $this->auroraModelData->{'Product History Price'},
-
-            'status' => $status,
-
+            'code'       => $this->auroraModelData->{'Product History Code'},
+            'name'       => $this->auroraModelData->{'Product History Name'},
+            'price'      => $this->auroraModelData->{'Product History Price'},
+            'status'     => $status,
             'created_at' => $this->parseDate($this->auroraModelData->{'Product History Valid From'}),
             'deleted_at' => $deleted_at,
             'source_id'  => $this->auroraModelData->{'Product Key'}

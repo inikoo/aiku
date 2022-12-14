@@ -11,6 +11,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Marketing\Product\StoreProduct;
 use App\Actions\Marketing\Product\UpdateProduct;
+use App\Models\Marketing\HistoricProduct;
 use App\Models\Marketing\Product;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -40,6 +41,18 @@ class FetchProducts extends FetchAction
                     skipHistoric: true
                 );
             }
+
+            $historicProduct = HistoricProduct::where('source_id', $productData['historic_product_source_id'])->first();
+            if (!$historicProduct) {
+                $historicProduct = FetchHistoricProducts::run($tenantSource, $productData['historic_product_source_id']);
+            }
+
+            $product->update(
+                [
+                    'current_historic_product_id' => $historicProduct->id
+                ]
+            );
+
 
             $tradeUnits = $tenantSource->fetchProductStocks($productData['product']['source_id']);
             $product->tradeUnits()->sync($tradeUnits['product_stocks']);

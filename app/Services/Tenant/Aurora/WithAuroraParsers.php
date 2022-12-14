@@ -13,6 +13,7 @@ use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchLocations;
 use App\Actions\SourceFetch\Aurora\FetchProducts;
+use App\Actions\SourceFetch\Aurora\FetchServices;
 use App\Actions\SourceFetch\Aurora\FetchShops;
 use App\Actions\SourceFetch\Aurora\FetchStocks;
 use App\Models\Assets\Country;
@@ -24,6 +25,7 @@ use App\Models\Inventory\Stock;
 use App\Models\Marketing\HistoricProduct;
 use App\Models\Marketing\HistoricService;
 use App\Models\Marketing\Product;
+use App\Models\Marketing\Service;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Carbon\Carbon;
@@ -184,6 +186,16 @@ trait WithAuroraParsers
         }
 
         return $product;
+    }
+
+    function parseService($source_id): Service
+    {
+        $service = Service::where('source_id', $source_id)->first();
+        if (!$service) {
+            $service = FetchServices::run($this->tenantSource, $source_id);
+        }
+
+        return $service;
     }
 
     function parseCustomer($source_id): Customer
