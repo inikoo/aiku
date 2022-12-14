@@ -2,6 +2,7 @@
 
 namespace App\Models\Delivery;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,29 +29,29 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $packed_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|Picking newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Picking newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Picking query()
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereAssignedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereDeliveryNoteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereFulfilled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking wherePackedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking wherePackerId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking wherePackingAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking wherePicked($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking wherePickedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking wherePickerId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking wherePickingAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereRequired($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereStockId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereStockMovementId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Picking whereWeight($value)
+ * @method static Builder|Picking newModelQuery()
+ * @method static Builder|Picking newQuery()
+ * @method static Builder|Picking query()
+ * @method static Builder|Picking whereAssignedAt($value)
+ * @method static Builder|Picking whereCreatedAt($value)
+ * @method static Builder|Picking whereData($value)
+ * @method static Builder|Picking whereDeliveryNoteId($value)
+ * @method static Builder|Picking whereFulfilled($value)
+ * @method static Builder|Picking whereId($value)
+ * @method static Builder|Picking wherePackedAt($value)
+ * @method static Builder|Picking wherePackerId($value)
+ * @method static Builder|Picking wherePackingAt($value)
+ * @method static Builder|Picking wherePicked($value)
+ * @method static Builder|Picking wherePickedAt($value)
+ * @method static Builder|Picking wherePickerId($value)
+ * @method static Builder|Picking wherePickingAt($value)
+ * @method static Builder|Picking whereRequired($value)
+ * @method static Builder|Picking whereState($value)
+ * @method static Builder|Picking whereStatus($value)
+ * @method static Builder|Picking whereStockId($value)
+ * @method static Builder|Picking whereStockMovementId($value)
+ * @method static Builder|Picking whereUpdatedAt($value)
+ * @method static Builder|Picking whereWeight($value)
  * @mixin \Eloquent
  */
 class Picking extends Model
