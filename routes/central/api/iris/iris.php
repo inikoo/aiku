@@ -13,3 +13,7 @@ Route::prefix('fulfilment')
     ->name('fulfilment.')
     ->group(__DIR__.'/fulfilment.php');
 
+Route::prefix('dropshipping')
+    ->name('dropshipping.')
+    ->group(__DIR__.'/dropshipping.php');
+

@@ -36,6 +36,18 @@ class FetchCustomers extends FetchAction
                 $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['addresses']);
             }
 
+            if (in_array('products', $this->with)) {
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Product Dimension')
+                        ->where('Product Customer Key', $customer->source_id)
+                        ->select('Product ID as source_id')
+                        ->orderBy('source_id')->get() as $order
+                ) {
+                    FetchProducts::run($tenantSource, $order->source_id);
+                }
+            }
+
             if ($customer->shop->type == 'fulfilment_house' and in_array('clients', $this->with)) {
                 foreach (
                     DB::connection('aurora')
@@ -45,6 +57,18 @@ class FetchCustomers extends FetchAction
                         ->orderBy('source_id')->get() as $customerClient
                 ) {
                     FetchCustomerClients::run($tenantSource, $customerClient->source_id);
+                }
+            }
+
+            if (in_array('orders', $this->with)) {
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Order Dimension')
+                        ->where('Order Customer Key', $customer->source_id)
+                        ->select('Order Key as source_id')
+                        ->orderBy('source_id')->get() as $order
+                ) {
+                    FetchOrders::run($tenantSource, $order->source_id);
                 }
             }
 

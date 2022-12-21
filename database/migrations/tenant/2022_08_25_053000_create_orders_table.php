@@ -22,6 +22,8 @@ return new class extends Migration {
             $table->foreign('customer_client_id')->references('id')->on('customers');
 
             $table->string('number')->nullable()->index();
+            $table->string('customer_number')->index()->nullable()->comment('Customers own order number');
+
             $table->enum('type',['b2b','b2c','dropshipping'])->index()->nullable();
             $table->enum('state', ['submitted', 'in-warehouse','packed', 'finalised', 'dispatched'])->default('in-basket')->index();
 

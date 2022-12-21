@@ -66,24 +66,25 @@ class FetchAuroraOrder extends FetchAurora
         }
 
         $this->parsedData["order"] = [
-            "number" => $this->auroraModelData->{'Order Public ID'},
-            "state" => $state,
-            "source_id" => $this->auroraModelData->{'Order Key'},
-            "exchange" => $this->auroraModelData->{'Order Currency Exchange'},
-            "created_at" => $this->auroraModelData->{'Order Created Date'},
-            "cancelled_at" => $cancelled_at,
+            "number"          => $this->auroraModelData->{'Order Public ID'},
+            'customer_number' => $this->auroraModelData->{'Order Customer Purchase Order ID'},
+            "state"           => $state,
+            "source_id"       => $this->auroraModelData->{'Order Key'},
+            "exchange"        => $this->auroraModelData->{'Order Currency Exchange'},
+            "created_at"      => $this->auroraModelData->{'Order Created Date'},
+            "cancelled_at"    => $cancelled_at,
         ];
 
-        $deliveryAddressData = $this->parseAddress(
-            prefix: "Order Delivery",
+        $deliveryAddressData                  = $this->parseAddress(
+            prefix:        "Order Delivery",
             auAddressData: $this->auroraModelData,
         );
         $this->parsedData["delivery_address"] = new Address(
             $deliveryAddressData,
         );
 
-        $billingAddressData = $this->parseAddress(
-            prefix: "Order Invoice",
+        $billingAddressData                  = $this->parseAddress(
+            prefix:        "Order Invoice",
             auAddressData: $this->auroraModelData,
         );
         $this->parsedData["billing_address"] = new Address($billingAddressData);

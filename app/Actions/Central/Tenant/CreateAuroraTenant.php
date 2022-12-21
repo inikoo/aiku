@@ -17,6 +17,7 @@ use App\Models\Assets\Timezone;
 use App\Models\Central\Tenant;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -71,6 +72,14 @@ class CreateAuroraTenant
         $timezone = Timezone::where('name', $auData->{'Account Timezone'})->firstOrFail();
         $currency = Currency::where('code', $auData->{'Account Currency'})->firstOrFail();
 
+
+        if (App::environment('local')) {
+            $auroraURL = "http://".env('AURORA_DOMAIN','aurora.local');
+        } else {
+            $auroraURL = "https://$code.".env('AURORA_DOMAIN', 'aurora.systems');
+        }
+
+
         $tenantData = [
             'code'        => $code,
             'name'        => $auData->{'Account Name'},
@@ -82,6 +91,7 @@ class CreateAuroraTenant
                 'type'         => 'Aurora',
                 'db_name'      => $aurora_db,
                 'account_code' => $auData->{'Account Code'},
+                'url'          => $auroraURL
             ]
         ];
 
