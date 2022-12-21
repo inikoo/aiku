@@ -27,6 +27,7 @@ use Spatie\Sluggable\HasSlug;
  * @property int $customer_id
  * @property int|null $customer_client_id
  * @property string|null $number
+ * @property string|null $customer_number Customers own order number
  * @property string|null $type
  * @property string $state
  * @property bool $is_invoiced
@@ -34,7 +35,6 @@ use Spatie\Sluggable\HasSlug;
  * @property bool|null $can_dispatch
  * @property int|null $billing_address_id
  * @property int|null $delivery_address_id
- * @property int $items number of items
  * @property string $items_discounts
  * @property string $items_net
  * @property int $currency_id
@@ -51,10 +51,10 @@ use Spatie\Sluggable\HasSlug;
  * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|DeliveryNote[] $deliveryNotes
  * @property-read int|null $delivery_notes_count
- * @property-read FulfilmentOrderStats|null $fulfilmentStats
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Invoice[] $invoices
  * @property-read int|null $invoices_count
  * @property-read Shop $shop
+ * @property-read \App\Models\Sales\OrderStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Transaction[] $transactions
  * @property-read int|null $transactions_count
  * @method static Builder|Order newModelQuery()
@@ -69,13 +69,13 @@ use Spatie\Sluggable\HasSlug;
  * @method static Builder|Order whereCurrencyId($value)
  * @method static Builder|Order whereCustomerClientId($value)
  * @method static Builder|Order whereCustomerId($value)
+ * @method static Builder|Order whereCustomerNumber($value)
  * @method static Builder|Order whereData($value)
  * @method static Builder|Order whereDeliveryAddressId($value)
  * @method static Builder|Order whereExchange($value)
  * @method static Builder|Order whereId($value)
  * @method static Builder|Order whereIsInvoiced($value)
  * @method static Builder|Order whereIsPickingOnHold($value)
- * @method static Builder|Order whereItems($value)
  * @method static Builder|Order whereItemsDiscounts($value)
  * @method static Builder|Order whereItemsNet($value)
  * @method static Builder|Order whereNet($value)
@@ -121,11 +121,9 @@ class Order extends Model
         return $this->hasMany(Invoice::class);
     }
 
-    public function fulfilmentStats(): HasOne
+    public function stats(): HasOne
     {
-        return $this->hasOne(FulfilmentOrderStats::class);
-
+        return $this->hasOne(OrderStats::class);
     }
-
 
 }

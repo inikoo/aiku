@@ -67,6 +67,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read int|null $invoices_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Order[] $orders
  * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Product[] $products
+ * @property-read int|null $products_count
  * @property-read Shop|null $shop
  * @property-read \App\Models\Sales\CustomerStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection|Stock[] $stocks

@@ -50,7 +50,8 @@ class StoreOrder
 
         /** @var Order $order */
         $order = $parent->shop->orders()->create($modelData);
-
+        $order->stats()->create();
+        HydrateOrder::make()->originalItems($order);
 
         return $order;
     }

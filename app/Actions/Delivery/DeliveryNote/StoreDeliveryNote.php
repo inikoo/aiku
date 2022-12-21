@@ -23,18 +23,17 @@ class StoreDeliveryNote
         Address $deliveryAddress,
         array $modelData
 
-    ): DeliveryNote
-    {
+    ): DeliveryNote {
+        $modelData['shop_id']     = $order->shop_id;
+        $modelData['customer_id'] = $order->customer_id;
+        $modelData['order_id']    = $order->id;
 
-        $modelData['shop_id']=$order->shop_id;
-        $modelData['customer_id']=$order->customer_id;
-        $modelData['order_id']=$order->id;
-
-        $deliveryAddress=StoreImmutableAddress::run($deliveryAddress);
-        $modelData['delivery_address_id']=$deliveryAddress->id;
+        $deliveryAddress                  = StoreImmutableAddress::run($deliveryAddress);
+        $modelData['delivery_address_id'] = $deliveryAddress->id;
 
         /** @var DeliveryNote $deliveryNote */
         $deliveryNote = $order->deliveryNotes()->create($modelData);
+        $deliveryNote->stats()->create();
 
         return $deliveryNote;
     }

@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers');
 
             $table->unsignedBigInteger('customer_client_id')->nullable()->index();
-            $table->foreign('customer_client_id')->references('id')->on('customers');
+            $table->foreign('customer_client_id')->references('id')->on('customer_clients');
 
             $table->string('number')->nullable()->index();
             $table->string('customer_number')->index()->nullable()->comment('Customers own order number');
@@ -38,7 +38,7 @@ return new class extends Migration {
             $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
             $table->foreign('delivery_address_id')->references('id')->on('addresses');
 
-            $table->unsignedBigInteger('items')->default(0)->comment('number of items');
+
 
             $table->decimal('items_discounts', 16)->default(0);
             $table->decimal('items_net', 16)->default(0);

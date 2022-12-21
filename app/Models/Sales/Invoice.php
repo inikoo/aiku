@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -50,6 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Order[] $orders
  * @property-read int|null $orders_count
  * @property-read Shop $shop
+ * @property-read \App\Models\Sales\InvoiceStats|null $stats
  * @method static Builder|Invoice newModelQuery()
  * @method static Builder|Invoice newQuery()
  * @method static \Illuminate\Database\Query\Builder|Invoice onlyTrashed()
@@ -155,5 +157,10 @@ class Invoice extends Model
     public function setExchangeAttribute($val)
     {
         $this->attributes['exchange'] = sprintf('%.6f', $val);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(InvoiceStats::class);
     }
 }

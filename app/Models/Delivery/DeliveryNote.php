@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -56,6 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
  * @property-read int|null $orders_count
  * @property-read Shop $shop
+ * @property-read \App\Models\Delivery\DeliveryNoteStats|null $stats
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
  * @method static \Illuminate\Database\Query\Builder|DeliveryNote onlyTrashed()
@@ -149,6 +151,11 @@ class DeliveryNote extends Model
     public function order(): BelongsToMany
     {
         return $this->belongsToMany(Order::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(DeliveryNoteStats::class);
     }
 
 

@@ -7,6 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,30 +20,30 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_cancelled_items
  * @property int $number_add_up_items
  * @property int $number_cut_off_items
- * @property int $items_fulfilled
+ * @property int $number_items_fulfilled
+ * @property int $number_items current number of items
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Fulfilment\FulfilmentOrder $fulfilmentOrder
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats whereItemsFulfilled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats whereNumberAddUpItems($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats whereNumberCancelledItems($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats whereNumberCutOffItems($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats whereNumberItemsAtCreation($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats whereOrderId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentOrderStats whereUpdatedAt($value)
+ * @method static Builder|FulfilmentOrderStats newModelQuery()
+ * @method static Builder|FulfilmentOrderStats newQuery()
+ * @method static Builder|FulfilmentOrderStats query()
+ * @method static Builder|FulfilmentOrderStats whereCreatedAt($value)
+ * @method static Builder|FulfilmentOrderStats whereId($value)
+ * @method static Builder|FulfilmentOrderStats whereNumberAddUpItems($value)
+ * @method static Builder|FulfilmentOrderStats whereNumberCancelledItems($value)
+ * @method static Builder|FulfilmentOrderStats whereNumberCutOffItems($value)
+ * @method static Builder|FulfilmentOrderStats whereNumberItems($value)
+ * @method static Builder|FulfilmentOrderStats whereNumberItemsAtCreation($value)
+ * @method static Builder|FulfilmentOrderStats whereNumberItemsFulfilled($value)
+ * @method static Builder|FulfilmentOrderStats whereOrderId($value)
+ * @method static Builder|FulfilmentOrderStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class FulfilmentOrderStats extends Model
 {
     protected $table = 'fulfilment_order_stats';
-
     protected $guarded = [];
-
 
     public function fulfilmentOrder(): BelongsTo
     {

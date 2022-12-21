@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\FulfilmentOrder;
 
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\FulfilmentOrder;
-use App\Models\Inventory\Warehouse;
 use Illuminate\Support\Collection;
 
 

@@ -33,7 +33,7 @@ class StoreInvoice
 
         /** @var Invoice $invoice */
         $invoice = $order->invoices()->create($modelData);
-
+        $invoice->stats()->create();
         return $invoice;
     }
 }

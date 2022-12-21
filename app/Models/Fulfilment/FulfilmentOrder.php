@@ -90,7 +90,6 @@ class FulfilmentOrder extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(FulfilmentOrderStats::class);
-
     }
 
 

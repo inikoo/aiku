@@ -28,6 +28,8 @@ class FetchCustomers extends FetchAction
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
     {
+        $with = $this->with;
+
         if ($customerData = $tenantSource->fetchCustomer($tenantSourceId)) {
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                 ->first()) {
@@ -36,7 +38,7 @@ class FetchCustomers extends FetchAction
                 $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['addresses']);
             }
 
-            if (in_array('products', $this->with)) {
+            if (in_array('products', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Product Dimension')
@@ -48,7 +50,7 @@ class FetchCustomers extends FetchAction
                 }
             }
 
-            if ($customer->shop->type == 'fulfilment_house' and in_array('clients', $this->with)) {
+            if ($customer->shop->type == 'fulfilment_house' and in_array('clients', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Customer Client Dimension')
@@ -60,7 +62,7 @@ class FetchCustomers extends FetchAction
                 }
             }
 
-            if (in_array('orders', $this->with)) {
+            if (in_array('orders', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Order Dimension')
@@ -73,13 +75,25 @@ class FetchCustomers extends FetchAction
             }
 
 
+            if (in_array('web-users', $with)) {
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Website User Dimension')
+                        ->where('Website User Customer Key', $customer->source_id)
+                        ->select('Website User Key as source_id')
+                        ->orderBy('source_id')->get() as $order
+                ) {
+                    FetchWebUsers::run($tenantSource, $order->source_id);
+                }
+            }
+
+
             DB::connection('aurora')->table('Customer Dimension')
                 ->where('Customer Key', $customer->source_id)
                 ->update(['aiku_id' => $customer->id]);
 
             return $customer;
         }
-
         return null;
     }
 
