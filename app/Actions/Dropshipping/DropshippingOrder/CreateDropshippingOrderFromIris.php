@@ -18,6 +18,7 @@ use App\Models\Web\WebUser;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
@@ -40,6 +41,7 @@ class CreateDropshippingOrderFromIris extends fromIris
                 'delivery_address'              => ['required', 'array:address_line_1,address_line_2,sorting_code,postal_code,locality,dependant_locality,administrative_area,country_code'],
                 'delivery_address.country_code' => ['required', 'string', 'size:2', 'exists:countries,code'],
                 'items'                         => ['required', 'array'],
+                'environment'                   => App::environment()
 
 
             ]
@@ -122,10 +124,7 @@ class CreateDropshippingOrderFromIris extends fromIris
                 'delivery_address' => $deliveryAddress->toArray()
             ],
             'items'        => $items
-
-
         ];
-
 
         if (!Arr::get(tenant(), 'source.db_name')) {
             throw new Exception('Aurora DB not set');
@@ -145,8 +144,10 @@ class CreateDropshippingOrderFromIris extends fromIris
             ]
         );
 
+
         $response = Http::get(Arr::get(tenant(), 'source.url').'/pika/process_pika_order.php', [
-            'id' => $id
+            'id'          => $id,
+            'environment' => App::environment()
         ]);
 
         if ($response->ok()) {
@@ -164,7 +165,7 @@ class CreateDropshippingOrderFromIris extends fromIris
             }
             throw new Exception('Aurora server error msg:'.Arr::get($auroraResponse, 'msg'));
         } else {
-            throw new Exception('Aurora server error');
+            throw new Exception('Aurora server error unk');
         }
     }
 
