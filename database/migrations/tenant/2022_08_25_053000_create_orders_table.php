@@ -1,5 +1,5 @@
-\<?php
 
+<?php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,7 +24,9 @@ return new class extends Migration {
             $table->string('number')->nullable()->index();
             $table->string('customer_number')->index()->nullable()->comment('Customers own order number');
 
-            $table->enum('type',['b2b','b2c','dropshipping'])->index()->nullable();
+            $shopSubtypes = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
+
+            $table->enum('type',$shopSubtypes)->index()->nullable();
             $table->enum('state', ['submitted', 'in-warehouse','packed', 'finalised', 'dispatched'])->default('in-basket')->index();
 
             $table->boolean('is_invoiced')->default('false');

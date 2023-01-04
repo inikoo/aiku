@@ -31,12 +31,11 @@ class CreateDropshippingOrderFromIris extends fromIris
         return array_merge(
             $this->baseRules(),
             [
-                'customer_client_id'            => ['sometimes', 'integer'],
-                'customer_number'               => ['required', 'alpha_dash', 'max:255'],
+                'order_number'                  => ['required', 'alpha_dash', 'max:255'],
                 'email'                         => ['sometimes', 'email'],
                 'company_name'                  => ['sometimes', 'string'],
                 'contact_name'                  => ['sometimes', 'string'],
-                'customer_client_reference'     => ['required', 'string', 'max:255'],
+                'client_reference'              => ['required', 'string', 'max:255'],
                 'phone'                         => ['sometimes', 'string'],
                 'delivery_address'              => ['required', 'array:address_line_1,address_line_2,sorting_code,postal_code,locality,dependant_locality,administrative_area,country_code'],
                 'delivery_address.country_code' => ['required', 'string', 'size:2', 'exists:countries,code'],
@@ -54,7 +53,7 @@ class CreateDropshippingOrderFromIris extends fromIris
      */
     public function handle(WebUser $webUser, array $modelData): ?Order
     {
-        if ($webUser->customer->orders()->where('customer_number', Arr::get($modelData, 'customer_number'))->exists()) {
+        if ($webUser->customer->orders()->where('customer_number', Arr::get($modelData, 'order_number'))->exists()) {
             throw  ValidationException::withMessages([
                                                          'code' => 'Order number already exists'
                                                      ]);
@@ -112,10 +111,10 @@ class CreateDropshippingOrderFromIris extends fromIris
         $auroraOrderData = [
             'customer_key' => $webUser->customer->source_id,
             'client'       => [
-                'code' => Arr::get($modelData, 'customer_client_reference'),
+                'code' => Arr::get($modelData, 'client_reference'),
             ],
             'order'        => [
-                'customer_number'  => Arr::get($modelData, 'customer_number'),
+                'order_number'     => Arr::get($modelData, 'order_number'),
                 'company_name'     => Arr::get($modelData, 'company_name'),
                 'contact_name'     => Arr::get($modelData, 'contact_name'),
                 'email'            => Arr::get($modelData, 'email'),

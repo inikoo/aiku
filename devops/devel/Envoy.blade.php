@@ -17,7 +17,6 @@
     create-admins
     empty-aurora-tenants
     tenant-guest-admin
-    tenant-fetch
 @endstory
 
 
