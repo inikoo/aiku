@@ -35,14 +35,14 @@ class CreateAdminUserTest extends TestCase
         $adminUserAData->username=fake()->userName();
 
 
-        $this->artisan("create:admin-user  $adminUserAData->username '$adminUserAData->name' -e=$adminUserAData->email -a")->assertExitCode(0);
+        $this->artisan("create:admin-user  $adminUserAData->username '$adminUserAData->name' $adminUserAData->email -a")->assertExitCode(0);
 
         $this->artisan("create:admin-token non_existent_username admin root")->assertExitCode(1);
         $this->artisan("create:admin-token $adminUserAData->username admin root")->assertExitCode(0);
 
 
         $this->expectException(ValidationException::class);
-        $this->artisan("create:admin-user  $adminUserAData->username '$adminUserAData->name' -e=$adminUserAData->email -a")->assertExitCode(1);
+        $this->artisan("create:admin-user  $adminUserAData->username '$adminUserAData->name' $adminUserAData->email -a")->assertExitCode(1);
 
 
 

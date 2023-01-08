@@ -28,7 +28,7 @@ class CreateAdminUser
     public string $commandSignature = 'create:admin-user
     {code : will be used as username}
     {name}
-    {--e|email=}
+    {email}
     {--u|username= : use instead of code argument}
     {--a|autoPassword : generate random password}';
 
@@ -43,7 +43,7 @@ class CreateAdminUser
             'code'     => ['required', new AlphaDashDot, 'unique:App\Models\Central\Admin,code'],
             'password' => ['required', app()->isLocal() ? null : Password::min(8)->uncompromised()],
             'name'     => 'sometimes|required',
-            'email'    => 'sometimes|required|email',
+            'email'    => ['required', 'email', 'unique:App\Models\Central\Admin,email'],
             'username' => ['sometimes', 'required', new AlphaDashDot, 'unique:App\Models\Central\AdminUser,username'],
 
         ];
@@ -62,19 +62,19 @@ class CreateAdminUser
         if ($command->option('autoPassword')) {
             $password = (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true));
         } else {
-            $password = $this->$command('What is the password?');
+            $password = $command->ask('What is the password?');
         }
 
         $this->fill([
                         'code'     => $command->argument('code'),
                         'password' => $password,
                         'name'     => $command->argument('name'),
+                        'email'    => $command->argument('email'),
                     ]);
 
-        foreach (['email', 'username'] as $option) {
-            if ($command->option($option)) {
-                $this->fill([$option => $command->option($option)]);
-            }
+        $option = 'username';
+        if ($command->option($option)) {
+            $this->fill([$option => $command->option($option)]);
         }
 
 

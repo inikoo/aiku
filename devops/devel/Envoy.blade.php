@@ -72,7 +72,7 @@
     echo "create-admins" > step
     cd ../../
     php artisan create:first-deployment
-    php artisan create:admin-user {{ $adminCode }} '{{ $adminName }}' -e={{ $adminEmail }} -a
+    php artisan create:admin-user {{ $adminCode }} '{{ $adminName }}' {{ $adminEmail }} -a
     php artisan create:admin-token {{ $adminCode }} admin root
 @endtask
 
