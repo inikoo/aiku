@@ -13,6 +13,7 @@
         "ext-zlib": "*",
         "ext-pgsql": "*",
         "ext-mysql": "*",
+        "ext-mbstring": "*",
         "akempes/laravel-request-logging": "^1.2",
         "aws/aws-sdk-php": "^3.255",
         "commerceguys/addressing": "^1.4",
