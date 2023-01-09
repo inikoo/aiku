@@ -47,7 +47,7 @@ return [
             'driver' => 's3',
             'key' => env('CLOUDFLARE_R2_ACCESS_KEY'),
             'secret' => env('CLOUDFLARE_R2_SECRET_KEY'),
-            'region' => '',
+            'region' => 'us-east-1',
             'bucket' => env('CLOUDFLARE_R2_BUCKET'),
             'endpoint' => env('CLOUDFLARE_R2_ENDPOINT'),
         ],
