@@ -30,6 +30,9 @@ class FetchAuroraOrder extends FetchAurora
             );
         }
         $this->parsedData["parent"] = $parent;
+        if(!$parent){
+            return;
+        }
 
         $state = match ($this->auroraModelData->{'Order State'}) {
             "InWarehouse", "Packed" => "in-warehouse",

@@ -199,7 +199,7 @@ trait WithAuroraParsers
         return $service;
     }
 
-    function parseCustomer($source_id): Customer
+    function parseCustomer($source_id): ?Customer
     {
         $customer = Customer::where('source_id', $source_id)->first();
         if (!$customer) {
@@ -208,6 +208,7 @@ trait WithAuroraParsers
                 $customer=FetchDeletedCustomers::run($this->tenantSource,$source_id);
             }
         }
+
         return $customer;
     }
 

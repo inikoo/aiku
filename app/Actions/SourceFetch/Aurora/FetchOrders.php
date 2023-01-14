@@ -22,13 +22,14 @@ class FetchOrders extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
     {
         if ($orderData = $tenantSource->fetchOrder($tenantSourceId)) {
-            if ($order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
+            if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
                 ->first()) {
                 $this->fetchTransactions($tenantSource, $order);
                 $this->updateAurora($order);
 
                 return $order;
             } else {
+
                 if ($orderData['parent']) {
                     $order = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
                     $this->fetchTransactions($tenantSource, $order);
