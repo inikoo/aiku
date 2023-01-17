@@ -21,6 +21,7 @@ use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Decorators\JobDecorator;
+use phpDocumentor\Reflection\Types\Boolean;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 
@@ -34,6 +35,7 @@ class FetchAction
     protected ?ProgressBar $progressBar;
     protected ?Shop $shop;
     protected array $with;
+    protected bool $onlyNew = false;
     private ?Tenant $tenant;
 
     public function __construct()
@@ -56,7 +58,7 @@ class FetchAction
     public function fetchAll(SourceTenantService $tenantSource): void
     {
         foreach ($this->getModelsQuery()->get() as $auroraData) {
-            $model=$this->handle($tenantSource, $auroraData->{'source_id'});
+            $model = $this->handle($tenantSource, $auroraData->{'source_id'});
             unset($model);
             $this->progressBar?->advance();
         }
@@ -84,14 +86,13 @@ class FetchAction
         $exitCode = 0;
 
 
-
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->run(function () use ($command, $tenant) {
-
-
                 if (in_array($command->getName(), ['fetch:customers', 'fetch:web-users', 'fetch:products']) and $command->option('shop')) {
                     $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
                 }
+
+                $this->onlyNew = $command->option('only_new') ? true : false;
 
                 //with
                 if ($command->getName() == 'fetch:customers') {

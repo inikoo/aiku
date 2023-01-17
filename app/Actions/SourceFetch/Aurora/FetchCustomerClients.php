@@ -11,6 +11,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
+use App\Actions\Helpers\Address\StoreAddress;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Models\Dropshipping\CustomerClient;
 use App\Services\Tenant\SourceTenantService;
@@ -32,8 +33,22 @@ class FetchCustomerClients extends FetchAction
                     modelData:      $customerClientData['customer_client']
                 );
 
+                if(!$customerClient->delivery_address_id){
+                    $address = StoreAddress::run($customerClientData['delivery_address']);
 
-                UpdateAddress::run($customerClient->deliveryAddress, $customerClientData['delivery_address']);
+
+                    $customerClient->addresses()->sync([
+                                                           $address->id => [
+                                                               'scope' => 'delivery'
+                                                           ]
+                                                       ]);
+                    $customerClient->delivery_address_id = $address->id;
+                    $customerClient->save();
+                }else{
+                    UpdateAddress::run($customerClient->deliveryAddress, $customerClientData['delivery_address']);
+
+                }
+
             } else {
                 $customerClient = StoreCustomerClient::run(
                     customer:      $customerClientData['customer'],

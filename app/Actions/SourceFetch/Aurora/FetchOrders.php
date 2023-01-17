@@ -17,19 +17,18 @@ use JetBrains\PhpStorm\NoReturn;
 class FetchOrders extends FetchAction
 {
 
-    public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=}  {--N|only_new : Fetch only nee}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
     {
         if ($orderData = $tenantSource->fetchOrder($tenantSourceId)) {
             if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
-                ->first()) {
+                    ->first()) {
                 $this->fetchTransactions($tenantSource, $order);
                 $this->updateAurora($order);
 
                 return $order;
             } else {
-
                 if ($orderData['parent']) {
                     $order = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
                     $this->fetchTransactions($tenantSource, $order);
@@ -67,16 +66,26 @@ class FetchOrders extends FetchAction
 
     function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Order Dimension')
             ->select('Order Key as source_id')
-            ->where('Order State', '!=', 'InBasket')
-            ->orderByDesc('Order Date');
+            ->where('Order State', '!=', 'InBasket');
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+        $query->orderByDesc('Order Date');
+
+        return $query;
     }
 
     function count(): ?int
     {
-        return DB::connection('aurora')->table('Order Dimension')->count();
+        $query = DB::connection('aurora')->table('Order Dimension');
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
     }
 
 }
