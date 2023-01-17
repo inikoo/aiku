@@ -1,2 +1,2 @@
-cd /devops/deployment || exit
+cd devops/deployment || exit
 php ../../vendor/bin/envoy run deploy --env=production
