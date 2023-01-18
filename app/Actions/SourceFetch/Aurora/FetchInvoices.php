@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 class FetchInvoices extends FetchAction
 {
 
-    public string $commandSignature = 'fetch:invoices {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:invoices {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
     {
@@ -67,15 +67,25 @@ class FetchInvoices extends FetchAction
 
     function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query= DB::connection('aurora')
             ->table('Invoice Dimension')
             ->select('Invoice Key as source_id')
             ->orderByDesc('Invoice Date');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+        return $query;
     }
 
     function count(): ?int
     {
-        return DB::connection('aurora')->table('Invoice Dimension')->count();
+        $query = DB::connection('aurora')->table('Invoice Dimension');
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
     }
 
 }

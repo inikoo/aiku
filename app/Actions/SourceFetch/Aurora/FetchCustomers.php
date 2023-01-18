@@ -23,7 +23,7 @@ use JetBrains\PhpStorm\NoReturn;
 class FetchCustomers extends FetchAction
 {
 
-    public string $commandSignature = 'fetch:customers {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients}';
+    public string $commandSignature = 'fetch:customers {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
@@ -104,6 +104,10 @@ class FetchCustomers extends FetchAction
             ->select('Customer Key as source_id')
             ->orderBy('source_id');
 
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
         if ($this->shop) {
             $query->where('Customer Store Key', $this->shop->source_id);
         }
@@ -114,6 +118,10 @@ class FetchCustomers extends FetchAction
     function count(): ?int
     {
         $query = DB::connection('aurora')->table('Customer Dimension');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
         if ($this->shop) {
             $query->where('Customer Store Key', $this->shop->source_id);
         }

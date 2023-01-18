@@ -92,7 +92,9 @@ class FetchAction
                     $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
                 }
 
-                $this->onlyNew = $command->option('only_new') ? true : false;
+                if ( in_array($command->getName(),[ 'fetch:orders','fetch:invoices','fetch:customers'])) {
+                    $this->onlyNew = $command->option('only_new') ? true : false;
+                }
 
                 //with
                 if ($command->getName() == 'fetch:customers') {
