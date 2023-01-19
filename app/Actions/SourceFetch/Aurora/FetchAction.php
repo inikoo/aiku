@@ -21,7 +21,6 @@ use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Decorators\JobDecorator;
-use phpDocumentor\Reflection\Types\Boolean;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 
@@ -55,9 +54,12 @@ class FetchAction
         return null;
     }
 
-    public function fetchAll(SourceTenantService $tenantSource): void
+    public function fetchAll(SourceTenantService $tenantSource,Command $command=null): void
     {
         foreach ($this->getModelsQuery()->get() as $auroraData) {
+            if($command && $command->getOutput()->isDebug()){
+                $command->line("Fetching: ".$auroraData->{'source_id'});
+            }
             $model = $this->handle($tenantSource, $auroraData->{'source_id'});
             unset($model);
             $this->progressBar?->advance();
@@ -96,6 +98,7 @@ class FetchAction
                     $this->onlyNew = $command->option('only_new') ? true : false;
                 }
 
+
                 //with
                 if ($command->getName() == 'fetch:customers') {
                     $this->with = $command->option('with');
@@ -109,7 +112,7 @@ class FetchAction
                 if ($command->option('source_id')) {
                     $this->handle($tenantSource, $command->option('source_id'));
                 } else {
-                    if (!$command->option('quiet')) {
+                    if (!$command->option('quiet')  and !$command->getOutput()->isDebug() ) {
                         $info = '✊ '.$command->getName().' '.$tenant->code;
                         if ($this->shop) {
                             $info .= ' shop:'.$this->shop->slug;
@@ -123,7 +126,7 @@ class FetchAction
                         $command->line('Steps '.$this->count());
                     }
 
-                    $this->fetchAll($tenantSource);
+                    $this->fetchAll($tenantSource,$command);
                     $this->progressBar?->finish();
                 }
             });

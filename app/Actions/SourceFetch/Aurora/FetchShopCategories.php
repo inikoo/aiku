@@ -15,7 +15,7 @@ use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
-
+use Illuminate\Console\Command;
 
 class FetchShopCategories extends FetchAction
 {
@@ -70,7 +70,7 @@ class FetchShopCategories extends FetchAction
         return null;
     }
 
-    public function fetchAll(SourceTenantService $tenantSource): void
+    public function fetchAll(SourceTenantService $tenantSource, Command $command=null): void
     {
         foreach ($this->getModelsQuery()->get() as $auroraData) {
             $this->handle($tenantSource, $auroraData->{'source_id'});
