@@ -39,6 +39,8 @@ class FetchOrders extends FetchAction
                 }
                 print "Warning order $tenantSourceId do not have customer\n";
             }
+        }else{
+            print "Warning error fetching order $tenantSourceId\n";
         }
 
         return null;
