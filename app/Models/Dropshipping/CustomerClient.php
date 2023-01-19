@@ -69,7 +69,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|CustomerClient whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|CustomerClient withTrashed()
  * @method static \Illuminate\Database\Query\Builder|CustomerClient withoutTrashed()
- * @mixin \Eloquent
  */
 class CustomerClient extends Model
 {
@@ -140,7 +139,7 @@ class CustomerClient extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Customer::class)->withTrashed();
     }
 
     public function addresses(): MorphToMany
