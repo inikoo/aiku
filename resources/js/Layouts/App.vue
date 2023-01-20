@@ -220,7 +220,7 @@ const sidebarOpen = ref(false)
 
                                     <div class="py-1">
                                         <MenuItem v-slot="{ active }">
-                                            <Link as="ul" type="button" :href="route('profile.show')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">DashTV</Link>
+                                            <Link as="ul" type="button" :href="route('dashboard.tv')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">DashTV</Link>
                                         </MenuItem>
                                     </div>
                                     <div class="py-1">

@@ -6,9 +6,11 @@
  */
 
 
+use App\Actions\Dashboard\DisplayDashTV;
+use App\Actions\SysAdmin\ShowSysAdminDashboard;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get("/", function () {
-    return Inertia::render("Dashboard");
-})->name("show");
+
+Route::get('/tv', DisplayDashTV::class)->name('tv');
+Route::get('/', ShowSysAdminDashboard::class)->name('show');
+
