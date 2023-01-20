@@ -15,6 +15,14 @@ class FetchAuroraOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
+        $deliveryData = [];
+        if ($this->auroraModelData->{'Order Email'}) {
+            $deliveryData['email']=$this->auroraModelData->{'Order Email'};
+        }
+        if ($this->auroraModelData->{'Order Telephone'}) {
+            $deliveryData['phone']=$this->auroraModelData->{'Order Telephone'};
+        }
+
         if ($this->auroraModelData->{'Order State'} == "InBasket") {
             return;
         }
@@ -30,7 +38,7 @@ class FetchAuroraOrder extends FetchAurora
             );
         }
         $this->parsedData["parent"] = $parent;
-        if(!$parent){
+        if (!$parent) {
             return;
         }
 
@@ -68,6 +76,7 @@ class FetchAuroraOrder extends FetchAurora
             }
         }
 
+
         $this->parsedData["order"] = [
             "number"          => $this->auroraModelData->{'Order Public ID'},
             'customer_number' => $this->auroraModelData->{'Order Customer Purchase Order ID'},
@@ -76,6 +85,9 @@ class FetchAuroraOrder extends FetchAurora
             "exchange"        => $this->auroraModelData->{'Order Currency Exchange'},
             "created_at"      => $this->auroraModelData->{'Order Created Date'},
             "cancelled_at"    => $cancelled_at,
+            "data"=>[
+                "delivery_data"=>$deliveryData
+            ]
         ];
 
         $deliveryAddressData                  = $this->parseAddress(
