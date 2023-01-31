@@ -145,6 +145,7 @@ class CreateDropshippingOrderFromIris extends fromIris
         );
 
 
+
         $response = Http::get(Arr::get(tenant(), 'source.url').'/pika/process_pika_order.php', [
             'id'          => $id,
             'environment' => App::environment()
@@ -165,7 +166,14 @@ class CreateDropshippingOrderFromIris extends fromIris
             }
             throw new Exception('Aurora server error msg:'.Arr::get($auroraResponse, 'msg'));
         } else {
-            throw new Exception('Aurora server error unk');
+            $exceptionData=[
+                Arr::get(tenant(), 'source.url').'/pika/process_pika_order.php',
+                [
+                    'id'          => $id,
+                    'environment' => App::environment()
+                ]
+            ];
+            throw new Exception('Aurora server error: '.json_encode($exceptionData));
         }
     }
 
