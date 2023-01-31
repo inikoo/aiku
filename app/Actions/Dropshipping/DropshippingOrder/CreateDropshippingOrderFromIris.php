@@ -173,7 +173,7 @@ class CreateDropshippingOrderFromIris extends fromIris
                     'environment' => App::environment()
                 ]
             ];
-            throw new Exception('Aurora server error: '.json_encode($exceptionData));
+            throw new Exception('Aurora server error: '.Arr::get(tenant(), 'source.url').'/pika/process_pika_order.php');
         }
     }
 
