@@ -23,13 +23,13 @@ const displayBreadcrumbs = computed(() => {
             <ol role="list" class=" w-full mx-auto px-4 flex space-x-4 sm:px-6 lg:px-8">
                 <li class="flex">
                     <div class="flex items-center">
-                        <Link :href="route('dashboard')" class="hover:text-gray-700">
+                        <Link :href="route('dashboard.show')" class="hover:text-gray-700">
                             <font-awesome-icon
                                 :icon="['fal', 'tachometer-alt-fast']"
                                 class="flex-shrink-0 h-4 w-4"
                                 aria-hidden="true"
                             />
-                            <span class="sr-only">{{ trans('dashboard') }}</span>
+                            <span class="sr-only">{{ trans('dashboard.show') }}</span>
                         </Link>
                     </div>
                 </li>

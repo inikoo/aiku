@@ -31,7 +31,7 @@ class GetLayout
             [
                 'name'  => __('dashboard'),
                 'icon'  => ['fal', 'fa-tachometer-alt-fast'],
-                'route' => 'dashboard'
+                'route' => 'dashboard.show'
             ]
         ];
 
@@ -140,7 +140,7 @@ class GetLayout
             $actions[] = [
                 'name'  => __('picking'),
                 'icon'  => ['fal', 'fa-dolly-flatbed-alt'],
-                'route' => 'dashboard',
+                'route' => 'dashboard.show',
                 'color' => 'bg-indigo-500'
             ];
         }
@@ -149,7 +149,7 @@ class GetLayout
             $actions[] = [
                 'name'  => __('packing'),
                 'icon'  => ['fal', 'fa-conveyor-belt-alt'],
-                'route' => 'dashboard',
+                'route' => 'dashboard.show',
                 'color' => 'bg-green-500'
             ];
         }

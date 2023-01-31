@@ -8,7 +8,6 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
@@ -18,9 +17,11 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     Route::middleware(["auth"])->group(function () {
-        Route::get("/", function () {
-            return Inertia::render("Dashboard");
-        })->name("dashboard");
+
+        Route::prefix("dashboard")
+            ->name("dashboard.")
+            ->group(__DIR__ . "/dashboard.php");
+
         Route::prefix("hr")
             ->name("hr.")
             ->group(__DIR__ . "/hr.php");
