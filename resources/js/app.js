@@ -5,12 +5,12 @@
  *  Version 4.0
  */
 
+
 import './bootstrap';
 import '../css/app.css';
 
 import {createApp, h, watchEffect} from 'vue';
-import {createInertiaApp, usePage} from '@inertiajs/inertia-vue3';
-import {InertiaProgress} from '@inertiajs/progress';
+import {createInertiaApp, usePage} from '@inertiajs/vue3';
 import {resolvePageComponent} from 'laravel-vite-plugin/inertia-helpers';
 import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
 import {i18nVue, loadLanguageAsync} from 'laravel-vue-i18n';
@@ -52,17 +52,17 @@ library.add(faSearch,
 const initialiseApp = () => {
     const layout = useLayoutStore();
 
-    if (usePage().props.value.language) {
-        loadLanguageAsync(usePage().props.value.language);
+    if (usePage().props.language) {
+        loadLanguageAsync(usePage().props.language);
     }
     watchEffect(() => {
-        if (usePage().props.value.layout) {
-            layout.navigation = usePage().props.value.layout.navigation ?? null;
-            layout.actions = usePage().props.value.layout.actions ?? null;
+        if (usePage().props.layout) {
+            layout.navigation = usePage().props.layout.navigation ?? null;
+            layout.actions = usePage().props.layout.actions ?? null;
 
         }
-        if (usePage().props.value.tenant) {
-            layout.tenant = usePage().props.value.tenant ?? null;
+        if (usePage().props.tenant) {
+            layout.tenant = usePage().props.tenant ?? null;
         }
     });
     return layout;
@@ -73,8 +73,8 @@ createInertiaApp({
                      resolve: (name) => resolvePageComponent(
                          `./Pages/${name}.vue`,
                          import.meta.glob('./Pages/**/*.vue')),
-                     setup({el, app, props, plugin}) {
-                         return createApp({render: () => h(app, props)}).
+                     setup({el, App, props, plugin}) {
+                         return createApp({render: () => h(App, props)}).
                              use(plugin).
                              use(createPinia()).
                              use(ZiggyVue, Ziggy).
@@ -93,5 +93,4 @@ createInertiaApp({
                      },
                  });
 
-InertiaProgress.init({color: '#4B5563'});
 

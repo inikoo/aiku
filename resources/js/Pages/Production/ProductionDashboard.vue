@@ -5,7 +5,7 @@
   -->
 
 <script setup>
-import {Head} from '@inertiajs/inertia-vue3';
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
 

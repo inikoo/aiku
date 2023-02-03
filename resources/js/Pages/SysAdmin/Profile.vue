@@ -4,14 +4,14 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup>
-import {Head} from '@inertiajs/inertia-vue3';
+import {Head} from '@inertiajs/vue3';
 const props = defineProps(['title', 'pageHead', 'profile', 'pageBody']);
 import {trans} from 'laravel-vue-i18n';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faUserCircle, faKey, faClone} from '@/../private/pro-light-svg-icons';
 library.add(faUserCircle, faKey, faClone);
 import Password from '@/Components/Password.vue';
-import {useForm} from '@inertiajs/inertia-vue3';
+import {useForm} from '@inertiajs/vue3';
 import {ref} from 'vue';
 import Form from '@/Components/Forms/Form.vue';
 

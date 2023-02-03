@@ -45,7 +45,7 @@ import {faLanguage} from '@/../private/pro-regular-svg-icons';
 
 
 import {getActiveLanguage, loadLanguageAsync, wTrans} from 'laravel-vue-i18n';
-import {usePage} from '@inertiajs/inertia-vue3';
+import {usePage} from '@inertiajs/vue3';
 import VueCookies from 'vue-cookies';
 import {Inertia} from '@inertiajs/inertia';
 
@@ -75,7 +75,7 @@ function setLanguage(code) {
     loadLanguageAsync(code);
     languageCode.value = code;
     VueCookies.set('language', code, '1y');
-    if (usePage().props.value.auth.user) {
+    if (usePage().props.auth.user) {
         Inertia.patch('/profile', {
             language: code,
         });

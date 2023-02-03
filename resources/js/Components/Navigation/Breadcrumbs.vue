@@ -7,7 +7,7 @@
 <script setup>
 import {computed} from 'vue';
 import {trans} from 'laravel-vue-i18n';
-import {Link} from '@inertiajs/inertia-vue3';
+import {Link} from '@inertiajs/vue3';
 
 const props = defineProps(['breadcrumbs']);
 

@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { Head } from '@inertiajs/inertia-vue3';
+import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Stats from '@/Components/DataDisplay/Stats.vue';
 defineProps(['title','pageHead','stats'])

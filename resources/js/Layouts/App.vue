@@ -18,7 +18,7 @@ import {
     TransitionChild,
     TransitionRoot,
 } from '@headlessui/vue'
-import { Link } from '@inertiajs/inertia-vue3';
+import { Link } from '@inertiajs/vue3';
 import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
 import {trans} from 'laravel-vue-i18n';
 import {library} from '@fortawesome/fontawesome-svg-core';

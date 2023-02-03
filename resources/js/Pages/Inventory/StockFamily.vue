@@ -7,7 +7,7 @@
 
 
 <script setup lang="ts">
-import { Head } from '@inertiajs/inertia-vue3';
+import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {useLocaleStore} from '@/Stores/locale.js';
 

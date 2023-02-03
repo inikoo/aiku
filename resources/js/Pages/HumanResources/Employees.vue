@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import {Head, Link} from '@inertiajs/inertia-vue3';
+import {Head, Link} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import JobPositionBadges from '@/Components/Elements/Badges/JobPositionBadges.vue';
 import Table from '@/Components/Table/Table.vue';

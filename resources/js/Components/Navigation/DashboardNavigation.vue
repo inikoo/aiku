@@ -4,7 +4,7 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup>
-import {Link} from '@inertiajs/inertia-vue3';
+import {Link} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faEmptySet} from '@/../private/pro-light-svg-icons';
 library.add(faEmptySet);

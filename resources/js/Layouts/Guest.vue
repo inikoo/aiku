@@ -7,18 +7,18 @@
 <script setup>
 
 import {useLayoutStore} from '@/Stores/layout';
-import {usePage} from '@inertiajs/inertia-vue3';
+import {usePage} from '@inertiajs/vue3';
 import {loadLanguageAsync} from 'laravel-vue-i18n';
 import {watchEffect} from 'vue';
 
 const layout = useLayoutStore();
-if (usePage().props.value.language) {
-    loadLanguageAsync(usePage().props.value.language);
+if (usePage().props.language) {
+    loadLanguageAsync(usePage().props.language);
 }
 watchEffect(() => {
 
-    if (usePage().props.value.tenant) {
-        layout.tenant = usePage().props.value.tenant ?? null;
+    if (usePage().props.tenant) {
+        layout.tenant = usePage().props.tenant ?? null;
     }
 });
 

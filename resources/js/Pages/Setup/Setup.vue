@@ -14,7 +14,7 @@
 
 <script setup>
 
-import {Head} from '@inertiajs/inertia-vue3';
+import {Head} from '@inertiajs/vue3';
 import SetupUsername from '@/Components/Setup/SetupUsername.vue';
 import SetupAccessCode from '@/Components/Setup/SetupAccessCode.vue';
 

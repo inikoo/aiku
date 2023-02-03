@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import {Head, Link} from '@inertiajs/inertia-vue3';
+import {Head, Link} from '@inertiajs/vue3';
 import {Table} from '@protonemedia/inertiajs-tables-laravel-query-builder';
 import  PageHeading from '@/Components/Headings/PageHeading.vue'
 defineProps(['users', 'title', 'pageHead', 'labels']);

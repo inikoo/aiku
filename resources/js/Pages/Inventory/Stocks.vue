@@ -4,7 +4,7 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import {Head, Link} from '@inertiajs/inertia-vue3';
+import {Head, Link} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Table from '@/Components/Table/Table.vue';
 import {useLocaleStore} from '@/Stores/locale.js';

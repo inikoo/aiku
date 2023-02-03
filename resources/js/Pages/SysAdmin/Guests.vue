@@ -4,7 +4,7 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup>
-import {Head, Link} from '@inertiajs/inertia-vue3';
+import {Head, Link} from '@inertiajs/vue3';
 import {Table} from '@protonemedia/inertiajs-tables-laravel-query-builder';
 import  PageHeading from '@/Components/Headings/PageHeading.vue'
 defineProps(['guests', 'title', 'pageHead', 'labels']);

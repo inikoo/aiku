@@ -6,7 +6,7 @@
   -->
 
 <script setup>
-import {Link} from '@inertiajs/inertia-vue3';
+import {Link} from '@inertiajs/vue3';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faEmptySet} from '@/../private/pro-light-svg-icons';
