@@ -9,6 +9,7 @@ namespace App\Models\Delivery;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -80,6 +81,11 @@ class Shipper extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug');
+    }
+
+    public function shipments(): HasMany
+    {
+        return $this->hasMany(Shipment::class);
     }
 
 

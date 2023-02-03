@@ -3,8 +3,9 @@
 namespace App\Models\Delivery;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * App\Models\Delivery\DeliveryNoteItem
@@ -38,5 +39,22 @@ use Illuminate\Database\Eloquent\Model;
  */
 class DeliveryNoteItem extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
+
+    protected $table = 'delivery_note_items';
+
+    protected $casts = [
+        'data' => 'array'
+    ];
+
+    protected $attributes = [
+        'data' => '{}',
+    ];
+
+    protected $guarded = [];
+    public function pickings(): BelongsToMany
+    {
+        return $this->belongsToMany(Picking::class)->withTimestamps();
+    }
+
 }

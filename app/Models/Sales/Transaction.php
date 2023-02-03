@@ -14,8 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-
-//use App\Models\Delivery\DeliveryNoteItem;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 /**
@@ -66,6 +65,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class Transaction extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'transactions';
 
     protected $casts = [

@@ -8,7 +8,6 @@
 namespace App\Services\Tenant\Aurora;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchAuroraShipper extends FetchAurora
 {

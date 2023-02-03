@@ -10,6 +10,7 @@ namespace App\Services\Tenant;
 
 
 use App\Models\Central\Tenant;
+use App\Models\Delivery\DeliveryNote;
 
 interface SourceTenantService
 {
@@ -27,6 +28,8 @@ interface SourceTenantService
 
     public function fetchTransaction($id);
 
+    public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote);
+
     public function fetchInvoiceTransaction($id);
 
     public function fetchCustomer($id);
@@ -38,6 +41,8 @@ interface SourceTenantService
     public function fetchWebUser($id);
 
     public function fetchOrder($id);
+
+    public function fetchDeliveryNote($id);
 
     public function fetchInvoice($id);
 

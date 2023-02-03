@@ -13,14 +13,17 @@ use App\Actions\SourceFetch\Aurora\FetchDeletedCustomers;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchLocations;
+use App\Actions\SourceFetch\Aurora\FetchOrders;
 use App\Actions\SourceFetch\Aurora\FetchProducts;
 use App\Actions\SourceFetch\Aurora\FetchServices;
+use App\Actions\SourceFetch\Aurora\FetchShippers;
 use App\Actions\SourceFetch\Aurora\FetchShops;
 use App\Actions\SourceFetch\Aurora\FetchStocks;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
+use App\Models\Delivery\Shipper;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\HistoricProduct;
@@ -29,6 +32,8 @@ use App\Models\Marketing\Product;
 use App\Models\Marketing\Service;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use App\Models\Sales\Order;
+use App\Models\Sales\Transaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -214,7 +219,7 @@ trait WithAuroraParsers
 
     function parseStock($source_id): ?Stock
     {
-        $stock = Stock::where('source_id', $source_id)->first();
+        $stock = Stock::withTrashed()->where('source_id', $source_id)->first();
         if (!$stock) {
             $stock = FetchStocks::run($this->tenantSource, $source_id);
         }
@@ -228,6 +233,29 @@ trait WithAuroraParsers
             $location = FetchLocations::run($this->tenantSource, $source_id);
         }
         return $location;
+    }
+
+    function parseOrder($source_id): ?Order
+    {
+        $order = Order::where('source_id', $source_id)->first();
+        if (!$order) {
+            $order = FetchOrders::run($this->tenantSource, $source_id);
+        }
+        return $order;
+    }
+
+    function parseTransaction($source_id): ?Transaction
+    {
+        return Transaction::where('source_id', $source_id)->first();
+    }
+
+    function parseShipper($source_id): Shipper
+    {
+        $shipper = Shipper::where('source_id', $source_id)->first();
+        if (!$shipper) {
+            $shipper = FetchShippers::run($this->tenantSource, $source_id);
+        }
+        return $shipper;
     }
 
 

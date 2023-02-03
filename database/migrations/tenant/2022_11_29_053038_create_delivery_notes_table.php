@@ -27,26 +27,27 @@ return new class extends Migration {
                 'state',
                 [
                     'submitted',
+                    'in-queue',
                     'picker-assigned',
                     'picking',
                     'picked',
-
                     'packing',
                     'packed',
                     'finalised',
                     'dispatched',
+                    'cancelled'
                 ]
             )->index();
 
             $table->boolean('can_dispatch')->nullable();
-
-            //$table->string('status')->nullable()->index();
-
+            $table->boolean('restocking')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
 
             $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
             $table->foreign('delivery_address_id')->references('id')->on('addresses');
-            $table->unsignedMediumInteger('shipper_id')->nullable()->index();
-            $table->foreign('shipper_id')->references('id')->on('shippers');
+            $table->unsignedBigInteger('shipment_id')->nullable()->index();
+            $table->foreign('shipment_id')->references('id')->on('shipments');
 
             $table->decimal('weight', 16)->nullable()->default(0);
             $table->unsignedMediumInteger('number_stocks')->default(0);

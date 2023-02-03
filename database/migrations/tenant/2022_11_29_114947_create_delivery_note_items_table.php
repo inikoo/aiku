@@ -11,35 +11,44 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+
     public function up()
     {
         Schema::create('delivery_note_items', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('delivery_note_id')->nullable()->constrained();
+            $table->foreignId('delivery_note_id')->constrained();
+            $table->foreignId('stock_id')->nullable()->constrained();
+
+            $table->foreignId('transaction_id')->nullable()->constrained();
             $table->foreignId('picking_id')->nullable()->constrained();
 
+            $table->enum(
+                'state',
+                [
+                    'on-hold',
+                    'picking',
+                    'picked',
+                    'packed',
+                    'dispatched',
+                    'fail',
+                    'cancelled'
+                ]
+            )->index();
+            $table->enum('status',['in-process','done','done-with-missing','fail']);
 
-            $table->morphs('order_item');
 
-            $table->foreignId('stock_id')->nullable()->constrained();
-            $table->decimal('quantity', 16, 3)->nullable();
+
+            $table->decimal('required', 16, 3);
+            $table->decimal('quantity', 16, 3)->default(0);
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
+
     public function down()
     {
         Schema::dropIfExists('delivery_note_items');

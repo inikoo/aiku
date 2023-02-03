@@ -8,13 +8,13 @@
 namespace App\Models\Sales;
 
 use App\Models\Delivery\DeliveryNote;
-use App\Models\Fulfilment\FulfilmentOrderStats;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 
@@ -116,6 +116,11 @@ class Order extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    public function deliveryNotes(): MorphToMany
+    {
+        return $this->morphToMany(DeliveryNote::class, 'delivery_noteable');
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
@@ -126,4 +131,7 @@ class Order extends Model
         return $this->hasOne(OrderStats::class);
     }
 
+
+
 }
+

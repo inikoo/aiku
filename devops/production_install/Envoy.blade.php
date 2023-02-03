@@ -77,6 +77,7 @@ $skip_build=false;
 
 
 sudo rm -rf {{ $path }}/storage
+sudo rm -rf {{$releases_dir}}/*
 
 mkdir -p {{ $new_release_dir }}
 mkdir -p {{ $new_release_dir }}/public/
@@ -129,6 +130,7 @@ cd {{ $new_release_dir }}
         psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
 @endforeach
 {{$php}} artisan optimize:clear
+{{$php}} artisan key:generate --force
 {{$php}} artisan migrate:refresh --force
 {{$php}} artisan db:seed --force
 {{$php}} artisan create:first-deployment

@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -137,26 +139,25 @@ class DeliveryNote extends Model
         return $this->belongsTo(Shop::class);
     }
 
-    public function orders(): BelongsToMany
+    public function orders(): MorphToMany
     {
-        return $this->belongsToMany(Order::class)->withTimestamps(          );
+        return $this->morphedByMany(Order::class, 'delivery_noteable');
     }
 
-    /**
-     * Relation to main order, usually the only one, used no avoid looping over orders
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     *
-     */
-    public function order(): BelongsToMany
-    {
-        return $this->belongsToMany(Order::class);
-    }
 
     public function stats(): HasOne
     {
         return $this->hasOne(DeliveryNoteStats::class);
     }
 
+    public function deliveryNoteItems(): HasMany
+    {
+        return $this->hasMany(DeliveryNoteItem::class);
+    }
+
+    public function shipments(): BelongsTo
+    {
+        return $this->belongsTo(Shipment::class);
+    }
 
 }

@@ -45,6 +45,8 @@
     dump-database
     tenant-fetch-orders
     dump-database
+    tenant-fetch-delivery-notes
+    dump-database
     tenant-fetch-invoices
     dump-database
 @endstory
@@ -164,6 +166,13 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     cd ../../
     echo "orders"
     php artisan fetch:orders {{$instance}} -q
+@endtask
+
+@task('tenant-fetch-delivery-notes')
+    echo "tenant-fetch-delivery-notes" > step
+    cd ../../
+    echo "delivery notes"
+    php artisan fetch:delivery_notes {{$instance}} -q
 @endtask
 
 @task('tenant-fetch-invoices')

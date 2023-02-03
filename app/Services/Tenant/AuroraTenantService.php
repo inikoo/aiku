@@ -10,10 +10,13 @@ namespace App\Services\Tenant;
 
 
 use App\Models\Central\Tenant;
+use App\Models\Delivery\DeliveryNote;
 use App\Services\Tenant\Aurora\FetchAuroraAgent;
 use App\Services\Tenant\Aurora\FetchAuroraCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraCustomerClient;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedCustomer;
+use App\Services\Tenant\Aurora\FetchAuroraDeliveryNote;
+use App\Services\Tenant\Aurora\FetchAuroraDeliveryNoteTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraDepartment;
 use App\Services\Tenant\Aurora\FetchAuroraEmployee;
 use App\Services\Tenant\Aurora\FetchAuroraFamily;
@@ -112,6 +115,11 @@ class AuroraTenantService implements SourceTenantService
         return (new FetchAuroraOrder($this))->fetch($id);
     }
 
+    public function fetchDeliveryNote($id): ?array
+    {
+        return (new FetchAuroraDeliveryNote($this))->fetch($id);
+    }
+
     public function fetchInvoice($id): ?array
     {
         return (new FetchAuroraInvoice($this))->fetch($id);
@@ -140,6 +148,11 @@ class AuroraTenantService implements SourceTenantService
     public function fetchTransaction($id): ?array
     {
         return (new FetchAuroraTransaction($this))->fetch($id);
+    }
+
+    public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote): ?array
+    {
+        return (new FetchAuroraDeliveryNoteTransaction($this))->fetchDeliveryNoteTransaction($id, $deliveryNote);
     }
 
     public function fetchInvoiceTransaction($id): ?array
