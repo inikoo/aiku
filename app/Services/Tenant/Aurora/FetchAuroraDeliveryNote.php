@@ -21,7 +21,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
             return;
         }
 
-        $this->parsedData["order"] = $this->parseOrder($this->auroraModelData->{'Delivery Note Order Key'})."\n";
+        $this->parsedData["order"] = $this->parseOrder($this->auroraModelData->{'Delivery Note Order Key'});
 
         if(! $this->parsedData["order"]){
             print "Warning delivery without invalid order key (not found) ".$this->auroraModelData->{'Delivery Note Order Key'}."\n";
