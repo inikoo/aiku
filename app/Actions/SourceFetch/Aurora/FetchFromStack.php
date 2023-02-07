@@ -33,7 +33,7 @@ class FetchFromStack
         $query = DB::connection('aurora')
             ->table('pika_fetch')
             ->where('error', 'No');
-        $query->orderByDesc('created_at');
+        $query->orderBy('created_at');
 
         foreach ($query->get() as $jobData) {
             switch ($jobData->model) {
