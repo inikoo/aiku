@@ -66,7 +66,6 @@ class FetchFromStack
             }
 
 
-            print "$this->maxRunTime ".microtime(true)."  ".(microtime(true) - $this->startTime) ."  $this->maxRunTime \n  ";
 
             if ($this->maxRunTime > 0 and (microtime(true) - $this->startTime) > $this->maxRunTime) {
                 return;
@@ -78,6 +77,8 @@ class FetchFromStack
     public function asCommand(Command $command): int
     {
         $this->startTime = microtime(true);
+
+        $this->maxRunTime=$command->option('max_run_time');
 
         $tenants  = $this->getTenants($command);
         $exitCode = 0;
