@@ -65,6 +65,9 @@ class FetchFromStack
                 DB::connection('aurora')->table('pika_fetch')->where('id', $jobData->id)->update(['error' => 'Yes']);
             }
 
+
+            print "$this->maxRunTime ".microtime(true)."  ".(microtime(true) - $this->startTime) ."  $this->maxRunTime \n  ";
+
             if ($this->maxRunTime > 0 and (microtime(true) - $this->startTime) > $this->maxRunTime) {
                 return;
             }
