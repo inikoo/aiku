@@ -62,7 +62,7 @@ class FetchFromStack
             if ($res) {
                 DB::connection('aurora')->table('pika_fetch')->where('id', $jobData->id)->delete();
             } else {
-                DB::connection('aurora')->table('pika_fetch')->where('id', $jobData->id)->update(['error', 'Yes']);
+                DB::connection('aurora')->table('pika_fetch')->where('id', $jobData->id)->update(['error' => 'Yes']);
             }
 
             if ($this->maxRunTime > 0 and (microtime(true) - $this->startTime) > $this->maxRunTime) {
