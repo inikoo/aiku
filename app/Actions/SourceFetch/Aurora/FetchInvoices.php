@@ -90,7 +90,7 @@ class FetchInvoices extends FetchAction
         $query= DB::connection('aurora')
             ->table('Invoice Dimension')
             ->select('Invoice Key as source_id')
-            ->orderByDesc('Invoice Date');
+            ->orderBy('Invoice Date');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');

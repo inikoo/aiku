@@ -101,7 +101,7 @@ class FetchOrders extends FetchAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
-        $query->orderByDesc('Order Date');
+        $query->orderBy('Order Date');
 
         return $query;
     }
