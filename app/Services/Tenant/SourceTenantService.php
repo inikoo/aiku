@@ -36,6 +36,9 @@ interface SourceTenantService
 
     public function fetchDeletedCustomer($id);
 
+    public function fetchDeletedStock($id);
+
+
     public function fetchCustomerClient($id);
 
     public function fetchWebUser($id);

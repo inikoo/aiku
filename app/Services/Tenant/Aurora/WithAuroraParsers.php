@@ -10,6 +10,7 @@ namespace App\Services\Tenant\Aurora;
 
 use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedCustomers;
+use App\Actions\SourceFetch\Aurora\FetchDeletedStocks;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchLocations;
@@ -222,6 +223,9 @@ trait WithAuroraParsers
         $stock = Stock::withTrashed()->where('source_id', $source_id)->first();
         if (!$stock) {
             $stock = FetchStocks::run($this->tenantSource, $source_id);
+        }
+        if (!$stock) {
+            $stock = FetchDeletedStocks::run($this->tenantSource, $source_id);
         }
         return $stock;
     }
