@@ -30,7 +30,7 @@ class FetchAuroraCustomer extends FetchAurora
 
         $this->parsedData['customer'] =
             [
-                'reference'                => sprintf('%05d',$this->auroraModelData->{'Customer Key'}),
+                'reference'                => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
                 'state'                    => $state,
                 'status'                   => $status,
                 'contact_name'             => $this->auroraModelData->{'Customer Main Contact Name'},
@@ -54,20 +54,15 @@ class FetchAuroraCustomer extends FetchAurora
         $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Customer Store Key'});
 
 
-        $addresses = [];
-
         $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $this->auroraModelData);
         $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $this->auroraModelData);
 
-        $addresses['billing'] = [
-            $billingAddress
-        ];
+        $this->parsedData['contact_address'] = $billingAddress;
+
+
         if ($billingAddress != $deliveryAddress) {
-            $addresses['delivery'] = [
-                $deliveryAddress
-            ];
+            $this->parsedData['delivery_address'] = $deliveryAddress;
         }
-        $this->parsedData['addresses'] = $addresses;
     }
 
 

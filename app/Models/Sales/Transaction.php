@@ -61,6 +61,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Transaction whereState($value)
  * @method static Builder|Transaction whereTaxBandId($value)
  * @method static Builder|Transaction whereUpdatedAt($value)
+ * @method static Builder|Transaction onlyTrashed()
+ * @method static Builder|Transaction withTrashed()
+ * @method static Builder|Transaction withoutTrashed()
  * @mixin \Eloquent
  */
 class Transaction extends Model

@@ -10,10 +10,10 @@ namespace App\Models\Procurement;
 use App\Actions\Central\Tenant\HydrateTenant;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
+use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -81,7 +81,7 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Supplier whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|Supplier withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Supplier withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Supplier extends Model
 {
@@ -141,13 +141,6 @@ class Supplier extends Model
     {
         return $this->hasOne(SupplierStats::class);
     }
-
-    public function addresses(): MorphToMany
-    {
-        return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
-    }
-
-
 
 
 }

@@ -33,21 +33,9 @@ class FetchCustomerClients extends FetchAction
                     modelData:      $customerClientData['customer_client']
                 );
 
-                if(!$customerClient->delivery_address_id){
-                    $address = StoreAddress::run($customerClientData['delivery_address']);
+                UpdateAddress::run($customerClient->getAddress('delivery'), $customerClientData['delivery_address']);
 
 
-                    $customerClient->addresses()->sync([
-                                                           $address->id => [
-                                                               'scope' => 'delivery'
-                                                           ]
-                                                       ]);
-                    $customerClient->delivery_address_id = $address->id;
-                    $customerClient->save();
-                }else{
-                    UpdateAddress::run($customerClient->deliveryAddress, $customerClientData['delivery_address']);
-
-                }
 
             } else {
                 $customerClient = StoreCustomerClient::run(

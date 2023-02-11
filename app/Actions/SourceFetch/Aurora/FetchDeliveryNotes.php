@@ -8,8 +8,11 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Delivery\DeliveryNote\StoreDeliveryNote;
+use App\Actions\Delivery\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Delivery\Shipment\StoreShipment;
 use App\Actions\Delivery\Shipment\UpdateShipment;
+use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Delivery\Shipment;
 use App\Services\Tenant\SourceTenantService;
@@ -28,6 +31,14 @@ class FetchDeliveryNotes extends FetchAction
         if ($deliveryNoteData = $tenantSource->fetchDeliveryNote($tenantSourceId)) {
             if (!empty($deliveryNoteData['delivery_note']['source_id']) and $deliveryNote = DeliveryNote::withTrashed()->where('source_id', $deliveryNoteData['delivery_note']['source_id'])
                     ->first()) {
+                UpdateDeliveryNote::run($deliveryNote, $deliveryNoteData['delivery_note']);
+                $currentDeliveryAddress = $deliveryNote->getAddress('delivery');
+                if ($currentDeliveryAddress->checksum != $deliveryNoteData['delivery_address']->getChecksum()) {
+                    $deliveryAddress = StoreHistoricAddress::run($deliveryNoteData['delivery_address']);
+                    UpdateHistoricAddressToModel::run($deliveryNote, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
+                }
+
+
                 $this->updateAurora($deliveryNote);
 
                 return $deliveryNote;
@@ -41,6 +52,7 @@ class FetchDeliveryNotes extends FetchAction
                     $this->fetchDeliveryNoteTransactions($tenantSource, $deliveryNote);
 
                     $this->updateAurora($deliveryNote);
+
 
                     if ($deliveryNoteData['shipment'] and !Arr::get($deliveryNoteData['order'], 'data.delivery_data.collection')) {
                         if ($shipment = Shipment::withTrashed()->where('source_id', $deliveryNoteData['shipment']['source_id'])->first()) {
@@ -64,6 +76,10 @@ class FetchDeliveryNotes extends FetchAction
 
     private function fetchDeliveryNoteTransactions($tenantSource, $deliveryNote): void
     {
+
+        $transactionsToDelete = $deliveryNote->deliveryNoteItems()->pluck('source_id','id')->all();
+
+
         foreach (
             DB::connection('aurora')
                 ->table('Inventory Transaction Fact')
@@ -71,8 +87,11 @@ class FetchDeliveryNotes extends FetchAction
                 ->where('Delivery Note Key', $deliveryNote->source_id)
                 ->get() as $auroraData
         ) {
+            $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Inventory Transaction Key'}]);
             FetchDeliveryNoteTransactions::run($tenantSource, $auroraData->{'Inventory Transaction Key'}, $deliveryNote);
         }
+        $deliveryNote->deliveryNoteItems()->whereIn('id',array_keys($transactionsToDelete))->delete();
+
     }
 
     function updateAurora(DeliveryNote $deliveryNote)

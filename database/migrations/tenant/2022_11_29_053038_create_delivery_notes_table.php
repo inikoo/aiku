@@ -44,8 +44,7 @@ return new class extends Migration {
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
 
-            $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
-            $table->foreign('delivery_address_id')->references('id')->on('addresses');
+
             $table->unsignedBigInteger('shipment_id')->nullable()->index();
             $table->foreign('shipment_id')->references('id')->on('shipments');
 

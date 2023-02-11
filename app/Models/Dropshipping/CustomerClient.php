@@ -11,10 +11,10 @@ use App\Actions\Sales\Customer\HydrateCustomer;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -34,7 +34,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $email
  * @property string|null $phone
  * @property array $location
- * @property int|null $delivery_address_id
  * @property \Illuminate\Support\Carbon|null $deactivated_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -69,12 +68,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|CustomerClient whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|CustomerClient withTrashed()
  * @method static \Illuminate\Database\Query\Builder|CustomerClient withoutTrashed()
+ * @mixin \Eloquent
  */
 class CustomerClient extends Model
 {
 
     use SoftDeletes;
     use HasSlug;
+    use HasAddress;
 
 
     protected $casts = [
@@ -142,13 +143,5 @@ class CustomerClient extends Model
         return $this->belongsTo(Customer::class)->withTrashed();
     }
 
-    public function addresses(): MorphToMany
-    {
-        return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
-    }
 
-    public function deliveryAddress(): BelongsTo
-    {
-        return $this->belongsTo(Address::class);
-    }
 }

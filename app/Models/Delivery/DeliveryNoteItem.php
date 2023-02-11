@@ -35,6 +35,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|DeliveryNoteItem whereQuantity($value)
  * @method static Builder|DeliveryNoteItem whereStockId($value)
  * @method static Builder|DeliveryNoteItem whereUpdatedAt($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\Picking> $pickings
+ * @property-read int|null $pickings_count
+ * @method static Builder|DeliveryNoteItem onlyTrashed()
+ * @method static Builder|DeliveryNoteItem withTrashed()
+ * @method static Builder|DeliveryNoteItem withoutTrashed()
  * @mixin \Eloquent
  */
 class DeliveryNoteItem extends Model

@@ -33,15 +33,6 @@ return new class extends Migration {
             $table->boolean('is_picking_on_hold')->nullable();
             $table->boolean('can_dispatch')->nullable();
 
-
-            $table->unsignedMediumInteger('billing_address_id')->nullable()->index();
-            $table->foreign('billing_address_id')->references('id')->on('addresses');
-
-            $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
-            $table->foreign('delivery_address_id')->references('id')->on('addresses');
-
-
-
             $table->decimal('items_discounts', 16)->default(0);
             $table->decimal('items_net', 16)->default(0);
 

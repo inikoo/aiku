@@ -60,6 +60,7 @@ class FetchAuroraOrder extends FetchAurora
             default => "submitted",
         };
 
+
         $cancelled_at = null;
         if ($this->auroraModelData->{'Order State'} == "Cancelled") {
             $cancelled_at = $this->auroraModelData->{'Order Cancelled Date'};
@@ -113,6 +114,8 @@ class FetchAuroraOrder extends FetchAurora
             auAddressData: $this->auroraModelData,
         );
         $this->parsedData["billing_address"] = new Address($billingAddressData);
+
+
     }
 
     protected function fetchData($id): object|null

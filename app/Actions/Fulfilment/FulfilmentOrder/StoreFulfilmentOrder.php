@@ -8,7 +8,8 @@
 namespace App\Actions\Fulfilment\FulfilmentOrder;
 
 use App\Actions\Fulfilment\FulfilmentOrderItem\StoreFulfilmentOrderItem;
-use App\Actions\Helpers\Address\StoreImmutableAddress;
+use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
+use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
@@ -34,13 +35,13 @@ class StoreFulfilmentOrder
         }
         $modelData['shop_id'] = $parent->shop_id;
 
-        $deliveryAddress = StoreImmutableAddress::run($deliveryAddress);
-
-        $modelData['delivery_address_id'] = $deliveryAddress->id;
-
         /** @var FulfilmentOrder $fulfilmentOrder */
         $fulfilmentOrder = $parent->shop->fulfilmentOrders()->create($modelData);
         $fulfilmentOrder->stats()->create();
+
+        $deliveryAddress = StoreHistoricAddress::run($deliveryAddress);
+        AttachHistoricAddressToModel::run($fulfilmentOrder,$deliveryAddress,['scope'=>'delivery']);
+
 
         foreach ($items as $itemData) {
             StoreFulfilmentOrderItem::run(fulfilmentOrder: $fulfilmentOrder, modelData: $itemData);

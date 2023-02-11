@@ -31,7 +31,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $customer_id
  * @property int $order_id
  * @property string $type
- * @property int|null $billing_address_id
  * @property int $currency_id
  * @property string $exchange
  * @property string $net

@@ -8,7 +8,8 @@
 
 namespace App\Actions\Sales\Order;
 
-use App\Actions\Helpers\Address\StoreImmutableAddress;
+use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
+use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Customer;
@@ -23,8 +24,8 @@ class StoreOrder
     public function handle(
         Customer|CustomerClient $parent,
         array $modelData,
-        Address $billingAddress,
-        Address $deliveryAddress
+        Address $seedBillingAddress,
+        Address $seedDeliveryAddress
 
     ): Order {
         if (class_basename($parent) == 'Customer') {
@@ -41,16 +42,17 @@ class StoreOrder
             $modelData['type'] = $parent->shop->subtype;
         }
 
-        $billingAddress  = StoreImmutableAddress::run($billingAddress);
-        $deliveryAddress = StoreImmutableAddress::run($deliveryAddress);
-
-
-        $modelData['delivery_address_id'] = $deliveryAddress->id;
-        $modelData['billing_address_id']  = $billingAddress->id;
-
         /** @var Order $order */
         $order = $parent->shop->orders()->create($modelData);
         $order->stats()->create();
+
+
+        $billingAddress  = StoreHistoricAddress::run($seedBillingAddress);
+        $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
+
+        AttachHistoricAddressToModel::run($order,$billingAddress,['scope'=>'billing']);
+        AttachHistoricAddressToModel::run($order,$deliveryAddress,['scope'=>'delivery']);
+
         HydrateOrder::make()->originalItems($order);
 
         return $order;

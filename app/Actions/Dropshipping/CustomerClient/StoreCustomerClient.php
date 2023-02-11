@@ -7,7 +7,7 @@
 
 namespace App\Actions\Dropshipping\CustomerClient;
 
-use App\Actions\Helpers\Address\StoreAddress;
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -24,16 +24,8 @@ class StoreCustomerClient
         $customerClient = $customer->clients()->create($modelData);
 
 
-        $address = StoreAddress::run($addressesData);
+        StoreAddressAttachToModel::run($customer, $addressesData, ['scope' => 'delivery']);
 
-
-        $customerClient->addresses()->sync([
-                                               $address->id => [
-                                                   'scope' => 'delivery'
-                                               ]
-                                           ]);
-        $customerClient->delivery_address_id = $address->id;
-        $customerClient->save();
 
 
         return $customerClient;

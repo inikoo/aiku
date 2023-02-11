@@ -7,7 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Sales\Invoice\StoreInvoice;
+use App\Actions\Sales\Invoice\UpdateInvoice;
 use App\Models\Sales\Invoice;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -24,6 +27,17 @@ class FetchInvoices extends FetchAction
         if ($invoiceData = $tenantSource->fetchInvoice($tenantSourceId)) {
             if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
                 ->first()) {
+
+                UpdateInvoice::run($invoice,$invoiceData['invoice']);
+
+                $currentBillingAddress = $invoice->getAddress('billing');
+
+                if ($currentBillingAddress->checksum != $invoiceData['billing_address']->getChecksum()) {
+                    $billingAddress = StoreHistoricAddress::run($invoiceData['billing_address']);
+                    UpdateHistoricAddressToModel::run($invoice, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
+                }
+
+
                 $this->fetchInvoiceTransactions($tenantSource, $invoice);
                 $this->updateAurora($invoice);
             } else {
@@ -54,6 +68,9 @@ class FetchInvoices extends FetchAction
 
     private function fetchInvoiceTransactions($tenantSource, Invoice $invoice): void
     {
+
+        $transactionsToDelete = $invoice->invoiceTransactions()->pluck('source_id','id')->all();
+
         foreach (
             DB::connection('aurora')
                 ->table('Order Transaction Fact')
@@ -61,8 +78,11 @@ class FetchInvoices extends FetchAction
                 ->where('Invoice Key', $invoice->source_id)
                 ->get() as $auroraData
         ) {
+            $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
             fetchInvoiceTransactions::run($tenantSource, $auroraData->{'Order Transaction Fact Key'}, $invoice);
         }
+        $invoice->invoiceTransactions()->whereIn('id',array_keys($transactionsToDelete))->delete();
+
     }
 
     function getModelsQuery(): Builder

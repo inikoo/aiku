@@ -28,7 +28,6 @@ use Spatie\Sluggable\HasSlug;
  * @property string $state
  * @property bool|null $is_picking_on_hold
  * @property bool|null $can_dispatch
- * @property int|null $delivery_address_id
  * @property array $data
  * @property string|null $sent_warehouse_at
  * @property string|null $ready_to_dispatch_at
@@ -64,6 +63,8 @@ use Spatie\Sluggable\HasSlug;
  * @method static Builder|FulfilmentOrder whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|FulfilmentOrder withTrashed()
  * @method static \Illuminate\Database\Query\Builder|FulfilmentOrder withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
+ * @property-read int|null $addresses_count
  * @mixin \Eloquent
  */
 class FulfilmentOrder extends Model

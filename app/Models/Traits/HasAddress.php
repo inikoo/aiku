@@ -8,32 +8,32 @@
 
 namespace App\Models\Traits;
 
-
 use App\Models\Helpers\Address;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use JetBrains\PhpStorm\Pure;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait HasAddress
 {
 
-    public function address(): BelongsTo
+    public function addresses(): MorphToMany
     {
-        return $this->belongsTo(Address::class);
+        return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
     }
 
-    public function getFormattedAddressAttribute(): string
+    public function getLocation($scope = 'contact'): array
     {
-        if ($this->address) {
-            return $this->address->formatted_address;
-        } else {
-            return '';
+        $location = [null, '', ''];
+        if ($contactAddress = $this->getAddress($scope)) {
+            $location = $contactAddress->getLocation() ?? [null, '', ''];
         }
+
+        return $location;
     }
 
-    #[Pure] public function getLocation(): array
+    public function getAddress($scope): ?Address
     {
-        return $this->address->getLocation()??[null,'',''];
+        return $this->addresses()->where('scope', '=', $scope)->first();
     }
+
 
 }
 

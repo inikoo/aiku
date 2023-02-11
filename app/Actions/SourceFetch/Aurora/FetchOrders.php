@@ -7,7 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Sales\Order\StoreOrder;
+use App\Actions\Sales\Order\UpdateOrder;
 use App\Models\Sales\Order;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -24,8 +27,25 @@ class FetchOrders extends FetchAction
         if ($orderData = $tenantSource->fetchOrder($tenantSourceId)) {
             if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
                     ->first()) {
+                UpdateOrder::run($order, $orderData['order']);
+
+                $currentBillingAddress = $order->getAddress('billing');
+
+                if ($currentBillingAddress->checksum != $orderData['billing_address']->getChecksum()) {
+                    $billingAddress = StoreHistoricAddress::run($orderData['billing_address']);
+                    UpdateHistoricAddressToModel::run($order, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
+                }
+
+                $currentDeliveryAddress = $order->getAddress('delivery');
+                if ($currentDeliveryAddress->checksum != $orderData['delivery_address']->getChecksum()) {
+                    $deliveryAddress = StoreHistoricAddress::run($orderData['delivery_address']);
+                    UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
+                }
+
+
                 $this->fetchTransactions($tenantSource, $order);
                 $this->updateAurora($order);
+
 
                 return $order;
             } else {
@@ -39,9 +59,8 @@ class FetchOrders extends FetchAction
                 }
                 print "Warning order $tenantSourceId do not have customer\n";
             }
-        }else{
+        } else {
             print "Warning error fetching order $tenantSourceId\n";
-
         }
 
         return null;
@@ -49,6 +68,7 @@ class FetchOrders extends FetchAction
 
     private function fetchTransactions($tenantSource, $order): void
     {
+        $transactionsToDelete = $order->transactions()->pluck('source_id','id')->all();
         foreach (
             DB::connection('aurora')
                 ->table('Order Transaction Fact')
@@ -56,8 +76,13 @@ class FetchOrders extends FetchAction
                 ->where('Order Key', $order->source_id)
                 ->get() as $auroraData
         ) {
+            $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
             FetchTransactions::run($tenantSource, $auroraData->{'Order Transaction Fact Key'}, $order);
+
         }
+        $order->transactions()->whereIn('id',array_keys($transactionsToDelete))->delete();
+
+
     }
 
     function updateAurora(Order $order)

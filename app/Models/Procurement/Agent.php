@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -148,11 +147,6 @@ class Agent extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(AgentStats::class);
-    }
-
-    public function addresses(): MorphToMany
-    {
-        return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
     }
 
     public function suppliers(): MorphMany

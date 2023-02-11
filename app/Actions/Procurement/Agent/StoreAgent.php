@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Agent;
 
-use App\Actions\Helpers\Address\StoreAddress;
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,17 +20,11 @@ class StoreAgent
     {
         /** @var Agent $agent */
         $agent = $owner->agents()->create($modelData);
-
         $agent->stats()->create();
-        if (count($addressData) > 0) {
-            $addresses               = [];
-            $address                 = StoreAddress::run($addressData);
-            $addresses[$address->id] = ['scope' => 'default'];
-            $agent->addresses()->sync($addresses);
-            $agent->address_id = $address->id;
-            $agent->location   = $agent->getLocation();
-            $agent->save();
-        }
+
+        StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
+        $agent->location   = $agent->getLocation();
+        $agent->save();
 
         return $agent;
     }

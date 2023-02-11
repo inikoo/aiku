@@ -15,11 +15,11 @@ use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
 use App\Models\Traits\HasAddress;
 use App\Models\Web\Website;
+use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -113,7 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Shop whereUrl($value)
  * @method static \Illuminate\Database\Query\Builder|Shop withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Shop withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Shop extends Model
 {
@@ -155,7 +155,7 @@ class Shop extends Model
 
         static::updated(function (Shop $shop) {
             if (!$shop->wasRecentlyCreated) {
-                if ($shop->wasChanged(['type', 'subtype','state'])) {
+                if ($shop->wasChanged(['type', 'subtype', 'state'])) {
                     HydrateTenant::make()->marketingStats();
                 }
             }
@@ -173,11 +173,6 @@ class Shop extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(ShopStats::class);
-    }
-
-    public function addresses(): MorphToMany
-    {
-        return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
     }
 
     public function customers(): HasMany
@@ -224,7 +219,6 @@ class Shop extends Model
     {
         return $this->hasMany(Family::class);
     }
-
 
 
 }

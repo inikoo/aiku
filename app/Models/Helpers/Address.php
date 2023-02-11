@@ -111,7 +111,6 @@ class Address extends Model
     public function getChecksum(): string
     {
 
-
         return md5(
             json_encode(
                 array_filter(
@@ -122,17 +121,13 @@ class Address extends Model
                             array_flip(
                                 [
                                     'id',
-                                    'data',
-                                    'settings',
-                                    'contact',
-                                    'organization',
                                     'country_code',
                                     'checksum',
                                     'created_at',
                                     'updated_at',
-                                    'owner_id',
-                                    'owner_type',
-                                    'immutable'
+                                    'historic',
+                                    'usage',
+                                    'pivot'
                                 ]
                             )
                         )

@@ -8,7 +8,8 @@
 
 namespace App\Actions\Delivery\DeliveryNote;
 
-use App\Actions\Helpers\Address\StoreImmutableAddress;
+use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
+use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Order;
@@ -21,19 +22,19 @@ class StoreDeliveryNote
     public function handle(
         Order $order,
         array $modelData,
-        Address $deliveryAddress,
+        Address $seedDeliveryAddress,
 
     ): DeliveryNote {
         $modelData['shop_id']     = $order->shop_id;
         $modelData['customer_id'] = $order->customer_id;
 
-        $deliveryAddress                  = StoreImmutableAddress::run($deliveryAddress);
-        $modelData['delivery_address_id'] = $deliveryAddress->id;
-
         /** @var DeliveryNote $deliveryNote */
-
         $deliveryNote = $order->deliveryNotes()->create($modelData);
         $deliveryNote->stats()->create();
+
+        $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
+        AttachHistoricAddressToModel::run($order,$deliveryAddress,['scope'=>'delivery']);
+
 
         return $deliveryNote;
     }

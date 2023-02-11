@@ -13,7 +13,6 @@ use App\Models\Sales\Order;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -32,7 +31,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $type
  * @property string $state
  * @property bool|null $can_dispatch
- * @property int|null $delivery_address_id
  * @property int|null $shipper_id
  * @property string|null $weight
  * @property int $number_stocks
@@ -95,6 +93,9 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|DeliveryNote whereWeight($value)
  * @method static \Illuminate\Database\Query\Builder|DeliveryNote withTrashed()
  * @method static \Illuminate\Database\Query\Builder|DeliveryNote withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\DeliveryNoteItem> $deliveryNoteItems
+ * @property-read int|null $delivery_note_items_count
+ * @property-read \App\Models\Delivery\Shipment|null $shipments
  * @mixin \Eloquent
  */
 class DeliveryNote extends Model
@@ -159,5 +160,6 @@ class DeliveryNote extends Model
     {
         return $this->belongsTo(Shipment::class);
     }
+
 
 }

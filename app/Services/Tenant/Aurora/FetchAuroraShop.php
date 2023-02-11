@@ -19,6 +19,11 @@ class FetchAuroraShop extends FetchAurora
         $this->parsedData['source_department_key'] = $this->auroraModelData->{'Store Department Category Key'};
         $this->parsedData['source_family_key']     = $this->auroraModelData->{'Store Family Category Key'};
 
+        if ($this->auroraModelData->{'Store Can Collect'} and $this->auroraModelData->{'Store Collect Address Country 2 Alpha Code'}) {
+            $this->parsedData['collectionAddress'] = $this->parseAddress(prefix: 'Store Collect', auAddressData: $this->auroraModelData);
+        }
+
+
         $this->parsedData['shop'] = [
 
             'type'                     =>
@@ -48,6 +53,9 @@ class FetchAuroraShop extends FetchAurora
             'created_at'  => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
 
             'source_id' => $this->auroraModelData->{'Store Key'},
+            'settings'  => [
+                'can_collect' => $this->auroraModelData->{'Store Can Collect'} === 'Yes'
+            ]
 
         ];
     }

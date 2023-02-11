@@ -17,11 +17,12 @@ return new class extends Migration
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
 
-            $table->enum('type', ['purchase', 'return', 'delivery', 'lost', 'found', 'location-transfer', 'cancelled-to-restock', 'cancelled-restocked', 'amendment', 'consumption'])->index();
+            $table->enum('type', ['purchase','fulfilment-delivery', 'dispatch-return', 'return-picked', 'fulfilment-return','picked', 'location-transfer', 'found' ,'consumption','write-off'])->index();
+            $table->enum('flow',['in','out'])->index();
             $table->morphs('stockable');
             $table->unsignedMediumInteger('location_id')->nullable()->index();
             $table->foreign('location_id')->references('id')->on('locations');
-
+            $table->nullableMorphs('operation');
             $table->decimal('quantity', 16, 3);
             $table->decimal('amount', 16, 3);
             $table->jsonb('data');

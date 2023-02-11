@@ -11,6 +11,8 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use App\Models\Sales\Customer;
@@ -34,8 +36,30 @@ class FetchCustomers extends FetchAction
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                 ->first()) {
                 $customer = UpdateCustomer::run($customer, $customerData['customer']);
+
+                UpdateAddress::run($customer->getAddress('contact'), $customerData['contact_address']);
+                $customer->location = $customer->getLocation();
+                $customer->save();
+
+                $deliveryAddress = $customer->getAddress('delivery');
+
+                if (!empty($customerData['delivery_address'])) {
+                    if ($deliveryAddress) {
+                        UpdateAddress::run($deliveryAddress, $customerData['delivery_address']);
+                    } else {
+                        StoreAddressAttachToModel::run($customer, $customerData['delivery_address'], ['scope' => 'delivery']);
+                    }
+                } else {
+                    if ($deliveryAddress) {
+                        $customer->addresses()->detach($deliveryAddress->id);
+                        $deliveryAddress->delete();
+                    }
+                }
             } else {
-                $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['addresses']);
+                $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['contact_address']);
+                if (!empty($customerData['delivery_address'])) {
+                    StoreAddressAttachToModel::run($customer, $customerData['delivery_address'], ['scope' => 'delivery']);
+                }
             }
 
             if (in_array('products', $with)) {
@@ -94,6 +118,7 @@ class FetchCustomers extends FetchAction
 
             return $customer;
         }
+
         return null;
     }
 

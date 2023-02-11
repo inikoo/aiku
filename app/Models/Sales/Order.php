@@ -33,8 +33,6 @@ use Spatie\Sluggable\HasSlug;
  * @property bool $is_invoiced
  * @property bool|null $is_picking_on_hold
  * @property bool|null $can_dispatch
- * @property int|null $billing_address_id
- * @property int|null $delivery_address_id
  * @property string $items_discounts
  * @property string $items_net
  * @property int $currency_id
@@ -90,6 +88,8 @@ use Spatie\Sluggable\HasSlug;
  * @method static Builder|Order whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|Order withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Order withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
+ * @property-read int|null $addresses_count
  * @mixin \Eloquent
  */
 class Order extends Model

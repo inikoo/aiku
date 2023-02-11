@@ -8,9 +8,7 @@
 
 namespace App\Actions\Sales\Order;
 
-use App\Actions\Helpers\Address\StoreImmutableAddress;
 use App\Actions\WithActionUpdate;
-use App\Models\Helpers\Address;
 use App\Models\Sales\Order;
 use Illuminate\Support\Arr;
 
@@ -20,15 +18,8 @@ class UpdateOrder
 
     public function handle(
         Order $order,
-        array $modelData,
-        Address $billingAddress,
-        Address $deliveryAddress
+        array $modelData
     ): Order {
-        $billingAddress  = StoreImmutableAddress::run($billingAddress);
-        $deliveryAddress = StoreImmutableAddress::run($deliveryAddress);
-
-        $modelData['delivery_address_id'] = $deliveryAddress->id;
-        $modelData['billing_address_id']  = $billingAddress->id;
 
         $order->update(Arr::except($modelData, ['data']));
         $order->update($this->extractJson($modelData));

@@ -8,6 +8,8 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
 use App\Models\Marketing\Shop;
@@ -33,11 +35,22 @@ class FetchShops extends FetchAction
                     shop:      $shop,
                     modelData: $shopData['shop']
                 );
+
+                if (!empty($shopData['collectionAddress'])) {
+                    if ($collectionAddress = $shop->getAddress('collection')) {
+                        UpdateAddress::run($collectionAddress, $shopData['collectionAddress']);
+                    } else {
+                        StoreAddressAttachToModel::run($shop, $shopData['collectionAddress'], ['scope' => 'collection']);
+                    }
+                }
             } else {
                 $shop = StoreShop::run(
-                    modelData:   $shopData['shop'],
-                    addressData: []
+                    modelData: $shopData['shop']
                 );
+
+                if (!empty($shopData['collectionAddress'])) {
+                    StoreAddressAttachToModel::run($shop, $shopData['collectionAddress'], ['scope' => 'collection']);
+                }
             }
 
             return $shop;

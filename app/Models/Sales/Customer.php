@@ -15,14 +15,15 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
+use App\Models\Traits\HasAddress;
 use App\Models\Web\WebUser;
+use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -48,8 +49,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $status
  * @property string|null $state
  * @property string|null $trade_state number of invoices
- * @property int|null $billing_address_id
- * @property int|null $delivery_address_id null for customers in fulfilment shops
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -106,11 +105,12 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Customer whereWebsite($value)
  * @method static \Illuminate\Database\Query\Builder|Customer withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Customer withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Customer extends Model
 {
     use SoftDeletes;
+    use HasAddress;
     use HasSlug;
 
     protected $casts = [
@@ -163,21 +163,6 @@ class Customer extends Model
                 $customer->name=$customer->company_name==''?$customer->contact_name:$customer->company_name;
             }
         });
-    }
-
-    public function addresses(): MorphToMany
-    {
-        return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
-    }
-
-    public function billingAddress(): BelongsTo
-    {
-        return $this->belongsTo(Address::class);
-    }
-
-    public function deliveryAddress(): BelongsTo
-    {
-        return $this->belongsTo(Address::class);
     }
 
     public function shop(): BelongsTo

@@ -7,7 +7,8 @@
 
 namespace App\Actions\Sales\Invoice;
 
-use App\Actions\Helpers\Address\StoreImmutableAddress;
+use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
+use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
@@ -20,20 +21,22 @@ class StoreInvoice
     public function handle(
         Order $order,
         array $modelData,
-        Address $billingAddress,
+        Address $seedBillingAddress,
 
     ): Invoice {
         $modelData['currency_id'] = $order->shop->currency_id;
         $modelData['shop_id']     = $order->shop_id;
         $modelData['customer_id'] = $order->customer_id;
 
-        $billingAddress = StoreImmutableAddress::run($billingAddress);
-
-        $modelData['billing_address_id'] = $billingAddress->id;
 
         /** @var Invoice $invoice */
-        $invoice = $order->invoices()->create($modelData);
+        $invoice        = $order->invoices()->create($modelData);
         $invoice->stats()->create();
+
+        $billingAddress = StoreHistoricAddress::run($seedBillingAddress);
+        AttachHistoricAddressToModel::run($order, $billingAddress, ['scope' => 'billing']);
+
+
         return $invoice;
     }
 }

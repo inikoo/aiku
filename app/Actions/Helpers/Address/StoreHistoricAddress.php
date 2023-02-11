@@ -11,21 +11,17 @@ namespace App\Actions\Helpers\Address;
 use App\Models\Helpers\Address;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreImmutableAddress
+class StoreHistoricAddress
 {
     use AsAction;
 
     public function handle(Address $address): Address
     {
-
-        if ($foundAddress = Address::where('checksum', $address->getChecksum())->where('immutable', true)->first()) {
+        if ($foundAddress = Address::where('checksum', $address->getChecksum())->where('historic', true)->first()) {
             return $foundAddress;
         }
-        $address->immutable = true;
-        $address->save();
 
-      //  exit;
 
-        return $address;
+        return StoreAddress::run(array_merge($address->toArray(), ['historic' => true]));
     }
 }

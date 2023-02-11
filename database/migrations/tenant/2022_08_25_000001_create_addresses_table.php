@@ -18,7 +18,6 @@ return new class extends Migration
             'addresses',
             function (Blueprint $table) {
                 $table->id();
-                $table->boolean('immutable')->default(false)->index();
                 $table->string('address_line_1',255)->nullable();
                 $table->string('address_line_2',255)->nullable();
                 $table->string('sorting_code')->nullable();
@@ -27,27 +26,28 @@ return new class extends Migration
                 $table->string('dependant_locality')->nullable();
                 $table->string('administrative_area')->nullable();
                 $table->string('country_code', 2)->nullable()->index();
-                $table->string('checksum')->index()->nullable();
-                $table->unsignedSmallInteger('owner_id')->nullable()->index();
-                $table->string('owner_type')->nullable()->index();
-                $table->string('owner_scope')->nullable();
                 $table->unsignedSmallInteger('country_id')->nullable()->index();
                 $table->foreign('country_id')->references('id')->on('central.countries');
-                $table->index(['checksum', 'owner_id', 'owner_type']);
-
+                $table->string('checksum')->index()->nullable();
+                $table->boolean('historic')->index()->default(false);
+                $table->unsignedSmallInteger('usage')->default(0);
                 $table->timestampsTz();
             }
         );
 
         Schema::create('addressables', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('address_id')->index();
-            $table->unsignedBigInteger('addressable_id')->index();
-            $table->string('addressable_type')->index();
+            $table->foreignId('address_id')->constrained();
+            $table->morphs('addressable');
             $table->string('scope')->nullable()->index();
-            $table->string('status_info')->nullable();
+            $table->string('sub_scope')->nullable()->index();
             $table->timestampsTz();
         });
+
+
+
+
+
     }
 
 

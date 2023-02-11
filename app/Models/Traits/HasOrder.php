@@ -17,6 +17,9 @@ use Spatie\Sluggable\SlugOptions;
 
 trait HasOrder
 {
+
+    use HasAddress;
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

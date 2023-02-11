@@ -7,7 +7,7 @@
 
 namespace App\Actions\Sales\Customer;
 
-use App\Actions\Helpers\Address\StoreAddress;
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,39 +22,12 @@ class StoreCustomer
         /** @var \App\Models\Sales\Customer $customer */
         $customer = $shop->customers()->create($customerData);
         $customer->stats()->create();
-        $addresses = [];
 
-        $billing_address_id  = null;
-        $delivery_address_id = null;
-
-
-        foreach ($customerAddressesData as $scope => $addressesData) {
-            foreach ($addressesData as $addressData) {
-                $address                 = StoreAddress::run($addressData);
-                $addresses[$address->id] = ['scope' => $scope];
-                if ($scope == 'billing') {
-                    $billing_address_id = $address->id;
-                } elseif ($scope == 'delivery') {
-                    $delivery_address_id = $address->id;
-                }
-            }
-        }
-
-        if (!$delivery_address_id and $shop->type == 'shop') {
-            $delivery_address_id = $billing_address_id;
-        }
-
-
-        $customer->addresses()->sync($addresses);
-        $customer->billing_address_id  = $billing_address_id;
-        $customer->delivery_address_id = $delivery_address_id;
-
-        if($customer->billingAddress){
-            $customer->location=$customer->billingAddress->getLocation();
-
-        }
-
+        StoreAddressAttachToModel::run($customer, $customerAddressesData, ['scope' => 'contact']);
+        $customer->location = $customer->getLocation();
         $customer->save();
+
+
         return $customer;
     }
 }

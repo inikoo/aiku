@@ -34,8 +34,7 @@ return new class extends Migration {
             $table->boolean('can_dispatch')->nullable();
 
 
-            $table->unsignedMediumInteger('delivery_address_id')->nullable()->index();
-            $table->foreign('delivery_address_id')->references('id')->on('addresses');
+
             $table->jsonb('data');
             $table->dateTimeTz('sent_warehouse_at')->nullable();
             $table->dateTimeTz('ready_to_dispatch_at')->nullable();

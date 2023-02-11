@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier;
 
-use App\Actions\Helpers\Address\StoreAddress;
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Supplier;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -24,16 +24,11 @@ class StoreSupplier
 
         $supplier->stats()->create();
 
+        StoreAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
 
-        if (count($addressData) > 0) {
-            $addresses               = [];
-            $address                 = StoreAddress::run($addressData);
-            $addresses[$address->id] = ['scope' => 'default'];
-            $supplier->addresses()->sync($addresses);
-            $supplier->address_id = $address->id;
-            $supplier->location   = $supplier->getLocation();
-            $supplier->save();
-        }
+        $supplier->location   = $supplier->getLocation();
+        $supplier->save();
+
 
         return $supplier;
     }

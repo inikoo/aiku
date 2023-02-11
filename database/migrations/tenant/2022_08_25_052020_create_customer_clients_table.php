@@ -29,8 +29,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->jsonb('location');
-            $table->unsignedBigInteger('delivery_address_id')->nullable()->index();
-            $table->foreign('delivery_address_id')->references('id')->on('addresses');
+
             $table->dateTimeTz('deactivated_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();

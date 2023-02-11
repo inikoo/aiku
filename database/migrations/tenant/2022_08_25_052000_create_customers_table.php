@@ -40,10 +40,6 @@ return new class extends Migration {
             $customerTradeStates = ['none', 'one', 'many'];
             $table->enum('trade_state', $customerTradeStates)->index()->nullable()->default('none')->comment('number of invoices');
 
-            $table->unsignedBigInteger('billing_address_id')->nullable()->index();
-            $table->foreign('billing_address_id')->references('id')->on('addresses');
-            $table->unsignedBigInteger('delivery_address_id')->nullable()->index()->comment('null for customers in fulfilment shops');
-            $table->foreign('delivery_address_id')->references('id')->on('addresses');
 
 
             $table->jsonb('data');
