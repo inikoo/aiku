@@ -21,7 +21,7 @@ class StoreInvoice
     public function handle(
         Order $order,
         array $modelData,
-        Address $seedBillingAddress,
+        Address $billingAddress,
 
     ): Invoice {
         $modelData['currency_id'] = $order->shop->currency_id;
@@ -33,8 +33,8 @@ class StoreInvoice
         $invoice        = $order->invoices()->create($modelData);
         $invoice->stats()->create();
 
-        $billingAddress = StoreHistoricAddress::run($seedBillingAddress);
-        AttachHistoricAddressToModel::run($order, $billingAddress, ['scope' => 'billing']);
+        $billingAddress = StoreHistoricAddress::run($billingAddress);
+        AttachHistoricAddressToModel::run($invoice, $billingAddress, ['scope' => 'billing']);
 
 
         return $invoice;

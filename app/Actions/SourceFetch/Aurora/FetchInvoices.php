@@ -28,7 +28,7 @@ class FetchInvoices extends FetchAction
             if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
                 ->first()) {
 
-                UpdateInvoice::run($invoice,$invoiceData['invoice']);
+                UpdateInvoice::run($invoice, $invoiceData['invoice']);
 
                 $currentBillingAddress = $invoice->getAddress('billing');
 
@@ -40,8 +40,14 @@ class FetchInvoices extends FetchAction
 
                 $this->fetchInvoiceTransactions($tenantSource, $invoice);
                 $this->updateAurora($invoice);
+
+                return $invoice;
             } else {
                 if ($invoiceData['invoice']) {
+                    if ($invoiceData['invoice']['data']['foot_note'] == '') {
+                        unset($invoiceData['invoice']['data']['foot_note']);
+                    }
+
                     $invoice = StoreInvoice::run(
                         order:          $invoiceData['order'],
                         modelData:      $invoiceData['invoice'],
@@ -68,8 +74,7 @@ class FetchInvoices extends FetchAction
 
     private function fetchInvoiceTransactions($tenantSource, Invoice $invoice): void
     {
-
-        $transactionsToDelete = $invoice->invoiceTransactions()->pluck('source_id','id')->all();
+        $transactionsToDelete = $invoice->invoiceTransactions()->pluck('source_id', 'id')->all();
 
         foreach (
             DB::connection('aurora')
@@ -81,13 +86,12 @@ class FetchInvoices extends FetchAction
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
             fetchInvoiceTransactions::run($tenantSource, $auroraData->{'Order Transaction Fact Key'}, $invoice);
         }
-        $invoice->invoiceTransactions()->whereIn('id',array_keys($transactionsToDelete))->delete();
-
+        $invoice->invoiceTransactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
 
     function getModelsQuery(): Builder
     {
-        $query= DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Invoice Dimension')
             ->select('Invoice Key as source_id')
             ->orderBy('Invoice Date');
@@ -95,6 +99,7 @@ class FetchInvoices extends FetchAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
+
         return $query;
     }
 

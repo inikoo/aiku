@@ -14,6 +14,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 trait WithActionUpdate
 {
     use AsAction;
+
     protected function extractJson($modelData, $field = ['data']): array
     {
         $data = [];
@@ -25,9 +26,8 @@ trait WithActionUpdate
                     $value = json_encode($value);
                 }
             }
-            if ($value) {
-                $data[preg_replace('/\./', '->', $key)] = $value;
-            }
+
+            $data[preg_replace('/\./', '->', $key)] = $value;
         }
 
         return $data;

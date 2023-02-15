@@ -33,9 +33,11 @@ class StoreDeliveryNote
         $deliveryNote->stats()->create();
 
         $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
-        AttachHistoricAddressToModel::run($order,$deliveryAddress,['scope'=>'delivery']);
+        AttachHistoricAddressToModel::run($deliveryNote,$deliveryAddress,['scope'=>'delivery']);
 
 
         return $deliveryNote;
     }
 }
+
+

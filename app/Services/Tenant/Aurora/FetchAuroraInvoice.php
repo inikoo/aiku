@@ -16,7 +16,11 @@ class FetchAuroraInvoice extends FetchAurora
 
     protected function parseModel(): void
     {
-        $this->parsedData['order'] = FetchOrders::run($this->tenantSource, $this->auroraModelData->{'Invoice Order Key'});
+        $this->parsedData['order'] = $this->parseOrder($this->auroraModelData->{'Invoice Order Key'});
+
+        $data = [];
+
+        $data['foot_note'] = $this->auroraModelData->{'Invoice Message'};
 
 
         $this->parsedData['invoice'] = [
@@ -28,9 +32,10 @@ class FetchAuroraInvoice extends FetchAurora
             'total'      => $this->auroraModelData->{'Invoice Total Amount'},
 
             'source_id' => $this->auroraModelData->{'Invoice Key'},
-
+            'data'      => $data
 
         ];
+
 
 
         $billingAddressData                  = $this->parseAddress(prefix: 'Invoice', auAddressData: $this->auroraModelData);

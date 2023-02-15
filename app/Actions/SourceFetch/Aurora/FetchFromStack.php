@@ -31,8 +31,7 @@ class FetchFromStack
     #[NoReturn] public function handle(SourceTenantService $tenantSource): void
     {
         $query = DB::connection('aurora')
-            ->table('pika_fetch')
-            ->where('error', 'No');
+            ->table('pika_fetch');
         $query->orderBy('created_at');
 
         foreach ($query->get() as $jobData) {
@@ -51,20 +50,39 @@ class FetchFromStack
                     break;
                 case 'Invoice':
                     $res = FetchInvoices::run($tenantSource, $jobData->model_id);
+
                     break;
                 case 'Product':
                     $res = FetchProducts::run($tenantSource, $jobData->model_id);
                     break;
+                case 'delete_invoice':
+                    $res = DeleteInvoiceFromAurora::run($tenantSource, $jobData->model_id);
+
                 default:
                     continue 2;
             }
 
-            if ($res) {
-                DB::connection('aurora')->table('pika_fetch')->where('id', $jobData->id)->delete();
-            } else {
-                DB::connection('aurora')->table('pika_fetch')->where('id', $jobData->id)->update(['error' => 'Yes']);
-            }
 
+            DB::connection('aurora')->table('pika_fetch')->where('id', $jobData->id)->delete();
+
+
+            if ($res) {
+                DB::connection('aurora')->table('pika_fetch_error')
+                    ->where('model', $jobData->model)
+                    ->where('model_id', $jobData->model_id)
+                    ->delete();
+            } else {
+                DB::connection('aurora')->table('pika_fetch_error')->updateOrInsert(
+                    [
+                        'model'    => $jobData->model,
+                        'model_id' => $jobData->model_id,
+                    ],
+                    [
+                        'updated_at' => gmdate('Y-m-d H:i:s')
+
+                    ]
+                );
+            }
 
 
             if ($this->maxRunTime > 0 and (microtime(true) - $this->startTime) > $this->maxRunTime) {
@@ -78,7 +96,7 @@ class FetchFromStack
     {
         $this->startTime = microtime(true);
 
-        $this->maxRunTime=$command->option('max_run_time');
+        $this->maxRunTime = $command->option('max_run_time');
 
         $tenants  = $this->getTenants($command);
         $exitCode = 0;

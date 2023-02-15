@@ -15,6 +15,7 @@ use App\Services\Tenant\Aurora\FetchAuroraAgent;
 use App\Services\Tenant\Aurora\FetchAuroraCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraCustomerClient;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedCustomer;
+use App\Services\Tenant\Aurora\FetchAuroraDeletedInvoice;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedStock;
 use App\Services\Tenant\Aurora\FetchAuroraDeliveryNote;
 use App\Services\Tenant\Aurora\FetchAuroraDeliveryNoteTransaction;
@@ -109,6 +110,11 @@ class AuroraTenantService implements SourceTenantService
     public function fetchDeletedStock($id): ?array
     {
         return (new FetchAuroraDeletedStock($this))->fetch($id);
+    }
+
+    public function fetchDeletedInvoice($id): ?array
+    {
+        return (new FetchAuroraDeletedInvoice($this))->fetch($id);
     }
 
     public function fetchWebUser($id): ?array

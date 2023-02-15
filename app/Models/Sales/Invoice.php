@@ -11,6 +11,7 @@ namespace App\Models\Sales;
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Actions\Sales\Customer\HydrateCustomer;
 use App\Models\Marketing\Shop;
+use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -83,6 +84,7 @@ class Invoice extends Model
 
     use SoftDeletes;
     use HasSlug;
+    use HasAddress;
 
     protected $casts = [
         'data'    => 'array',
