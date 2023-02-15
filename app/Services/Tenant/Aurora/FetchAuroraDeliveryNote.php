@@ -14,17 +14,17 @@ class FetchAuroraDeliveryNote extends FetchAurora
 {
     protected function parseModel(): void
     {
-
-
-        if(!$this->auroraModelData->{'Delivery Note Order Key'}){
+        if (!$this->auroraModelData->{'Delivery Note Order Key'}) {
             print "Warning delivery without order";
+
             return;
         }
 
         $this->parsedData["order"] = $this->parseOrder($this->auroraModelData->{'Delivery Note Order Key'});
 
-        if(! $this->parsedData["order"]){
+        if (!$this->parsedData["order"]) {
             print "Warning delivery without invalid order key (not found) ".$this->auroraModelData->{'Delivery Note Order Key'}."\n";
+
             return;
         }
 
@@ -89,19 +89,26 @@ class FetchAuroraDeliveryNote extends FetchAurora
             ];
         }
 
+        $weight = $this->auroraModelData->{'Delivery Note Weight'};
 
         $this->parsedData['shipment'] = $shipment;
 
         $this->parsedData["delivery_note"] = [
-            "number"       => $this->auroraModelData->{'Delivery Note ID'},
-            'date'         => $this->auroraModelData->{'Delivery Note Date Created'},
-            "state"        => $state,
-            "source_id"    => $this->auroraModelData->{'Delivery Note Key'},
-            "created_at"   => $this->auroraModelData->{'Delivery Note Date Created'},
-            'picking_at'   => $this->auroraModelData->{'Delivery Note Date Start Picking'},
-            'picked_at'    => $this->auroraModelData->{'Delivery Note Date Finish Picking'},
-            'packing_at'   => $this->auroraModelData->{'Delivery Note Date Start Packing'},
-            'packed_at'    => $this->auroraModelData->{'Delivery Note Date Finish Packing'},
+            "number"        => $this->auroraModelData->{'Delivery Note ID'},
+            'date'          => $this->auroraModelData->{'Delivery Note Date Created'},
+            "state"         => $state,
+            "source_id"     => $this->auroraModelData->{'Delivery Note Key'},
+            "created_at"    => $this->auroraModelData->{'Delivery Note Date Created'},
+            'picking_at'    => $this->auroraModelData->{'Delivery Note Date Start Picking'},
+            'picked_at'     => $this->auroraModelData->{'Delivery Note Date Finish Picking'},
+            'packing_at'    => $this->auroraModelData->{'Delivery Note Date Start Packing'},
+            'packed_at'     => $this->auroraModelData->{'Delivery Note Date Finish Packing'},
+            'finalised_at'  => $this->auroraModelData->{'Delivery Note Date Done Approved'},
+            'dispatched_at' => $this->auroraModelData->{'Delivery Note Date Dispatched'},
+            'weight'        => $weight,
+            'email'         => $this->auroraModelData->{'Delivery Note Email'},
+            'phone'         => $this->auroraModelData->{'Delivery Note Telephone'},
+
             "cancelled_at" => $cancelled_at,
 
         ];

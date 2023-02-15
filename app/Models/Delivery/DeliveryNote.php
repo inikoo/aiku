@@ -10,6 +10,7 @@ namespace App\Models\Delivery;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
+use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -102,6 +103,8 @@ class DeliveryNote extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use HasAddress;
+    const DELETED_AT = 'cancelled_at';
 
     protected $casts = [
         'data'               => 'array',

@@ -9,13 +9,14 @@ namespace App\Actions\Delivery\DeliveryNote;
 
 
 use App\Models\Delivery\DeliveryNote;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class RemoveDeliveryNote
+class DeleteDeliveryNote
 {
-
+    use AsAction;
     public function handle(DeliveryNote $deliveryNote): void
     {
-        $deliveryNote->deliveryNoteItems()->forceDelete();
-        $deliveryNote->forceDelete();
+        $deliveryNote->deliveryNoteItems()->delete();
+        $deliveryNote->delete();
     }
 }

@@ -8,8 +8,10 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 
+use App\Actions\Delivery\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\WithTenantsArgument;
 use App\Managers\Tenant\SourceTenantManager;
+use App\Models\Delivery\DeliveryNote;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -35,6 +37,7 @@ class FetchFromStack
         $query->orderBy('created_at');
 
         foreach ($query->get() as $jobData) {
+
             switch ($jobData->model) {
                 case 'Customer':
                     $res = FetchCustomers::run($tenantSource, $jobData->model_id);
@@ -57,7 +60,13 @@ class FetchFromStack
                     break;
                 case 'delete_invoice':
                     $res = DeleteInvoiceFromAurora::run($tenantSource, $jobData->model_id);
-
+                    break;
+                case 'delete_delivery_note':
+                    if ($deliveryNote = DeliveryNote::where('source_id', $jobData->model_id)->first()) {
+                        DeleteDeliveryNote::run($deliveryNote);
+                    }
+                    $res = true;
+                    break;
                 default:
                     continue 2;
             }
