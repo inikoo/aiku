@@ -24,7 +24,7 @@ class StoreCustomerClient
         $customerClient = $customer->clients()->create($modelData);
 
 
-        StoreAddressAttachToModel::run($customer, $addressesData, ['scope' => 'delivery']);
+        StoreAddressAttachToModel::run($customerClient, $addressesData, ['scope' => 'delivery']);
 
 
 

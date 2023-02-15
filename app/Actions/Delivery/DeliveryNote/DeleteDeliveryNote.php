@@ -14,9 +14,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class DeleteDeliveryNote
 {
     use AsAction;
-    public function handle(DeliveryNote $deliveryNote): void
+    public function handle(DeliveryNote $deliveryNote): ?bool
     {
         $deliveryNote->deliveryNoteItems()->delete();
-        $deliveryNote->delete();
+        return $deliveryNote->delete();
     }
 }

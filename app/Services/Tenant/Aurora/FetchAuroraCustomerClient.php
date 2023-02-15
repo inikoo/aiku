@@ -14,6 +14,10 @@ class FetchAuroraCustomerClient extends FetchAurora
 
     protected function parseModel(): void
     {
+        if (!$this->auroraModelData->{'Customer Client Customer Key'}) {
+            return;
+        }
+
         $this->parsedData['customer'] = $this->parseCustomer(
             $this->auroraModelData->{'Customer Client Customer Key'}
         );

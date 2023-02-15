@@ -7,6 +7,7 @@
 
 namespace App\Actions\Helpers\Address;
 
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Procurement\Agent;
@@ -21,7 +22,7 @@ class StoreAddressAttachToModel
     use AsAction;
 
     public function handle(
-        Shop|Customer|Agent|Supplier $model,
+        Shop|Customer|CustomerClient|Agent|Supplier $model,
         array $addressData,
         array $scopeData
     ): Address {

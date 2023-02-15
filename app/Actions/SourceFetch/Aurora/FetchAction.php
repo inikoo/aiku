@@ -54,10 +54,11 @@ class FetchAction
         return null;
     }
 
-    public function fetchAll(SourceTenantService $tenantSource,Command $command=null): void
+    public function fetchAll(SourceTenantService $tenantSource, Command $command = null): void
     {
+
         foreach ($this->getModelsQuery()->get() as $auroraData) {
-            if($command && $command->getOutput()->isDebug()){
+            if ($command && $command->getOutput()->isDebug()) {
                 $command->line("Fetching: ".$auroraData->{'source_id'});
             }
             $model = $this->handle($tenantSource, $auroraData->{'source_id'});
@@ -95,7 +96,7 @@ class FetchAction
                 }
 
 
-                if ( in_array($command->getName(),[ 'fetch:orders','fetch:invoices','fetch:customers','fetch:delivery_notes'])) {
+                if (in_array($command->getName(), ['fetch:orders', 'fetch:invoices', 'fetch:customers', 'fetch:delivery_notes'])) {
                     $this->onlyNew = $command->option('only_new') ? true : false;
                 }
 
@@ -113,21 +114,21 @@ class FetchAction
                 if ($command->option('source_id')) {
                     $this->handle($tenantSource, $command->option('source_id'));
                 } else {
-                    if (!$command->option('quiet')  and !$command->getOutput()->isDebug() ) {
+                    if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
                         $info = '✊ '.$command->getName().' '.$tenant->code;
                         if ($this->shop) {
                             $info .= ' shop:'.$this->shop->slug;
                         }
 
                         $command->line($info);
-                        $this->progressBar = $command->getOutput()->createProgressBar($this->count());
+                        $this->progressBar = $command->getOutput()->createProgressBar($this->count() ?? 0);
                         $this->progressBar->setFormat('debug');
                         $this->progressBar->start();
                     } else {
                         $command->line('Steps '.$this->count());
                     }
 
-                    $this->fetchAll($tenantSource,$command);
+                    $this->fetchAll($tenantSource, $command);
                     $this->progressBar?->finish();
                 }
             });

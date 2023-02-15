@@ -9,9 +9,11 @@ namespace App\Actions\SourceFetch\Aurora;
 
 
 use App\Actions\Delivery\DeliveryNote\DeleteDeliveryNote;
+use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
 use App\Actions\WithTenantsArgument;
 use App\Managers\Tenant\SourceTenantManager;
 use App\Models\Delivery\DeliveryNote;
+use App\Models\Dropshipping\CustomerClient;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -37,10 +39,15 @@ class FetchFromStack
         $query->orderBy('created_at');
 
         foreach ($query->get() as $jobData) {
-
             switch ($jobData->model) {
                 case 'Customer':
                     $res = FetchCustomers::run($tenantSource, $jobData->model_id);
+                    if(!$res){
+                        $res=FetchDeletedCustomers::run($tenantSource, $jobData->model_id);
+                    }
+                    break;
+                case 'CustomerClient':
+                    $res = FetchCustomerClients::run($tenantSource, $jobData->model_id);
                     break;
                 case 'Stock':
                     $res = FetchStocks::run($tenantSource, $jobData->model_id);
@@ -62,10 +69,17 @@ class FetchFromStack
                     $res = DeleteInvoiceFromAurora::run($tenantSource, $jobData->model_id);
                     break;
                 case 'delete_delivery_note':
-                    if ($deliveryNote = DeliveryNote::where('source_id', $jobData->model_id)->first()) {
-                        DeleteDeliveryNote::run($deliveryNote);
-                    }
                     $res = true;
+                    if ($deliveryNote = DeliveryNote::where('source_id', $jobData->model_id)->first()) {
+                        $res = DeleteDeliveryNote::run($deliveryNote);
+                    }
+
+                    break;
+                case 'delete_customer_client':
+                    $res = true;
+                    if ($customerClient = CustomerClient::where('source_id', $jobData->model_id)->first()) {
+                        $res = DeleteCustomerClient::run($customerClient);
+                    }
                     break;
                 default:
                     continue 2;
