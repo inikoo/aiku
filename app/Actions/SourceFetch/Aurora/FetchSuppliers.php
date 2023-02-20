@@ -8,6 +8,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Models\Procurement\Supplier;
@@ -29,6 +30,10 @@ class FetchSuppliers extends FetchAction
             if ($supplier = Supplier::withTrashed()->where('source_id', $supplierData['supplier']['source_id'])
                 ->first()) {
                 $supplier = UpdateSupplier::run($supplier, $supplierData['supplier']);
+
+                UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
+                $supplier->location = $supplier->getLocation();
+                $supplier->save();
             } else {
                 $supplier = StoreSupplier::run(
                     parent:      tenant(),
@@ -39,7 +44,7 @@ class FetchSuppliers extends FetchAction
 
             return $supplier;
         }
-
+      
         return null;
     }
 

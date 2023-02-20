@@ -11,6 +11,7 @@ namespace App\Services\Tenant\Aurora;
 use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedStocks;
+use App\Actions\SourceFetch\Aurora\FetchDeletedSuppliers;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchLocations;
@@ -20,6 +21,7 @@ use App\Actions\SourceFetch\Aurora\FetchServices;
 use App\Actions\SourceFetch\Aurora\FetchShippers;
 use App\Actions\SourceFetch\Aurora\FetchShops;
 use App\Actions\SourceFetch\Aurora\FetchStocks;
+use App\Actions\SourceFetch\Aurora\FetchSuppliers;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -32,6 +34,7 @@ use App\Models\Marketing\HistoricService;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Service;
 use App\Models\Marketing\Shop;
+use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
@@ -216,6 +219,19 @@ trait WithAuroraParsers
         }
 
         return $customer;
+    }
+
+    function parseSupplier($source_id): ?Supplier
+    {
+        $supplier = Supplier::where('source_id', $source_id)->first();
+        if (!$supplier) {
+            $supplier = FetchSuppliers::run($this->tenantSource, $source_id);
+            if(!$supplier){
+                $supplier=FetchDeletedSuppliers::run($this->tenantSource,$source_id);
+            }
+        }
+
+        return $supplier;
     }
 
     function parseStock($source_id): ?Stock

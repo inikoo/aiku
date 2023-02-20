@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -91,6 +92,7 @@ class Employee extends Model implements HasMedia
     use HasFactory;
     use InteractsWithMedia;
     use HasSlug;
+    use SoftDeletes;
 
     protected $casts = [
         'data'                => 'array',
@@ -146,9 +148,7 @@ class Employee extends Model implements HasMedia
                 if ($employee->wasChanged('state')) {
                     HydrateTenant::make()->employeesStats();
                 }
-                if ($employee->wasChanged('working_hours')) {
-                    HydrateEmployee::make()->weekWorkingHours($employee);
-                }
+
             }
         });
     }

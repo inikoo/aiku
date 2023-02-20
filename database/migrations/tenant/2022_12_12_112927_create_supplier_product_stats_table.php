@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 17 Feb 2023 17:55:05 Malaysia Time, Bali Airport
+ * Created: Fri, 17 Feb 2023 18:24:30 Malaysia Time, Bali Airport
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -14,10 +14,10 @@ return new class extends Migration
 
     public function up()
     {
-        Schema::create('historic_supplier_product_stats', function (Blueprint $table) {
+        Schema::create('supplier_product_stats', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('historic_supplier_product_id')->index();
-            $table->foreign('historic_supplier_product_id')->references('id')->on('historic_supplier_products');
+            $table->unsignedBigInteger('supplier_product_id')->index();
+            $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->timestampsTz();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('historic_supplier_product_stats');
+        Schema::dropIfExists('supplier_product_stats');
     }
 };

@@ -57,7 +57,6 @@ class HistoricProduct extends Model
 
     protected $casts = [
         'status' => 'boolean',
-
     ];
 
     public $timestamps = ["created_at"];

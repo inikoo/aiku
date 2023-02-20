@@ -7,8 +7,11 @@
 
 namespace App\Models\Procurement;
 
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -82,7 +85,6 @@ class SupplierProduct extends Model
         'shared_data' => 'array',
         'tenant_data' => 'array',
         'settings'    => 'array',
-        'location'    => 'array',
         'status'      => 'boolean',
     ];
 
@@ -90,7 +92,6 @@ class SupplierProduct extends Model
         'shared_data' => '{}',
         'tenant_data' => '{}',
         'settings' => '{}',
-        'location' => '{}',
 
     ];
 
@@ -103,6 +104,14 @@ class SupplierProduct extends Model
             ->saveSlugsTo('slug');
     }
 
+    public function historicRecords(): HasMany
+    {
+        return $this->hasMany(HistoricSupplierProduct::class);
+    }
 
+    public function stats(): HasOne
+    {
+        return $this->hasOne(SupplierProductStats::class);
+    }
 
 }

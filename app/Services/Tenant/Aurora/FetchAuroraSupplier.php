@@ -23,10 +23,16 @@ class FetchAuroraSupplier extends FetchAurora
             $phone = $this->auroraModelData->{'Supplier Main Plain Telephone'};
         }
 
+
+        $name = $this->auroraModelData->{'Supplier Nickname'};
+        if (!$name) {
+            $name = $this->auroraModelData->{'Supplier Name'};
+        }
+
         $this->parsedData['supplier'] =
             [
                 'type'         => 'supplier',
-                'name'         => $this->auroraModelData->{'Supplier Name'},
+                'name'         => $name,
                 'code'         => preg_replace('/\s/', '-', $this->auroraModelData->{'Supplier Code'}),
                 'company_name' => $this->auroraModelData->{'Supplier Company Name'},
                 'contact_name' => $this->auroraModelData->{'Supplier Main Contact Name'},

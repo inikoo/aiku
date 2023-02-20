@@ -18,10 +18,10 @@ class UpdateEmployee
 
     public function handle(Employee $employee, array $modelData): Employee
     {
+
         return $this->update($employee, $modelData, [
             'data',
             'salary',
-            'working_hours'
         ]);
     }
 

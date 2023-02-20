@@ -26,7 +26,6 @@ class HydrateEmployee extends HydrateModel
     {
         $this->updateJobPositionsShare($employee);
         $this->weekWorkingHours($employee);
-
     }
 
     public function updateJobPositionsShare(Employee $employee): void
@@ -40,14 +39,11 @@ class HydrateEmployee extends HydrateModel
 
     public function weekWorkingHours($employee)
     {
-       $employee->update(
-           [
-               'week_working_hours'=>
-                   Arr::get($employee->working_hours,'week_distribution.sunday',0)+
-                   Arr::get($employee->working_hours,'week_distribution.saturday',0)+
-                   Arr::get($employee->working_hours,'week_distribution.weekdays',0)
-           ]
-       );
+        $week_working_hours = Arr::get($employee->working_hours, 'week_distribution.sunday', 0) +
+            Arr::get($employee->working_hours, 'week_distribution.saturday', 0) +
+            Arr::get($employee->working_hours, 'week_distribution.weekdays', 0);
+
+        $employee->update(['week_working_hours' => $week_working_hours]);
     }
 
     protected function getModel(int $id): Employee

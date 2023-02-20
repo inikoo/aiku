@@ -2,8 +2,13 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\Marketing\HistoricProductStats;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Procurement\HistoricSupplierProduct
@@ -43,5 +48,35 @@ use Illuminate\Database\Eloquent\Model;
  */
 class HistoricSupplierProduct extends Model
 {
+    use SoftDeletes;
+    use HasSlug;
 
+    protected $casts = [
+        'status' => 'boolean',
+    ];
+
+    public $timestamps = ["created_at"];
+    public const UPDATED_AT = null;
+
+    protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(64);
+    }
+
+    /*
+    public function supplierProduct(): BelongsTo
+    {
+        return $this->belongsTo(SupplierProduct::class);
+    }
+    */
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(HistoricProductStats::class);
+    }
 }

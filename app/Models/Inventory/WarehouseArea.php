@@ -62,7 +62,7 @@ class WarehouseArea extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(8);
+            ->slugsShouldBeNoLongerThan(16);
     }
 
 

@@ -65,6 +65,8 @@ class FetchAuroraEmployee extends FetchAurora
             $data['address'] = $this->auroraModelData->{'Staff Address'};
         }
 
+        $this->parsedData['working_hours'] = $working_hours ?? [];
+
         $this->parsedData['employee'] = [
 
             'name'                     => $this->auroraModelData->{'Staff Name'},
@@ -79,7 +81,6 @@ class FetchAuroraEmployee extends FetchAurora
             'emergency_contact'        => $this->auroraModelData->{'Staff Next of Kind'},
             'job_title'                => $this->auroraModelData->{'Staff Job Title'},
             'salary'                   => $salary,
-            'working_hours'            => $workingHours,
 
             'employment_end_at' => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
             'type'              => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),

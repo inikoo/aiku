@@ -65,6 +65,12 @@ class FetchFromStack
                 case 'Product':
                     $res = FetchProducts::run($tenantSource, $jobData->model_id);
                     break;
+                case 'Supplier':
+                    $res = FetchSuppliers::run($tenantSource, $jobData->model_id);
+                    break;
+                case 'Agent':
+                    $res = FetchAgents::run($tenantSource, $jobData->model_id);
+                    break;
                 case 'delete_invoice':
                     $res = DeleteInvoiceFromAurora::run($tenantSource, $jobData->model_id);
                     break;

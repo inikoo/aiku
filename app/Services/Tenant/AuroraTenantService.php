@@ -15,8 +15,12 @@ use App\Services\Tenant\Aurora\FetchAuroraAgent;
 use App\Services\Tenant\Aurora\FetchAuroraCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraCustomerClient;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedCustomer;
+use App\Services\Tenant\Aurora\FetchAuroraDeletedEmployee;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedInvoice;
+use App\Services\Tenant\Aurora\FetchAuroraDeletedLocation;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedStock;
+use App\Services\Tenant\Aurora\FetchAuroraDeletedSupplier;
+use App\Services\Tenant\Aurora\FetchAuroraDeletedSupplierProduct;
 use App\Services\Tenant\Aurora\FetchAuroraDeliveryNote;
 use App\Services\Tenant\Aurora\FetchAuroraDeliveryNoteTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraDepartment;
@@ -110,6 +114,11 @@ class AuroraTenantService implements SourceTenantService
     public function fetchDeletedStock($id): ?array
     {
         return (new FetchAuroraDeletedStock($this))->fetch($id);
+    }
+
+    public function fetchDeletedLocation($id): ?array
+    {
+        return (new FetchAuroraDeletedLocation($this))->fetch($id);
     }
 
     public function fetchDeletedInvoice($id): ?array
@@ -240,5 +249,18 @@ class AuroraTenantService implements SourceTenantService
     public function fetchSupplierProduct($id): ?array
     {
         return (new FetchAuroraSupplierProduct($this))->fetch($id);
+    }
+
+    public function fetchDeletedSupplier($id): ?array
+    {
+        return (new FetchAuroraDeletedSupplier($this))->fetch($id);
+    }
+    public function fetchDeletedEmployee($id): ?array
+    {
+        return (new FetchAuroraDeletedEmployee($this))->fetch($id);
+    }
+    public function fetchDeletedSupplierProduct($id): ?array
+    {
+        return (new FetchAuroraDeletedSupplierProduct($this))->fetch($id);
     }
 }

@@ -9,7 +9,6 @@ namespace App\Models\Marketing;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\Marketing\HistoricProductStats
@@ -34,9 +33,10 @@ class HistoricProductStats extends Model
 
     protected $guarded = [];
 
-
+    /*
     public function historicProduct(): BelongsTo
     {
         return $this->belongsTo(HistoricProduct::class);
     }
+    */
 }

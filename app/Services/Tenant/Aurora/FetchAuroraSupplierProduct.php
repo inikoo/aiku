@@ -7,14 +7,15 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchSuppliers;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraSupplierProduct extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $this->parsedData['owner'] = FetchSuppliers::run($this->tenantSource, $this->auroraModelData->{'Supplier Part Supplier Key'});
+
+        $this->parsedData['supplier'] = $this->parseSupplier( $this->auroraModelData->{'Supplier Part Supplier Key'});
+
 
         $sharedData = [];
         $settings   = [];

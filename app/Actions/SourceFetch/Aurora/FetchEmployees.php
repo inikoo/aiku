@@ -10,6 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\Utils\SetPhoto;
 use App\Models\HumanResources\Employee;
 use App\Services\Tenant\SourceTenantService;
@@ -26,16 +27,21 @@ class FetchEmployees extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Employee
     {
         if ($employeeData = $tenantSource->fetchEmployee($tenantSourceId)) {
+
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
+
                 $employee = UpdateEmployee::run(
                     employee:  $employee,
                     modelData: $employeeData['employee']
                 );
+
             } else {
                 $employee = StoreEmployee::run(
                     modelData:    $employeeData['employee'],
                 );
             }
+
+            UpdateEmployeeWorkingHours::run($employee,$employeeData['working_hours']);
 
 
 
@@ -60,7 +66,6 @@ class FetchEmployees extends FetchAction
         return DB::connection('aurora')
             ->table('Staff Dimension')
             ->select('Staff Key as source_id')
-            ->where('Staff Currently Working', 'Yes')
             ->where('Staff Type', '!=', 'Contractor')
             ->orderBy('source_id')
             ->when(app()->environment('testing'), function ($query) {
@@ -72,7 +77,6 @@ class FetchEmployees extends FetchAction
     function count(): ?int
     {
         return DB::connection('aurora')->table('Staff Dimension')
-            ->where('Staff Currently Working', 'Yes')
             ->where('Staff Type', '!=', 'Contractor')
             ->count();
     }

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('warehouse_area_id')->nullable()->index();
             $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
             $table->enum('state', ['operational', 'broken'])->index()->default('operational');
-            $table->string('code', 64)->unique();
+            $table->string('code', 64);
             $table->boolean('is_empty')->default(true);
             $table->jsonb('data');
             $table->timestampsTz();
