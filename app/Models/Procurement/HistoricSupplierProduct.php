@@ -17,7 +17,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property bool $status
  * @property \Illuminate\Support\Carbon|null $created_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $supplier_product_id
  * @property string $cost unit cost
  * @property string|null $code
@@ -27,8 +27,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $cbm
  * @property int|null $currency_id
  * @property int|null $source_id
+ * @property-read HistoricProductStats|null $stats
  * @method static Builder|HistoricSupplierProduct newModelQuery()
  * @method static Builder|HistoricSupplierProduct newQuery()
+ * @method static Builder|HistoricSupplierProduct onlyTrashed()
  * @method static Builder|HistoricSupplierProduct query()
  * @method static Builder|HistoricSupplierProduct whereCbm($value)
  * @method static Builder|HistoricSupplierProduct whereCode($value)
@@ -44,6 +46,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|HistoricSupplierProduct whereSupplierProductId($value)
  * @method static Builder|HistoricSupplierProduct whereUnitsPerCarton($value)
  * @method static Builder|HistoricSupplierProduct whereUnitsPerPack($value)
+ * @method static Builder|HistoricSupplierProduct withTrashed()
+ * @method static Builder|HistoricSupplierProduct withoutTrashed()
  * @mixin \Eloquent
  */
 class HistoricSupplierProduct extends Model

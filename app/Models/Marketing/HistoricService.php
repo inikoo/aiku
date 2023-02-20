@@ -32,7 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\HistoricServiceStats|null $stats
  * @method static Builder|HistoricService newModelQuery()
  * @method static Builder|HistoricService newQuery()
- * @method static \Illuminate\Database\Query\Builder|HistoricService onlyTrashed()
+ * @method static Builder|HistoricService onlyTrashed()
  * @method static Builder|HistoricService query()
  * @method static Builder|HistoricService whereCode($value)
  * @method static Builder|HistoricService whereCreatedAt($value)
@@ -44,8 +44,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|HistoricService whereSlug($value)
  * @method static Builder|HistoricService whereSourceId($value)
  * @method static Builder|HistoricService whereStatus($value)
- * @method static \Illuminate\Database\Query\Builder|HistoricService withTrashed()
- * @method static \Illuminate\Database\Query\Builder|HistoricService withoutTrashed()
+ * @method static Builder|HistoricService withTrashed()
+ * @method static Builder|HistoricService withoutTrashed()
  * @mixin \Eloquent
  */
 class HistoricService extends Model

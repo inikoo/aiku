@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * App\Models\Helpers\Address
  *
  * @property int $id
- * @property bool $immutable
  * @property string|null $address_line_1
  * @property string|null $address_line_2
  * @property string|null $sorting_code
@@ -31,11 +30,10 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string|null $dependant_locality
  * @property string|null $administrative_area
  * @property string|null $country_code
- * @property string|null $checksum
- * @property int|null $owner_id
- * @property string|null $owner_type
- * @property string|null $owner_scope
  * @property int|null $country_id
+ * @property string|null $checksum
+ * @property bool $historic
+ * @property int $usage
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read string $formatted_address
@@ -51,15 +49,13 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|Address whereCountryId($value)
  * @method static Builder|Address whereCreatedAt($value)
  * @method static Builder|Address whereDependantLocality($value)
+ * @method static Builder|Address whereHistoric($value)
  * @method static Builder|Address whereId($value)
- * @method static Builder|Address whereImmutable($value)
  * @method static Builder|Address whereLocality($value)
- * @method static Builder|Address whereOwnerId($value)
- * @method static Builder|Address whereOwnerScope($value)
- * @method static Builder|Address whereOwnerType($value)
  * @method static Builder|Address wherePostalCode($value)
  * @method static Builder|Address whereSortingCode($value)
  * @method static Builder|Address whereUpdatedAt($value)
+ * @method static Builder|Address whereUsage($value)
  * @mixin \Eloquent
  */
 class Address extends Model

@@ -39,7 +39,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Sales\Transaction|null $transaction
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()
- * @method static \Illuminate\Database\Query\Builder|InvoiceTransaction onlyTrashed()
+ * @method static Builder|InvoiceTransaction onlyTrashed()
  * @method static Builder|InvoiceTransaction query()
  * @method static Builder|InvoiceTransaction whereCreatedAt($value)
  * @method static Builder|InvoiceTransaction whereCustomerId($value)
@@ -60,8 +60,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|InvoiceTransaction whereTaxBandId($value)
  * @method static Builder|InvoiceTransaction whereTransactionId($value)
  * @method static Builder|InvoiceTransaction whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|InvoiceTransaction withTrashed()
- * @method static \Illuminate\Database\Query\Builder|InvoiceTransaction withoutTrashed()
+ * @method static Builder|InvoiceTransaction withTrashed()
+ * @method static Builder|InvoiceTransaction withoutTrashed()
  * @mixin \Eloquent
  */
 class InvoiceTransaction extends Model

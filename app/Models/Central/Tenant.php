@@ -39,11 +39,11 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Central\AdminUser|null $adminUser
- * @property-read \Illuminate\Database\Eloquent\Collection|Agent[] $agents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read int|null $agents_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\CentralDomain[] $centralDomains
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Central\CentralDomain> $centralDomains
  * @property-read int|null $central_domains_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\Stancl\Tenancy\Database\Models\Domain[] $domains
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Stancl\Tenancy\Database\Models\Domain> $domains
  * @property-read int|null $domains_count
  * @property-read \App\Models\Central\TenantFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\Central\TenantInventoryStats|null $inventoryStats
@@ -52,14 +52,14 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property-read \App\Models\Central\TenantProductionStats|null $productionStats
  * @property-read \App\Models\Central\TenantSalesStats|null $salesStats
  * @property-read \App\Models\Central\TenantStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection|Stock[] $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read int|null $stocks_count
- * @property-read \Illuminate\Database\Eloquent\Collection|Supplier[] $suppliers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read int|null $suppliers_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Central\CentralUser[] $tenantUsers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Central\CentralUser> $tenantUsers
  * @property-read int|null $tenant_users_count
- * @method static TenantCollection|static[] all($columns = ['*'])
- * @method static TenantCollection|static[] get($columns = ['*'])
+ * @method static TenantCollection<int, static> all($columns = ['*'])
+ * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()
  * @method static Builder|Tenant query()

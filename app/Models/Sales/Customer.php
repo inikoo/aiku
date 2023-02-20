@@ -54,37 +54,33 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read int|null $addresses_count
- * @property-read Address|null $billingAddress
- * @property-read \Illuminate\Database\Eloquent\Collection|CustomerClient[] $clients
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, CustomerClient> $clients
  * @property-read int|null $clients_count
- * @property-read Address|null $deliveryAddress
- * @property-read \Illuminate\Database\Eloquent\Collection|FulfilmentOrder[] $fulfilmentOrders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read int|null $fulfilment_orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Invoice[] $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Invoice> $invoices
  * @property-read int|null $invoices_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Order[] $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
  * @property-read int|null $orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection|Product[] $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read int|null $products_count
  * @property-read Shop|null $shop
  * @property-read \App\Models\Sales\CustomerStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection|Stock[] $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read int|null $stocks_count
- * @property-read \Illuminate\Database\Eloquent\Collection|WebUser[] $webUsers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
  * @property-read int|null $web_users_count
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
- * @method static \Illuminate\Database\Query\Builder|Customer onlyTrashed()
+ * @method static Builder|Customer onlyTrashed()
  * @method static Builder|Customer query()
- * @method static Builder|Customer whereBillingAddressId($value)
  * @method static Builder|Customer whereCompanyName($value)
  * @method static Builder|Customer whereContactName($value)
  * @method static Builder|Customer whereCreatedAt($value)
  * @method static Builder|Customer whereData($value)
  * @method static Builder|Customer whereDeletedAt($value)
- * @method static Builder|Customer whereDeliveryAddressId($value)
  * @method static Builder|Customer whereEmail($value)
  * @method static Builder|Customer whereId($value)
  * @method static Builder|Customer whereIdentityDocumentNumber($value)
@@ -103,9 +99,9 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Customer whereTradeState($value)
  * @method static Builder|Customer whereUpdatedAt($value)
  * @method static Builder|Customer whereWebsite($value)
- * @method static \Illuminate\Database\Query\Builder|Customer withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Customer withoutTrashed()
- * @mixin Eloquent
+ * @method static Builder|Customer withTrashed()
+ * @method static Builder|Customer withoutTrashed()
+ * @mixin \Eloquent
  */
 class Customer extends Model
 {

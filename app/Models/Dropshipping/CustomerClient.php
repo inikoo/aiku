@@ -39,14 +39,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read int|null $addresses_count
  * @property-read Customer|null $customer
- * @property-read Address|null $deliveryAddress
  * @property-read Shop|null $shop
  * @method static Builder|CustomerClient newModelQuery()
  * @method static Builder|CustomerClient newQuery()
- * @method static \Illuminate\Database\Query\Builder|CustomerClient onlyTrashed()
+ * @method static Builder|CustomerClient onlyTrashed()
  * @method static Builder|CustomerClient query()
  * @method static Builder|CustomerClient whereCompanyName($value)
  * @method static Builder|CustomerClient whereContactName($value)
@@ -54,7 +53,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|CustomerClient whereCustomerId($value)
  * @method static Builder|CustomerClient whereDeactivatedAt($value)
  * @method static Builder|CustomerClient whereDeletedAt($value)
- * @method static Builder|CustomerClient whereDeliveryAddressId($value)
  * @method static Builder|CustomerClient whereEmail($value)
  * @method static Builder|CustomerClient whereId($value)
  * @method static Builder|CustomerClient whereLocation($value)
@@ -66,8 +64,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|CustomerClient whereSourceId($value)
  * @method static Builder|CustomerClient whereStatus($value)
  * @method static Builder|CustomerClient whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|CustomerClient withTrashed()
- * @method static \Illuminate\Database\Query\Builder|CustomerClient withoutTrashed()
+ * @method static Builder|CustomerClient withTrashed()
+ * @method static Builder|CustomerClient withoutTrashed()
  * @mixin \Eloquent
  */
 class CustomerClient extends Model

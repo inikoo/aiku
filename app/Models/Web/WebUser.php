@@ -40,11 +40,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $web_login_version
  * @property int|null $source_id
  * @property-read Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
  * @method static Builder|WebUser newModelQuery()
  * @method static Builder|WebUser newQuery()
- * @method static \Illuminate\Database\Query\Builder|WebUser onlyTrashed()
+ * @method static Builder|WebUser onlyTrashed()
  * @method static Builder|WebUser query()
  * @method static Builder|WebUser whereCreatedAt($value)
  * @method static Builder|WebUser whereCustomerId($value)
@@ -65,8 +65,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|WebUser whereUsername($value)
  * @method static Builder|WebUser whereWebLoginVersion($value)
  * @method static Builder|WebUser whereWebsiteId($value)
- * @method static \Illuminate\Database\Query\Builder|WebUser withTrashed()
- * @method static \Illuminate\Database\Query\Builder|WebUser withoutTrashed()
+ * @method static Builder|WebUser withTrashed()
+ * @method static Builder|WebUser withoutTrashed()
  * @mixin \Eloquent
  */
 class WebUser extends Authenticatable

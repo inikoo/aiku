@@ -9,6 +9,14 @@ namespace App\Models\Procurement;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\Procurement\HistoricSupplierProductStats
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoricSupplierProductStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoricSupplierProductStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoricSupplierProductStats query()
+ * @mixin \Eloquent
+ */
 class HistoricSupplierProductStats extends Model
 {
     protected $table = 'historic_supplier product_stats';

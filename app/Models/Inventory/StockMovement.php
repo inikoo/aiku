@@ -16,9 +16,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  *
  * @property int $id
  * @property string $type
+ * @property string $flow
  * @property string $stockable_type
  * @property int $stockable_id
  * @property int|null $location_id
+ * @property string|null $operation_type
+ * @property int|null $operation_id
  * @property string $quantity
  * @property string $amount
  * @property array $data
@@ -32,8 +35,11 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|StockMovement whereAmount($value)
  * @method static Builder|StockMovement whereCreatedAt($value)
  * @method static Builder|StockMovement whereData($value)
+ * @method static Builder|StockMovement whereFlow($value)
  * @method static Builder|StockMovement whereId($value)
  * @method static Builder|StockMovement whereLocationId($value)
+ * @method static Builder|StockMovement whereOperationId($value)
+ * @method static Builder|StockMovement whereOperationType($value)
  * @method static Builder|StockMovement whereQuantity($value)
  * @method static Builder|StockMovement whereSourceId($value)
  * @method static Builder|StockMovement whereStockableId($value)

@@ -31,7 +31,7 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
  * @property int $number_tenants
  * @property string|null $created_at
  * @property string|null $updated_at
- * @property-read \Stancl\Tenancy\Database\TenantCollection|\App\Models\Central\Tenant[] $tenants
+ * @property-read \Stancl\Tenancy\Database\TenantCollection<int, \App\Models\Central\Tenant> $tenants
  * @property-read int|null $tenants_count
  * @method static Builder|CentralUser newModelQuery()
  * @method static Builder|CentralUser newQuery()

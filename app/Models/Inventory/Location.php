@@ -34,13 +34,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Inventory\LocationStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\Stock[] $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Stock> $stocks
  * @property-read int|null $stocks_count
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
  * @method static Builder|Location newModelQuery()
  * @method static Builder|Location newQuery()
- * @method static \Illuminate\Database\Query\Builder|Location onlyTrashed()
+ * @method static Builder|Location onlyTrashed()
  * @method static Builder|Location query()
  * @method static Builder|Location whereCode($value)
  * @method static Builder|Location whereCreatedAt($value)
@@ -54,8 +54,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Location whereUpdatedAt($value)
  * @method static Builder|Location whereWarehouseAreaId($value)
  * @method static Builder|Location whereWarehouseId($value)
- * @method static \Illuminate\Database\Query\Builder|Location withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Location withoutTrashed()
+ * @method static Builder|Location withTrashed()
+ * @method static Builder|Location withoutTrashed()
  * @mixin \Eloquent
  */
 class Location extends Model

@@ -50,16 +50,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\Family|null $family
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\HistoricProduct[] $historicRecords
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\HistoricProduct> $historicRecords
  * @property-read int|null $historic_records_count
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\TradeUnit[] $tradeUnits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\TradeUnit> $tradeUnits
  * @property-read int|null $trade_units_count
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
- * @method static \Illuminate\Database\Query\Builder|Product onlyTrashed()
+ * @method static Builder|Product onlyTrashed()
  * @method static Builder|Product query()
  * @method static Builder|Product whereAvailable($value)
  * @method static Builder|Product whereCode($value)
@@ -85,8 +85,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Product whereStatus($value)
  * @method static Builder|Product whereUnits($value)
  * @method static Builder|Product whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|Product withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Product withoutTrashed()
+ * @method static Builder|Product withTrashed()
+ * @method static Builder|Product withoutTrashed()
  * @mixin \Eloquent
  */
 class Product extends Model

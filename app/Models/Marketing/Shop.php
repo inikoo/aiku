@@ -56,31 +56,29 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read Address|null $address
- * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read int|null $addresses_count
- * @property-read \Illuminate\Database\Eloquent\Collection|Customer[] $customers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
  * @property-read int|null $customers_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Department[] $departments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Department> $departments
  * @property-read int|null $departments_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Family[] $families
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Family> $families
  * @property-read int|null $families_count
- * @property-read \Illuminate\Database\Eloquent\Collection|FulfilmentOrder[] $fulfilmentOrders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read int|null $fulfilment_orders_count
- * @property-read string $formatted_address
- * @property-read \Illuminate\Database\Eloquent\Collection|Invoice[] $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read int|null $invoices_count
- * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read int|null $orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read int|null $products_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Service[] $services
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Service> $services
  * @property-read int|null $services_count
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @property-read Website|null $website
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
- * @method static \Illuminate\Database\Query\Builder|Shop onlyTrashed()
+ * @method static Builder|Shop onlyTrashed()
  * @method static Builder|Shop query()
  * @method static Builder|Shop whereAddressId($value)
  * @method static Builder|Shop whereClosedAt($value)
@@ -111,9 +109,9 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Shop whereType($value)
  * @method static Builder|Shop whereUpdatedAt($value)
  * @method static Builder|Shop whereUrl($value)
- * @method static \Illuminate\Database\Query\Builder|Shop withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Shop withoutTrashed()
- * @mixin Eloquent
+ * @method static Builder|Shop withTrashed()
+ * @method static Builder|Shop withoutTrashed()
+ * @mixin \Eloquent
  */
 class Shop extends Model
 {

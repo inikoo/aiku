@@ -47,14 +47,14 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property string|null $global_id
  * @property int|null $source_id
  * @property int|null $source_agent_id
- * @property-read Address|null $address
- * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read int|null $addresses_count
- * @property-read string $formatted_address
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
+ * @property-read int|null $products_count
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
  * @method static Builder|Supplier newModelQuery()
  * @method static Builder|Supplier newQuery()
- * @method static \Illuminate\Database\Query\Builder|Supplier onlyTrashed()
+ * @method static Builder|Supplier onlyTrashed()
  * @method static Builder|Supplier query()
  * @method static Builder|Supplier whereAddressId($value)
  * @method static Builder|Supplier whereCode($value)
@@ -80,9 +80,9 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Supplier whereTenantData($value)
  * @method static Builder|Supplier whereType($value)
  * @method static Builder|Supplier whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|Supplier withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Supplier withoutTrashed()
- * @mixin Eloquent
+ * @method static Builder|Supplier withTrashed()
+ * @method static Builder|Supplier withoutTrashed()
+ * @mixin \Eloquent
  */
 class Supplier extends Model
 {

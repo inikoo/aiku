@@ -32,11 +32,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Inventory\StockFamilyStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\Stock[] $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Stock> $stocks
  * @property-read int|null $stocks_count
  * @method static Builder|StockFamily newModelQuery()
  * @method static Builder|StockFamily newQuery()
- * @method static \Illuminate\Database\Query\Builder|StockFamily onlyTrashed()
+ * @method static Builder|StockFamily onlyTrashed()
  * @method static Builder|StockFamily query()
  * @method static Builder|StockFamily whereCode($value)
  * @method static Builder|StockFamily whereCreatedAt($value)
@@ -49,8 +49,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|StockFamily whereSourceId($value)
  * @method static Builder|StockFamily whereState($value)
  * @method static Builder|StockFamily whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|StockFamily withTrashed()
- * @method static \Illuminate\Database\Query\Builder|StockFamily withoutTrashed()
+ * @method static Builder|StockFamily withTrashed()
+ * @method static Builder|StockFamily withoutTrashed()
  * @mixin \Eloquent
  */
 class StockFamily extends Model

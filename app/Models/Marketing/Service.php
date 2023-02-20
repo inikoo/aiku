@@ -36,14 +36,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\HistoricService[] $historicRecords
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\HistoricService> $historicRecords
  * @property-read int|null $historic_records_count
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ServiceStats|null $stats
  * @method static Builder|Service newModelQuery()
  * @method static Builder|Service newQuery()
- * @method static \Illuminate\Database\Query\Builder|Service onlyTrashed()
+ * @method static Builder|Service onlyTrashed()
  * @method static Builder|Service query()
  * @method static Builder|Service whereCode($value)
  * @method static Builder|Service whereCreatedAt($value)
@@ -60,8 +60,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Service whereSourceId($value)
  * @method static Builder|Service whereStatus($value)
  * @method static Builder|Service whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|Service withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Service withoutTrashed()
+ * @method static Builder|Service withTrashed()
+ * @method static Builder|Service withoutTrashed()
  * @mixin \Eloquent
  */
 class Service extends Model

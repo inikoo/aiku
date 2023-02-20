@@ -32,7 +32,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $type
  * @property string $state
  * @property bool|null $can_dispatch
- * @property int|null $shipper_id
+ * @property bool|null $restocking
+ * @property string|null $email
+ * @property string|null $phone
+ * @property int|null $shipment_id
  * @property string|null $weight
  * @property int $number_stocks
  * @property int $number_picks
@@ -52,16 +55,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
+ * @property-read int|null $addresses_count
  * @property-read Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $order
- * @property-read int|null $order_count
- * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\DeliveryNoteItem> $deliveryNoteItems
+ * @property-read int|null $delivery_note_items_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read int|null $orders_count
+ * @property-read \App\Models\Delivery\Shipment|null $shipments
  * @property-read Shop $shop
  * @property-read \App\Models\Delivery\DeliveryNoteStats|null $stats
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
- * @method static \Illuminate\Database\Query\Builder|DeliveryNote onlyTrashed()
+ * @method static Builder|DeliveryNote onlyTrashed()
  * @method static Builder|DeliveryNote query()
  * @method static Builder|DeliveryNote whereAssignedAt($value)
  * @method static Builder|DeliveryNote whereCanDispatch($value)
@@ -70,8 +76,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|DeliveryNote whereCustomerId($value)
  * @method static Builder|DeliveryNote whereData($value)
  * @method static Builder|DeliveryNote whereDate($value)
- * @method static Builder|DeliveryNote whereDeliveryAddressId($value)
  * @method static Builder|DeliveryNote whereDispatchedAt($value)
+ * @method static Builder|DeliveryNote whereEmail($value)
  * @method static Builder|DeliveryNote whereFinalisedAt($value)
  * @method static Builder|DeliveryNote whereId($value)
  * @method static Builder|DeliveryNote whereNumber($value)
@@ -80,10 +86,12 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|DeliveryNote wherePackedAt($value)
  * @method static Builder|DeliveryNote wherePackerId($value)
  * @method static Builder|DeliveryNote wherePackingAt($value)
+ * @method static Builder|DeliveryNote wherePhone($value)
  * @method static Builder|DeliveryNote wherePickedAt($value)
  * @method static Builder|DeliveryNote wherePickerId($value)
  * @method static Builder|DeliveryNote wherePickingAt($value)
- * @method static Builder|DeliveryNote whereShipperId($value)
+ * @method static Builder|DeliveryNote whereRestocking($value)
+ * @method static Builder|DeliveryNote whereShipmentId($value)
  * @method static Builder|DeliveryNote whereShopId($value)
  * @method static Builder|DeliveryNote whereSlug($value)
  * @method static Builder|DeliveryNote whereSourceId($value)
@@ -92,11 +100,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|DeliveryNote whereType($value)
  * @method static Builder|DeliveryNote whereUpdatedAt($value)
  * @method static Builder|DeliveryNote whereWeight($value)
- * @method static \Illuminate\Database\Query\Builder|DeliveryNote withTrashed()
- * @method static \Illuminate\Database\Query\Builder|DeliveryNote withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\DeliveryNoteItem> $deliveryNoteItems
- * @property-read int|null $delivery_note_items_count
- * @property-read \App\Models\Delivery\Shipment|null $shipments
+ * @method static Builder|DeliveryNote withTrashed()
+ * @method static Builder|DeliveryNote withoutTrashed()
  * @mixin \Eloquent
  */
 class DeliveryNote extends Model

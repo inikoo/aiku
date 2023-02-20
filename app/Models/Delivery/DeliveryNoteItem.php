@@ -11,33 +11,39 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\Delivery\DeliveryNoteItem
  *
  * @property int $id
- * @property int|null $delivery_note_id
- * @property int|null $picking_id
- * @property string $order_item_type
- * @property int $order_item_id
+ * @property int $delivery_note_id
  * @property int|null $stock_id
- * @property string|null $quantity
- * @property mixed $data
+ * @property int|null $transaction_id
+ * @property int|null $picking_id
+ * @property string $state
+ * @property string $status
+ * @property string $required
+ * @property string $quantity
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\Picking> $pickings
+ * @property-read int|null $pickings_count
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()
+ * @method static Builder|DeliveryNoteItem onlyTrashed()
  * @method static Builder|DeliveryNoteItem query()
  * @method static Builder|DeliveryNoteItem whereCreatedAt($value)
  * @method static Builder|DeliveryNoteItem whereData($value)
  * @method static Builder|DeliveryNoteItem whereDeletedAt($value)
  * @method static Builder|DeliveryNoteItem whereDeliveryNoteId($value)
  * @method static Builder|DeliveryNoteItem whereId($value)
- * @method static Builder|DeliveryNoteItem whereOrderItemId($value)
- * @method static Builder|DeliveryNoteItem whereOrderItemType($value)
  * @method static Builder|DeliveryNoteItem wherePickingId($value)
  * @method static Builder|DeliveryNoteItem whereQuantity($value)
+ * @method static Builder|DeliveryNoteItem whereRequired($value)
+ * @method static Builder|DeliveryNoteItem whereSourceId($value)
+ * @method static Builder|DeliveryNoteItem whereState($value)
+ * @method static Builder|DeliveryNoteItem whereStatus($value)
  * @method static Builder|DeliveryNoteItem whereStockId($value)
+ * @method static Builder|DeliveryNoteItem whereTransactionId($value)
  * @method static Builder|DeliveryNoteItem whereUpdatedAt($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\Picking> $pickings
- * @property-read int|null $pickings_count
- * @method static Builder|DeliveryNoteItem onlyTrashed()
  * @method static Builder|DeliveryNoteItem withTrashed()
  * @method static Builder|DeliveryNoteItem withoutTrashed()
  * @mixin \Eloquent

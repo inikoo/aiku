@@ -26,7 +26,7 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Assets\Country[] $countries
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assets\Country> $countries
  * @property-read int|null $countries_count
  * @method static Builder|Timezone newModelQuery()
  * @method static Builder|Timezone newQuery()

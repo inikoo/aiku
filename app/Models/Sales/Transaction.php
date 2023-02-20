@@ -34,16 +34,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Sales\Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection|DeliveryNoteItem[] $deliveryNoteItems
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNoteItem> $deliveryNoteItems
  * @property-read int|null $delivery_note_items_count
  * @property-read Model|\Eloquent $item
  * @property-read \App\Models\Sales\Order $order
  * @property-read Shop $shop
  * @method static Builder|Transaction newModelQuery()
  * @method static Builder|Transaction newQuery()
+ * @method static Builder|Transaction onlyTrashed()
  * @method static Builder|Transaction query()
  * @method static Builder|Transaction whereCreatedAt($value)
  * @method static Builder|Transaction whereCustomerId($value)
@@ -61,7 +62,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Transaction whereState($value)
  * @method static Builder|Transaction whereTaxBandId($value)
  * @method static Builder|Transaction whereUpdatedAt($value)
- * @method static Builder|Transaction onlyTrashed()
  * @method static Builder|Transaction withTrashed()
  * @method static Builder|Transaction withoutTrashed()
  * @mixin \Eloquent
