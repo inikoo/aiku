@@ -19,23 +19,24 @@ class StoreFamily
 
     public function handle(Shop|Department $parent, array $modelData): Family
     {
-
         if (class_basename($parent) == 'Department') {
-            $modelData['shop_id']=$parent->shop_id;
+            $modelData['shop_id'] = $parent->shop_id;
+
+            $modelData['root_department_id'] = $parent->department_id ?? $parent->id;
         }
 
         /** @var Family $family */
         $family = $parent->families()->create($modelData);
         $family->stats()->create();
         $family->salesStats()->create([
-                                           'scope' => 'sales'
-                                       ]);
-       /** @var Tenant $tenant */
-        $tenant=tenant();
+                                          'scope' => 'sales'
+                                      ]);
+        /** @var Tenant $tenant */
+        $tenant = tenant();
         if ($family->shop->currency_id != $tenant->currency_id) {
             $family->salesStats()->create([
-                                               'scope' => 'sales-tenant-currency'
-                                           ]);
+                                              'scope' => 'sales-tenant-currency'
+                                          ]);
         }
 
         return $family;
