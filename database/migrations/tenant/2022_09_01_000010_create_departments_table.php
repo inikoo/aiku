@@ -21,6 +21,9 @@ return new class extends Migration
 
             $table->unsignedMediumInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedMediumInteger('department_id')->nullable();
+            $table->foreign('department_id')->references('id')->on('departments');
+
             $table->enum('state', ['in-process', 'active', 'discontinuing', 'discontinued'])->nullable()->index();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
