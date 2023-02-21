@@ -22,7 +22,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
  * @property array|\ArrayAccess|mixed $timeStart
  * @property $timeLastStep
  */
-class ResetTags
+class FetchReset
 {
 
     use AsAction;
@@ -51,6 +51,10 @@ class ResetTags
                 if ($databaseName = Arr::get($tenant->source, 'db_name')) {
                     $command->line("🏃 $tenant->code ");
                     $this->setAuroraConnection($databaseName);
+
+                    DB::connection('aurora')->table('pika_fetch')->truncate();
+                    DB::connection('aurora')->table('pika_fetch_error')->truncate();
+
 
                     $this->timeStart = microtime(true);
                     $this->timeLastStep =  microtime(true);
