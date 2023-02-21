@@ -32,11 +32,11 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Assets\Timezone[] $timezones
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assets\Timezone> $timezones
  * @property-read int|null $timezones_count
  * @method static Builder|Country newModelQuery()
  * @method static Builder|Country newQuery()
- * @method static \Illuminate\Database\Query\Builder|Country onlyTrashed()
+ * @method static Builder|Country onlyTrashed()
  * @method static Builder|Country query()
  * @method static Builder|Country whereCapital($value)
  * @method static Builder|Country whereCode($value)
@@ -52,8 +52,8 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  * @method static Builder|Country whereTimezoneId($value)
  * @method static Builder|Country whereType($value)
  * @method static Builder|Country whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|Country withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Country withoutTrashed()
+ * @method static Builder|Country withTrashed()
+ * @method static Builder|Country withoutTrashed()
  * @mixin \Eloquent
  */
 class Country extends Model {

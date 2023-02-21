@@ -38,7 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\Department|null $department
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read int|null $products_count
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\FamilyStats|null $stats
  * @method static Builder|Family newModelQuery()
  * @method static Builder|Family newQuery()
- * @method static \Illuminate\Database\Query\Builder|Family onlyTrashed()
+ * @method static Builder|Family onlyTrashed()
  * @method static Builder|Family query()
  * @method static Builder|Family whereCode($value)
  * @method static Builder|Family whereCreatedAt($value)
@@ -61,8 +61,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Family whereSourceId($value)
  * @method static Builder|Family whereState($value)
  * @method static Builder|Family whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|Family withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Family withoutTrashed()
+ * @method static Builder|Family withTrashed()
+ * @method static Builder|Family withoutTrashed()
  * @mixin \Eloquent
  */
 class Family extends Model

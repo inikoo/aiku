@@ -54,18 +54,18 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property \Illuminate\Support\Carbon|null $discontinued_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\Location[] $locations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read int|null $locations_count
  * @property-read Model|\Eloquent $owner
  * @property-read \App\Models\Inventory\StockStats|null $stats
  * @property-read \App\Models\Inventory\StockFamily|null $stockFamily
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Inventory\StockMovement[] $stockMovements
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\StockMovement> $stockMovements
  * @property-read int|null $stock_movements_count
- * @property-read \Illuminate\Database\Eloquent\Collection|TradeUnit[] $tradeUnits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read int|null $trade_units_count
  * @method static Builder|Stock newModelQuery()
  * @method static Builder|Stock newQuery()
- * @method static \Illuminate\Database\Query\Builder|Stock onlyTrashed()
+ * @method static Builder|Stock onlyTrashed()
  * @method static Builder|Stock query()
  * @method static Builder|Stock whereActivatedAt($value)
  * @method static Builder|Stock whereAvailableForecast($value)
@@ -96,8 +96,8 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Stock whereUnitsPerPack($value)
  * @method static Builder|Stock whereUpdatedAt($value)
  * @method static Builder|Stock whereValue($value)
- * @method static \Illuminate\Database\Query\Builder|Stock withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Stock withoutTrashed()
+ * @method static Builder|Stock withTrashed()
+ * @method static Builder|Stock withoutTrashed()
  * @mixin \Eloquent
  */
 class Stock extends Model

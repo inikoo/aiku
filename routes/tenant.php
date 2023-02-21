@@ -18,6 +18,10 @@ Route::middleware([
 ])->group(function () {
     Route::middleware(["auth"])->group(function () {
 
+        Route::get('/', function () {
+            return redirect('/dashboard');
+        });
+
         Route::prefix("dashboard")
             ->name("dashboard.")
             ->group(__DIR__ . "/dashboard.php");

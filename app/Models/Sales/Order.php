@@ -46,20 +46,21 @@ use Spatie\Sluggable\HasSlug;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at equivalent deleted_at
  * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
+ * @property-read int|null $addresses_count
  * @property-read \App\Models\Sales\Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection|DeliveryNote[] $deliveryNotes
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNote> $deliveryNotes
  * @property-read int|null $delivery_notes_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Invoice[] $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Invoice> $invoices
  * @property-read int|null $invoices_count
  * @property-read Shop $shop
  * @property-read \App\Models\Sales\OrderStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Transaction[] $transactions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Transaction> $transactions
  * @property-read int|null $transactions_count
  * @method static Builder|Order newModelQuery()
  * @method static Builder|Order newQuery()
- * @method static \Illuminate\Database\Query\Builder|Order onlyTrashed()
+ * @method static Builder|Order onlyTrashed()
  * @method static Builder|Order query()
- * @method static Builder|Order whereBillingAddressId($value)
  * @method static Builder|Order whereCanDispatch($value)
  * @method static Builder|Order whereCancelledAt($value)
  * @method static Builder|Order whereCharges($value)
@@ -69,7 +70,6 @@ use Spatie\Sluggable\HasSlug;
  * @method static Builder|Order whereCustomerId($value)
  * @method static Builder|Order whereCustomerNumber($value)
  * @method static Builder|Order whereData($value)
- * @method static Builder|Order whereDeliveryAddressId($value)
  * @method static Builder|Order whereExchange($value)
  * @method static Builder|Order whereId($value)
  * @method static Builder|Order whereIsInvoiced($value)
@@ -86,10 +86,8 @@ use Spatie\Sluggable\HasSlug;
  * @method static Builder|Order whereTax($value)
  * @method static Builder|Order whereType($value)
  * @method static Builder|Order whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|Order withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Order withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
- * @property-read int|null $addresses_count
+ * @method static Builder|Order withTrashed()
+ * @method static Builder|Order withoutTrashed()
  * @mixin \Eloquent
  */
 class Order extends Model

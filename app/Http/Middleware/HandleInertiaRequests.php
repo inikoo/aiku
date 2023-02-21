@@ -38,20 +38,36 @@ class HandleInertiaRequests extends Middleware
         /** @var \App\Models\SysAdmin\User $user */
         $user = $request->user();
 
-        $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
+        $firstLoadOnlyProps=[];
 
-            'tenant'   => tenant() ? tenant()->only('name', 'code') : null,
-            'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
-            'layout'   => function () use ($user) {
-                if ($user) {
-                    return GetLayout::run($user);
-                } else {
-                    return [];
+        if(!$request->inertia() or Session::get('reloadLayout')){
+
+            $firstLoadOnlyProps= [
+
+                'tenant'   => tenant() ? tenant()->only('name', 'code') : null,
+                'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
+                'layout'   => function () use ($user) {
+                    if ($user) {
+                        return GetLayout::run($user);
+                    } else {
+                        return [];
+                    }
                 }
-            }
-        ] : [];
+            ];
 
-        Session::forget('redirectFromLogin');
+
+
+            if(Session::get('reloadLayout')=='remove') {
+                Session::forget('reloadLayout');
+            }
+            if(Session::get('reloadLayout')) {
+                Session::put('reloadLayout', 'remove');
+            }
+
+        }
+
+
+
 
         //dd($firstLoadOnlyProps);
 

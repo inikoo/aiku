@@ -34,7 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Central\Tenant $tenant
  * @method static Builder|CentralDomain newModelQuery()
  * @method static Builder|CentralDomain newQuery()
- * @method static \Illuminate\Database\Query\Builder|CentralDomain onlyTrashed()
+ * @method static Builder|CentralDomain onlyTrashed()
  * @method static Builder|CentralDomain query()
  * @method static Builder|CentralDomain whereCreatedAt($value)
  * @method static Builder|CentralDomain whereDeletedAt($value)
@@ -45,8 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|CentralDomain whereTenantId($value)
  * @method static Builder|CentralDomain whereUpdatedAt($value)
  * @method static Builder|CentralDomain whereWebsiteId($value)
- * @method static \Illuminate\Database\Query\Builder|CentralDomain withTrashed()
- * @method static \Illuminate\Database\Query\Builder|CentralDomain withoutTrashed()
+ * @method static Builder|CentralDomain withTrashed()
+ * @method static Builder|CentralDomain withoutTrashed()
  * @mixin \Eloquent
  */
 class CentralDomain extends Model

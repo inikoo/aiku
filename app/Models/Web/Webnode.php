@@ -29,7 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $main_webpage_id
  * @property-read \App\Models\Web\Webpage|null $mainWebpage
  * @property-read \App\Models\Web\WebnodeStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Web\Webpage[] $webpages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\Webpage> $webpages
  * @property-read int|null $webpages_count
  * @property-read \App\Models\Web\Website $website
  * @method static Builder|Webnode newModelQuery()

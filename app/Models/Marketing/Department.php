@@ -35,9 +35,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Family[] $families
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Family> $families
  * @property-read int|null $families_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Marketing\Product[] $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read int|null $products_count
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
@@ -45,7 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\DepartmentStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder|Department newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Department newQuery()
- * @method static Builder|Department onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Department onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Department query()
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereCreatedAt($value)
@@ -59,8 +59,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereSourceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereState($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereUpdatedAt($value)
- * @method static Builder|Department withTrashed()
- * @method static Builder|Department withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Department withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Department withoutTrashed()
  * @mixin \Eloquent
  */
 class Department extends Model

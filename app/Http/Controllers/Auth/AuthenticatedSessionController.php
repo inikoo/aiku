@@ -39,7 +39,7 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-        Session::put('redirectFromLogin', '1');
+        Session::put('reloadLayout', '1');
 
         /** @var User $user */
         $user   = auth()->user();

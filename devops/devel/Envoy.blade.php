@@ -105,7 +105,8 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     echo "tenant-fetch-employees" > step
     cd ../../
     echo "employees and guests"
-    php artisan fetch:employees {{$instance}} -q
+    php artisan fetch:employees {{$instance}} -
+    php artisan fetch:deleted-employees {{$instance}} -q
     php artisan fetch:guests {{$instance}} -q
 @endtask
 
@@ -125,6 +126,10 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     cd ../../
     echo "suppliers"
     php artisan fetch:suppliers {{$instance}} -q
+    php artisan fetch:deleted-suppliers {{$instance}} -q
+    echo "supplier products"
+    php artisan fetch:supplier-products {{$instance}} -q
+    php artisan fetch:deleted-supplier-products {{$instance}} -q
 @endtask
 
 @task('tenant-fetch-inventory')
@@ -138,9 +143,12 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     php artisan fetch:warehouse-areas {{$instance}}  -q
     echo "locations"
     php artisan fetch:locations {{$instance}}  -q
+    php artisan fetch:deleted-locations {{$instance}}  -q
+
     echo "stocks"
     php artisan fetch:stock-families {{$instance}}  -q
     php artisan fetch:stocks {{$instance}}  -q
+    php artisan fetch:deleted-stocks {{$instance}}  -q
 @endtask
 
 @task('tenant-fetch-products')
@@ -176,10 +184,12 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
 @endtask
 
 @task('tenant-fetch-invoices')
-echo "tenant-fetch-invoices" > step
-cd ../../
-echo "orders"
-php artisan fetch:invoices {{$instance}} -q
+    echo "tenant-fetch-invoices" > step
+    cd ../../
+    echo "invoices"
+    php artisan fetch:invoices {{$instance}} -q
+    php artisan fetch:deleted-invoices {{$instance}} -q
+
 @endtask
 
 

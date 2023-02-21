@@ -43,9 +43,12 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $global_id
  * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\HistoricSupplierProduct> $historicRecords
+ * @property-read int|null $historic_records_count
+ * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
  * @method static Builder|SupplierProduct newModelQuery()
  * @method static Builder|SupplierProduct newQuery()
- * @method static \Illuminate\Database\Query\Builder|SupplierProduct onlyTrashed()
+ * @method static Builder|SupplierProduct onlyTrashed()
  * @method static Builder|SupplierProduct query()
  * @method static Builder|SupplierProduct whereCode($value)
  * @method static Builder|SupplierProduct whereComposition($value)
@@ -70,8 +73,8 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|SupplierProduct whereUnitsPerCarton($value)
  * @method static Builder|SupplierProduct whereUnitsPerPack($value)
  * @method static Builder|SupplierProduct whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|SupplierProduct withTrashed()
- * @method static \Illuminate\Database\Query\Builder|SupplierProduct withoutTrashed()
+ * @method static Builder|SupplierProduct withTrashed()
+ * @method static Builder|SupplierProduct withoutTrashed()
  * @mixin \Eloquent
  */
 class SupplierProduct extends Model

@@ -48,16 +48,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $errors
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\HumanResources\JobPosition[] $jobPositions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read int|null $job_positions_count
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection|\Spatie\MediaLibrary\MediaCollections\Models\Media[] $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
  * @property-read User|null $user
- * @method static \Database\Factories\HumanResources\EmployeeFactory factory(...$parameters)
+ * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
+ * @method static Builder|Employee onlyTrashed()
  * @method static Builder|Employee query()
  * @method static Builder|Employee whereCreatedAt($value)
  * @method static Builder|Employee whereData($value)
@@ -85,6 +86,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Employee whereWeekWorkingHours($value)
  * @method static Builder|Employee whereWorkerNumber($value)
  * @method static Builder|Employee whereWorkingHours($value)
+ * @method static Builder|Employee withTrashed()
+ * @method static Builder|Employee withoutTrashed()
  * @mixin \Eloquent
  */
 class Employee extends Model implements HasMedia

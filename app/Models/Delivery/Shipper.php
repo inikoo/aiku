@@ -35,9 +35,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\Shipment> $shipments
+ * @property-read int|null $shipments_count
  * @method static Builder|Shipper newModelQuery()
  * @method static Builder|Shipper newQuery()
- * @method static \Illuminate\Database\Query\Builder|Shipper onlyTrashed()
+ * @method static Builder|Shipper onlyTrashed()
  * @method static Builder|Shipper query()
  * @method static Builder|Shipper whereApiShipper($value)
  * @method static Builder|Shipper whereCode($value)
@@ -56,8 +58,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Shipper whereTrackingUrl($value)
  * @method static Builder|Shipper whereUpdatedAt($value)
  * @method static Builder|Shipper whereWebsite($value)
- * @method static \Illuminate\Database\Query\Builder|Shipper withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Shipper withoutTrashed()
+ * @method static Builder|Shipper withTrashed()
+ * @method static Builder|Shipper withoutTrashed()
  * @mixin \Eloquent
  */
 class Shipper extends Model

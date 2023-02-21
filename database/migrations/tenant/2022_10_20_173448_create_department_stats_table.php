@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->unsignedSmallInteger('department_id')->index();
             $table->foreign('department_id')->references('id')->on('departments');
 
+            $table->unsignedBigInteger('number_sub_departments')->default(0);
 
             $table->unsignedBigInteger('number_families')->default(0);
             $familyStates = ['in-process', 'active', 'discontinuing', 'discontinued'];

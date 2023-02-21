@@ -33,11 +33,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection|Stock[] $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read int|null $stocks_count
  * @method static Builder|TradeUnit newModelQuery()
  * @method static Builder|TradeUnit newQuery()
- * @method static \Illuminate\Database\Query\Builder|TradeUnit onlyTrashed()
+ * @method static Builder|TradeUnit onlyTrashed()
  * @method static Builder|TradeUnit query()
  * @method static Builder|TradeUnit whereBarcode($value)
  * @method static Builder|TradeUnit whereCode($value)
@@ -54,8 +54,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|TradeUnit whereType($value)
  * @method static Builder|TradeUnit whereUpdatedAt($value)
  * @method static Builder|TradeUnit whereWeight($value)
- * @method static \Illuminate\Database\Query\Builder|TradeUnit withTrashed()
- * @method static \Illuminate\Database\Query\Builder|TradeUnit withoutTrashed()
+ * @method static Builder|TradeUnit withTrashed()
+ * @method static Builder|TradeUnit withoutTrashed()
  * @mixin \Eloquent
  */
 class TradeUnit extends Model

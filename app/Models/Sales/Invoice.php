@@ -43,20 +43,21 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
+ * @property-read int|null $addresses_count
  * @property-read \App\Models\Sales\Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\InvoiceTransaction[] $invoiceTransactions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\InvoiceTransaction> $invoiceTransactions
  * @property-read int|null $invoice_transactions_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Order[] $order
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $order
  * @property-read int|null $order_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sales\Order[] $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
  * @property-read int|null $orders_count
  * @property-read Shop $shop
  * @property-read \App\Models\Sales\InvoiceStats|null $stats
  * @method static Builder|Invoice newModelQuery()
  * @method static Builder|Invoice newQuery()
- * @method static \Illuminate\Database\Query\Builder|Invoice onlyTrashed()
+ * @method static Builder|Invoice onlyTrashed()
  * @method static Builder|Invoice query()
- * @method static Builder|Invoice whereBillingAddressId($value)
  * @method static Builder|Invoice whereCreatedAt($value)
  * @method static Builder|Invoice whereCurrencyId($value)
  * @method static Builder|Invoice whereCustomerId($value)
@@ -75,8 +76,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Invoice whereTotal($value)
  * @method static Builder|Invoice whereType($value)
  * @method static Builder|Invoice whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|Invoice withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Invoice withoutTrashed()
+ * @method static Builder|Invoice withTrashed()
+ * @method static Builder|Invoice withoutTrashed()
  * @mixin \Eloquent
  */
 class Invoice extends Model

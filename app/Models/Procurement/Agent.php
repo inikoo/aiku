@@ -48,17 +48,15 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property string|null $global_id
  * @property int|null $source_id
  * @property int|null $source_agent_id
- * @property-read Address|null $address
- * @property-read \Illuminate\Database\Eloquent\Collection|Address[] $addresses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read int|null $addresses_count
- * @property-read string $formatted_address
  * @property-read Model|\Eloquent $owner
  * @property-read \App\Models\Procurement\AgentStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Procurement\Supplier[] $suppliers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\Supplier> $suppliers
  * @property-read int|null $suppliers_count
  * @method static Builder|Agent newModelQuery()
  * @method static Builder|Agent newQuery()
- * @method static \Illuminate\Database\Query\Builder|Agent onlyTrashed()
+ * @method static Builder|Agent onlyTrashed()
  * @method static Builder|Agent query()
  * @method static Builder|Agent whereAddressId($value)
  * @method static Builder|Agent whereCode($value)
@@ -84,8 +82,8 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Agent whereTenantData($value)
  * @method static Builder|Agent whereType($value)
  * @method static Builder|Agent whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|Agent withTrashed()
- * @method static \Illuminate\Database\Query\Builder|Agent withoutTrashed()
+ * @method static Builder|Agent withTrashed()
+ * @method static Builder|Agent withoutTrashed()
  * @mixin \Eloquent
  */
 class Agent extends Model

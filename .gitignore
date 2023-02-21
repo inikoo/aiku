@@ -26,7 +26,5 @@ tt
 ctt
 deploy.sh
 staging-deploy.sh
-fetch.sh
 prod-diff.sh
-ide-helper.sh
 /public/tenants/

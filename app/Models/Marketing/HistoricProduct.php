@@ -33,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\HistoricProductStats|null $stats
  * @method static Builder|HistoricProduct newModelQuery()
  * @method static Builder|HistoricProduct newQuery()
- * @method static \Illuminate\Database\Query\Builder|HistoricProduct onlyTrashed()
+ * @method static Builder|HistoricProduct onlyTrashed()
  * @method static Builder|HistoricProduct query()
  * @method static Builder|HistoricProduct whereCode($value)
  * @method static Builder|HistoricProduct whereCreatedAt($value)
@@ -46,8 +46,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|HistoricProduct whereSourceId($value)
  * @method static Builder|HistoricProduct whereStatus($value)
  * @method static Builder|HistoricProduct whereUnits($value)
- * @method static \Illuminate\Database\Query\Builder|HistoricProduct withTrashed()
- * @method static \Illuminate\Database\Query\Builder|HistoricProduct withoutTrashed()
+ * @method static Builder|HistoricProduct withTrashed()
+ * @method static Builder|HistoricProduct withoutTrashed()
  * @mixin \Eloquent
  */
 class HistoricProduct extends Model
