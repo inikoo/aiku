@@ -116,11 +116,7 @@ class WebUser extends Authenticatable
                 HydrateCustomer::make()->webUsers($webUser->customer);
             }
         );
-        static::deleted(
-            function (WebUser $webUser) {
-                HydrateCustomer::make()->webUsers($webUser->customer);
-            }
-        );
+
 
         static::updated(function (WebUser $webUser) {
             if ($webUser->wasChanged('status')) {

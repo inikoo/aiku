@@ -7,15 +7,38 @@
 
 namespace App\Actions\Dropshipping\CustomerClient;
 
+use App\Actions\Sales\Customer\HydrateCustomer;
+use App\Actions\WithActionUpdate;
 use App\Models\Dropshipping\CustomerClient;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Console\Command;
 
 class DeleteCustomerClient
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(CustomerClient $customerClient): ?bool
+    public string $commandSignature = 'delete:customer-client {tenant} {id}';
+
+    public function handle(CustomerClient $customerClient, array $deletedData=[], bool $skipHydrate = false): CustomerClient
     {
-        return $customerClient->delete();
+
+        $customerClient->delete();
+        $customerClient=$this->update($customerClient,$deletedData,['data']);
+        if (!$skipHydrate) {
+            HydrateCustomer::make()->clients($customerClient->customer);
+        }
+        return $customerClient;
+    }
+
+    /**
+     * @throws \Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById
+     */
+    public function asCommand(Command $command): int
+    {
+        $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();
+        tenancy()->initialize($tenant);
+
+        $this->handle(CustomerClient::findOrFail($command->argument('id')));
+
+        return 0;
     }
 }

@@ -22,10 +22,10 @@ class HydrateStockFamily extends HydrateModel
 
     public function handle(StockFamily $stockFamily): void
     {
-        $this->productsStats($stockFamily);
+        $this->stocksStats($stockFamily);
     }
 
-    public function productsStats(StockFamily $stockFamily)
+    public function stocksStats(StockFamily $stockFamily)
     {
         $stockStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Stock::where('stock_family_id', $stockFamily->id)

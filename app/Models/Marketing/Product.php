@@ -125,14 +125,7 @@ class Product extends Model
                 HydrateShop::make()->productStats($product->shop);
             }
         );
-        static::deleted(
-            function (Product $product) {
-                if($product->family_id){
-                    HydrateFamily::make()->productsStats($product->family);
-                }
-                HydrateShop::make()->productStats($product->shop);
-            }
-        );
+
     }
 
     public function family(): BelongsTo

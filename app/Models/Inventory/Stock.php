@@ -135,18 +135,11 @@ class Stock extends Model
             function (Stock $stock) {
                 HydrateTenant::make()->inventoryStats();
                 if($stock->stock_family_id){
-                    HydrateStockFamily::make()->productsStats($stock->stockFamily);
+                    HydrateStockFamily::make()->stocksStats($stock->stockFamily);
                 }
             }
         );
-        static::deleted(
-            function (Stock $stock) {
-                HydrateTenant::make()->inventoryStats();
-                if($stock->stock_family_id){
-                    HydrateStockFamily::make()->productsStats($stock->stockFamily);
-                }
-            }
-        );
+
 
     }
 

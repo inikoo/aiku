@@ -21,8 +21,7 @@ class UpdateOrder
         array $modelData
     ): Order {
 
-        $order->update(Arr::except($modelData, ['data']));
-        $order->update($this->extractJson($modelData));
+
 
         return $this->update($order, $modelData, ['data']);
     }

@@ -39,7 +39,7 @@ return new class extends Migration {
             $table->dateTimeTz('sent_warehouse_at')->nullable();
             $table->dateTimeTz('ready_to_dispatch_at')->nullable();
             $table->timestampsTz();
-            $table->softDeletesTz();
+            $table->dateTimeTz('cancelled_at')->nullable()->comment('equivalent deleted_at');
         });
     }
 

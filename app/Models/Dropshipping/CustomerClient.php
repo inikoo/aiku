@@ -115,11 +115,6 @@ class CustomerClient extends Model
                 HydrateCustomer::make()->clients($customerClient->customer);
             }
         );
-        static::deleted(
-            function (CustomerClient $customerClient) {
-                HydrateCustomer::make()->clients($customerClient->customer);
-            }
-        );
 
         static::updated(function (CustomerClient $customerClient) {
             if ($customerClient->wasChanged('status')) {

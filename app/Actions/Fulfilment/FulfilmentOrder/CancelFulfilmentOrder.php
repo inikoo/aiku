@@ -1,0 +1,43 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 22 Feb 2023 13:09:17 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Fulfilment\FulfilmentOrder;
+
+use App\Actions\WithActionUpdate;
+use App\Models\Fulfilment\FulfilmentOrder;
+use Illuminate\Console\Command;
+
+class CancelFulfilmentOrder
+{
+    use WithActionUpdate;
+
+    public string $commandSignature = 'cancel:fulfilment-order {tenant} {id}';
+
+    public function handle(FulfilmentOrder $fulfilmentOrder, array $deletedData = [], bool $skipHydrate = false): FulfilmentOrder
+    {
+        $fulfilmentOrder->delete();
+
+        $fulfilmentOrder = $this->update($fulfilmentOrder, $deletedData, ['data']);
+        $fulfilmentOrder->items()->delete();
+
+
+        return $fulfilmentOrder;
+    }
+
+    /**
+     * @throws \Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById
+     */
+    public function asCommand(Command $command): int
+    {
+        $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();
+        tenancy()->initialize($tenant);
+
+        $this->handle(FulfilmentOrder::findOrFail($command->argument('id')));
+
+        return 0;
+    }
+}
