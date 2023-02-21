@@ -29,6 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property int|null $shop_id
  * @property int|null $department_id
+ * @property int|null $root_department_id
  * @property string|null $state
  * @property string|null $name
  * @property string|null $description
@@ -56,6 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Family whereDescription($value)
  * @method static Builder|Family whereId($value)
  * @method static Builder|Family whereName($value)
+ * @method static Builder|Family whereRootDepartmentId($value)
  * @method static Builder|Family whereShopId($value)
  * @method static Builder|Family whereSlug($value)
  * @method static Builder|Family whereSourceId($value)

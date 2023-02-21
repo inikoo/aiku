@@ -15,4 +15,5 @@ php artisan ide-helper:models -Wr 'App\Models\Central\User'
 php artisan ide-helper:models -Wr 'App\Models\Central\Admin'
 php artisan ide-helper:models -Wr 'App\Models\Central\AdminUser'
 php artisan ide-helper:models -Wr 'App\Models\Central\Deployment'
+php artisan ide-helper:models -Wr 'App\Models\Central\TenantMarketingStats'
 

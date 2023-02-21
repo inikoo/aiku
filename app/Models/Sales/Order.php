@@ -30,6 +30,13 @@ use Spatie\Sluggable\HasSlug;
  * @property string|null $customer_number Customers own order number
  * @property string|null $type
  * @property string $state
+ * @property string $date
+ * @property string|null $submitted_at
+ * @property string|null $in_warehouse_at
+ * @property string|null $packed_at
+ * @property string|null $finalised_at
+ * @property string|null $dispatched_at
+ * @property string|null $cancelled_at
  * @property bool $is_invoiced
  * @property bool|null $is_picking_on_hold
  * @property bool|null $can_dispatch
@@ -44,7 +51,7 @@ use Spatie\Sluggable\HasSlug;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $cancelled_at equivalent deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read int|null $addresses_count
@@ -70,19 +77,26 @@ use Spatie\Sluggable\HasSlug;
  * @method static Builder|Order whereCustomerId($value)
  * @method static Builder|Order whereCustomerNumber($value)
  * @method static Builder|Order whereData($value)
+ * @method static Builder|Order whereDate($value)
+ * @method static Builder|Order whereDeletedAt($value)
+ * @method static Builder|Order whereDispatchedAt($value)
  * @method static Builder|Order whereExchange($value)
+ * @method static Builder|Order whereFinalisedAt($value)
  * @method static Builder|Order whereId($value)
+ * @method static Builder|Order whereInWarehouseAt($value)
  * @method static Builder|Order whereIsInvoiced($value)
  * @method static Builder|Order whereIsPickingOnHold($value)
  * @method static Builder|Order whereItemsDiscounts($value)
  * @method static Builder|Order whereItemsNet($value)
  * @method static Builder|Order whereNet($value)
  * @method static Builder|Order whereNumber($value)
+ * @method static Builder|Order wherePackedAt($value)
  * @method static Builder|Order whereShipping($value)
  * @method static Builder|Order whereShopId($value)
  * @method static Builder|Order whereSlug($value)
  * @method static Builder|Order whereSourceId($value)
  * @method static Builder|Order whereState($value)
+ * @method static Builder|Order whereSubmittedAt($value)
  * @method static Builder|Order whereTax($value)
  * @method static Builder|Order whereType($value)
  * @method static Builder|Order whereUpdatedAt($value)

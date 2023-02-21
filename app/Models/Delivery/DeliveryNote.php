@@ -50,10 +50,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $packed_at
  * @property string|null $finalised_at
  * @property \Illuminate\Support\Carbon|null $dispatched_at
- * @property \Illuminate\Support\Carbon|null $cancelled_at equivalent to deleted_at
+ * @property \Illuminate\Support\Carbon|null $cancelled_at
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read int|null $addresses_count
@@ -76,6 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|DeliveryNote whereCustomerId($value)
  * @method static Builder|DeliveryNote whereData($value)
  * @method static Builder|DeliveryNote whereDate($value)
+ * @method static Builder|DeliveryNote whereDeletedAt($value)
  * @method static Builder|DeliveryNote whereDispatchedAt($value)
  * @method static Builder|DeliveryNote whereEmail($value)
  * @method static Builder|DeliveryNote whereFinalisedAt($value)

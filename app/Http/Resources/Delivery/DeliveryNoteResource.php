@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 22 Feb 2023 12:20:38 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 22 Feb 2023 22:40:34 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Http\Resources\Marketing;
+namespace App\Http\Resources\Delivery;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,10 +19,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $shop_slug
  * @property string $date
  * @property string $number
-
  *
  */
-class OrderResource extends JsonResource
+class DeliveryNoteResource extends JsonResource
 {
     public function toArray($request): array
     {
@@ -30,11 +29,10 @@ class OrderResource extends JsonResource
             'slug' => $this->slug,
             'number' => $this->number,
             'date' => $this->date,
-            'name' => $this->name,
             'state' => $this->state,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'shop_slug' => $this->shop_slug,
+            'shop_slug' => $this->shop_slug
         ];
     }
 }

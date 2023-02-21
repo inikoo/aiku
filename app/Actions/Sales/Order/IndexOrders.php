@@ -9,15 +9,10 @@ namespace App\Actions\Sales\Order;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
-use App\Http\Resources\Marketing\DepartmentResource;
-use App\Http\Resources\Marketing\OrderResource;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\InertiaTableCustomerResource;
+use App\Http\Resources\Sales\OrderResource;
 use App\Models\Central\Tenant;
-use App\Models\Marketing\Department;
-use App\Models\Marketing\Order;
 use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\Models\Sales\Order;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

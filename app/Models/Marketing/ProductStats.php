@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Marketing\Product $product
- * @property int $number_products
  * @method static Builder|ProductStats newModelQuery()
  * @method static Builder|ProductStats newQuery()
  * @method static Builder|ProductStats query()

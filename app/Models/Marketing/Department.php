@@ -27,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $code
  * @property int|null $shop_id
+ * @property int|null $department_id
  * @property string|null $state
  * @property string|null $name
  * @property string|null $description
@@ -51,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereData($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Department whereDepartmentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Department whereName($value)

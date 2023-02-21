@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $department_id
+ * @property int $number_sub_departments
  * @property int $number_families
  * @property int $number_families_state_in_process
  * @property int $number_families_state_active
@@ -45,6 +46,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateDiscontinued($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateDiscontinuing($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateInProcess($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberSubDepartments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */

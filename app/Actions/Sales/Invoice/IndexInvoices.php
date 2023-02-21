@@ -1,7 +1,7 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 Febr 2023 17:54:17 Malaga, Spain
+ *  Created: Mon, 21 February 2023 17:54:17 Malaga, Spain
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
@@ -9,15 +9,10 @@ namespace App\Actions\Sales\Invoice;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
-use App\Http\Resources\Marketing\DepartmentResource;
-use App\Http\Resources\Marketing\InvoiceResource;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\InertiaTableCustomerResource;
+use App\Http\Resources\Sales\InvoiceResource;
 use App\Models\Central\Tenant;
-use App\Models\Marketing\Department;
-use App\Models\Marketing\Invoice;
 use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\Models\Sales\Invoice;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

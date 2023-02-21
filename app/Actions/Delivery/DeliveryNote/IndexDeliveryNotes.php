@@ -9,15 +9,10 @@ namespace App\Actions\Delivery\DeliveryNote;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
-use App\Http\Resources\Marketing\DeliveryNoteResource;
-use App\Http\Resources\Marketing\DepartmentResource;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\InertiaTableCustomerResource;
+use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Central\Tenant;
-use App\Models\Marketing\DeliveryNote;
-use App\Models\Marketing\Department;
+use App\Models\Delivery\DeliveryNote;
 use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
