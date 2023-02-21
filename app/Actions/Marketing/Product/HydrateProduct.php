@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Product;
 
+
 use App\Actions\HydrateModel;
 use App\Models\Marketing\Product;
 use Illuminate\Support\Collection;

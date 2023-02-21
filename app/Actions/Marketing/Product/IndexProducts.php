@@ -5,17 +5,19 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Family;
+namespace App\Actions\Marketing\Product;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Http\Resources\Marketing\FamilyResource;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\InertiaTableCustomerResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Family;
+use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -28,7 +30,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 
-class IndexFamilies extends InertiaAction
+class IndexProducts extends InertiaAction
 {
     private Shop|Tenant $parent;
 
@@ -38,20 +40,20 @@ class IndexFamilies extends InertiaAction
             $query->where(function ($query) use ($value) {
 
 
-                $query->where('families.name', '~*', "\y$value\y")
-                    ->orWhere('families.code', '=', $value);
+                $query->where('products.name', '~*', "\y$value\y")
+                    ->orWhere('products.code', '=', $value);
             });
         });
 
 
-        return QueryBuilder::for(Family::class)
-            ->defaultSort('families.code')
-            ->select(['families.code', 'families.name', 'families.state', 'families.created_at', 'families.updated_at', 'families.slug', 'shops.slug as shop_slug'])
-            ->leftJoin('family_stats', 'families.id', 'family_stats.family_id')
-            ->leftJoin('shops', 'families.shop_id', 'shops.id')
+        return QueryBuilder::for(Product::class)
+            ->defaultSort('products.code')
+            ->select(['products.code', 'products.name', 'products.state', 'products.created_at', 'products.updated_at', 'products.slug', 'shops.slug as shop_slug'])
+            ->leftJoin('product_stats', 'products.id', 'product_stats.product_id')
+            ->leftJoin('shops', 'products.shop_id', 'shops.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Shop') {
-                    $query->where('families.shop_id', $this->parent->id);
+                    $query->where('products.shop_id', $this->parent->id);
                 }
             })
             ->allowedSorts(['code', 'name'])
@@ -72,21 +74,21 @@ class IndexFamilies extends InertiaAction
 
     public function jsonResponse(): AnonymousResourceCollection
     {
-        return FamilyResource::collection($this->handle());
+        return ProductResource::collection($this->handle());
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $families)
+    public function htmlResponse(LengthAwarePaginator $products)
     {
         return Inertia::render(
-            'Marketing/Family',
+            'Marketing/Products',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('families'),
+                'title' => __('products'),
                 'pageHead' => [
-                    'title' => __('families'),
+                    'title' => __('products'),
                 ],
-                'families' => FamilyResource::collection($families),
+                'products' => ProductResource::collection($products),
 
 
             ]
@@ -128,15 +130,15 @@ class IndexFamilies extends InertiaAction
                     'route' => $routeName,
                     'routeParameters' => $routeParameters,
                     'modelLabel' => [
-                        'label' => __('families')
+                        'label' => __('products')
                     ]
                 ],
             ];
         };
 
         return match ($routeName) {
-            'families.index' => $headCrumb(),
-            'shops.show.families.index' =>
+            'products.index' => $headCrumb(),
+            'shops.show.products.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])

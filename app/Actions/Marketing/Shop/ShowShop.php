@@ -84,7 +84,7 @@ class ShowShop
                         [
                             'name' => __('products'),
                             'icon' => ['fal', 'fa-cube'],
-                            'href' => ['shops.show.customers.index', $shop->slug],
+                            'href' => ['shops.show.products.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_products
                             ]
