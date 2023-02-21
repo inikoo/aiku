@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Marketing\Department\IndexDepartments;
+use App\Actions\Marketing\Family\IndexFamilies;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Customer\IndexCustomers;
@@ -28,6 +29,12 @@ Route::get('/{shop:slug}/customers/{customer}/create', [CreateWebUser::class, 'i
 Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('show.departments.index');
 //TODO Change ShowCustomer to ShowDepartment
 Route::get('/{shop}/departments/{department}', [ShowCustomer::class, 'inShop'])->name('show.departments.show');
+
+Route::get('/{shop}/families', [IndexFamilies::class, 'inShop'])->name('show.families.index');
+
+Route::get('/{shop}/families/{family}', [ShowCustomer::class, 'inShop'])->name('show.families.show');
+
+
 
 
 
