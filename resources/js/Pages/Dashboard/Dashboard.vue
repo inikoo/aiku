@@ -138,8 +138,6 @@ import {
     MenuButton,
     MenuItem,
     MenuItems,
-    TransitionChild,
-    TransitionRoot,
 } from '@headlessui/vue'
 
 const projects = [

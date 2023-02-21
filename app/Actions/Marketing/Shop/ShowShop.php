@@ -45,25 +45,51 @@ class ShowShop
         return Inertia::render(
             'Marketing/Shop',
             [
-                'title'       => __('shop'),
+                'title' => __('shop'),
                 'breadcrumbs' => $this->getBreadcrumbs($shop),
-                'pageHead'    => [
+                'pageHead' => [
                     'title' => $shop->name,
 
 
                 ],
-                'shop'        => new ShopResource($shop),
-                'treeMaps'    => [
+                'shop' => new ShopResource($shop),
+                'treeMaps' => [
                     [
                         [
-                            'name'  => __('customers'),
-                            'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['shops.show.customers.index', $shop->slug],
+                            'name' => __('customers'),
+                            'icon' => ['fal', 'fa-user'],
+                            'href' => ['shops.show.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_customers
                             ]
-                        ]
+                        ],
                     ],
+                    [
+                        [
+                            'name' => __('departments'),
+                            'icon' => ['fal', 'fa-folder-tree'],
+                            'href' => ['shops.show.departments.index', $shop->slug],
+                            'index' => [
+                                'number' => $shop->stats->number_departments
+                            ]
+                        ],
+                        [
+                            'name' => __('family'),
+                            'icon' => ['fal', 'fa-user'],
+                            'href' => ['shops.show.customers.index', $shop->slug],
+                            'index' => [
+                                'number' => $shop->stats->number_families
+                            ]
+                        ],
+                        [
+                            'name' => __('products'),
+                            'icon' => ['fal', 'fa-user'],
+                            'href' => ['shops.show.customers.index', $shop->slug],
+                            'index' => [
+                                'number' => $shop->stats->number_products
+                            ]
+                        ]
+                    ]
                 ]
             ]
         );
@@ -89,14 +115,14 @@ class ShowShop
             (new IndexShops())->getBreadcrumbs(),
             [
                 'shops.show' => [
-                    'route'           => 'shops.show',
+                    'route' => 'shops.show',
                     'routeParameters' => $shop->id,
-                    'name'            => $shop->code,
-                    'index'           => [
-                        'route'   => 'shops.index',
+                    'name' => $shop->code,
+                    'index' => [
+                        'route' => 'shops.index',
                         'overlay' => __('Shops list')
                     ],
-                    'modelLabel'      => [
+                    'modelLabel' => [
                         'label' => __('shop')
                     ],
                 ],

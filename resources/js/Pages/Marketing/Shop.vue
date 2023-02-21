@@ -7,13 +7,13 @@
 <script setup>
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faIdCard, faUser} from '@/../private/pro-light-svg-icons';
+import { faFolderTree, faIdCard, faUser } from "@/../private/pro-light-svg-icons";
 import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
 
-library.add(faIdCard, faUser, faCheckCircle);
+library.add(faIdCard, faUser, faCheckCircle, faFolderTree);
 
 const props = defineProps(['title', 'pageHead', 'shop', 'treeMaps']);
 

@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Actions\Marketing\Department\IndexDepartments;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Customer\IndexCustomers;
@@ -23,6 +24,10 @@ Route::get('/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::cla
 
 
 Route::get('/{shop:slug}/customers/{customer}/create', [CreateWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.create');
+
+Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('show.departments.index');
+//TODO Change ShowCustomer to ShowDepartment
+Route::get('/{shop}/departments/{department}', [ShowCustomer::class, 'inShop'])->name('show.departments.show');
 
 
 
