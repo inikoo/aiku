@@ -3,6 +3,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use App\Models\Sales\Customer;
@@ -31,7 +32,10 @@ class FetchDeletedCustomers extends FetchAction
                     }
 
                 } else {
-                    $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['addresses']);
+                    $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['contact_address']);
+                    if (!empty($customerData['delivery_address'])) {
+                        StoreAddressAttachToModel::run($customer, $customerData['delivery_address'], ['scope' => 'delivery']);
+                    }
                 }
 
                 DB::connection('aurora')->table('Customer Deleted Dimension')

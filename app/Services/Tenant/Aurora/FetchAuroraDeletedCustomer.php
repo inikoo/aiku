@@ -18,7 +18,7 @@ class FetchAuroraDeletedCustomer extends FetchAurora
     {
         $this->parsedData['customer'] = null;
         if (!$this->auroraModelData->{'Customer Deleted Metadata'}) {
-            $auroraDeletedData=new stdClass();
+            $auroraDeletedData = new stdClass();
         } else {
             $auroraDeletedData = json_decode(gzuncompress($this->auroraModelData->{'Customer Deleted Metadata'}));
         }
@@ -85,21 +85,16 @@ class FetchAuroraDeletedCustomer extends FetchAurora
             $auroraDeletedData = $this->fixAddress(prefix: 'Customer Delivery', data: $auroraDeletedData);
         }
 
-        $addresses = [];
-
 
         $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $auroraDeletedData);
         $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $auroraDeletedData);
 
-        $addresses['billing'] = [
-            $billingAddress
-        ];
+        $this->parsedData['contact_address'] = $billingAddress;
+
+
         if ($billingAddress != $deliveryAddress) {
-            $addresses['delivery'] = [
-                $deliveryAddress
-            ];
+            $this->parsedData['delivery_address'] = $deliveryAddress;
         }
-        $this->parsedData['addresses'] = $addresses;
     }
 
 
