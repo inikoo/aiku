@@ -13,7 +13,7 @@ import {
     faFolder,
     faFolderTree,
     faIdCard,
-    faShoppingCart,
+    faShoppingCart, faStickyNote,
     faUser
 } from "@/../private/pro-light-svg-icons";
 import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
@@ -21,7 +21,7 @@ import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
 
-library.add(faIdCard, faUser, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice);
+library.add(faIdCard, faUser, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice, faStickyNote);
 
 const props = defineProps(['title', 'pageHead', 'shop', 'treeMaps']);
 

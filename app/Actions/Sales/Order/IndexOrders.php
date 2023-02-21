@@ -1,21 +1,21 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 Febr 2023 17:54:17 Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Wed, 22 Feb 2023 12:20:38 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Sales\Invoice;
+namespace App\Actions\Sales\Order;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Marketing\DepartmentResource;
-use App\Http\Resources\Marketing\InvoiceResource;
+use App\Http\Resources\Marketing\OrderResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\InertiaTableCustomerResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
-use App\Models\Marketing\Invoice;
+use App\Models\Marketing\Order;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 
-class IndexInvoices extends InertiaAction
+class IndexOrders extends InertiaAction
 {
     private Shop|Tenant $parent;
 
@@ -38,24 +38,23 @@ class IndexInvoices extends InertiaAction
             $query->where(function ($query) use ($value) {
 
 
-                $query->where('invoices.number', '~*', "\y$value\y")
-                    ->orWhere('invoices.total', '=', $value)
-                    ->orWhere('invoices.net', '=', $value);
+                $query->where('orders.number', '~*', "\y$value\y")
+                    ->orWhere('orders.date', '=', $value);
             });
         });
 
 
-        return QueryBuilder::for(Invoice::class)
-            ->defaultSort('invoices.number')
-            ->select(['invoices.number', 'invoices.total','invoices.net', 'invoices.created_at', 'invoices.updated_at', 'invoices.slug', 'shops.slug as shop_slug'])
-            ->leftJoin('invoice_stats', 'invoices.id', 'invoice_stats.invoice_id')
-            ->leftJoin('shops', 'invoices.shop_id', 'shops.id')
+        return QueryBuilder::for(Order::class)
+            ->defaultSort('orders.number')
+            ->select(['orders.number', 'orders.date', 'orders.state', 'orders.created_at', 'orders.updated_at', 'orders.slug', 'shops.slug as shop_slug'])
+            ->leftJoin('order_stats', 'orders.id', 'order_stats.order_id')
+            ->leftJoin('shops', 'orders.shop_id', 'shops.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Shop') {
-                    $query->where('invoices.shop_id', $this->parent->id);
+                    $query->where('orders.shop_id', $this->parent->id);
                 }
             })
-            ->allowedSorts(['number', 'total', 'net'])
+            ->allowedSorts(['number', 'date'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -73,21 +72,21 @@ class IndexInvoices extends InertiaAction
 
     public function jsonResponse(): AnonymousResourceCollection
     {
-        return InvoiceResource::collection($this->handle());
+        return OrderResource::collection($this->handle());
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $invoices)
+    public function htmlResponse(LengthAwarePaginator $orders)
     {
         return Inertia::render(
-            'Marketing/Invoices',
+            'Marketing/Orders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('invoices'),
+                'title' => __('orders'),
                 'pageHead' => [
-                    'title' => __('invoices'),
+                    'title' => __('orders'),
                 ],
-                'invoices' => InvoiceResource::collection($invoices),
+                'orders' => OrderResource::collection($orders),
 
 
             ]
@@ -99,10 +98,7 @@ class IndexInvoices extends InertiaAction
             $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
 
 
-            $table->column(key: 'total', label: __('total'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'net', label: __('net'), canBeHidden: false, sortable: true, searchable: true);
-
+            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         });
     }
 
@@ -132,15 +128,15 @@ class IndexInvoices extends InertiaAction
                     'route' => $routeName,
                     'routeParameters' => $routeParameters,
                     'modelLabel' => [
-                        'label' => __('invoices')
+                        'label' => __('orders')
                     ]
                 ],
             ];
         };
 
         return match ($routeName) {
-            'invoices.index' => $headCrumb(),
-            'shops.show.invoices.index' =>
+            'orders.index' => $headCrumb(),
+            'shops.show.orders.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])
