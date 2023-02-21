@@ -29,6 +29,12 @@ return [
     'shops.customers.view',
     'shops.customers.edit',
 
+
+
+    'accounting',
+    'accounting.view',
+    'accounting.edit',
+
     'shops.websites',
     'shops.websites.view',
     'shops.websites.edit',

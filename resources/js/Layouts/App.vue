@@ -36,7 +36,8 @@ import {
     faUser,
     faIndustry,
     faParachuteBox,
-    faDollyEmpty
+    faDollyEmpty,
+    faShoppingCart
 } from '@/../private/pro-light-svg-icons';
 
 library.add(
@@ -53,7 +54,8 @@ library.add(
             faUser,
             faIndustry,
             faParachuteBox,
-            faDollyEmpty
+            faDollyEmpty,
+            faShoppingCart
 );
 
 
