@@ -78,6 +78,11 @@ class Family extends Model
         'data' => '{}',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected $guarded = [];
 
     protected static function booted()
