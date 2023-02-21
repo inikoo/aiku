@@ -42,9 +42,12 @@ class FetchFromStack
             switch ($jobData->model) {
                 case 'Customer':
                     $res = FetchCustomers::run($tenantSource, $jobData->model_id);
-                    if(!$res){
-                        $res=FetchDeletedCustomers::run($tenantSource, $jobData->model_id);
+                    if (!$res) {
+                        $res = FetchDeletedCustomers::run($tenantSource, $jobData->model_id);
                     }
+                    break;
+                case 'delete_customer':
+                    $res = DeleteCustomerFromAurora::run($tenantSource, $jobData->model_id);
                     break;
                 case 'CustomerClient':
                     $res = FetchCustomerClients::run($tenantSource, $jobData->model_id);
@@ -74,6 +77,8 @@ class FetchFromStack
                 case 'delete_invoice':
                     $res = DeleteInvoiceFromAurora::run($tenantSource, $jobData->model_id);
                     break;
+
+
                 case 'delete_delivery_note':
                     $res = true;
                     if ($deliveryNote = DeliveryNote::where('source_id', $jobData->model_id)->first()) {

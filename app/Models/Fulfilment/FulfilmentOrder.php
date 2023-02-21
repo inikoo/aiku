@@ -72,6 +72,8 @@ class FulfilmentOrder extends Model
     use HasSlug;
     use SoftDeletes;
 
+
+
     protected $casts = [
         'data' => 'array'
     ];

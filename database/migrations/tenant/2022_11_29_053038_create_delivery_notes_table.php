@@ -70,11 +70,12 @@ return new class extends Migration {
             $table->dateTimeTz('finalised_at')->nullable();
             $table->dateTimeTz('dispatched_at')->nullable();
 
-            $table->dateTimeTz('cancelled_at')->nullable()->comment('equivalent to deleted_at');
+            $table->dateTimeTz('cancelled_at')->nullable();
 
 
             $table->jsonb('data');
             $table->timestampsTz();
+            $table->softDeletesTz();
             $table->unsignedBigInteger('source_id')->nullable()->unique();
         });
     }

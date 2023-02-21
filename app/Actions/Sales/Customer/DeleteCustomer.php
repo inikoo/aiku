@@ -8,19 +8,20 @@
 namespace App\Actions\Sales\Customer;
 
 use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
-use App\Actions\Fulfilment\FulfilmentOrder\CancelFulfilmentOrder;
+use App\Actions\Fulfilment\FulfilmentOrder\DeleteFulfilmentOrder;
 use App\Actions\Inventory\Stock\DeleteStock;
 use App\Actions\Marketing\Product\DeleteProduct;
-use App\Actions\Sales\Order\CancelOrder;
+use App\Actions\Marketing\Shop\HydrateShop;
+use App\Actions\Sales\Order\DeleteOrder;
 use App\Actions\Web\WebUser\DeleteWebUser;
+use App\Actions\WithActionUpdate;
 use App\Models\Sales\Customer;
 use Illuminate\Console\Command;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 
 class DeleteCustomer
 {
-    use AsAction;
+    use WithActionUpdate;
 
     public string $commandSignature = 'delete:customer {tenant} {id}';
 
@@ -37,7 +38,7 @@ class DeleteCustomer
         ];
     }
 
-    public function handle(Customer $customer): bool
+    public function handle(Customer $customer, array $deletedData = [], bool $skipHydrate = false): Customer
     {
         $this->deletedDependants = [
             'clients'          => $customer->clients()->count(),
@@ -47,7 +48,7 @@ class DeleteCustomer
             'orders'           => $customer->orders()->count(),
         ];
 
-        $deletedData = [
+        $dependantDeletedData = [
             'data' => [
                 'deleted' => ['cause' => 'deleted_customer']
             ]
@@ -56,7 +57,7 @@ class DeleteCustomer
             DeleteCustomerClient::run(
                 customerClient: $client,
                 skipHydrate:    true,
-                deletedData:    $deletedData
+                deletedData:    $dependantDeletedData
             );
         }
 
@@ -64,31 +65,31 @@ class DeleteCustomer
             DeleteWebUser::run(
                 webUser:     $webUser,
                 skipHydrate: true,
-                deletedData: $deletedData
+                deletedData: $dependantDeletedData
             );
         }
 
         foreach ($customer->orders as $order) {
-            CancelOrder::run(
+            DeleteOrder::run(
                 order:       $order,
                 skipHydrate: true,
-                deletedData:  $deletedData
+                deletedData: $dependantDeletedData
             );
         }
 
         foreach ($customer->fulfilmentOrders as $fulfilmentOrder) {
-            CancelFulfilmentOrder::run(
+            DeleteFulfilmentOrder::run(
                 fulfilmentOrder: $fulfilmentOrder,
                 skipHydrate:     true,
-                deletedData:      $deletedData
+                deletedData:     $dependantDeletedData
             );
         }
 
         foreach ($customer->products as $product) {
             DeleteProduct::run(
-                product:    $product,
+                product:     $product,
                 skipHydrate: true,
-                deletedData:  $deletedData
+                deletedData: $dependantDeletedData
             );
         }
 
@@ -96,12 +97,19 @@ class DeleteCustomer
             DeleteStock::run(
                 stock:       $stock,
                 skipHydrate: true,
-                deletedData:  $deletedData
+                deletedData: $dependantDeletedData
             );
         }
 
 
-        return $customer->delete();
+        $customer->delete();
+        $customer = $this->update($customer, $deletedData, ['data']);
+
+        if (!$skipHydrate) {
+            HydrateShop::make()->customerStats($customer->shop);
+        }
+
+        return $customer;
     }
 
     /**

@@ -109,7 +109,6 @@ class DeliveryNote extends Model
     use SoftDeletes;
     use HasSlug;
     use HasAddress;
-    const DELETED_AT = 'cancelled_at';
 
     protected $casts = [
         'data'               => 'array',

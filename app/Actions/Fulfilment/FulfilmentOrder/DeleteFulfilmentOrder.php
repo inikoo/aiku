@@ -11,7 +11,7 @@ use App\Actions\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentOrder;
 use Illuminate\Console\Command;
 
-class CancelFulfilmentOrder
+class DeleteFulfilmentOrder
 {
     use WithActionUpdate;
 

@@ -15,21 +15,17 @@ class FetchAuroraOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
-
-
         $deliveryData = [];
 
-        if($this->auroraModelData->{'Order For Collection'}=='Yes'){
-            $deliveryData['collection']=true;
-
-        }else{
+        if ($this->auroraModelData->{'Order For Collection'} == 'Yes') {
+            $deliveryData['collection'] = true;
+        } else {
             if ($this->auroraModelData->{'Order Email'}) {
-                $deliveryData['email']=$this->auroraModelData->{'Order Email'};
-        }
-            if ($this->auroraModelData->{'Order Telephone'}) {
-                $deliveryData['phone']=$this->auroraModelData->{'Order Telephone'};
+                $deliveryData['email'] = $this->auroraModelData->{'Order Email'};
             }
-
+            if ($this->auroraModelData->{'Order Telephone'}) {
+                $deliveryData['phone'] = $this->auroraModelData->{'Order Telephone'};
+            }
         }
 
         if ($this->auroraModelData->{'Order State'} == "InBasket") {
@@ -61,6 +57,10 @@ class FetchAuroraOrder extends FetchAurora
         };
 
 
+        $data = [
+            "delivery_data" => $deliveryData
+        ];
+
         $cancelled_at = null;
         if ($this->auroraModelData->{'Order State'} == "Cancelled") {
             $cancelled_at = $this->auroraModelData->{'Order Cancelled Date'};
@@ -72,23 +72,37 @@ class FetchAuroraOrder extends FetchAurora
                 $this->auroraModelData->{'Order Invoiced Date'} != "" or
                 $this->auroraModelData->{'Order Dispatched Date'} != ""
             ) {
-                $state = "finalised";
+                $stateWhenCancelled = "finalised";
             } elseif (
                 $this->auroraModelData->{'Order Packed Date'} != "" or
                 $this->auroraModelData->{'Order Packed Done Date'} != ""
             ) {
-                $state = "packed";
+                $stateWhenCancelled = "packed";
             } elseif (
                 $this->auroraModelData->{'Order Send to Warehouse Date'} != ""
             ) {
-                $state = "in-warehouse";
+                $stateWhenCancelled = "in-warehouse";
             } else {
-                $state = "submitted";
+                $stateWhenCancelled = "submitted";
             }
+
+            $data['cancelled'] = [
+                'state' => $stateWhenCancelled
+            ];
         }
 
 
+
+
         $this->parsedData["order"] = [
+            'date'            => $this->auroraModelData->{'Order Date'},
+            'submitted_at'    => $this->parseDate($this->auroraModelData->{'Order Submitted by Customer Date'}),
+            'in_warehouse_at' => $this->parseDate($this->auroraModelData->{'Order Send to Warehouse Date'}),
+            'packed_at'       => $this->parseDate($this->auroraModelData->{'Order Packed Date'}),
+            'finalised_at'    => $this->parseDate($this->auroraModelData->{'Order Packed Done Date'}),
+            'dispatched_at'   => $this->parseDate($this->auroraModelData->{'Order Dispatched Date'}),
+
+
             "number"          => $this->auroraModelData->{'Order Public ID'},
             'customer_number' => $this->auroraModelData->{'Order Customer Purchase Order ID'},
             "state"           => $state,
@@ -96,9 +110,7 @@ class FetchAuroraOrder extends FetchAurora
             "exchange"        => $this->auroraModelData->{'Order Currency Exchange'},
             "created_at"      => $this->auroraModelData->{'Order Created Date'},
             "cancelled_at"    => $cancelled_at,
-            "data"=>[
-                "delivery_data"=>$deliveryData
-            ]
+            "data"            => $data
         ];
 
         $deliveryAddressData                  = $this->parseAddress(
@@ -114,8 +126,6 @@ class FetchAuroraOrder extends FetchAurora
             auAddressData: $this->auroraModelData,
         );
         $this->parsedData["billing_address"] = new Address($billingAddressData);
-
-
     }
 
     protected function fetchData($id): object|null

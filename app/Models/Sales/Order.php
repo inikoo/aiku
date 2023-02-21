@@ -96,9 +96,6 @@ class Order extends Model
     use HasSlug;
     use SoftDeletes;
 
-    const DELETED_AT = 'cancelled_at';
-
-
     protected $casts = [
         'data' => 'array'
     ];

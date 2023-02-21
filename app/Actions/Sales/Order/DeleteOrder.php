@@ -12,7 +12,7 @@ use App\Actions\WithActionUpdate;
 use App\Models\Sales\Order;
 use Illuminate\Console\Command;
 
-class CancelOrder
+class DeleteOrder
 {
     use WithActionUpdate;
 

@@ -7,6 +7,7 @@ use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use App\Models\Sales\Customer;
 use App\Services\Tenant\SourceTenantService;
+use Arr;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -24,7 +25,11 @@ class FetchDeletedCustomers extends FetchAction
             if($customerData['customer']) {
                 if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                     ->first()) {
-                    $customer = UpdateCustomer::run($customer, $customerData['customer']);
+
+                    if(Arr::get($customer->data,'deleted.source')=='aurora'){
+                        $customer = UpdateCustomer::run($customer, $customerData['customer']);
+                    }
+
                 } else {
                     $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['addresses']);
                 }

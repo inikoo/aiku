@@ -17,7 +17,6 @@ use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasAddress;
 use App\Models\Web\WebUser;
-use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -136,7 +135,7 @@ class Customer extends Model
     {
         static::creating(
             function (Customer $customer) {
-                $customer->name=$customer->company_name==''?$customer->contact_name:$customer->company_name;
+                $customer->name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
             }
         );
 
@@ -145,18 +144,14 @@ class Customer extends Model
                 HydrateShop::make()->customerStats($customer->shop);
             }
         );
-        static::deleted(
-            function (Customer $customer) {
-                HydrateShop::make()->customerStats($customer->shop);
-            }
-        );
+
 
         static::updated(function (Customer $customer) {
             if ($customer->wasChanged('trade_state')) {
                 HydrateShop::make()->customerNumberInvoicesStats($customer->shop);
             }
-            if ($customer->wasChanged(['company_name','contact_name'])) {
-                $customer->name=$customer->company_name==''?$customer->contact_name:$customer->company_name;
+            if ($customer->wasChanged(['company_name', 'contact_name'])) {
+                $customer->name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
             }
         });
     }

@@ -11,16 +11,14 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Sales\Invoice\DeleteInvoice;
 use App\Models\Sales\Invoice;
 use App\Services\Tenant\SourceTenantService;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class DeleteInvoiceFromAurora extends FetchAction
+class DeleteInvoiceFromAurora
 {
 
-    public string $commandSignature = 'fetch:delete-invoice {tenants?*} {--s|source_id=} ';
+    use AsAction;
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
     {
         if ($invoice = Invoice::withTrashed()->where('source_id', $tenantSourceId)->first()) {
             if (!$invoice->trashed()) {
@@ -39,29 +37,5 @@ class DeleteInvoiceFromAurora extends FetchAction
         return null;
     }
 
-
-    function getModelsQuery(): Builder
-    {
-        $query = DB::connection('aurora')
-            ->table('Invoice Dimension')
-            ->select('Invoice Key as source_id')
-            ->orderBy('Invoice Date');
-
-        if ($this->onlyNew) {
-            $query->whereNull('aiku_id');
-        }
-
-        return $query;
-    }
-
-    function count(): ?int
-    {
-        $query = DB::connection('aurora')->table('Invoice Dimension');
-        if ($this->onlyNew) {
-            $query->whereNull('aiku_id');
-        }
-
-        return $query->count();
-    }
 
 }

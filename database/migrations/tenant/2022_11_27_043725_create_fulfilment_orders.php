@@ -28,7 +28,14 @@ return new class extends Migration {
             $table->foreign('customer_client_id')->references('id')->on('customers');
 
 
-            $table->enum('state', ['submitted', 'in-warehouse', 'finalised', 'dispatched'])->default('submitted')->index();
+            $table->enum('state', ['submitted', 'in-warehouse', 'finalised', 'dispatched','cancelled'])->default('submitted')->index();
+
+            $table->dateTimeTz('submitted_at')->nullable();
+            $table->dateTimeTz('in_warehouse_at')->nullable();
+            $table->dateTimeTz('finalised_at')->nullable();
+            $table->dateTimeTz('dispatched_at')->nullable();
+
+            $table->dateTimeTz('cancelled_at')->nullable();
 
             $table->boolean('is_picking_on_hold')->nullable();
             $table->boolean('can_dispatch')->nullable();
@@ -36,10 +43,10 @@ return new class extends Migration {
 
 
             $table->jsonb('data');
-            $table->dateTimeTz('sent_warehouse_at')->nullable();
-            $table->dateTimeTz('ready_to_dispatch_at')->nullable();
+
             $table->timestampsTz();
-            $table->dateTimeTz('cancelled_at')->nullable()->comment('equivalent deleted_at');
+            $table->softDeletesTz();
+
         });
     }
 

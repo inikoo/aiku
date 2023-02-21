@@ -27,7 +27,19 @@ return new class extends Migration {
             $shopSubtypes = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
 
             $table->enum('type',$shopSubtypes)->index()->nullable();
-            $table->enum('state', ['submitted', 'in-warehouse','packed', 'finalised', 'dispatched'])->default('in-basket')->index();
+            $table->enum('state', ['submitted', 'in-warehouse','packed', 'finalised', 'dispatched','cancelled'])->default('in-basket')->index();
+
+
+            $table->dateTimeTz('date');
+
+            $table->dateTimeTz('submitted_at')->nullable();
+            $table->dateTimeTz('in_warehouse_at')->nullable();
+            $table->dateTimeTz('packed_at')->nullable();
+            $table->dateTimeTz('finalised_at')->nullable();
+            $table->dateTimeTz('dispatched_at')->nullable();
+
+            $table->dateTimeTz('cancelled_at')->nullable();
+
 
             $table->boolean('is_invoiced')->default('false');
             $table->boolean('is_picking_on_hold')->nullable();
@@ -47,7 +59,7 @@ return new class extends Migration {
             $table->jsonb('data');
 
             $table->timestampsTz();
-            $table->dateTimeTz('cancelled_at')->nullable()->comment('equivalent deleted_at');
+            $table->softDeletesTz();
 
 
             $table->unsignedBigInteger('source_id')->nullable()->unique();
