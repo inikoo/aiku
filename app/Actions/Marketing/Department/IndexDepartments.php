@@ -126,15 +126,15 @@ class IndexDepartments extends InertiaAction
                     'route' => $routeName,
                     'routeParameters' => $routeParameters,
                     'modelLabel' => [
-                        'label' => __('customers')
+                        'label' => __('departments')
                     ]
                 ],
             ];
         };
 
         return match ($routeName) {
-            'customers.index' => $headCrumb(),
-            'shops.show.customers.index' =>
+            'departments.index' => $headCrumb(),
+            'shops.show.departments.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])

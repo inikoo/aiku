@@ -7,6 +7,7 @@
 
 use App\Actions\Marketing\Department\IndexDepartments;
 use App\Actions\Marketing\Family\IndexFamilies;
+use App\Actions\Marketing\Product\IndexProducts;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Customer\IndexCustomers;
@@ -33,6 +34,10 @@ Route::get('/{shop}/departments/{department}', [ShowCustomer::class, 'inShop'])-
 Route::get('/{shop}/families', [IndexFamilies::class, 'inShop'])->name('show.families.index');
 
 Route::get('/{shop}/families/{family}', [ShowCustomer::class, 'inShop'])->name('show.families.show');
+
+Route::get('/{shop}/products', [IndexProducts::class, 'inShop'])->name('show.products.index');
+
+Route::get('/{shop}/products/{product}', [ShowCustomer::class, 'inShop'])->name('show.products.show');
 
 
 

@@ -105,6 +105,11 @@ class Product extends Model
         'settings' => '{}',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected $guarded = [];
 
     public function getSlugOptions(): SlugOptions
