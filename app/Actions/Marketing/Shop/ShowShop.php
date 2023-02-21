@@ -75,7 +75,7 @@ class ShowShop
                         ],
                         [
                             'name' => __('family'),
-                            'icon' => ['fal', 'fa-user'],
+                            'icon' => ['fal', 'fa-folder'],
                             'href' => ['shops.show.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_families
@@ -83,7 +83,7 @@ class ShowShop
                         ],
                         [
                             'name' => __('products'),
-                            'icon' => ['fal', 'fa-user'],
+                            'icon' => ['fal', 'fa-cube'],
                             'href' => ['shops.show.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_products
