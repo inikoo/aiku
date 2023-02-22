@@ -70,7 +70,7 @@ class ShowDepartment extends InertiaAction
                         [
                             'name' => __('families'),
                             'icon' => ['fal', 'fa-folder'],
-                            'href' => ['shops.show.families.index', $department->slug],
+                            'href' => ['shops.show.departments.show.families.index', [$department->shop->slug, $department->slug]],
                             'index' => [
                                 'number' => $department->stats->number_families
                             ]

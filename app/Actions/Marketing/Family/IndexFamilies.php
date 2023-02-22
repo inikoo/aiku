@@ -1,7 +1,7 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 Febr 2023 17:54:17 Malaga, Spain
+ *  Created: Mon, 21 February 2023 17:54:17 Malaga, Spain
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
@@ -9,15 +9,11 @@ namespace App\Actions\Marketing\Family;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
-use App\Http\Resources\Marketing\DepartmentResource;
 use App\Http\Resources\Marketing\FamilyResource;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\InertiaTableCustomerResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Family;
 use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -30,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexFamilies extends InertiaAction
 {
-    private Shop|Tenant $parent;
+    private Shop|Tenant|Department $parent;
 
     public function handle(): LengthAwarePaginator
     {
@@ -52,6 +48,8 @@ class IndexFamilies extends InertiaAction
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Shop') {
                     $query->where('families.shop_id', $this->parent->id);
+                } elseif(class_basename($this->parent) == 'Department') {
+                    $query->where('families.department_id', $this->parent->id);
                 }
             })
             ->allowedSorts(['code', 'name'])
@@ -112,7 +110,7 @@ class IndexFamilies extends InertiaAction
         return $this->handle();
     }
 
-    public function InShop(Shop $shop): LengthAwarePaginator
+    public function inShop(Shop $shop): LengthAwarePaginator
     {
         $this->parent = $shop;
         $this->validateAttributes();
@@ -120,7 +118,15 @@ class IndexFamilies extends InertiaAction
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
+    public function inShopInDepartment(Shop $shop, Department $department): LengthAwarePaginator
+    {
+        $this->parent = $department;
+        $this->validateAttributes();
+
+        return $this->handle();
+    }
+
+    public function getBreadcrumbs(string $routeName, Shop|Tenant|Department $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
