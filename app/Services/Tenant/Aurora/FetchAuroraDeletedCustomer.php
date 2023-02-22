@@ -52,7 +52,7 @@ class FetchAuroraDeletedCustomer extends FetchAurora
         $this->parsedData['customer'] =
             [
 
-                'name'                     => $auroraDeletedData->{'Customer Name'},
+                'name'                     => $auroraDeletedData->{'Customer Name'} ?? null,
                 'reference'                => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
                 'state'                    => $state,
                 'status'                   => $status,
@@ -70,20 +70,14 @@ class FetchAuroraDeletedCustomer extends FetchAurora
                         'No' => 'invalid',
                         default => 'unknown'
                     },
-                'created_at'               => $auroraDeletedData->{'Customer First Contacted Date'},
+                'created_at'               => $auroraDeletedData->{'Customer First Contacted Date'}??$this->auroraModelData->{'Customer Deleted Date'},
                 'deleted_at'               => $this->auroraModelData->{'Customer Deleted Date'},
-                'source_id'                => $auroraDeletedData->{'Customer Key'},
+                'source_id'                => $this->auroraModelData->{'Customer Key'},
                 'data'                     => $data
 
             ];
 
 
-        if ($auroraDeletedData->{'Customer Invoice Address Country 2 Alpha Code'} == 'XX') {
-            $auroraDeletedData = $this->fixAddress(prefix: 'Customer Invoice', data: $auroraDeletedData);
-        }
-        if ($auroraDeletedData->{'Customer Delivery Address Country 2 Alpha Code'} == 'XX') {
-            $auroraDeletedData = $this->fixAddress(prefix: 'Customer Delivery', data: $auroraDeletedData);
-        }
 
 
         $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $auroraDeletedData);
