@@ -21,6 +21,7 @@ use App\Actions\Sales\Order\IndexOrders;
 use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\CreateWebUser;
 use App\Actions\Web\WebUser\ShowWebUser;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexShops::class)->name('index');
 Route::get('/{shop}', ShowShop::class)->name('show');
