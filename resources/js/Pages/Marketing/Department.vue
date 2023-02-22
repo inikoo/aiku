@@ -17,7 +17,7 @@ import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue
 
 library.add(faFolder, faCube);
 
-const props = defineProps(['title', 'pageHead', 'family', 'treeMaps']);
+const props = defineProps(['title', 'pageHead', 'department', 'treeMaps']);
 
 
 </script>

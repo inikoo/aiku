@@ -6,8 +6,11 @@
  */
 
 use App\Actions\Marketing\Department\IndexDepartments;
+use App\Actions\Marketing\Department\ShowDepartment;
 use App\Actions\Marketing\Family\IndexFamilies;
+use App\Actions\Marketing\Family\ShowFamily;
 use App\Actions\Marketing\Product\IndexProducts;
+use App\Actions\Marketing\Product\ShowProduct;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Customer\IndexCustomers;
@@ -30,16 +33,16 @@ Route::get('/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::cla
 Route::get('/{shop:slug}/customers/{customer}/create', [CreateWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.create');
 
 Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('show.departments.index');
-//TODO Change ShowCustomer to ShowDepartment
-Route::get('/{shop}/departments/{department}', [ShowCustomer::class, 'inShop'])->name('show.departments.show');
+
+Route::get('/{shop}/departments/{department}', [ShowDepartment::class, 'inShop'])->name('show.departments.show');
 
 Route::get('/{shop}/families', [IndexFamilies::class, 'inShop'])->name('show.families.index');
 
-Route::get('/{shop}/families/{family}', [ShowCustomer::class, 'inShop'])->name('show.families.show');
+Route::get('/{shop}/families/{family}', [ShowFamily::class, 'inShop'])->name('show.families.show');
 
 Route::get('/{shop}/products', [IndexProducts::class, 'inShop'])->name('show.products.index');
 
-Route::get('/{shop}/products/{product}', [ShowCustomer::class, 'inShop'])->name('show.products.show');
+Route::get('/{shop}/products/{product}', [ShowProduct::class, 'inShop'])->name('show.products.show');
 
 Route::get('/{shop}/orders', [IndexOrders::class, 'inShop'])->name('show.orders.index');
 

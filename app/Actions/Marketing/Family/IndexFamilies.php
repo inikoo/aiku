@@ -79,7 +79,7 @@ class IndexFamilies extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $families)
     {
         return Inertia::render(
-            'Marketing/Family',
+            'Marketing/Families',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title' => __('families'),

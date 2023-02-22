@@ -42,7 +42,6 @@ class ShowCustomer extends InertiaAction
         return $this->handle($customer);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Customer $customer, Request $request): Customer
     {
         $this->routeName = $request->route()->getName();
