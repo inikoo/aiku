@@ -82,16 +82,25 @@ class GetLayout
                     'route' => 'customers.index'
                 ];
             }
-            if ($user->can('shops.customers.view')) {
-                $navigation[] = [
-                    'name'  => __('orders'),
-                    'icon'  => ['fal', 'fa-shopping-cart'],
-                    'route' => 'orders.index'
-                ];
-            }
         }
 
 
+        if ($user->can('osm.view')) {
+            $navigation[] = [
+                'name'  => 'OSM',
+                'icon'  => ['fal', 'fa-shopping-cart'],
+                'route' => 'osm.hub'
+            ];
+        }
+/*
+        if ($user->can('dispatching') or $user->can('inventory.warehouses.dispatching')) {
+            $navigation[] = [
+                'name'  => __('dispatching'),
+                'icon'  => ['fal', 'fa-conveyor-belt-alt'],
+                'route' => 'dispatching.control-panel'
+            ];
+        }
+*/
         if ($user->can('inventory.view')) {
             $navigation[] = [
                 'name'  => __('inventory'),
