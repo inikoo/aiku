@@ -82,6 +82,13 @@ class GetLayout
                     'route' => 'customers.index'
                 ];
             }
+            if ($user->can('shops.customers.view')) {
+                $navigation[] = [
+                    'name'  => __('orders'),
+                    'icon'  => ['fal', 'fa-shopping-cart'],
+                    'route' => 'orders.index'
+                ];
+            }
         }
 
 

@@ -50,6 +50,9 @@ Route::middleware([
         Route::prefix("customers")
             ->name("customers.")
             ->group(__DIR__ . "/customers.php");
+        Route::prefix("orders")
+            ->name("orders.")
+            ->group(__DIR__ . "/orders.php");
         Route::prefix("profile")
             ->name("profile.")
             ->group(__DIR__ . "/profile.php");
