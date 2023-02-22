@@ -53,6 +53,9 @@ Route::middleware([
         Route::prefix("osm")
             ->name("osm.")
             ->group(__DIR__."/osm.php");
+        Route::prefix("dispatch")
+            ->name("dispatch.")
+            ->group(__DIR__."/dispatch.php");
         Route::prefix("profile")
             ->name("profile.")
             ->group(__DIR__ . "/profile.php");

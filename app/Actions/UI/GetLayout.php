@@ -92,15 +92,15 @@ class GetLayout
                 'route' => 'osm.hub'
             ];
         }
-/*
-        if ($user->can('dispatching') or $user->can('inventory.warehouses.dispatching')) {
+
+        if ($user->can('dispatch')) {
             $navigation[] = [
-                'name'  => __('dispatching'),
+                'name'  => __('Dispatch'),
                 'icon'  => ['fal', 'fa-conveyor-belt-alt'],
-                'route' => 'dispatching.control-panel'
+                'route' => 'dispatch.hub'
             ];
         }
-*/
+
         if ($user->can('inventory.view')) {
             $navigation[] = [
                 'name'  => __('inventory'),
