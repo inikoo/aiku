@@ -89,7 +89,6 @@ class ShowShop
                                 'number' => $shop->stats->number_products
                             ]
                         ],
-
                     ],
                     [
                         [
@@ -97,10 +96,18 @@ class ShowShop
                             'icon' => ['fal', 'fa-shopping-cart'],
                             'href' => ['shops.show.orders.index', $shop->slug],
                             'index' => [
-                                'number' => $shop->stats->number_products
+                                'number' => $shop->stats->number_orders
+                            ]
+                        ],
+                        [
+                            'name' => __('invoices'),
+                            'icon' => ['fal', 'fa-file-invoice'],
+                            'href' => ['shops.show.invoices.index', $shop->slug],
+                            'index' => [
+                                'number' => $shop->stats->number_invoices
                             ]
                         ]
-                    ],
+                    ]
                 ]
             ]
         );
