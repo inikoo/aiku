@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\Address;
 
-use App\Models\Delivery\DeliveryNote;
+use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;

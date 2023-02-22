@@ -7,7 +7,7 @@
 
 namespace App\Models\Sales;
 
-use App\Models\Delivery\DeliveryNoteItem;
+use App\Models\Dispatch\DeliveryNoteItem;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Sales\Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNoteItem> $deliveryNoteItems
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
  * @property-read int|null $delivery_note_items_count
  * @property-read Model|\Eloquent $item
  * @property-read \App\Models\Sales\Order $order

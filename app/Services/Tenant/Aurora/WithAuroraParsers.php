@@ -26,7 +26,7 @@ use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
-use App\Models\Delivery\Shipper;
+use App\Models\Dispatch\Shipper;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\HistoricProduct;

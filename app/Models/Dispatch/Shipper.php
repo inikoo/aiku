@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 26 Aug 2022 15:42:03 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia F
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 23 Feb 2023 16:50:41 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Delivery;
+namespace App\Models\Dispatch;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +16,7 @@ use Spatie\Sluggable\SlugOptions;
 
 
 /**
- * App\Models\Delivery\Shipper
+ * App\Models\Dispatch\Shipper
  *
  * @property int $id
  * @property string $slug
@@ -35,7 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\Shipment> $shipments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Shipment> $shipments
  * @property-read int|null $shipments_count
  * @method static Builder|Shipper newModelQuery()
  * @method static Builder|Shipper newQuery()

@@ -1,16 +1,15 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sun, 05 Dec 2021 15:37:28 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2021, Inikoo
- *  Version 4.0
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Delivery\DeliveryNote;
+namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
-use App\Models\Delivery\DeliveryNote;
+use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;

@@ -1,15 +1,14 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sun, 05 Dec 2021 02:08:15 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2021, Inikoo
- *  Version 4.0
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Delivery\Shipper;
+namespace App\Actions\Dispatch\Shipper;
 
 use App\Actions\WithActionUpdate;
-use App\Models\Delivery\Shipper;
+use App\Models\Dispatch\Shipper;
 
 class UpdateShipper
 {

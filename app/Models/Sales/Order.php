@@ -7,7 +7,7 @@
 
 namespace App\Models\Sales;
 
-use App\Models\Delivery\DeliveryNote;
+use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasOrder;
 use Illuminate\Database\Eloquent\Builder;
@@ -56,7 +56,7 @@ use Spatie\Sluggable\HasSlug;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read int|null $addresses_count
  * @property-read \App\Models\Sales\Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNote> $deliveryNotes
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNote> $deliveryNotes
  * @property-read int|null $delivery_notes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Invoice> $invoices
  * @property-read int|null $invoices_count

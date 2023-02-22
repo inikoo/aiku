@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 31 Jan 2023 20:16:44 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Delivery\DeliveryNoteItem;
+namespace App\Actions\Dispatch\DeliveryNoteItem;
 
-use App\Models\Delivery\DeliveryNote;
-use App\Models\Delivery\DeliveryNoteItem;
+use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatch\DeliveryNoteItem;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreDeliveryNoteItem
@@ -20,7 +20,7 @@ class StoreDeliveryNoteItem
 
 
 
-        /** @var \App\Models\Delivery\DeliveryNoteItem $deliveryNoteItem */
+        /** @var \App\Models\Dispatch\DeliveryNoteItem $deliveryNoteItem */
         $deliveryNoteItem = $deliveryNote->deliveryNoteItems()->create($modelData);
 
 

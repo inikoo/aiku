@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 02 Feb 2023 13:17:23 Malaysia Time, Bali, Indonesia
+ * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Delivery\Shipment;
+namespace App\Actions\Dispatch\Shipment;
 
-use App\Models\Delivery\DeliveryNote;
-use App\Models\Delivery\Shipment;
+use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatch\Shipment;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 

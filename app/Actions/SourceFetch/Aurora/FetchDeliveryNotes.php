@@ -7,15 +7,15 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Delivery\DeliveryNote\StoreDeliveryNote;
-use App\Actions\Delivery\DeliveryNote\UpdateDeliveryNote;
-use App\Actions\Delivery\Shipment\StoreShipment;
-use App\Actions\Delivery\Shipment\UpdateShipment;
+use App\Actions\Dispatch\DeliveryNote\StoreDeliveryNote;
+use App\Actions\Dispatch\DeliveryNote\UpdateDeliveryNote;
+use App\Actions\Dispatch\Shipment\StoreShipment;
+use App\Actions\Dispatch\Shipment\UpdateShipment;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
-use App\Models\Delivery\DeliveryNote;
-use App\Models\Delivery\Shipment;
+use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatch\Shipment;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;

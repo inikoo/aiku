@@ -9,7 +9,6 @@ namespace App\Services\Tenant\Aurora;
 
 
 use App\Models\Central\Tenant;
-use App\Models\Delivery\DeliveryNote;
 use App\Services\Tenant\SourceTenantService;
 
 

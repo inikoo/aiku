@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 29 Aug 2022 12:40:51 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia F
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 23 Feb 2023 16:50:41 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Delivery;
+namespace App\Models\Dispatch;
 
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
@@ -22,7 +22,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Delivery\DeliveryNote
+ * App\Models\Dispatch\DeliveryNote
  *
  * @property int $id
  * @property string $slug
@@ -59,13 +59,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read int|null $addresses_count
  * @property-read Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\DeliveryNoteItem> $deliveryNoteItems
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
  * @property-read int|null $delivery_note_items_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read int|null $orders_count
- * @property-read \App\Models\Delivery\Shipment|null $shipments
+ * @property-read \App\Models\Dispatch\Shipment|null $shipments
  * @property-read Shop $shop
- * @property-read \App\Models\Delivery\DeliveryNoteStats|null $stats
+ * @property-read \App\Models\Dispatch\DeliveryNoteStats|null $stats
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
  * @method static Builder|DeliveryNote onlyTrashed()

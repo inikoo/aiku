@@ -8,11 +8,11 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 
-use App\Actions\Delivery\DeliveryNote\DeleteDeliveryNote;
+use App\Actions\Dispatch\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
 use App\Actions\WithTenantsArgument;
 use App\Managers\Tenant\SourceTenantManager;
-use App\Models\Delivery\DeliveryNote;
+use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Console\Command;

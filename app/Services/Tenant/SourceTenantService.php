@@ -10,7 +10,7 @@ namespace App\Services\Tenant;
 
 
 use App\Models\Central\Tenant;
-use App\Models\Delivery\DeliveryNote;
+use App\Models\Dispatch\DeliveryNote;
 
 interface SourceTenantService
 {

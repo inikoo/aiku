@@ -8,7 +8,7 @@
 namespace App\Models\Traits;
 
 
-use App\Models\Delivery\DeliveryNote;
+use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

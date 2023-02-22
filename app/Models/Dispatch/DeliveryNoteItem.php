@@ -1,6 +1,11 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 23 Feb 2023 16:50:41 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Delivery;
+namespace App\Models\Dispatch;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\Models\Delivery\DeliveryNoteItem
+ * App\Models\Dispatch\DeliveryNoteItem
  *
  * @property int $id
  * @property int $delivery_note_id
@@ -24,7 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Delivery\Picking> $pickings
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Picking> $pickings
  * @property-read int|null $pickings_count
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()

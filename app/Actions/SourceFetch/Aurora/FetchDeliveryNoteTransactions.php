@@ -8,9 +8,9 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 
-use App\Actions\Delivery\DeliveryNoteItem\StoreDeliveryNoteItem;
-use App\Models\Delivery\DeliveryNote;
-use App\Models\Delivery\DeliveryNoteItem;
+use App\Actions\Dispatch\DeliveryNoteItem\StoreDeliveryNoteItem;
+use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatch\DeliveryNoteItem;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;

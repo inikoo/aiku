@@ -7,7 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Models\Delivery\DeliveryNote;
+use App\Models\Dispatch\DeliveryNote;
 use Illuminate\Support\Facades\DB;
 
 

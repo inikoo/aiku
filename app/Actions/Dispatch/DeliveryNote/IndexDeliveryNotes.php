@@ -1,17 +1,17 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 22 Feb 2023 12:20:38 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Delivery\DeliveryNote;
+namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Central\Tenant;
-use App\Models\Delivery\DeliveryNote;
+use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;

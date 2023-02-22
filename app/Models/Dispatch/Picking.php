@@ -1,13 +1,18 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 23 Feb 2023 16:50:41 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Delivery;
+namespace App\Models\Dispatch;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\Models\Delivery\Picking
+ * App\Models\Dispatch\Picking
  *
  * @property int $id
  * @property bool $fulfilled

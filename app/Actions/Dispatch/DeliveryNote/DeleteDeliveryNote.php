@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 08 Feb 2023 12:29:31 Malaysia Time, Ubud Bali
+ * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Delivery\DeliveryNote;
+namespace App\Actions\Dispatch\DeliveryNote;
 
 
-use App\Models\Delivery\DeliveryNote;
+use App\Models\Dispatch\DeliveryNote;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DeleteDeliveryNote

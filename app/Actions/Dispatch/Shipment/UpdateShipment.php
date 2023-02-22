@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 03 Feb 2023 21:12:43 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Delivery\Shipment;
+namespace App\Actions\Dispatch\Shipment;
 
 use App\Actions\WithActionUpdate;
-use App\Models\Delivery\Shipment;
+use App\Models\Dispatch\Shipment;
 
 class UpdateShipment
 {
