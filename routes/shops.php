@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Actions\Delivery\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Marketing\Department\IndexDepartments;
 use App\Actions\Marketing\Department\ShowDepartment;
 use App\Actions\Marketing\Family\IndexFamilies;
@@ -51,6 +52,10 @@ Route::get('/{shop}/orders/{order}', [ShowCustomer::class, 'inShop'])->name('sho
 Route::get('/{shop}/invoices', [IndexInvoices::class, 'inShop'])->name('show.invoices.index');
 
 Route::get('/{shop}/invoices/{invoice}', [ShowCustomer::class, 'inShop'])->name('show.invoices.show');
+
+Route::get('/{shop}/delivery-notes', [IndexDeliveryNotes::class, 'inShop'])->name('show.delivery-notes.index');
+
+Route::get('/{shop}/delivery-notes/{delivery}', [ShowCustomer::class, 'inShop'])->name('show.delivery-notes.show');
 
 
 

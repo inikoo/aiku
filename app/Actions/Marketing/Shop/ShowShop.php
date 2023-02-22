@@ -106,6 +106,14 @@ class ShowShop
                             'index' => [
                                 'number' => $shop->stats->number_invoices
                             ]
+                        ],
+                        [
+                            'name' => __('delivery-notes'),
+                            'icon' => ['fal', 'fa-sticky-note'],
+                            'href' => ['shops.show.delivery-notes.index', $shop->slug],
+                            'index' => [
+                                'number' => $shop->stats->number_deliveries
+                            ]
                         ]
                     ]
                 ]
