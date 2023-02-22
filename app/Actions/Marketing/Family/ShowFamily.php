@@ -62,7 +62,7 @@ class ShowFamily extends InertiaAction
                 'title' => __('family'),
                 'breadcrumbs' => $this->getBreadcrumbs($family),
                 'pageHead' => [
-                    'title' => $family->name,
+                    'title' => $family->code,
 
 
                 ],

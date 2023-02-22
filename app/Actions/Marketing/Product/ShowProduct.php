@@ -64,7 +64,7 @@ class ShowProduct extends InertiaAction
                 'title' => __('product'),
                 'breadcrumbs' => $this->getBreadcrumbs($product),
                 'pageHead' => [
-                    'title' => $product->name,
+                    'title' => $product->code,
 
 
                 ],
