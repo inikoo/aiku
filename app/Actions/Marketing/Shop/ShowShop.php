@@ -88,8 +88,19 @@ class ShowShop
                             'index' => [
                                 'number' => $shop->stats->number_products
                             ]
+                        ],
+
+                    ],
+                    [
+                        [
+                            'name' => __('orders'),
+                            'icon' => ['fal', 'fa-shopping-cart'],
+                            'href' => ['shops.show.orders.index', $shop->slug],
+                            'index' => [
+                                'number' => $shop->stats->number_products
+                            ]
                         ]
-                    ]
+                    ],
                 ]
             ]
         );
