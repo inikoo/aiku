@@ -12,6 +12,8 @@ use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Customer\IndexCustomers;
 use App\Actions\Sales\Customer\ShowCustomer;
+use App\Actions\Sales\Invoice\IndexInvoices;
+use App\Actions\Sales\Order\IndexOrders;
 use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\CreateWebUser;
 use App\Actions\Web\WebUser\ShowWebUser;
@@ -38,6 +40,17 @@ Route::get('/{shop}/families/{family}', [ShowCustomer::class, 'inShop'])->name('
 Route::get('/{shop}/products', [IndexProducts::class, 'inShop'])->name('show.products.index');
 
 Route::get('/{shop}/products/{product}', [ShowCustomer::class, 'inShop'])->name('show.products.show');
+
+Route::get('/{shop}/orders', [IndexOrders::class, 'inShop'])->name('show.orders.index');
+
+Route::get('/{shop}/orders/{order}', [ShowCustomer::class, 'inShop'])->name('show.orders.show');
+
+Route::get('/{shop}/invoices', [IndexInvoices::class, 'inShop'])->name('show.invoices.index');
+
+Route::get('/{shop}/invoices/{invoice}', [ShowCustomer::class, 'inShop'])->name('show.invoices.show');
+
+
+
 
 
 
