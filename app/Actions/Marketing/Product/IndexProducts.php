@@ -32,7 +32,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexProducts extends InertiaAction
 {
-    private Shop|Tenant $parent;
+    private Shop|Tenant|Department $parent;
 
     public function handle(): LengthAwarePaginator
     {
@@ -54,6 +54,8 @@ class IndexProducts extends InertiaAction
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Shop') {
                     $query->where('products.shop_id', $this->parent->id);
+                } elseif(class_basename($this->parent) == 'Shop') {
+                    $query->where('families.department_id', $this->parent->id);
                 }
             })
             ->allowedSorts(['code', 'name'])
@@ -114,7 +116,7 @@ class IndexProducts extends InertiaAction
         return $this->handle();
     }
 
-    public function InShop(Shop $shop): LengthAwarePaginator
+    public function inShop(Shop $shop): LengthAwarePaginator
     {
         $this->parent = $shop;
         $this->validateAttributes();
@@ -122,7 +124,15 @@ class IndexProducts extends InertiaAction
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
+    public function inShopInDepartment(Shop $shop, Department $department): LengthAwarePaginator
+    {
+        $this->parent = $department;
+        $this->validateAttributes();
+
+        return $this->handle();
+    }
+
+    public function getBreadcrumbs(string $routeName, Shop|Tenant|Department $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [

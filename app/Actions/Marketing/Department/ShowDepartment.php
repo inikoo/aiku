@@ -78,7 +78,7 @@ class ShowDepartment extends InertiaAction
                         [
                             'name' => __('products'),
                             'icon' => ['fal', 'fa-cube'],
-                            'href' => ['shops.show.products.index', $department->slug],
+                            'href' => ['shops.show.departments.show.products.index', [$department->shop->slug, $department->slug]],
                             'index' => [
                                 'number' => $department->stats->number_products
                             ]
