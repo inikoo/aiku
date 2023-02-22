@@ -7,8 +7,6 @@
 
 
 use App\Actions\Sales\Order\IndexOrders;
+use App\Actions\Sales\Order\ShowOSMHub;
 
-
-
-Route::get('/', IndexOrders::class)->name('index');
-//Route::get('/{order}', ShowOrder::class)->name('show');
+Route::get('/', ShowOSMHub::class)->name('hub');

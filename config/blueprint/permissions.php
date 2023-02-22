@@ -29,7 +29,9 @@ return [
     'shops.customers.view',
     'shops.customers.edit',
 
-
+    'osm',
+    'osm.view',
+    'osm.edit',
 
     'accounting',
     'accounting.view',

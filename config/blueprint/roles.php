@@ -16,6 +16,7 @@ return
             'inventory',
             'dispatching',
             'shops',
+            'osm',
             'production',
             'procurement',
             'fulfilment'
@@ -76,6 +77,7 @@ return
         'customer-services' => [
             'shops.view',
             'shops.customers',
+            'osm'
         ],
 
         'webmaster' => [
