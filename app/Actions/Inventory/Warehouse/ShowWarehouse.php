@@ -56,7 +56,7 @@ class ShowWarehouse
                             'number'   => $this->warehouse->stats->number_warehouse_areas,
                             'href'     => [
                                 'inventory.warehouses.show.warehouse_areas.index',
-                                $this->warehouse->id
+                                $this->warehouse->slug
                             ],
                             'leftIcon' => [
                                 'icon'    => 'fal fa-map-signs',
@@ -68,7 +68,7 @@ class ShowWarehouse
                             'number'   => $this->warehouse->stats->number_locations,
                             'href'     => [
                                 'inventory.warehouses.show.locations.index',
-                                $this->warehouse->id
+                                $this->warehouse->slug
                             ],
                             'leftIcon' => [
                                 'icon'    => 'fal fa-inventory',

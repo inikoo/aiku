@@ -20,7 +20,7 @@ const itemRoute = route().current().replace(/index$/i, 'show')
 function routeParameters(location) {
     switch (route().current()) {
         case 'inventory.warehouses.show.locations.index':
-            return [location.warehouse_id,location.slug]
+            return [location.warehouse_slug,location.slug]
         case 'inventory.warehouse_areas.show.locations.index':
             return [location.warehouse_area_slug,location.slug]
         case 'inventory.warehouses.show.warehouse_areas.show.locations.index':
