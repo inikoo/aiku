@@ -48,12 +48,25 @@ class ShowStockFamily
                 'title'       => __('stock family'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->stockFamily),
                 'pageHead'    => [
-                    'icon'  => 'fal fa-boxes-alt',
+                    'icon'  => 'fal fa-inventory',
                     'title' => $this->stockFamily->code,
-
-
+                    'meta'  => [
+                        [
+                            'name'     => trans_choice('stock | stocks', $this->stockFamily->stats->number_stocks),
+                            'number'   => $this->stockFamily->stats->number_stocks,
+                            'href'     => [
+                                'inventory.stock-families.show.stocks.index',
+                                $this->stockFamily->slug
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-box',
+                                'tooltip' => __('stocks')
+                            ]
+                        ],
+                    ]
                 ],
                 'stockFamily' => new StockFamilyResource($this->stockFamily),
+
             ]
         );
     }

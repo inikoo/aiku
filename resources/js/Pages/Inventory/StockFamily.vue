@@ -14,8 +14,8 @@ import {useLocaleStore} from '@/Stores/locale.js';
 defineProps(["title","pageHead","stockFamily"])
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInventory,faBoxesAlt} from '@/../private/pro-light-svg-icons';
-library.add(faInventory,faBoxesAlt);
+import {faInventory,faBox} from '@/../private/pro-light-svg-icons';
+library.add(faInventory,faBox);
 
 const locale = useLocaleStore();
 

@@ -7,25 +7,24 @@
 
 namespace App\Actions\Inventory\Stock;
 
+use App\Actions\InertiaAction;
 use App\Actions\Inventory\ShowInventoryDashboard;
-use App\Actions\UI\WithInertia;
-use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\StockResource;
+use App\Models\Central\Tenant;
 use App\Models\Inventory\Stock;
+use App\Models\Inventory\StockFamily;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 
-class IndexStocks
+class IndexStocks extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
+    private StockFamily|Tenant $parent;
 
 
     public function handle(): LengthAwarePaginator
@@ -42,6 +41,11 @@ class IndexStocks
             ->defaultSort('stocks.code')
             ->select(['code', 'stocks.id as id', 'description', 'stock_value', 'number_locations','quantity'])
             ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id')
+            ->when($this->parent, function ($query) {
+                if (class_basename($this->parent) == 'StockFamily') {
+                    $query->where('stocks.stock_family_id', $this->parent->id);
+                }
+            })
             ->allowedSorts(['code', 'description', 'number_locations', 'number_locations','quantity'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -63,6 +67,13 @@ class IndexStocks
         return $this->handle();
     }
 
+    public function inStockFamily(StockFamily $stockFamily): LengthAwarePaginator
+    {
+        $this->parent = $stockFamily;
+        $this->validateAttributes();
+
+        return $this->handle();
+    }
 
     public function jsonResponse(): AnonymousResourceCollection
     {
@@ -109,5 +120,4 @@ class IndexStocks
             ]
         );
     }
-
 }

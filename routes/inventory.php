@@ -17,7 +17,7 @@ use App\Actions\Inventory\Warehouse\IndexWarehouses;
 use App\Actions\Inventory\Warehouse\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\ShowWarehouseArea;
-
+use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', ShowInventoryDashboard::class)->name('dashboard');
@@ -51,6 +51,7 @@ Route::scopeBindings()->group(function () {
 
 Route::get('/families', IndexStockFamilies::class)->name('stock-families.index');
 Route::get('/families/{stockFamily:slug}', ShowStockFamily::class)->name('stock-families.show');
+Route::get('/families/{stockFamily:slug}/stocks', [IndexStocks::class, 'inStockFamily'])->name('stock-families.show.stocks.index');
 
 Route::get('/stocks', IndexStocks::class)->name('stocks.index');
 Route::get('/stocks/{stock}', ShowStock::class)->name('stocks.show');

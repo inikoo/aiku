@@ -53,8 +53,6 @@ class ShowStock
                 'pageHead'    => [
                     'icon'  => 'fal fa-box',
                     'title' => $this->stock->code,
-
-
                 ],
                 'stock'   => new StockResource($this->stock),
             ]
