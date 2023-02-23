@@ -46,9 +46,9 @@ return [
     'inventory.stocks.view',
     'inventory.warehouses',
     'inventory.warehouses.view',
-    'inventory.warehouses.dispatching',
-    'inventory.warehouses.dispatching.pick',
-    'inventory.warehouses.dispatching.pack',
+    'inventory.warehouses.dispatch',
+    'inventory.warehouses.dispatch.pick',
+    'inventory.warehouses.dispatch.pack',
 
     'fulfilment',
     'fulfilment.view',
@@ -56,9 +56,9 @@ return [
     'production',
     'production.view',
 
-    'dispatching',
-    'dispatching.pick',
-    'dispatching.pack',
+    'dispatch',
+    'dispatch.pick',
+    'dispatch.pack',
 
     'procurement',
     'procurement.view'

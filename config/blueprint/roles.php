@@ -14,7 +14,7 @@ return
             'sysadmin',
             'hr',
             'inventory',
-            'dispatching',
+            'dispatch',
             'shops',
             'osm',
             'production',
@@ -55,19 +55,19 @@ return
 
             'inventory.stocks.view',
             'inventory.warehouses.view',
-            'dispatching',
+            'dispatch',
         ],
         'distribution-dispatcher-picker' => [
 
             'inventory.stocks.view',
             'inventory.warehouses.view',
-            'dispatching.pick',
+            'dispatch.pick',
         ],
         'distribution-dispatcher-packer' => [
 
             'inventory.stocks.view',
             'inventory.warehouses.view',
-            'dispatching.pack',
+            'dispatch.pack',
         ],
 
         'shop-manager' => [
