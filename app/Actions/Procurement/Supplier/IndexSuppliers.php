@@ -7,26 +7,21 @@
 
 namespace App\Actions\Procurement\Supplier;
 
+use App\Actions\InertiaAction;
 use App\Actions\Procurement\ShowProcurementDashboard;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Procurement\SupplierResource;
-use App\Models\Inventory\Stock;
+use App\Models\Procurement\Supplier;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 
-class IndexSuppliers
+class IndexSuppliers extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -37,12 +32,12 @@ class IndexSuppliers
         });
 
 
-        return QueryBuilder::for(Stock::class)
+        return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
-            ->select(['code', 'stocks.id as id', 'name'])
-            ->where('type', 'supplier')
-            ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id')
-            ->allowedSorts(['code', 'description', 'number_locations', 'number_locations', 'quantity'])
+            ->select(['code', 'suppliers.id as id', 'name'])
+            ->where('suppliers.type', 'supplier')
+            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
+            ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -71,7 +66,7 @@ class IndexSuppliers
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $stocks)
+    public function htmlResponse(LengthAwarePaginator $suppliers)
     {
         return Inertia::render(
             '/Procurement/Suppliers',
@@ -81,7 +76,7 @@ class IndexSuppliers
                 'pageHead'    => [
                     'title' => __('suppliers'),
                 ],
-                'suppliers'   => SupplierResource::collection($stocks),
+                'suppliers'   => SupplierResource::collection($suppliers),
 
 
             ]

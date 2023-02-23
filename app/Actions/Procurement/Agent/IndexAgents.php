@@ -7,11 +7,14 @@
 
 namespace App\Actions\Procurement\Agent;
 
+use App\Actions\InertiaAction;
 use App\Actions\Procurement\ShowProcurementDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Inventory\Stock;
+use App\Models\Procurement\Agent;
+use App\Models\Procurement\Supplier;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -22,12 +25,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 
-class IndexAgents
+class IndexAgents extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -38,12 +37,12 @@ class IndexAgents
         });
 
 
-        return QueryBuilder::for(Stock::class)
+        return QueryBuilder::for(Agent::class)
             ->defaultSort('suppliers.code')
-            ->select(['code', 'stocks.id as id', 'name'])
-            ->where(['type', 'agent'])
-            ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id')
-            ->allowedSorts(['code', 'description', 'number_locations', 'number_locations', 'quantity'])
+            ->select(['code', 'suppliers.id as id', 'name'])
+            ->where('suppliers.type', 'agent')
+            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
+            ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
