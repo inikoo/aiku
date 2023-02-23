@@ -1,11 +1,12 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 16:27:58 Central European Summer Time, Kuala Lumpur, Malaysia
+ *  Created: Wed, 12 Oct 2022 16:27:58 Central European Summer, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
+use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
 use App\Actions\Marketing\Department\IndexDepartments;
 use App\Actions\Marketing\Department\ShowDepartment;
 use App\Actions\Marketing\Family\IndexFamilies;
@@ -17,7 +18,9 @@ use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Customer\IndexCustomers;
 use App\Actions\Sales\Customer\ShowCustomer;
 use App\Actions\Sales\Invoice\IndexInvoices;
+use App\Actions\Sales\Invoice\ShowInvoice;
 use App\Actions\Sales\Order\IndexOrders;
+use App\Actions\Sales\Order\ShowOrder;
 use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\CreateWebUser;
 use App\Actions\Web\WebUser\ShowWebUser;
@@ -52,15 +55,15 @@ Route::get('/{shop}/products/{product}', [ShowProduct::class, 'inShop'])->name('
 
 Route::get('/{shop}/orders', [IndexOrders::class, 'inShop'])->name('show.orders.index');
 
-Route::get('/{shop}/orders/{order}', [ShowCustomer::class, 'inShop'])->name('show.orders.show');
+Route::get('/{shop}/orders/{order}', [ShowOrder::class, 'inShop'])->name('show.orders.show');
 
 Route::get('/{shop}/invoices', [IndexInvoices::class, 'inShop'])->name('show.invoices.index');
 
-Route::get('/{shop}/invoices/{invoice}', [ShowCustomer::class, 'inShop'])->name('show.invoices.show');
+Route::get('/{shop}/invoices/{invoice}', [ShowInvoice::class, 'inShop'])->name('show.invoices.show');
 
 Route::get('/{shop}/delivery-notes', [IndexDeliveryNotes::class, 'inShop'])->name('show.delivery-notes.index');
 
-Route::get('/{shop}/delivery-notes/{delivery}', [ShowCustomer::class, 'inShop'])->name('show.delivery-notes.show');
+Route::get('/{shop}/delivery-notes/{delivery}', [ShowDeliveryNote::class, 'inShop'])->name('show.delivery-notes.show');
 
 
 
