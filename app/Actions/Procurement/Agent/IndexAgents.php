@@ -9,17 +9,13 @@ namespace App\Actions\Procurement\Agent;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\ShowProcurementDashboard;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\SupplierResource;
-use App\Models\Inventory\Stock;
 use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
