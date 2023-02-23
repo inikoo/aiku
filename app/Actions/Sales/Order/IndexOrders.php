@@ -68,6 +68,7 @@ class IndexOrders extends InertiaAction
     public function jsonResponse(): AnonymousResourceCollection
     {
         return OrderResource::collection($this->handle());
+
     }
 
 
