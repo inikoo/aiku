@@ -70,7 +70,7 @@ class IndexAgents extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $agents)
     {
         return Inertia::render(
-            '/Procurement/Agents',
+            'Procurement/Agents',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('agents'),
