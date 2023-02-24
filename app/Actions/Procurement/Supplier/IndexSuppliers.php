@@ -69,7 +69,7 @@ class IndexSuppliers extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $suppliers)
     {
         return Inertia::render(
-            '/Procurement/Suppliers',
+            'Procurement/Suppliers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('suppliers'),
