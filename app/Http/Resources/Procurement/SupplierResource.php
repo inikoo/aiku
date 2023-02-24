@@ -1,19 +1,34 @@
 <?php
+/*
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Fri, 24 Feb 2023 10:14:02 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
+ */
 
 namespace App\Http\Resources\Procurement;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $code
+ * @property string $name
+ * @property string $slug
+ * @property string $created_at
+ * @property string $updated_at
+ */
 class SupplierResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
-    public function toArray($request)
+
+
+    public function toArray($request): array
     {
-        return parent::toArray($request);
+        return [
+            'code' => $this->code,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+
+        ];
     }
 }

@@ -20,7 +20,7 @@ defineProps(['agents', 'title', 'pageHead']);
 
 
         <template #cell(code)="{ item: agent }">
-            <Link :href="route('procurement.agents.index',[agent.id,agent.slug])">
+            <Link :href="route('procurement.agents.show',[agent.slug])">
                 {{ agent.code }}
             </Link>
         </template>

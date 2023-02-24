@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Agent;
 
+use App\Actions\InertiaAction;
 use App\Actions\Procurement\ShowProcurementDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Procurement\AgentResource;
@@ -21,12 +22,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
 /**
  * @property Agent $agent
  */
-class ShowAgent
+class ShowAgent extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("procurement.view");
@@ -56,25 +53,13 @@ class ShowAgent
                             'number'   => $this->agent->stats->number_active_suppliers,
                             'href'     => [
                                 'procurement.agents.show.suppliers.index',
-                                $this->agent->id
+                                $this->agent->slug
                             ],
                             'leftIcon' => [
                                 'icon'    => 'fal fa-map-signs',
                                 'tooltip' => __('suppliers')
                             ]
                         ],
-                        [
-                            'name'     => trans_choice('product|products', $this->agent->stats->number_products),
-                            'number'   => $this->agent->stats->number_products,
-                            'href'     => [
-                                'procurement.agents.show.products.index',
-                                $this->agent->id
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-procurement',
-                                'tooltip' => __('products')
-                            ]
-                        ]
                     ]
 
                 ],
@@ -97,7 +82,7 @@ class ShowAgent
             [
                 'procurement.agents.show' => [
                     'route'           => 'procurement.agents.show',
-                    'routeParameters' => $agent->id,
+                    'routeParameters' => $agent->slug,
                     'name'            => $agent->code,
                     'index'           => [
                         'route'   => 'procurement.agents.index',

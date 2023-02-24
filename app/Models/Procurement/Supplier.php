@@ -148,5 +148,9 @@ class Supplier extends Model
         return $this->hasMany(SupplierProduct::class);
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
 }

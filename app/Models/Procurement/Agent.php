@@ -157,4 +157,9 @@ class Agent extends Model
         return $this->morphTo();
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
 }

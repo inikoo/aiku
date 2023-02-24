@@ -20,7 +20,7 @@ defineProps(['suppliers', 'title', 'pageHead']);
 
 
         <template #cell(code)="{ item: supplier }">
-            <Link :href="route('procurement.suppliers.index',[supplier.id,supplier.slug])">
+            <Link :href="route('procurement.suppliers.show',[supplier.slug])">
                 {{ supplier.code }}
             </Link>
         </template>

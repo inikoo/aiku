@@ -35,7 +35,7 @@ class IndexAgents extends InertiaAction
 
         return QueryBuilder::for(Agent::class)
             ->defaultSort('suppliers.code')
-            ->select(['code', 'suppliers.id as id', 'name'])
+            ->select(['code', 'name', 'slug'])
             ->where('suppliers.type', 'agent')
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
             ->allowedSorts(['code', 'name'])

@@ -7,6 +7,7 @@
 
 namespace App\Models\Procurement;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -40,35 +41,35 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Procurement\Agent $shop
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereAgentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberActiveSuppliers($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberDeliveries($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProducts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStateActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStateCreating($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStateDiscontinued($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStateDiscontinuing($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStateNoAvailable($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStockQuantityStatusCritical($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStockQuantityStatusLow($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStockQuantityStatusNoApplicable($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStockQuantityStatusOptimal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStockQuantityStatusOutOfStock($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberProductsStockQuantityStatusSurplus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberPurchaseOrders($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberPurchaseOrdersStateCancelled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberPurchaseOrdersStateConfirmed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberPurchaseOrdersStateDelivered($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberPurchaseOrdersStateDispatched($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberPurchaseOrdersStateInProcess($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberPurchaseOrdersStateSubmitted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereNumberSuppliers($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgentStats whereUpdatedAt($value)
+ * @method static Builder|AgentStats newModelQuery()
+ * @method static Builder|AgentStats newQuery()
+ * @method static Builder|AgentStats query()
+ * @method static Builder|AgentStats whereAgentId($value)
+ * @method static Builder|AgentStats whereCreatedAt($value)
+ * @method static Builder|AgentStats whereId($value)
+ * @method static Builder|AgentStats whereNumberActiveSuppliers($value)
+ * @method static Builder|AgentStats whereNumberDeliveries($value)
+ * @method static Builder|AgentStats whereNumberProducts($value)
+ * @method static Builder|AgentStats whereNumberProductsStateActive($value)
+ * @method static Builder|AgentStats whereNumberProductsStateCreating($value)
+ * @method static Builder|AgentStats whereNumberProductsStateDiscontinued($value)
+ * @method static Builder|AgentStats whereNumberProductsStateDiscontinuing($value)
+ * @method static Builder|AgentStats whereNumberProductsStateNoAvailable($value)
+ * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusCritical($value)
+ * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusLow($value)
+ * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusNoApplicable($value)
+ * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusOptimal($value)
+ * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusOutOfStock($value)
+ * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusSurplus($value)
+ * @method static Builder|AgentStats whereNumberPurchaseOrders($value)
+ * @method static Builder|AgentStats whereNumberPurchaseOrdersStateCancelled($value)
+ * @method static Builder|AgentStats whereNumberPurchaseOrdersStateConfirmed($value)
+ * @method static Builder|AgentStats whereNumberPurchaseOrdersStateDelivered($value)
+ * @method static Builder|AgentStats whereNumberPurchaseOrdersStateDispatched($value)
+ * @method static Builder|AgentStats whereNumberPurchaseOrdersStateInProcess($value)
+ * @method static Builder|AgentStats whereNumberPurchaseOrdersStateSubmitted($value)
+ * @method static Builder|AgentStats whereNumberSuppliers($value)
+ * @method static Builder|AgentStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class AgentStats extends Model
@@ -77,7 +78,7 @@ class AgentStats extends Model
 
     protected $guarded = [];
 
-    public function shop(): BelongsTo
+    public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
     }
