@@ -8,6 +8,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
@@ -31,12 +32,16 @@ class FetchSuppliers extends FetchAction
                 ->first()) {
                 $supplier = UpdateSupplier::run($supplier, $supplierData['supplier']);
 
-                UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
+                if($supplier->getAddress('contact')){
+                    UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
+                }else{
+                    StoreAddressAttachToModel::run($supplier,  $supplierData['address'], ['scope' => 'contact']);
+                }
                 $supplier->location = $supplier->getLocation();
                 $supplier->save();
             } else {
                 $supplier = StoreSupplier::run(
-                    parent:      tenant(),
+                    owner:      $supplierData['owner'],
                     modelData:   $supplierData['supplier'],
                     addressData: $supplierData['address']
                 );
@@ -44,7 +49,7 @@ class FetchSuppliers extends FetchAction
 
             return $supplier;
         }
-      
+
         return null;
     }
 
@@ -54,7 +59,6 @@ class FetchSuppliers extends FetchAction
             ->table('Supplier Dimension')
             ->leftJoin('Agent Supplier Bridge', 'Agent Supplier Supplier Key', 'Supplier Key')
             ->select('Supplier Key as source_id')
-            ->whereNull('Agent Supplier Agent Key')
             ->where('aiku_ignore', 'No')
             ->orderBy('source_id');
     }
@@ -64,7 +68,6 @@ class FetchSuppliers extends FetchAction
         return DB::connection('aurora')
             ->table('Supplier Dimension')
             ->leftJoin('Agent Supplier Bridge', 'Agent Supplier Supplier Key', 'Supplier Key')
-            ->whereNull('Agent Supplier Agent Key')
             ->where('aiku_ignore', 'No')
             ->count();
     }

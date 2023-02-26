@@ -12,6 +12,7 @@ use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -25,7 +26,6 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * App\Models\Procurement\Agent
  *
  * @property int $id
- * @property string $type
  * @property bool $status
  * @property string $slug
  * @property string $code
@@ -47,10 +47,11 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $global_id
  * @property int|null $source_id
- * @property int|null $source_agent_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read int|null $addresses_count
  * @property-read Model|\Eloquent $owner
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
+ * @property-read int|null $products_count
  * @property-read \App\Models\Procurement\AgentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\Supplier> $suppliers
  * @property-read int|null $suppliers_count
@@ -76,11 +77,9 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Agent whereSettings($value)
  * @method static Builder|Agent whereSharedData($value)
  * @method static Builder|Agent whereSlug($value)
- * @method static Builder|Agent whereSourceAgentId($value)
  * @method static Builder|Agent whereSourceId($value)
  * @method static Builder|Agent whereStatus($value)
  * @method static Builder|Agent whereTenantData($value)
- * @method static Builder|Agent whereType($value)
  * @method static Builder|Agent whereUpdatedAt($value)
  * @method static Builder|Agent withTrashed()
  * @method static Builder|Agent withoutTrashed()
@@ -92,8 +91,6 @@ class Agent extends Model
     use HasAddress;
     use HasSlug;
     use TenantConnection;
-
-    protected $table = 'suppliers';
 
     protected $casts = [
         'shared_data' => 'array',
@@ -147,9 +144,14 @@ class Agent extends Model
         return $this->hasOne(AgentStats::class);
     }
 
-    public function suppliers(): MorphMany
+    public function suppliers(): HasMany
     {
-        return $this->morphMany(Supplier::class, 'owner');
+        return $this->hasMany(Supplier::class);
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(SupplierProduct::class);
     }
 
     public function owner(): MorphTo

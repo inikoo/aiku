@@ -17,13 +17,13 @@ return new class extends Migration
         Schema::create('agent_stats', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedMediumInteger('agent_id')->index();
-            $table->foreign('agent_id')->references('id')->on('suppliers');
+            $table->foreign('agent_id')->references('id')->on('agents');
 
             $table->unsignedSmallInteger('number_suppliers')->default(0);
             $table->unsignedSmallInteger('number_active_suppliers')->default(0);
 
             $table->unsignedSmallInteger('number_products')->default(0)->comment('all excluding discontinued');
-            $productStates = ['creating', 'active', 'no-available', 'discontinuing', 'discontinued'];
+            $productStates = ['in-process', 'active', 'no-available', 'discontinuing', 'discontinued'];
             foreach ($productStates as $productState) {
                 $table->unsignedBigInteger('number_products_state_'.str_replace('-', '_', $productState))->default(0);
             }

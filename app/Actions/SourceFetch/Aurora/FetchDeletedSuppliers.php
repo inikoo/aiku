@@ -39,7 +39,7 @@ class FetchDeletedSuppliers extends FetchAction
                     $supplier->save();
                 } else {
                     $supplier = StoreSupplier::run(
-                        parent:      tenant(),
+                        owner:       $deletedSupplierData['owner'],
                         modelData:   $deletedSupplierData['supplier'],
                         addressData: $deletedSupplierData['address']
                     );

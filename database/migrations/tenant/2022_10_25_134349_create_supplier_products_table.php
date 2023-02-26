@@ -25,8 +25,8 @@ return new class extends Migration
             $table->unsignedMediumInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
 
-            $table->unsignedMediumInteger('sub_supplier_id')->nullable();
-            $table->foreign('sub_supplier_id')->references('id')->on('suppliers');
+            $table->unsignedMediumInteger('agent_id')->nullable();
+            $table->foreign('agent_id')->references('id')->on('agents');
 
 
             $table->enum('state', ['creating', 'active', 'no-available', 'discontinuing', 'discontinued'])->nullable()->index();

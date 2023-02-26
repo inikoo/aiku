@@ -8,6 +8,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Actions\SourceFetch\Aurora\FetchAgents;
 use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedStocks;
@@ -34,6 +35,7 @@ use App\Models\Marketing\HistoricService;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Service;
 use App\Models\Marketing\Shop;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
@@ -232,6 +234,17 @@ trait WithAuroraParsers
         }
 
         return $supplier;
+    }
+
+    function parseAgent($source_id): ?Agent
+    {
+        $agent = Agent::where('source_id', $source_id)->first();
+        if (!$agent) {
+            $agent = FetchAgents::run($this->tenantSource, $source_id);
+
+        }
+
+        return $agent;
     }
 
     function parseStock($source_id): ?Stock

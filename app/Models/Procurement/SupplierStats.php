@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $supplier_id
  * @property int $number_products
- * @property int $number_products_state_creating
+ * @property int $number_products_state_in_process
  * @property int $number_products_state_active
  * @property int $number_products_state_no_available
  * @property int $number_products_state_discontinuing
@@ -47,9 +47,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|SupplierStats whereNumberDeliveries($value)
  * @method static Builder|SupplierStats whereNumberProducts($value)
  * @method static Builder|SupplierStats whereNumberProductsStateActive($value)
- * @method static Builder|SupplierStats whereNumberProductsStateCreating($value)
  * @method static Builder|SupplierStats whereNumberProductsStateDiscontinued($value)
  * @method static Builder|SupplierStats whereNumberProductsStateDiscontinuing($value)
+ * @method static Builder|SupplierStats whereNumberProductsStateInProcess($value)
  * @method static Builder|SupplierStats whereNumberProductsStateNoAvailable($value)
  * @method static Builder|SupplierStats whereNumberProductsStockQuantityStatusCritical($value)
  * @method static Builder|SupplierStats whereNumberProductsStockQuantityStatusLow($value)

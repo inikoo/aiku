@@ -28,7 +28,7 @@ class DeleteProduct
             if ($product->family_id) {
                 HydrateFamily::make()->productsStats($product->family);
             }
-            HydrateShop::make()->productStats($product->shop);
+            HydrateShop::make()->productsStats($product->shop);
         }
 
         return $product;

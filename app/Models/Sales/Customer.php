@@ -145,7 +145,6 @@ class Customer extends Model
             }
         );
 
-
         static::updated(function (Customer $customer) {
             if ($customer->wasChanged('trade_state')) {
                 HydrateShop::make()->customerNumberInvoicesStats($customer->shop);

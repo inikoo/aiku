@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('number_products')->default(0);
 
 
-            $productStates = ['creating', 'active', 'no-available', 'discontinuing', 'discontinued'];
+            $productStates = ['in-process', 'active', 'no-available', 'discontinuing', 'discontinued'];
             foreach ($productStates as $productState) {
                 $table->unsignedBigInteger('number_products_state_'.str_replace('-', '_', $productState))->default(0);
             }

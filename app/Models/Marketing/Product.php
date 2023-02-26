@@ -9,7 +9,6 @@ namespace App\Models\Marketing;
 
 use App\Actions\Marketing\Family\HydrateFamily;
 use App\Actions\Marketing\Shop\HydrateShop;
-use App\Models\Inventory\StockStats;
 use App\Models\Sales\SalesStats;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -127,9 +126,19 @@ class Product extends Model
                 if($product->family_id){
                     HydrateFamily::make()->productsStats($product->family);
                 }
-                HydrateShop::make()->productStats($product->shop);
+                HydrateShop::make()->productsStats($product->shop);
             }
         );
+
+        static::updated(function (Product $product) {
+            if ($product->wasChanged('state')) {
+                if($product->family_id){
+                    HydrateFamily::make()->productsStats($product->family);
+                }
+                HydrateShop::make()->productsStats($product->shop);
+            }
+
+        });
 
     }
 

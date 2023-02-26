@@ -29,7 +29,7 @@ class FetchAgents extends FetchAction
 
             $owner=tenant();
 
-            if ($agent = Agent::withTrashed()->where('source_agent_id', $agentData['agent']['source_agent_id'])
+            if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])
                 ->first()) {
                 $agent = UpdateAgent::run($agent, $agentData['agent']);
                 UpdateAddress::run($agent->getAddress('contact'), $agentData['address']);

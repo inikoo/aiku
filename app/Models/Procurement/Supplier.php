@@ -8,11 +8,12 @@
 namespace App\Models\Procurement;
 
 use App\Actions\Central\Tenant\HydrateTenant;
+use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
-use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -24,7 +25,8 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * App\Models\Procurement\Supplier
  *
  * @property int $id
- * @property string $type
+ * @property string $type sub-supplier: agents supplier
+ * @property int|null $agent_id
  * @property bool $status
  * @property string $slug
  * @property string $code
@@ -46,9 +48,9 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $global_id
  * @property int|null $source_id
- * @property int|null $source_agent_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read int|null $addresses_count
+ * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read int|null $products_count
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
@@ -57,6 +59,7 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Supplier onlyTrashed()
  * @method static Builder|Supplier query()
  * @method static Builder|Supplier whereAddressId($value)
+ * @method static Builder|Supplier whereAgentId($value)
  * @method static Builder|Supplier whereCode($value)
  * @method static Builder|Supplier whereCompanyName($value)
  * @method static Builder|Supplier whereContactName($value)
@@ -74,7 +77,6 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|Supplier whereSettings($value)
  * @method static Builder|Supplier whereSharedData($value)
  * @method static Builder|Supplier whereSlug($value)
- * @method static Builder|Supplier whereSourceAgentId($value)
  * @method static Builder|Supplier whereSourceId($value)
  * @method static Builder|Supplier whereStatus($value)
  * @method static Builder|Supplier whereTenantData($value)
@@ -109,11 +111,19 @@ class Supplier extends Model
 
     protected $guarded = [];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected static function booted()
     {
         static::created(
-            function () {
+            function (Supplier $supplier) {
                 HydrateTenant::make()->procurementStats();
+                if ($supplier->agent_id) {
+                    AgentHydrateSuppliers::dispatch($supplier->agent);
+                }
             }
         );
         static::deleted(
@@ -148,9 +158,10 @@ class Supplier extends Model
         return $this->hasMany(SupplierProduct::class);
     }
 
-    public function getRouteKeyName(): string
+    public function agent(): BelongsTo
     {
-        return 'slug';
+        return $this->belongsTo(Agent::class);
     }
+
 
 }

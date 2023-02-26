@@ -7,9 +7,11 @@
 
 namespace App\Models\Procurement;
 
-
+use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
+use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,7 +27,7 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property string|null $slug
  * @property int|null $current_historic_supplier_product_id
  * @property int|null $supplier_id
- * @property int|null $sub_supplier_id
+ * @property int|null $agent_id
  * @property string|null $state
  * @property bool|null $status
  * @property string|null $stock_quantity_status
@@ -43,13 +45,16 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $global_id
  * @property int|null $source_id
+ * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\HistoricSupplierProduct> $historicRecords
  * @property-read int|null $historic_records_count
  * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
+ * @property-read \App\Models\Procurement\Supplier|null $supplier
  * @method static Builder|SupplierProduct newModelQuery()
  * @method static Builder|SupplierProduct newQuery()
  * @method static Builder|SupplierProduct onlyTrashed()
  * @method static Builder|SupplierProduct query()
+ * @method static Builder|SupplierProduct whereAgentId($value)
  * @method static Builder|SupplierProduct whereCode($value)
  * @method static Builder|SupplierProduct whereComposition($value)
  * @method static Builder|SupplierProduct whereCost($value)
@@ -67,7 +72,6 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|SupplierProduct whereState($value)
  * @method static Builder|SupplierProduct whereStatus($value)
  * @method static Builder|SupplierProduct whereStockQuantityStatus($value)
- * @method static Builder|SupplierProduct whereSubSupplierId($value)
  * @method static Builder|SupplierProduct whereSupplierId($value)
  * @method static Builder|SupplierProduct whereTenantData($value)
  * @method static Builder|SupplierProduct whereUnitsPerCarton($value)
@@ -94,7 +98,7 @@ class SupplierProduct extends Model
     protected $attributes = [
         'shared_data' => '{}',
         'tenant_data' => '{}',
-        'settings' => '{}',
+        'settings'    => '{}',
 
     ];
 
@@ -107,6 +111,17 @@ class SupplierProduct extends Model
             ->saveSlugsTo('slug');
     }
 
+    protected static function booted()
+    {
+        static::created(
+            function (SupplierProduct $supplierProduct) {
+                /** @noinspection PhpUndefinedMethodInspection */
+                SupplierHydrateSupplierProducts::dispatch($supplierProduct->supplier()->withTrashed()->first());
+                AgentHydrateSuppliers::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent);
+            }
+        );
+    }
+
     public function historicRecords(): HasMany
     {
         return $this->hasMany(HistoricSupplierProduct::class);
@@ -115,6 +130,16 @@ class SupplierProduct extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(SupplierProductStats::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
     }
 
 }

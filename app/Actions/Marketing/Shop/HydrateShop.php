@@ -33,7 +33,7 @@ class HydrateShop extends HydrateModel
         $this->orderStats($shop);
         $this->departmentsStats($shop);
         $this->familiesStats($shop);
-        $this->productStats($shop);
+        $this->productsStats($shop);
         $this->invoices($shop);
         $this->salesStats($shop);
     }
@@ -139,7 +139,7 @@ class HydrateShop extends HydrateModel
     }
 
 
-    public function productStats(Shop $shop)
+    public function productsStats(Shop $shop)
     {
         $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Product::where('shop_id', $shop->id)

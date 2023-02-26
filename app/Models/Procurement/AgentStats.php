@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_suppliers
  * @property int $number_active_suppliers
  * @property int $number_products all excluding discontinued
- * @property int $number_products_state_creating
+ * @property int $number_products_state_in_process
  * @property int $number_products_state_active
  * @property int $number_products_state_no_available
  * @property int $number_products_state_discontinuing
@@ -40,7 +40,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_deliveries
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Procurement\Agent $shop
+ * @property-read \App\Models\Procurement\Agent $agent
  * @method static Builder|AgentStats newModelQuery()
  * @method static Builder|AgentStats newQuery()
  * @method static Builder|AgentStats query()
@@ -51,9 +51,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|AgentStats whereNumberDeliveries($value)
  * @method static Builder|AgentStats whereNumberProducts($value)
  * @method static Builder|AgentStats whereNumberProductsStateActive($value)
- * @method static Builder|AgentStats whereNumberProductsStateCreating($value)
  * @method static Builder|AgentStats whereNumberProductsStateDiscontinued($value)
  * @method static Builder|AgentStats whereNumberProductsStateDiscontinuing($value)
+ * @method static Builder|AgentStats whereNumberProductsStateInProcess($value)
  * @method static Builder|AgentStats whereNumberProductsStateNoAvailable($value)
  * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusCritical($value)
  * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusLow($value)

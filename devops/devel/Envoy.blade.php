@@ -105,7 +105,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     echo "tenant-fetch-employees" > step
     cd ../../
     echo "employees and guests"
-    php artisan fetch:employees {{$instance}} -
+    php artisan fetch:employees {{$instance}} -q
     php artisan fetch:deleted-employees {{$instance}} -q
     php artisan fetch:guests {{$instance}} -q
 @endtask
@@ -125,6 +125,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     echo "tenant-fetch-procurement" > step
     cd ../../
     echo "suppliers"
+    php artisan fetch:agents {{$instance}} -q
     php artisan fetch:suppliers {{$instance}} -q
     php artisan fetch:deleted-suppliers {{$instance}} -q
     echo "supplier products"

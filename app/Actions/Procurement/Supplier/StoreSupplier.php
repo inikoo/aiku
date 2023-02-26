@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Models\Central\Tenant;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,16 +18,21 @@ class StoreSupplier
 {
     use AsAction;
 
-    public function handle(Tenant|Supplier $parent, array $modelData, array $addressData = []): Supplier
+    public function handle(Tenant|Agent $owner, array $modelData, array $addressData = []): Supplier
     {
+        if (class_basename($owner) == 'Agent') {
+            $modelData['owner_type'] = $owner->owner_type;
+            $modelData['owner_id']   = $owner->owner_id;
+        }
+
         /** @var Supplier $supplier */
-        $supplier = $parent->suppliers()->create($modelData);
+        $supplier = $owner->suppliers()->create($modelData);
 
         $supplier->stats()->create();
 
         StoreAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
 
-        $supplier->location   = $supplier->getLocation();
+        $supplier->location = $supplier->getLocation();
         $supplier->save();
 
 

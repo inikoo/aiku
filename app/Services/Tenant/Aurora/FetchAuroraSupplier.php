@@ -14,6 +14,23 @@ class FetchAuroraSupplier extends FetchAurora
 
     protected function parseModel(): void
     {
+        $agentData = Db::connection('aurora')->table('Agent Supplier Bridge')
+            ->select('Agent Supplier Agent Key')
+            ->where('Agent Supplier Supplier Key', $this->auroraModelData->{'Supplier Key'})->first();
+
+        $type='supplier';
+        $this->parsedData['owner'] = tenant();
+        $agentId                   = null;
+
+        if ($agentData) {
+            $this->parsedData['owner'] = $this->parseAgent($agentData->{'Agent Supplier Agent Key'});
+            if (!$this->parsedData['owner']) {
+                print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
+            }
+            $agentId = $this->parsedData['owner']->id;
+            $type='sub-supplier';
+        }
+
         $deleted_at = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
         if ($this->auroraModelData->{'Supplier Type'} != 'Archived') {
             $deleted_at = null;
@@ -31,8 +48,9 @@ class FetchAuroraSupplier extends FetchAurora
 
         $this->parsedData['supplier'] =
             [
-                'type'         => 'supplier',
+                'type'         => $type,
                 'name'         => $name,
+                'agent_id'     => $agentId,
                 'code'         => preg_replace('/\s/', '-', $this->auroraModelData->{'Supplier Code'}),
                 'company_name' => $this->auroraModelData->{'Supplier Company Name'},
                 'contact_name' => $this->auroraModelData->{'Supplier Main Contact Name'},

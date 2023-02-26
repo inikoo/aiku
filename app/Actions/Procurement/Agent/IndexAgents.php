@@ -27,17 +27,16 @@ class IndexAgents extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('suppliers.code', 'LIKE', "$value%")
-                    ->orWhere('suppliers.name', 'LIKE', "%$value%");
+                $query->where('agents.code', 'LIKE', "$value%")
+                    ->orWhere('agents.name', 'LIKE', "%$value%");
             });
         });
 
 
         return QueryBuilder::for(Agent::class)
-            ->defaultSort('suppliers.code')
+            ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug'])
-            ->where('suppliers.type', 'agent')
-            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
+            ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))

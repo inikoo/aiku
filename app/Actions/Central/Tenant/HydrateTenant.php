@@ -17,6 +17,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\WarehouseStats;
 use App\Models\Marketing\Shop;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
 use Illuminate\Console\Command;
@@ -277,10 +278,10 @@ class HydrateTenant extends HydrateModel
             'number_suppliers'        => Supplier::where('type', 'supplier')->count(),
             'number_active_suppliers' => Supplier::where('type', 'supplier')->where('status', true)->count(),
 
-            'number_agents'               => Supplier::where('type', 'agent')->count(),
-            'number_active_agents'        => Supplier::where('type', 'agent')->where('status', true)->count(),
-            'number_active_tenant_agents' => Supplier::where('type', 'agent')->where('status', true)->whereNull('global_id')->count(),
-            'number_active_global_agents' => Supplier::where('type', 'agent')->where('status', true)->whereNotNull('global_id')->count(),
+            'number_agents'               => Agent::count(),
+            'number_active_agents'        => Agent::where('status', true)->count(),
+            'number_active_tenant_agents' => Agent::where('status', true)->whereNull('global_id')->count(),
+            'number_active_global_agents' => Agent::where('status', true)->whereNotNull('global_id')->count(),
 
         ];
 

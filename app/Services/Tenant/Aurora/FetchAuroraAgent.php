@@ -22,16 +22,15 @@ class FetchAuroraAgent extends FetchAurora
 
         $this->parsedData['agent'] =
             [
-                'type'            => 'agent',
-                'name'            => $this->auroraModelData->{'Agent Name'},
-                'code'            => preg_replace('/\s/', '-', $this->auroraModelData->{'Agent Code'}),
-                'company_name'    => $this->auroraModelData->{'Agent Company Name'},
-                'contact_name'    => $this->auroraModelData->{'Agent Main Contact Name'},
-                'email'           => $this->auroraModelData->{'Agent Main Plain Email'},
-                'phone'           => $phone,
-                'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Agent Default Currency Code'}),
-                'source_agent_id' => $this->auroraModelData->{'Agent Key'},
-                'created_at'      => $this->auroraModelData->{'Agent Valid From'}
+                'name'         => $this->auroraModelData->{'Agent Name'},
+                'code'         => preg_replace('/\s/', '-', $this->auroraModelData->{'Agent Code'}),
+                'company_name' => $this->auroraModelData->{'Agent Company Name'},
+                'contact_name' => $this->auroraModelData->{'Agent Main Contact Name'},
+                'email'        => $this->auroraModelData->{'Agent Main Plain Email'},
+                'phone'        => $phone,
+                'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Agent Default Currency Code'}),
+                'source_id'    => $this->auroraModelData->{'Agent Key'},
+                'created_at'   => $this->auroraModelData->{'Agent Valid From'}
 
             ];
 

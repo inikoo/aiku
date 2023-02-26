@@ -13,12 +13,8 @@ return new class extends Migration {
 
     public function up()
     {
-        Schema::create('suppliers', function (Blueprint $table) {
+        Schema::create('agents', function (Blueprint $table) {
             $table->mediumIncrements('id');
-            $table->enum('type', ['supplier', 'sub-supplier'])->index()->comment('sub-supplier: agents supplier');
-            $table->unsignedMediumInteger('agent_id')->nullable();
-            $table->foreign('agent_id')->references('id')->on('agents');
-
             $table->boolean('status')->default(true)->index();
             $table->string('slug')->unique();
             $table->string('code')->index();
@@ -48,6 +44,6 @@ return new class extends Migration {
 
     public function down()
     {
-        Schema::dropIfExists('suppliers');
+        Schema::dropIfExists('agent');
     }
 };
