@@ -74,7 +74,7 @@ class SupplierStats extends Model
 
     protected $guarded = [];
 
-    public function shop(): BelongsTo
+    public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
