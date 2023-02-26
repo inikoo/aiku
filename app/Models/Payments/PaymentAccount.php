@@ -9,6 +9,7 @@ namespace App\Models\Payments;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -72,6 +73,11 @@ class PaymentAccount extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug');
+    }
+
+    public function paymentServiceProvider(): BelongsTo
+    {
+        return $this->belongsTo(PaymentServiceProvider::class);
     }
 
     public function payments(): HasMany
