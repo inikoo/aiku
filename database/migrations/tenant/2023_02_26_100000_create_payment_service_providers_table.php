@@ -17,7 +17,6 @@ return new class extends Migration
         Schema::create('payment_service_providers', function (Blueprint $table) {
             $table->id();
             $table->string('type')->index();
-            $table->string('block')->index();
             $table->string('code')->index();
             $table->string('slug')->unique();
             $table->jsonb('data');

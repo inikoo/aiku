@@ -92,6 +92,13 @@ interface SourceTenantService
 
     public function fetchSupplierProduct($id);
 
+    public function fetchPaymentServiceProvider($id);
+
+    public function fetchPaymentAccount($id);
+
+    public function fetchPayment($id);
+
+
     public function initialisation(Tenant $tenant);
 }
 

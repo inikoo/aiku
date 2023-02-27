@@ -74,7 +74,8 @@ class CreateAuroraTenant
 
 
         if (App::environment('local')) {
-            $auroraURL = "http://".env('AURORA_DOMAIN','aurora.local');
+            /** @noinspection HttpUrlsUsage */
+            $auroraURL = "http://".env('AURORA_DOMAIN', 'aurora.local');
         } else {
             $auroraURL = "https://$code.".env('AURORA_DOMAIN', 'aurora.systems');
         }
@@ -97,6 +98,23 @@ class CreateAuroraTenant
 
 
         $tenant = StoreTenant::run($tenantData);
+
+        $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')
+            ->select('Payment Service Provider Key')
+            ->where('Payment Service Provider Block', 'Accounts')->first();
+
+        if($accountsServiceProviderData){
+            $tenant->run(function () use ($accountsServiceProviderData) {
+                /** @var Tenant $tenant */
+                $tenant = tenant();
+                $tenant->accountsServiceProvider()->update(
+                    [
+                        'source_id' => $accountsServiceProviderData->{'Payment Service Provider Key'}
+                    ]
+                );
+            });
+        }
+
 
 
         $domain = $tenant->domains()->create([
@@ -131,6 +149,7 @@ class CreateAuroraTenant
         Artisan::call('create:tenant-storage-link');
 
 
+        /** @noinspection HttpUrlsUsage */
         DB::connection('aurora')->table('Account Data')
             ->update(['pika_url' => (app()->isLocal() ? 'http://' : 'https://').$domain->domain.'.'.config('app.domain')]);
 

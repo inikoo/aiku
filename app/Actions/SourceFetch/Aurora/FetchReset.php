@@ -257,6 +257,12 @@ class FetchReset
                     DB::connection('aurora')->table('Invoice Deleted Dimension')->update(['aiku_id' => null]);
                     DB::connection('aurora')->table('Delivery Note Dimension')->update(['aiku_id' => null]);
 
+                    DB::connection('aurora')->table('Payment Dimension')->update(['aiku_id' => null]);
+                    DB::connection('aurora')->table('Payment Account Dimension')->update(['aiku_id' => null]);
+                    DB::connection('aurora')->table('Payment Service Provider Dimension')->update(['aiku_id' => null]);
+
+
+
                     $command->line("✅ orders \t\t".$this->stepTime());
 
 

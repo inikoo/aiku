@@ -35,6 +35,7 @@ class FetchShopCategories extends FetchAction
                 );
             } else {
                 $shop = StoreShop::run(
+                    tenant:      tenant(),
                     modelData:   $shopData['shop'],
                     addressData: []
                 );
@@ -70,7 +71,7 @@ class FetchShopCategories extends FetchAction
         return null;
     }
 
-    public function fetchAll(SourceTenantService $tenantSource, Command $command=null): void
+    public function fetchAll(SourceTenantService $tenantSource, Command $command = null): void
     {
         foreach ($this->getModelsQuery()->get() as $auroraData) {
             $this->handle($tenantSource, $auroraData->{'source_id'});

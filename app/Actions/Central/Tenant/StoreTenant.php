@@ -40,8 +40,10 @@ class StoreTenant
             StorePaymentServiceProvider::run(
                 modelData: [
                                'type'  => 'account',
-                               'block' => 'accounts',
-                               'code'  => 'Accounts'
+                               'data' => [
+                                   'service-code'=>'accounts'
+                               ],
+                               'code'  => 'accounts'
                            ]
             );
         });

@@ -10,6 +10,7 @@ namespace App\Actions\Marketing\Shop;
 
 use App\Actions\Central\Tenant\HydrateTenant;
 use App\Actions\HydrateModel;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydratePaymentAccounts;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Family;
 use App\Models\Sales\Customer;
@@ -29,6 +30,7 @@ class HydrateShop extends HydrateModel
 
     public function handle(Shop $shop): void
     {
+        ShopHydratePaymentAccounts::run($shop);
         $this->customerStats($shop);
         $this->orderStats($shop);
         $this->departmentsStats($shop);

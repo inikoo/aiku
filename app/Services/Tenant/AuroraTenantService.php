@@ -33,6 +33,7 @@ use App\Services\Tenant\Aurora\FetchAuroraInvoice;
 use App\Services\Tenant\Aurora\FetchAuroraInvoiceTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraLocation;
 use App\Services\Tenant\Aurora\FetchAuroraOrder;
+use App\Services\Tenant\Aurora\FetchAuroraPaymentServiceProvider;
 use App\Services\Tenant\Aurora\FetchAuroraProduct;
 use App\Services\Tenant\Aurora\FetchAuroraProductStocks;
 use App\Services\Tenant\Aurora\FetchAuroraService;
@@ -261,5 +262,20 @@ class AuroraTenantService implements SourceTenantService
     public function fetchDeletedSupplierProduct($id): ?array
     {
         return (new FetchAuroraDeletedSupplierProduct($this))->fetch($id);
+    }
+
+    public function fetchPaymentServiceProvider($id): ?array
+    {
+        return (new FetchAuroraPaymentServiceProvider($this))->fetch($id);
+    }
+
+    public function fetchPaymentAccount($id): ?array
+    {
+        return (new FetchAuroraPaymentAccount($this))->fetch($id);
+    }
+
+    public function fetchPayment($id): ?array
+    {
+        return (new FetchAuroraPayment($this))->fetch($id);
     }
 }

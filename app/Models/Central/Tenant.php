@@ -7,6 +7,7 @@
 
 namespace App\Models\Central;
 
+use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Inventory\Stock;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -185,4 +186,9 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return $this->morphOne(AdminUser::class, 'userable', null, null, 'numeric_id');
     }
+
+    public function accountsServiceProvider(): PaymentServiceProvider{
+        return  PaymentServiceProvider::where('data->service-code', 'accounts')->first();
+    }
+
 }

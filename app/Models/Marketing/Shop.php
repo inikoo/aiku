@@ -8,16 +8,19 @@
 namespace App\Models\Marketing;
 
 use App\Actions\Central\Tenant\HydrateTenant;
+use App\Models\Accounting\PaymentAccount;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
+use App\Models\Sales\PaymentAccountShop;
 use App\Models\Traits\HasAddress;
 use App\Models\Web\Website;
 use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -218,5 +221,11 @@ class Shop extends Model
         return $this->hasMany(Family::class);
     }
 
+
+    public function paymentAccounts(): BelongsToMany
+    {
+        return $this->belongsToMany(PaymentAccount::class)->using(PaymentAccountShop::class)
+            ->withTimestamps();
+    }
 
 }
