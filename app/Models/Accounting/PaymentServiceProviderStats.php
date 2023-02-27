@@ -36,6 +36,8 @@ class PaymentServiceProviderStats extends Model
 {
     protected $table = 'payment_service_provider_stats';
 
+    protected $guarded = [];
+
     public function paymentServiceProvider(): BelongsTo
     {
         return $this->belongsTo(PaymentServiceProvider::class);

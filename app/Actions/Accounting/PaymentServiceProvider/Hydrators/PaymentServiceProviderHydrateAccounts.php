@@ -22,7 +22,7 @@ class PaymentServiceProviderHydrateAccounts implements ShouldBeUnique
         $stats=[
             'number_accounts'=>$paymentServiceProvider->accounts()->count()
         ];
-        $paymentServiceProvider->stats->update($stats);
+        $paymentServiceProvider->stats()->update($stats);
     }
 
     public function getJobUniqueId(PaymentServiceProvider $paymentServiceProvider): int

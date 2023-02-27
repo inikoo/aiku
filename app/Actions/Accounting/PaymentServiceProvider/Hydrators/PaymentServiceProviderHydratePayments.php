@@ -20,7 +20,7 @@ class PaymentServiceProviderHydratePayments implements ShouldBeUnique
     public function handle(PaymentServiceProvider $paymentServiceProvider): void
     {
         $stats=[
-            'number_accounts'=>$paymentServiceProvider->payments()->count()
+            'number_payments'=>$paymentServiceProvider->payments()->count()
         ];
         $paymentServiceProvider->stats->update($stats);
     }

@@ -21,7 +21,7 @@ class FetchPaymentAccount extends FetchAction
 {
 
 
-    public string $commandSignature = 'fetch:payment-service-providers {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:payment-accounts {tenants?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?PaymentAccount

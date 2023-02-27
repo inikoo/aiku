@@ -9,6 +9,7 @@
 namespace App\Services\Tenant;
 
 
+use AllowDynamicProperties;
 use App\Models\Central\Tenant;
 use App\Models\Dispatch\DeliveryNote;
 use App\Services\Tenant\Aurora\FetchAuroraAgent;
@@ -33,6 +34,7 @@ use App\Services\Tenant\Aurora\FetchAuroraInvoice;
 use App\Services\Tenant\Aurora\FetchAuroraInvoiceTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraLocation;
 use App\Services\Tenant\Aurora\FetchAuroraOrder;
+use App\Services\Tenant\Aurora\FetchAuroraPaymentAccount;
 use App\Services\Tenant\Aurora\FetchAuroraPaymentServiceProvider;
 use App\Services\Tenant\Aurora\FetchAuroraProduct;
 use App\Services\Tenant\Aurora\FetchAuroraProductStocks;
@@ -57,7 +59,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * @property Tenant $tenant
  */
-class AuroraTenantService implements SourceTenantService
+#[AllowDynamicProperties] class AuroraTenantService implements SourceTenantService
 {
 
     public function initialisation(Tenant $tenant)

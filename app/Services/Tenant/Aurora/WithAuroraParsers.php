@@ -17,12 +17,14 @@ use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchLocations;
 use App\Actions\SourceFetch\Aurora\FetchOrders;
+use App\Actions\SourceFetch\Aurora\FetchPaymentServiceProviders;
 use App\Actions\SourceFetch\Aurora\FetchProducts;
 use App\Actions\SourceFetch\Aurora\FetchServices;
 use App\Actions\SourceFetch\Aurora\FetchShippers;
 use App\Actions\SourceFetch\Aurora\FetchShops;
 use App\Actions\SourceFetch\Aurora\FetchStocks;
 use App\Actions\SourceFetch\Aurora\FetchSuppliers;
+use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -291,5 +293,13 @@ trait WithAuroraParsers
         return $shipper;
     }
 
+    function parsePaymentServiceProvider($source_id): PaymentServiceProvider
+    {
+        $paymentServiceProvider = PaymentServiceProvider::where('source_id', $source_id)->first();
+        if (!$paymentServiceProvider) {
+            $paymentServiceProvider = FetchPaymentServiceProviders::run($this->tenantSource, $source_id);
+        }
+        return $paymentServiceProvider;
+    }
 
 }
