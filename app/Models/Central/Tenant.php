@@ -156,6 +156,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return $this->hasOne(TenantSalesStats::class);
     }
 
+    public function accountingStats(): HasOne
+    {
+        return $this->hasOne(TenantAccountingStats::class);
+    }
+
     public function centralDomains(): HasMany
     {
         return $this->hasMany(CentralDomain::class);

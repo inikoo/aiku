@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Payments;
+namespace App\Models\Accounting;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_payments
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @method static Builder|PaymentAccountStats newModelQuery()
  * @method static Builder|PaymentAccountStats newQuery()
  * @method static Builder|PaymentAccountStats query()

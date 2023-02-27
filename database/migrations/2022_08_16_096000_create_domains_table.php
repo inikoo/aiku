@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->timestamps();
+            $table->timestampsTz();
         });
     }
 

@@ -7,6 +7,7 @@
 
 namespace App\Models\Central;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,9 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\Central\TenantFulfilmentStats
  *
  * @property-read \App\Models\Central\Tenant|null $tenant
- * @method static \Illuminate\Database\Eloquent\Builder|TenantFulfilmentStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantFulfilmentStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantFulfilmentStats query()
+ * @method static Builder|TenantFulfilmentStats newModelQuery()
+ * @method static Builder|TenantFulfilmentStats newQuery()
+ * @method static Builder|TenantFulfilmentStats query()
  * @mixin \Eloquent
  */
 class TenantFulfilmentStats extends Model

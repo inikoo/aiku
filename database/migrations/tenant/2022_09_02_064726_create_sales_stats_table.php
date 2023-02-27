@@ -39,7 +39,7 @@ return new class extends Migration
 
             $table->unique(['model_id','model_type','scope']);
 
-            $table->timestamps();
+            $table->timestampsTz();
         });
     }
 

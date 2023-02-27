@@ -8,6 +8,7 @@
 namespace App\Actions\Central\Tenant;
 
 
+use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Models\Central\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Str;
@@ -19,7 +20,7 @@ class StoreTenant
     public function handle(array $modelData): Tenant
     {
         $modelData['numeric_id'] = $this->getAutoincrementID();
-        $tenant = Tenant::create($modelData);
+        $tenant                  = Tenant::create($modelData);
 
         $tenant->stats()->create();
         $tenant->procurementStats()->create();
@@ -28,11 +29,25 @@ class StoreTenant
         $tenant->marketingStats()->create();
         $tenant->salesStats()->create();
         $tenant->fulfilmentStats()->create();
+        $tenant->accountingStats()->create();
         $tenant->refresh();
 
         $tenant->run(function () {
             CreateTenantStorageLink::run();
         });
+
+        $tenant->run(function () {
+            StorePaymentServiceProvider::run(
+                modelData: [
+                               'type'  => 'account',
+                               'block' => 'accounts',
+                               'code'  => 'Accounts'
+                           ]
+            );
+        });
+
+
+
 
         return $tenant;
     }

@@ -66,7 +66,7 @@ return new class extends Migration
             }
 
 
-            $table->timestamps();
+            $table->timestampsTz();
             $table->unique(['tenant_id', 'currency_id']);
         });
     }

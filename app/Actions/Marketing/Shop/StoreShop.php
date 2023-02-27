@@ -7,6 +7,8 @@
 
 namespace App\Actions\Marketing\Shop;
 
+use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,6 +22,14 @@ class StoreShop
         /** @var Shop $shop */
         $shop = Shop::create($modelData);
         $shop->stats()->create();
+
+        $accountsPaymentServiceProvider = PaymentServiceProvider::where('block', 'accounts')->first();
+        $account=StorePaymentAccount::run($accountsPaymentServiceProvider, [
+            'code'        =>'accounts',
+            'currency_id' => $shop->currency_id
+        ]);
+        $account->slug=$shop->slug.'-accounts';
+        $account->save();
         return $shop;
     }
 

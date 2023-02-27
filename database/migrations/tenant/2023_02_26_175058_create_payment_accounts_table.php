@@ -19,6 +19,8 @@ return new class extends Migration
             $table->foreignId('payment_service_provider_id')->constrained();
             $table->string('code')->index();
             $table->string('slug')->unique();
+            $table->unsignedSmallInteger('currency_id')->nullable();
+            $table->foreign('currency_id')->references('id')->on('central.currencies');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();

@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('central_domain_stats', function (Blueprint $table) {
             $table->id();
             $table->foreignId('central_domain_id')->constrained();
-            $table->timestamps();
+            $table->timestampsTz();
         });
     }
 

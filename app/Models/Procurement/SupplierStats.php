@@ -38,7 +38,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_deliveries
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Procurement\Supplier $shop
+ * @property-read \App\Models\Procurement\Supplier $supplier
  * @method static Builder|SupplierStats newModelQuery()
  * @method static Builder|SupplierStats newQuery()
  * @method static Builder|SupplierStats query()

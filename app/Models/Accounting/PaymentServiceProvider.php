@@ -5,15 +5,17 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Payments;
+namespace App\Models\Accounting;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 /**
  * App\Models\Payments\PaymentServiceProvider
@@ -27,10 +29,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payments\PaymentAccount> $accounts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
  * @property-read int|null $accounts_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payments\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read int|null $payments_count
+ * @property-read \App\Models\Accounting\PaymentServiceProviderStats|null $stats
  * @method static Builder|PaymentServiceProvider newModelQuery()
  * @method static Builder|PaymentServiceProvider newQuery()
  * @method static Builder|PaymentServiceProvider onlyTrashed()
@@ -52,6 +55,7 @@ class PaymentServiceProvider extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use TenantConnection;
 
     protected $casts = [
         'data' => 'array',
@@ -80,9 +84,14 @@ class PaymentServiceProvider extends Model
         return $this->hasManyThrough(Payment::class,PaymentAccount::class);
     }
 
-    public function paymentAccount(): HasMany
+    public function accounts(): HasMany
     {
         return $this->hasMany(PaymentAccount::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(PaymentServiceProviderStats::class);
     }
 
 }

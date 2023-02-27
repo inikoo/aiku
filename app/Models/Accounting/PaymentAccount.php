@@ -5,8 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Payments;
+namespace App\Models\Accounting;
 
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateAccounting;
+use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,9 +30,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payments\Payment> $payments
+ * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read int|null $payments_count
- * @property-read \App\Models\Payments\PaymentAccountStats|null $stats
+ * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
  * @method static Builder|PaymentAccount newModelQuery()
  * @method static Builder|PaymentAccount newQuery()
  * @method static Builder|PaymentAccount onlyTrashed()
@@ -68,6 +71,16 @@ class PaymentAccount extends Model
         return 'slug';
     }
 
+    protected static function booted()
+    {
+        static::created(
+            function (PaymentAccount $paymentAccount) {
+                TenantHydrateAccounting::dispatch(tenant());
+                PaymentServiceProviderHydrateAccounts::dispatch($paymentAccount->paymentServiceProvider);
+            }
+        );
+    }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -84,6 +97,7 @@ class PaymentAccount extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
     public function stats(): HasOne
     {
         return $this->hasOne(PaymentAccountStats::class);

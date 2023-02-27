@@ -25,7 +25,7 @@ class CreateRequestLoggingTable extends Migration
             $table->longText('files')->nullable();
             $table->longText('response')->nullable();
             $table->integer('response_size')->nullable();
-            $table->timestamps();
+            $table->timestampsTz();
         });
     }
 

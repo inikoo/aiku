@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('block')->index();
             $table->string('code')->index();
             $table->string('slug')->unique();
+            $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedBigInteger('source_id')->index()->nullable();

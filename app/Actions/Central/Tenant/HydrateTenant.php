@@ -7,6 +7,7 @@
 
 namespace App\Actions\Central\Tenant;
 
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithNormalise;
 use App\Models\Central\Tenant;
@@ -36,6 +37,9 @@ class HydrateTenant extends HydrateModel
 
     public function handle(): void
     {
+        /** @var Tenant $tenant */
+        $tenant = tenant();
+
         $this->employeesStats();
         $this->guestsStats();
         $this->userStats();
@@ -44,6 +48,7 @@ class HydrateTenant extends HydrateModel
         $this->procurementStats();
         $this->marketingStats();
         $this->fulfilmentStats();
+        TenantHydrateAccounting::run($tenant);
     }
 
     public function fulfilmentStats(){
