@@ -59,6 +59,7 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property-read int|null $suppliers_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Central\CentralUser> $tenantUsers
  * @property-read int|null $tenant_users_count
+ * @property mixed $source
  * @method static TenantCollection<int, static> all($columns = ['*'])
  * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
