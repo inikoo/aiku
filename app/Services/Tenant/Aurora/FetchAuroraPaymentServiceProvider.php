@@ -39,7 +39,7 @@ class FetchAuroraPaymentServiceProvider extends FetchAurora
             ->where('Payment Account Service Provider Key',$this->auroraModelData->{'Payment Service Provider Key'})
             ->orderBy('Payment Account From')->first();
 
-        if ($this->parseDate($createdDateData->{'Payment Account From'})) {
+        if ($createdDateData and $this->parseDate($createdDateData->{'Payment Account From'})) {
             $this->parsedData['paymentServiceProvider']['created_at'] = $this->parseDate($createdDateData->{'Payment Account From'});
         }else{
 
@@ -48,7 +48,7 @@ class FetchAuroraPaymentServiceProvider extends FetchAurora
                 ->where('Payment Service Provider Key',$this->auroraModelData->{'Payment Service Provider Key'})
                 ->orderBy('Payment Created Date')->first();
 
-            if( $this->parseDate($createdDateData->{'date'})){
+            if($createdDateData and  $this->parseDate($createdDateData->{'date'})){
                 $this->parsedData['paymentServiceProvider']['created_at'] = $this->parseDate($createdDateData->{'date'});
             }
         }
