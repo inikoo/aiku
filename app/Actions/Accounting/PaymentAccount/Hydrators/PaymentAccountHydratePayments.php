@@ -7,8 +7,11 @@
 
 namespace App\Actions\Accounting\PaymentAccount\Hydrators;
 
+use App\Actions\WithTenantJob;
+use App\Enums\PaymentStateEnum;
 use App\Models\Accounting\PaymentAccount;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
@@ -16,6 +19,7 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
 {
 
     use AsAction;
+    use WithTenantJob;
 
     public function handle(PaymentAccount $paymentAccount): void
     {
@@ -38,9 +42,35 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
             'dc_amount'                   => $dCAmountSuccessfullyPaid + $dCAmountRefunded,
             'dc_amount_successfully_paid' => $dCAmountSuccessfullyPaid,
             'dc_amount_refunded'          => $dCAmountRefunded
-
-
         ];
+
+        $stateCounts =$paymentAccount->payments()
+            ->selectRaw('state, count(*) as total')
+            ->groupBy('state')
+            ->pluck('total', 'state')->all();
+
+        foreach (PaymentStateEnum::valuesDB() as $state) {
+            $stats["number_payment_records_state_$state"] = Arr::get($stateCounts, $state, 0);
+        }
+
+        $stateCounts =$paymentAccount->payments()->where('type','payment')
+            ->selectRaw('state, count(*) as total')
+            ->groupBy('state')
+            ->pluck('total', 'state')->all();
+
+        foreach (PaymentStateEnum::valuesDB() as $state) {
+            $stats["number_payments_state_$state"] = Arr::get($stateCounts, $state, 0);
+        }
+
+        $stateCounts =$paymentAccount->payments()->where('type','refund')
+            ->selectRaw('state, count(*) as total')
+            ->groupBy('state')
+            ->pluck('total', 'state')->all();
+
+        foreach (PaymentStateEnum::valuesDB() as $state) {
+            $stats["number_refunds_state_$state"] = Arr::get($stateCounts, $state, 0);
+        }
+
         $paymentAccount->stats->update($stats);
     }
 

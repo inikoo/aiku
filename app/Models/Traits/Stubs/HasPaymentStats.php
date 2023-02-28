@@ -16,9 +16,9 @@ trait HasPaymentStats
 
     function paymentStats(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_payment_records')->default(0);
-        $table->unsignedSmallInteger('number_payments')->default(0);
-        $table->unsignedSmallInteger('number_refunds')->default(0);
+        $table->unsignedBigInteger('number_payment_records')->default(0);
+        $table->unsignedBigInteger('number_payments')->default(0);
+        $table->unsignedBigInteger('number_refunds')->default(0);
 
 
         if($table->getTable()=='shop_accounting_stats'){
@@ -33,9 +33,9 @@ trait HasPaymentStats
 
 
         foreach (PaymentStateEnum::valuesDB() as $state) {
-            $table->unsignedSmallInteger("number_{$state}_payment_records")->default(0);
-            $table->unsignedSmallInteger("number_{$state}_payments")->default(0);
-            $table->unsignedSmallInteger("number_{$state}_refunds")->default(0);
+            $table->unsignedBigInteger("number_payment_records_state_{$state}")->default(0);
+            $table->unsignedBigInteger("number_payments_state_{$state}")->default(0);
+            $table->unsignedBigInteger("number_refunds_state_{$state}")->default(0);
         }
 
         return $table;
