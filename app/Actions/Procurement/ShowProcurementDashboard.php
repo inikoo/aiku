@@ -71,6 +71,15 @@ class ShowProcurementDashboard
                             ]
 
                         ],
+                        [
+                            'name' => __('Supplier Product'),
+                            'icon' => ['fal', 'fa-cube'],
+                            'href' => ['procurement.supplier-products.index'],
+                            'index' => [
+                                'number' => $this->tenant->procurementStats->number_active_global_agents
+                            ]
+
+                        ],
                     ]
                 ]
 
