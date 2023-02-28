@@ -26,7 +26,8 @@ import {
     faConveyorBeltAlt,
     faUsers,
     faUserHardHat, faBars,faUsersCog,faTachometerAltFast,
-    faInventory
+    faInventory,
+    faAbacus
 } from '../private/pro-light-svg-icons';
 import {useLayoutStore} from '@/Stores/layout';
 

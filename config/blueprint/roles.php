@@ -19,7 +19,8 @@ return
             'osm',
             'production',
             'procurement',
-            'fulfilment'
+            'fulfilment',
+            'accounting'
         ],
 
         'system-admin'          => [

@@ -132,6 +132,13 @@ class GetLayout
                 'route' => 'procurement.dashboard'
             ];
         }
+        if ($user->can('accounting.view')) {
+            $navigation[] = [
+                'name'  => __('Accounting'),
+                'icon'  => ['fal', 'fa-abacus'],
+                'route' => 'accounting.dashboard'
+            ];
+        }
 
 
         if ($user->can('hr.view')) {
@@ -149,6 +156,7 @@ class GetLayout
                 'route' => 'sysadmin.dashboard'
             ];
         }
+
 
         $actions = [];
 

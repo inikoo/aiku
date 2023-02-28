@@ -63,6 +63,9 @@ Route::middleware([
         Route::prefix("sysadmin")
             ->name("sysadmin.")
             ->group(__DIR__ . "/sysadmin.php");
+        Route::prefix("accounting")
+            ->name("accounting.")
+            ->group(__DIR__ . "/accounting.php");
     });
     require __DIR__ . "/auth.php";
 });
