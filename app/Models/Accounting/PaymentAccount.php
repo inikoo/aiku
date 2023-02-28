@@ -25,7 +25,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $payment_service_provider_id
  * @property string $code
  * @property string $slug
+ * @property string $name
  * @property array $data
+ * @property string|null $last_used_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -43,6 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|PaymentAccount whereData($value)
  * @method static Builder|PaymentAccount whereDeletedAt($value)
  * @method static Builder|PaymentAccount whereId($value)
+ * @method static Builder|PaymentAccount whereLastUsedAt($value)
+ * @method static Builder|PaymentAccount whereName($value)
  * @method static Builder|PaymentAccount wherePaymentServiceProviderId($value)
  * @method static Builder|PaymentAccount whereSlug($value)
  * @method static Builder|PaymentAccount whereSourceId($value)
@@ -80,7 +84,6 @@ class PaymentAccount extends Model
             }
         );
     }
-
 
 
     public function getSlugOptions(): SlugOptions

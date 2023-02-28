@@ -72,6 +72,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund
+ * @property int $number_payment_service_providers
+ * @property int $number_payment_accounts
+ * @property int $number_payments
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Marketing\Shop $shop
@@ -131,6 +134,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|ShopStats whereNumberOrdersStatePacked($value)
  * @method static Builder|ShopStats whereNumberOrdersStateReturned($value)
  * @method static Builder|ShopStats whereNumberOrphanFamilies($value)
+ * @method static Builder|ShopStats whereNumberPaymentAccounts($value)
+ * @method static Builder|ShopStats whereNumberPaymentServiceProviders($value)
+ * @method static Builder|ShopStats whereNumberPayments($value)
  * @method static Builder|ShopStats whereNumberProducts($value)
  * @method static Builder|ShopStats whereNumberProductsStateActive($value)
  * @method static Builder|ShopStats whereNumberProductsStateDiscontinued($value)

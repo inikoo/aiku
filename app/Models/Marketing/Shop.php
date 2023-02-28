@@ -8,6 +8,7 @@
 namespace App\Models\Marketing;
 
 use App\Actions\Central\Tenant\HydrateTenant;
+use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
@@ -17,7 +18,6 @@ use App\Models\Sales\Order;
 use App\Models\Sales\PaymentAccountShop;
 use App\Models\Traits\HasAddress;
 use App\Models\Web\Website;
-use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -59,6 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read \App\Models\Marketing\ShopAccountingStats|null $accountingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read int|null $addresses_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
@@ -73,6 +74,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read int|null $invoices_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
+ * @property-read int|null $payment_accounts_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
+ * @property-read int|null $payments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read int|null $products_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Service> $services
@@ -176,6 +181,11 @@ class Shop extends Model
         return $this->hasOne(ShopStats::class);
     }
 
+    public function accountingStats(): HasOne
+    {
+        return $this->hasOne(ShopAccountingStats::class);
+    }
+
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
@@ -221,11 +231,20 @@ class Shop extends Model
         return $this->hasMany(Family::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
 
     public function paymentAccounts(): BelongsToMany
     {
         return $this->belongsToMany(PaymentAccount::class)->using(PaymentAccountShop::class)
             ->withTimestamps();
+    }
+
+    public function accounts(): PaymentAccount
+    {
+        return  $this->paymentAccounts()->where('payment_accounts.data->service-code', 'accounts')->first();
     }
 
 }

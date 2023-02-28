@@ -9,6 +9,7 @@ namespace App\Models\Sales;
 
 
 use App\Actions\Marketing\Shop\HydrateShop;
+use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
@@ -63,6 +64,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read int|null $invoices_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
  * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
+ * @property-read int|null $payments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read int|null $products_count
  * @property-read Shop|null $shop
@@ -206,5 +209,8 @@ class Customer extends Model
         return $this->hasMany(Order::class);
     }
 
-
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

@@ -5,12 +5,14 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Models\Traits\Stubs\HasPaymentStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    use HasPaymentStats;
 
     public function up()
     {
@@ -21,7 +23,9 @@ return new class extends Migration
 
             $table->unsignedBigInteger('number_payment_service_providers')->default(0);
             $table->unsignedBigInteger('number_payment_accounts')->default(0);
-            $table->unsignedBigInteger('number_payments')->default(0);
+
+            $table = $this->paymentStats($table);
+
 
             $table->unsignedBigInteger('number_invoices')->default(0);
             $table->unsignedBigInteger('number_invoices_type_invoice')->default(0);

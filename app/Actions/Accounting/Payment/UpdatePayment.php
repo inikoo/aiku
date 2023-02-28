@@ -15,8 +15,8 @@ class UpdatePayment
 {
     use WithActionUpdate;
 
-    public function handle(Payment $paymentAccount, array $modelData): Payment
+    public function handle(Payment $payment, array $modelData): Payment
     {
-        return $this->update($paymentAccount, $modelData, ['data']);
+        return $this->update($payment, $modelData, ['data']);
     }
 }

@@ -22,11 +22,15 @@ class StoreShop
         /** @var Shop $shop */
         $shop = Shop::create($modelData);
         $shop->stats()->create();
+        $shop->accountingStats()->create();
 
 
         $paymentAccount       = StorePaymentAccount::run($tenant->accountsServiceProvider(), [
-            'code' => 'accounts',
-            'currency_id' => $shop->currency_id
+            'code' => 'accounts-'.$shop->slug,
+            'name' => 'Accounts '.$shop->code,
+            'data' => [
+                'service-code' => 'accounts'
+            ]
         ]);
         $paymentAccount->slug = 'accounts-'.$shop->slug;
         $paymentAccount->save();

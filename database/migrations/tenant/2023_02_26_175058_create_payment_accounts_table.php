@@ -20,10 +20,8 @@ return new class extends Migration
             $table->string('code')->index();
             $table->string('slug')->unique();
             $table->string('name')->index();
-
-            $table->unsignedSmallInteger('currency_id')->nullable();
-            $table->foreign('currency_id')->references('id')->on('central.currencies');
             $table->jsonb('data');
+            $table->dateTimeTz('last_used_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedBigInteger('source_id')->index()->nullable();

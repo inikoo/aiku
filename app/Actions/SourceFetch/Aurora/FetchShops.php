@@ -29,6 +29,9 @@ class FetchShops extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Shop
     {
         if ($shopData = $tenantSource->fetchShop($tenantSourceId)) {
+
+
+
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])
                 ->first()) {
                 $shop = UpdateShop::run(
@@ -45,9 +48,32 @@ class FetchShops extends FetchAction
                 }
             } else {
                 $shop = StoreShop::run(
-                    tenant:tenant(),
+                    tenant:    tenant(),
                     modelData: $shopData['shop']
                 );
+
+
+                $accountData = DB::connection('aurora')->table('Payment Account Dimension')
+                    ->select('Payment Account Key')
+                    ->leftJoin('Payment Account Store Bridge','Payment Account Store Payment Account Key','Payment Account Key')
+                    ->where('Payment Account Block', 'Accounts')
+                    ->where('Payment Account Store Store Key', $shopData['shop']['source_id'])
+                    ->first();
+
+
+
+
+                if ($accountData) {
+
+
+
+                    $shop->accounts()->update(
+                        [
+                            'source_id' => $accountData->{'Payment Account Key'}
+                        ]
+                    );
+                }
+
 
                 if (!empty($shopData['collectionAddress'])) {
                     StoreAddressAttachToModel::run($shop, $shopData['collectionAddress'], ['scope' => 'collection']);

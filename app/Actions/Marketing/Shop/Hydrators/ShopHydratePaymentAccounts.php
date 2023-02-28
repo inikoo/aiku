@@ -28,7 +28,7 @@ class ShopHydratePaymentAccounts implements ShouldBeUnique
             'number_payment_accounts'          => $shop->paymentAccounts()->count(),
         ];
 
-        $shop->stats()->update($stats);
+        $shop->accountingStats()->update($stats);
     }
 
     public function getJobUniqueId(Shop $shop): string

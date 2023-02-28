@@ -19,9 +19,31 @@ class PaymentServiceProviderHydratePayments implements ShouldBeUnique
 
     public function handle(PaymentServiceProvider $paymentServiceProvider): void
     {
-        $stats=[
-            'number_payments'=>$paymentServiceProvider->payments()->count()
+
+        $paymentRecords = $paymentServiceProvider->payments()->count();
+        $refunds        = $paymentServiceProvider->payments()->where('type', 'refund')->count();
+
+        $dCAmountSuccessfullyPaid = $paymentServiceProvider->payments()
+            ->where('type', 'payment')
+            ->where('status', 'success')
+            ->sum('dc_amount');
+        $dCAmountRefunded         = $paymentServiceProvider->payments()
+            ->where('type', 'refund')
+            ->where('status', 'success')
+            ->sum('dc_amount');
+
+        $stats = [
+            'number_payment_records'      => $paymentRecords,
+            'number_payments'             => $paymentRecords - $refunds,
+            'number_refunds'              => $refunds,
+            'dc_amount'                   => $dCAmountSuccessfullyPaid + $dCAmountRefunded,
+            'dc_amount_successfully_paid' => $dCAmountSuccessfullyPaid,
+            'dc_amount_refunded'          => $dCAmountRefunded
+
+
         ];
+
+
         $paymentServiceProvider->stats->update($stats);
     }
 

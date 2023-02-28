@@ -117,6 +117,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     php artisan fetch:shops {{$instance}} -q
     php artisan fetch:payment-service-providers {{$instance}} -q
     php artisan fetch:payment-accounts {{$instance}} -q
+    php artisan fetch:payments {{$instance}} -q
     php artisan fetch:websites {{$instance}} -q
 @endtask
 

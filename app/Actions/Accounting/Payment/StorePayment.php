@@ -9,6 +9,7 @@ namespace App\Actions\Accounting\Payment;
 
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
@@ -16,10 +17,14 @@ class StorePayment
 {
     use AsAction;
 
-    public function handle(PaymentAccount $paymentAccount, array $modelData): Payment
+    public function handle(PaymentAccount|Customer $parent, array $modelData): Payment
     {
+        if(class_basename($parent)=='Customer'){
+            $modelData['shop_id']=$parent->shop_id;
+        }
+
         /** @var Payment $payment */
-        $payment = $paymentAccount->payments()->create($modelData);
+        $payment = $parent->payments()->create($modelData);
         return $payment;
     }
 

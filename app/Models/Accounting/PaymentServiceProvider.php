@@ -22,9 +22,10 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  *
  * @property int $id
  * @property string $type
- * @property string $block
  * @property string $code
  * @property string $slug
+ * @property array $data
+ * @property string|null $last_used_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -38,11 +39,12 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
  * @method static Builder|PaymentServiceProvider newQuery()
  * @method static Builder|PaymentServiceProvider onlyTrashed()
  * @method static Builder|PaymentServiceProvider query()
- * @method static Builder|PaymentServiceProvider whereBlock($value)
  * @method static Builder|PaymentServiceProvider whereCode($value)
  * @method static Builder|PaymentServiceProvider whereCreatedAt($value)
+ * @method static Builder|PaymentServiceProvider whereData($value)
  * @method static Builder|PaymentServiceProvider whereDeletedAt($value)
  * @method static Builder|PaymentServiceProvider whereId($value)
+ * @method static Builder|PaymentServiceProvider whereLastUsedAt($value)
  * @method static Builder|PaymentServiceProvider whereSlug($value)
  * @method static Builder|PaymentServiceProvider whereSourceId($value)
  * @method static Builder|PaymentServiceProvider whereType($value)

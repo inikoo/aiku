@@ -34,6 +34,7 @@ use App\Services\Tenant\Aurora\FetchAuroraInvoice;
 use App\Services\Tenant\Aurora\FetchAuroraInvoiceTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraLocation;
 use App\Services\Tenant\Aurora\FetchAuroraOrder;
+use App\Services\Tenant\Aurora\FetchAuroraPayment;
 use App\Services\Tenant\Aurora\FetchAuroraPaymentAccount;
 use App\Services\Tenant\Aurora\FetchAuroraPaymentServiceProvider;
 use App\Services\Tenant\Aurora\FetchAuroraProduct;

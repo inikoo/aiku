@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
 
-class FetchPaymentAccount extends FetchAction
+class FetchPaymentAccounts extends FetchAction
 {
 
 

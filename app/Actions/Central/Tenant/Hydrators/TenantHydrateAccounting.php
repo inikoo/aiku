@@ -22,10 +22,28 @@ class TenantHydrateAccounting implements ShouldBeUnique
 
     public function handle(Tenant $tenant): void
     {
+        $paymentRecords = Payment::count();
+        $refunds        = Payment::where('type', 'refund')->count();
+
+        $dCAmountSuccessfullyPaid = Payment::where('type', 'payment')
+            ->where('status', 'success')
+            ->sum('dc_amount');
+        $dCAmountRefunded         = Payment::where('type', 'refund')
+            ->where('status', 'success')
+            ->sum('dc_amount');
+
         $stats = [
             'number_payment_service_providers' => PaymentServiceProvider::count(),
             'number_payment_accounts'          => PaymentAccount::count(),
-            'number_payments'                  => Payment::count()
+
+            'number_payment_records'      => $paymentRecords,
+            'number_payments'             => $paymentRecords - $refunds,
+            'number_refunds'              => $refunds,
+            'dc_amount'                   => $dCAmountSuccessfullyPaid + $dCAmountRefunded,
+            'dc_amount_successfully_paid' => $dCAmountSuccessfullyPaid,
+            'dc_amount_refunded'          => $dCAmountRefunded
+
+
         ];
 
         $tenant->accountingStats()->update($stats);

@@ -5,7 +5,7 @@
 #  Version 4.0
 #
 
-array=(employees deleted-employees guests shops payment-service-providers payment-accounts websites agents suppliers deleted-suppliers supplier-products deleted-supplier-products shippers warehouses warehouse-areas locations deleted-locations stock-families stocks deleted-stocks shop-categories products services customers deleted-customers web-users orders delivery-notes invoices deleted-invoices )
+array=(employees deleted-employees guests shops payment-service-providers payment-accounts payments websites agents suppliers deleted-suppliers supplier-products deleted-supplier-products shippers warehouses warehouse-areas locations deleted-locations stock-families stocks deleted-stocks shop-categories products services customers deleted-customers web-users orders delivery-notes invoices deleted-invoices )
 for i in "${array[@]}";
 do
   (

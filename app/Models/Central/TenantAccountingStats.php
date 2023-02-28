@@ -10,6 +10,15 @@ namespace App\Models\Central;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * App\Models\Central\TenantAccountingStats
+ *
+ * @property-read \App\Models\Central\Tenant|null $tenant
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats query()
+ * @mixin \Eloquent
+ */
 class TenantAccountingStats extends Model
 {
     protected $table = 'tenant_accounting_stats';

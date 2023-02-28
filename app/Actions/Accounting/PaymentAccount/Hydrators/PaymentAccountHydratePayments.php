@@ -19,8 +19,27 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
 
     public function handle(PaymentAccount $paymentAccount): void
     {
-        $stats=[
-            'number_accounts'=>$paymentAccount->payments()->count()
+        $paymentRecords = $paymentAccount->payments()->count();
+        $refunds        = $paymentAccount->payments()->where('type', 'refund')->count();
+
+        $dCAmountSuccessfullyPaid = $paymentAccount->payments()
+            ->where('type', 'payment')
+            ->where('status', 'success')
+            ->sum('dc_amount');
+        $dCAmountRefunded         = $paymentAccount->payments()
+            ->where('type', 'refund')
+            ->where('status', 'success')
+            ->sum('dc_amount');
+
+        $stats = [
+            'number_payment_records'      => $paymentRecords,
+            'number_payments'             => $paymentRecords - $refunds,
+            'number_refunds'              => $refunds,
+            'dc_amount'                   => $dCAmountSuccessfullyPaid + $dCAmountRefunded,
+            'dc_amount_successfully_paid' => $dCAmountSuccessfullyPaid,
+            'dc_amount_refunded'          => $dCAmountRefunded
+
+
         ];
         $paymentAccount->stats->update($stats);
     }
