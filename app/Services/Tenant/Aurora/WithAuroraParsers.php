@@ -123,6 +123,11 @@ trait WithAuroraParsers
 
     protected function parseAddress($prefix, $auAddressData): array
     {
+        $country = $auAddressData->{$prefix.' Address Country 2 Alpha Code'} ?? null;
+        if ($country == 'XX') {
+            $country = null;
+        }
+
         $addressData                        = [];
         $addressData['address_line_1']      = (string)Str::of($auAddressData->{$prefix.' Address Line 1'} ?? null)->limit(251);
         $addressData['address_line_2']      = (string)Str::of($auAddressData->{$prefix.' Address Line 2'} ?? null)->limit(251);
@@ -131,7 +136,7 @@ trait WithAuroraParsers
         $addressData['locality']            = (string)Str::of($auAddressData->{$prefix.' Address Locality'} ?? null)->limit(187);
         $addressData['dependant_locality']  = (string)Str::of($auAddressData->{$prefix.' Address Dependent Locality'} ?? null)->limit(187);
         $addressData['administrative_area'] = (string)Str::of($auAddressData->{$prefix.' Address Administrative Area'} ?? null)->limit(187);
-        $addressData['country_id']          = $this->parseCountryID($auAddressData->{$prefix.' Address Country 2 Alpha Code'} ?? null, $prefix);
+        $addressData['country_id']          = $this->parseCountryID($country, $prefix);
 
         return $addressData;
     }
@@ -171,27 +176,25 @@ trait WithAuroraParsers
 
     function parseHistoricItem($source_id): HistoricProduct|HistoricService
     {
-
-        $auroraData=DB::connection('aurora')
+        $auroraData = DB::connection('aurora')
             ->table('Product History Dimension as PH')
-            ->leftJoin('Product Dimension as P','P.Product ID','PH.Product ID')
+            ->leftJoin('Product Dimension as P', 'P.Product ID', 'PH.Product ID')
             ->select('Product Type')
-            ->where('PH.Product Key',$source_id)->first();
+            ->where('PH.Product Key', $source_id)->first();
 
-        if($auroraData->{'Product Type'}=='Product'){
+        if ($auroraData->{'Product Type'} == 'Product') {
             $historicItem = HistoricProduct::where('source_id', $source_id)->first();
             if (!$historicItem) {
                 $historicItem = FetchHistoricProducts::run($this->tenantSource, $source_id);
             }
-
-        }else{
+        } else {
             $historicItem = HistoricService::where('source_id', $source_id)->first();
             if (!$historicItem) {
                 $historicItem = FetchHistoricServices::run($this->tenantSource, $source_id);
             }
         }
-        return $historicItem;
 
+        return $historicItem;
     }
 
     function parseProduct($source_id): Product
@@ -219,8 +222,8 @@ trait WithAuroraParsers
         $customer = Customer::where('source_id', $source_id)->first();
         if (!$customer) {
             $customer = FetchCustomers::run($this->tenantSource, $source_id);
-            if(!$customer){
-                $customer=FetchDeletedCustomers::run($this->tenantSource,$source_id);
+            if (!$customer) {
+                $customer = FetchDeletedCustomers::run($this->tenantSource, $source_id);
             }
         }
 
@@ -232,8 +235,8 @@ trait WithAuroraParsers
         $supplier = Supplier::where('source_id', $source_id)->first();
         if (!$supplier) {
             $supplier = FetchSuppliers::run($this->tenantSource, $source_id);
-            if(!$supplier){
-                $supplier=FetchDeletedSuppliers::run($this->tenantSource,$source_id);
+            if (!$supplier) {
+                $supplier = FetchDeletedSuppliers::run($this->tenantSource, $source_id);
             }
         }
 
@@ -245,7 +248,6 @@ trait WithAuroraParsers
         $agent = Agent::where('source_id', $source_id)->first();
         if (!$agent) {
             $agent = FetchAgents::run($this->tenantSource, $source_id);
-
         }
 
         return $agent;
@@ -260,6 +262,7 @@ trait WithAuroraParsers
         if (!$stock) {
             $stock = FetchDeletedStocks::run($this->tenantSource, $source_id);
         }
+
         return $stock;
     }
 
@@ -269,6 +272,7 @@ trait WithAuroraParsers
         if (!$location) {
             $location = FetchLocations::run($this->tenantSource, $source_id);
         }
+
         return $location;
     }
 
@@ -278,6 +282,7 @@ trait WithAuroraParsers
         if (!$order) {
             $order = FetchOrders::run($this->tenantSource, $source_id);
         }
+
         return $order;
     }
 
@@ -292,6 +297,7 @@ trait WithAuroraParsers
         if (!$shipper) {
             $shipper = FetchShippers::run($this->tenantSource, $source_id);
         }
+
         return $shipper;
     }
 
@@ -301,6 +307,7 @@ trait WithAuroraParsers
         if (!$paymentServiceProvider) {
             $paymentServiceProvider = FetchPaymentServiceProviders::run($this->tenantSource, $source_id);
         }
+
         return $paymentServiceProvider;
     }
 
@@ -310,6 +317,7 @@ trait WithAuroraParsers
         if (!$paymentAccount) {
             $paymentAccount = FetchPaymentAccounts::run($this->tenantSource, $source_id);
         }
+
         return $paymentAccount;
     }
 

@@ -77,9 +77,6 @@ class FetchAuroraDeletedCustomer extends FetchAurora
 
             ];
 
-
-
-
         $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $auroraDeletedData);
         $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $auroraDeletedData);
 
