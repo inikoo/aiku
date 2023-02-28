@@ -12,9 +12,9 @@ import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue
 defineProps(['title', 'pageHead', 'treeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faPeopleArrows,faParachuteBox} from '@/../private/pro-light-svg-icons';
+import { faPeopleArrows, faParachuteBox, faUsers } from "@/../private/pro-light-svg-icons";
 
-library.add(faPeopleArrows,faParachuteBox);
+library.add(faPeopleArrows,faParachuteBox, faUsers);
 
 </script>
 

@@ -1,18 +1,20 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 09:48:31 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Tue, 28 Feb 2023 10:07:36 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\Supplier;
+namespace App\Actions\Procurement\SupplierProduct;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\ShowProcurementDashboard;
+use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use App\Models\Procurement\SupplierProduct;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -22,7 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 
-class IndexSuppliers extends InertiaAction
+class IndexSupplierProducts extends InertiaAction
 {
     private Agent|Tenant $parent;
 
@@ -30,22 +32,22 @@ class IndexSuppliers extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('suppliers.code', 'LIKE', "$value%")
-                    ->orWhere('suppliers.name', 'LIKE', "%$value%");
+                $query->where('supplier_products.code', 'LIKE', "$value%")
+                    ->orWhere('supplier_products.name', 'LIKE', "%$value%");
             });
         });
 
 
-        return QueryBuilder::for(Supplier::class)
-            ->defaultSort('suppliers.code')
+        return QueryBuilder::for(SupplierProduct::class)
+            ->defaultSort('supplier_products.code')
             ->select(['code', 'slug', 'name'])
-            ->where('suppliers.type', 'supplier')
+            ->where('supplier_products.slug','supplier_products', 'supplier_products.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Agent') {
-                    $query->where('suppliers.owner_id', $this->parent->id);
+                    $query->where('supplier_products.current_historic_supplier_product_id', $this->parent->id);
                 }
             })
-            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
+            ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -77,21 +79,21 @@ class IndexSuppliers extends InertiaAction
 
     public function jsonResponse(): AnonymousResourceCollection
     {
-        return SupplierResource::collection($this->handle());
+        return SupplierProductResource::collection($this->handle());
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $suppliers)
+    public function htmlResponse(LengthAwarePaginator $supplier_products)
     {
         return Inertia::render(
-            'Procurement/Suppliers',
+            'Procurement/SupplierProducts',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('suppliers'),
+                'title'       => __('supplier_products'),
                 'pageHead'    => [
-                    'title' => __('suppliers'),
+                    'title' => __('supplier_products'),
                 ],
-                'suppliers'   => SupplierResource::collection($suppliers),
+                'supplier_products'   => SupplierProductResource::collection($supplier_products),
 
 
             ]
@@ -110,10 +112,10 @@ class IndexSuppliers extends InertiaAction
         return array_merge(
             (new ShowProcurementDashboard())->getBreadcrumbs(),
             [
-                'procurement.suppliers.index' => [
-                    'route' => 'procurement.suppliers.index',
+                'procurement.supplier-products.index' => [
+                    'route' => 'procurement.supplier-products.index',
                     'modelLabel' => [
-                        'label' => __('suppliers')
+                        'label' => __('suppliers_product')
                     ],
                 ],
             ]

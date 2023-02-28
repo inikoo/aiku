@@ -142,4 +142,9 @@ class SupplierProduct extends Model
         return $this->belongsTo(Agent::class);
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
 }

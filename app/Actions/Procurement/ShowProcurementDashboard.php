@@ -64,10 +64,19 @@ class ShowProcurementDashboard
                         ],
                         [
                             'name' => __('suppliers'),
-                            'icon' => ['fal', 'fa-parachute-box'],
+                            'icon' => ['fal', 'fa-users'],
                             'href' => ['procurement.suppliers.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_active_suppliers
+                            ]
+
+                        ],
+                        [
+                            'name' => __('Supplier Product'),
+                            'icon' => ['fal', 'fa-parachute-box'],
+                            'href' => ['procurement.supplier-products.index'],
+                            'index' => [
+                                'number' => $this->tenant->procurementStats->number_active_global_agents
                             ]
 
                         ],
