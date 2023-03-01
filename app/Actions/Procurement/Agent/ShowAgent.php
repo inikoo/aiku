@@ -60,6 +60,19 @@ class ShowAgent extends InertiaAction
                                 'tooltip' => __('suppliers')
                             ]
                         ],
+                        // TODO ShowSupplierProducts
+                        [
+                            'name'     => trans_choice('supplier|suppliers', $this->agent->stats->number_active_suppliers),
+                            'number'   => $this->agent->stats->number_active_suppliers,
+                            'href'     => [
+                                'procurement.agents.show.suppliers.index',
+                                $this->agent->slug
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-map-signs',
+                                'tooltip' => __('suppliers')
+                            ]
+                        ]
                     ]
 
                 ],
