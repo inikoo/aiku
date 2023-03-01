@@ -30,7 +30,6 @@ class ShowPaymentServiceProvider extends InertiaAction
     public function asController(PaymentServiceProvider $paymentServiceProvider): void
     {
         $this->paymentServiceProvider    = $paymentServiceProvider;
-        dd($paymentServiceProvider->id);
     }
 
     public function htmlResponse(): Response

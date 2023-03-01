@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', ShowAccountingDashboard::class)->name('dashboard');
 
 Route::get('/payment-service-providers', IndexPaymentServiceProviders::class)->name('payment-service-providers.index');
-Route::get('/payment-service-providers/{PaymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');
+Route::get('/payment-service-providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');
 
 
 Route::get('/accounts', IndexPaymentAccounts::class)->name('accounts.index');
