@@ -5,15 +5,17 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\PaymentServiceProvider;
+namespace App\Actions\Accounting\PaymentAccount;
 
 use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
+use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\InertiaTableCustomerResource;
+use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
@@ -29,7 +31,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 
-class IndexPaymentServiceProviders extends InertiaAction
+class IndexPaymentAccounts extends InertiaAction
 {
     private Shop|Tenant $parent;
 
@@ -39,17 +41,18 @@ class IndexPaymentServiceProviders extends InertiaAction
             $query->where(function ($query) use ($value) {
 
 
-                $query->where('payment_service_providers.code', '~*', "\y$value\y")
-                    ->orWhere('payment_service_providers.data', '=', $value);
+                $query->where('payment_accounts.code', '~*', "\y$value\y")
+                    ->orWhere('payment_accounts.name', '=', $value)
+                    ->orWhere('payment_accounts.data', '=', $value);
             });
         });
 
 
-        return QueryBuilder::for(PaymentServiceProvider::class)
-            ->defaultSort('payment_service_providers.code')
-            ->select(['code', 'slug', 'number_accounts'])
-            ->leftJoin('payment_service_provider_stats','payment_service_providers.id','payment_service_provider_stats.payment_service_provider_id')
-            ->allowedSorts(['code', 'number_accounts'])
+        return QueryBuilder::for(PaymentAccount::class)
+            ->defaultSort('payment_accounts.code')
+            ->select(['code', 'slug', 'data','name'])
+            ->leftJoin('payment_account_stats','payment_accounts.id','payment_account_stats.payment_account_id')
+            ->allowedSorts(['code', 'name', 'data'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -67,21 +70,21 @@ class IndexPaymentServiceProviders extends InertiaAction
 
     public function jsonResponse(): AnonymousResourceCollection
     {
-        return PaymentServiceProviderResource::collection($this->handle());
+        return PaymentAccountResource::collection($this->handle());
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $payment_service_providers)
+    public function htmlResponse(LengthAwarePaginator $payment_accounts)
     {
         return Inertia::render(
-            'Accounting/PaymentServiceProviders',
+            'Accounting/PaymentAccounts',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('Payment Service Providers'),
+                'title' => __('Payment Accounts '),
                 'pageHead' => [
-                    'title' => __('Payment Service Providers'),
+                    'title' => __('Payment Accounts'),
                 ],
-                'payment_service_providers' => PaymentServiceProviderResource::collection($payment_service_providers),
+                'payment_accounts' => PaymentAccountResource::collection($payment_accounts),
 
 
             ]
@@ -92,7 +95,9 @@ class IndexPaymentServiceProviders extends InertiaAction
 
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'number_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+
+            $table->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
 
         });
     }
@@ -120,10 +125,10 @@ class IndexPaymentServiceProviders extends InertiaAction
         return array_merge(
             (new ShowAccountingDashboard())->getBreadcrumbs(),
             [
-                'accounting.payment-service-providers.index' => [
-                    'route' => 'accounting.payment-service-providers.index',
+                'accounting.accounts.index' => [
+                    'route' => 'accounting.accounts.index',
                     'modelLabel' => [
-                        'label' => __('payment_service_providers')
+                        'label' => __('payment_accounts')
                     ],
                 ],
             ]
