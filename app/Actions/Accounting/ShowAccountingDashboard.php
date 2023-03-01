@@ -75,16 +75,16 @@ class ShowAccountingDashboard
             'Accounting/AccountingDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('inventory'),
+                'title'       => __('accounting'),
                 'pageHead'    => [
-                    'title' => __('inventory'),
+                    'title' => __('accounting'),
                 ],
                 'treeMaps'    => [
                     [
                         [
                             'name'  => __('providers'),
                             'icon'  => ['fal', 'fa-boxes-alt'],
-                            'href'  => ['inventory.stock-families.index'],
+                            'href'  => ['accounting.payment-service-providers.index'],
                             'index' => [
                                 'number' => $this->tenant->accountingStats->number_payment_service_providers
                             ]

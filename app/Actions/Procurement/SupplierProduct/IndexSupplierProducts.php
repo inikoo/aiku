@@ -115,7 +115,7 @@ class IndexSupplierProducts extends InertiaAction
                 'procurement.supplier-products.index' => [
                     'route' => 'procurement.supplier-products.index',
                     'modelLabel' => [
-                        'label' => __('suppliers_product')
+                        'label' => __('supplier_products')
                     ],
                 ],
             ]
