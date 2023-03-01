@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\Payment\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentServiceProvider\IndexPaymentServiceProviders;
 use App\Actions\Accounting\ShowAccountingDashboard;
@@ -17,5 +18,5 @@ Route::get('/payment-service-providers', IndexPaymentServiceProviders::class)->n
 
 Route::get('/accounts', IndexPaymentAccounts::class)->name('accounts.index');
 
-// Route::get('/payments', IndexPayments::class)->name('payments.index');
+Route::get('/payments', IndexPayments::class)->name('payments.index');
 

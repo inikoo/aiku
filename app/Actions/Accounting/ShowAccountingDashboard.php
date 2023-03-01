@@ -102,7 +102,7 @@ class ShowAccountingDashboard
                         [
                             'name'  => __('payments'),
                             'icon'  => ['fal', 'fa-box'],
-                            'href'  => ['inventory.stocks.index'],
+                            'href'  => ['accounting.payments.index'],
                             'index' => [
                                 'number' => $this->tenant->accountingStats->number_payments
                             ]
