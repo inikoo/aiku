@@ -33,7 +33,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPaymentAccounts extends InertiaAction
 {
-    private Shop|Tenant $parent;
+    private Shop|Tenant|PaymentServiceProvider $parent;
 
     public function handle(): LengthAwarePaginator
     {
@@ -52,6 +52,11 @@ class IndexPaymentAccounts extends InertiaAction
             ->defaultSort('payment_accounts.code')
             ->select(['code', 'slug', 'data','name'])
             ->leftJoin('payment_account_stats','payment_accounts.id','payment_account_stats.payment_account_id')
+            ->when($this->parent, function ($query) {
+                if (class_basename($this->parent) == 'PaymentServiceProvider') {
+                    $query->where('payment_accounts.payment_service_provider_id', $this->parent->id);
+                }
+            })
             ->allowedSorts(['code', 'name', 'data'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -112,21 +117,21 @@ class IndexPaymentAccounts extends InertiaAction
         return $this->handle();
     }
 
-    /*public function InShop(Shop $shop): LengthAwarePaginator
+    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider): LengthAwarePaginator
     {
-        $this->parent = $shop;
+        $this->parent = $paymentServiceProvider;
         $this->validateAttributes();
 
         return $this->handle();
-    }*/
+    }
 
     public function getBreadcrumbs(): array
     {
         return array_merge(
             (new ShowAccountingDashboard())->getBreadcrumbs(),
             [
-                'accounting.accounts.index' => [
-                    'route' => 'accounting.accounts.index',
+                'accounting.payment-accounts.index' => [
+                    'route' => 'accounting.payment-accounts.index',
                     'modelLabel' => [
                         'label' => __('payment_accounts')
                     ],

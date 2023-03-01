@@ -107,14 +107,6 @@ class IndexPaymentServiceProviders extends InertiaAction
         return $this->handle();
     }
 
-    /*public function InShop(Shop $shop): LengthAwarePaginator
-    {
-        $this->parent = $shop;
-        $this->validateAttributes();
-
-        return $this->handle();
-    }*/
-
     public function getBreadcrumbs(): array
     {
         return array_merge(

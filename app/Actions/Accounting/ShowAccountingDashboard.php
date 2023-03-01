@@ -93,7 +93,7 @@ class ShowAccountingDashboard
                         [
                             'name'  => __('accounts'),
                             'icon'  => ['fal', 'fa-box'],
-                            'href'  => ['accounting.accounts.index'],
+                            'href'  => ['accounting.payment-accounts.index'],
                             'index' => [
                                 'number' => $this->tenant->accountingStats->number_payment_accounts
                             ]
