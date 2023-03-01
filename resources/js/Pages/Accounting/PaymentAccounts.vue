@@ -20,7 +20,7 @@ defineProps(['payment_accounts', 'title', 'pageHead']);
 
 
         <template #cell(code)="{ item: payment_account }">
-            <Link :href="route('accounting.accounts.index',[payment_account.slug])">
+            <Link :href="route('accounting.accounts.show',[payment_account.slug])">
                 {{ payment_account.code }}
             </Link>
         </template>
