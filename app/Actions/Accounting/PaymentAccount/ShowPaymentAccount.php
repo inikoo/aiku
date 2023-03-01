@@ -7,13 +7,13 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
+use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 
@@ -40,8 +40,8 @@ class ShowPaymentAccount extends InertiaAction
         return Inertia::render(
             'Accounting/PaymentAccount',
             [
-                'title'       => __('payment_account'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->paymentAccount),
+                'title'       => $this->paymentAccount->name,
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->paymentAccount),
                 'pageHead'    => [
                     'icon'  => 'fal fa-agent',
                     'title' => $this->paymentAccount->slug,
@@ -50,7 +50,7 @@ class ShowPaymentAccount extends InertiaAction
                             'name'     => trans_choice('Account | Accounts', $this->paymentAccount->stats->number_payments),
                             'number'   => $this->paymentAccount->stats->number_payments,
                             'href'     => [
-                                'accounting.accounts.index',
+                                'accounting.payment-accounts.index',
                                 $this->paymentAccount->slug
                             ],
                             'leftIcon' => [
@@ -69,31 +69,46 @@ class ShowPaymentAccount extends InertiaAction
     }
 
 
-    #[Pure] public function jsonResponse(): PaymentAccountResource
+    public function jsonResponse(): PaymentAccountResource
     {
         return new PaymentAccountResource($this->paymentAccount);
     }
 
 
-    public function getBreadcrumbs(PaymentAccount $paymentAccount): array
+    public function getBreadcrumbs(string $routeName, PaymentAccount $paymentAccount): array
     {
-        return array_merge(
-            (new ShowAccountingDashboard())->getBreadcrumbs(),
-            [
-                'accounting.accounts.show' => [
-                    'route'           => 'accounting.accounts.show',
-                    'routeParameters' => $paymentAccount->slug,
+        $headCrumb = function (array $routeParameters = []) use ($paymentAccount, $routeName) {
+            $indexRouteParameters = $routeParameters;
+            array_pop($indexRouteParameters);
+
+            return [
+                $routeName => [
+                    'route'           => $routeName,
+                    'routeParameters' => $routeParameters,
                     'name'            => $paymentAccount->code,
                     'index'           => [
-                        'route'   => 'accounting.accounts.index',
-                        'overlay' => __('Payment Account List')
+                        'route'           => preg_replace('/show$/', 'index', $routeName),
+                        'routeParameters' => $indexRouteParameters,
+                        'overlay'         => __('accounts list')
                     ],
                     'modelLabel'      => [
-                        'label' => __('Payment Account')
-                    ],
+                        'label' => __('account')
+                    ]
                 ],
-            ]
-        );
-    }
+            ];
+        };
 
+        return match ($routeName) {
+            'accounting.payment-accounts.show' => array_merge(
+                (new ShowAccountingDashboard())->getBreadcrumbs(),
+                $headCrumb([$paymentAccount->slug])
+
+            ),
+            'accounting.payment-service-providers.show.payment-accounts.show' => array_merge(
+                (new ShowPaymentServiceProvider())->getBreadcrumbs($paymentAccount->paymentServiceProvider),
+                $headCrumb([$paymentAccount->paymentServiceProvider->slug, $paymentAccount->slug])
+            ),
+            default => []
+        };
+    }
 }

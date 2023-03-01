@@ -115,7 +115,7 @@ class IndexPaymentServiceProviders extends InertiaAction
                 'accounting.payment-service-providers.index' => [
                     'route' => 'accounting.payment-service-providers.index',
                     'modelLabel' => [
-                        'label' => __('payment_service_providers')
+                        'label' => __('Providers')
                     ],
                 ],
             ]

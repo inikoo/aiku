@@ -15,7 +15,6 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -97,7 +96,7 @@ class ShowWarehouseArea
     }
 
 
-    #[Pure] public function jsonResponse(): LocationResource
+    public function jsonResponse(): LocationResource
     {
         return new LocationResource($this->warehouseArea);
     }

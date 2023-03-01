@@ -86,10 +86,10 @@ class ShowPaymentServiceProvider extends InertiaAction
                     'name'            => $paymentServiceProvider->code,
                     'index'           => [
                         'route'   => 'accounting.payment-service-providers.index',
-                        'overlay' => __('Payment Service Provider List')
+                        'overlay' => __('provider list')
                     ],
                     'modelLabel'      => [
-                        'label' => __('Payment Service Provider')
+                        'label' => __('provider')
                     ],
                 ],
             ]
