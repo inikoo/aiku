@@ -19,9 +19,9 @@ defineProps(['payments', 'title', 'pageHead']);
     <Table :resource="payments" class="mt-5">
 
 
-        <template #cell(code)="{ item: payment }">
-            <Link :href="route('accounting.payments.index',[payment.slug])">
-                {{ payment.code }}
+        <template #cell(reference)="{ item: payment }">
+            <Link :href="route('accounting.payments.show',[payment['slug']])">
+                {{ payment['reference'] === '' ? payment['slug'] : payment['reference'] }}
             </Link>
         </template>
 

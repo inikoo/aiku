@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Accounting\Payment\IndexPayments;
+use App\Actions\Accounting\Payment\ShowPayment;
 use App\Actions\Accounting\PaymentAccount\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentAccount\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\IndexPaymentServiceProviders;
@@ -25,4 +26,6 @@ Route::get('/accounts/{paymentAccount}', ShowPaymentAccount::class)->name('accou
 
 
 Route::get('/payments', IndexPayments::class)->name('payments.index');
+Route::get('/payments/{payment}', ShowPayment::class)->name('payments.show');
+
 
