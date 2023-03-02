@@ -29,7 +29,11 @@ defineProps(['payment_service_providers', 'title', 'pageHead']);
                 {{ payment_service_provider['number_accounts'] }}
             </Link>
         </template>
-
+        <template #cell(number_payments)="{ item: payment_service_provider }">
+            <Link :href="route('accounting.payment-service-providers.show.payments.index',[payment_service_provider['slug']])">
+                {{ payment_service_provider['number_payments'] }}
+            </Link>
+        </template>
     </Table>
 </template>
 
