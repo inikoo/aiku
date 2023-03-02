@@ -16,7 +16,7 @@ library.add(faInventory,faWarehouse,faMapSigns);
 
 </script>
 
-
+K
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
