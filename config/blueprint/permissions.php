@@ -10,24 +10,37 @@ return [
 
     'tenant',
     'tenant.view',
+
+
     'sysadmin',
     'sysadmin.view',
     'sysadmin.create',
     'sysadmin.edit',
     'sysadmin.delete',
     'sysadmin.look-and-field',
+
+    'showroom',
+    'showroom.products',
+    'showroom.website',
+
+    'crm',
+    'crm.customers',
+    'crm.email-marketing',
+
     'hr',
     'hr.view',
     'hr.edit',
     'hr.payroll',
     'hr.attendance',
 
+    /*
     'shops',
     'shops.view',
     'shops.products',
     'shops.customers',
     'shops.customers.view',
     'shops.customers.edit',
+    */
 
     'osm',
     'osm.view',

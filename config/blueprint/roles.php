@@ -11,6 +11,8 @@ return
     [
         'super-admin'           => [
             'tenant',
+            'showroom',
+            'crm',
             'sysadmin',
             'hr',
             'inventory',

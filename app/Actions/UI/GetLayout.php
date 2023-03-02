@@ -35,6 +35,8 @@ class GetLayout
             ]
         ];
 
+        /*
+
         if ($shopCount == 1) {
             if ($user->can('shops.view')) {
                 $navigation[] = [
@@ -82,6 +84,26 @@ class GetLayout
                     'route' => 'customers.index'
                 ];
             }
+        }
+*/
+
+
+        if ($user->can('showroom.view')) {
+            $navigation[] = [
+                'name'  => 'Showroom',
+                'icon'  => ['fal', 'fa-store-alt'],
+                'route' => 'showroom.dashboard'
+            ];
+        }
+
+
+
+        if ($user->can('crm.view')) {
+            $navigation[] = [
+                'name'  => 'CRM',
+                'icon'  => ['fal', 'fa-user'],
+                'route' => 'crm.dashboard'
+            ];
         }
 
 
