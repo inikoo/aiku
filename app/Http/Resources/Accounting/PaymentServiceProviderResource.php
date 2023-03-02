@@ -10,6 +10,7 @@ namespace App\Http\Resources\Accounting;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
+ * @property string $number_payments
  * @property integer $number_accounts
  * @property string $slug
  * @property string $code
@@ -22,6 +23,7 @@ class PaymentServiceProviderResource extends JsonResource
     public function toArray($request): array
     {
         return [
+            'number_payments' => $this->number_payments,
             'number_accounts' => $this->number_accounts,
             'slug' => $this->slug,
             'code' => $this->code,

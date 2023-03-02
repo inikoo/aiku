@@ -1,7 +1,7 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 Febr 2023 17:54:17 Malaga, Spain
+ *  Created: Mon, 21 February 2023 17:54:17 Malaga, Spain
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
@@ -9,16 +9,10 @@ namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
-use App\Http\Resources\Marketing\DepartmentResource;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\InertiaTableCustomerResource;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Central\Tenant;
-use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -47,9 +41,9 @@ class IndexPaymentServiceProviders extends InertiaAction
 
         return QueryBuilder::for(PaymentServiceProvider::class)
             ->defaultSort('payment_service_providers.code')
-            ->select(['code', 'slug', 'number_accounts'])
+            ->select(['code', 'slug', 'number_accounts', 'number_payments'])
             ->leftJoin('payment_service_provider_stats','payment_service_providers.id','payment_service_provider_stats.payment_service_provider_id')
-            ->allowedSorts(['code', 'number_accounts'])
+            ->allowedSorts(['code', 'number_accounts', 'number_payments'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -94,6 +88,7 @@ class IndexPaymentServiceProviders extends InertiaAction
 
             $table->column(key: 'number_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true);
 
+            $table->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true);
         });
     }
 
