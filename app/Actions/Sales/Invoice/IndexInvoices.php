@@ -10,6 +10,7 @@ namespace App\Actions\Sales\Invoice;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Sales\InvoiceResource;
+use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Invoice;

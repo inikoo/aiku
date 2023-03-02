@@ -114,9 +114,9 @@ class ShowAccountingDashboard
                         [
                             'name'  => __('invoices'),
                             'icon'  => ['fal', 'fa-boxes-alt'],
-                            'href'  => ['inventory.stock-families.index'],
+                            'href'  => ['accounting.show.invoices.index'],
                             'index' => [
-                                'number' => $this->tenant->inventoryStats->number_stock_families
+                                'number' => $this->tenant->inventoryStats->number_stocks
                             ]
 
                         ],
