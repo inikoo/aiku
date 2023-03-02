@@ -33,7 +33,9 @@ function routeParameters(customer) {
 
 
         <template #cell(reference)="{ item: customer }">
-            <Link :href="route(itemRoute,routeParameters(customer))">
+            <Link
+                :href="route(itemRoute,routeParameters(customer))"
+            >
                 {{ customer['reference'] }}
             </Link>
         </template>

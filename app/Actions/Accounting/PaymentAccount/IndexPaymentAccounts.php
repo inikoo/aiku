@@ -44,14 +44,15 @@ class IndexPaymentAccounts extends InertiaAction
 
         return QueryBuilder::for(PaymentAccount::class)
             ->defaultSort('payment_accounts.code')
-            ->select(['code', 'slug', 'data','name'])
+            ->select(['payment_accounts.code', 'payment_accounts.slug','payment_accounts.name', 'payment_service_providers.slug as payment_service_providers_slug', 'number_payments'])
             ->leftJoin('payment_account_stats','payment_accounts.id','payment_account_stats.payment_account_id')
+            ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'PaymentServiceProvider') {
                     $query->where('payment_accounts.payment_service_provider_id', $this->parent->id);
                 }
             })
-            ->allowedSorts(['code', 'name', 'data'])
+            ->allowedSorts(['code', 'name', 'number_payments'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -96,7 +97,7 @@ class IndexPaymentAccounts extends InertiaAction
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'payment_service_providers_slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true);
 
         });
     }

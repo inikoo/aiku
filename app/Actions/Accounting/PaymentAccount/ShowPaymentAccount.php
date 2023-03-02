@@ -12,6 +12,8 @@ use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentServiceProvider;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -22,17 +24,34 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowPaymentAccount extends InertiaAction
 {
+    public function handle(PaymentAccount $paymentAccount): PaymentAccount
+    {
+        return $paymentAccount;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("accounting.view");
     }
 
-    public function asController(PaymentAccount $paymentAccount): void
+    public function asController(PaymentAccount $paymentAccount, Request $request): PaymentAccount
     {
-        $this->paymentAccount    = $paymentAccount;
+        $this->routeName = $request->route()->getName();
+        $this->validateAttributes();
+
+        return $this->handle($paymentAccount);
     }
 
-    public function htmlResponse(): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, Request $request): PaymentAccount
+    {
+        $this->routeName = $request->route()->getName();
+        $this->validateAttributes();
+
+        return $this->handle($paymentAccount);
+    }
+
+    public function htmlResponse(PaymentAccount $paymentAccount): Response
     {
         $this->validateAttributes();
 
@@ -40,38 +59,47 @@ class ShowPaymentAccount extends InertiaAction
         return Inertia::render(
             'Accounting/PaymentAccount',
             [
-                'title'       => $this->paymentAccount->name,
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->paymentAccount),
-                'pageHead'    => [
-                    'icon'  => 'fal fa-agent',
-                    'title' => $this->paymentAccount->slug,
-                    'meta'  => [
+                'title' => $paymentAccount->name,
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $paymentAccount),
+                'pageHead' => [
+                    'icon' => 'fal fa-agent',
+                    'title' => $paymentAccount->slug,
+                    'meta' => [
                         [
-                            'name'     => trans_choice('Account | Accounts', $this->paymentAccount->stats->number_payments),
-                            'number'   => $this->paymentAccount->stats->number_payments,
-                            'href'     => [
-                                'accounting.payment-accounts.index',
-                                $this->paymentAccount->slug
+                            'name' => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
+                            'number' => $paymentAccount->stats->number_payments,
+                            'hrefx' => [
+                                'accounting.payment-accounts.show.payments.index',
+                                $paymentAccount->slug
                             ],
+                            'href' => match ($this->routeName) {
+                                'accounting.payment-service-providers.show.payment-accounts.show' => [
+                                    'accounting.payment-service-providers.show.payment-accounts.show.payments.index',
+                                    [$paymentAccount->paymentServiceProvider->slug, $paymentAccount->slug]
+                                ],
+                                default => [
+                                    'accounting.payment-accounts.show.payments.index',
+                                    $paymentAccount->slug
+                                ]
+                            },
                             'leftIcon' => [
-                                'icon'    => 'fal fa-map-signs',
-                                'tooltip' => __('payment_account')
+                                'icon' => 'fal fa-credit-card',
+                                'tooltip' => __('payments')
                             ]
                         ],
-                        // TODO ShowSupplierProducts
 
                     ]
 
                 ],
-                'payment_account'   => $this->paymentAccount
+                'payment_account' => $paymentAccount
             ]
         );
     }
 
 
-    public function jsonResponse(): PaymentAccountResource
+    public function jsonResponse(PaymentAccount $paymentAccount): PaymentAccountResource
     {
-        return new PaymentAccountResource($this->paymentAccount);
+        return new PaymentAccountResource($paymentAccount);
     }
 
 
@@ -83,15 +111,15 @@ class ShowPaymentAccount extends InertiaAction
 
             return [
                 $routeName => [
-                    'route'           => $routeName,
+                    'route' => $routeName,
                     'routeParameters' => $routeParameters,
-                    'name'            => $paymentAccount->code,
-                    'index'           => [
-                        'route'           => preg_replace('/show$/', 'index', $routeName),
+                    'name' => $paymentAccount->code,
+                    'index' => [
+                        'route' => preg_replace('/show$/', 'index', $routeName),
                         'routeParameters' => $indexRouteParameters,
-                        'overlay'         => __('accounts list')
+                        'overlay' => __('accounts list')
                     ],
-                    'modelLabel'      => [
+                    'modelLabel' => [
                         'label' => __('account')
                     ]
                 ],

@@ -8,14 +8,15 @@
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
+    faCreditCard,
     faCube,
-    faFolder,
+    faFolder
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
 
-library.add(faFolder, faCube);
+library.add(faFolder, faCube, faCreditCard);
 
 const props = defineProps(['title', 'pageHead', 'payment_account', 'treeMaps']);
 

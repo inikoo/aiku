@@ -83,7 +83,7 @@ class ShowAccountingDashboard
                     [
                         [
                             'name'  => __('providers'),
-                            'icon'  => ['fal', 'fa-boxes-alt'],
+                            'icon'  => ['fal', 'fa-cash-register'],
                             'href'  => ['accounting.payment-service-providers.index'],
                             'index' => [
                                 'number' => $this->tenant->accountingStats->number_payment_service_providers
@@ -92,7 +92,7 @@ class ShowAccountingDashboard
                         ],
                         [
                             'name'  => __('accounts'),
-                            'icon'  => ['fal', 'fa-box'],
+                            'icon'  => ['fal', 'fa-money-check-alt'],
                             'href'  => ['accounting.payment-accounts.index'],
                             'index' => [
                                 'number' => $this->tenant->accountingStats->number_payment_accounts
@@ -101,7 +101,7 @@ class ShowAccountingDashboard
                         ],
                         [
                             'name'  => __('payments'),
-                            'icon'  => ['fal', 'fa-box'],
+                            'icon'  => ['fal', 'fa-credit-card'],
                             'href'  => ['accounting.payments.index'],
                             'index' => [
                                 'number' => $this->tenant->accountingStats->number_payments
@@ -111,9 +111,10 @@ class ShowAccountingDashboard
 
                     ],
                     [
+                        // TODO Raul please fix the stats
                         [
                             'name'  => __('invoices'),
-                            'icon'  => ['fal', 'fa-boxes-alt'],
+                            'icon'  => ['fal', 'fa-file-invoice-dollar'],
                             'href'  => ['accounting.show.invoices.index'],
                             'index' => [
                                 'number' => $this->tenant->inventoryStats->number_stocks

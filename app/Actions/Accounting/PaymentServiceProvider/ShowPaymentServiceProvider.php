@@ -43,22 +43,33 @@ class ShowPaymentServiceProvider extends InertiaAction
                 'title'       => __('payment_service_provider'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->paymentServiceProvider),
                 'pageHead'    => [
-                    'icon'  => 'fal fa-agent',
+                    'icon'  => 'fal fa-cash-register',
                     'title' => $this->paymentServiceProvider->slug,
                     'meta'  => [
                         [
-                            'name'     => trans_choice('Payment | Payments', $this->paymentServiceProvider->stats->number_payments),
-                            'number'   => $this->paymentServiceProvider->stats->number_payments,
+                            'name'     => trans_choice('account | accounts', $this->paymentServiceProvider->stats->number_accounts),
+                            'number'   => $this->paymentServiceProvider->stats->number_accounts,
                             'href'     => [
-                                'accounting.payment-service-providers.index',
+                                'accounting.payment-service-providers.show.payment-accounts.index',
                                 $this->paymentServiceProvider->slug
                             ],
                             'leftIcon' => [
-                                'icon'    => 'fal fa-map-signs',
-                                'tooltip' => __('payment_service_provider')
+                                'icon'    => 'fal fa-money-check-alt',
+                                'tooltip' => __('accounts')
                             ]
                         ],
-                        // TODO ShowSupplierProducts
+                        [
+                            'name'     => trans_choice('payment | payments', $this->paymentServiceProvider->stats->number_payments),
+                            'number'   => $this->paymentServiceProvider->stats->number_payments,
+                            'href'     => [
+                                'accounting.payment-service-providers.show.payments.index',
+                                $this->paymentServiceProvider->slug
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-credit-card',
+                                'tooltip' => __('payments')
+                            ]
+                        ]
 
                     ]
 

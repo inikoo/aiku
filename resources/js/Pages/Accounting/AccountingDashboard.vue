@@ -12,9 +12,11 @@ import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue
 defineProps(['title', 'pageHead', 'treeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt} from '@/../private/pro-light-svg-icons';
+import {
+    faCreditCard, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar
+} from "@/../private/pro-light-svg-icons";
 
-library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt);
+library.add(faCreditCard, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar);
 
 </script>
 

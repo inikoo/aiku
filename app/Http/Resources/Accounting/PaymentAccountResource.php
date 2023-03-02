@@ -10,7 +10,8 @@ namespace App\Http\Resources\Accounting;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property integer $data
+ * @property string $number_payments
+ * @property integer $payment_service_providers_slug
  * @property string $slug
  * @property string $code
  * @property mixed $created_at
@@ -22,7 +23,8 @@ class PaymentAccountResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'number_accounts' => $this->data,
+            'payment_service_providers_slug' => $this->payment_service_providers_slug,
+            'number_payments' => $this->number_payments,
             'slug' => $this->slug,
             'code' => $this->code,
             'created_at' => $this->created_at,

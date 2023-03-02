@@ -35,7 +35,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPayments extends InertiaAction
 {
-    private Shop|Tenant $parent;
+    private Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent;
 
     public function handle(): LengthAwarePaginator
     {
@@ -54,9 +54,21 @@ class IndexPayments extends InertiaAction
 
         return QueryBuilder::for(Payment::class)
             ->defaultSort('payments.reference')
-            ->select(['reference', 'slug', 'status','date','data'])
-            //->leftJoin('payment_account_stats','payment_accounts.id','payment_account_stats.payment_account_id')
-            ->allowedSorts(['reference', 'status', 'date','data'])
+            ->select(['payments.reference', 'payments.slug', 'payments.status','payments.date'])
+            ->when($this->parent, function ($query) {
+                if (class_basename($this->parent) == 'PaymentServiceProvider') {
+                    $query->leftJoin('payment_accounts', 'payment_account_id', 'payment_accounts.id');
+
+                    $query->where('payment_service_provider_id', $this->parent->id);
+                }
+                if (class_basename($this->parent) == 'PaymentAccount') {
+                    $query->where('payments.payment_account_id', $this->parent->id);
+                }
+                if (class_basename($this->parent) == 'Shop') {
+                    $query->where('payments.shop_id', $this->parent->id);
+                }
+            })
+            ->allowedSorts(['payments.reference', 'payments.status', 'payments.date'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -118,13 +130,37 @@ class IndexPayments extends InertiaAction
         return $this->handle();
     }
 
-    /*public function InShop(Shop $shop): LengthAwarePaginator
+    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider): LengthAwarePaginator
+    {
+        $this->parent = $paymentServiceProvider;
+        $this->validateAttributes();
+
+        return $this->handle();
+    }
+
+    public function inPaymentAccount(PaymentAccount $paymentAccount): LengthAwarePaginator
+    {
+        $this->parent = $paymentAccount;
+        $this->validateAttributes();
+
+        return $this->handle();
+    }
+
+    public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider , PaymentAccount $paymentAccount): LengthAwarePaginator
+    {
+        $this->parent = $paymentAccount;
+        $this->validateAttributes();
+
+        return $this->handle();
+    }
+
+    public function InShop(Shop $shop): LengthAwarePaginator
     {
         $this->parent = $shop;
         $this->validateAttributes();
 
         return $this->handle();
-    }*/
+    }
 
     public function getBreadcrumbs(): array
     {
