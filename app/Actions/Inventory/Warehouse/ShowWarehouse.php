@@ -78,6 +78,26 @@ class ShowWarehouse
                     ]
 
                 ],
+                'tabs' => [
+
+                    'current' => 'warehouse',
+                    'items'   => [
+                        'warehouse' => [
+                            'name' => __('dashboard'),
+                            'icon' => 'fal fa-tachometer-alt',
+                        ],
+                        'details'   => [
+                            'name' => __('details'),
+                            'icon' => 'fal fa-clock',
+                        ],
+                        'history'   => [
+                            'name' => __('changelog'),
+                            'icon' => 'fal fa-clock',
+                        ]
+                    ]
+
+
+                ],
                 'warehouse'   => $this->warehouse
             ]
         );

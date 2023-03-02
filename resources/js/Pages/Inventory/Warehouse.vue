@@ -3,24 +3,24 @@
   -  Created: Thu, 15 Sept 2022 16:07:20 Malaysia Time, Kuala Lumpur, Malaysia
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
-
-<template layout="App">
-    <Head :title="title" />
-    <PageHeading :data="pageHead"></PageHeading>
-
-
-
-
-</template>
-
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
-defineProps(["title","pageHead","warehouse"])
+defineProps(["title","pageHead","warehouse","tabs"])
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faInventory,faWarehouse,faMapSigns} from '@/../private/pro-light-svg-icons';
+import Tabs from "@/Components/Navigation/Tabs.vue";
 library.add(faInventory,faWarehouse,faMapSigns);
 
 </script>
+
+
+<template layout="App">
+    <Head :title="title" />
+    <PageHeading :data="pageHead"></PageHeading>
+    <Tabs :tabs="tabs"></Tabs>
+
+</template>
+
