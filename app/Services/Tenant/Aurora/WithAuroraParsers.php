@@ -11,8 +11,12 @@ namespace App\Services\Tenant\Aurora;
 use App\Actions\SourceFetch\Aurora\FetchAgents;
 use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedCustomers;
+use App\Actions\SourceFetch\Aurora\FetchDeletedEmployees;
+use App\Actions\SourceFetch\Aurora\FetchDeletedGuests;
 use App\Actions\SourceFetch\Aurora\FetchDeletedStocks;
 use App\Actions\SourceFetch\Aurora\FetchDeletedSuppliers;
+use App\Actions\SourceFetch\Aurora\FetchEmployees;
+use App\Actions\SourceFetch\Aurora\FetchGuests;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchLocations;
@@ -32,6 +36,7 @@ use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Dispatch\Shipper;
+use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\HistoricProduct;
@@ -44,6 +49,7 @@ use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
+use App\Models\SysAdmin\Guest;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -319,6 +325,32 @@ trait WithAuroraParsers
         }
 
         return $paymentAccount;
+    }
+
+    function parseEmployee($source_id): ?Employee
+    {
+        $employee = Employee::withTrashed()->where('source_id', $source_id)->first();
+        if (!$employee) {
+            $employee = FetchEmployees::run($this->tenantSource, $source_id);
+        }
+        if (!$employee) {
+            $employee = FetchDeletedEmployees::run($this->tenantSource, $source_id);
+        }
+
+        return $employee;
+    }
+
+    function parseGuest($source_id): ?Guest
+    {
+        $guest = Guest::withTrashed()->where('source_id', $source_id)->first();
+        if (!$guest) {
+            $guest = FetchGuests::run($this->tenantSource, $source_id);
+        }
+        if (!$guest) {
+            $guest = FetchDeletedGuests::run($this->tenantSource, $source_id);
+        }
+
+        return $guest;
     }
 
 }

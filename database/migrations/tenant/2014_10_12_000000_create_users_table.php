@@ -22,12 +22,15 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('about')->nullable();
             $table->rememberToken();
+            $table->jsonb('tenants_data')->nullable();
             $table->jsonb('profile');
             $table->jsonb('settings');
             $table->timestampsTz();
+            $table->softDeletesTz();
             $table->string('password');
             $table->unsignedSmallInteger('number_tenants')->default(0);
             $table->uuid('global_id')->index();
+            $table->unsignedBigInteger('source_id')->nullable()->unique();
 
         });
     }

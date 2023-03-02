@@ -1,4 +1,5 @@
 @servers(['localhost' => '127.0.0.1'])
+@servers(['localhost' => '127.0.0.1'])
 @setup
     $dotenv = Dotenv\Dotenv::createImmutable('../../');
     $dotenv->load();
@@ -108,6 +109,7 @@ php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-ad
     php artisan fetch:employees {{$instance}} -q
     php artisan fetch:deleted-employees {{$instance}} -q
     php artisan fetch:guests {{$instance}} -q
+    php artisan fetch:deleted-guests {{$instance}} -q
 @endtask
 
 @task('tenant-fetch-shops')

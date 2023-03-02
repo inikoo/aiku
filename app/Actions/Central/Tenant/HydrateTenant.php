@@ -8,6 +8,7 @@
 namespace App\Actions\Central\Tenant;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateAccounting;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithNormalise;
 use App\Models\Central\Tenant;
@@ -42,12 +43,12 @@ class HydrateTenant extends HydrateModel
 
         $this->employeesStats();
         $this->guestsStats();
-        $this->userStats();
         $this->warehouseStats();
         $this->inventoryStats();
         $this->procurementStats();
         $this->marketingStats();
         $this->fulfilmentStats();
+        TenantHydrateUsers::run($tenant);
         TenantHydrateAccounting::run($tenant);
     }
 
@@ -204,42 +205,6 @@ class HydrateTenant extends HydrateModel
         $tenant->stats->update($stats);
     }
 
-    public function userStats()
-    {
-        /** @var Tenant $tenant */
-        $tenant = tenant();
-
-        $numberUsers       = DB::table('users')->count();
-        $numberActiveUsers = DB::table('users')->where('status', true)->count();
-
-
-        $stats = [
-            'number_users'                 => $numberUsers,
-            'number_users_status_active'   => $numberActiveUsers,
-            'number_users_status_inactive' => $numberUsers - $numberActiveUsers
-
-        ];
-
-
-        foreach (
-            ['employee', 'guest', 'supplier', 'agent', 'customer']
-            as $userType
-        ) {
-            $stats['number_users_type_'.$userType] = 0;
-        }
-
-        foreach (
-            DB::table('users')
-                ->selectRaw('LOWER(parent_type) as parent_type, count(*) as total')
-                ->where('status', true)
-                ->groupBy('parent_type')
-                ->get() as $row
-        ) {
-            $stats['number_users_type_'.$row->parent_type] = Arr::get($row->total, $row->parent_type, 0);
-        }
-
-        $tenant->stats->update($stats);
-    }
 
     public function inventoryStats()
     {

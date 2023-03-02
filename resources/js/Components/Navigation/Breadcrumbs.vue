@@ -50,7 +50,7 @@ const displayBreadcrumbs = computed(() => {
                         <template v-if="breadcrumb['modelLabel']">
 
                              <span class="mr-1 text-sm ">
-                                 <span class="font-light">{{ breadcrumb['modelLabel'].label }}</span>
+                                 <span class="font-light capitalize">{{ breadcrumb['modelLabel'].label }}</span>
                                  <span v-show="breadcrumb['name']" class="font-semibold">→</span>
                              </span>
 
@@ -58,17 +58,11 @@ const displayBreadcrumbs = computed(() => {
                         </template>
 
 
-                        <font-awesome-icon
-                            v-show="!breadcrumb['name']"
-                            :icon="['fal', 'bars']"
-                            class="flex-shrink-0 h-4 w-4 ml-1"
-                            aria-hidden="true"
 
-                        />
 
 
                         <Link :href="route(breadcrumb.route,breadcrumb['routeParameters'])"
-                              class="hover:text-gray-700 text-sm font-light"
+                              class="hover:text-gray-700 text-sm font-light capitalize"
                               :aria-current="(breadcrumbIdx !== Object.keys(breadcrumbs).length - 1) ? 'page' : undefined">
                             {{ breadcrumb.name }}
                         </Link>

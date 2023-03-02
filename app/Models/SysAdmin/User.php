@@ -7,12 +7,13 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Actions\Central\Tenant\HydrateTenant;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Central\CentralUser;
 use App\Models\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -33,19 +34,22 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
  * @property string|null $email
  * @property string|null $about
  * @property string|null $remember_token
+ * @property array $data
  * @property array $profile
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string $password
  * @property int $number_tenants
  * @property string $global_id
+ * @property int|null $source_id
  * @property-read string $avatar
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parent
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parentWithTrashed
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
@@ -54,11 +58,14 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
  * @property-read int|null $tokens_count
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
+ * @method static Builder|User onlyTrashed()
  * @method static Builder|User permission($permissions)
  * @method static Builder|User query()
  * @method static Builder|User role($roles, $guard = null)
  * @method static Builder|User whereAbout($value)
  * @method static Builder|User whereCreatedAt($value)
+ * @method static Builder|User whereData($value)
+ * @method static Builder|User whereDeletedAt($value)
  * @method static Builder|User whereEmail($value)
  * @method static Builder|User whereGlobalId($value)
  * @method static Builder|User whereId($value)
@@ -69,14 +76,18 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
  * @method static Builder|User whereProfile($value)
  * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereSettings($value)
+ * @method static Builder|User whereSourceId($value)
  * @method static Builder|User whereStatus($value)
  * @method static Builder|User whereUpdatedAt($value)
  * @method static Builder|User whereUsername($value)
+ * @method static Builder|User withTrashed()
+ * @method static Builder|User withoutTrashed()
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements HasMedia, Syncable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use SoftDeletes;
     use InteractsWithMedia;
     use HasRoles;
     use ResourceSyncing;
@@ -84,6 +95,7 @@ class User extends Authenticatable implements HasMedia, Syncable
 
     protected $guarded = [
     ];
+    public $timestamps = false;
 
     protected $hidden = [
         'password',
@@ -93,18 +105,15 @@ class User extends Authenticatable implements HasMedia, Syncable
     public string $global_id = 'global_id';
 
     protected $casts = [
-
-        'profile'     => 'array',
-        'settings' => 'array',
-        'status'   => 'boolean'
+        'profile'      => 'array',
+        'settings'     => 'array',
+        'status'       => 'boolean'
     ];
 
 
-
-
     protected $attributes = [
-        'profile'     => '{}',
-        'settings' => '{}',
+        'profile'      => '{}',
+        'settings'     => '{}',
     ];
 
 
@@ -116,7 +125,7 @@ class User extends Authenticatable implements HasMedia, Syncable
         static::updated(function ($item) {
             if (!$item->wasRecentlyCreated) {
                 if ($item->wasChanged('status')) {
-                    HydrateTenant::make()->userStats();
+                    TenantHydrateUsers::dispatch(tenant());
                 }
             }
         });
@@ -145,8 +154,7 @@ class User extends Authenticatable implements HasMedia, Syncable
             'password',
             'email',
             'about',
-            'number_tenants'
-        ];
+            'number_tenants'];
     }
 
 
@@ -167,12 +175,19 @@ class User extends Authenticatable implements HasMedia, Syncable
         return $this->morphTo();
     }
 
+    public function parentWithTrashed(): MorphTo
+    {
+        return $this->morphTo('parent')->withTrashed();
+    }
+
+
     public function getAvatarAttribute(): string
     {
         $mediaItems = $this->getMedia('profile');
-        if(count($mediaItems)>0){
-            return  $mediaItems[0]->getUrl();
+        if (count($mediaItems) > 0) {
+            return $mediaItems[0]->getUrl();
         }
+
         return '';
     }
 

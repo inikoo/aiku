@@ -58,8 +58,6 @@ use Stancl\Tenancy\Database\TenantCollection;
  * @property-read int|null $stocks_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read int|null $suppliers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Central\CentralUser> $tenantUsers
- * @property-read int|null $tenant_users_count
  * @method static TenantCollection<int, static> all($columns = ['*'])
  * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
@@ -110,18 +108,22 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         ];
     }
 
+    /*
     public function tenantUsers(): BelongsToMany
     {
         return $this->belongsToMany(
             CentralUser::class,
             'tenant_users',
+
             'tenant_id',
             'global_user_id',
+
             'id',
             'global_id'
         )
             ->using(TenantUser::class);
     }
+    */
 
     public function stats(): HasOne
     {
