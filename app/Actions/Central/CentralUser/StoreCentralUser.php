@@ -22,8 +22,19 @@ class StoreCentralUser
         $modelData['password']  = Hash::make($modelData['password']);
         $modelData['global_id'] = Str::uuid();
 
+
         return tenancy()->central(function () use ($modelData) {
-            return CentralUser::create($modelData);
+            $centralUser = CentralUser::create($modelData);
+            /*
+            $centralUser->update(
+                [
+                    'tenants_data' => [
+                        'names' => 'x'
+                    ]
+                ]
+            );*/
+
+            return $centralUser;
         });
     }
 }

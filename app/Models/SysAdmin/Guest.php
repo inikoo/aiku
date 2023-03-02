@@ -11,6 +11,7 @@ use App\Actions\Central\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -34,13 +35,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
  * @property-read \App\Models\SysAdmin\User|null $user
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
+ * @method static Builder|Guest onlyTrashed()
  * @method static Builder|Guest query()
  * @method static Builder|Guest whereCreatedAt($value)
  * @method static Builder|Guest whereData($value)
@@ -58,12 +60,15 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Guest whereStatus($value)
  * @method static Builder|Guest whereType($value)
  * @method static Builder|Guest whereUpdatedAt($value)
+ * @method static Builder|Guest withTrashed()
+ * @method static Builder|Guest withoutTrashed()
  * @mixin \Eloquent
  */
 class Guest extends Model implements HasMedia
 {
     use HasSlug;
     use InteractsWithMedia;
+    use SoftDeletes;
 
     protected $casts = [
         'data'          => 'array',

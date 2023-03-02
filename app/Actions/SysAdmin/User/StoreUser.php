@@ -8,7 +8,8 @@
 namespace App\Actions\SysAdmin\User;
 
 
-use App\Actions\Central\Tenant\HydrateTenant;
+use App\Actions\Central\CentralUser\Hydrators\CentralUserHydrateTenants;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Central\CentralUser;
 use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;
@@ -24,19 +25,16 @@ class StoreUser
     public function handle(Tenant $tenant, Guest|Employee $parent, CentralUser $centralUser): User
     {
         tenancy()->central(function () use ($centralUser, $tenant) {
-            $centralUser->tenants()->attach($tenant);
+            $centralUser->tenants()->syncWithoutDetaching($tenant);
         });
         $user = User::where('global_id', $centralUser->global_id)->first();
         $user->parent()->associate($parent);
         $user->save();
 
         $user=SetAvatar::run($user);
+        TenantHydrateUsers::run($tenant);
+        CentralUserHydrateTenants::run($centralUser);
 
-        /** Run Hydrate here because boot() static::created is not call in User.php
-         because tenancy package Synced resources between tenants
-         * https://tenancyforlaravel.com/docs/v3/synced-resources-between-tenants
-         */
-        HydrateTenant::make()->userStats();
 
         return $user;
     }

@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->string('password');
             $table->string('email')->nullable();
             $table->string('about')->nullable();
+            $table->jsonb('tenants_data')->nullable();
             $table->unsignedSmallInteger('number_tenants')->default(0);
             $table->timestampsTz();
         });

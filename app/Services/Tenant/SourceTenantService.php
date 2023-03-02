@@ -20,6 +20,8 @@ interface SourceTenantService
 
     public function fetchGuest($id);
 
+    public function fetchDeletedGuest($id);
+
     public function fetchShop($id);
 
     public function fetchWebsite($id);

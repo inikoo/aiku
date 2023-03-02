@@ -28,6 +28,7 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
  * @property string $password
  * @property string|null $email
  * @property string|null $about
+ * @property array $data
  * @property int $number_tenants
  * @property string|null $created_at
  * @property string|null $updated_at
@@ -38,6 +39,7 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
  * @method static Builder|CentralUser query()
  * @method static Builder|CentralUser whereAbout($value)
  * @method static Builder|CentralUser whereCreatedAt($value)
+ * @method static Builder|CentralUser whereData($value)
  * @method static Builder|CentralUser whereEmail($value)
  * @method static Builder|CentralUser whereGlobalId($value)
  * @method static Builder|CentralUser whereId($value)
@@ -52,13 +54,19 @@ class CentralUser extends Model implements SyncMaster
     use ResourceSyncing, CentralConnection;
     use HasSlug;
 
+    protected $casts = [
+        'tenants_data' => 'array',
+    ];
+
+    protected $attributes = [
+        'tenants_data' => '{}',
+    ];
 
     protected $guarded = [];
     public $timestamps = false;
 
 
-
-    public function getSlugOptions() : SlugOptions
+    public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom('username')
@@ -73,8 +81,9 @@ class CentralUser extends Model implements SyncMaster
             'tenant_users',
             'global_user_id',
             'tenant_id',
-            'global_id')
-            ->using(TenantUser::class);
+            'global_id',
+            'id'
+        )->using(TenantUser::class);
     }
 
     public function getTenantModelName(): string

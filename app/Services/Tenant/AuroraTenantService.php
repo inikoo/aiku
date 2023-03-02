@@ -17,6 +17,7 @@ use App\Services\Tenant\Aurora\FetchAuroraCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraCustomerClient;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedEmployee;
+use App\Services\Tenant\Aurora\FetchAuroraDeletedGuest;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedInvoice;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedLocation;
 use App\Services\Tenant\Aurora\FetchAuroraDeletedStock;
@@ -87,6 +88,11 @@ use Illuminate\Support\Facades\DB;
     public function fetchGuest($id): ?array
     {
         return (new FetchAuroraGuest($this))->fetch($id);
+    }
+
+    public function fetchDeletedGuest($id): ?array
+    {
+        return (new FetchAuroraDeletedGuest($this))->fetch($id);
     }
 
     public function fetchShop($id): ?array
@@ -281,4 +287,6 @@ use Illuminate\Support\Facades\DB;
     {
         return (new FetchAuroraPayment($this))->fetch($id);
     }
+
+
 }
