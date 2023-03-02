@@ -13,10 +13,10 @@ defineProps(['title', 'pageHead', 'treeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
-    faCreditCard, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar
-} from "@/../private/pro-light-svg-icons";
+    faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faCoins,
+} from '@/../private/pro-light-svg-icons';
 
-library.add(faCreditCard, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar);
+library.add(faCoins, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar);
 
 </script>
 

@@ -46,6 +46,24 @@ class ShowPayment extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentAccount(PaymentAccount $paymentAccount, Payment $payment, Request $request): Payment
+    {
+        $this->routeName = $request->route()->getName();
+        $this->validateAttributes();
+
+        return $this->handle($payment);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, Payment $payment, Request $request): Payment
+    {
+        $this->routeName = $request->route()->getName();
+        $this->validateAttributes();
+
+        return $this->handle($payment);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, Payment $payment, Request $request): Payment
     {
         $this->routeName = $request->route()->getName();
@@ -65,24 +83,9 @@ class ShowPayment extends InertiaAction
                 'title' => __($payment->id),
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $payment),
                 'pageHead' => [
-                    'icon' => 'fal fa-agent',
+                    'icon' => 'fal fa-coins',
                     'title' => $payment->slug,
-                    'meta' => [
-                        [
-                            'name' => trans_choice('Payment | Payments', $payment->customer_id),
-                            'number' => $payment->customer_id,
-                            'href' => [
-                                'accounting.payments.index',
-                                $payment->slug
-                            ],
-                            'leftIcon' => [
-                                'icon' => 'fal fa-map-signs',
-                                'tooltip' => __('payment')
-                            ]
-                        ],
-                        // TODO ShowSupplierProducts
 
-                    ]
 
                 ],
                 'payment' => $payment

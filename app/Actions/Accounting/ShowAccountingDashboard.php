@@ -44,32 +44,6 @@ class ShowAccountingDashboard
         $this->validateAttributes();
 
 
-     /*
-            $warehousesNode     = [
-                'name' => __('providers'),
-                'icon' => ['fal', 'fa-warehouse'],
-                'href' => ['inventory.warehouses.show', $warehouse->slug],
-
-            ];
-            $warehouseAreasNode = [
-                'name'  => __('accounts'),
-                'icon'  => ['fal', 'fa-map-signs'],
-                'href'  => ['inventory.warehouses.show.warehouse_areas.index', $warehouse->slug],
-                'index' => [
-                    'number' => $this->tenant->inventoryStats->number_warehouse_areas
-                ]
-            ];
-            $locationsNode      = [
-                'name'  => __('payments'),
-                'icon'  => ['fal', 'fa-inventory'],
-                'href'  => ['inventory.warehouses.show.locations.index', $warehouse->slug],
-                'index' => [
-                    'number' => $this->tenant->inventoryStats->number_locations
-                ]
-
-            ];
-   */
-
 
         return Inertia::render(
             'Accounting/AccountingDashboard',
@@ -101,7 +75,7 @@ class ShowAccountingDashboard
                         ],
                         [
                             'name'  => __('payments'),
-                            'icon'  => ['fal', 'fa-credit-card'],
+                            'icon'  => ['fal', 'fa-coins'],
                             'href'  => ['accounting.payments.index'],
                             'index' => [
                                 'number' => $this->tenant->accountingStats->number_payments

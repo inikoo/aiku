@@ -17,20 +17,23 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $reference
  * @property mixed $created_at
  * @property mixed $updated_at
+ * @property string $payment_service_providers_slug
+ * @property string $payment_accounts_slug
  *
  */
 class PaymentResource extends JsonResource
 {
     public function toArray($request): array
     {
-        return [
-            'status' => $this->status,
-            'date' => $this->date,
-            'data' => $this->data,
-            'slug' => $this->slug,
-            'reference' => $this->reference,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ];
+        return array(
+            'payment_service_providers_slug' => $this->payment_service_providers_slug,
+            'payment_accounts_slug'          => $this->payment_accounts_slug,
+            'status'                         => $this->status,
+            'date'                           => $this->date,
+            'slug'                           => $this->slug,
+            'reference'                      => $this->reference,
+            'created_at'                     => $this->created_at,
+            'updated_at'                     => $this->updated_at,
+        );
     }
 }

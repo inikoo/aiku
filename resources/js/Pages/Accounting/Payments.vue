@@ -5,19 +5,22 @@
   -->
 
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
-import PageHeading from "@/Components/Headings/PageHeading.vue";
-import Table from "@/Components/Table/Table.vue";
+import {Head, Link} from '@inertiajs/vue3';
+import PageHeading from '@/Components/Headings/PageHeading.vue';
+import Table from '@/Components/Table/Table.vue';
 
-defineProps(["payments", "title", "pageHead"]);
+defineProps(['payments', 'title', 'pageHead']);
 
-const itemRoute = route().current().replace(/index$/i, "show");
+const itemRoute = route().current().replace(/index$/i, 'show');
 
 function routeParameters(payment) {
     switch (route().current()) {
-        case "accounting.payment-service-providers.show.payments.index":
-            return [payment["payment_service_providers_slug"], payment.slug];
-
+        case 'accounting.payment-service-providers.show.payment-accounts.show.payments.index':
+            return [payment['payment_service_providers_slug'], payment['payment_accounts_slug'], payment.slug];
+        case 'accounting.payment-service-providers.show.payments.index':
+            return [payment['payment_service_providers_slug'], payment.slug];
+        case 'accounting.payment-accounts.show.payments.index':
+            return [payment['payment_accounts_slug'], payment.slug];
         default:
             return [payment.slug];
     }
@@ -26,13 +29,13 @@ function routeParameters(payment) {
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Table :resource="payments" class="mt-5">
 
         <template #cell(reference)="{ item: payment }">
             <Link :href="route(itemRoute,routeParameters(payment))">
-                {{ payment["reference"] }}
+                {{ payment['reference'] }}
             </Link>
         </template>
 
