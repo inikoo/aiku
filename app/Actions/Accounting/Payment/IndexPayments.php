@@ -54,12 +54,13 @@ class IndexPayments extends InertiaAction
 
         return QueryBuilder::for(Payment::class)
             ->defaultSort('payments.reference')
-            ->select(['payments.reference', 'payments.slug', 'payments.status','payments.date'])
+            ->select(['payments.reference', 'payments.slug', 'payments.status','payments.date', 'payment_service_providers.slug as payment_service_providers_slug'])
+            ->leftJoin('payment_service_providers', 'payment_accounts.payment_service_provider_id', 'payment_service_providers.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'PaymentServiceProvider') {
-                    $query->leftJoin('payment_accounts', 'payment_account_id', 'payment_accounts.id');
-
-                    $query->where('payment_service_provider_id', $this->parent->id);
+                    $query->leftJoin('payment_accounts', 'payments.payment_account_id', 'payment_accounts.id');
+                 //   $query->leftJoin('payment_service_providers', 'payment_accounts.payment_service_provider_id', 'payment_service_providers.id')
+                    $query->where('payment_accounts.payment_service_provider_id', $this->parent->id);
                 }
                 if (class_basename($this->parent) == 'PaymentAccount') {
                     $query->where('payments.payment_account_id', $this->parent->id);
