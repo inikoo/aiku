@@ -13,6 +13,9 @@ use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
+use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentServiceProvider;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -25,17 +28,33 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowPayment extends InertiaAction
 {
 
+    public function handle(Payment $payment): Payment
+    {
+        return $payment;
+    }
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("accounting.view");
     }
 
-    public function asController(Payment $payment): void
+    public function asController(Payment $payment, Request $request): Payment
     {
-        $this->payment = $payment;
+        $this->routeName = $request->route()->getName();
+        $this->validateAttributes();
+
+        return $this->handle($payment);
     }
 
-    public function htmlResponse(): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, Payment $payment, Request $request): Payment
+    {
+        $this->routeName = $request->route()->getName();
+        $this->validateAttributes();
+
+        return $this->handle($payment);
+    }
+
+    public function htmlResponse(Payment $payment): Response
     {
         $this->validateAttributes();
 
@@ -43,18 +62,18 @@ class ShowPayment extends InertiaAction
         return Inertia::render(
             'Accounting/Payment',
             [
-                'title' => __('payment'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->payment),
+                'title' => __($payment->id),
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $payment),
                 'pageHead' => [
                     'icon' => 'fal fa-agent',
-                    'title' => $this->payment->slug,
+                    'title' => $payment->slug,
                     'meta' => [
                         [
-                            'name' => trans_choice('Payment | Payments', $this->payment->customer_id),
-                            'number' => $this->payment->customer_id,
+                            'name' => trans_choice('Payment | Payments', $payment->customer_id),
+                            'number' => $payment->customer_id,
                             'href' => [
                                 'accounting.payments.index',
-                                $this->payment->slug
+                                $payment->slug
                             ],
                             'leftIcon' => [
                                 'icon' => 'fal fa-map-signs',
@@ -66,15 +85,15 @@ class ShowPayment extends InertiaAction
                     ]
 
                 ],
-                'payment' => $this->payment
+                'payment' => $payment
             ]
         );
     }
 
 
-    #[Pure] public function jsonResponse(): PaymentResource
+    #[Pure] public function jsonResponse(Payment $payment): PaymentResource
     {
-        return new PaymentResource($this->payment);
+        return new PaymentResource($payment);
     }
 
 
