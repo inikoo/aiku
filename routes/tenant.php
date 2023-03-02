@@ -20,11 +20,18 @@ Route::middleware([
         Route::get('/', function () {
             return redirect('/dashboard');
         });
-
         Route::prefix("dashboard")
             ->name("dashboard.")
             ->group(__DIR__ . "/dashboard.php");
-
+        Route::prefix("account")
+            ->name("account.")
+            ->group(__DIR__ . "/account.php");
+        Route::prefix("showroom")
+            ->name("showroom.")
+            ->group(__DIR__ . "/showroom.php");
+        Route::prefix("crm")
+            ->name("crm.")
+            ->group(__DIR__ . "/crm.php");
         Route::prefix("hr")
             ->name("hr.")
             ->group(__DIR__ . "/hr.php");
