@@ -68,10 +68,6 @@ class ShowPaymentAccount extends InertiaAction
                         [
                             'name' => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
                             'number' => $paymentAccount->stats->number_payments,
-                            'hrefx' => [
-                                'accounting.payment-accounts.show.payments.index',
-                                $paymentAccount->slug
-                            ],
                             'href' => match ($this->routeName) {
                                 'accounting.payment-service-providers.show.payment-accounts.show' => [
                                     'accounting.payment-service-providers.show.payment-accounts.show.payments.index',
