@@ -136,6 +136,8 @@ const sidebarOpen = ref(false)
 
             <!-- Sidebar component, swap this element with another sidebar if you like -->
             <div class="pt-5 h-0 flex-1 flex flex-col overflow-y-auto">
+
+
                 <!-- Navigation desktop -->
 
                 <nav class="px-3 ">
@@ -147,6 +149,7 @@ const sidebarOpen = ref(false)
                     </div>
                     <div class="mt-8">
                         <!-- Actions desktop -->
+
                         <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" id="desktop-actions-headline">{{trans('Actions')}}</h3>
                         <div class="mt-1 space-y-1" role="group" aria-labelledby="desktop-actions-headline">
                             <a v-for="action in layout.actions" :key="action.name" :href="route(action.route)" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:text-gray-900 hover:bg-gray-50">
