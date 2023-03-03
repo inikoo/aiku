@@ -27,13 +27,15 @@ class GetLayout
             $shop = Shop::first();
         }
 
-        $navigation = [
+        $navigation = [];
+
+        $navigation['dashboard'] =
             [
                 'name'  => __('dashboard'),
                 'icon'  => ['fal', 'fa-tachometer-alt-fast'],
                 'route' => 'dashboard.show'
-            ]
-        ];
+            ];
+
 
         /*
 
@@ -89,7 +91,7 @@ class GetLayout
 
 
         if ($user->can('showroom.view')) {
-            $navigation[] = [
+            $navigation['showroom'] = [
                 'name'  => 'Showroom',
                 'icon'  => ['fal', 'fa-store-alt'],
                 'route' => 'showroom.dashboard'
@@ -97,9 +99,8 @@ class GetLayout
         }
 
 
-
         if ($user->can('crm.view')) {
-            $navigation[] = [
+            $navigation['crm'] = [
                 'name'  => 'CRM',
                 'icon'  => ['fal', 'fa-user'],
                 'route' => 'crm.dashboard'
@@ -108,7 +109,7 @@ class GetLayout
 
 
         if ($user->can('osm.view')) {
-            $navigation[] = [
+            $navigation['osm'] = [
                 'name'  => 'OSM',
                 'icon'  => ['fal', 'fa-shopping-cart'],
                 'route' => 'osm.hub'
@@ -116,7 +117,7 @@ class GetLayout
         }
 
         if ($user->can('dispatch')) {
-            $navigation[] = [
+            $navigation['dispatch'] = [
                 'name'  => __('Dispatch'),
                 'icon'  => ['fal', 'fa-conveyor-belt-alt'],
                 'route' => 'dispatch.hub'
@@ -124,7 +125,7 @@ class GetLayout
         }
 
         if ($user->can('inventory.view')) {
-            $navigation[] = [
+            $navigation['inventory'] = [
                 'name'  => __('inventory'),
                 'icon'  => ['fal', 'fa-inventory'],
                 'route' => 'inventory.dashboard'
@@ -132,7 +133,7 @@ class GetLayout
         }
 
         if ($user->can('fulfilment.view')) {
-            $navigation[] = [
+            $navigation['fulfilment'] = [
                 'name'  => __('fulfilment'),
                 'icon'  => ['fal', 'fa-dolly-empty'],
                 'route' => 'fulfilment.dashboard'
@@ -140,7 +141,7 @@ class GetLayout
         }
 
         if ($user->can('production.view')) {
-            $navigation[] = [
+            $navigation['production'] = [
                 'name'  => __('production'),
                 'icon'  => ['fal', 'fa-industry'],
                 'route' => 'production.dashboard'
@@ -148,14 +149,14 @@ class GetLayout
         }
 
         if ($user->can('procurement.view')) {
-            $navigation[] = [
+            $navigation['procurement'] = [
                 'name'  => __('procurement'),
                 'icon'  => ['fal', 'fa-parachute-box'],
                 'route' => 'procurement.dashboard'
             ];
         }
         if ($user->can('accounting.view')) {
-            $navigation[] = [
+            $navigation['accounting'] = [
                 'name'  => __('Accounting'),
                 'icon'  => ['fal', 'fa-abacus'],
                 'route' => 'accounting.dashboard'
@@ -164,7 +165,7 @@ class GetLayout
 
 
         if ($user->can('hr.view')) {
-            $navigation[] = [
+            $navigation['hr'] = [
                 'name'  => __('human resources'),
                 'icon'  => ['fal', 'fa-user-hard-hat'],
                 'route' => 'hr.dashboard'
@@ -172,7 +173,7 @@ class GetLayout
         }
 
         if ($user->can('sysadmin.view')) {
-            $navigation[] = [
+            $navigation['sysadmin'] = [
                 'name'  => __('Sysadmin'),
                 'icon'  => ['fal', 'fa-users-cog'],
                 'route' => 'sysadmin.dashboard'
