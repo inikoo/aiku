@@ -7,8 +7,10 @@
 
 namespace App\Models\Central;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Central\TenantAccountingStats
@@ -46,46 +48,48 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices_type_refund
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereDcAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereDcAmountRefunded($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereDcAmountSuccessfullyPaid($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberInvoices($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberInvoicesTypeInvoice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberInvoicesTypeRefund($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentAccounts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentRecords($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentRecordsStateApproving($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentRecordsStateCancelled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentRecordsStateCompleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentRecordsStateDeclined($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentRecordsStateError($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentRecordsStateInProcess($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentServiceProviders($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPayments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentsStateApproving($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentsStateCancelled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentsStateCompleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentsStateDeclined($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentsStateError($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberPaymentsStateInProcess($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberRefunds($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberRefundsStateApproving($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberRefundsStateCancelled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberRefundsStateCompleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberRefundsStateDeclined($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberRefundsStateError($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereNumberRefundsStateInProcess($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereTenantId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats whereUpdatedAt($value)
+ * @method static Builder|TenantAccountingStats newModelQuery()
+ * @method static Builder|TenantAccountingStats newQuery()
+ * @method static Builder|TenantAccountingStats query()
+ * @method static Builder|TenantAccountingStats whereCreatedAt($value)
+ * @method static Builder|TenantAccountingStats whereDcAmount($value)
+ * @method static Builder|TenantAccountingStats whereDcAmountRefunded($value)
+ * @method static Builder|TenantAccountingStats whereDcAmountSuccessfullyPaid($value)
+ * @method static Builder|TenantAccountingStats whereId($value)
+ * @method static Builder|TenantAccountingStats whereNumberInvoices($value)
+ * @method static Builder|TenantAccountingStats whereNumberInvoicesTypeInvoice($value)
+ * @method static Builder|TenantAccountingStats whereNumberInvoicesTypeRefund($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentAccounts($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentRecords($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentRecordsStateApproving($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentRecordsStateCancelled($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentRecordsStateCompleted($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentRecordsStateDeclined($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentRecordsStateError($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentRecordsStateInProcess($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentServiceProviders($value)
+ * @method static Builder|TenantAccountingStats whereNumberPayments($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentsStateApproving($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentsStateCancelled($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentsStateCompleted($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentsStateDeclined($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentsStateError($value)
+ * @method static Builder|TenantAccountingStats whereNumberPaymentsStateInProcess($value)
+ * @method static Builder|TenantAccountingStats whereNumberRefunds($value)
+ * @method static Builder|TenantAccountingStats whereNumberRefundsStateApproving($value)
+ * @method static Builder|TenantAccountingStats whereNumberRefundsStateCancelled($value)
+ * @method static Builder|TenantAccountingStats whereNumberRefundsStateCompleted($value)
+ * @method static Builder|TenantAccountingStats whereNumberRefundsStateDeclined($value)
+ * @method static Builder|TenantAccountingStats whereNumberRefundsStateError($value)
+ * @method static Builder|TenantAccountingStats whereNumberRefundsStateInProcess($value)
+ * @method static Builder|TenantAccountingStats whereTenantId($value)
+ * @method static Builder|TenantAccountingStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class TenantAccountingStats extends Model
 {
+    use UsesLandlordConnection;
+
     protected $table = 'tenant_accounting_stats';
 
     protected $guarded = [];

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -52,7 +53,7 @@ class CentralDomain extends Model
 {
     use HasSlug;
     use SoftDeletes;
-
+    use UsesLandlordConnection;
 
     public function getSlugOptions(): SlugOptions
     {

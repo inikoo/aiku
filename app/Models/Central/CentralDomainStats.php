@@ -3,6 +3,7 @@
 namespace App\Models\Central;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Central\CentralDomainStats
@@ -14,5 +15,5 @@ use Illuminate\Database\Eloquent\Model;
  */
 class CentralDomainStats extends Model
 {
-
+    use UsesLandlordConnection;
 }

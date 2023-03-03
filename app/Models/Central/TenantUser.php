@@ -10,6 +10,7 @@ namespace App\Models\Central;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 
 /**
@@ -30,6 +31,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class TenantUser extends Pivot
 {
+    use UsesLandlordConnection;
+
     public $incrementing = true;
 
     public $table='tenant_users';

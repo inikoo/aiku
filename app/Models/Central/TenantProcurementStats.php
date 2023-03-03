@@ -10,6 +10,7 @@ namespace App\Models\Central;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 
 /**
@@ -60,6 +61,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class TenantProcurementStats extends Model
 {
+    use UsesLandlordConnection;
+
     protected $table = 'tenant_procurement_stats';
 
     protected $guarded = [];

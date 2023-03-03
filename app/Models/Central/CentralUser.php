@@ -12,6 +12,7 @@ use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -48,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
 class CentralUser extends Model
 {
     use HasSlug;
+    use UsesLandlordConnection;
 
     protected $casts = [
         'data' => 'array',

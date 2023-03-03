@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -74,6 +75,7 @@ class AdminUser extends Authenticatable
     use HasApiTokens;
     use SoftDeletes;
     use HasSlug;
+    use UsesLandlordConnection;
 
     protected $casts = [
         'data'     => 'array',
