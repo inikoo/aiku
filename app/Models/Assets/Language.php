@@ -10,6 +10,7 @@ namespace App\Models\Assets;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 
 /**
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Language extends Model
 {
+    use UsesLandlordConnection;
 
     protected $casts = [
         'data' => 'array'

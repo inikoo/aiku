@@ -11,6 +11,7 @@ namespace App\Models\Assets;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Assets\Timezone
@@ -45,6 +46,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Timezone extends Model
 {
 
+    use UsesLandlordConnection;
 
     protected $casts = [
         'data' => 'array'
