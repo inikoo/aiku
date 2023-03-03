@@ -54,9 +54,20 @@ Route::middleware([
         Route::prefix("websites")
             ->name("websites.")
             ->group(__DIR__ . "/websites.php");
+
+
         Route::prefix("customers")
             ->name("customers.")
             ->group(__DIR__ . "/customers.php");
+        Route::prefix("orders")
+            ->name("orders.")
+            ->group(__DIR__ . "/orders.php");
+        Route::prefix("products")
+            ->name("products.")
+            ->group(__DIR__ . "/products.php");
+        Route::prefix("website")
+            ->name("website.")
+            ->group(__DIR__ . "/website.php");
 
         Route::prefix("osm")
             ->name("osm.")

@@ -140,7 +140,6 @@ import AppLeftSideBar from '@/Layouts/AppLeftSideBar.vue';
                             </Menu>
 
                         </div>
-
                     </div>
 
 
@@ -160,6 +159,7 @@ import AppLeftSideBar from '@/Layouts/AppLeftSideBar.vue';
                     <DisclosureButton v-for="item in navigation" :key="item.name" as="a" :href="item.href"
                                       :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block rounded-md px-3 py-2 text-base font-medium']"
                                       :aria-current="item.current ? 'page' : undefined">{{ item.name }}
+
                     </DisclosureButton>
                 </div>
                 <div class="border-t border-gray-700 pt-4 pb-3">
@@ -168,10 +168,11 @@ import AppLeftSideBar from '@/Layouts/AppLeftSideBar.vue';
                             <img class="h-10 w-10 rounded-full" :src="user.imageUrl" alt=""/>
                         </div>
                         <div class="ml-3">
+
                             <div class="text-base font-medium leading-none text-white">{{ user.name }}</div>
                             <div class="text-sm font-medium leading-none text-gray-400">{{ user.email }}</div>
                         </div>
-                       
+
                         <button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                             <span class="sr-only">{{ trans('View notifications') }}</span>
                             <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
