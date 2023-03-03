@@ -46,7 +46,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices_type_refund
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Central\Tenant $tenant
  * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantAccountingStats query()

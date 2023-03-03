@@ -17,6 +17,34 @@ use Spatie\Sluggable\SlugOptions;
 
 
 
+/**
+ * App\Models\Central\CentralUser
+ *
+ * @property int $id
+ * @property string $global_id
+ * @property string $username
+ * @property string $password
+ * @property string|null $email
+ * @property string|null $about
+ * @property array|null $tenants_data
+ * @property int $number_tenants
+ * @property string|null $created_at
+ * @property string|null $updated_at
+ * @method static Builder|CentralUser newModelQuery()
+ * @method static Builder|CentralUser newQuery()
+ * @method static Builder|CentralUser query()
+ * @method static Builder|CentralUser whereAbout($value)
+ * @method static Builder|CentralUser whereCreatedAt($value)
+ * @method static Builder|CentralUser whereEmail($value)
+ * @method static Builder|CentralUser whereGlobalId($value)
+ * @method static Builder|CentralUser whereId($value)
+ * @method static Builder|CentralUser whereNumberTenants($value)
+ * @method static Builder|CentralUser wherePassword($value)
+ * @method static Builder|CentralUser whereTenantsData($value)
+ * @method static Builder|CentralUser whereUpdatedAt($value)
+ * @method static Builder|CentralUser whereUsername($value)
+ * @mixin \Eloquent
+ */
 class CentralUser extends Model
 {
     use HasSlug;

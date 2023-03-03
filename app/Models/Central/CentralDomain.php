@@ -31,7 +31,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Central\AdminUser|null $adminUser
  * @property-read \App\Models\Central\CentralDomainStats|null $stats
- * @property-read \App\Models\Central\Tenant $tenant
  * @method static Builder|CentralDomain newModelQuery()
  * @method static Builder|CentralDomain newQuery()
  * @method static Builder|CentralDomain onlyTrashed()

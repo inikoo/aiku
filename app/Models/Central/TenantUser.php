@@ -10,7 +10,6 @@ namespace App\Models\Central;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use Stancl\Tenancy\Contracts\Syncable;
 
 
 /**
@@ -20,7 +19,6 @@ use Stancl\Tenancy\Contracts\Syncable;
  * @property string $tenant_id
  * @property string $global_user_id
  * @property bool $status
- * @property-read \App\Models\Central\Tenant $tenant
  * @method static Builder|TenantUser newModelQuery()
  * @method static Builder|TenantUser newQuery()
  * @method static Builder|TenantUser query()
@@ -35,20 +33,6 @@ class TenantUser extends Pivot
     public $incrementing = true;
 
     public $table='tenant_users';
-
-    public static function boot()
-    {
-        parent::boot();
-
-
-        static::saved(function (self $pivot) {
-            $parent = $pivot->pivotParent;
-
-            if ($parent instanceof Syncable) {
-                $parent->triggerSyncEvent();
-            }
-        });
-    }
 
 
 

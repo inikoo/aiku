@@ -59,7 +59,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_deliveries_cancelled_at_state_dispatched
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Central\Tenant $tenant
  * @method static Builder|TenantInventoryStats newModelQuery()
  * @method static Builder|TenantInventoryStats newQuery()
  * @method static Builder|TenantInventoryStats query()
