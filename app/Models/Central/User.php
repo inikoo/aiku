@@ -22,7 +22,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $username
  * @property string $email
- * @property string $tenant_id
+ * @property int $tenant_id
  * @property string|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token

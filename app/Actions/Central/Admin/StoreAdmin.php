@@ -17,9 +17,6 @@ class StoreAdmin
 
     public function handle(array $modelData): Admin
     {
-
-        return tenancy()->central(function () use ($modelData) {
-            return Admin::create($modelData);
-        });
+        return Admin::create($modelData);
     }
 }

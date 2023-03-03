@@ -17,7 +17,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * App\Models\Central\TenantProcurementStats
  *
  * @property int $id
- * @property string $tenant_id
+ * @property int $tenant_id
  * @property int $number_suppliers
  * @property int $number_active_suppliers
  * @property int $number_agents

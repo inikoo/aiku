@@ -17,16 +17,16 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * App\Models\Central\TenantUser
  *
  * @property int $id
- * @property string $tenant_id
- * @property string $global_user_id
+ * @property int $tenant_id
+ * @property int $user_id
  * @property bool $status
  * @method static Builder|TenantUser newModelQuery()
  * @method static Builder|TenantUser newQuery()
  * @method static Builder|TenantUser query()
- * @method static Builder|TenantUser whereGlobalUserId($value)
  * @method static Builder|TenantUser whereId($value)
  * @method static Builder|TenantUser whereStatus($value)
  * @method static Builder|TenantUser whereTenantId($value)
+ * @method static Builder|TenantUser whereUserId($value)
  * @mixin \Eloquent
  */
 class TenantUser extends Pivot

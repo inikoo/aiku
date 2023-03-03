@@ -16,7 +16,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * App\Models\Central\TenantMarketingStats
  *
  * @property int $id
- * @property string $tenant_id
+ * @property int $tenant_id
  * @property int $number_shops
  * @property int $number_shops_state_in_process
  * @property int $number_shops_state_open

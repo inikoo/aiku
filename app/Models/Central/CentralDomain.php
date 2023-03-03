@@ -23,7 +23,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
- * @property string $tenant_id
+ * @property int $tenant_id
  * @property int $website_id
  * @property string $domain
  * @property string $state

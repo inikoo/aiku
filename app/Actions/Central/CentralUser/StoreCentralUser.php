@@ -9,7 +9,6 @@ namespace App\Actions\Central\CentralUser;
 
 use App\Models\Central\CentralUser;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 
@@ -20,21 +19,7 @@ class StoreCentralUser
     public function handle(array $modelData): CentralUser
     {
         $modelData['password']  = Hash::make($modelData['password']);
-        $modelData['global_id'] = Str::uuid();
+        return CentralUser::create($modelData);
 
-
-        return tenancy()->central(function () use ($modelData) {
-            $centralUser = CentralUser::create($modelData);
-            /*
-            $centralUser->update(
-                [
-                    'tenants_data' => [
-                        'names' => 'x'
-                    ]
-                ]
-            );*/
-
-            return $centralUser;
-        });
     }
 }

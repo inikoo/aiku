@@ -16,7 +16,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * App\Models\Central\TenantAccountingStats
  *
  * @property int $id
- * @property string $tenant_id
+ * @property int $tenant_id
  * @property int $number_payment_service_providers
  * @property int $number_payment_accounts
  * @property int $number_payment_records
