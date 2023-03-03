@@ -24,7 +24,7 @@ const props = defineProps(['shopsData']);
         <Link :title="trans('products')" :href="shopsData.current?route('shops.show.products.index', shopsData.current.data.slug):route('products.index')">
             <font-awesome-icon aria-hidden="true" icon="fal fa-cube"/>
         </Link>
-        <Link :href="shopsData.current?route('dashboard.show'):route('dashboard.show')">
+        <Link :title="trans('websites')" :href="shopsData.current?route('websites.index', shopsData.current.data.slug):route('websites.index')">
             <font-awesome-icon aria-hidden="true" icon="fal fa-globe"/>
         </Link>
         <Link :title="trans('customers')" :href="shopsData.current?route('shops.show.customers.index',shopsData.current.data.slug):route('customers.index')">
