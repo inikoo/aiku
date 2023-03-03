@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 19 Sept 2022 23:25:05 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 03 Mar 2023 22:40:07 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 use Illuminate\Database\Migrations\Migration;
@@ -15,12 +15,11 @@ return new class extends Migration {
     {
         Schema::create('central_users', function (Blueprint $table) {
             $table->id();
-            $table->uuid('global_id')->unique();
             $table->string('username')->unique();
             $table->string('password');
             $table->string('email')->nullable();
             $table->string('about')->nullable();
-            $table->jsonb('tenants_data')->nullable();
+            $table->jsonb('data')->nullable();
             $table->unsignedSmallInteger('number_tenants')->default(0);
             $table->timestampsTz();
         });

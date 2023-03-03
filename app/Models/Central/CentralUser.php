@@ -50,11 +50,11 @@ class CentralUser extends Model
     use HasSlug;
 
     protected $casts = [
-        'tenants_data' => 'array',
+        'data' => 'array',
     ];
 
     protected $attributes = [
-        'tenants_data' => '{}',
+        'data' => '{}',
     ];
 
     protected $guarded = [];

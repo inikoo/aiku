@@ -1,9 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 12 Aug 2022 18:34:11 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 03 Mar 2023 23:04:55 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 use Illuminate\Database\Migrations\Migration;
@@ -16,11 +15,16 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tenants', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->unsignedBigInteger('numeric_id')->unique();
+            $table->id();
+            $table->string('slug')->unique();
             $table->string('code')->unique();
             $table->string('name');
+
+
+            $table->string('domain')->unique();
+            $table->string('database')->unique();
             $table->jsonb('data');
+
             $table->unsignedSmallInteger('country_id');
             $table->foreign('country_id')->references('id')->on('central.countries');
             $table->unsignedSmallInteger('language_id');

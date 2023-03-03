@@ -9,6 +9,7 @@ namespace App\Models\Central;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 
 /**
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Deployment extends Model
 {
+    use UsesLandlordConnection;
 
     protected $guarded = [];
     protected $attributes = [

@@ -67,7 +67,7 @@
         echo "Tenant {{ $tenantData->db }}"
         psql -d {{ $_ENV['DB_DATABASE'] }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
     @endforeach
-    php artisan migrate:refresh
+    php artisan migrate:refresh --path=database/migrations/central  --database=central
     php artisan db:seed
 @endtask
 
