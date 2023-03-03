@@ -25,17 +25,15 @@ class StoreFirstDeployment
 
     public function handle(array $modelData): Deployment
     {
-        return tenancy()->central(function () use ($modelData) {
-            return StoreDeployment::run($modelData);
-        });
+        return StoreDeployment::run($modelData);
     }
 
     public function asCommand(Command $command): int
     {
         $this->handle([
-                          'hash'  => StoreDeployment::make()->getCurrentHash(),
-                          'state' => 'deployed',
-                          'version'=>'0.1.0'
+                          'hash'    => StoreDeployment::make()->getCurrentHash(),
+                          'state'   => 'deployed',
+                          'version' => '0.1.0'
                       ]);
 
         $command->line('First deployment created.');

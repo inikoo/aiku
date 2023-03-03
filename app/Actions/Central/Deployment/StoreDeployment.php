@@ -30,9 +30,8 @@ class StoreDeployment
 
     public function handle(array $modelData): Deployment
     {
-        return tenancy()->central(function () use ($modelData) {
             return Deployment::create($modelData);
-        });
+
     }
 
 
