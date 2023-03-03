@@ -6,22 +6,13 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import { ref } from "vue";
 
-const props = defineProps(["title","pageHead","warehouse","tabs"])
+const props = defineProps(["title","pageHead","warehouse","tabs",])
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faInventory,faWarehouse,faMapSigns} from '@/../private/pro-light-svg-icons';
-import Tabs from "@/Components/Navigation/Tabs.vue";
+import TabsContainer from "@/Components/Navigation/TabsContainer.vue";
 library.add(faInventory,faWarehouse,faMapSigns);
-
-let currentTab = ref(props.tabs.current)
-
-const handleCustomChange = (tabIndex) => {
-
-    currentTab.value = tabIndex
-
-}
 
 </script>
 
@@ -29,17 +20,8 @@ const handleCustomChange = (tabIndex) => {
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs
-        @change:tab="handleCustomChange"
-        :tabs="tabs"
-        :currentTab="currentTab"
-        :handleCustomChange="handleCustomChange"
-    >
-    </Tabs>
-
-    <div v-show="currentTab === tabIndex" v-for="(tab, tabIndex) in tabs.items" :key="tabIndex">
-        {{tab.content}}
-    </div>
+    <TabsContainer :tabs="tabs"></TabsContainer>
 
 </template>
+
 

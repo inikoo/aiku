@@ -80,9 +80,9 @@ class ShowWarehouse
                 ],
                 'tabs' => [
 
-                    'current' => 'warehouse',
+                    'current' => 'dashboard',
                     'items'   => [
-                        'warehouse' => [
+                        'dashboard' => [
                             'name' => __('dashboard'),
                             'icon' => 'fal fa-tachometer-alt',
                             'content' => 'content dashboard',
