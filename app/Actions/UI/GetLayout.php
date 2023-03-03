@@ -206,6 +206,7 @@ class GetLayout
 
         $shops = [
             'current' => new ShopsNavigationResource(Shop::latest()->first()),
+          //  'current' => null,
             'items'   => ShopsNavigationResource::collection(Shop::all())
         ];
 
