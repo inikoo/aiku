@@ -85,14 +85,17 @@ class ShowWarehouse
                         'warehouse' => [
                             'name' => __('dashboard'),
                             'icon' => 'fal fa-tachometer-alt',
+                            'content' => 'content dashboard',
                         ],
                         'details'   => [
                             'name' => __('details'),
                             'icon' => 'fal fa-clock',
+                            'content' => 'content details',
                         ],
                         'history'   => [
                             'name' => __('changelog'),
                             'icon' => 'fal fa-clock',
+                            'content' => 'content changelog',
                         ]
                     ]
 
