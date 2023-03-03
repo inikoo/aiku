@@ -31,9 +31,6 @@ class DeleteWebUser
         return $webUser;
     }
 
-    /**
-     * @throws \Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById
-     */
     public function asCommand(Command $command): int
     {
         $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();

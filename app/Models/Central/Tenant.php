@@ -24,59 +24,6 @@ use Stancl\Tenancy\Database\Concerns\HasDomains;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Database\TenantCollection;
 
-/**
- * App\Models\Central\Tenant
- *
- * @property string $id
- * @property int $numeric_id
- * @property string $code
- * @property string $name
- * @property array $data
- * @property int $country_id
- * @property int $language_id
- * @property int $timezone_id
- * @property int $currency_id tenant accounting currency
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
- * @property-read \App\Models\Central\TenantAccountingStats|null $accountingStats
- * @property-read \App\Models\Central\AdminUser|null $adminUser
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
- * @property-read int|null $agents_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Central\CentralDomain> $centralDomains
- * @property-read int|null $central_domains_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Stancl\Tenancy\Database\Models\Domain> $domains
- * @property-read int|null $domains_count
- * @property-read \App\Models\Central\TenantFulfilmentStats|null $fulfilmentStats
- * @property-read \App\Models\Central\TenantInventoryStats|null $inventoryStats
- * @property-read \App\Models\Central\TenantMarketingStats|null $marketingStats
- * @property-read \App\Models\Central\TenantProcurementStats|null $procurementStats
- * @property-read \App\Models\Central\TenantProductionStats|null $productionStats
- * @property-read \App\Models\Central\TenantSalesStats|null $salesStats
- * @property-read \App\Models\Central\TenantStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
- * @property-read int|null $stocks_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
- * @property-read int|null $suppliers_count
- * @method static TenantCollection<int, static> all($columns = ['*'])
- * @method static TenantCollection<int, static> get($columns = ['*'])
- * @method static Builder|Tenant newModelQuery()
- * @method static Builder|Tenant newQuery()
- * @method static Builder|Tenant query()
- * @method static Builder|Tenant whereCode($value)
- * @method static Builder|Tenant whereCountryId($value)
- * @method static Builder|Tenant whereCreatedAt($value)
- * @method static Builder|Tenant whereCurrencyId($value)
- * @method static Builder|Tenant whereData($value)
- * @method static Builder|Tenant whereDeletedAt($value)
- * @method static Builder|Tenant whereId($value)
- * @method static Builder|Tenant whereLanguageId($value)
- * @method static Builder|Tenant whereName($value)
- * @method static Builder|Tenant whereNumericId($value)
- * @method static Builder|Tenant whereTimezoneId($value)
- * @method static Builder|Tenant whereUpdatedAt($value)
- * @mixin \Eloquent
- */
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasFactory;

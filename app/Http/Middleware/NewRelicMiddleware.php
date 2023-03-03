@@ -15,11 +15,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use JackWH\LaravelNewRelic\NewRelicTransaction;
 use JackWH\LaravelNewRelic\NewRelicTransactionHandler;
-use Stancl\Tenancy\Database\Models\Tenant;
 
 class NewRelicMiddleware
 {
-    protected Authenticatable|Tenant|null $user = null;
+    protected Authenticatable|null $user = null;
 
     /**
      * Handle an incoming request.

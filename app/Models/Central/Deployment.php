@@ -9,7 +9,6 @@ namespace App\Models\Central;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 
 /**
@@ -36,7 +35,6 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  */
 class Deployment extends Model
 {
-    use CentralConnection;
 
     protected $guarded = [];
     protected $attributes = [

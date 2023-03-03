@@ -19,8 +19,6 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Stancl\Tenancy\Contracts\Syncable;
-use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
 
 
 /**
@@ -84,13 +82,12 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
  * @method static Builder|User withoutTrashed()
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements HasMedia, Syncable
+class User extends Authenticatable implements HasMedia
 {
     use HasApiTokens, HasFactory, Notifiable;
     use SoftDeletes;
     use InteractsWithMedia;
     use HasRoles;
-    use ResourceSyncing;
 
 
     protected $guarded = [

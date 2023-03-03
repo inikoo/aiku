@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 
 /**
@@ -58,7 +57,6 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  */
 class Country extends Model {
     use SoftDeletes;
-    use CentralConnection;
 
     protected $table = 'countries';
 

@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 /**
  * App\Models\Payments\PaymentServiceProvider
@@ -57,7 +56,6 @@ class PaymentServiceProvider extends Model
 {
     use SoftDeletes;
     use HasSlug;
-    use TenantConnection;
 
     protected $casts = [
         'data' => 'array',

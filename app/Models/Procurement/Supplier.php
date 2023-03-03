@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 /**
  * App\Models\Procurement\Supplier
@@ -91,7 +90,6 @@ class Supplier extends Model
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
-    use TenantConnection;
 
     protected $casts = [
         'shared_data' => 'array',

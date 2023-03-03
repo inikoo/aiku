@@ -17,7 +17,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 
 /**
@@ -74,7 +73,6 @@ class AdminUser extends Authenticatable
     use HasFactory;
     use HasApiTokens;
     use SoftDeletes;
-    use CentralConnection;
     use HasSlug;
 
     protected $casts = [

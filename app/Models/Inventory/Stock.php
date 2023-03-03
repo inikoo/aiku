@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 /**
  * App\Models\Inventory\Stock
@@ -103,7 +102,6 @@ use Stancl\Tenancy\Database\Concerns\TenantConnection;
 class Stock extends Model
 {
     use SoftDeletes;
-    use TenantConnection;
     use HasSlug;
 
     protected $casts = [

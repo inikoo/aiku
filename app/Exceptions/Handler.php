@@ -100,14 +100,6 @@ class Handler extends ExceptionHandler
 
     public function getExceptionInfo($e): array
     {
-        if (get_class($e) == 'Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedOnDomainException') {
-            return [
-                'status'      => 404,
-                'title'       => __('Account not found'),
-                'description' => __('Account could not be identified on domain')
-            ];
-        }
-
         return [
             'status'      => 500,
             'title'       => __('Server Error'),

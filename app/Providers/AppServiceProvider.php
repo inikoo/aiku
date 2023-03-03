@@ -8,32 +8,24 @@
 
 namespace App\Providers;
 
-use App\Managers\Tenant\SourceTenantManager;
-use App\Managers\Tenant\TenantManager;
-use App\Models\Central\Tenant;
+
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Lorisleiva\Actions\Facades\Actions;
-use Stancl\Tenancy\DatabaseConfig;
 
 class AppServiceProvider extends ServiceProvider
 {
 
     public function register(): void
     {
-        $this->app->bind(SourceTenantManager::class, function () {
-            return new TenantManager();
-        });
+
         if ($this->app->environment('local')) {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
         }
 
-        DatabaseConfig::$databaseNameGenerator = function (Tenant $tenant) {
-            return config('tenancy.database.prefix').$tenant->code.config('tenancy.database.suffix');
-        };
     }
 
 

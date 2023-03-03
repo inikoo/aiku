@@ -14,7 +14,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 /**
  * App\Models\Central\User
@@ -52,7 +51,6 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
 class User extends Authenticatable
 {
     use HasApiTokens;
-    use CentralConnection;
     use HasSlug;
 
     protected $guarded = [

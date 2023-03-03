@@ -40,7 +40,6 @@
         "spatie/laravel-query-builder": "^5.0",
         "spatie/laravel-sluggable": "^3.4",
         "spatie/temporary-directory": "^2.1",
-        "stancl/tenancy": "^3.5",
         "tightenco/ziggy": "^1.0",
         "vemcogroup/laravel-translation": "^3.0",
         "vlucas/phpdotenv": "^5.4"

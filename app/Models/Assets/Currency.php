@@ -9,7 +9,6 @@ namespace App\Models\Assets;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 /**
  * App\Models\Assets\Currency
@@ -39,7 +38,6 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
  */
 class Currency extends Model
 {
-    use CentralConnection;
 
     protected $casts = [
         'data' => 'array'

@@ -11,7 +11,6 @@ namespace App\Models\Assets;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 /**
  * App\Models\Assets\Timezone
@@ -46,7 +45,6 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
 class Timezone extends Model
 {
 
-    use CentralConnection;
 
     protected $casts = [
         'data' => 'array'

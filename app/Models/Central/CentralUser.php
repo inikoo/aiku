@@ -14,44 +14,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Stancl\Tenancy\Contracts\SyncMaster;
-use Stancl\Tenancy\Database\Concerns\CentralConnection;
-use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
 
 
-/**
- * App\Models\Central\CentralUser
- *
- * @property int $id
- * @property string $global_id
- * @property string $username
- * @property string $password
- * @property string|null $email
- * @property string|null $about
- * @property array $data
- * @property int $number_tenants
- * @property string|null $created_at
- * @property string|null $updated_at
- * @property-read \Stancl\Tenancy\Database\TenantCollection<int, \App\Models\Central\Tenant> $tenants
- * @property-read int|null $tenants_count
- * @method static Builder|CentralUser newModelQuery()
- * @method static Builder|CentralUser newQuery()
- * @method static Builder|CentralUser query()
- * @method static Builder|CentralUser whereAbout($value)
- * @method static Builder|CentralUser whereCreatedAt($value)
- * @method static Builder|CentralUser whereData($value)
- * @method static Builder|CentralUser whereEmail($value)
- * @method static Builder|CentralUser whereGlobalId($value)
- * @method static Builder|CentralUser whereId($value)
- * @method static Builder|CentralUser whereNumberTenants($value)
- * @method static Builder|CentralUser wherePassword($value)
- * @method static Builder|CentralUser whereUpdatedAt($value)
- * @method static Builder|CentralUser whereUsername($value)
- * @mixin \Eloquent
- */
-class CentralUser extends Model implements SyncMaster
+
+class CentralUser extends Model
 {
-    use ResourceSyncing, CentralConnection;
     use HasSlug;
 
     protected $casts = [
