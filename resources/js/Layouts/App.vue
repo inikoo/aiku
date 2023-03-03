@@ -129,7 +129,6 @@ import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
                             </Menu>
 
                         </div>
-
                     </div>
 
 
@@ -149,6 +148,7 @@ import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
                     <DisclosureButton v-for="item in navigation" :key="item.name" as="a" :href="item.href"
                                       :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block rounded-md px-3 py-2 text-base font-medium']"
                                       :aria-current="item.current ? 'page' : undefined">{{ item.name }}
+
                     </DisclosureButton>
                 </div>
                 <div class="border-t border-gray-700 pt-4 pb-3">
@@ -157,6 +157,7 @@ import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
                             <img class="h-10 w-10 rounded-full" :src="user.imageUrl" alt=""/>
                         </div>
                         <div class="ml-3">
+
                             <div class="text-base font-medium leading-none text-white">{{ user.name }}</div>
                             <div class="text-sm font-medium leading-none text-gray-400">{{ user.email }}</div>
                         </div>

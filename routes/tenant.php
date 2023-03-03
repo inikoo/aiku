@@ -57,7 +57,7 @@ Route::middleware([
         Route::prefix("customers")
             ->name("customers.")
             ->group(__DIR__ . "/customers.php");
-      
+
         Route::prefix("osm")
             ->name("osm.")
             ->group(__DIR__."/osm.php");
