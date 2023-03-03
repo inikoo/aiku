@@ -62,7 +62,7 @@ const initialiseApp = () => {
         if (usePage().props.layout) {
             layout.navigation = usePage().props.layout.navigation ?? null;
             layout.actions = usePage().props.layout.actions ?? null;
-
+            layout.shops = usePage().props.layout.shops ?? null;
         }
         if (usePage().props.tenant) {
             layout.tenant = usePage().props.tenant ?? null;

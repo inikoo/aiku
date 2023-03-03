@@ -67,6 +67,7 @@ const sidebarOpen = ref(false);
 
 import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/vue';
 import AppLeftSideBar from '@/Layouts/AppLeftSideBar.vue';
+import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
 
 
 </script>
@@ -87,19 +88,7 @@ import AppLeftSideBar from '@/Layouts/AppLeftSideBar.vue';
                                 {{ layout.tenant.name }}
                             </div>
 
-                            <div class="border border-sky-500 px-6 ">
-                                <font-awesome-icon aria-hidden="true" class="mr-3" icon="fal fa-store-alt"/>
-                                {{ trans('Stores') }}
-                                <font-awesome-icon aria-hidden="true" class="ml-1 opacity-50 hover:opacity-100" icon="fal fa-chevron-down"/>
-                            </div>
-                            <div class="ml-5 space-x-4">
-                                <button>
-                                <font-awesome-icon aria-hidden="true"  icon="fal fa-cube"/>
-                                </button>
-                                <font-awesome-icon aria-hidden="true"  icon="fal fa-globe"/>
-                                <font-awesome-icon aria-hidden="true" icon="fal fa-user"/>
-                                <font-awesome-icon aria-hidden="true" icon="fal fa-shopping-cart"/>
-                            </div>
+                            <app-shop-navigation :shopsData="layout.shops"></app-shop-navigation>
 
 
                         </div>
@@ -171,7 +160,7 @@ import AppLeftSideBar from '@/Layouts/AppLeftSideBar.vue';
                             <div class="text-base font-medium leading-none text-white">{{ user.name }}</div>
                             <div class="text-sm font-medium leading-none text-gray-400">{{ user.email }}</div>
                         </div>
-                       
+
                         <button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                             <span class="sr-only">{{ trans('View notifications') }}</span>
                             <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>

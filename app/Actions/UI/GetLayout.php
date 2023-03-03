@@ -8,6 +8,8 @@
 namespace App\Actions\UI;
 
 
+use App\Http\Resources\Marketing\ShopResource;
+use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\SysAdmin\User;
@@ -202,9 +204,15 @@ class GetLayout
         }
 
 
+        $shops = [
+            'current' => new ShopsNavigationResource(Shop::latest()->first()),
+            'items'   => ShopsNavigationResource::collection(Shop::all())
+        ];
+
         return [
             'navigation' => $navigation,
-            'actions'    => $actions
+            'actions'    => $actions,
+            'shops'      => $shops
         ];
     }
 

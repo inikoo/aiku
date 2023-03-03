@@ -22,7 +22,8 @@ return
             'production',
             'procurement',
             'fulfilment',
-            'accounting'
+            'accounting',
+            'shops'
         ],
 
         'system-admin'          => [

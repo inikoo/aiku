@@ -33,14 +33,23 @@ return [
     'hr.payroll',
     'hr.attendance',
 
-    /*
+
     'shops',
     'shops.view',
     'shops.products',
+    'shops.products.view',
+    'shops.products.edit',
     'shops.customers',
     'shops.customers.view',
     'shops.customers.edit',
-    */
+    'shops.websites',
+    'shops.websites.view',
+    'shops.websites.edit',
+    'shops.orders',
+    'shops.orders.view',
+    'shops.orders.edit',
+
+
 
     'osm',
     'osm.view',

@@ -10,8 +10,9 @@ export const useLayoutStore = defineStore('layout', {
     state: () => (
         {
             navigation   : [],
+            shops        : [],
             currentModels: [],
-            tenant : {},
+            tenant       : {},
         }
     ),
 
