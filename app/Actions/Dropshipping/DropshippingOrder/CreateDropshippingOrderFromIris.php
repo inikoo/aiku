@@ -9,8 +9,8 @@ namespace App\Actions\Dropshipping\DropshippingOrder;
 
 use App\Actions\fromIris;
 use App\Actions\SourceFetch\Aurora\FetchOrders;
+use App\Actions\WithTenantSource;
 use App\Http\Resources\Sales\DropshippingOrderResource;
-use App\Managers\Tenant\SourceTenantManager;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Product;
 use App\Models\Sales\Order;
@@ -26,6 +26,7 @@ use Illuminate\Validation\ValidationException;
 
 class CreateDropshippingOrderFromIris extends fromIris
 {
+    use WithTenantSource;
 
     public function rules(): array
     {
@@ -145,7 +146,6 @@ class CreateDropshippingOrderFromIris extends fromIris
         );
 
 
-
         $response = Http::get(Arr::get(app('currentTenant'), 'source.url').'/pika/process_pika_order.php', [
             'id'          => $id,
             'environment' => App::environment()
@@ -154,7 +154,8 @@ class CreateDropshippingOrderFromIris extends fromIris
         if ($response->ok()) {
             $auroraResponse = $response->json();
             if (Arr::get($auroraResponse, 'status') == 'ok') {
-                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(app('currentTenant')->source, 'type'));
+                $tenantSource = $this->getTenantSource(app('currentTenant'));
+
                 $tenantSource->initialisation(app('currentTenant'));
 
                 $order = FetchOrders::run($tenantSource, Arr::get($auroraResponse, 'order_source_id'));
@@ -166,7 +167,7 @@ class CreateDropshippingOrderFromIris extends fromIris
             }
             throw new Exception('Aurora server error msg:'.Arr::get($auroraResponse, 'msg'));
         } else {
-            $exceptionData=[
+            $exceptionData = [
                 Arr::get(app('currentTenant'), 'source.url').'/pika/process_pika_order.php',
                 [
                     'id'          => $id,

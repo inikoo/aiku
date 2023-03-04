@@ -9,8 +9,7 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\WithTenantsArgument;
-use App\Jobs\Middleware\InitialiseSourceTenant;
-use App\Managers\Tenant\SourceTenantManager;
+use App\Actions\WithTenantSource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Services\Tenant\SourceTenantService;
@@ -20,7 +19,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Decorators\JobDecorator;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 
@@ -28,6 +26,7 @@ class FetchAction
 {
     use AsAction;
     use WithTenantsArgument;
+    use WithTenantSource;
 
     protected int $counter = 0;
 
@@ -56,7 +55,6 @@ class FetchAction
 
     public function fetchAll(SourceTenantService $tenantSource, Command $command = null): void
     {
-
         foreach ($this->getModelsQuery()->get() as $auroraData) {
             if ($command && $command->getOutput()->isDebug()) {
                 $command->line("Fetching: ".$auroraData->{'source_id'});
@@ -82,6 +80,7 @@ class FetchAction
 
     /**
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Exception
      */
     public function asCommand(Command $command): int
     {
@@ -97,7 +96,7 @@ class FetchAction
 
 
                 if (in_array($command->getName(), ['fetch:orders', 'fetch:invoices', 'fetch:customers', 'fetch:delivery_notes'])) {
-                    $this->onlyNew = $command->option('only_new') ? true : false;
+                    $this->onlyNew = (bool)$command->option('only_new');
                 }
 
 
@@ -107,7 +106,7 @@ class FetchAction
                 }
 
 
-                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(app('currentTenant')->source, 'type'));
+                $tenantSource =$this->getTenantSource($tenant);
                 $tenantSource->initialisation(app('currentTenant'));
                 $command->info('');
 
@@ -194,15 +193,15 @@ class FetchAction
     {
         $validatedData = $request->validated();
 
-        return $this->tenant->run(
+        return $this->tenant->execute(
         /**
-         * @throws \Illuminate\Contracts\Container\BindingResolutionException
-         */ function () use ($validatedData) {
-            $tenantSource = app(SourceTenantManager::class)->make(Arr::get(app('currentTenant')->source, 'type'));
-            $tenantSource->initialisation(app('currentTenant'));
+         * @throws \Exception
+         */ function (Tenant $tenant) use ($validatedData) {
+                $tenantSource = $this->getTenantSource($tenant);
+                $tenantSource->initialisation(app('currentTenant'));
 
-            return $this->handle($tenantSource, Arr::get($validatedData, 'id'));
-        }
+                return $this->handle($tenantSource, Arr::get($validatedData, 'id'));
+            }
         );
     }
 

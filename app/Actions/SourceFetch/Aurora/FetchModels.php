@@ -11,10 +11,10 @@ namespace App\Actions\SourceFetch\Aurora;
 
 
 use App\Actions\WithTenantsArgument;
-use App\Managers\Tenant\SourceTenantManager;
+use App\Actions\WithTenantSource;
+use App\Models\Central\Tenant;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Bus;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -24,7 +24,7 @@ class FetchModels
 {
     use AsAction;
     use WithTenantsArgument;
-
+    use WithTenantSource;
 
     public string $commandSignature = 'fetch:models {tenants?*}';
 
@@ -43,7 +43,6 @@ class FetchModels
     }
 
 
-
     public function asCommand(Command $command): int
     {
         $tenants  = $this->getTenants($command);
@@ -52,13 +51,14 @@ class FetchModels
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->execute(
             /**
-             * @throws \Illuminate\Contracts\Container\BindingResolutionException
-             */ function () use ($command) {
-                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(app('currentTenant')->source, 'type'));
+             * @throws \Exception
+             */ function (Tenant $tenant) use ($command) {
+                $tenantSource = $this->getTenantSource($tenant);
                 $tenantSource->initialisation(app('currentTenant'));
 
                 $this->handle($tenantSource);
-            });
+            }
+            );
 
             if ($result !== 0) {
                 $exitCode = $result;

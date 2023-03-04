@@ -11,12 +11,12 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Dispatch\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
 use App\Actions\WithTenantsArgument;
-use App\Managers\Tenant\SourceTenantManager;
+use App\Actions\WithTenantSource;
+use App\Models\Central\Tenant;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,6 +26,8 @@ class FetchFromStack
 {
     use AsAction;
     use WithTenantsArgument;
+    use WithTenantSource;
+    use WithTenantSource;
 
 
     public string $commandSignature = 'fetch:stack {tenants?*} {--M|max_run_time=0 : max fun time in seconds}';
@@ -138,9 +140,9 @@ class FetchFromStack
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->execute(
             /**
-             * @throws \Illuminate\Contracts\Container\BindingResolutionException
-             */ function () use ($command) {
-                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(app('currentTenant')->source, 'type'));
+             * @throws \Exception
+             */ function (Tenant $tenant) use ($command) {
+                $tenantSource = $this->getTenantSource($tenant);
                 $tenantSource->initialisation(app('currentTenant'));
 
                 $this->handle($tenantSource);
