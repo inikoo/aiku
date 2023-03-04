@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -54,47 +55,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
- * @property-read int|null $locations_count
  * @property-read Model|\Eloquent $owner
  * @property-read \App\Models\Inventory\StockStats|null $stats
  * @property-read \App\Models\Inventory\StockFamily|null $stockFamily
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\StockMovement> $stockMovements
- * @property-read int|null $stock_movements_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
- * @property-read int|null $trade_units_count
  * @method static Builder|Stock newModelQuery()
  * @method static Builder|Stock newQuery()
  * @method static Builder|Stock onlyTrashed()
  * @method static Builder|Stock query()
- * @method static Builder|Stock whereActivatedAt($value)
- * @method static Builder|Stock whereAvailableForecast($value)
- * @method static Builder|Stock whereBarcode($value)
- * @method static Builder|Stock whereCode($value)
- * @method static Builder|Stock whereComposition($value)
- * @method static Builder|Stock whereCreatedAt($value)
- * @method static Builder|Stock whereData($value)
- * @method static Builder|Stock whereDeletedAt($value)
- * @method static Builder|Stock whereDescription($value)
- * @method static Builder|Stock whereDiscontinuedAt($value)
- * @method static Builder|Stock whereDiscontinuingAt($value)
- * @method static Builder|Stock whereId($value)
- * @method static Builder|Stock whereImageId($value)
- * @method static Builder|Stock whereOwnerId($value)
- * @method static Builder|Stock whereOwnerType($value)
- * @method static Builder|Stock wherePackageImageId($value)
- * @method static Builder|Stock whereQuantity($value)
- * @method static Builder|Stock whereQuantityStatus($value)
- * @method static Builder|Stock whereRawMaterial($value)
- * @method static Builder|Stock whereSellable($value)
- * @method static Builder|Stock whereSettings($value)
- * @method static Builder|Stock whereSlug($value)
- * @method static Builder|Stock whereSourceId($value)
- * @method static Builder|Stock whereState($value)
- * @method static Builder|Stock whereStockFamilyId($value)
- * @method static Builder|Stock whereUnitsPerCarton($value)
- * @method static Builder|Stock whereUnitsPerPack($value)
- * @method static Builder|Stock whereUpdatedAt($value)
- * @method static Builder|Stock whereValue($value)
  * @method static Builder|Stock withTrashed()
  * @method static Builder|Stock withoutTrashed()
  * @mixin \Eloquent
@@ -103,6 +72,7 @@ class Stock extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data' => 'array',

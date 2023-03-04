@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -35,17 +36,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|HistoricProduct newQuery()
  * @method static Builder|HistoricProduct onlyTrashed()
  * @method static Builder|HistoricProduct query()
- * @method static Builder|HistoricProduct whereCode($value)
- * @method static Builder|HistoricProduct whereCreatedAt($value)
- * @method static Builder|HistoricProduct whereDeletedAt($value)
- * @method static Builder|HistoricProduct whereId($value)
- * @method static Builder|HistoricProduct whereName($value)
- * @method static Builder|HistoricProduct wherePrice($value)
- * @method static Builder|HistoricProduct whereProductId($value)
- * @method static Builder|HistoricProduct whereSlug($value)
- * @method static Builder|HistoricProduct whereSourceId($value)
- * @method static Builder|HistoricProduct whereStatus($value)
- * @method static Builder|HistoricProduct whereUnits($value)
  * @method static Builder|HistoricProduct withTrashed()
  * @method static Builder|HistoricProduct withoutTrashed()
  * @mixin \Eloquent
@@ -54,6 +44,7 @@ class HistoricProduct extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'status' => 'boolean',

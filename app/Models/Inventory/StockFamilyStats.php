@@ -10,6 +10,7 @@ namespace App\Models\Inventory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Inventory\StockFamilyStats
@@ -28,20 +29,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|StockFamilyStats newModelQuery()
  * @method static Builder|StockFamilyStats newQuery()
  * @method static Builder|StockFamilyStats query()
- * @method static Builder|StockFamilyStats whereCreatedAt($value)
- * @method static Builder|StockFamilyStats whereDeletedAt($value)
- * @method static Builder|StockFamilyStats whereId($value)
- * @method static Builder|StockFamilyStats whereNumberStocks($value)
- * @method static Builder|StockFamilyStats whereNumberStocksStateActive($value)
- * @method static Builder|StockFamilyStats whereNumberStocksStateDiscontinued($value)
- * @method static Builder|StockFamilyStats whereNumberStocksStateDiscontinuing($value)
- * @method static Builder|StockFamilyStats whereNumberStocksStateInProcess($value)
- * @method static Builder|StockFamilyStats whereStockFamilyId($value)
- * @method static Builder|StockFamilyStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class StockFamilyStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'stock_family_stats';
 
     protected $guarded = [];

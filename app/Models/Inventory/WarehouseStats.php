@@ -30,16 +30,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|WarehouseStats newModelQuery()
  * @method static Builder|WarehouseStats newQuery()
  * @method static Builder|WarehouseStats query()
- * @method static Builder|WarehouseStats whereCreatedAt($value)
- * @method static Builder|WarehouseStats whereId($value)
- * @method static Builder|WarehouseStats whereNumberEmptyLocations($value)
- * @method static Builder|WarehouseStats whereNumberLocations($value)
- * @method static Builder|WarehouseStats whereNumberLocationsStateBroken($value)
- * @method static Builder|WarehouseStats whereNumberLocationsStateOperational($value)
- * @method static Builder|WarehouseStats whereNumberWarehouseAreas($value)
- * @method static Builder|WarehouseStats whereStockValue($value)
- * @method static Builder|WarehouseStats whereUpdatedAt($value)
- * @method static Builder|WarehouseStats whereWarehouseId($value)
  * @mixin \Eloquent
  */
 class WarehouseStats extends Model

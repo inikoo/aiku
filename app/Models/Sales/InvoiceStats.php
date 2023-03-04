@@ -10,6 +10,7 @@ namespace App\Models\Sales;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Sales\InvoiceStats
@@ -23,15 +24,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|InvoiceStats newModelQuery()
  * @method static Builder|InvoiceStats newQuery()
  * @method static Builder|InvoiceStats query()
- * @method static Builder|InvoiceStats whereCreatedAt($value)
- * @method static Builder|InvoiceStats whereId($value)
- * @method static Builder|InvoiceStats whereInvoiceId($value)
- * @method static Builder|InvoiceStats whereNumberItems($value)
- * @method static Builder|InvoiceStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class InvoiceStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'invoice_stats';
     protected $guarded = [];
 

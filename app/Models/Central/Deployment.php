@@ -25,13 +25,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @method static Builder|Deployment newModelQuery()
  * @method static Builder|Deployment newQuery()
  * @method static Builder|Deployment query()
- * @method static Builder|Deployment whereCreatedAt($value)
- * @method static Builder|Deployment whereData($value)
- * @method static Builder|Deployment whereHash($value)
- * @method static Builder|Deployment whereId($value)
- * @method static Builder|Deployment whereState($value)
- * @method static Builder|Deployment whereUpdatedAt($value)
- * @method static Builder|Deployment whereVersion($value)
  * @mixin \Eloquent
  */
 class Deployment extends Model

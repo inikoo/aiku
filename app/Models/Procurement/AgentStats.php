@@ -10,6 +10,7 @@ namespace App\Models\Procurement;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Procurement\AgentStats
@@ -44,36 +45,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|AgentStats newModelQuery()
  * @method static Builder|AgentStats newQuery()
  * @method static Builder|AgentStats query()
- * @method static Builder|AgentStats whereAgentId($value)
- * @method static Builder|AgentStats whereCreatedAt($value)
- * @method static Builder|AgentStats whereId($value)
- * @method static Builder|AgentStats whereNumberActiveSuppliers($value)
- * @method static Builder|AgentStats whereNumberDeliveries($value)
- * @method static Builder|AgentStats whereNumberProducts($value)
- * @method static Builder|AgentStats whereNumberProductsStateActive($value)
- * @method static Builder|AgentStats whereNumberProductsStateDiscontinued($value)
- * @method static Builder|AgentStats whereNumberProductsStateDiscontinuing($value)
- * @method static Builder|AgentStats whereNumberProductsStateInProcess($value)
- * @method static Builder|AgentStats whereNumberProductsStateNoAvailable($value)
- * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusCritical($value)
- * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusLow($value)
- * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusNoApplicable($value)
- * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusOptimal($value)
- * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusOutOfStock($value)
- * @method static Builder|AgentStats whereNumberProductsStockQuantityStatusSurplus($value)
- * @method static Builder|AgentStats whereNumberPurchaseOrders($value)
- * @method static Builder|AgentStats whereNumberPurchaseOrdersStateCancelled($value)
- * @method static Builder|AgentStats whereNumberPurchaseOrdersStateConfirmed($value)
- * @method static Builder|AgentStats whereNumberPurchaseOrdersStateDelivered($value)
- * @method static Builder|AgentStats whereNumberPurchaseOrdersStateDispatched($value)
- * @method static Builder|AgentStats whereNumberPurchaseOrdersStateInProcess($value)
- * @method static Builder|AgentStats whereNumberPurchaseOrdersStateSubmitted($value)
- * @method static Builder|AgentStats whereNumberSuppliers($value)
- * @method static Builder|AgentStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class AgentStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'agent_stats';
 
     protected $guarded = [];

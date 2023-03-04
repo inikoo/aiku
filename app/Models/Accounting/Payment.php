@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -50,28 +51,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Payment newQuery()
  * @method static Builder|Payment onlyTrashed()
  * @method static Builder|Payment query()
- * @method static Builder|Payment whereAmount($value)
- * @method static Builder|Payment whereCancelledAt($value)
- * @method static Builder|Payment whereCompletedAt($value)
- * @method static Builder|Payment whereCreatedAt($value)
- * @method static Builder|Payment whereCurrencyId($value)
- * @method static Builder|Payment whereCustomerId($value)
- * @method static Builder|Payment whereData($value)
- * @method static Builder|Payment whereDate($value)
- * @method static Builder|Payment whereDcAmount($value)
- * @method static Builder|Payment whereDeletedAt($value)
- * @method static Builder|Payment whereId($value)
- * @method static Builder|Payment wherePaymentAccountId($value)
- * @method static Builder|Payment whereReference($value)
- * @method static Builder|Payment whereShopId($value)
- * @method static Builder|Payment whereSlug($value)
- * @method static Builder|Payment whereSourceId($value)
- * @method static Builder|Payment whereState($value)
- * @method static Builder|Payment whereStatus($value)
- * @method static Builder|Payment whereSubsequentStatus($value)
- * @method static Builder|Payment whereType($value)
- * @method static Builder|Payment whereUpdatedAt($value)
- * @method static Builder|Payment whereWithRefund($value)
  * @method static Builder|Payment withTrashed()
  * @method static Builder|Payment withoutTrashed()
  * @mixin \Eloquent
@@ -80,6 +59,7 @@ class Payment extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data' => 'array',

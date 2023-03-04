@@ -10,6 +10,7 @@ namespace App\Models\Inventory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Inventory\StockStats
@@ -24,16 +25,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|StockStats newModelQuery()
  * @method static Builder|StockStats newQuery()
  * @method static Builder|StockStats query()
- * @method static Builder|StockStats whereCreatedAt($value)
- * @method static Builder|StockStats whereId($value)
- * @method static Builder|StockStats whereNumberLocations($value)
- * @method static Builder|StockStats whereStockId($value)
- * @method static Builder|StockStats whereStockValue($value)
- * @method static Builder|StockStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class StockStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'stock_stats';
 
     protected $guarded = [];

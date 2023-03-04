@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Marketing\ProductStats
@@ -22,14 +23,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|ProductStats newModelQuery()
  * @method static Builder|ProductStats newQuery()
  * @method static Builder|ProductStats query()
- * @method static Builder|ProductStats whereCreatedAt($value)
- * @method static Builder|ProductStats whereId($value)
- * @method static Builder|ProductStats whereProductId($value)
- * @method static Builder|ProductStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class ProductStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'product_stats';
 
     protected $guarded = [];

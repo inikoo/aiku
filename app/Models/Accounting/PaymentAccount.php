@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -34,23 +35,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
- * @property-read int|null $payments_count
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
  * @method static Builder|PaymentAccount newModelQuery()
  * @method static Builder|PaymentAccount newQuery()
  * @method static Builder|PaymentAccount onlyTrashed()
  * @method static Builder|PaymentAccount query()
- * @method static Builder|PaymentAccount whereCode($value)
- * @method static Builder|PaymentAccount whereCreatedAt($value)
- * @method static Builder|PaymentAccount whereData($value)
- * @method static Builder|PaymentAccount whereDeletedAt($value)
- * @method static Builder|PaymentAccount whereId($value)
- * @method static Builder|PaymentAccount whereLastUsedAt($value)
- * @method static Builder|PaymentAccount whereName($value)
- * @method static Builder|PaymentAccount wherePaymentServiceProviderId($value)
- * @method static Builder|PaymentAccount whereSlug($value)
- * @method static Builder|PaymentAccount whereSourceId($value)
- * @method static Builder|PaymentAccount whereUpdatedAt($value)
  * @method static Builder|PaymentAccount withTrashed()
  * @method static Builder|PaymentAccount withoutTrashed()
  * @mixin \Eloquent
@@ -59,6 +48,7 @@ class PaymentAccount extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data' => 'array',

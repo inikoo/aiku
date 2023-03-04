@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -35,25 +36,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Inventory\LocationStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Stock> $stocks
- * @property-read int|null $stocks_count
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
  * @method static Builder|Location newModelQuery()
  * @method static Builder|Location newQuery()
  * @method static Builder|Location onlyTrashed()
  * @method static Builder|Location query()
- * @method static Builder|Location whereCode($value)
- * @method static Builder|Location whereCreatedAt($value)
- * @method static Builder|Location whereData($value)
- * @method static Builder|Location whereDeletedAt($value)
- * @method static Builder|Location whereId($value)
- * @method static Builder|Location whereIsEmpty($value)
- * @method static Builder|Location whereSlug($value)
- * @method static Builder|Location whereSourceId($value)
- * @method static Builder|Location whereState($value)
- * @method static Builder|Location whereUpdatedAt($value)
- * @method static Builder|Location whereWarehouseAreaId($value)
- * @method static Builder|Location whereWarehouseId($value)
  * @method static Builder|Location withTrashed()
  * @method static Builder|Location withoutTrashed()
  * @mixin \Eloquent
@@ -62,6 +50,7 @@ class Location extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data'       => 'array',

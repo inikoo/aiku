@@ -7,9 +7,11 @@
 
 namespace App\Models\Dispatch;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -27,28 +29,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Dispatch\Shipper|null $shipper
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment query()
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereShipperId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereSourceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereTracking($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Shipment withoutTrashed()
+ * @method static Builder|Shipment newModelQuery()
+ * @method static Builder|Shipment newQuery()
+ * @method static Builder|Shipment onlyTrashed()
+ * @method static Builder|Shipment query()
+ * @method static Builder|Shipment withTrashed()
+ * @method static Builder|Shipment withoutTrashed()
  * @mixin \Eloquent
  */
 class Shipment extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data'   => 'array',

@@ -10,6 +10,7 @@ namespace App\Models\Fulfilment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Fulfilment\FulfilmentOrderStats
@@ -28,20 +29,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|FulfilmentOrderStats newModelQuery()
  * @method static Builder|FulfilmentOrderStats newQuery()
  * @method static Builder|FulfilmentOrderStats query()
- * @method static Builder|FulfilmentOrderStats whereCreatedAt($value)
- * @method static Builder|FulfilmentOrderStats whereId($value)
- * @method static Builder|FulfilmentOrderStats whereNumberAddUpItems($value)
- * @method static Builder|FulfilmentOrderStats whereNumberCancelledItems($value)
- * @method static Builder|FulfilmentOrderStats whereNumberCutOffItems($value)
- * @method static Builder|FulfilmentOrderStats whereNumberItems($value)
- * @method static Builder|FulfilmentOrderStats whereNumberItemsAtCreation($value)
- * @method static Builder|FulfilmentOrderStats whereNumberItemsFulfilled($value)
- * @method static Builder|FulfilmentOrderStats whereOrderId($value)
- * @method static Builder|FulfilmentOrderStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class FulfilmentOrderStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'fulfilment_order_stats';
     protected $guarded = [];
 

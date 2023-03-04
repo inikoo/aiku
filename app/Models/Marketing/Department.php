@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -37,9 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Family> $families
- * @property-read int|null $families_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
- * @property-read int|null $products_count
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Marketing\Shop|null $shop
@@ -48,19 +47,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Department newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Department onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Department query()
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereDepartmentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereShopId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereSourceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Department whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Department withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Department withoutTrashed()
  * @mixin \Eloquent
@@ -69,6 +55,7 @@ class Department extends Model
 {
     use HasSlug;
     use SoftDeletes;
+    use UsesTenantConnection;
 
     protected $guarded = [];
 

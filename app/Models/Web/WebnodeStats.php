@@ -10,6 +10,7 @@ namespace App\Models\Web;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
@@ -23,14 +24,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|WebnodeStats newModelQuery()
  * @method static Builder|WebnodeStats newQuery()
  * @method static Builder|WebnodeStats query()
- * @method static Builder|WebnodeStats whereCreatedAt($value)
- * @method static Builder|WebnodeStats whereId($value)
- * @method static Builder|WebnodeStats whereUpdatedAt($value)
- * @method static Builder|WebnodeStats whereWebnodeId($value)
  * @mixin \Eloquent
  */
 class WebnodeStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'webnode_stats';
 
     protected $guarded = [];

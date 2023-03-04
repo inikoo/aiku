@@ -10,6 +10,7 @@ namespace App\Models\Procurement;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Procurement\SupplierStats
@@ -42,34 +43,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|SupplierStats newModelQuery()
  * @method static Builder|SupplierStats newQuery()
  * @method static Builder|SupplierStats query()
- * @method static Builder|SupplierStats whereCreatedAt($value)
- * @method static Builder|SupplierStats whereId($value)
- * @method static Builder|SupplierStats whereNumberDeliveries($value)
- * @method static Builder|SupplierStats whereNumberProducts($value)
- * @method static Builder|SupplierStats whereNumberProductsStateActive($value)
- * @method static Builder|SupplierStats whereNumberProductsStateDiscontinued($value)
- * @method static Builder|SupplierStats whereNumberProductsStateDiscontinuing($value)
- * @method static Builder|SupplierStats whereNumberProductsStateInProcess($value)
- * @method static Builder|SupplierStats whereNumberProductsStateNoAvailable($value)
- * @method static Builder|SupplierStats whereNumberProductsStockQuantityStatusCritical($value)
- * @method static Builder|SupplierStats whereNumberProductsStockQuantityStatusLow($value)
- * @method static Builder|SupplierStats whereNumberProductsStockQuantityStatusNoApplicable($value)
- * @method static Builder|SupplierStats whereNumberProductsStockQuantityStatusOptimal($value)
- * @method static Builder|SupplierStats whereNumberProductsStockQuantityStatusOutOfStock($value)
- * @method static Builder|SupplierStats whereNumberProductsStockQuantityStatusSurplus($value)
- * @method static Builder|SupplierStats whereNumberPurchaseOrders($value)
- * @method static Builder|SupplierStats whereNumberPurchaseOrdersStateCancelled($value)
- * @method static Builder|SupplierStats whereNumberPurchaseOrdersStateConfirmed($value)
- * @method static Builder|SupplierStats whereNumberPurchaseOrdersStateDelivered($value)
- * @method static Builder|SupplierStats whereNumberPurchaseOrdersStateDispatched($value)
- * @method static Builder|SupplierStats whereNumberPurchaseOrdersStateInProcess($value)
- * @method static Builder|SupplierStats whereNumberPurchaseOrdersStateSubmitted($value)
- * @method static Builder|SupplierStats whereSupplierId($value)
- * @method static Builder|SupplierStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class SupplierStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'supplier_stats';
 
     protected $guarded = [];

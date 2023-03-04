@@ -2,7 +2,9 @@
 
 namespace App\Models\Marketing;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Marketing\HistoricRent
@@ -10,15 +12,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricRent newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricRent newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricRent query()
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricRent whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricRent whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricRent whereUpdatedAt($value)
+ * @method static Builder|HistoricRent newModelQuery()
+ * @method static Builder|HistoricRent newQuery()
+ * @method static Builder|HistoricRent query()
  * @mixin \Eloquent
  */
 class HistoricRent extends Model
 {
-
+    use UsesTenantConnection;
 }

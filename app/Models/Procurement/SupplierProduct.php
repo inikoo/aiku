@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -46,43 +47,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\HistoricSupplierProduct> $historicRecords
- * @property-read int|null $historic_records_count
  * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
  * @property-read \App\Models\Procurement\Supplier|null $supplier
  * @method static Builder|SupplierProduct newModelQuery()
  * @method static Builder|SupplierProduct newQuery()
  * @method static Builder|SupplierProduct onlyTrashed()
  * @method static Builder|SupplierProduct query()
- * @method static Builder|SupplierProduct whereAgentId($value)
- * @method static Builder|SupplierProduct whereCode($value)
- * @method static Builder|SupplierProduct whereComposition($value)
- * @method static Builder|SupplierProduct whereCost($value)
- * @method static Builder|SupplierProduct whereCreatedAt($value)
- * @method static Builder|SupplierProduct whereCurrentHistoricSupplierProductId($value)
- * @method static Builder|SupplierProduct whereDeletedAt($value)
- * @method static Builder|SupplierProduct whereDescription($value)
- * @method static Builder|SupplierProduct whereGlobalId($value)
- * @method static Builder|SupplierProduct whereId($value)
- * @method static Builder|SupplierProduct whereName($value)
- * @method static Builder|SupplierProduct whereSettings($value)
- * @method static Builder|SupplierProduct whereSharedData($value)
- * @method static Builder|SupplierProduct whereSlug($value)
- * @method static Builder|SupplierProduct whereSourceId($value)
- * @method static Builder|SupplierProduct whereState($value)
- * @method static Builder|SupplierProduct whereStatus($value)
- * @method static Builder|SupplierProduct whereStockQuantityStatus($value)
- * @method static Builder|SupplierProduct whereSupplierId($value)
- * @method static Builder|SupplierProduct whereTenantData($value)
- * @method static Builder|SupplierProduct whereUnitsPerCarton($value)
- * @method static Builder|SupplierProduct whereUnitsPerPack($value)
- * @method static Builder|SupplierProduct whereUpdatedAt($value)
  * @method static Builder|SupplierProduct withTrashed()
  * @method static Builder|SupplierProduct withoutTrashed()
  * @mixin \Eloquent
  */
 class SupplierProduct extends Model
 {
-
+    use UsesTenantConnection;
     use SoftDeletes;
     use HasSlug;
 

@@ -7,8 +7,10 @@
 
 namespace App\Models\Marketing;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Marketing\ServiceStats
@@ -18,17 +20,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Marketing\Service $service
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceStats whereServiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceStats whereUpdatedAt($value)
+ * @method static Builder|ServiceStats newModelQuery()
+ * @method static Builder|ServiceStats newQuery()
+ * @method static Builder|ServiceStats query()
  * @mixin \Eloquent
  */
 class ServiceStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'service_stats';
 
     protected $guarded = [];

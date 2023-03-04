@@ -28,13 +28,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @method static Builder|Admin newModelQuery()
  * @method static Builder|Admin newQuery()
  * @method static Builder|Admin query()
- * @method static Builder|Admin whereCode($value)
- * @method static Builder|Admin whereCreatedAt($value)
- * @method static Builder|Admin whereData($value)
- * @method static Builder|Admin whereEmail($value)
- * @method static Builder|Admin whereId($value)
- * @method static Builder|Admin whereName($value)
- * @method static Builder|Admin whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Admin extends Model

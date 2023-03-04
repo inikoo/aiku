@@ -7,8 +7,10 @@
 
 namespace App\Models\Marketing;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Marketing\HistoricServiceStats
@@ -18,17 +20,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Marketing\HistoricService $historicService
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricServiceStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricServiceStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricServiceStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricServiceStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricServiceStats whereHistoricServiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricServiceStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricServiceStats whereUpdatedAt($value)
+ * @method static Builder|HistoricServiceStats newModelQuery()
+ * @method static Builder|HistoricServiceStats newQuery()
+ * @method static Builder|HistoricServiceStats query()
  * @mixin \Eloquent
  */
 class HistoricServiceStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'historic_service_stats';
 
     protected $guarded = [];

@@ -31,24 +31,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
- * @property-read int|null $locations_count
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
- * @property-read int|null $warehouse_areas_count
  * @method static Builder|Warehouse newModelQuery()
  * @method static Builder|Warehouse newQuery()
  * @method static Builder|Warehouse onlyTrashed()
  * @method static Builder|Warehouse query()
- * @method static Builder|Warehouse whereCode($value)
- * @method static Builder|Warehouse whereCreatedAt($value)
- * @method static Builder|Warehouse whereData($value)
- * @method static Builder|Warehouse whereDeletedAt($value)
- * @method static Builder|Warehouse whereId($value)
- * @method static Builder|Warehouse whereName($value)
- * @method static Builder|Warehouse whereSettings($value)
- * @method static Builder|Warehouse whereSlug($value)
- * @method static Builder|Warehouse whereSourceId($value)
- * @method static Builder|Warehouse whereUpdatedAt($value)
  * @method static Builder|Warehouse withTrashed()
  * @method static Builder|Warehouse withoutTrashed()
  * @mixin \Eloquent

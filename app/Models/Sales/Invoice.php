@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -44,45 +45,23 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
- * @property-read int|null $addresses_count
  * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\InvoiceTransaction> $invoiceTransactions
- * @property-read int|null $invoice_transactions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $order
- * @property-read int|null $order_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
- * @property-read int|null $orders_count
  * @property-read Shop $shop
  * @property-read \App\Models\Sales\InvoiceStats|null $stats
  * @method static Builder|Invoice newModelQuery()
  * @method static Builder|Invoice newQuery()
  * @method static Builder|Invoice onlyTrashed()
  * @method static Builder|Invoice query()
- * @method static Builder|Invoice whereCreatedAt($value)
- * @method static Builder|Invoice whereCurrencyId($value)
- * @method static Builder|Invoice whereCustomerId($value)
- * @method static Builder|Invoice whereData($value)
- * @method static Builder|Invoice whereDeletedAt($value)
- * @method static Builder|Invoice whereExchange($value)
- * @method static Builder|Invoice whereId($value)
- * @method static Builder|Invoice whereNet($value)
- * @method static Builder|Invoice whereNumber($value)
- * @method static Builder|Invoice whereOrderId($value)
- * @method static Builder|Invoice wherePaidAt($value)
- * @method static Builder|Invoice wherePayment($value)
- * @method static Builder|Invoice whereShopId($value)
- * @method static Builder|Invoice whereSlug($value)
- * @method static Builder|Invoice whereSourceId($value)
- * @method static Builder|Invoice whereTotal($value)
- * @method static Builder|Invoice whereType($value)
- * @method static Builder|Invoice whereUpdatedAt($value)
  * @method static Builder|Invoice withTrashed()
  * @method static Builder|Invoice withoutTrashed()
  * @mixin \Eloquent
  */
 class Invoice extends Model
 {
-
+    use UsesTenantConnection;
     use SoftDeletes;
     use HasSlug;
     use HasAddress;

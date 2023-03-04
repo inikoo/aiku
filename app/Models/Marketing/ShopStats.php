@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Marketing\ShopStats
@@ -81,73 +82,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|ShopStats newModelQuery()
  * @method static Builder|ShopStats newQuery()
  * @method static Builder|ShopStats query()
- * @method static Builder|ShopStats whereCreatedAt($value)
- * @method static Builder|ShopStats whereId($value)
- * @method static Builder|ShopStats whereNumberCustomers($value)
- * @method static Builder|ShopStats whereNumberCustomersStateActive($value)
- * @method static Builder|ShopStats whereNumberCustomersStateInProcess($value)
- * @method static Builder|ShopStats whereNumberCustomersStateLosing($value)
- * @method static Builder|ShopStats whereNumberCustomersStateLost($value)
- * @method static Builder|ShopStats whereNumberCustomersStateRegistered($value)
- * @method static Builder|ShopStats whereNumberCustomersTradeStateMany($value)
- * @method static Builder|ShopStats whereNumberCustomersTradeStateNone($value)
- * @method static Builder|ShopStats whereNumberCustomersTradeStateOne($value)
- * @method static Builder|ShopStats whereNumberDeliveries($value)
- * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStateDispatched($value)
- * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStateFinalised($value)
- * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePacked($value)
- * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePacking($value)
- * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePicked($value)
- * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePickerAssigned($value)
- * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStatePicking($value)
- * @method static Builder|ShopStats whereNumberDeliveriesCancelledAtStateSubmitted($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStateDispatched($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStateFinalised($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStatePacked($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStatePacking($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStatePicked($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStatePickerAssigned($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStatePicking($value)
- * @method static Builder|ShopStats whereNumberDeliveriesStateSubmitted($value)
- * @method static Builder|ShopStats whereNumberDeliveriesTypeOrder($value)
- * @method static Builder|ShopStats whereNumberDeliveriesTypeReplacement($value)
- * @method static Builder|ShopStats whereNumberDepartments($value)
- * @method static Builder|ShopStats whereNumberDepartmentsStateActive($value)
- * @method static Builder|ShopStats whereNumberDepartmentsStateDiscontinued($value)
- * @method static Builder|ShopStats whereNumberDepartmentsStateDiscontinuing($value)
- * @method static Builder|ShopStats whereNumberDepartmentsStateInProcess($value)
- * @method static Builder|ShopStats whereNumberFamilies($value)
- * @method static Builder|ShopStats whereNumberFamiliesStateActive($value)
- * @method static Builder|ShopStats whereNumberFamiliesStateDiscontinued($value)
- * @method static Builder|ShopStats whereNumberFamiliesStateDiscontinuing($value)
- * @method static Builder|ShopStats whereNumberFamiliesStateInProcess($value)
- * @method static Builder|ShopStats whereNumberInvoices($value)
- * @method static Builder|ShopStats whereNumberInvoicesTypeInvoice($value)
- * @method static Builder|ShopStats whereNumberInvoicesTypeRefund($value)
- * @method static Builder|ShopStats whereNumberOrders($value)
- * @method static Builder|ShopStats whereNumberOrdersStateCancelled($value)
- * @method static Builder|ShopStats whereNumberOrdersStateDispatched($value)
- * @method static Builder|ShopStats whereNumberOrdersStateFinalised($value)
- * @method static Builder|ShopStats whereNumberOrdersStateInBasket($value)
- * @method static Builder|ShopStats whereNumberOrdersStateInProcess($value)
- * @method static Builder|ShopStats whereNumberOrdersStateInWarehouse($value)
- * @method static Builder|ShopStats whereNumberOrdersStatePacked($value)
- * @method static Builder|ShopStats whereNumberOrdersStateReturned($value)
- * @method static Builder|ShopStats whereNumberOrphanFamilies($value)
- * @method static Builder|ShopStats whereNumberPaymentAccounts($value)
- * @method static Builder|ShopStats whereNumberPaymentServiceProviders($value)
- * @method static Builder|ShopStats whereNumberPayments($value)
- * @method static Builder|ShopStats whereNumberProducts($value)
- * @method static Builder|ShopStats whereNumberProductsStateActive($value)
- * @method static Builder|ShopStats whereNumberProductsStateDiscontinued($value)
- * @method static Builder|ShopStats whereNumberProductsStateDiscontinuing($value)
- * @method static Builder|ShopStats whereNumberProductsStateInProcess($value)
- * @method static Builder|ShopStats whereShopId($value)
- * @method static Builder|ShopStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class ShopStats extends Model
 {
+    use UsesTenantConnection;
 
     protected $table = 'shop_stats';
 

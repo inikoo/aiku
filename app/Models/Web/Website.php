@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -38,31 +39,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read Shop $shop
  * @property-read \App\Models\Web\WebsiteStats|null $stats
- * @property-read int|null $webnodes_count
  * @method static Builder|Website newModelQuery()
  * @method static Builder|Website newQuery()
  * @method static Builder|Website query()
- * @method static Builder|Website whereClosedAt($value)
- * @method static Builder|Website whereCode($value)
- * @method static Builder|Website whereCreatedAt($value)
- * @method static Builder|Website whereCurrentLayoutId($value)
- * @method static Builder|Website whereData($value)
- * @method static Builder|Website whereDeletedAt($value)
- * @method static Builder|Website whereDomain($value)
- * @method static Builder|Website whereId($value)
- * @method static Builder|Website whereLaunchedAt($value)
- * @method static Builder|Website whereName($value)
- * @method static Builder|Website whereSettings($value)
- * @method static Builder|Website whereShopId($value)
- * @method static Builder|Website whereSlug($value)
- * @method static Builder|Website whereSourceId($value)
- * @method static Builder|Website whereState($value)
- * @method static Builder|Website whereUpdatedAt($value)
- * @method static Builder|Website whereWebnodes($value)
  * @mixin \Eloquent
  */
 class Website extends Model
 {
+    use UsesTenantConnection;
     use HasSlug;
 
     protected $casts = [

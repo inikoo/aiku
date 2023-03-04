@@ -10,6 +10,7 @@ namespace App\Models\Sales;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Sales\SalesStats
@@ -59,51 +60,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|SalesStats newModelQuery()
  * @method static Builder|SalesStats newQuery()
  * @method static Builder|SalesStats query()
- * @method static Builder|SalesStats where1m($value)
- * @method static Builder|SalesStats where1mLy($value)
- * @method static Builder|SalesStats where1q($value)
- * @method static Builder|SalesStats where1qLy($value)
- * @method static Builder|SalesStats where1w($value)
- * @method static Builder|SalesStats where1wLy($value)
- * @method static Builder|SalesStats where1y($value)
- * @method static Builder|SalesStats where1yLy($value)
- * @method static Builder|SalesStats whereAll($value)
- * @method static Builder|SalesStats whereCreatedAt($value)
- * @method static Builder|SalesStats whereId($value)
- * @method static Builder|SalesStats whereLm($value)
- * @method static Builder|SalesStats whereLmLy($value)
- * @method static Builder|SalesStats whereLw($value)
- * @method static Builder|SalesStats whereLwLy($value)
- * @method static Builder|SalesStats whereModelId($value)
- * @method static Builder|SalesStats whereModelType($value)
- * @method static Builder|SalesStats whereMtd($value)
- * @method static Builder|SalesStats whereMtdLy($value)
- * @method static Builder|SalesStats wherePq1($value)
- * @method static Builder|SalesStats wherePq2($value)
- * @method static Builder|SalesStats wherePq3($value)
- * @method static Builder|SalesStats wherePq4($value)
- * @method static Builder|SalesStats wherePq5($value)
- * @method static Builder|SalesStats wherePy1($value)
- * @method static Builder|SalesStats wherePy2($value)
- * @method static Builder|SalesStats wherePy3($value)
- * @method static Builder|SalesStats wherePy4($value)
- * @method static Builder|SalesStats wherePy5($value)
- * @method static Builder|SalesStats whereQtd($value)
- * @method static Builder|SalesStats whereQtdLy($value)
- * @method static Builder|SalesStats whereScope($value)
- * @method static Builder|SalesStats whereTdy($value)
- * @method static Builder|SalesStats whereTdyLy($value)
- * @method static Builder|SalesStats whereUpdatedAt($value)
- * @method static Builder|SalesStats whereWtd($value)
- * @method static Builder|SalesStats whereWtdLy($value)
- * @method static Builder|SalesStats whereYda($value)
- * @method static Builder|SalesStats whereYdaLy($value)
- * @method static Builder|SalesStats whereYtd($value)
- * @method static Builder|SalesStats whereYtdLy($value)
  * @mixin \Eloquent
  */
 class SalesStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'sales_stats';
     protected $guarded = [];
 

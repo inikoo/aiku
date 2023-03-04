@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -30,22 +31,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
- * @property-read int|null $locations_count
  * @property-read \App\Models\Inventory\WarehouseAreaStats|null $stats
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea query()
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereSourceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea whereWarehouseId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea withoutTrashed()
  * @mixin \Eloquent
@@ -54,6 +45,7 @@ class WarehouseArea extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $guarded = [];
 

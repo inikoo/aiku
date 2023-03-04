@@ -39,28 +39,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
- * @property-read int|null $media_count
  * @property-read \App\Models\SysAdmin\User|null $user
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest onlyTrashed()
  * @method static Builder|Guest query()
- * @method static Builder|Guest whereCreatedAt($value)
- * @method static Builder|Guest whereData($value)
- * @method static Builder|Guest whereDateOfBirth($value)
- * @method static Builder|Guest whereDeletedAt($value)
- * @method static Builder|Guest whereEmail($value)
- * @method static Builder|Guest whereGender($value)
- * @method static Builder|Guest whereId($value)
- * @method static Builder|Guest whereIdentityDocumentNumber($value)
- * @method static Builder|Guest whereIdentityDocumentType($value)
- * @method static Builder|Guest whereName($value)
- * @method static Builder|Guest wherePhone($value)
- * @method static Builder|Guest whereSlug($value)
- * @method static Builder|Guest whereSourceId($value)
- * @method static Builder|Guest whereStatus($value)
- * @method static Builder|Guest whereType($value)
- * @method static Builder|Guest whereUpdatedAt($value)
  * @method static Builder|Guest withTrashed()
  * @method static Builder|Guest withoutTrashed()
  * @mixin \Eloquent

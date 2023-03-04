@@ -29,12 +29,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|EmployeeJobPosition newModelQuery()
  * @method static Builder|EmployeeJobPosition newQuery()
  * @method static Builder|EmployeeJobPosition query()
- * @method static Builder|EmployeeJobPosition whereCreatedAt($value)
- * @method static Builder|EmployeeJobPosition whereEmployeeId($value)
- * @method static Builder|EmployeeJobPosition whereId($value)
- * @method static Builder|EmployeeJobPosition whereJobPositionId($value)
- * @method static Builder|EmployeeJobPosition whereShare($value)
- * @method static Builder|EmployeeJobPosition whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class EmployeeJobPosition extends Pivot

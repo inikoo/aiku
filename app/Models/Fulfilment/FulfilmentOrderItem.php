@@ -13,6 +13,7 @@ use App\Models\Sales\Customer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Fulfilment\FulfilmentOrderItem
@@ -37,23 +38,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|FulfilmentOrderItem newModelQuery()
  * @method static Builder|FulfilmentOrderItem newQuery()
  * @method static Builder|FulfilmentOrderItem query()
- * @method static Builder|FulfilmentOrderItem whereCreatedAt($value)
- * @method static Builder|FulfilmentOrderItem whereCustomerId($value)
- * @method static Builder|FulfilmentOrderItem whereData($value)
- * @method static Builder|FulfilmentOrderItem whereDeletedAt($value)
- * @method static Builder|FulfilmentOrderItem whereFulfilmentOrderId($value)
- * @method static Builder|FulfilmentOrderItem whereId($value)
- * @method static Builder|FulfilmentOrderItem whereItemId($value)
- * @method static Builder|FulfilmentOrderItem whereItemType($value)
- * @method static Builder|FulfilmentOrderItem whereNotes($value)
- * @method static Builder|FulfilmentOrderItem whereQuantity($value)
- * @method static Builder|FulfilmentOrderItem whereShopId($value)
- * @method static Builder|FulfilmentOrderItem whereState($value)
- * @method static Builder|FulfilmentOrderItem whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class FulfilmentOrderItem extends Model
 {
+    use UsesTenantConnection;
+
     protected $casts = [
         'data' => 'array'
     ];

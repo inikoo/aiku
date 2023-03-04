@@ -10,6 +10,7 @@ namespace App\Models\Inventory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Inventory\StockMovement
@@ -32,24 +33,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|StockMovement newModelQuery()
  * @method static Builder|StockMovement newQuery()
  * @method static Builder|StockMovement query()
- * @method static Builder|StockMovement whereAmount($value)
- * @method static Builder|StockMovement whereCreatedAt($value)
- * @method static Builder|StockMovement whereData($value)
- * @method static Builder|StockMovement whereFlow($value)
- * @method static Builder|StockMovement whereId($value)
- * @method static Builder|StockMovement whereLocationId($value)
- * @method static Builder|StockMovement whereOperationId($value)
- * @method static Builder|StockMovement whereOperationType($value)
- * @method static Builder|StockMovement whereQuantity($value)
- * @method static Builder|StockMovement whereSourceId($value)
- * @method static Builder|StockMovement whereStockableId($value)
- * @method static Builder|StockMovement whereStockableType($value)
- * @method static Builder|StockMovement whereType($value)
- * @method static Builder|StockMovement whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class StockMovement extends Model
 {
+    use UsesTenantConnection;
+
     protected $casts = [
         'data' => 'array'
     ];

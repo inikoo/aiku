@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -30,18 +31,11 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Webpage newModelQuery()
  * @method static Builder|Webpage newQuery()
  * @method static Builder|Webpage query()
- * @method static Builder|Webpage whereCode($value)
- * @method static Builder|Webpage whereComponents($value)
- * @method static Builder|Webpage whereCreatedAt($value)
- * @method static Builder|Webpage whereId($value)
- * @method static Builder|Webpage whereSlug($value)
- * @method static Builder|Webpage whereType($value)
- * @method static Builder|Webpage whereUpdatedAt($value)
- * @method static Builder|Webpage whereWebnodeId($value)
  * @mixin \Eloquent
  */
 class Webpage extends Model
 {
+    use UsesTenantConnection;
     use HasSlug;
 
     protected $casts = [

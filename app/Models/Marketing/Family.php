@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -40,7 +41,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\Department|null $department
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
- * @property-read int|null $products_count
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Marketing\Shop|null $shop
@@ -49,20 +49,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Family newQuery()
  * @method static Builder|Family onlyTrashed()
  * @method static Builder|Family query()
- * @method static Builder|Family whereCode($value)
- * @method static Builder|Family whereCreatedAt($value)
- * @method static Builder|Family whereData($value)
- * @method static Builder|Family whereDeletedAt($value)
- * @method static Builder|Family whereDepartmentId($value)
- * @method static Builder|Family whereDescription($value)
- * @method static Builder|Family whereId($value)
- * @method static Builder|Family whereName($value)
- * @method static Builder|Family whereRootDepartmentId($value)
- * @method static Builder|Family whereShopId($value)
- * @method static Builder|Family whereSlug($value)
- * @method static Builder|Family whereSourceId($value)
- * @method static Builder|Family whereState($value)
- * @method static Builder|Family whereUpdatedAt($value)
  * @method static Builder|Family withTrashed()
  * @method static Builder|Family withoutTrashed()
  * @mixin \Eloquent
@@ -71,6 +57,7 @@ class Family extends Model
 {
     use HasSlug;
     use SoftDeletes;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data' => 'array',

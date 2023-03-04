@@ -30,18 +30,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|JobPosition newModelQuery()
  * @method static Builder|JobPosition newQuery()
  * @method static Builder|JobPosition query()
- * @method static Builder|JobPosition whereCreatedAt($value)
- * @method static Builder|JobPosition whereData($value)
- * @method static Builder|JobPosition whereDepartment($value)
- * @method static Builder|JobPosition whereId($value)
- * @method static Builder|JobPosition whereName($value)
- * @method static Builder|JobPosition whereNumberEmployees($value)
- * @method static Builder|JobPosition whereNumberWorkTime($value)
- * @method static Builder|JobPosition whereRoles($value)
- * @method static Builder|JobPosition whereShareWorkTime($value)
- * @method static Builder|JobPosition whereSlug($value)
- * @method static Builder|JobPosition whereTeam($value)
- * @method static Builder|JobPosition whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class JobPosition extends Model

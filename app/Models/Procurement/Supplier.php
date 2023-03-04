@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -48,45 +49,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $global_id
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
- * @property-read int|null $addresses_count
  * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
- * @property-read int|null $products_count
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
  * @method static Builder|Supplier newModelQuery()
  * @method static Builder|Supplier newQuery()
  * @method static Builder|Supplier onlyTrashed()
  * @method static Builder|Supplier query()
- * @method static Builder|Supplier whereAddressId($value)
- * @method static Builder|Supplier whereAgentId($value)
- * @method static Builder|Supplier whereCode($value)
- * @method static Builder|Supplier whereCompanyName($value)
- * @method static Builder|Supplier whereContactName($value)
- * @method static Builder|Supplier whereCreatedAt($value)
- * @method static Builder|Supplier whereCurrencyId($value)
- * @method static Builder|Supplier whereDeletedAt($value)
- * @method static Builder|Supplier whereEmail($value)
- * @method static Builder|Supplier whereGlobalId($value)
- * @method static Builder|Supplier whereId($value)
- * @method static Builder|Supplier whereLocation($value)
- * @method static Builder|Supplier whereName($value)
- * @method static Builder|Supplier whereOwnerId($value)
- * @method static Builder|Supplier whereOwnerType($value)
- * @method static Builder|Supplier wherePhone($value)
- * @method static Builder|Supplier whereSettings($value)
- * @method static Builder|Supplier whereSharedData($value)
- * @method static Builder|Supplier whereSlug($value)
- * @method static Builder|Supplier whereSourceId($value)
- * @method static Builder|Supplier whereStatus($value)
- * @method static Builder|Supplier whereTenantData($value)
- * @method static Builder|Supplier whereType($value)
- * @method static Builder|Supplier whereUpdatedAt($value)
  * @method static Builder|Supplier withTrashed()
  * @method static Builder|Supplier withoutTrashed()
  * @mixin \Eloquent
  */
 class Supplier extends Model
 {
+    use UsesTenantConnection;
     use SoftDeletes;
     use HasAddress;
     use HasSlug;

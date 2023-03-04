@@ -10,6 +10,7 @@ namespace App\Models\Web;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Web\WebsiteStats
@@ -23,15 +24,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|WebsiteStats newModelQuery()
  * @method static Builder|WebsiteStats newQuery()
  * @method static Builder|WebsiteStats query()
- * @method static Builder|WebsiteStats whereCreatedAt($value)
- * @method static Builder|WebsiteStats whereId($value)
- * @method static Builder|WebsiteStats whereNumberWebpages($value)
- * @method static Builder|WebsiteStats whereUpdatedAt($value)
- * @method static Builder|WebsiteStats whereWebsiteId($value)
  * @mixin \Eloquent
  */
 class WebsiteStats extends Model
 {
+    use UsesTenantConnection;
     protected $table = 'website_stats';
 
     protected $guarded = [];

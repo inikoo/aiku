@@ -17,6 +17,7 @@ use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Helpers\Address
@@ -41,25 +42,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static Builder|Address newModelQuery()
  * @method static Builder|Address newQuery()
  * @method static Builder|Address query()
- * @method static Builder|Address whereAddressLine1($value)
- * @method static Builder|Address whereAddressLine2($value)
- * @method static Builder|Address whereAdministrativeArea($value)
- * @method static Builder|Address whereChecksum($value)
- * @method static Builder|Address whereCountryCode($value)
- * @method static Builder|Address whereCountryId($value)
- * @method static Builder|Address whereCreatedAt($value)
- * @method static Builder|Address whereDependantLocality($value)
- * @method static Builder|Address whereHistoric($value)
- * @method static Builder|Address whereId($value)
- * @method static Builder|Address whereLocality($value)
- * @method static Builder|Address wherePostalCode($value)
- * @method static Builder|Address whereSortingCode($value)
- * @method static Builder|Address whereUpdatedAt($value)
- * @method static Builder|Address whereUsage($value)
  * @mixin \Eloquent
  */
 class Address extends Model
 {
+    use UsesTenantConnection;
+
     protected $guarded = [];
 
     protected static function booted()

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -34,26 +35,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
- * @property-read int|null $stocks_count
  * @method static Builder|TradeUnit newModelQuery()
  * @method static Builder|TradeUnit newQuery()
  * @method static Builder|TradeUnit onlyTrashed()
  * @method static Builder|TradeUnit query()
- * @method static Builder|TradeUnit whereBarcode($value)
- * @method static Builder|TradeUnit whereCode($value)
- * @method static Builder|TradeUnit whereCreatedAt($value)
- * @method static Builder|TradeUnit whereData($value)
- * @method static Builder|TradeUnit whereDeletedAt($value)
- * @method static Builder|TradeUnit whereDescription($value)
- * @method static Builder|TradeUnit whereDimensions($value)
- * @method static Builder|TradeUnit whereId($value)
- * @method static Builder|TradeUnit whereImageId($value)
- * @method static Builder|TradeUnit whereName($value)
- * @method static Builder|TradeUnit whereSlug($value)
- * @method static Builder|TradeUnit whereSourceId($value)
- * @method static Builder|TradeUnit whereType($value)
- * @method static Builder|TradeUnit whereUpdatedAt($value)
- * @method static Builder|TradeUnit whereWeight($value)
  * @method static Builder|TradeUnit withTrashed()
  * @method static Builder|TradeUnit withoutTrashed()
  * @mixin \Eloquent
@@ -62,6 +47,7 @@ class TradeUnit extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data'       => 'array',

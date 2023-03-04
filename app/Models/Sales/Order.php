@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 
 /**
@@ -54,58 +55,23 @@ use Spatie\Sluggable\HasSlug;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
- * @property-read int|null $addresses_count
  * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNote> $deliveryNotes
- * @property-read int|null $delivery_notes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Invoice> $invoices
- * @property-read int|null $invoices_count
  * @property-read Shop $shop
  * @property-read \App\Models\Sales\OrderStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Transaction> $transactions
- * @property-read int|null $transactions_count
  * @method static Builder|Order newModelQuery()
  * @method static Builder|Order newQuery()
  * @method static Builder|Order onlyTrashed()
  * @method static Builder|Order query()
- * @method static Builder|Order whereCanDispatch($value)
- * @method static Builder|Order whereCancelledAt($value)
- * @method static Builder|Order whereCharges($value)
- * @method static Builder|Order whereCreatedAt($value)
- * @method static Builder|Order whereCurrencyId($value)
- * @method static Builder|Order whereCustomerClientId($value)
- * @method static Builder|Order whereCustomerId($value)
- * @method static Builder|Order whereCustomerNumber($value)
- * @method static Builder|Order whereData($value)
- * @method static Builder|Order whereDate($value)
- * @method static Builder|Order whereDeletedAt($value)
- * @method static Builder|Order whereDispatchedAt($value)
- * @method static Builder|Order whereExchange($value)
- * @method static Builder|Order whereFinalisedAt($value)
- * @method static Builder|Order whereId($value)
- * @method static Builder|Order whereInWarehouseAt($value)
- * @method static Builder|Order whereIsInvoiced($value)
- * @method static Builder|Order whereIsPickingOnHold($value)
- * @method static Builder|Order whereItemsDiscounts($value)
- * @method static Builder|Order whereItemsNet($value)
- * @method static Builder|Order whereNet($value)
- * @method static Builder|Order whereNumber($value)
- * @method static Builder|Order wherePackedAt($value)
- * @method static Builder|Order whereShipping($value)
- * @method static Builder|Order whereShopId($value)
- * @method static Builder|Order whereSlug($value)
- * @method static Builder|Order whereSourceId($value)
- * @method static Builder|Order whereState($value)
- * @method static Builder|Order whereSubmittedAt($value)
- * @method static Builder|Order whereTax($value)
- * @method static Builder|Order whereType($value)
- * @method static Builder|Order whereUpdatedAt($value)
  * @method static Builder|Order withTrashed()
  * @method static Builder|Order withoutTrashed()
  * @mixin \Eloquent
  */
 class Order extends Model
 {
+    use UsesTenantConnection;
     use HasOrder;
     use HasSlug;
     use SoftDeletes;

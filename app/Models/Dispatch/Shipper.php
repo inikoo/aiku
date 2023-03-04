@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -36,28 +37,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Shipment> $shipments
- * @property-read int|null $shipments_count
  * @method static Builder|Shipper newModelQuery()
  * @method static Builder|Shipper newQuery()
  * @method static Builder|Shipper onlyTrashed()
  * @method static Builder|Shipper query()
- * @method static Builder|Shipper whereApiShipper($value)
- * @method static Builder|Shipper whereCode($value)
- * @method static Builder|Shipper whereCompanyName($value)
- * @method static Builder|Shipper whereContactName($value)
- * @method static Builder|Shipper whereCreatedAt($value)
- * @method static Builder|Shipper whereData($value)
- * @method static Builder|Shipper whereDeletedAt($value)
- * @method static Builder|Shipper whereEmail($value)
- * @method static Builder|Shipper whereId($value)
- * @method static Builder|Shipper whereName($value)
- * @method static Builder|Shipper wherePhone($value)
- * @method static Builder|Shipper whereSlug($value)
- * @method static Builder|Shipper whereSourceId($value)
- * @method static Builder|Shipper whereStatus($value)
- * @method static Builder|Shipper whereTrackingUrl($value)
- * @method static Builder|Shipper whereUpdatedAt($value)
- * @method static Builder|Shipper whereWebsite($value)
  * @method static Builder|Shipper withTrashed()
  * @method static Builder|Shipper withoutTrashed()
  * @mixin \Eloquent
@@ -66,6 +49,7 @@ class Shipper extends Model
 {
     use HasSlug;
     use SoftDeletes;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data'   => 'array',

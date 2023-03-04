@@ -8,8 +8,10 @@
 namespace App\Models\Marketing;
 
 use App\Models\Central\Deployment;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Marketing\DepartmentStats
@@ -30,28 +32,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Deployment $department
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereDepartmentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamilies($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateDiscontinued($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateDiscontinuing($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberFamiliesStateInProcess($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProducts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateDiscontinued($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateDiscontinuing($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberProductsStateInProcess($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereNumberSubDepartments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DepartmentStats whereUpdatedAt($value)
+ * @method static Builder|DepartmentStats newModelQuery()
+ * @method static Builder|DepartmentStats newQuery()
+ * @method static Builder|DepartmentStats query()
  * @mixin \Eloquent
  */
 class DepartmentStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'department_stats';
 
     protected $guarded = [];

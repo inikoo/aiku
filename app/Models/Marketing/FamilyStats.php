@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
@@ -28,19 +29,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|FamilyStats newModelQuery()
  * @method static Builder|FamilyStats newQuery()
  * @method static Builder|FamilyStats query()
- * @method static Builder|FamilyStats whereCreatedAt($value)
- * @method static Builder|FamilyStats whereFamilyId($value)
- * @method static Builder|FamilyStats whereId($value)
- * @method static Builder|FamilyStats whereNumberProducts($value)
- * @method static Builder|FamilyStats whereNumberProductsStateActive($value)
- * @method static Builder|FamilyStats whereNumberProductsStateDiscontinued($value)
- * @method static Builder|FamilyStats whereNumberProductsStateDiscontinuing($value)
- * @method static Builder|FamilyStats whereNumberProductsStateInProcess($value)
- * @method static Builder|FamilyStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class FamilyStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'family_stats';
 
     protected $guarded = [];

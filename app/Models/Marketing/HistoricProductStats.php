@@ -9,6 +9,7 @@ namespace App\Models\Marketing;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Marketing\HistoricProductStats
@@ -20,14 +21,12 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder|HistoricProductStats newModelQuery()
  * @method static Builder|HistoricProductStats newQuery()
  * @method static Builder|HistoricProductStats query()
- * @method static Builder|HistoricProductStats whereCreatedAt($value)
- * @method static Builder|HistoricProductStats whereHistoricProductId($value)
- * @method static Builder|HistoricProductStats whereId($value)
- * @method static Builder|HistoricProductStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class HistoricProductStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'historic_product_stats';
 
     protected $guarded = [];

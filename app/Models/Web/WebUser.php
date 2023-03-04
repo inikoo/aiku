@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -41,36 +42,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
- * @property-read int|null $tokens_count
  * @method static Builder|WebUser newModelQuery()
  * @method static Builder|WebUser newQuery()
  * @method static Builder|WebUser onlyTrashed()
  * @method static Builder|WebUser query()
- * @method static Builder|WebUser whereCreatedAt($value)
- * @method static Builder|WebUser whereCustomerId($value)
- * @method static Builder|WebUser whereData($value)
- * @method static Builder|WebUser whereDeletedAt($value)
- * @method static Builder|WebUser whereEmail($value)
- * @method static Builder|WebUser whereEmailVerifiedAt($value)
- * @method static Builder|WebUser whereId($value)
- * @method static Builder|WebUser whereNumberApiTokens($value)
- * @method static Builder|WebUser wherePassword($value)
- * @method static Builder|WebUser whereRememberToken($value)
- * @method static Builder|WebUser whereSettings($value)
- * @method static Builder|WebUser whereSlug($value)
- * @method static Builder|WebUser whereSourceId($value)
- * @method static Builder|WebUser whereStatus($value)
- * @method static Builder|WebUser whereType($value)
- * @method static Builder|WebUser whereUpdatedAt($value)
- * @method static Builder|WebUser whereUsername($value)
- * @method static Builder|WebUser whereWebLoginVersion($value)
- * @method static Builder|WebUser whereWebsiteId($value)
  * @method static Builder|WebUser withTrashed()
  * @method static Builder|WebUser withoutTrashed()
  * @mixin \Eloquent
  */
 class WebUser extends Authenticatable
 {
+    use UsesTenantConnection;
     use HasApiTokens;
     use SoftDeletes;
     use HasSlug;

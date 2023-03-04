@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -46,39 +47,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $global_id
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
- * @property-read int|null $addresses_count
  * @property-read Model|\Eloquent $owner
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
- * @property-read int|null $products_count
  * @property-read \App\Models\Procurement\AgentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\Supplier> $suppliers
- * @property-read int|null $suppliers_count
  * @method static Builder|Agent newModelQuery()
  * @method static Builder|Agent newQuery()
  * @method static Builder|Agent onlyTrashed()
  * @method static Builder|Agent query()
- * @method static Builder|Agent whereAddressId($value)
- * @method static Builder|Agent whereCode($value)
- * @method static Builder|Agent whereCompanyName($value)
- * @method static Builder|Agent whereContactName($value)
- * @method static Builder|Agent whereCreatedAt($value)
- * @method static Builder|Agent whereCurrencyId($value)
- * @method static Builder|Agent whereDeletedAt($value)
- * @method static Builder|Agent whereEmail($value)
- * @method static Builder|Agent whereGlobalId($value)
- * @method static Builder|Agent whereId($value)
- * @method static Builder|Agent whereLocation($value)
- * @method static Builder|Agent whereName($value)
- * @method static Builder|Agent whereOwnerId($value)
- * @method static Builder|Agent whereOwnerType($value)
- * @method static Builder|Agent wherePhone($value)
- * @method static Builder|Agent whereSettings($value)
- * @method static Builder|Agent whereSharedData($value)
- * @method static Builder|Agent whereSlug($value)
- * @method static Builder|Agent whereSourceId($value)
- * @method static Builder|Agent whereStatus($value)
- * @method static Builder|Agent whereTenantData($value)
- * @method static Builder|Agent whereUpdatedAt($value)
  * @method static Builder|Agent withTrashed()
  * @method static Builder|Agent withoutTrashed()
  * @mixin \Eloquent
@@ -88,6 +64,7 @@ class Agent extends Model
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'shared_data' => 'array',

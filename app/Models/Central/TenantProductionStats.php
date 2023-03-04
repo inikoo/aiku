@@ -15,7 +15,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 /**
  * App\Models\Central\TenantProductionStats
  *
- * @property-read \App\Models\Central\Tenant|null $tenant
+ * @property int $id
+ * @property int $tenant_id
+ * @property int $number_products
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Central\Tenant $tenant
  * @method static Builder|TenantProductionStats newModelQuery()
  * @method static Builder|TenantProductionStats newQuery()
  * @method static Builder|TenantProductionStats query()

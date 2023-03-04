@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -50,40 +51,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\Family|null $family
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\HistoricProduct> $historicRecords
- * @property-read int|null $historic_records_count
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\TradeUnit> $tradeUnits
- * @property-read int|null $trade_units_count
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
  * @method static Builder|Product onlyTrashed()
  * @method static Builder|Product query()
- * @method static Builder|Product whereAvailable($value)
- * @method static Builder|Product whereCode($value)
- * @method static Builder|Product whereComposition($value)
- * @method static Builder|Product whereCreatedAt($value)
- * @method static Builder|Product whereCurrentHistoricProductId($value)
- * @method static Builder|Product whereData($value)
- * @method static Builder|Product whereDeletedAt($value)
- * @method static Builder|Product whereDescription($value)
- * @method static Builder|Product whereFamilyId($value)
- * @method static Builder|Product whereId($value)
- * @method static Builder|Product whereImageId($value)
- * @method static Builder|Product whereName($value)
- * @method static Builder|Product whereOwnerId($value)
- * @method static Builder|Product whereOwnerType($value)
- * @method static Builder|Product wherePrice($value)
- * @method static Builder|Product whereRrp($value)
- * @method static Builder|Product whereSettings($value)
- * @method static Builder|Product whereShopId($value)
- * @method static Builder|Product whereSlug($value)
- * @method static Builder|Product whereSourceId($value)
- * @method static Builder|Product whereState($value)
- * @method static Builder|Product whereStatus($value)
- * @method static Builder|Product whereUnits($value)
- * @method static Builder|Product whereUpdatedAt($value)
  * @method static Builder|Product withTrashed()
  * @method static Builder|Product withoutTrashed()
  * @mixin \Eloquent
@@ -92,6 +67,7 @@ class Product extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data' => 'array',

@@ -11,13 +11,13 @@ use App\Actions\Central\Tenant\HydrateTenant;
 use App\Actions\HumanResources\Employee\HydrateEmployee;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -51,48 +51,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
- * @property-read int|null $job_positions_count
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
- * @property-read int|null $media_count
  * @property-read User|null $user
- * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
  * @method static Builder|Employee onlyTrashed()
  * @method static Builder|Employee query()
- * @method static Builder|Employee whereCreatedAt($value)
- * @method static Builder|Employee whereData($value)
- * @method static Builder|Employee whereDateOfBirth($value)
- * @method static Builder|Employee whereDeletedAt($value)
- * @method static Builder|Employee whereEmail($value)
- * @method static Builder|Employee whereEmergencyContact($value)
- * @method static Builder|Employee whereEmploymentEndAt($value)
- * @method static Builder|Employee whereEmploymentStartAt($value)
- * @method static Builder|Employee whereErrors($value)
- * @method static Builder|Employee whereGender($value)
- * @method static Builder|Employee whereId($value)
- * @method static Builder|Employee whereIdentityDocumentNumber($value)
- * @method static Builder|Employee whereIdentityDocumentType($value)
- * @method static Builder|Employee whereJobPositionScopes($value)
- * @method static Builder|Employee whereJobTitle($value)
- * @method static Builder|Employee whereName($value)
- * @method static Builder|Employee wherePhone($value)
- * @method static Builder|Employee whereSalary($value)
- * @method static Builder|Employee whereSlug($value)
- * @method static Builder|Employee whereSourceId($value)
- * @method static Builder|Employee whereState($value)
- * @method static Builder|Employee whereType($value)
- * @method static Builder|Employee whereUpdatedAt($value)
- * @method static Builder|Employee whereWeekWorkingHours($value)
- * @method static Builder|Employee whereWorkerNumber($value)
- * @method static Builder|Employee whereWorkingHours($value)
  * @method static Builder|Employee withTrashed()
  * @method static Builder|Employee withoutTrashed()
  * @mixin \Eloquent
  */
 class Employee extends Model implements HasMedia
 {
-    use HasFactory;
+    use UsesTenantConnection;
     use InteractsWithMedia;
     use HasSlug;
     use SoftDeletes;

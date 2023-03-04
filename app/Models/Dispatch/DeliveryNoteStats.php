@@ -10,6 +10,7 @@ namespace App\Models\Dispatch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Dispatch\DeliveryNoteStats
@@ -23,15 +24,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|DeliveryNoteStats newModelQuery()
  * @method static Builder|DeliveryNoteStats newQuery()
  * @method static Builder|DeliveryNoteStats query()
- * @method static Builder|DeliveryNoteStats whereCreatedAt($value)
- * @method static Builder|DeliveryNoteStats whereDeliveryNoteId($value)
- * @method static Builder|DeliveryNoteStats whereId($value)
- * @method static Builder|DeliveryNoteStats whereNumberItems($value)
- * @method static Builder|DeliveryNoteStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class DeliveryNoteStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'delivery_note_stats';
     protected $guarded = [];
 

@@ -10,6 +10,7 @@ namespace App\Models\Inventory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Inventory\WarehouseAreaStats
@@ -25,17 +26,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|WarehouseAreaStats newModelQuery()
  * @method static Builder|WarehouseAreaStats newQuery()
  * @method static Builder|WarehouseAreaStats query()
- * @method static Builder|WarehouseAreaStats whereCreatedAt($value)
- * @method static Builder|WarehouseAreaStats whereId($value)
- * @method static Builder|WarehouseAreaStats whereNumberEmptyLocations($value)
- * @method static Builder|WarehouseAreaStats whereNumberLocations($value)
- * @method static Builder|WarehouseAreaStats whereStockValue($value)
- * @method static Builder|WarehouseAreaStats whereUpdatedAt($value)
- * @method static Builder|WarehouseAreaStats whereWarehouseAreaId($value)
  * @mixin \Eloquent
  */
 class WarehouseAreaStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'warehouse_area_stats';
 
     protected $guarded = [];

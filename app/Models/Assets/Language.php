@@ -27,14 +27,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @method static Builder|Language newModelQuery()
  * @method static Builder|Language newQuery()
  * @method static Builder|Language query()
- * @method static Builder|Language whereCode($value)
- * @method static Builder|Language whereCreatedAt($value)
- * @method static Builder|Language whereData($value)
- * @method static Builder|Language whereId($value)
- * @method static Builder|Language whereName($value)
- * @method static Builder|Language whereOriginalName($value)
- * @method static Builder|Language whereStatus($value)
- * @method static Builder|Language whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Language extends Model

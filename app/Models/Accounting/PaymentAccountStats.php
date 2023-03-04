@@ -10,6 +10,7 @@ namespace App\Models\Accounting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Payments\PaymentAccountStats
@@ -46,38 +47,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|PaymentAccountStats newModelQuery()
  * @method static Builder|PaymentAccountStats newQuery()
  * @method static Builder|PaymentAccountStats query()
- * @method static Builder|PaymentAccountStats whereCreatedAt($value)
- * @method static Builder|PaymentAccountStats whereDcAmount($value)
- * @method static Builder|PaymentAccountStats whereDcAmountRefunded($value)
- * @method static Builder|PaymentAccountStats whereDcAmountSuccessfullyPaid($value)
- * @method static Builder|PaymentAccountStats whereId($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentRecords($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentRecordsStateApproving($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentRecordsStateCancelled($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentRecordsStateCompleted($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentRecordsStateDeclined($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentRecordsStateError($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentRecordsStateInProcess($value)
- * @method static Builder|PaymentAccountStats whereNumberPayments($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentsStateApproving($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentsStateCancelled($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentsStateCompleted($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentsStateDeclined($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentsStateError($value)
- * @method static Builder|PaymentAccountStats whereNumberPaymentsStateInProcess($value)
- * @method static Builder|PaymentAccountStats whereNumberRefunds($value)
- * @method static Builder|PaymentAccountStats whereNumberRefundsStateApproving($value)
- * @method static Builder|PaymentAccountStats whereNumberRefundsStateCancelled($value)
- * @method static Builder|PaymentAccountStats whereNumberRefundsStateCompleted($value)
- * @method static Builder|PaymentAccountStats whereNumberRefundsStateDeclined($value)
- * @method static Builder|PaymentAccountStats whereNumberRefundsStateError($value)
- * @method static Builder|PaymentAccountStats whereNumberRefundsStateInProcess($value)
- * @method static Builder|PaymentAccountStats wherePaymentAccountId($value)
- * @method static Builder|PaymentAccountStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class PaymentAccountStats extends Model
 {
+    use UsesTenantConnection;
 
     protected $table = 'payment_account_stats';
 

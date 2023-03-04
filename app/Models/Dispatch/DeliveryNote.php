@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -57,12 +58,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
- * @property-read int|null $addresses_count
  * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
- * @property-read int|null $delivery_note_items_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
- * @property-read int|null $orders_count
  * @property-read \App\Models\Dispatch\Shipment|null $shipments
  * @property-read Shop $shop
  * @property-read \App\Models\Dispatch\DeliveryNoteStats|null $stats
@@ -70,38 +68,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|DeliveryNote newQuery()
  * @method static Builder|DeliveryNote onlyTrashed()
  * @method static Builder|DeliveryNote query()
- * @method static Builder|DeliveryNote whereAssignedAt($value)
- * @method static Builder|DeliveryNote whereCanDispatch($value)
- * @method static Builder|DeliveryNote whereCancelledAt($value)
- * @method static Builder|DeliveryNote whereCreatedAt($value)
- * @method static Builder|DeliveryNote whereCustomerId($value)
- * @method static Builder|DeliveryNote whereData($value)
- * @method static Builder|DeliveryNote whereDate($value)
- * @method static Builder|DeliveryNote whereDeletedAt($value)
- * @method static Builder|DeliveryNote whereDispatchedAt($value)
- * @method static Builder|DeliveryNote whereEmail($value)
- * @method static Builder|DeliveryNote whereFinalisedAt($value)
- * @method static Builder|DeliveryNote whereId($value)
- * @method static Builder|DeliveryNote whereNumber($value)
- * @method static Builder|DeliveryNote whereNumberPicks($value)
- * @method static Builder|DeliveryNote whereNumberStocks($value)
- * @method static Builder|DeliveryNote wherePackedAt($value)
- * @method static Builder|DeliveryNote wherePackerId($value)
- * @method static Builder|DeliveryNote wherePackingAt($value)
- * @method static Builder|DeliveryNote wherePhone($value)
- * @method static Builder|DeliveryNote wherePickedAt($value)
- * @method static Builder|DeliveryNote wherePickerId($value)
- * @method static Builder|DeliveryNote wherePickingAt($value)
- * @method static Builder|DeliveryNote whereRestocking($value)
- * @method static Builder|DeliveryNote whereShipmentId($value)
- * @method static Builder|DeliveryNote whereShopId($value)
- * @method static Builder|DeliveryNote whereSlug($value)
- * @method static Builder|DeliveryNote whereSourceId($value)
- * @method static Builder|DeliveryNote whereState($value)
- * @method static Builder|DeliveryNote whereSubmittedAt($value)
- * @method static Builder|DeliveryNote whereType($value)
- * @method static Builder|DeliveryNote whereUpdatedAt($value)
- * @method static Builder|DeliveryNote whereWeight($value)
  * @method static Builder|DeliveryNote withTrashed()
  * @method static Builder|DeliveryNote withoutTrashed()
  * @mixin \Eloquent
@@ -111,6 +77,7 @@ class DeliveryNote extends Model
     use SoftDeletes;
     use HasSlug;
     use HasAddress;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data'               => 'array',

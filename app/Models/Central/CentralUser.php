@@ -28,22 +28,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $about
  * @property array|null $data
  * @property int $number_tenants
- * @property string|null $created_at
- * @property string|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Central\Tenant> $tenants
- * @property-read int|null $tenants_count
  * @method static Builder|CentralUser newModelQuery()
  * @method static Builder|CentralUser newQuery()
  * @method static Builder|CentralUser query()
- * @method static Builder|CentralUser whereAbout($value)
- * @method static Builder|CentralUser whereCreatedAt($value)
- * @method static Builder|CentralUser whereData($value)
- * @method static Builder|CentralUser whereEmail($value)
- * @method static Builder|CentralUser whereId($value)
- * @method static Builder|CentralUser whereNumberTenants($value)
- * @method static Builder|CentralUser wherePassword($value)
- * @method static Builder|CentralUser whereUpdatedAt($value)
- * @method static Builder|CentralUser whereUsername($value)
  * @mixin \Eloquent
  */
 class CentralUser extends Model

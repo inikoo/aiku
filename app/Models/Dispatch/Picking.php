@@ -8,8 +8,8 @@
 namespace App\Models\Dispatch;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Dispatch\Picking
@@ -37,29 +37,9 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder|Picking newModelQuery()
  * @method static Builder|Picking newQuery()
  * @method static Builder|Picking query()
- * @method static Builder|Picking whereAssignedAt($value)
- * @method static Builder|Picking whereCreatedAt($value)
- * @method static Builder|Picking whereData($value)
- * @method static Builder|Picking whereDeliveryNoteId($value)
- * @method static Builder|Picking whereFulfilled($value)
- * @method static Builder|Picking whereId($value)
- * @method static Builder|Picking wherePackedAt($value)
- * @method static Builder|Picking wherePackerId($value)
- * @method static Builder|Picking wherePackingAt($value)
- * @method static Builder|Picking wherePicked($value)
- * @method static Builder|Picking wherePickedAt($value)
- * @method static Builder|Picking wherePickerId($value)
- * @method static Builder|Picking wherePickingAt($value)
- * @method static Builder|Picking whereRequired($value)
- * @method static Builder|Picking whereState($value)
- * @method static Builder|Picking whereStatus($value)
- * @method static Builder|Picking whereStockId($value)
- * @method static Builder|Picking whereStockMovementId($value)
- * @method static Builder|Picking whereUpdatedAt($value)
- * @method static Builder|Picking whereWeight($value)
  * @mixin \Eloquent
  */
 class Picking extends Model
 {
-    use HasFactory;
+    use UsesTenantConnection;
 }

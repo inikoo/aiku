@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -34,16 +35,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|HistoricService newQuery()
  * @method static Builder|HistoricService onlyTrashed()
  * @method static Builder|HistoricService query()
- * @method static Builder|HistoricService whereCode($value)
- * @method static Builder|HistoricService whereCreatedAt($value)
- * @method static Builder|HistoricService whereDeletedAt($value)
- * @method static Builder|HistoricService whereId($value)
- * @method static Builder|HistoricService whereName($value)
- * @method static Builder|HistoricService wherePrice($value)
- * @method static Builder|HistoricService whereServiceId($value)
- * @method static Builder|HistoricService whereSlug($value)
- * @method static Builder|HistoricService whereSourceId($value)
- * @method static Builder|HistoricService whereStatus($value)
  * @method static Builder|HistoricService withTrashed()
  * @method static Builder|HistoricService withoutTrashed()
  * @mixin \Eloquent
@@ -52,6 +43,7 @@ class HistoricService extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'status' => 'boolean',

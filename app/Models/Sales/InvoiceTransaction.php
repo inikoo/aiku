@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Sales\InvoiceTransaction
@@ -41,31 +42,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|InvoiceTransaction newQuery()
  * @method static Builder|InvoiceTransaction onlyTrashed()
  * @method static Builder|InvoiceTransaction query()
- * @method static Builder|InvoiceTransaction whereCreatedAt($value)
- * @method static Builder|InvoiceTransaction whereCustomerId($value)
- * @method static Builder|InvoiceTransaction whereData($value)
- * @method static Builder|InvoiceTransaction whereDeletedAt($value)
- * @method static Builder|InvoiceTransaction whereDiscounts($value)
- * @method static Builder|InvoiceTransaction whereId($value)
- * @method static Builder|InvoiceTransaction whereInvoiceId($value)
- * @method static Builder|InvoiceTransaction whereItemId($value)
- * @method static Builder|InvoiceTransaction whereItemType($value)
- * @method static Builder|InvoiceTransaction whereNet($value)
- * @method static Builder|InvoiceTransaction whereOrderId($value)
- * @method static Builder|InvoiceTransaction whereQuantity($value)
- * @method static Builder|InvoiceTransaction whereShopId($value)
- * @method static Builder|InvoiceTransaction whereSourceAltId($value)
- * @method static Builder|InvoiceTransaction whereSourceId($value)
- * @method static Builder|InvoiceTransaction whereTax($value)
- * @method static Builder|InvoiceTransaction whereTaxBandId($value)
- * @method static Builder|InvoiceTransaction whereTransactionId($value)
- * @method static Builder|InvoiceTransaction whereUpdatedAt($value)
  * @method static Builder|InvoiceTransaction withTrashed()
  * @method static Builder|InvoiceTransaction withoutTrashed()
  * @mixin \Eloquent
  */
 class InvoiceTransaction extends Model
 {
+    use UsesTenantConnection;
     use SoftDeletes;
 
     protected $table = 'invoice_transactions';

@@ -12,6 +12,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
+/**
+ * App\Models\Central\CentralUserTenant
+ *
+ * @property int $id
+ * @property int $tenant_id
+ * @property int $central_user_id
+ * @property bool $status
+ * @property-read \App\Models\Central\Tenant $tenant
+ * @method static Builder|CentralUserTenant newModelQuery()
+ * @method static Builder|CentralUserTenant newQuery()
+ * @method static Builder|CentralUserTenant query()
+ * @mixin \Eloquent
+ */
 class CentralUserTenant extends Pivot
 {
     use UsesLandlordConnection;

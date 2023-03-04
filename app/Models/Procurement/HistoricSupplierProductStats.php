@@ -7,18 +7,22 @@
 
 namespace App\Models\Procurement;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Procurement\HistoricSupplierProductStats
  *
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricSupplierProductStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricSupplierProductStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|HistoricSupplierProductStats query()
+ * @method static Builder|HistoricSupplierProductStats newModelQuery()
+ * @method static Builder|HistoricSupplierProductStats newQuery()
+ * @method static Builder|HistoricSupplierProductStats query()
  * @mixin \Eloquent
  */
 class HistoricSupplierProductStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'historic_supplier product_stats';
 
     protected $guarded = [];

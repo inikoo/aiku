@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Dispatch\DeliveryNoteItem
@@ -30,25 +31,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Picking> $pickings
- * @property-read int|null $pickings_count
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()
  * @method static Builder|DeliveryNoteItem onlyTrashed()
  * @method static Builder|DeliveryNoteItem query()
- * @method static Builder|DeliveryNoteItem whereCreatedAt($value)
- * @method static Builder|DeliveryNoteItem whereData($value)
- * @method static Builder|DeliveryNoteItem whereDeletedAt($value)
- * @method static Builder|DeliveryNoteItem whereDeliveryNoteId($value)
- * @method static Builder|DeliveryNoteItem whereId($value)
- * @method static Builder|DeliveryNoteItem wherePickingId($value)
- * @method static Builder|DeliveryNoteItem whereQuantity($value)
- * @method static Builder|DeliveryNoteItem whereRequired($value)
- * @method static Builder|DeliveryNoteItem whereSourceId($value)
- * @method static Builder|DeliveryNoteItem whereState($value)
- * @method static Builder|DeliveryNoteItem whereStatus($value)
- * @method static Builder|DeliveryNoteItem whereStockId($value)
- * @method static Builder|DeliveryNoteItem whereTransactionId($value)
- * @method static Builder|DeliveryNoteItem whereUpdatedAt($value)
  * @method static Builder|DeliveryNoteItem withTrashed()
  * @method static Builder|DeliveryNoteItem withoutTrashed()
  * @mixin \Eloquent
@@ -56,6 +42,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DeliveryNoteItem extends Model
 {
     use SoftDeletes;
+    use UsesTenantConnection;
 
     protected $table = 'delivery_note_items';
 

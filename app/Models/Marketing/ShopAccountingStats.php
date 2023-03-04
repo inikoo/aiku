@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
@@ -52,43 +53,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|ShopAccountingStats newModelQuery()
  * @method static Builder|ShopAccountingStats newQuery()
  * @method static Builder|ShopAccountingStats query()
- * @method static Builder|ShopAccountingStats whereAmount($value)
- * @method static Builder|ShopAccountingStats whereAmountRefunded($value)
- * @method static Builder|ShopAccountingStats whereAmountSuccessfullyPaid($value)
- * @method static Builder|ShopAccountingStats whereCreatedAt($value)
- * @method static Builder|ShopAccountingStats whereDcAmount($value)
- * @method static Builder|ShopAccountingStats whereDcAmountRefunded($value)
- * @method static Builder|ShopAccountingStats whereDcAmountSuccessfullyPaid($value)
- * @method static Builder|ShopAccountingStats whereId($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentAccounts($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentRecords($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentRecordsStateApproving($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentRecordsStateCancelled($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentRecordsStateCompleted($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentRecordsStateDeclined($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentRecordsStateError($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentRecordsStateInProcess($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentServiceProviders($value)
- * @method static Builder|ShopAccountingStats whereNumberPayments($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentsStateApproving($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentsStateCancelled($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentsStateCompleted($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentsStateDeclined($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentsStateError($value)
- * @method static Builder|ShopAccountingStats whereNumberPaymentsStateInProcess($value)
- * @method static Builder|ShopAccountingStats whereNumberRefunds($value)
- * @method static Builder|ShopAccountingStats whereNumberRefundsStateApproving($value)
- * @method static Builder|ShopAccountingStats whereNumberRefundsStateCancelled($value)
- * @method static Builder|ShopAccountingStats whereNumberRefundsStateCompleted($value)
- * @method static Builder|ShopAccountingStats whereNumberRefundsStateDeclined($value)
- * @method static Builder|ShopAccountingStats whereNumberRefundsStateError($value)
- * @method static Builder|ShopAccountingStats whereNumberRefundsStateInProcess($value)
- * @method static Builder|ShopAccountingStats whereShopId($value)
- * @method static Builder|ShopAccountingStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class ShopAccountingStats extends Model
 {
+    use UsesTenantConnection;
 
     protected $table = 'shop_accounting_stats';
 

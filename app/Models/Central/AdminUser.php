@@ -42,29 +42,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read Model|\Eloquent $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
- * @property-read int|null $tokens_count
  * @property-read Model|\Eloquent $userable
  * @method static Builder|AdminUser newModelQuery()
  * @method static Builder|AdminUser newQuery()
  * @method static Builder|AdminUser onlyTrashed()
  * @method static Builder|AdminUser query()
- * @method static Builder|AdminUser whereCreatedAt($value)
- * @method static Builder|AdminUser whereData($value)
- * @method static Builder|AdminUser whereDeletedAt($value)
- * @method static Builder|AdminUser whereEmail($value)
- * @method static Builder|AdminUser whereId($value)
- * @method static Builder|AdminUser whereLanguageId($value)
- * @method static Builder|AdminUser wherePassword($value)
- * @method static Builder|AdminUser whereRememberToken($value)
- * @method static Builder|AdminUser whereSettings($value)
- * @method static Builder|AdminUser whereStatus($value)
- * @method static Builder|AdminUser whereTimezoneId($value)
- * @method static Builder|AdminUser whereTwoFactorRecoveryCodes($value)
- * @method static Builder|AdminUser whereTwoFactorSecret($value)
- * @method static Builder|AdminUser whereUpdatedAt($value)
- * @method static Builder|AdminUser whereUserableId($value)
- * @method static Builder|AdminUser whereUserableType($value)
- * @method static Builder|AdminUser whereUsername($value)
  * @method static Builder|AdminUser withTrashed()
  * @method static Builder|AdminUser withoutTrashed()
  * @mixin Eloquent

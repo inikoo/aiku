@@ -31,24 +31,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
- * @property-read int|null $accounts_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
- * @property-read int|null $payments_count
  * @property-read \App\Models\Accounting\PaymentServiceProviderStats|null $stats
  * @method static Builder|PaymentServiceProvider newModelQuery()
  * @method static Builder|PaymentServiceProvider newQuery()
  * @method static Builder|PaymentServiceProvider onlyTrashed()
  * @method static Builder|PaymentServiceProvider query()
- * @method static Builder|PaymentServiceProvider whereCode($value)
- * @method static Builder|PaymentServiceProvider whereCreatedAt($value)
- * @method static Builder|PaymentServiceProvider whereData($value)
- * @method static Builder|PaymentServiceProvider whereDeletedAt($value)
- * @method static Builder|PaymentServiceProvider whereId($value)
- * @method static Builder|PaymentServiceProvider whereLastUsedAt($value)
- * @method static Builder|PaymentServiceProvider whereSlug($value)
- * @method static Builder|PaymentServiceProvider whereSourceId($value)
- * @method static Builder|PaymentServiceProvider whereType($value)
- * @method static Builder|PaymentServiceProvider whereUpdatedAt($value)
  * @method static Builder|PaymentServiceProvider withTrashed()
  * @method static Builder|PaymentServiceProvider withoutTrashed()
  * @mixin \Eloquent

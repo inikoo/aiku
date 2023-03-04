@@ -2,7 +2,9 @@
 
 namespace App\Models\Fulfilment;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Fulfilment\StoredItem
@@ -23,28 +25,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $returned_at
  * @property string|null $deleted_at
  * @property int|null $source_id
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem query()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereCustomerId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereLocationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereReceivedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereReturnRequested($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereReturnedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereSourceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereStoredAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItem whereUpdatedAt($value)
+ * @method static Builder|StoredItem newModelQuery()
+ * @method static Builder|StoredItem newQuery()
+ * @method static Builder|StoredItem query()
  * @mixin \Eloquent
  */
 class StoredItem extends Model
 {
-
+    use UsesTenantConnection;
 }

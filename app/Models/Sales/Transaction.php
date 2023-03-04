@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
@@ -38,7 +39,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $source_id
  * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNoteItem> $deliveryNoteItems
- * @property-read int|null $delivery_note_items_count
  * @property-read Model|\Eloquent $item
  * @property-read \App\Models\Sales\Order $order
  * @property-read Shop $shop
@@ -46,28 +46,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Transaction newQuery()
  * @method static Builder|Transaction onlyTrashed()
  * @method static Builder|Transaction query()
- * @method static Builder|Transaction whereCreatedAt($value)
- * @method static Builder|Transaction whereCustomerId($value)
- * @method static Builder|Transaction whereData($value)
- * @method static Builder|Transaction whereDeletedAt($value)
- * @method static Builder|Transaction whereDiscounts($value)
- * @method static Builder|Transaction whereId($value)
- * @method static Builder|Transaction whereItemId($value)
- * @method static Builder|Transaction whereItemType($value)
- * @method static Builder|Transaction whereNet($value)
- * @method static Builder|Transaction whereOrderId($value)
- * @method static Builder|Transaction whereQuantity($value)
- * @method static Builder|Transaction whereShopId($value)
- * @method static Builder|Transaction whereSourceId($value)
- * @method static Builder|Transaction whereState($value)
- * @method static Builder|Transaction whereTaxBandId($value)
- * @method static Builder|Transaction whereUpdatedAt($value)
  * @method static Builder|Transaction withTrashed()
  * @method static Builder|Transaction withoutTrashed()
  * @mixin \Eloquent
  */
 class Transaction extends Model
 {
+    use UsesTenantConnection;
     use SoftDeletes;
 
     protected $table = 'transactions';

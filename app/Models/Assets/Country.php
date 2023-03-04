@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 
+
 /**
  * App\Models\Assets\Country
  *
@@ -33,25 +34,10 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assets\Timezone> $timezones
- * @property-read int|null $timezones_count
  * @method static Builder|Country newModelQuery()
  * @method static Builder|Country newQuery()
  * @method static Builder|Country onlyTrashed()
  * @method static Builder|Country query()
- * @method static Builder|Country whereCapital($value)
- * @method static Builder|Country whereCode($value)
- * @method static Builder|Country whereContinent($value)
- * @method static Builder|Country whereCreatedAt($value)
- * @method static Builder|Country whereCurrencyId($value)
- * @method static Builder|Country whereData($value)
- * @method static Builder|Country whereDeletedAt($value)
- * @method static Builder|Country whereId($value)
- * @method static Builder|Country whereIso3($value)
- * @method static Builder|Country whereName($value)
- * @method static Builder|Country wherePhoneCode($value)
- * @method static Builder|Country whereTimezoneId($value)
- * @method static Builder|Country whereType($value)
- * @method static Builder|Country whereUpdatedAt($value)
  * @method static Builder|Country withTrashed()
  * @method static Builder|Country withoutTrashed()
  * @mixin \Eloquent

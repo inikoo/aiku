@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -55,58 +56,27 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
- * @property-read int|null $addresses_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CustomerClient> $clients
- * @property-read int|null $clients_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
- * @property-read int|null $fulfilment_orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Invoice> $invoices
- * @property-read int|null $invoices_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
- * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
- * @property-read int|null $payments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
- * @property-read int|null $products_count
  * @property-read Shop|null $shop
  * @property-read \App\Models\Sales\CustomerStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
- * @property-read int|null $stocks_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
- * @property-read int|null $web_users_count
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static Builder|Customer onlyTrashed()
  * @method static Builder|Customer query()
- * @method static Builder|Customer whereCompanyName($value)
- * @method static Builder|Customer whereContactName($value)
- * @method static Builder|Customer whereCreatedAt($value)
- * @method static Builder|Customer whereData($value)
- * @method static Builder|Customer whereDeletedAt($value)
- * @method static Builder|Customer whereEmail($value)
- * @method static Builder|Customer whereId($value)
- * @method static Builder|Customer whereIdentityDocumentNumber($value)
- * @method static Builder|Customer whereLocation($value)
- * @method static Builder|Customer whereName($value)
- * @method static Builder|Customer wherePhone($value)
- * @method static Builder|Customer whereReference($value)
- * @method static Builder|Customer whereShopId($value)
- * @method static Builder|Customer whereSlug($value)
- * @method static Builder|Customer whereSourceId($value)
- * @method static Builder|Customer whereState($value)
- * @method static Builder|Customer whereStatus($value)
- * @method static Builder|Customer whereTaxNumber($value)
- * @method static Builder|Customer whereTaxNumberData($value)
- * @method static Builder|Customer whereTaxNumberStatus($value)
- * @method static Builder|Customer whereTradeState($value)
- * @method static Builder|Customer whereUpdatedAt($value)
- * @method static Builder|Customer whereWebsite($value)
  * @method static Builder|Customer withTrashed()
  * @method static Builder|Customer withoutTrashed()
  * @mixin \Eloquent
  */
 class Customer extends Model
 {
+    use UsesTenantConnection;
     use SoftDeletes;
     use HasAddress;
     use HasSlug;

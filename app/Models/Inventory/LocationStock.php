@@ -12,6 +12,7 @@ use App\Actions\Inventory\Stock\HydrateStock;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
@@ -36,24 +37,11 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @method static Builder|LocationStock newModelQuery()
  * @method static Builder|LocationStock newQuery()
  * @method static Builder|LocationStock query()
- * @method static Builder|LocationStock whereAuditedAt($value)
- * @method static Builder|LocationStock whereCreatedAt($value)
- * @method static Builder|LocationStock whereData($value)
- * @method static Builder|LocationStock whereId($value)
- * @method static Builder|LocationStock whereLocationId($value)
- * @method static Builder|LocationStock whereNotes($value)
- * @method static Builder|LocationStock wherePickingPriority($value)
- * @method static Builder|LocationStock whereQuantity($value)
- * @method static Builder|LocationStock whereSettings($value)
- * @method static Builder|LocationStock whereSourceLocationId($value)
- * @method static Builder|LocationStock whereSourceStockId($value)
- * @method static Builder|LocationStock whereStockId($value)
- * @method static Builder|LocationStock whereType($value)
- * @method static Builder|LocationStock whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class LocationStock extends Pivot
 {
+    use UsesTenantConnection;
 
     protected $casts = [
         'data'     => 'array',

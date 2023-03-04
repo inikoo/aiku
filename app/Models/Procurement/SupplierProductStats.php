@@ -7,8 +7,10 @@
 
 namespace App\Models\Procurement;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Procurement\SupplierProductStats
@@ -18,17 +20,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductStats whereSupplierProductId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductStats whereUpdatedAt($value)
+ * @method static Builder|SupplierProductStats newModelQuery()
+ * @method static Builder|SupplierProductStats newQuery()
+ * @method static Builder|SupplierProductStats query()
  * @mixin \Eloquent
  */
 class SupplierProductStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'supplier_product_stats';
 
     protected $guarded = [];

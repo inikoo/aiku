@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 
 /**
@@ -38,36 +39,15 @@ use Spatie\Sluggable\HasSlug;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
- * @property-read int|null $addresses_count
  * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNote> $deliveryNotes
- * @property-read int|null $delivery_notes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentOrderItem> $items
- * @property-read int|null $items_count
  * @property-read \App\Models\Marketing\Shop $shop
  * @property-read \App\Models\Fulfilment\FulfilmentOrderStats|null $stats
  * @method static Builder|FulfilmentOrder newModelQuery()
  * @method static Builder|FulfilmentOrder newQuery()
  * @method static Builder|FulfilmentOrder onlyTrashed()
  * @method static Builder|FulfilmentOrder query()
- * @method static Builder|FulfilmentOrder whereCanDispatch($value)
- * @method static Builder|FulfilmentOrder whereCancelledAt($value)
- * @method static Builder|FulfilmentOrder whereCreatedAt($value)
- * @method static Builder|FulfilmentOrder whereCustomerClientId($value)
- * @method static Builder|FulfilmentOrder whereCustomerId($value)
- * @method static Builder|FulfilmentOrder whereData($value)
- * @method static Builder|FulfilmentOrder whereDeletedAt($value)
- * @method static Builder|FulfilmentOrder whereDispatchedAt($value)
- * @method static Builder|FulfilmentOrder whereFinalisedAt($value)
- * @method static Builder|FulfilmentOrder whereId($value)
- * @method static Builder|FulfilmentOrder whereInWarehouseAt($value)
- * @method static Builder|FulfilmentOrder whereIsPickingOnHold($value)
- * @method static Builder|FulfilmentOrder whereNumber($value)
- * @method static Builder|FulfilmentOrder whereShopId($value)
- * @method static Builder|FulfilmentOrder whereSlug($value)
- * @method static Builder|FulfilmentOrder whereState($value)
- * @method static Builder|FulfilmentOrder whereSubmittedAt($value)
- * @method static Builder|FulfilmentOrder whereUpdatedAt($value)
  * @method static Builder|FulfilmentOrder withTrashed()
  * @method static Builder|FulfilmentOrder withoutTrashed()
  * @mixin \Eloquent
@@ -77,7 +57,7 @@ class FulfilmentOrder extends Model
     use HasOrder;
     use HasSlug;
     use SoftDeletes;
-
+    use UsesTenantConnection;
 
 
     protected $casts = [

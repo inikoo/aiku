@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -40,30 +41,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
- * @property-read int|null $addresses_count
  * @property-read Customer|null $customer
  * @property-read Shop|null $shop
  * @method static Builder|CustomerClient newModelQuery()
  * @method static Builder|CustomerClient newQuery()
  * @method static Builder|CustomerClient onlyTrashed()
  * @method static Builder|CustomerClient query()
- * @method static Builder|CustomerClient whereCompanyName($value)
- * @method static Builder|CustomerClient whereContactName($value)
- * @method static Builder|CustomerClient whereCreatedAt($value)
- * @method static Builder|CustomerClient whereCustomerId($value)
- * @method static Builder|CustomerClient whereDeactivatedAt($value)
- * @method static Builder|CustomerClient whereDeletedAt($value)
- * @method static Builder|CustomerClient whereEmail($value)
- * @method static Builder|CustomerClient whereId($value)
- * @method static Builder|CustomerClient whereLocation($value)
- * @method static Builder|CustomerClient whereName($value)
- * @method static Builder|CustomerClient wherePhone($value)
- * @method static Builder|CustomerClient whereReference($value)
- * @method static Builder|CustomerClient whereShopId($value)
- * @method static Builder|CustomerClient whereSlug($value)
- * @method static Builder|CustomerClient whereSourceId($value)
- * @method static Builder|CustomerClient whereStatus($value)
- * @method static Builder|CustomerClient whereUpdatedAt($value)
  * @method static Builder|CustomerClient withTrashed()
  * @method static Builder|CustomerClient withoutTrashed()
  * @mixin \Eloquent
@@ -74,7 +57,7 @@ class CustomerClient extends Model
     use SoftDeletes;
     use HasSlug;
     use HasAddress;
-
+    use UsesTenantConnection;
 
     protected $casts = [
         'location'       => 'array',

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -30,23 +31,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Web\Webpage|null $mainWebpage
  * @property-read \App\Models\Web\WebnodeStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\Webpage> $webpages
- * @property-read int|null $webpages_count
  * @property-read \App\Models\Web\Website $website
  * @method static Builder|Webnode newModelQuery()
  * @method static Builder|Webnode newQuery()
  * @method static Builder|Webnode query()
- * @method static Builder|Webnode whereCreatedAt($value)
- * @method static Builder|Webnode whereId($value)
- * @method static Builder|Webnode whereLocus($value)
- * @method static Builder|Webnode whereMainWebpageId($value)
- * @method static Builder|Webnode whereSlug($value)
- * @method static Builder|Webnode whereType($value)
- * @method static Builder|Webnode whereUpdatedAt($value)
- * @method static Builder|Webnode whereWebsiteId($value)
  * @mixin \Eloquent
  */
 class Webnode extends Model
 {
+    use UsesTenantConnection;
     use HasSlug;
 
     protected $guarded = [];

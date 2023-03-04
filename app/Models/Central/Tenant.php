@@ -28,9 +28,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $code
  * @property string $name
- * @property string $domain
- * @property string $database
+ * @property bool $status
  * @property array $data
+ * @property array $source
  * @property int $country_id
  * @property int $language_id
  * @property int $timezone_id
@@ -41,9 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Central\TenantAccountingStats|null $accountingStats
  * @property-read \App\Models\Central\AdminUser|null $adminUser
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
- * @property-read int|null $agents_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Central\CentralDomain> $centralDomains
- * @property-read int|null $central_domains_count
  * @property-read \App\Models\Central\TenantFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\Central\TenantInventoryStats|null $inventoryStats
  * @property-read \App\Models\Central\TenantMarketingStats|null $marketingStats
@@ -52,28 +50,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Central\TenantSalesStats|null $salesStats
  * @property-read \App\Models\Central\TenantStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
- * @property-read int|null $stocks_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
- * @property-read int|null $suppliers_count
  * @method static \Spatie\Multitenancy\TenantCollection<int, static> all($columns = ['*'])
  * @method static \Spatie\Multitenancy\TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()
  * @method static Builder|Tenant query()
- * @method static Builder|Tenant whereCode($value)
- * @method static Builder|Tenant whereCountryId($value)
- * @method static Builder|Tenant whereCreatedAt($value)
- * @method static Builder|Tenant whereCurrencyId($value)
- * @method static Builder|Tenant whereData($value)
- * @method static Builder|Tenant whereDatabase($value)
- * @method static Builder|Tenant whereDeletedAt($value)
- * @method static Builder|Tenant whereDomain($value)
- * @method static Builder|Tenant whereId($value)
- * @method static Builder|Tenant whereLanguageId($value)
- * @method static Builder|Tenant whereName($value)
- * @method static Builder|Tenant whereSlug($value)
- * @method static Builder|Tenant whereTimezoneId($value)
- * @method static Builder|Tenant whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Tenant extends SpatieTenant

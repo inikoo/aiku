@@ -10,6 +10,7 @@ namespace App\Models\Sales;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Sales\OrderStats
@@ -28,20 +29,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|OrderStats newModelQuery()
  * @method static Builder|OrderStats newQuery()
  * @method static Builder|OrderStats query()
- * @method static Builder|OrderStats whereCreatedAt($value)
- * @method static Builder|OrderStats whereId($value)
- * @method static Builder|OrderStats whereNumberAddUpItems($value)
- * @method static Builder|OrderStats whereNumberCancelledItems($value)
- * @method static Builder|OrderStats whereNumberCutOffItems($value)
- * @method static Builder|OrderStats whereNumberItems($value)
- * @method static Builder|OrderStats whereNumberItemsAtCreation($value)
- * @method static Builder|OrderStats whereNumberItemsDispatched($value)
- * @method static Builder|OrderStats whereOrderId($value)
- * @method static Builder|OrderStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class OrderStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'order_stats';
 
     protected $guarded = [];

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -37,7 +38,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\HistoricService> $historicRecords
- * @property-read int|null $historic_records_count
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ServiceStats|null $stats
@@ -45,21 +45,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Service newQuery()
  * @method static Builder|Service onlyTrashed()
  * @method static Builder|Service query()
- * @method static Builder|Service whereCode($value)
- * @method static Builder|Service whereCreatedAt($value)
- * @method static Builder|Service whereCurrentHistoricServiceId($value)
- * @method static Builder|Service whereData($value)
- * @method static Builder|Service whereDeletedAt($value)
- * @method static Builder|Service whereDescription($value)
- * @method static Builder|Service whereId($value)
- * @method static Builder|Service whereName($value)
- * @method static Builder|Service wherePrice($value)
- * @method static Builder|Service whereSettings($value)
- * @method static Builder|Service whereShopId($value)
- * @method static Builder|Service whereSlug($value)
- * @method static Builder|Service whereSourceId($value)
- * @method static Builder|Service whereStatus($value)
- * @method static Builder|Service whereUpdatedAt($value)
  * @method static Builder|Service withTrashed()
  * @method static Builder|Service withoutTrashed()
  * @mixin \Eloquent
@@ -68,6 +53,7 @@ class Service extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data' => 'array',

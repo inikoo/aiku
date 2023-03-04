@@ -15,7 +15,15 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 /**
  * App\Models\Central\TenantFulfilmentStats
  *
- * @property-read \App\Models\Central\Tenant|null $tenant
+ * @property int $id
+ * @property int $tenant_id
+ * @property int $number_customers_with_stocks
+ * @property int $number_customers_with_active_stocks
+ * @property int $number_customers_with_assets
+ * @property int $number_assets
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Central\Tenant $tenant
  * @method static Builder|TenantFulfilmentStats newModelQuery()
  * @method static Builder|TenantFulfilmentStats newQuery()
  * @method static Builder|TenantFulfilmentStats query()
