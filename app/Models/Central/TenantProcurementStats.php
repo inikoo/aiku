@@ -35,6 +35,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $number_workshops
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Central\Tenant $tenant
  * @method static Builder|TenantProcurementStats newModelQuery()
  * @method static Builder|TenantProcurementStats newQuery()
  * @method static Builder|TenantProcurementStats query()

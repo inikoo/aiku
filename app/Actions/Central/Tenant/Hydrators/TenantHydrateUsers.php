@@ -62,7 +62,7 @@ class TenantHydrateUsers implements ShouldBeUnique
     public function getJobTags(): array
     {
         /** @var Tenant $tenant */
-        $tenant=tenant();
+        $tenant=app('currentTenant');
         return ['central','tenant:'.$tenant->code];
     }
 

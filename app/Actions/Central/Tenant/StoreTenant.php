@@ -10,8 +10,10 @@ namespace App\Actions\Central\Tenant;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Models\Central\Tenant;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Str;
+
 
 class StoreTenant
 {
@@ -19,8 +21,7 @@ class StoreTenant
 
     public function handle(array $modelData): Tenant
     {
-        $modelData['numeric_id'] = $this->getAutoincrementID();
-        $tenant                  = Tenant::create($modelData);
+        $tenant = Tenant::create($modelData);
 
         $tenant->stats()->create();
         $tenant->procurementStats()->create();
@@ -32,31 +33,32 @@ class StoreTenant
         $tenant->accountingStats()->create();
         $tenant->refresh();
 
-        $tenant->run(function () {
-            CreateTenantStorageLink::run();
-        });
 
-        $tenant->run(function () {
-            StorePaymentServiceProvider::run(
-                modelData: [
-                               'type'  => 'account',
-                               'data' => [
-                                   'service-code'=>'accounts'
-                               ],
-                               'code'  => 'accounts'
-                           ]
-            );
-        });
+        DB::statement("CREATE SCHEMA pika_$tenant->slug");
+        $tenant->execute(
+            function (Tenant $tenant) {
 
+                Artisan::call('tenants:artisan "migrate:fresh --force  --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->id);
 
+                CreateTenantStorageLink::run();
+
+                StorePaymentServiceProvider::run(
+                    modelData: [
+                                   'type' => 'account',
+                                   'data' => [
+                                       'service-code' => 'accounts'
+                                   ],
+                                   'code' => 'accounts'
+                               ]
+                );
+            }
+        );
 
 
         return $tenant;
     }
 
-    private function getAutoincrementID(): int
-    {
-        return Tenant::count() + 1;
-    }
+
+
 
 }

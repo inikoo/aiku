@@ -68,7 +68,7 @@ class IndexWarehouseAreas extends InertiaAction
     public function inOrganisation(): LengthAwarePaginator
     {
         $this->validateAttributes();
-        $this->parent = tenant();
+        $this->parent = app('currentTenant');
 
         return $this->handle();
     }

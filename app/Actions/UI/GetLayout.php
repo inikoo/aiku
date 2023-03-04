@@ -22,7 +22,7 @@ class GetLayout
     public function handle(User $user): array
     {
         /** @var Tenant $tenant */
-        $tenant    = tenant();
+        $tenant    = app('currentTenant');
         $shopCount = $tenant->marketingStats->number_shops;
         $shop      = null;
         if ($shopCount == 1) {

@@ -20,6 +20,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $tenant_id
  * @property int $user_id
  * @property bool $status
+ * @property-read \App\Models\Central\Tenant $tenant
  * @method static Builder|TenantUser newModelQuery()
  * @method static Builder|TenantUser newQuery()
  * @method static Builder|TenantUser query()

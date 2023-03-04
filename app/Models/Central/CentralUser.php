@@ -30,6 +30,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_tenants
  * @property string|null $created_at
  * @property string|null $updated_at
+ * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Central\Tenant> $tenants
+ * @property-read int|null $tenants_count
  * @method static Builder|CentralUser newModelQuery()
  * @method static Builder|CentralUser newQuery()
  * @method static Builder|CentralUser query()

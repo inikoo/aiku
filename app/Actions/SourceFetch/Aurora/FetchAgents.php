@@ -27,7 +27,7 @@ class FetchAgents extends FetchAction
     {
         if ($agentData = $tenantSource->fetchAgent($tenantSourceId)) {
 
-            $owner=tenant();
+            $owner=app('currentTenant');
 
             if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])
                 ->first()) {

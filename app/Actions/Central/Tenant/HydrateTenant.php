@@ -39,7 +39,7 @@ class HydrateTenant extends HydrateModel
     public function handle(): void
     {
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
 
         $this->employeesStats();
         $this->guestsStats();
@@ -54,7 +54,7 @@ class HydrateTenant extends HydrateModel
 
     public function fulfilmentStats(){
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
     }
 
 
@@ -63,7 +63,7 @@ class HydrateTenant extends HydrateModel
     public function customersStats()
     {
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
 
         $stats = [
             'number_customers' => Customer::count()
@@ -96,7 +96,7 @@ class HydrateTenant extends HydrateModel
     public function marketingStats()
     {
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
 
         $stats = [
             'number_shops' => Shop::count()
@@ -148,7 +148,7 @@ class HydrateTenant extends HydrateModel
     public function warehouseStats()
     {
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
         $stats  = [
             'number_warehouses'                  => Warehouse::count(),
             'number_warehouse_areas'             => WarehouseArea::count(),
@@ -163,7 +163,7 @@ class HydrateTenant extends HydrateModel
     public function employeesStats()
     {
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
 
         $stats = [
             'number_employees' => Employee::count()
@@ -185,7 +185,7 @@ class HydrateTenant extends HydrateModel
     public function guestsStats()
     {
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
 
 
         $numberGuests       = DB::table('guests')
@@ -209,7 +209,7 @@ class HydrateTenant extends HydrateModel
     public function inventoryStats()
     {
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
         $stats  = [
             'number_stocks'         => Stock::count(),
             'number_stock_families' => StockFamily::count(),
@@ -241,7 +241,7 @@ class HydrateTenant extends HydrateModel
     public function procurementStats()
     {
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
 
 
         $stats = [

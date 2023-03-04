@@ -48,6 +48,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $number_invoices_type_refund
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Central\Tenant $tenant
  * @method static Builder|TenantAccountingStats newModelQuery()
  * @method static Builder|TenantAccountingStats newQuery()
  * @method static Builder|TenantAccountingStats query()

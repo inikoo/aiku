@@ -71,7 +71,7 @@ class CreateWebUser extends InertiaAction
 
     public function asController(Request $request)
     {
-        $this->parent = tenant();
+        $this->parent = app('currentTenant');
         $this->validateAttributes();
     }
 

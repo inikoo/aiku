@@ -122,7 +122,7 @@ class User extends Authenticatable implements HasMedia
         static::updated(function ($item) {
             if (!$item->wasRecentlyCreated) {
                 if ($item->wasChanged('status')) {
-                    TenantHydrateUsers::dispatch(tenant());
+                    TenantHydrateUsers::dispatch(app('currentTenant'));
                 }
             }
         });

@@ -31,7 +31,7 @@ class ShowProductionDashboard
 
     public function asController(): void
     {
-        $this->tenant = tenant();
+        $this->tenant = app('currentTenant');
     }
 
 

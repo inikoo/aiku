@@ -107,8 +107,8 @@ class FetchAction
                 }
 
 
-                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));
-                $tenantSource->initialisation(tenant());
+                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(app('currentTenant')->source, 'type'));
+                $tenantSource->initialisation(app('currentTenant'));
                 $command->info('');
 
                 if ($command->option('source_id')) {
@@ -141,6 +141,7 @@ class FetchAction
         return $exitCode;
     }
 
+    /*
     public function asJob(SourceTenantService $tenantSource, ?array $tenantIds = null): void
     {
         if (is_array($tenantIds)) {
@@ -155,7 +156,7 @@ class FetchAction
 
     public function getJobMiddleware(): array
     {
-        return [new InitialiseSourceTenant()];
+        return [new InitialiseSourceTenant('currentTenant')];
     }
 
     public function configureJob(JobDecorator $job): void
@@ -165,6 +166,8 @@ class FetchAction
             ->setMaxExceptions(3)
             ->setTimeout(1800);
     }
+
+    */
 
     public function authorize(ActionRequest $request): bool
     {
@@ -195,8 +198,8 @@ class FetchAction
         /**
          * @throws \Illuminate\Contracts\Container\BindingResolutionException
          */ function () use ($validatedData) {
-            $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));
-            $tenantSource->initialisation(tenant());
+            $tenantSource = app(SourceTenantManager::class)->make(Arr::get(app('currentTenant')->source, 'type'));
+            $tenantSource->initialisation(app('currentTenant'));
 
             return $this->handle($tenantSource, Arr::get($validatedData, 'id'));
         }

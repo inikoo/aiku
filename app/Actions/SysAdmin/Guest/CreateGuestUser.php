@@ -64,7 +64,7 @@ class CreateGuestUser
         );
 
         /** @var User $user */
-        $user = StoreUser::run(tenant(), $guest, $centralUser);
+        $user = StoreUser::run(app('currentTenant'), $guest, $centralUser);
 
 
         foreach ($roles as $role) {

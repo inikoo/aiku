@@ -106,7 +106,7 @@ class Payment extends Model
 
         static::created(
             function (Payment $payment) {
-                TenantHydrateAccounting::dispatch(tenant());
+                TenantHydrateAccounting::dispatch(app('currentTenant'));
                 PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider);
                 PaymentAccountHydratePayments::dispatch($payment->paymentAccount);
                 ShopHydratePayments::dispatch($payment->shop);

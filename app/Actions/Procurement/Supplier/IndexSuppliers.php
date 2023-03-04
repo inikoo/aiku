@@ -64,7 +64,7 @@ class IndexSuppliers extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $request->validate();
-        $this->parent    = tenant();
+        $this->parent    = app('currentTenant');
         return $this->handle();
     }
 

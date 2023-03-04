@@ -47,7 +47,7 @@ class CreateGuestFromUser
 
         $guest = StoreGuest::run($modelData);
         /** @var User $user */
-        $user = StoreUser::run(tenant(), $guest, $centralUser);
+        $user = StoreUser::run(app('currentTenant'), $guest, $centralUser);
         foreach ($roles as $role) {
             $user->assignDirectRole($role);
         }

@@ -79,7 +79,7 @@ class PaymentAccount extends Model
     {
         static::created(
             function (PaymentAccount $paymentAccount) {
-                TenantHydrateAccounting::dispatch(tenant());
+                TenantHydrateAccounting::dispatch(app('currentTenant'));
                 PaymentServiceProviderHydrateAccounts::dispatch($paymentAccount->paymentServiceProvider);
             }
         );

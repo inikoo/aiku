@@ -28,7 +28,7 @@ class CreateTenantStorageLink
     public function handle(): array
     {
         /** @var Tenant $tenant */
-        $tenant=tenant();
+        $tenant   = app('currentTenant');
         $linkBase = public_path('tenants');
         $link     = $linkBase.'/'.$tenant->id;
         $target   = storage_path('app/public');
@@ -46,7 +46,7 @@ class CreateTenantStorageLink
             }
             unlink($link);
         }
-        symlink($target,$link);
+        symlink($target, $link);
 
         return array('success' => true, 'target' => $target, 'link' => $link);
     }

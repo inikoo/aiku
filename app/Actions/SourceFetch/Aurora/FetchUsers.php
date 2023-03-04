@@ -49,7 +49,7 @@ class FetchUsers extends FetchAction
                 }
 
 
-                $user = StoreUser::run(tenant(), $userData['parent'], $centralUser);
+                $user = StoreUser::run(app('currentTenant'), $userData['parent'], $centralUser);
                 $user->update(
                     [
                         'source_id'=> $userData['user']['source_id']

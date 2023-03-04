@@ -99,14 +99,18 @@ class CreateAuroraTenant
 
         $tenant = StoreTenant::run($tenantData);
 
+
+
+
         $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')
             ->select('Payment Service Provider Key')
             ->where('Payment Service Provider Block', 'Accounts')->first();
 
-        if($accountsServiceProviderData){
+        if ($accountsServiceProviderData) {
+
             $tenant->run(function () use ($accountsServiceProviderData) {
                 /** @var Tenant $tenant */
-                $tenant = tenant();
+                $tenant = app('currentTenant');
                 $tenant->accountsServiceProvider()->update(
                     [
                         'source_id' => $accountsServiceProviderData->{'Payment Service Provider Key'}
@@ -114,12 +118,6 @@ class CreateAuroraTenant
                 );
             });
         }
-
-
-
-        $domain = $tenant->domains()->create([
-                                                 'domain' => $tenant->code,
-                                             ]);
 
 
         $result = CreateTenantAdminUser::run(
@@ -151,7 +149,7 @@ class CreateAuroraTenant
 
         /** @noinspection HttpUrlsUsage */
         DB::connection('aurora')->table('Account Data')
-            ->update(['pika_url' => (app()->isLocal() ? 'http://' : 'https://').$domain->domain.'.'.config('app.domain')]);
+            ->update(['pika_url' => (app()->isLocal() ? 'http://' : 'https://').$tenant->slug.'.'.config('app.domain')]);
 
 
         $command->table(

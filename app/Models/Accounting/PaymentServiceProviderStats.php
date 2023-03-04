@@ -10,6 +10,7 @@ namespace App\Models\Accounting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Payments\PaymentServiceProviderStats
@@ -80,6 +81,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class PaymentServiceProviderStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'payment_service_provider_stats';
 
     protected $guarded = [];

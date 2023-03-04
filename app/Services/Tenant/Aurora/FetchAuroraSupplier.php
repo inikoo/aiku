@@ -19,7 +19,7 @@ class FetchAuroraSupplier extends FetchAurora
             ->where('Agent Supplier Supplier Key', $this->auroraModelData->{'Supplier Key'})->first();
 
         $type='supplier';
-        $this->parsedData['owner'] = tenant();
+        $this->parsedData['owner'] = app('currentTenant');
         $agentId                   = null;
 
         if ($agentData) {

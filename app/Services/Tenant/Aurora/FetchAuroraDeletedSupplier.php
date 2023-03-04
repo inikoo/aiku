@@ -26,7 +26,7 @@ class FetchAuroraDeletedSupplier extends FetchAurora
 
 
         $type                      = 'supplier';
-        $this->parsedData['owner'] = tenant();
+        $this->parsedData['owner'] = app('currentTenant');
         $agentId                   = null;
 
 

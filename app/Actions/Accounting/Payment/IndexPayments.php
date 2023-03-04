@@ -119,7 +119,7 @@ class IndexPayments extends InertiaAction
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
-        $this->parent    = tenant();
+        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
 
         return $this->handle();

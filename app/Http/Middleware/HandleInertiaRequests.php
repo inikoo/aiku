@@ -44,7 +44,7 @@ class HandleInertiaRequests extends Middleware
 
             $firstLoadOnlyProps= [
 
-                'tenant'   => tenant() ? tenant()->only('name', 'code') : null,
+                'tenant'   => app('currentTenant') ? app('currentTenant')->only('name', 'code') : null,
                 'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
                 'layout'   => function () use ($user) {
                     if ($user) {

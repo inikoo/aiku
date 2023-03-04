@@ -37,7 +37,7 @@ class ShowSysAdminDashboard
     {
 
         /** @var Tenant $tenant */
-        $tenant=tenant();
+        $tenant=app('currentTenant');
 
         return Inertia::render(
             'SysAdmin/SysAdminDashboard',

@@ -35,7 +35,7 @@ class ShowHumanResourcesDashboard
     public function htmlResponse(): Response
     {
         /** @var \App\Models\Central\Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
 
         return Inertia::render(
             'HumanResources/HumanResourcesDashboard',

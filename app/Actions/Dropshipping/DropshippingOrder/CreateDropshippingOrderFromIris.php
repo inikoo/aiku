@@ -126,13 +126,13 @@ class CreateDropshippingOrderFromIris extends fromIris
             'items'        => $items
         ];
 
-        if (!Arr::get(tenant(), 'source.db_name')) {
+        if (!Arr::get(app('currentTenant'), 'source.db_name')) {
             throw new Exception('Aurora DB not set');
         }
 
         $database_settings = data_get(config('database.connections'), 'aurora');
 
-        data_set($database_settings, 'database', Arr::get(tenant(), 'source.db_name'));
+        data_set($database_settings, 'database', Arr::get(app('currentTenant'), 'source.db_name'));
         config(['database.connections.aurora' => $database_settings]);
         DB::connection('aurora');
         DB::purge('aurora');
@@ -146,7 +146,7 @@ class CreateDropshippingOrderFromIris extends fromIris
 
 
 
-        $response = Http::get(Arr::get(tenant(), 'source.url').'/pika/process_pika_order.php', [
+        $response = Http::get(Arr::get(app('currentTenant'), 'source.url').'/pika/process_pika_order.php', [
             'id'          => $id,
             'environment' => App::environment()
         ]);
@@ -154,8 +154,8 @@ class CreateDropshippingOrderFromIris extends fromIris
         if ($response->ok()) {
             $auroraResponse = $response->json();
             if (Arr::get($auroraResponse, 'status') == 'ok') {
-                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));
-                $tenantSource->initialisation(tenant());
+                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(app('currentTenant')->source, 'type'));
+                $tenantSource->initialisation(app('currentTenant'));
 
                 $order = FetchOrders::run($tenantSource, Arr::get($auroraResponse, 'order_source_id'));
                 if (!$order) {
@@ -167,13 +167,13 @@ class CreateDropshippingOrderFromIris extends fromIris
             throw new Exception('Aurora server error msg:'.Arr::get($auroraResponse, 'msg'));
         } else {
             $exceptionData=[
-                Arr::get(tenant(), 'source.url').'/pika/process_pika_order.php',
+                Arr::get(app('currentTenant'), 'source.url').'/pika/process_pika_order.php',
                 [
                     'id'          => $id,
                     'environment' => App::environment()
                 ]
             ];
-            throw new Exception('Aurora server error: '.Arr::get(tenant(), 'source.url').'/pika/process_pika_order.php');
+            throw new Exception('Aurora server error: '.Arr::get(app('currentTenant'), 'source.url').'/pika/process_pika_order.php');
         }
     }
 

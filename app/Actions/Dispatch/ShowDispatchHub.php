@@ -35,7 +35,7 @@ class ShowDispatchHub
     public function asController(ActionRequest $request): void
     {
         $this->user   = $request->user();
-        $this->tenant = tenant();
+        $this->tenant = app('currentTenant');
     }
 
 

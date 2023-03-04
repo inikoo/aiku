@@ -54,8 +54,8 @@ class FetchModels
             /**
              * @throws \Illuminate\Contracts\Container\BindingResolutionException
              */ function () use ($command) {
-                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(tenant()->source, 'type'));
-                $tenantSource->initialisation(tenant());
+                $tenantSource = app(SourceTenantManager::class)->make(Arr::get(app('currentTenant')->source, 'type'));
+                $tenantSource->initialisation(app('currentTenant'));
 
                 $this->handle($tenantSource);
             });

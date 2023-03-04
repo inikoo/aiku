@@ -36,7 +36,7 @@ class StoreProduct
                                            'scope' => 'sales'
                                        ]);
         /** @var Tenant $tenant */
-        $tenant = tenant();
+        $tenant = app('currentTenant');
         if ($product->shop->currency_id != $tenant->currency_id) {
             $product->salesStats()->create([
                                                'scope' => 'sales-tenant-currency'

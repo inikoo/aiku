@@ -23,7 +23,7 @@ class StoreWebsite
         $website = $shop->website()->create($modelData);
         $website->stats()->create();
         if($website->state!='closed') {
-            StoreCentralDomain::run(tenant(), [
+            StoreCentralDomain::run(app('currentTenant'), [
                 'website_id' => $website->id,
                 'slug'       => $website->code,
                 'domain'     => $website->domain
