@@ -17,9 +17,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Multitenancy\Models\Tenant as SpatieTenant;
+use Spatie\Multitenancy\TenantCollection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-
 
 /**
  * App\Models\Central\Tenant
@@ -51,17 +51,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Central\TenantStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
- * @method static \Spatie\Multitenancy\TenantCollection<int, static> all($columns = ['*'])
- * @method static \Spatie\Multitenancy\TenantCollection<int, static> get($columns = ['*'])
+ *
+ * @method static TenantCollection<int, static> all($columns = ['*'])
+ * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()
  * @method static Builder|Tenant query()
+ *
  * @mixin \Eloquent
  */
 class Tenant extends SpatieTenant
 {
     use HasSlug;
-
 
     protected $casts = [
         'data' => 'array',
@@ -82,8 +83,8 @@ class Tenant extends SpatieTenant
 
     protected $guarded = [];
 
-
-    public function getDatabaseName():string{
+    public function getDatabaseName(): string
+    {
         return 'pika_'.$this->slug;
     }
 
@@ -152,8 +153,8 @@ class Tenant extends SpatieTenant
         return $this->morphOne(AdminUser::class, 'userable');
     }
 
-    public function accountsServiceProvider(): PaymentServiceProvider{
+    public function accountsServiceProvider(): PaymentServiceProvider
+    {
         return  PaymentServiceProvider::where('data->service-code', 'accounts')->first();
     }
-
 }
