@@ -11,6 +11,7 @@ use App\Actions\Central\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Inventory\WarehouseStats
@@ -43,6 +44,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class WarehouseStats extends Model
 {
+    use UsesTenantConnection;
+
     protected $table = 'warehouse_stats';
 
     protected $guarded = [];

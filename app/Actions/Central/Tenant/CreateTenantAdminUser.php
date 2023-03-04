@@ -6,13 +6,11 @@
  */
 
 
-/** @noinspection PhpUnused */
-
-
 namespace App\Actions\Central\Tenant;
 
 
 use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
+use App\Actions\WithTenantsOption;
 use App\Models\Central\Tenant;
 use Arr;
 use Illuminate\Console\Command;
@@ -22,13 +20,18 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class CreateTenantAdminUser
 {
     use AsAction;
+    use WithTenantsOption;
 
-    public string $commandSignature = 'create:tenant-admin-user {tenant : tenant code}  {--e|email=} {--t|token= : json array with string name, array abilities}   ';
-    public string $commandDescription = 'Create admin-user for tenant';
+    public string $commandSignature = 'create:tenant-admin-user {--tenant=*}  {--e|email=} {--a|abilities= : json array with string name, array abilities}   ';
 
-
-    public function handle(Tenant $tenant, array $adminUserData, ?array $tokenData = null): object
+    public function getCommandDescription(): string
     {
+        return 'Create admin-user for tenant';
+    }
+
+    public function handle(Tenant $tenant,array $adminUserData, ?array $tokenData = null): object
+    {
+
         $token = null;
 
 
@@ -62,52 +65,57 @@ class CreateTenantAdminUser
         ];
     }
 
+
+
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('code', $command->argument('tenant'))->firstOrFail();
+        $tenants = $this->getTenants($command);
 
-        return (int)$tenant->run(
-            function () use ($command, $tenant) {
-                $adminUserData = [];
-                $tokenData     = null;
-                if ($command->option('email')) {
-                    $adminUserData['email'] = $command->option('email');
-                }
 
-                if ($command->option('token')) {
-                    $tokenData = json_decode($command->option('token'), true);
 
-                    if (!$tokenData) {
-                        $command->error('Invalid json in token option');
+        $adminUserData = [];
+        $tokenData     = null;
+        if ($command->option('email')) {
+            $adminUserData['email'] = $command->option('email');
+        }
 
-                        return 1;
-                    }
-                }
+        if ($command->option('abilities')) {
+            $tokenData = json_decode($command->option('abilities'), true);
 
-                $result = $this->handle(
-                    $tenant,
-                    $adminUserData,
-                    $tokenData
-                );
-
-                if ($result->adminUser) {
-                    $command->table(
-                        ['AdminUser', 'Token'],
-                        [
-                            [
-                                $result->adminUser->username,
-                                $result->token
-                            ],
-
-                        ]
-                    );
-
-                    return 0;
-                }
+            if (!$tokenData) {
+                $command->error('Invalid json in abilities option');
 
                 return 1;
             }
-        );
+        }
+
+
+        foreach($tenants as $tenant){
+            $result = $this->handle(
+                $tenant,
+                $adminUserData,
+                $tokenData
+            );
+
+            if ($result->adminUser) {
+                $command->table(
+                    ['AdminUser', 'Token'],
+                    [
+                        [
+                            $result->adminUser->username,
+                            $result->token
+                        ],
+
+                    ]
+                );
+
+
+            }
+        }
+
+
+
+        return 0;
     }
 
 

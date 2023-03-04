@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -69,6 +70,7 @@ class Guest extends Model implements HasMedia
     use HasSlug;
     use InteractsWithMedia;
     use SoftDeletes;
+    use UsesTenantConnection;
 
     protected $casts = [
         'data'          => 'array',

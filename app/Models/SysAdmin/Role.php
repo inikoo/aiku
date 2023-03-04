@@ -9,6 +9,7 @@
 namespace App\Models\SysAdmin;
 
 use Illuminate\Database\Eloquent\Builder;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 
@@ -26,7 +27,7 @@ use Spatie\Permission\Models\Role as SpatieRole;
  * @property-read int|null $users_count
  * @method static Builder|Role newModelQuery()
  * @method static Builder|Role newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Role permission($permissions)
+ * @method static Builder|Role permission($permissions)
  * @method static Builder|Role query()
  * @method static Builder|Role whereCreatedAt($value)
  * @method static Builder|Role whereGuardName($value)
@@ -37,6 +38,6 @@ use Spatie\Permission\Models\Role as SpatieRole;
  */
 class Role extends SpatieRole
 {
-
+    use UsesTenantConnection;
 }
 

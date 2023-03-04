@@ -16,6 +16,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
+use  Spatie\Multitenancy\Landlord;
 
 
 class StoreUser
@@ -24,13 +25,17 @@ class StoreUser
 
     public function handle(Tenant $tenant, Guest|Employee $parent, CentralUser $centralUser): User
     {
-        tenancy()->central(function () use ($centralUser, $tenant) {
+        Landlord::execute(function () use ($centralUser, $tenant) {
             $centralUser->tenants()->syncWithoutDetaching($tenant);
         });
-        $user = User::where('global_id', $centralUser->global_id)->first();
-        $user->parent()->associate($parent);
-        $user->save();
-
+        $user=$parent->user()->create(
+            [
+            'central_user_id'=>$centralUser->id,
+            'username'=>$centralUser->username,
+            'password'=>$centralUser->password,
+            ]
+        );
+        $user->stats()->create();
         $user=SetAvatar::run($user);
         TenantHydrateUsers::run($tenant);
         CentralUserHydrateTenants::run($centralUser);

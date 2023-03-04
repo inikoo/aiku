@@ -16,20 +16,19 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('central_user_id');
+            $table->foreign('central_user_id')->references('id')->on('central.central_users');
             $table->string('username')->unique();
             $table->boolean('status')->default(true);
             $table->nullableMorphs('parent');
             $table->string('email')->nullable();
             $table->string('about')->nullable();
             $table->rememberToken();
-            $table->jsonb('tenants_data')->nullable();
             $table->jsonb('profile');
             $table->jsonb('settings');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('password');
-            $table->unsignedSmallInteger('number_tenants')->default(0);
-            $table->uuid('global_id')->index();
             $table->unsignedBigInteger('source_id')->nullable()->unique();
 
         });

@@ -152,22 +152,22 @@ class Tenant extends SpatieTenant
 
     public function suppliers(): MorphMany
     {
-        return $this->morphMany(Supplier::class, 'owner', 'owner_type', 'owner_id', 'numeric_id');
+        return $this->morphMany(Supplier::class, 'owner');
     }
 
     public function agents(): MorphMany
     {
-        return $this->morphMany(Agent::class, 'owner', 'owner_type', 'owner_id', 'numeric_id');
+        return $this->morphMany(Agent::class, 'owner');
     }
 
     public function stocks(): MorphMany
     {
-        return $this->morphMany(Stock::class, 'owner', 'owner_type', 'owner_id', 'numeric_id');
+        return $this->morphMany(Stock::class, 'owner');
     }
 
     public function adminUser(): MorphOne
     {
-        return $this->morphOne(AdminUser::class, 'userable', null, null, 'numeric_id');
+        return $this->morphOne(AdminUser::class, 'userable');
     }
 
     public function accountsServiceProvider(): PaymentServiceProvider{

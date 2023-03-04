@@ -40,7 +40,7 @@ class HydrateModel
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {
-            $result = (int)$tenant->run(function () use ($command) {
+            $result = (int)$tenant->execute(function () use ($command) {
                 if ($command->option('id')) {
                     if ($model = $this->getModel($command->option('id'))) {
                         $this->handle($model);

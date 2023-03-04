@@ -8,10 +8,10 @@
 namespace App\Models\SysAdmin;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
-use App\Models\Central\CentralUser;
 use App\Models\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -19,6 +19,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
@@ -88,6 +89,7 @@ class User extends Authenticatable implements HasMedia
     use SoftDeletes;
     use InteractsWithMedia;
     use HasRoles;
+    use UsesTenantConnection;
 
 
     protected $guarded = [
@@ -98,8 +100,6 @@ class User extends Authenticatable implements HasMedia
         'password',
         'remember_token',
     ];
-
-    public string $global_id = 'global_id';
 
     protected $casts = [
         'profile'      => 'array',
@@ -126,32 +126,6 @@ class User extends Authenticatable implements HasMedia
                 }
             }
         });
-    }
-
-
-    public function getGlobalIdentifierKey()
-    {
-        return $this->getAttribute($this->getGlobalIdentifierKeyName());
-    }
-
-    public function getGlobalIdentifierKeyName(): string
-    {
-        return $this->global_id;
-    }
-
-    public function getCentralModelName(): string
-    {
-        return CentralUser::class;
-    }
-
-    public function getSyncedAttributeNames(): array
-    {
-        return [
-            'username',
-            'password',
-            'email',
-            'about',
-            'number_tenants'];
     }
 
 
@@ -186,6 +160,11 @@ class User extends Authenticatable implements HasMedia
         }
 
         return '';
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(UserStats::class);
     }
 
 }

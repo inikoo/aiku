@@ -5,7 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-/** @noinspection PhpUnused */
 
 namespace App\Actions\Central\Tenant;
 
@@ -29,7 +28,10 @@ class CreateAuroraTenant
 
 
     public string $commandSignature = 'create:tenant-aurora {code} {aurora_db} {email}';
-    public string $commandDescription = 'Crete new Aurora tenant';
+    public function getCommandDescription(): string
+    {
+        return 'Crete new Aurora tenant.';
+    }
 
 
     /**
@@ -100,23 +102,16 @@ class CreateAuroraTenant
         $tenant = StoreTenant::run($tenantData);
 
 
-
-
         $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')
             ->select('Payment Service Provider Key')
             ->where('Payment Service Provider Block', 'Accounts')->first();
 
         if ($accountsServiceProviderData) {
-
-            $tenant->run(function () use ($accountsServiceProviderData) {
-                /** @var Tenant $tenant */
-                $tenant = app('currentTenant');
-                $tenant->accountsServiceProvider()->update(
-                    [
-                        'source_id' => $accountsServiceProviderData->{'Payment Service Provider Key'}
-                    ]
-                );
-            });
+            $tenant->execute(fn(Tenant $tenant) => $tenant->accountsServiceProvider()->update(
+                [
+                    'source_id' => $accountsServiceProviderData->{'Payment Service Provider Key'}
+                ]
+            ));
         }
 
 
@@ -143,8 +138,8 @@ class CreateAuroraTenant
             ->update(['pika_token' => $token]);
 
 
-        Artisan::call('tenants:seed');
-        Artisan::call('create:tenant-storage-link');
+        //Artisan::call('tenants:seed');
+        //Artisan::call('create:tenant-storage-link');
 
 
         /** @noinspection HttpUrlsUsage */

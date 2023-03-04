@@ -23,8 +23,8 @@ class CentralUserHydrateTenants implements ShouldBeUnique
         $userNameInfo = [];
 
         foreach ($centralUser->tenants as $tenant) {
-            $userName       = $tenant->run(function () use ($centralUser) {
-                $user = User::withTrashed()->where('global_id', $centralUser->global_id)->first();
+            $userName       = $tenant->execute(function () use ($centralUser) {
+                $user = User::withTrashed()->where('central_user_id', $centralUser->id)->first();
 
 
                 if ($user && $user->parentWithTrashed) {
@@ -47,7 +47,7 @@ class CentralUserHydrateTenants implements ShouldBeUnique
         $centralUser->update(
             [
                 'number_tenants' => $centralUser->tenants()->count(),
-                'tenants_data->names'    => $userNameInfo
+                'data->names'    => $userNameInfo
             ]
         );
     }

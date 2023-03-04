@@ -9,6 +9,7 @@ namespace App\Models\HumanResources;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 
 /**
@@ -45,6 +46,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class JobPosition extends Model
 {
+    use UsesTenantConnection;
 
     protected $casts = [
         'data'  => 'array',

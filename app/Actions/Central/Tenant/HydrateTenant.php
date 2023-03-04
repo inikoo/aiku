@@ -22,6 +22,7 @@ use App\Models\Marketing\Shop;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
+use App\Models\SysAdmin\Guest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -188,10 +189,9 @@ class HydrateTenant extends HydrateModel
         $tenant = app('currentTenant');
 
 
-        $numberGuests       = DB::table('guests')
-            ->count();
-        $numberActiveGuests = DB::table('guests')
-            ->where('status', true)
+        $numberGuests       = Guest::count();
+
+        $numberActiveGuests = Guest::where('status', true)
             ->count();
 
 

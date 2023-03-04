@@ -9,6 +9,7 @@ namespace App\Actions\Central\Tenant\Hydrators;
 
 
 use App\Models\Central\Tenant;
+use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -22,8 +23,8 @@ class TenantHydrateUsers implements ShouldBeUnique
 
     public function handle(Tenant $tenant): void
     {
-        $numberUsers       = DB::table('users')->count();
-        $numberActiveUsers = DB::table('users')->where('status', true)->count();
+        $numberUsers       = User::count();
+        $numberActiveUsers = User::where('status', true)->count();
 
 
         $stats = [
@@ -42,7 +43,7 @@ class TenantHydrateUsers implements ShouldBeUnique
         }
 
         foreach (
-            DB::table('users')
+            DB::connection('tenant')->table('users')
                 ->selectRaw('LOWER(parent_type) as parent_type, count(*) as total')
                 ->where('status', true)
                 ->groupBy('parent_type')

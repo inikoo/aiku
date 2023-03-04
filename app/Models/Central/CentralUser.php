@@ -60,8 +60,6 @@ class CentralUser extends Model
     ];
 
     protected $guarded = [];
-    public $timestamps = false;
-
 
     public function getSlugOptions(): SlugOptions
     {
@@ -75,44 +73,10 @@ class CentralUser extends Model
     {
         return $this->belongsToMany(
             Tenant::class,
-            'tenant_users',
-            'global_user_id',
-            'tenant_id',
-            'global_id',
-            'id'
-        )->using(TenantUser::class);
+            'central_user_tenant',
+        )->using(CentralUserTenant::class);
     }
 
-    public function getTenantModelName(): string
-    {
-        return User::class;
-    }
-
-    public function getGlobalIdentifierKey()
-    {
-        return $this->getAttribute($this->getGlobalIdentifierKeyName());
-    }
-
-    public function getGlobalIdentifierKeyName(): string
-    {
-        return 'global_id';
-    }
-
-    public function getCentralModelName(): string
-    {
-        return static::class;
-    }
-
-    public function getSyncedAttributeNames(): array
-    {
-        return [
-            'username',
-            'password',
-            'email',
-            'about',
-            'number_tenants'
-        ];
-    }
 
 
 }

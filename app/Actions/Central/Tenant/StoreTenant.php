@@ -38,7 +38,11 @@ class StoreTenant
         $tenant->execute(
             function (Tenant $tenant) {
 
-                Artisan::call('tenants:artisan "migrate:fresh --force  --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->id);
+
+                Artisan::call('tenants:artisan "migrate:fresh --force  --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->slug);
+                Artisan::call('tenants:artisan "db:seed --force   --class=TenantsSeeder" --tenant='.$tenant->slug);
+
+
 
                 CreateTenantStorageLink::run();
 

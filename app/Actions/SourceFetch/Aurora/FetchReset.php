@@ -47,7 +47,7 @@ class FetchReset
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {
-            $result = (int)$tenant->run(function () use ($command, $tenant) {
+            $result = (int)$tenant->execute(function () use ($command, $tenant) {
                 if ($databaseName = Arr::get($tenant->source, 'db_name')) {
                     $command->line("🏃 $tenant->code ");
                     $this->setAuroraConnection($databaseName);

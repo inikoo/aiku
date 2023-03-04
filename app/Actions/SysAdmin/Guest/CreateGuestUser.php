@@ -54,7 +54,7 @@ class CreateGuestUser
     public function handle(array $guestUserData, array $roles): User
     {
         $guest = StoreGuest::run(
-            array_merge( Arr::only($guestUserData, ['name', 'email']) ,['slug'=>Arr::get($guestUserData, 'username')] )
+            array_merge(Arr::only($guestUserData, ['name', 'email']), ['slug' => Arr::get($guestUserData, 'username')])
 
         );
 
@@ -116,7 +116,7 @@ class CreateGuestUser
 
 
         foreach ($tenants as $tenant) {
-            $result = (int)$tenant->run(
+            $result = (int)$tenant->execute(
                 function () use ($validatedData, $command, $tenant) {
                     $roles = [];
                     foreach ($command->option('roles') as $roleName) {
@@ -142,7 +142,7 @@ class CreateGuestUser
                         $user  = $guest->user;
                     } else {
                         $user              = $this->handle($validatedData, $roles);
-                        $this->centralUser = CentralUser::where('global_id', $user->getGlobalIdentifierKey())->firstOrFail();
+                        $this->centralUser = CentralUser::where('id', $user->central_user_id)->firstOrFail();
                     }
 
 
@@ -157,7 +157,7 @@ class CreateGuestUser
                             [
                                 $tenant->code,
                                 $user->username,
-                                $user->getGlobalIdentifierKey(),
+                                $user->central_user_id,
                                 ($command->option('autoPassword') ? Arr::get($validatedData, 'password') : '*****'),
                                 $guest->email,
                                 $guest->name,

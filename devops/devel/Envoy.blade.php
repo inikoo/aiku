@@ -91,7 +91,7 @@ echo "tenant-guest-admin" > step
 @if ($_ENV['APP_ENV'] === 'local')
     cd ../../
 @endif
-php artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin
+php artisan create:guest-user pika 'Developer' -a -r super-admin
 @endtask
 
 

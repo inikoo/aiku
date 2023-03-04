@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('code');
             $table->string('name');
-
+            $table->boolean('status')->default(true);
 
             $table->jsonb('data');
             $table->jsonb('source');
