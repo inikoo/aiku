@@ -65,7 +65,7 @@ class CreateGuestFromUser
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {
-            $result = (int)$tenant->run(
+            $result = (int)$tenant->execute(
                 function () use ($centralUser, $command) {
                     $roles = [];
                     foreach ($command->option('roles') as $roleName) {

@@ -57,7 +57,7 @@ class CreateTenantStorageLink
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {
-            $result = (int)$tenant->run(
+            $result = (int)$tenant->execute(
                 function () use ($command, $tenant) {
                     $result = $this->handle();
                     if ($result['success']) {

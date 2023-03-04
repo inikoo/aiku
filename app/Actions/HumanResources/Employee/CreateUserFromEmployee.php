@@ -99,7 +99,7 @@ class CreateUserFromEmployee
         }
 
 
-        return (int)$tenant->run(
+        return (int)$tenant->execute(
             function () use ($command) {
                 $employee = Employee::where('code', $command->argument('employee'))->first();
                 if (!$employee) {

@@ -28,7 +28,7 @@ class RegenerateSlugs
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {
-            $result = (int)$tenant->run(function () use ($command, $tenant) {
+            $result = (int)$tenant->execute(function () use ($command, $tenant) {
                 $modelName = match ($command->argument('model')) {
                     'shops' => '\App\Models\Marketing\Shop',
                     default => null

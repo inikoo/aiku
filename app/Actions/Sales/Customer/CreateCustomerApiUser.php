@@ -42,7 +42,7 @@ class CreateCustomerApiUser
     {
         $tenant = Tenant::where('code', ($command->argument('tenant_code')))->firstOrFail();
 
-        return $tenant->run(function () use ($command) {
+        return $tenant->execute(function () use ($command) {
             if ($customer = Customer::find($command->argument('customer_id'))) {
                 if (!$customer->shop->website) {
                     $command->error("Shop {$customer->shop->name} do not have website");

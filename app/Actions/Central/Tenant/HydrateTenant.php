@@ -271,7 +271,7 @@ class HydrateTenant extends HydrateModel
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {
-            $result = (int)$tenant->run(function () {
+            $result = (int)$tenant->execute(function () {
                 $this->handle();
             });
 

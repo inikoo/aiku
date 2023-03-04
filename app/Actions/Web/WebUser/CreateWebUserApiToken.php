@@ -39,7 +39,7 @@ class CreateWebUserApiToken
     {
         $tenant = Tenant::where('code', ($command->argument('tenant_code')))->firstOrFail();
 
-        return $tenant->run(function () use ($command) {
+        return $tenant->execute(function () use ($command) {
             if ($webUser = WebUser::where('slug',$command->argument('web_user_slug'))->first()) {
                 $token = $this->handle($webUser, []);
                 $command->line("Web user access token: $token");

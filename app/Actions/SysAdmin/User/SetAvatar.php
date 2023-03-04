@@ -77,7 +77,7 @@ class SetAvatar
         $exitCode = 0;
 
 
-        $result = (int)$tenant->run(
+        $result = (int)$tenant->execute(
         /**
          * @throws \Spatie\TemporaryDirectory\Exceptions\PathAlreadyExists
          * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist

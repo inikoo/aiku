@@ -136,7 +136,7 @@ class FetchFromStack
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {
-            $result = (int)$tenant->run(
+            $result = (int)$tenant->execute(
             /**
              * @throws \Illuminate\Contracts\Container\BindingResolutionException
              */ function () use ($command) {
