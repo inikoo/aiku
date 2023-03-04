@@ -17,13 +17,12 @@ return new class extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->string('code')->unique();
+            $table->string('code');
             $table->string('name');
 
 
-            $table->string('domain')->unique();
-            $table->string('database')->unique();
             $table->jsonb('data');
+            $table->jsonb('source');
 
             $table->unsignedSmallInteger('country_id');
             $table->foreign('country_id')->references('id')->on('central.countries');

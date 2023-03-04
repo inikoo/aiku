@@ -16,8 +16,6 @@
     clean-storage
     initialise-dbs
     create-admins
-    empty-aurora-tenants
-    tenant-guest-admin
 @endstory
 
 
