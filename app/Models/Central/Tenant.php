@@ -65,12 +65,12 @@ class Tenant extends SpatieTenant
     use HasSlug;
 
     protected $casts = [
-        'data' => 'array',
+        'data'   => 'array',
         'source' => 'array',
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'   => '{}',
         'source' => '{}',
     ];
 
@@ -155,6 +155,6 @@ class Tenant extends SpatieTenant
 
     public function accountsServiceProvider(): PaymentServiceProvider
     {
-        return  PaymentServiceProvider::where('data->service-code', 'accounts')->first();
+        return PaymentServiceProvider::where('data->service-code', 'accounts')->first();
     }
 }
