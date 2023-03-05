@@ -10,6 +10,7 @@ namespace App\Http;
 use Akempes\RequestLogging\LogRequest;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandleCentralInertiaRequests;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -33,6 +34,7 @@ use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
 
 class Kernel extends HttpKernel
@@ -60,7 +62,18 @@ class Kernel extends HttpKernel
      * @var array<string, array<int, class-string|string>>
      */
     protected $middlewareGroups = [
-        'central' => [
+
+
+        'central-api' => [
+            ForceJsonResponse::class,
+            EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
+            SubstituteBindings::class,
+            LogRequest::class,
+            'auth:api-admin-user'
+        ],
+
+        'central-web' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -70,7 +83,7 @@ class Kernel extends HttpKernel
             HandleCentralInertiaRequests::class,
             SetLocale::class
         ],
-        'web'     => [
+        'app'     => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -86,12 +99,16 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             'auth:admin-user'
         ],
+        /*
         'api-admin-user' => [
             'throttle:api',
             SubstituteBindings::class,
             LogRequest::class,
             'auth:api-admin-user'
         ],
+*/
+
+
         /*
         'api-tenant' => [
             'throttle:api',

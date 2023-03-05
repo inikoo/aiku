@@ -33,13 +33,22 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
-        $this->mapApiRoutes();
-        $this->mapWebRoutes();
 
-        $this->routes(function () {
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
-        });
+        Route::prefix('api')
+            ->domain(config('app.domain'))
+            ->middleware('central-api')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/central/api/api.php'));
+
+        Route::middleware('central-web')
+            ->domain(config('app.domain'))
+            ->namespace($this->namespace)
+            ->name('central.')
+            ->group(base_path('routes/central/web/web.php'));
+
+        Route::middleware('app')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/tenant.php'));
     }
 
     /**
@@ -52,32 +61,5 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(600)->by($request->user()?->id ?: $request->ip());
         });
-    }
-
-    protected function mapWebRoutes()
-    {
-        foreach ($this->centralDomains() as $domain) {
-            Route::middleware('central')
-                ->domain($domain)
-                ->namespace($this->namespace)
-                ->name('central.')
-                ->group(base_path('routes/central/web/web.php'));
-        }
-    }
-
-    protected function mapApiRoutes()
-    {
-        foreach ($this->centralDomains() as $domain) {
-            Route::prefix('api')
-                ->domain($domain)
-                ->middleware('api-admin-user')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/central/api/api.php'));
-        }
-    }
-
-    protected function centralDomains(): array
-    {
-        return config('tenancy.central_domains', []);
     }
 }
