@@ -46,6 +46,7 @@
         "vlucas/phpdotenv": "^5.4"
     },
     "require-dev": {
+        "amphibee/laravel-pint-pre-commit": "^1.5",
         "barryvdh/laravel-ide-helper": "^2.12",
         "fakerphp/faker": "^1.9.1",
         "laravel/breeze": "^1.11",

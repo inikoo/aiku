@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7c663ca6f5c373443be14d64ff0aa194",
+    "content-hash": "913fd94e62b6b504b52fb3a036fbba3c",
     "packages": [
         {
             "name": "akempes/laravel-request-logging",
@@ -9623,6 +9623,54 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "amphibee/laravel-pint-pre-commit",
+            "version": "1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AmphiBee/laravel-pint-pre-commit.git",
+                "reference": "d4e92ec5b5057123d60e3c55fb972a271b07b37d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AmphiBee/laravel-pint-pre-commit/zipball/d4e92ec5b5057123d60e3c55fb972a271b07b37d",
+                "reference": "d4e92ec5b5057123d60e3c55fb972a271b07b37d",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/pint": "^1.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AmphiBee\\LaravelPintPreCommit\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AmphiBee\\LaravelPintPreCommit\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Laravel Pint pre-commit hook allow you to analyse your code with the awesome Laravel Pint.",
+            "homepage": "https://github.com/AmphiBee/laravel-pint-pre-commit",
+            "keywords": [
+                "HOOK",
+                "Pint",
+                "git",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/AmphiBee/laravel-pint-pre-commit/issues",
+                "source": "https://github.com/AmphiBee/laravel-pint-pre-commit"
+            },
+            "time": "2023-02-15T09:14:06+00:00"
+        },
         {
             "name": "barryvdh/laravel-ide-helper",
             "version": "v2.13.0",
