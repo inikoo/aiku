@@ -8,7 +8,7 @@
 namespace App\Actions\Web\WebUser;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Sales\Customer\ShowCustomer;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Web\InertiaTableWebUserResource;
 use App\Models\Central\Tenant;
@@ -27,7 +27,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWebUser extends InertiaAction
 {
-    private Shop|Tenant $parent;
+    private Shop|Tenant|Customer $parent;
+
 
     public function handle(): LengthAwarePaginator
     {
@@ -98,12 +99,20 @@ class IndexWebUser extends InertiaAction
     {
         $this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
-        $this->routeName = $request->route()->getName();
 
         return $this->handle();
     }
 
-    public function InShopInCustomer(Shop $shop, Customer $customer): LengthAwarePaginator
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShopInCustomer(Shop $shop, Customer $customer): LengthAwarePaginator
+    {
+        $this->parent = $customer;
+
+
+        return $this->handle();
+    }
+
+    public function inCustomer(Customer $customer): LengthAwarePaginator
     {
         $this->parent = $customer;
         $this->validateAttributes();
@@ -126,11 +135,14 @@ class IndexWebUser extends InertiaAction
         };
 
         return match ($routeName) {
-            'customers.index'            => $headCrumb(),
-            'shops.show.customers.index' =>
+            'customers.show.web-users.index' => array_merge(
+                (new ShowCustomer())->getBreadcrumbs('customers.show', $parent),
+                $headCrumb([$parent->slug])
+            ),
+            'shops.show.customers.show.web-users.index' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->id])
+                (new ShowCustomer())->getBreadcrumbs('shops.show.customers.show', $parent),
+                $headCrumb([$parent->shop->slug,$parent->slug])
             ),
             default => []
         };

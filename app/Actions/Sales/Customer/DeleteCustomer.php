@@ -15,12 +15,14 @@ use App\Actions\Marketing\Shop\HydrateShop;
 use App\Actions\Sales\Order\DeleteOrder;
 use App\Actions\Web\WebUser\DeleteWebUser;
 use App\Actions\WithActionUpdate;
+use App\Actions\WithTenantArgument;
 use App\Models\Sales\Customer;
 use Illuminate\Console\Command;
 
 class DeleteCustomer
 {
     use WithActionUpdate;
+    use WithTenantArgument;
 
     public string $commandSignature = 'delete:customer {tenant} {id}';
 
@@ -114,18 +116,21 @@ class DeleteCustomer
 
     public function asCommand(Command $command): int
     {
-        $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();
-        tenancy()->initialize($tenant);
+        $this->getTenant($command)->execute(
+            function () use ($command) {
+                $customer = Customer::findOrFail($command->argument('id'));
+                $customer = $this->handle($customer);
 
-        $customer = Customer::findOrFail($command->argument('id'));
-        $customer = $this->handle($customer);
+                print_r($this->deletedDependants);
 
-        print_r($this->deletedDependants);
+                // $this->table(
+                //     ['Name', 'Email'],
+                //     User::all(['name', 'email'])->toArray()
+                // );
+            }
+        );
 
-        // $this->table(
-        //     ['Name', 'Email'],
-        //     User::all(['name', 'email'])->toArray()
-        // );
+
 
         return 0;
     }

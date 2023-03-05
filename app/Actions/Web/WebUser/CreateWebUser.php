@@ -21,6 +21,8 @@ class CreateWebUser extends InertiaAction
 {
     private Customer|Website|Tenant $parent;
 
+    private ?Shop $shop=null;
+
 
     public function authorize(ActionRequest $request): bool
     {
@@ -37,7 +39,7 @@ class CreateWebUser extends InertiaAction
         return Inertia::render(
             'Web/StoreWebUser',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->shop),
                 'title'       => '+ '.__('web user'),
                 'pageHead'    => [
                     'title' => __('web user'),
@@ -73,19 +75,21 @@ class CreateWebUser extends InertiaAction
         $this->validateAttributes();
     }
 
-    public function InShopInCustomer(Shop $shop, Customer $customer)
+    public function inShopInCustomer(Shop $shop, Customer $customer)
     {
         $this->parent = $customer;
+        $this->shop   =$shop;
         $this->validateAttributes();
     }
 
-    public function InCustomer(Customer $customer)
+    public function inCustomer(Customer $customer)
     {
         $this->parent = $customer;
+        $this->shop   =$customer->shop;
         $this->validateAttributes();
     }
 
-    public function getBreadcrumbs(string $routeName, Customer|Website|Tenant $parent): array
+    public function getBreadcrumbs(string $routeName, Shop $shop): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -103,8 +107,8 @@ class CreateWebUser extends InertiaAction
             'customers.index'            => $headCrumb(),
             'shops.show.customers.index' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->id])
+                (new ShowShop())->getBreadcrumbs($shop),
+                $headCrumb([$shop->id])
             ),
             default => []
         };

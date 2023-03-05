@@ -9,12 +9,14 @@ namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\Sales\Customer\HydrateCustomer;
 use App\Actions\WithActionUpdate;
+use App\Actions\WithTenantArgument;
 use App\Models\Dropshipping\CustomerClient;
 use Illuminate\Console\Command;
 
 class DeleteCustomerClient
 {
     use WithActionUpdate;
+    use WithTenantArgument;
 
     public string $commandSignature = 'delete:customer-client {tenant} {id}';
 
@@ -31,10 +33,9 @@ class DeleteCustomerClient
 
     public function asCommand(Command $command): int
     {
-        $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();
-        tenancy()->initialize($tenant);
-
-        $this->handle(CustomerClient::findOrFail($command->argument('id')));
+        $this->getTenant($command)->execute(
+            fn () => $this->handle(CustomerClient::findOrFail($command->argument('id')))
+        );
 
         return 0;
     }

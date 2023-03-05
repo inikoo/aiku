@@ -10,12 +10,14 @@ namespace App\Actions\Inventory\Stock;
 use App\Actions\Central\Tenant\HydrateTenant;
 use App\Actions\Inventory\StockFamily\HydrateStockFamily;
 use App\Actions\WithActionUpdate;
+use App\Actions\WithTenantArgument;
 use App\Models\Inventory\Stock;
 use Illuminate\Console\Command;
 
 class DeleteStock
 {
     use WithActionUpdate;
+    use WithTenantArgument;
 
     public string $commandSignature = 'delete:stock {tenant} {id}';
 
@@ -37,10 +39,9 @@ class DeleteStock
 
     public function asCommand(Command $command): int
     {
-        $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();
-        tenancy()->initialize($tenant);
-
-        $this->handle(Stock::findOrFail($command->argument('id')));
+        $this->getTenant($command)->execute(
+            fn () => $this->handle(Stock::findOrFail($command->argument('id')))
+        );
 
         return 0;
     }

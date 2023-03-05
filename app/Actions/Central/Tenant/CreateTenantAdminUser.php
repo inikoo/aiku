@@ -8,7 +8,7 @@
 namespace App\Actions\Central\Tenant;
 
 use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
-use App\Actions\WithTenantsOption;
+use App\Actions\WithTenantsArgument;
 use App\Models\Central\Tenant;
 use Arr;
 use Illuminate\Console\Command;
@@ -18,9 +18,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class CreateTenantAdminUser
 {
     use AsAction;
-    use WithTenantsOption;
+    use WithTenantsArgument;
 
-    public string $commandSignature = 'create:tenant-admin-user {--tenant=*}  {--e|email=} {--a|abilities= : json array with string name, array abilities}   ';
+    public string $commandSignature = 'create:tenant-admin-user {tenants?*}  {--e|email=} {--a|abilities= : json array with string name, array abilities}   ';
 
     public function getCommandDescription(): string
     {
@@ -67,8 +67,6 @@ class CreateTenantAdminUser
     public function asCommand(Command $command): int
     {
         $tenants = $this->getTenants($command);
-
-
 
         $adminUserData = [];
         $tokenData     = null;

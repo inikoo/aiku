@@ -9,12 +9,14 @@ namespace App\Actions\Web\WebUser;
 
 use App\Actions\Sales\Customer\HydrateCustomer;
 use App\Actions\WithActionUpdate;
+use App\Actions\WithTenantArgument;
 use App\Models\Web\WebUser;
 use Illuminate\Console\Command;
 
 class DeleteWebUser
 {
     use WithActionUpdate;
+    use WithTenantArgument;
 
     public string $commandSignature = 'delete:web-user {tenant} {id}';
 
@@ -26,16 +28,14 @@ class DeleteWebUser
         if (!$skipHydrate) {
             HydrateCustomer::make()->webUsers($webUser->customer);
         }
-
         return $webUser;
     }
 
     public function asCommand(Command $command): int
     {
-        $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();
-        tenancy()->initialize($tenant);
-
-        $this->handle(WebUser::findOrFail($command->argument('id')));
+        $this->getTenant($command)->execute(
+            fn () => $this->handle(WebUser::findOrFail($command->argument('id')))
+        );
 
         return 0;
     }
