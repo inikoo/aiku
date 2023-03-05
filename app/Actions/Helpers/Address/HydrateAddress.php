@@ -7,10 +7,10 @@
 
 namespace App\Actions\Helpers\Address;
 
+use App\Actions\Helpers\Address\Hydrators\AddressHydrateUsage;
 use App\Actions\HydrateModel;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class HydrateAddress extends HydrateModel
 {
@@ -19,8 +19,7 @@ class HydrateAddress extends HydrateModel
 
     public function handle(Address $address): void
     {
-        $usage = DB::table('addressables')->where('address_id', $address->id)->count();
-        $address->update(['usage' => $usage]);
+      AddressHydrateUsage::run($address);
     }
 
     protected function getModel(int $id): Address
