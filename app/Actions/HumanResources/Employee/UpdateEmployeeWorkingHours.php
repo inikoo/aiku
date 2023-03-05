@@ -7,10 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class UpdateEmployeeWorkingHours
 {
@@ -27,6 +25,4 @@ class UpdateEmployeeWorkingHours
 
         return $employee;
     }
-
-
 }

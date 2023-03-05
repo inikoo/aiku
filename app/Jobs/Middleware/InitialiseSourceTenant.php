@@ -7,13 +7,10 @@
 
 namespace App\Jobs\Middleware;
 
-
 class InitialiseSourceTenant
 {
-
     public function handle($job, $next): void
     {
-
         $tenantSource=$job->getParameters()[0];
         $tenantSource->initialisation($tenantSource->tenant);
 

@@ -22,7 +22,6 @@ class RefreshCentralDomainTokens
 
     public function handle(CentralDomain $centralDomain): PromiseInterface|Response
     {
-
         $token = $centralDomain->adminUser->createToken(
             'iris',
             ['iris'],
@@ -55,7 +54,7 @@ class RefreshCentralDomainTokens
 
                     return 1;
                 }
-                 $command->line("Token for $centralDomain->slug updated 👌");
+                $command->line("Token for $centralDomain->slug updated 👌");
                 return 0;
             }
             $command->error('Central domain has state:'.$centralDomain->state);
@@ -66,10 +65,8 @@ class RefreshCentralDomainTokens
                 $response=$this->handle($centralDomain);
                 if (!($response->status() == 201 or $response->status() == 200)) {
                     $command->error($centralDomain->slug.': 😭 '.$response->status());
-
-                }else{
+                } else {
                     $command->line("Token for $centralDomain->slug updated 👌");
-
                 }
             }
         }

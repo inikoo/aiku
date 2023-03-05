@@ -7,21 +7,17 @@
 
 namespace App\Actions\Marketing\Product;
 
-
 use App\Actions\HydrateModel;
 use App\Models\Marketing\Product;
 use Illuminate\Support\Collection;
 
-
 class HydrateProduct extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:product {tenants?*} {--i|id=} ';
 
 
     public function handle(Product $product): void
     {
-
     }
 
 
@@ -34,7 +30,4 @@ class HydrateProduct extends HydrateModel
     {
         return Product::withTrashed()->all();
     }
-
 }
-
-

@@ -16,10 +16,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchGuests extends FetchAction
 {
-
     public string $commandSignature = 'fetch:guests {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Guest
@@ -50,7 +48,7 @@ class FetchGuests extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Staff Dimension')
@@ -67,7 +65,7 @@ class FetchGuests extends FetchAction
             });
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Staff Dimension')
             ->where('Staff Currently Working', 'Yes')
@@ -78,5 +76,4 @@ class FetchGuests extends FetchAction
             })
             ->count();
     }
-
 }

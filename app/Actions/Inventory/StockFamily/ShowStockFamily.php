@@ -18,7 +18,6 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowStockFamily
 {
     use AsAction;
@@ -98,5 +97,4 @@ class ShowStockFamily
             ]
         );
     }
-
 }

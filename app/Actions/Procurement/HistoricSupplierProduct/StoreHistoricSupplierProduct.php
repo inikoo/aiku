@@ -7,8 +7,6 @@
 
 namespace App\Actions\Procurement\HistoricSupplierProduct;
 
-use App\Models\Marketing\HistoricProduct;
-use App\Models\Marketing\Product;
 use App\Models\Procurement\HistoricSupplierProduct;
 use App\Models\Procurement\SupplierProduct;
 use Illuminate\Support\Arr;

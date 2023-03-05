@@ -32,23 +32,23 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app'),
-            'throw' => false,
+            'root'   => storage_path('app'),
+            'throw'  => false,
         ],
 
         'public' => [
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'driver'     => 'local',
+            'root'       => storage_path('app/public'),
+            'url'        => env('APP_URL').'/storage',
             'visibility' => 'public',
-            'throw' => false,
+            'throw'      => false,
         ],
         'r2' => [
-            'driver' => 's3',
-            'key' => env('CLOUDFLARE_R2_ACCESS_KEY'),
-            'secret' => env('CLOUDFLARE_R2_SECRET_KEY'),
-            'region' => 'us-east-1',
-            'bucket' => env('CLOUDFLARE_R2_BUCKET'),
+            'driver'   => 's3',
+            'key'      => env('CLOUDFLARE_R2_ACCESS_KEY'),
+            'secret'   => env('CLOUDFLARE_R2_SECRET_KEY'),
+            'region'   => 'us-east-1',
+            'bucket'   => env('CLOUDFLARE_R2_BUCKET'),
             'endpoint' => env('CLOUDFLARE_R2_ENDPOINT'),
         ],
 

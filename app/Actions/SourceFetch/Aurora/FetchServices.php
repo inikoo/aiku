@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Marketing\Service\StoreService;
 use App\Actions\Marketing\Service\UpdateService;
 use App\Models\Marketing\HistoricService;
@@ -17,10 +16,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchServices extends FetchAction
 {
-
     public string $commandSignature = 'fetch:services {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Service
@@ -61,7 +58,7 @@ class FetchServices extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Product Dimension')
@@ -69,9 +66,8 @@ class FetchServices extends FetchAction
             ->select('Product ID as source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Product Dimension')->where('Product Type', 'Service')->count();
     }
-
 }

@@ -18,7 +18,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-
 /**
  * @property PaymentAccount $paymentAccount
  */
@@ -59,16 +58,16 @@ class ShowPaymentAccount extends InertiaAction
         return Inertia::render(
             'Accounting/PaymentAccount',
             [
-                'title' => $paymentAccount->name,
+                'title'       => $paymentAccount->name,
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $paymentAccount),
-                'pageHead' => [
-                    'icon' => 'fal fa-agent',
+                'pageHead'    => [
+                    'icon'  => 'fal fa-agent',
                     'title' => $paymentAccount->slug,
-                    'meta' => [
+                    'meta'  => [
                         [
-                            'name' => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
+                            'name'   => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
                             'number' => $paymentAccount->stats->number_payments,
-                            'href' => match ($this->routeName) {
+                            'href'   => match ($this->routeName) {
                                 'accounting.payment-service-providers.show.payment-accounts.show' => [
                                     'accounting.payment-service-providers.show.payment-accounts.show.payments.index',
                                     [$paymentAccount->paymentServiceProvider->slug, $paymentAccount->slug]
@@ -79,7 +78,7 @@ class ShowPaymentAccount extends InertiaAction
                                 ]
                             },
                             'leftIcon' => [
-                                'icon' => 'fal fa-credit-card',
+                                'icon'    => 'fal fa-credit-card',
                                 'tooltip' => __('payments')
                             ]
                         ],
@@ -107,13 +106,13 @@ class ShowPaymentAccount extends InertiaAction
 
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'name' => $paymentAccount->code,
-                    'index' => [
-                        'route' => preg_replace('/show$/', 'index', $routeName),
+                    'name'            => $paymentAccount->code,
+                    'index'           => [
+                        'route'           => preg_replace('/show$/', 'index', $routeName),
                         'routeParameters' => $indexRouteParameters,
-                        'overlay' => __('accounts list')
+                        'overlay'         => __('accounts list')
                     ],
                     'modelLabel' => [
                         'label' => __('account')
@@ -126,7 +125,6 @@ class ShowPaymentAccount extends InertiaAction
             'accounting.payment-accounts.show' => array_merge(
                 (new ShowAccountingDashboard())->getBreadcrumbs(),
                 $headCrumb([$paymentAccount->slug])
-
             ),
             'accounting.payment-service-providers.show.payment-accounts.show' => array_merge(
                 (new ShowPaymentServiceProvider())->getBreadcrumbs($paymentAccount->paymentServiceProvider),

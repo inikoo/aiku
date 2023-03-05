@@ -9,9 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('stored_items', function (Blueprint $table) {
@@ -19,7 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('code')->index();
             $table->boolean('status')->default('false')->comment('false for returned goods');
-            $table->enum('state',['booked','received','stored','returned']);
+            $table->enum('state', ['booked','received','stored','returned']);
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('location_id')->nullable()->constrained();
 

@@ -12,7 +12,6 @@ use App\Models\Procurement\Supplier;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class AgentHydrateSuppliers implements ShouldBeUnique
 {
     use AsAction;
@@ -32,5 +31,3 @@ class AgentHydrateSuppliers implements ShouldBeUnique
         return $agent->id;
     }
 }
-
-

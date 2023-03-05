@@ -32,9 +32,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Deployment $department
+ *
  * @method static Builder|DepartmentStats newModelQuery()
  * @method static Builder|DepartmentStats newQuery()
  * @method static Builder|DepartmentStats query()
+ *
  * @mixin \Eloquent
  */
 class DepartmentStats extends Model
@@ -44,7 +46,6 @@ class DepartmentStats extends Model
     protected $table = 'department_stats';
 
     protected $guarded = [];
-
 
     public function department(): BelongsTo
     {

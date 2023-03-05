@@ -14,10 +14,8 @@ use App\Models\Inventory\StockFamily;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-
 class HydrateStockFamily extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:stock-family {tenants?*} {--i|id=} ';
 
     public function handle(StockFamily $stockFamily): void
@@ -27,7 +25,7 @@ class HydrateStockFamily extends HydrateModel
 
     public function stocksStats(StockFamily $stockFamily)
     {
-        $stockStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
+        $stockStates   = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Stock::where('stock_family_id', $stockFamily->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
@@ -51,8 +49,4 @@ class HydrateStockFamily extends HydrateModel
     {
         return StockFamily::withTrashed()->get();
     }
-
-
 }
-
-

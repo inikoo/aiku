@@ -28,8 +28,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-
-
 /**
  * App\Models\Marketing\Shop
  *
@@ -76,12 +74,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Service> $services
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @property-read Website|null $website
+ *
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop onlyTrashed()
  * @method static Builder|Shop query()
  * @method static Builder|Shop withTrashed()
  * @method static Builder|Shop withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Shop extends Model
@@ -94,7 +94,7 @@ class Shop extends Model
     protected $casts = [
         'data'     => 'array',
         'settings' => 'array',
-        'location' => 'array'
+        'location' => 'array',
     ];
 
     protected $attributes = [
@@ -208,7 +208,6 @@ class Shop extends Model
 
     public function accounts(): PaymentAccount
     {
-        return  $this->paymentAccounts()->where('payment_accounts.data->service-code', 'accounts')->first();
+        return $this->paymentAccounts()->where('payment_accounts.data->service-code', 'accounts')->first();
     }
-
 }

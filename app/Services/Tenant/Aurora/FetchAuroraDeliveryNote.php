@@ -41,11 +41,11 @@ class FetchAuroraDeliveryNote extends FetchAurora
         //enum('Ready to be Picked','Picker Assigned','Picking','Picked','Packing','Packed','Packed Done','Approved','Dispatched','Cancelled','Cancelled to Restock')
         $state = match ($this->auroraModelData->{'Delivery Note State'}) {
             'Ready to be Picked' => 'submitted',
-            'Picker Assigned' => 'in-queue',
-            'Picking' => 'picking',
-            'Picked' => 'picked',
-            'Packing' => 'packing',
-            'Packed' => 'packed',
+            'Picker Assigned'    => 'in-queue',
+            'Picking'            => 'picking',
+            'Picked'             => 'picked',
+            'Packing'            => 'packing',
+            'Packed'             => 'packed',
             'Packed Done', 'Approved' => 'finalised',
             'Dispatched' => 'dispatched',
             'Cancelled', 'Cancelled to Restock' => "cancelled",

@@ -12,10 +12,8 @@ use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class CentralUserHydrateTenants implements ShouldBeUnique
 {
-
     use AsAction;
 
     public function handle(CentralUser $centralUser): void
@@ -56,8 +54,4 @@ class CentralUserHydrateTenants implements ShouldBeUnique
     {
         return $centralUser->id;
     }
-
-
 }
-
-

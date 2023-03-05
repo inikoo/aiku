@@ -7,7 +7,6 @@
 
 namespace App\Http\Middleware;
 
-
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
@@ -89,12 +88,12 @@ class NewRelicMiddleware
     protected function requestName(Request $request): string
     {
         return config('new-relic.http.prefix') . (
-                $this->getCustomTransactionName($request)
-                ?? $this->getLivewireTransactionName($request)
-                ?? $request->route()?->getName()
-                ?? $request->route()?->getActionName()
-                ?? $request->path()
-            );
+            $this->getCustomTransactionName($request)
+            ?? $this->getLivewireTransactionName($request)
+            ?? $request->route()?->getName()
+            ?? $request->route()?->getActionName()
+            ?? $request->path()
+        );
     }
 
     /**

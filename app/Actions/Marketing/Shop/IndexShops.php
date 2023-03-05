@@ -101,7 +101,7 @@ class IndexShops
     {
         return [
             'shops.index' => [
-                'route' => 'shops.index',
+                'route'      => 'shops.index',
                 'modelLabel' => [
                     'label' => __('shops')
                 ],

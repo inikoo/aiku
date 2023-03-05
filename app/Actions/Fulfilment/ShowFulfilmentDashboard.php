@@ -14,7 +14,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowFulfilmentDashboard
 {
     use AsAction;
@@ -52,9 +51,9 @@ class ShowFulfilmentDashboard
 
                     [
                         [
-                            'name' => __('Products'),
-                            'icon' => ['fal', 'fa-flask'],
-                            'href' => ['fulfilment.products.index'],
+                            'name'  => __('Products'),
+                            'icon'  => ['fal', 'fa-flask'],
+                            'href'  => ['fulfilment.products.index'],
                             'index' => [
                                 'number' => $this->tenant->FulfilmentStats->number_products
                             ]
@@ -63,7 +62,6 @@ class ShowFulfilmentDashboard
                 ]
 
             ]
-
         );
     }
 
@@ -77,6 +75,4 @@ class ShowFulfilmentDashboard
             ]
         ];
     }
-
-
 }

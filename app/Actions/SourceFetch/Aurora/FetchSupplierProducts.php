@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\Procurement\SupplierProduct\UpdateSupplierProduct;
 use App\Models\Procurement\SupplierProduct;
@@ -16,10 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchSupplierProducts extends FetchAction
 {
-
     public string $commandSignature = 'fetch:supplier-products {tenants?*} {--s|source_id=}';
 
 
@@ -32,7 +29,6 @@ class FetchSupplierProducts extends FetchAction
                     supplierProduct: $supplierProduct,
                     modelData:       $supplierProductData['supplierProduct'],
                     skipHistoric:    true
-
                 );
             } else {
                 $supplierProduct = StoreSupplierProduct::run(
@@ -48,7 +44,7 @@ class FetchSupplierProducts extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Supplier Part Dimension')
@@ -56,12 +52,11 @@ class FetchSupplierProducts extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')
             ->table('Supplier Part Dimension')
             ->select('Supplier Part Key as source_id')
             ->count();
     }
-
 }

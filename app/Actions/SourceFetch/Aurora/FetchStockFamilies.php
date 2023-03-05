@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Inventory\StockFamily\StoreStockFamily;
 use App\Actions\Inventory\StockFamily\UpdateStockFamily;
 use App\Models\Inventory\StockFamily;
@@ -16,10 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchStockFamilies extends FetchAction
 {
-
     public string $commandSignature = 'fetch:stock-families {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?StockFamily
@@ -44,7 +41,7 @@ class FetchStockFamilies extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Category Dimension')
@@ -58,12 +55,11 @@ class FetchStockFamilies extends FetchAction
             });
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Category Dimension')
             ->where('Category Branch Type', 'Head')
             ->where('Category Scope', 'Part')
             ->count();
     }
-
 }

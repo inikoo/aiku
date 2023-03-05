@@ -5,7 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Dispatch\Shipper\StoreShipper;
@@ -16,18 +15,13 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchShippers extends FetchAction
 {
-
-
     public string $commandSignature = 'fetch:shippers {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Shipper
     {
         if ($shipperData = $tenantSource->fetchShipper($tenantSourceId)) {
-
-
             if ($shipper = Shipper::where('source_id', $shipperData['shipper']['source_id'])
                 ->first()) {
                 $shipper = UpdateShipper::run(
@@ -47,7 +41,7 @@ class FetchShippers extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Shipper Dimension')
@@ -57,12 +51,10 @@ class FetchShippers extends FetchAction
     }
 
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Shipper Dimension')
             ->where('Shipper Active', 'Yes')
             ->count();
     }
-
-
 }

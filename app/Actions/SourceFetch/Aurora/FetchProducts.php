@@ -5,9 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\SourceFetch\Aurora;
-
 
 use App\Actions\Marketing\Product\StoreProduct;
 use App\Actions\Marketing\Product\UpdateProduct;
@@ -18,10 +16,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchProducts extends FetchAction
 {
-
     public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=} {--S|shop= : Shop slug}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
@@ -65,7 +61,7 @@ class FetchProducts extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         $query = DB::connection('aurora')
             ->table('Product Dimension')
@@ -79,7 +75,7 @@ class FetchProducts extends FetchAction
         return $query;
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Product Dimension')->where('Product Type', 'Product');
         if ($this->shop) {
@@ -88,5 +84,4 @@ class FetchProducts extends FetchAction
 
         return $query->count();
     }
-
 }

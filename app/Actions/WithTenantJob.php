@@ -7,18 +7,14 @@
 
 namespace App\Actions;
 
-
-
 use App\Models\Central\Tenant;
 
-trait WithTenantJob{
-
+trait WithTenantJob
+{
     public function getJobTags(): array
     {
         /** @var Tenant $tenant */
         $tenant=app('currentTenant');
         return ['tenant:'.$tenant->code];
     }
-
 }
-

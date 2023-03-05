@@ -10,7 +10,6 @@ namespace App\Actions\Accounting\Payment;
 use App\Actions\WithActionUpdate;
 use App\Models\Accounting\Payment;
 
-
 class UpdatePayment
 {
     use WithActionUpdate;

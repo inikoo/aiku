@@ -13,17 +13,15 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class AgentHydrateSupplierProducts implements ShouldBeUnique
 {
-
     use AsAction;
 
 
     public function handle(Agent $agent): void
     {
         $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
-        $stateCounts   =SupplierProduct::where('agent_id',$agent->id)
+        $stateCounts   =SupplierProduct::where('agent_id', $agent->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -41,7 +39,4 @@ class AgentHydrateSupplierProducts implements ShouldBeUnique
     {
         return $agent->id;
     }
-
 }
-
-

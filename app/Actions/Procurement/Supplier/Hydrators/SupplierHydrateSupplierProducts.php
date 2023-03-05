@@ -13,10 +13,8 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class SupplierHydrateSupplierProducts implements ShouldBeUnique
 {
-
     use AsAction;
 
     public function handle(Supplier $supplier): void
@@ -39,8 +37,4 @@ class SupplierHydrateSupplierProducts implements ShouldBeUnique
     {
         return $supplier->id;
     }
-
-
 }
-
-

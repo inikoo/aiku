@@ -13,8 +13,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
 {
     protected function parseModel(): void
     {
-
-        $this->parsedData['supplier'] = $this->parseSupplier( $this->auroraModelData->{'Supplier Part Supplier Key'});
+        $this->parsedData['supplier'] = $this->parseSupplier($this->auroraModelData->{'Supplier Part Supplier Key'});
 
 
         $sharedData = [];
@@ -25,9 +24,9 @@ class FetchAuroraSupplierProduct extends FetchAurora
             $status = 0;
         }
         $state = match ($this->auroraModelData->{'Supplier Part Status'}) {
-            'NoAvailable' => 'no-available',
+            'NoAvailable'  => 'no-available',
             'Discontinued' => 'discontinued',
-            default => 'active',
+            default        => 'active',
         };
 
 
@@ -75,5 +74,4 @@ class FetchAuroraSupplierProduct extends FetchAurora
             ->leftjoin('Part Dimension', 'Supplier Part Part SKU', 'Part SKU')
             ->where('Supplier Part Key', $id)->first();
     }
-
 }

@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedStock extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $deleted_at = $this->auroraModelData->{'Part Deleted Date'};
@@ -49,5 +48,4 @@ class FetchAuroraDeletedStock extends FetchAurora
             ->table('Part Deleted Dimension')
             ->where('Part Deleted Key', $id)->first();
     }
-
 }

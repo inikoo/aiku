@@ -20,7 +20,6 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowDepartment extends InertiaAction
 {
     use AsAction;
@@ -57,28 +56,28 @@ class ShowDepartment extends InertiaAction
         return Inertia::render(
             'Marketing/Department',
             [
-                'title' => __('department'),
+                'title'       => __('department'),
                 'breadcrumbs' => $this->getBreadcrumbs($department),
-                'pageHead' => [
+                'pageHead'    => [
                     'title' => $department->name,
 
 
                 ],
                 'department' => new DepartmentResource($department),
-                'treeMaps' => [
+                'treeMaps'   => [
                     [
                         [
-                            'name' => __('families'),
-                            'icon' => ['fal', 'fa-folder'],
-                            'href' => ['shops.show.departments.show.families.index', [$department->shop->slug, $department->slug]],
+                            'name'  => __('families'),
+                            'icon'  => ['fal', 'fa-folder'],
+                            'href'  => ['shops.show.departments.show.families.index', [$department->shop->slug, $department->slug]],
                             'index' => [
                                 'number' => $department->stats->number_families
                             ]
                         ],
                         [
-                            'name' => __('products'),
-                            'icon' => ['fal', 'fa-cube'],
-                            'href' => ['shops.show.departments.show.products.index', [$department->shop->slug, $department->slug]],
+                            'name'  => __('products'),
+                            'icon'  => ['fal', 'fa-cube'],
+                            'href'  => ['shops.show.departments.show.products.index', [$department->shop->slug, $department->slug]],
                             'index' => [
                                 'number' => $department->stats->number_products
                             ]
@@ -109,11 +108,11 @@ class ShowDepartment extends InertiaAction
             (new IndexShops())->getBreadcrumbs(),
             [
                 'shops.show' => [
-                    'route' => 'shops.show',
+                    'route'           => 'shops.show',
                     'routeParameters' => $department->id,
-                    'name' => $department->code,
-                    'index' => [
-                        'route' => 'shops.index',
+                    'name'            => $department->code,
+                    'index'           => [
+                        'route'   => 'shops.index',
                         'overlay' => __('Departments list')
                     ],
                     'modelLabel' => [
@@ -123,5 +122,4 @@ class ShowDepartment extends InertiaAction
             ]
         );
     }
-
 }

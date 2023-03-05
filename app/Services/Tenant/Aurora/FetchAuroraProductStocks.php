@@ -7,7 +7,6 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchStocks;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraProductStocks extends FetchAurora
@@ -39,5 +38,4 @@ class FetchAuroraProductStocks extends FetchAurora
             ->table('Product Part Bridge')
             ->where('Product Part Product ID', $id)->get();
     }
-
 }

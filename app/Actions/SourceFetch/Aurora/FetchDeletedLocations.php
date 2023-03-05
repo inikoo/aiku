@@ -17,8 +17,6 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeletedLocations extends FetchAction
 {
-
-
     public string $commandSignature = 'fetch:deleted-locations {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Location
@@ -42,7 +40,7 @@ class FetchDeletedLocations extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Location Deleted Dimension')
@@ -54,9 +52,8 @@ class FetchDeletedLocations extends FetchAction
     }
 
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Location Deleted Dimension')->count();
     }
-
 }

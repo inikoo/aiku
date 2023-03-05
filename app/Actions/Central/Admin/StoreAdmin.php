@@ -10,7 +10,6 @@ namespace App\Actions\Central\Admin;
 use App\Models\Central\Admin;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreAdmin
 {
     use AsAction;

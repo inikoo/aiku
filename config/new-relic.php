@@ -92,7 +92,7 @@ return [
     |
     */
     'http'         => [
-        'middleware' =>  NewRelicMiddleware::class,
+        'middleware' => NewRelicMiddleware::class,
 
         'visitors' => [
             'record_user_id'    => true,

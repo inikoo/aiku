@@ -24,11 +24,9 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexLocations extends InertiaAction
 {
-
-    protected ?Warehouse $warehouse = null;
+    protected ?Warehouse $warehouse                       = null;
     protected WarehouseArea|Warehouse|Tenant|null $parent = null;
 
 
@@ -139,9 +137,9 @@ class IndexLocations extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('locations')
                     ]
                 ],
@@ -169,5 +167,4 @@ class IndexLocations extends InertiaAction
             default => []
         };
     }
-
 }

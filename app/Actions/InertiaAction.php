@@ -33,7 +33,4 @@ class InertiaAction
     {
         abort(422);
     }
-
-
 }
-

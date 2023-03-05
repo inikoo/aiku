@@ -12,17 +12,16 @@ use App\Models\Marketing\Shop;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreWebsite
 {
     use AsAction;
 
-    public function handle(Shop $shop,array $modelData): Website
+    public function handle(Shop $shop, array $modelData): Website
     {
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->stats()->create();
-        if($website->state!='closed') {
+        if ($website->state!='closed') {
             StoreCentralDomain::run(app('currentTenant'), [
                 'website_id' => $website->id,
                 'slug'       => $website->code,
@@ -33,6 +32,4 @@ class StoreWebsite
 
         return $website;
     }
-
-
 }

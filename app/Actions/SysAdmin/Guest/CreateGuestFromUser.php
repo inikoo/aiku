@@ -7,7 +7,6 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
-
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\WithTenantsArgument;
 
@@ -22,7 +21,6 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class CreateGuestFromUser
 {
-
     use AsAction;
     use WithAttributes;
     use WithTenantsArgument;
@@ -61,7 +59,7 @@ class CreateGuestFromUser
         $centralUser = CentralUser::where('global_id', $command->argument('global_id'))->firstOrFail();
 
 
-        $tenants = $this->getTenants($command);
+        $tenants  = $this->getTenants($command);
         $exitCode = 0;
 
         foreach ($tenants as $tenant) {
@@ -79,8 +77,7 @@ class CreateGuestFromUser
 
                     $modelData = array_merge(
                         ['email' => $centralUser->email],
-                        ['name' => $command->argument('name')]
-                        ,
+                        ['name' => $command->argument('name')],
                     );
                     $guest     = $this->handle($centralUser, $modelData, $roles);
                     $user      = $guest->user;
@@ -109,6 +106,4 @@ class CreateGuestFromUser
 
         return $exitCode;
     }
-
-
 }

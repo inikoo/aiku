@@ -7,7 +7,6 @@
 
 namespace App\Models\Traits;
 
-
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
@@ -17,7 +16,6 @@ use Spatie\Sluggable\SlugOptions;
 
 trait HasOrder
 {
-
     use HasAddress;
 
     public function getSlugOptions(): SlugOptions
@@ -42,7 +40,4 @@ trait HasOrder
     {
         return $this->belongsToMany(DeliveryNote::class)->withTimestamps();
     }
-
 }
-
-

@@ -7,13 +7,10 @@
 
 namespace App\Services\Tenant\Aurora;
 
-
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraHistoricProduct extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $this->parsedData['product'] = $this->parseProduct($this->auroraModelData->{'Product ID'});
@@ -51,5 +48,4 @@ class FetchAuroraHistoricProduct extends FetchAurora
             ->table('Product History Dimension')
             ->where('Product Key', $id)->first();
     }
-
 }

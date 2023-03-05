@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Web\WebUser\StoreWebUser;
 use App\Actions\Web\WebUser\UpdateWebUser;
 use App\Models\Web\WebUser;
@@ -16,18 +15,15 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchWebUsers extends FetchAction
 {
-
     public string $commandSignature = 'fetch:web-users {tenants?*} {--s|source_id=} {--S|shop= : Shop slug}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?WebUser
     {
         if ($webUserData = $tenantSource->fetchWebUser($tenantSourceId)) {
-
-            if($webUserData['customer']) {
+            if ($webUserData['customer']) {
                 if ($webUser = WebUser::withTrashed()->where('source_id', $webUserData['webUser']['source_id'])
                     ->first()) {
                     $webUser = UpdateWebUser::run($webUser, $webUserData['webUser']);
@@ -40,7 +36,7 @@ class FetchWebUsers extends FetchAction
                     ->update(['aiku_id' => $webUser->id]);
 
                 return $webUser;
-            }else{
+            } else {
                 print "Warning web user $tenantSourceId do not have customer\n";
             }
         }
@@ -48,7 +44,7 @@ class FetchWebUsers extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         $query= DB::connection('aurora')
             ->table('Website User Dimension')
@@ -61,9 +57,8 @@ class FetchWebUsers extends FetchAction
         return $query;
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
-
         $query = DB::connection('aurora')->table('Website User Dimension');
         if ($this->shop) {
             $query->where('Website User Website Key', $this->shop->website->source_id);
@@ -71,5 +66,4 @@ class FetchWebUsers extends FetchAction
 
         return $query->count();
     }
-
 }

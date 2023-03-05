@@ -16,9 +16,8 @@ class StoreLocation
 {
     use AsAction;
 
-    public function handle(WarehouseArea|Warehouse $parent, array $modelData):Location
+    public function handle(WarehouseArea|Warehouse $parent, array $modelData): Location
     {
-
         if (class_basename($parent::class) == 'WarehouseArea') {
             $modelData['warehouse_id'] = $parent->warehouse_id;
         }

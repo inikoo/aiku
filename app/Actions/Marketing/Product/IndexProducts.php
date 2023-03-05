@@ -9,17 +9,11 @@ namespace App\Actions\Marketing\Product;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
-use App\Http\Resources\Marketing\DepartmentResource;
-use App\Http\Resources\Marketing\FamilyResource;
 use App\Http\Resources\Marketing\ProductResource;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\InertiaTableCustomerResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
-use App\Models\Marketing\Family;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,7 +23,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexProducts extends InertiaAction
 {
     private Shop|Tenant|Department $parent;
@@ -38,8 +31,6 @@ class IndexProducts extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-
-
                 $query->where('products.name', '~*', "\y$value\y")
                     ->orWhere('products.code', '=', $value);
             });
@@ -54,7 +45,7 @@ class IndexProducts extends InertiaAction
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Shop') {
                     $query->where('products.shop_id', $this->parent->id);
-                } elseif(class_basename($this->parent) == 'Shop') {
+                } elseif (class_basename($this->parent) == 'Shop') {
                     $query->where('families.department_id', $this->parent->id);
                 }
             })
@@ -86,8 +77,8 @@ class IndexProducts extends InertiaAction
             'Marketing/Products',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('products'),
-                'pageHead' => [
+                'title'       => __('products'),
+                'pageHead'    => [
                     'title' => __('products'),
                 ],
                 'products' => ProductResource::collection($products),
@@ -110,7 +101,7 @@ class IndexProducts extends InertiaAction
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
-        $this->parent = app('currentTenant');
+        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
 
         return $this->handle();
@@ -137,9 +128,9 @@ class IndexProducts extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('products')
                     ]
                 ],
@@ -147,7 +138,7 @@ class IndexProducts extends InertiaAction
         };
 
         return match ($routeName) {
-            'products.index' => $headCrumb(),
+            'products.index'            => $headCrumb(),
             'shops.show.products.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
@@ -156,5 +147,4 @@ class IndexProducts extends InertiaAction
             default => []
         };
     }
-
 }

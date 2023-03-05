@@ -25,18 +25,17 @@ class FacebookAuthController extends Controller
     public function loginWithFacebook()
     {
         try {
-
-            $user = Socialite::driver('facebook')->user();
+            $user   = Socialite::driver('facebook')->user();
             $isUser = User::where('facebook_id', $user->id)->first();
 
-            if($isUser){
+            if ($isUser) {
                 Auth::login($isUser);
-            }else{
+            } else {
                 $createUser = User::create([
-                                               'name' => $user->name,
-                                               'email' => $user->email,
+                                               'name'        => $user->name,
+                                               'email'       => $user->email,
                                                'facebook_id' => $user->id,
-                                               'password' => Str::random(64)
+                                               'password'    => Str::random(64)
                                            ]);
 
                 Auth::login($createUser);

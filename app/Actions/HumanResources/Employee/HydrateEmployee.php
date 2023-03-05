@@ -13,10 +13,8 @@ use App\Models\HumanResources\Employee;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-
 class HydrateEmployee extends HydrateModel
 {
-
     use WithNormalise;
 
     public string $commandSignature = 'hydrate:employee {tenants?*} {--i|id=}';
@@ -40,7 +38,7 @@ class HydrateEmployee extends HydrateModel
     public function weekWorkingHours($employee)
     {
         $week_working_hours = Arr::get($employee->working_hours, 'week_distribution.sunday', 0) +
-            Arr::get($employee->working_hours, 'week_distribution.saturday', 0) +
+            Arr::get($employee->working_hours, 'week_distribution.saturday', 0)                 +
             Arr::get($employee->working_hours, 'week_distribution.weekdays', 0);
 
         $employee->update(['week_working_hours' => $week_working_hours]);
@@ -56,7 +54,7 @@ class HydrateEmployee extends HydrateModel
         return Employee::get();
     }
 
-    function getJobPositionShares(Employee $employee): array
+    public function getJobPositionShares(Employee $employee): array
     {
         $jobPositions = $this->normalise(
             collect(
@@ -87,7 +85,4 @@ class HydrateEmployee extends HydrateModel
 
         return $this->normalise(collect($shares));
     }
-
 }
-
-

@@ -41,12 +41,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ServiceStats|null $stats
+ *
  * @method static Builder|Service newModelQuery()
  * @method static Builder|Service newQuery()
  * @method static Builder|Service onlyTrashed()
  * @method static Builder|Service query()
  * @method static Builder|Service withTrashed()
  * @method static Builder|Service withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Service extends Model
@@ -56,13 +58,13 @@ class Service extends Model
     use UsesTenantConnection;
 
     protected $casts = [
-        'data' => 'array',
+        'data'     => 'array',
         'settings' => 'array',
-        'status' => 'boolean',
+        'status'   => 'boolean',
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}',
     ];
 
@@ -83,7 +85,7 @@ class Service extends Model
 
     public function salesStats(): MorphOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope','sales');
+        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales');
     }
 
     public function historicRecords(): HasMany

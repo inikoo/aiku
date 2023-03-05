@@ -9,6 +9,5 @@
 use App\Actions\Marketing\SHop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 
-
 Route::get('/', IndexShops::class)->name('index');
 Route::get('/{website}', ShowShop::class)->name('show');

@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-
 use App\Actions\Central\CentralUser\StoreCentralUser;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Models\Central\Tenant;
@@ -25,7 +24,6 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
  */
 class CreateUserFromEmployee
 {
-
     use AsAction;
     use WithAttributes;
 
@@ -73,8 +71,8 @@ class CreateUserFromEmployee
         $employee = $user->parent;
 
         return Redirect::route('hr.employees.show', $employee->id)->with('notification', [
-            'type' => 'newUser',
-            'message'=>__('New user created'),
+            'type'   => 'newUser',
+            'message'=> __('New user created'),
             'fields' => [
                 'username' => [
                     'label' => __('username'),
@@ -139,6 +137,4 @@ class CreateUserFromEmployee
             }
         );
     }
-
-
 }

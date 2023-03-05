@@ -9,9 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('stock_families', function (Blueprint $table) {
@@ -21,7 +19,7 @@ return new class extends Migration
             $table->string('code')->index();
 
             $stockFamilyStates=['in-process', 'active','discontinuing', 'discontinued'];
-            $table->enum('state',$stockFamilyStates )->nullable()->index();
+            $table->enum('state', $stockFamilyStates)->nullable()->index();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
             $table->jsonb('data');

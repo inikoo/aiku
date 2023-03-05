@@ -7,7 +7,6 @@
 
 namespace App\Actions\Web\Website;
 
-
 use App\Actions\Web\Webnode\StoreWebnode;
 use App\Models\Central\Tenant;
 use App\Models\Web\Webnode;
@@ -16,10 +15,8 @@ use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsCommand;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-
 class SetWebsiteStructuralWebnodes
 {
-
     use asCommand;
     use WithAttributes;
 
@@ -85,6 +82,4 @@ class SetWebsiteStructuralWebnodes
 
         return 0;
     }
-
-
 }

@@ -7,13 +7,11 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchOrders;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraInvoice extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $this->parsedData['order'] = $this->parseOrder($this->auroraModelData->{'Invoice Order Key'});
@@ -49,5 +47,4 @@ class FetchAuroraInvoice extends FetchAurora
             ->table('Invoice Dimension')
             ->where('Invoice Key', $id)->first();
     }
-
 }

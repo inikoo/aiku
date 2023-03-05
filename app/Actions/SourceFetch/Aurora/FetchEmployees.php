@@ -5,7 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\HumanResources\Employee\StoreEmployee;
@@ -18,38 +17,32 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchEmployees extends FetchAction
 {
-
     public string $commandSignature = 'fetch:employees {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Employee
     {
         if ($employeeData = $tenantSource->fetchEmployee($tenantSourceId)) {
-
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
-
                 $employee = UpdateEmployee::run(
                     employee:  $employee,
                     modelData: $employeeData['employee']
                 );
-
             } else {
-
                 $employee = StoreEmployee::run(
                     modelData:    $employeeData['employee'],
                 );
             }
 
-            UpdateEmployeeWorkingHours::run($employee,$employeeData['working_hours']);
+            UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);
 
 
 
             $employee->jobPositions()->sync($employeeData['job-positions']);
 
             foreach ($employeeData['photo'] ?? [] as $profileImage) {
-                if(isset($profileImage['image_path']) and isset($profileImage['filename'])){
+                if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
                     SetPhoto::run($employee, $profileImage['image_path'], $profileImage['filename']);
                 }
             }
@@ -62,7 +55,7 @@ class FetchEmployees extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Staff Dimension')
@@ -72,14 +65,12 @@ class FetchEmployees extends FetchAction
             ->when(app()->environment('testing'), function ($query) {
                 return $query->limit(20);
             });
-
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Staff Dimension')
             ->where('Staff Type', '!=', 'Contractor')
             ->count();
     }
-
 }

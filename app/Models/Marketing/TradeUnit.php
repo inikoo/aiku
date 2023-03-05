@@ -35,12 +35,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ *
  * @method static Builder|TradeUnit newModelQuery()
  * @method static Builder|TradeUnit newQuery()
  * @method static Builder|TradeUnit onlyTrashed()
  * @method static Builder|TradeUnit query()
  * @method static Builder|TradeUnit withTrashed()
  * @method static Builder|TradeUnit withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class TradeUnit extends Model
@@ -51,7 +53,7 @@ class TradeUnit extends Model
 
     protected $casts = [
         'data'       => 'array',
-        'dimensions' => 'array'
+        'dimensions' => 'array',
     ];
 
     protected $attributes = [
@@ -72,6 +74,4 @@ class TradeUnit extends Model
     {
         return $this->belongsToMany(Stock::class);
     }
-
-
 }

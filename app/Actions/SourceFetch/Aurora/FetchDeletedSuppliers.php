@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
@@ -17,10 +16,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchDeletedSuppliers extends FetchAction
 {
-
     public string $commandSignature = 'fetch:deleted-suppliers {tenants?*} {--s|source_id=}';
 
 
@@ -56,7 +53,7 @@ class FetchDeletedSuppliers extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Supplier Deleted Dimension')
@@ -64,9 +61,8 @@ class FetchDeletedSuppliers extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Supplier Deleted Dimension')->count();
     }
-
 }

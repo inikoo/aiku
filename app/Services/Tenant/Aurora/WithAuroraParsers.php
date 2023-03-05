@@ -57,11 +57,10 @@ use Illuminate\Support\Str;
 
 trait WithAuroraParsers
 {
-
     protected function parseDate($value): ?string
     {
         return ($value != '' && $value != '0000-00-00 00:00:00'
-            && $value != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+                             && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
     protected function parseLanguageID($locale): int|null
@@ -72,7 +71,7 @@ trait WithAuroraParsers
                     'code',
                     match ($locale) {
                         'zh_CN.UTF-8' => 'zh-CN',
-                        default => substr($locale, 0, 2)
+                        default       => substr($locale, 0, 2)
                     }
                 )->first()->id;
             } catch (Exception) {
@@ -148,7 +147,7 @@ trait WithAuroraParsers
     }
 
 
-    function parseShop($source_id): Shop
+    public function parseShop($source_id): Shop
     {
         $shop = Shop::where('source_id', $source_id)->first();
         if (!$shop) {
@@ -159,7 +158,7 @@ trait WithAuroraParsers
     }
 
 
-    function parseHistoricProduct($source_id): HistoricProduct
+    public function parseHistoricProduct($source_id): HistoricProduct
     {
         $historicProduct = HistoricProduct::where('source_id', $source_id)->first();
         if (!$historicProduct) {
@@ -169,7 +168,7 @@ trait WithAuroraParsers
         return $historicProduct;
     }
 
-    function parseHistoricService($source_id): HistoricService
+    public function parseHistoricService($source_id): HistoricService
     {
         $historicService = HistoricService::where('source_id', $source_id)->first();
         if (!$historicService) {
@@ -180,7 +179,7 @@ trait WithAuroraParsers
     }
 
 
-    function parseHistoricItem($source_id): HistoricProduct|HistoricService
+    public function parseHistoricItem($source_id): HistoricProduct|HistoricService
     {
         $auroraData = DB::connection('aurora')
             ->table('Product History Dimension as PH')
@@ -203,7 +202,7 @@ trait WithAuroraParsers
         return $historicItem;
     }
 
-    function parseProduct($source_id): Product
+    public function parseProduct($source_id): Product
     {
         $product = Product::where('source_id', $source_id)->first();
         if (!$product) {
@@ -213,7 +212,7 @@ trait WithAuroraParsers
         return $product;
     }
 
-    function parseService($source_id): Service
+    public function parseService($source_id): Service
     {
         $service = Service::where('source_id', $source_id)->first();
         if (!$service) {
@@ -223,7 +222,7 @@ trait WithAuroraParsers
         return $service;
     }
 
-    function parseCustomer($source_id): ?Customer
+    public function parseCustomer($source_id): ?Customer
     {
         $customer = Customer::where('source_id', $source_id)->first();
         if (!$customer) {
@@ -236,7 +235,7 @@ trait WithAuroraParsers
         return $customer;
     }
 
-    function parseSupplier($source_id): ?Supplier
+    public function parseSupplier($source_id): ?Supplier
     {
         $supplier = Supplier::where('source_id', $source_id)->first();
         if (!$supplier) {
@@ -249,7 +248,7 @@ trait WithAuroraParsers
         return $supplier;
     }
 
-    function parseAgent($source_id): ?Agent
+    public function parseAgent($source_id): ?Agent
     {
         $agent = Agent::where('source_id', $source_id)->first();
         if (!$agent) {
@@ -259,7 +258,7 @@ trait WithAuroraParsers
         return $agent;
     }
 
-    function parseStock($source_id): ?Stock
+    public function parseStock($source_id): ?Stock
     {
         $stock = Stock::withTrashed()->where('source_id', $source_id)->first();
         if (!$stock) {
@@ -272,7 +271,7 @@ trait WithAuroraParsers
         return $stock;
     }
 
-    function parseLocation($source_id): Location
+    public function parseLocation($source_id): Location
     {
         $location = Location::where('source_id', $source_id)->first();
         if (!$location) {
@@ -282,7 +281,7 @@ trait WithAuroraParsers
         return $location;
     }
 
-    function parseOrder($source_id): ?Order
+    public function parseOrder($source_id): ?Order
     {
         $order = Order::where('source_id', $source_id)->first();
         if (!$order) {
@@ -292,12 +291,12 @@ trait WithAuroraParsers
         return $order;
     }
 
-    function parseTransaction($source_id): ?Transaction
+    public function parseTransaction($source_id): ?Transaction
     {
         return Transaction::where('source_id', $source_id)->first();
     }
 
-    function parseShipper($source_id): Shipper
+    public function parseShipper($source_id): Shipper
     {
         $shipper = Shipper::where('source_id', $source_id)->first();
         if (!$shipper) {
@@ -307,7 +306,7 @@ trait WithAuroraParsers
         return $shipper;
     }
 
-    function parsePaymentServiceProvider($source_id): PaymentServiceProvider
+    public function parsePaymentServiceProvider($source_id): PaymentServiceProvider
     {
         $paymentServiceProvider = PaymentServiceProvider::where('source_id', $source_id)->first();
         if (!$paymentServiceProvider) {
@@ -317,7 +316,7 @@ trait WithAuroraParsers
         return $paymentServiceProvider;
     }
 
-    function parsePaymentAccount($source_id): PaymentAccount
+    public function parsePaymentAccount($source_id): PaymentAccount
     {
         $paymentAccount = PaymentAccount::where('source_id', $source_id)->first();
         if (!$paymentAccount) {
@@ -327,7 +326,7 @@ trait WithAuroraParsers
         return $paymentAccount;
     }
 
-    function parseEmployee($source_id): ?Employee
+    public function parseEmployee($source_id): ?Employee
     {
         $employee = Employee::withTrashed()->where('source_id', $source_id)->first();
         if (!$employee) {
@@ -340,7 +339,7 @@ trait WithAuroraParsers
         return $employee;
     }
 
-    function parseGuest($source_id): ?Guest
+    public function parseGuest($source_id): ?Guest
     {
         $guest = Guest::withTrashed()->where('source_id', $source_id)->first();
         if (!$guest) {
@@ -352,5 +351,4 @@ trait WithAuroraParsers
 
         return $guest;
     }
-
 }

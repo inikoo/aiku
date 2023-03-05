@@ -14,27 +14,25 @@ use Illuminate\Support\Arr;
 
 class JobPositionSeeder extends Seeder
 {
-
     public function run()
     {
-
-
         $jobPositions = collect(config("blueprint.job_positions.positions"));
 
 
         foreach ($jobPositions as $jobPositionData) {
-            JobPosition::upsert([
+            JobPosition::upsert(
+                [
                                     [
-                                        'slug' => $jobPositionData['slug'],
-                                        'name' => $jobPositionData['name'],
+                                        'slug'       => $jobPositionData['slug'],
+                                        'name'       => $jobPositionData['name'],
                                         'department' => Arr::get($jobPositionData, 'department'),
-                                        'team' => Arr::get($jobPositionData, 'team'),
-                                        'data' => '{}',
-                                        'roles' => '{}'
+                                        'team'       => Arr::get($jobPositionData, 'team'),
+                                        'data'       => '{}',
+                                        'roles'      => '{}'
                                     ],
                                 ],
-                                ['slug'],
-                                ['name']
+                ['slug'],
+                ['name']
             );
 
 
@@ -54,4 +52,3 @@ class JobPositionSeeder extends Seeder
         }
     }
 }
-

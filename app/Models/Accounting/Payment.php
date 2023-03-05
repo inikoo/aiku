@@ -47,12 +47,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
+ *
  * @method static Builder|Payment newModelQuery()
  * @method static Builder|Payment newQuery()
  * @method static Builder|Payment onlyTrashed()
  * @method static Builder|Payment query()
  * @method static Builder|Payment withTrashed()
  * @method static Builder|Payment withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Payment extends Model
@@ -109,17 +111,13 @@ class Payment extends Model
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(16);
     }
 
-
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
     }
 
-
     public function paymentAccount(): BelongsTo
     {
         return $this->belongsTo(PaymentAccount::class);
     }
-
-
 }

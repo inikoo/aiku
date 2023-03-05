@@ -7,7 +7,7 @@
 
 
 return [
-    'url'=>env('IRIS_URL', 'http://iris.test'),
-    'token'=>env('IRIS_TOKEN')
+    'url'  => env('IRIS_URL', 'http://iris.test'),
+    'token'=> env('IRIS_TOKEN')
 
 ];

@@ -7,10 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-
 use App\Actions\WithActionUpdate;
 use App\Models\HumanResources\Employee;
-
 
 class UpdateEmployee
 {
@@ -18,12 +16,9 @@ class UpdateEmployee
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-
         return $this->update($employee, $modelData, [
             'data',
             'salary',
         ]);
     }
-
-
 }

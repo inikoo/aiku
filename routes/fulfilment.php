@@ -10,4 +10,3 @@ use App\Actions\Fulfilment\ShowFulfilmentDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowFulfilmentDashboard::class)->name('dashboard');
-

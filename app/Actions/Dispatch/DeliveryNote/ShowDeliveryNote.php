@@ -20,7 +20,6 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowDeliveryNote extends InertiaAction
 {
     use AsAction;
@@ -58,9 +57,9 @@ class ShowDeliveryNote extends InertiaAction
         return Inertia::render(
             'Marketing/DeliveryNote',
             [
-                'title' => __('delivery_note'),
+                'title'       => __('delivery_note'),
                 'breadcrumbs' => $this->getBreadcrumbs($deliveryNote),
-                'pageHead' => [
+                'pageHead'    => [
                     'title' => $deliveryNote->number,
 
 
@@ -91,11 +90,11 @@ class ShowDeliveryNote extends InertiaAction
             (new IndexShops())->getBreadcrumbs(),
             [
                 'shops.show' => [
-                    'route' => 'shops.show',
+                    'route'           => 'shops.show',
                     'routeParameters' => $deliveryNote->id,
-                    'name' => $deliveryNote->number,
-                    'index' => [
-                        'route' => 'shops.index',
+                    'name'            => $deliveryNote->number,
+                    'index'           => [
+                        'route'   => 'shops.index',
                         'overlay' => __('Delivery Notes list')
                     ],
                     'modelLabel' => [
@@ -105,5 +104,4 @@ class ShowDeliveryNote extends InertiaAction
             ]
         );
     }
-
 }

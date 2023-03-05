@@ -51,9 +51,9 @@ class FetchAuroraOrder extends FetchAurora
         $state = match ($this->auroraModelData->{'Order State'}) {
             "InWarehouse", "Packed" => "in-warehouse",
             "PackedDone" => "packed",
-            "Approved" => "finalised",
+            "Approved"   => "finalised",
             "Dispatched" => "dispatched",
-            default => "submitted",
+            default      => "submitted",
         };
 
 
@@ -69,12 +69,12 @@ class FetchAuroraOrder extends FetchAurora
             }
 
             if (
-                $this->auroraModelData->{'Order Invoiced Date'} != "" or
+                $this->auroraModelData->{'Order Invoiced Date'}   != "" or
                 $this->auroraModelData->{'Order Dispatched Date'} != ""
             ) {
                 $stateWhenCancelled = "finalised";
             } elseif (
-                $this->auroraModelData->{'Order Packed Date'} != "" or
+                $this->auroraModelData->{'Order Packed Date'}      != "" or
                 $this->auroraModelData->{'Order Packed Done Date'} != ""
             ) {
                 $stateWhenCancelled = "packed";

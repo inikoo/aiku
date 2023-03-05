@@ -12,8 +12,6 @@ use Illuminate\Support\Str;
 
 class FetchAuroraPayment extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $data = [];
@@ -77,5 +75,4 @@ class FetchAuroraPayment extends FetchAurora
             ->table('Payment Dimension')
             ->where('Payment Key', $id)->first();
     }
-
 }

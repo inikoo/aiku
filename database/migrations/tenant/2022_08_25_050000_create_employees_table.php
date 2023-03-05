@@ -9,9 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('employees', function (Blueprint $table) {
@@ -36,7 +34,7 @@ return new class extends Migration
             $table->string('emergency_contact', 1024)->nullable();
             $table->jsonb('salary')->nullable();
             $table->jsonb('working_hours')->nullable();
-            $table->decimal('week_working_hours',4,2)->default(0);
+            $table->decimal('week_working_hours', 4, 2)->default(0);
 
             $table->jsonb('data');
             $table->jsonb('job_position_scopes');
@@ -45,10 +43,7 @@ return new class extends Migration
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedBigInteger('source_id')->nullable()->unique();
-
         });
-
-
     }
 
 

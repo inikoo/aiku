@@ -7,14 +7,12 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Marketing\TradeUnit\StoreTradeUnit;
 use App\Actions\Marketing\TradeUnit\UpdateTradeUnit;
 use App\Models\Marketing\TradeUnit;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class FetchTradeUnits
 {
@@ -43,6 +41,4 @@ class FetchTradeUnits
 
         return null;
     }
-
-
 }

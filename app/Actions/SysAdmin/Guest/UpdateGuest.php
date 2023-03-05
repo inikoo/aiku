@@ -7,10 +7,8 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
-
 use App\Actions\WithActionUpdate;
 use App\Models\SysAdmin\Guest;
-
 
 class UpdateGuest
 {
@@ -22,6 +20,4 @@ class UpdateGuest
             'data',
         ]);
     }
-
-
 }

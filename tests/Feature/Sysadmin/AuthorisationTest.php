@@ -7,11 +7,9 @@
 
 namespace Tests\Feature\Sysadmin;
 
-
 use App\Actions\HumanResources\AttachJobPosition;
 use App\Actions\HumanResources\DetachJobPosition;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
-use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -24,8 +22,6 @@ use Tests\TestCase;
 
 class AuthorisationTest extends TestCase
 {
-
-
     private int $originalNumberPermissionsInSuperAdmin;
 
     public static function setUpBeforeClass(): void
@@ -44,8 +40,7 @@ class AuthorisationTest extends TestCase
     {
         parent::setUp();
         $this->originalNumberPermissionsInSuperAdmin = 6;
-        $this->tenant = Tenant::find(1);
-
+        $this->tenant                                = Tenant::find(1);
     }
 
     public function testPermissionSeeding()
@@ -67,84 +62,82 @@ class AuthorisationTest extends TestCase
 
 
     public function testEmployeeAuthorisation()
-   {
-       $this->tenant->run(function ()  {
-           /** @var Employee $employee */
-           $employee = Employee::factory()->create();
-           $jobPositionHR=JobPosition::firstWhere('slug','hr-m');
-           AttachJobPosition::run($employee,$jobPositionHR);
+    {
+        $this->tenant->run(function () {
+            /** @var Employee $employee */
+            $employee     = Employee::factory()->create();
+            $jobPositionHR=JobPosition::firstWhere('slug', 'hr-m');
+            AttachJobPosition::run($employee, $jobPositionHR);
 
-           $this->assertTrue($employee->jobPositions->contains($jobPositionHR));
+            $this->assertTrue($employee->jobPositions->contains($jobPositionHR));
 
-           $username=fake()->userName();
-           $user=CreateUserFromEmployee::run(employee:$employee,username:$username);
-           $employee->refresh();
+            $username=fake()->userName();
+            $user    =CreateUserFromEmployee::run(employee:$employee, username:$username);
+            $employee->refresh();
 
-           $this->assertInstanceOf(User::class, $user);
-           $this->assertEquals($username,$user->username);
+            $this->assertInstanceOf(User::class, $user);
+            $this->assertEquals($username, $user->username);
 
-           $this->assertInstanceOf(User::class, $employee->user);
-
-
-           $this->assertCount(1,$user->roles);
-           $this->assertTrue($user->hasRole('human-resources-admin'));
-
-           $jobPositionWarehouse=JobPosition::firstWhere('slug','wah-m');
-           AttachJobPosition::run($employee,$jobPositionWarehouse);
-           $user->refresh();
-
-           $this->assertCount(2,$user->roles);
-           $this->assertTrue($user->hasRole('distribution-admin'));
-
-           DetachJobPosition::run($employee,$jobPositionWarehouse);
-           $user->refresh();
-           $this->assertCount(1,$user->roles);
+            $this->assertInstanceOf(User::class, $employee->user);
 
 
+            $this->assertCount(1, $user->roles);
+            $this->assertTrue($user->hasRole('human-resources-admin'));
 
-           $role=Role::firstWhere('name','super-admin');
-           $user->assignDirectRole($role);
-           $this->assertCount(2,$user->roles);
-           $this->assertTrue($user->hasRole('super-admin'));
+            $jobPositionWarehouse=JobPosition::firstWhere('slug', 'wah-m');
+            AttachJobPosition::run($employee, $jobPositionWarehouse);
+            $user->refresh();
 
-           $this->assertTrue($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->direct_role);
-           $this->assertFalse($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->job_position_role);
+            $this->assertCount(2, $user->roles);
+            $this->assertTrue($user->hasRole('distribution-admin'));
 
-           $jobPositionDirector=JobPosition::firstWhere('slug','dir');
-           AttachJobPosition::run($employee,$jobPositionDirector);
-           $user->refresh();
-           $this->assertCount(2,$user->roles);
-           $this->assertTrue($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->direct_role);
-           $this->assertTrue($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->job_position_role);
-
-           DetachJobPosition::run($employee,$jobPositionDirector);
-           $user->refresh();
-           $this->assertCount(2,$user->roles);
-           $this->assertTrue($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->direct_role);
-           $this->assertFalse($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->job_position_role);
-
-           $role=Role::firstWhere('name','human-resources-admin');
-           $user->assignDirectRole($role);
-           $this->assertCount(2,$user->roles);
-           $this->assertTrue($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->direct_role);
-           $this->assertTrue($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->job_position_role);
-
-           $user->removeDirectRole($role);
-           $this->assertCount(2,$user->roles);
-           $this->assertFalse($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->direct_role);
-           $this->assertTrue($user->roles()->wherePivot('role_id',$role->id)->first()->pivot->job_position_role);
+            DetachJobPosition::run($employee, $jobPositionWarehouse);
+            $user->refresh();
+            $this->assertCount(1, $user->roles);
 
 
-           DetachJobPosition::run($employee,$jobPositionHR);
-           $user->refresh();
-           $this->assertCount(1,$user->roles);
 
-           $role=Role::firstWhere('name','super-admin');
-           $user->removeDirectRole($role);
-           $this->assertCount(0,$user->roles);
+            $role=Role::firstWhere('name', 'super-admin');
+            $user->assignDirectRole($role);
+            $this->assertCount(2, $user->roles);
+            $this->assertTrue($user->hasRole('super-admin'));
 
-       });
+            $this->assertTrue($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->direct_role);
+            $this->assertFalse($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->job_position_role);
 
+            $jobPositionDirector=JobPosition::firstWhere('slug', 'dir');
+            AttachJobPosition::run($employee, $jobPositionDirector);
+            $user->refresh();
+            $this->assertCount(2, $user->roles);
+            $this->assertTrue($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->direct_role);
+            $this->assertTrue($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->job_position_role);
+
+            DetachJobPosition::run($employee, $jobPositionDirector);
+            $user->refresh();
+            $this->assertCount(2, $user->roles);
+            $this->assertTrue($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->direct_role);
+            $this->assertFalse($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->job_position_role);
+
+            $role=Role::firstWhere('name', 'human-resources-admin');
+            $user->assignDirectRole($role);
+            $this->assertCount(2, $user->roles);
+            $this->assertTrue($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->direct_role);
+            $this->assertTrue($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->job_position_role);
+
+            $user->removeDirectRole($role);
+            $this->assertCount(2, $user->roles);
+            $this->assertFalse($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->direct_role);
+            $this->assertTrue($user->roles()->wherePivot('role_id', $role->id)->first()->pivot->job_position_role);
+
+
+            DetachJobPosition::run($employee, $jobPositionHR);
+            $user->refresh();
+            $this->assertCount(1, $user->roles);
+
+            $role=Role::firstWhere('name', 'super-admin');
+            $user->removeDirectRole($role);
+            $this->assertCount(0, $user->roles);
+        });
     }
 
     public function testRemovingPermissions()
@@ -189,6 +182,4 @@ class AuthorisationTest extends TestCase
             $this->assertEquals(($originalRolesCount - 1), Role::count());
         });
     }
-
-
 }

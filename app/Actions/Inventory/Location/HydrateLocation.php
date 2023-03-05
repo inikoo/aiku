@@ -11,10 +11,8 @@ use App\Actions\HydrateModel;
 use App\Models\Inventory\Location;
 use Illuminate\Support\Collection;
 
-
 class HydrateLocation extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:location {tenants?*} {--i|id=}';
 
 
@@ -26,7 +24,7 @@ class HydrateLocation extends HydrateModel
     public function stocks(Location $location): void
     {
         $numberStockSlots = $location->stocks->count();
-        $stats = [
+        $stats            = [
             'number_stock_slots' => $numberStockSlots,
         ];
 
@@ -44,7 +42,4 @@ class HydrateLocation extends HydrateModel
     {
         return Location::withTrashed()->all();
     }
-
 }
-
-

@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -16,11 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchPaymentServiceProviders extends FetchAction
 {
-
-
     public string $commandSignature = 'fetch:payment-service-providers {tenants?*} {--s|source_id=}';
 
 
@@ -50,7 +46,7 @@ class FetchPaymentServiceProviders extends FetchAction
     }
 
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Payment Service Provider Dimension')
@@ -58,9 +54,8 @@ class FetchPaymentServiceProviders extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Payment Service Provider Dimension')->count();
     }
-
 }

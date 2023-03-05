@@ -10,7 +10,6 @@ namespace App\Actions\Marketing\Shop;
 use App\Actions\WithActionUpdate;
 use App\Models\Marketing\Shop;
 
-
 class UpdateShop
 {
     use WithActionUpdate;

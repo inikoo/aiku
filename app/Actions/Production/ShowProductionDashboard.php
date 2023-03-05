@@ -14,7 +14,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowProductionDashboard
 {
     use AsAction;
@@ -52,9 +51,9 @@ class ShowProductionDashboard
 
                     [
                         [
-                            'name' => __('Products'),
-                            'icon' => ['fal', 'fa-flask'],
-                            'href' => ['production.products.index'],
+                            'name'  => __('Products'),
+                            'icon'  => ['fal', 'fa-flask'],
+                            'href'  => ['production.products.index'],
                             'index' => [
                                 'number' => $this->tenant->productionStats->number_products
                             ]
@@ -63,7 +62,6 @@ class ShowProductionDashboard
                 ]
 
             ]
-
         );
     }
 
@@ -77,6 +75,4 @@ class ShowProductionDashboard
             ]
         ];
     }
-
-
 }

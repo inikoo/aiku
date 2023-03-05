@@ -11,8 +11,6 @@ use App\Actions\WithActionUpdate;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Guest;
 
-
-
 class SetPhoto
 {
     use WithActionUpdate;
@@ -37,6 +35,4 @@ class SetPhoto
 
         return $subject;
     }
-
-
 }

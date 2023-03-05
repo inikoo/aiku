@@ -39,10 +39,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-Route::prefix('setup')->middleware(['auth', 'verified', 'verify.new'])->name('setup.')
-    ->group(__DIR__.'/setup.php');
 
 */
 //require __DIR__.'/auth.php';
-
-

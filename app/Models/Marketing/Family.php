@@ -7,7 +7,6 @@
 
 namespace App\Models\Marketing;
 
-
 use App\Actions\Marketing\Department\HydrateDepartment;
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Models\Sales\SalesStats;
@@ -45,12 +44,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\FamilyStats|null $stats
+ *
  * @method static Builder|Family newModelQuery()
  * @method static Builder|Family newQuery()
  * @method static Builder|Family onlyTrashed()
  * @method static Builder|Family query()
  * @method static Builder|Family withTrashed()
  * @method static Builder|Family withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Family extends Model
@@ -138,6 +139,4 @@ class Family extends Model
     {
         return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-tenant-currency');
     }
-
-
 }

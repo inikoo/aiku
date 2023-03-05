@@ -8,8 +8,8 @@
 
 return [
 
-    'table'=>[
-        'records_per_page'=>15
+    'table'=> [
+        'records_per_page'=> 15
 
     ]
 

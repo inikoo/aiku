@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 
-
 /**
  * App\Models\SysAdmin\Permission
  *
@@ -34,5 +33,4 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
 class Permission extends SpatiePermission
 {
     use UsesTenantConnection;
-
 }

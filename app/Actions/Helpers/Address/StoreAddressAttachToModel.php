@@ -15,10 +15,8 @@ use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreAddressAttachToModel
 {
-
     use AsAction;
 
     public function handle(

@@ -7,10 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class StoreEmployee
 {
@@ -19,8 +17,5 @@ class StoreEmployee
     public function handle(array $modelData): Employee
     {
         return Employee::create($modelData);
-
     }
-
-
 }

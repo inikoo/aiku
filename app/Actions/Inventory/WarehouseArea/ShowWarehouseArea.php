@@ -18,7 +18,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 /**
  * @property WarehouseArea $warehouseArea
  */
@@ -48,7 +47,7 @@ class ShowWarehouseArea
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse,WarehouseArea $warehouseArea): void
+    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea): void
     {
         $this->warehouseArea = $warehouseArea;
         $this->validateAttributes();
@@ -129,7 +128,6 @@ class ShowWarehouseArea
             'inventory.warehouse_areas.show' => array_merge(
                 (new ShowInventoryDashboard())->getBreadcrumbs(),
                 $headCrumb([$warehouseArea->slug])
-
             ),
             'inventory.warehouses.show.warehouse_areas.show' => array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($warehouseArea->warehouse),
@@ -138,5 +136,4 @@ class ShowWarehouseArea
             default => []
         };
     }
-
 }

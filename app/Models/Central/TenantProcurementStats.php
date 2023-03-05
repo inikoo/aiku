@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
-
 /**
  * App\Models\Central\TenantProcurementStats
  *
@@ -36,9 +35,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Central\Tenant $tenant
+ *
  * @method static Builder|TenantProcurementStats newModelQuery()
  * @method static Builder|TenantProcurementStats newQuery()
  * @method static Builder|TenantProcurementStats query()
+ *
  * @mixin \Eloquent
  */
 class TenantProcurementStats extends Model

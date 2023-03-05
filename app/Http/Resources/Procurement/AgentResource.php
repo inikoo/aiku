@@ -18,14 +18,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class AgentResource extends JsonResource
 {
-
-
     public function toArray($request): array
     {
         return [
-            'code' => $this->code,
-            'name' => $this->name,
-            'slug' => $this->slug,
+            'code'       => $this->code,
+            'name'       => $this->name,
+            'slug'       => $this->slug,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 

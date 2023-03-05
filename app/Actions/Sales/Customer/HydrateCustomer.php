@@ -14,10 +14,8 @@ use App\Models\Sales\Invoice;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-
 class HydrateCustomer extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:customer {tenants?*} {--i|id=}';
 
 
@@ -46,8 +44,8 @@ class HydrateCustomer extends HydrateModel
         ];
 
         $customer->trade_state = match ($numberInvoices) {
-            0 => 'none',
-            1 => 'one',
+            0       => 'none',
+            1       => 'one',
             default => 'many'
         };
         $customer->save();
@@ -95,7 +93,4 @@ class HydrateCustomer extends HydrateModel
     {
         return Customer::withTrashed()->get();
     }
-
 }
-
-

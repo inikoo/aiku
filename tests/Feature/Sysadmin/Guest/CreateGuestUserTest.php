@@ -16,8 +16,6 @@ use Tests\TestCase;
 
 class CreateGuestUserTest extends TestCase
 {
-
-
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -32,7 +30,7 @@ class CreateGuestUserTest extends TestCase
         $adminUserAData->email    = fake()->unique()->safeEmail();
         $adminUserAData->username = fake()->userName();
 
-        $tenant=Tenant::where('code',env('TENANT'))->firstOrFail();
+        $tenant=Tenant::where('code', env('TENANT'))->firstOrFail();
 
         $this->assertEquals(0, $tenant->stats->number_guests);
         $this->assertEquals(0, $tenant->stats->number_users);
@@ -45,16 +43,14 @@ class CreateGuestUserTest extends TestCase
         $this->assertEquals(1, $tenant->stats->number_guests);
 
         $_tenant=Tenant::find(1);
-        $_tenant->run(function () use($adminUserAData) {
+        $_tenant->run(function () use ($adminUserAData) {
             $guest=Guest::find(1);
             $this->assertEquals($adminUserAData->name, $guest->name);
-
         });
         $_tenant=Tenant::find(2);
-        $_tenant->run(function () use($adminUserAData) {
+        $_tenant->run(function () use ($adminUserAData) {
             $guest=Guest::find(1);
             $this->assertEquals($adminUserAData->name, $guest->name);
-
         });
 
 
@@ -71,11 +67,5 @@ class CreateGuestUserTest extends TestCase
 
         $this->expectException(ValidationException::class);
         $this->artisan("create:guest-user  $adminUserAData->username '$adminUserAData->name' env('TENANT') -a -r super-admin")->assertExitCode(1);
-
-
-
     }
-
-
-
 }

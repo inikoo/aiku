@@ -21,13 +21,11 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
-
 /**
  * @property Payment $payment
  */
 class ShowPayment extends InertiaAction
 {
-
     public function handle(Payment $payment): Payment
     {
         return $payment;
@@ -80,10 +78,10 @@ class ShowPayment extends InertiaAction
         return Inertia::render(
             'Accounting/Payment',
             [
-                'title' => __($payment->id),
+                'title'       => __($payment->id),
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $payment),
-                'pageHead' => [
-                    'icon' => 'fal fa-coins',
+                'pageHead'    => [
+                    'icon'  => 'fal fa-coins',
                     'title' => $payment->slug,
 
 
@@ -108,13 +106,13 @@ class ShowPayment extends InertiaAction
 
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'name' => $payment->slug,
-                    'index' => [
-                        'route' => preg_replace('/show$/', 'index', $routeName),
+                    'name'            => $payment->slug,
+                    'index'           => [
+                        'route'           => preg_replace('/show$/', 'index', $routeName),
                         'routeParameters' => $indexRouteParameters,
-                        'overlay' => __('payments list')
+                        'overlay'         => __('payments list')
                     ],
                     'modelLabel' => [
                         'label' => __('payment')
@@ -151,5 +149,4 @@ class ShowPayment extends InertiaAction
             default => []
         };
     }
-
 }

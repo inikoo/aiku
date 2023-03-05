@@ -22,7 +22,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexOrders extends InertiaAction
 {
     private Shop|Tenant $parent;
@@ -31,8 +30,6 @@ class IndexOrders extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-
-
                 $query->where('orders.number', '~*', "\y$value\y")
                     ->orWhere('orders.date', '=', $value);
             });
@@ -68,7 +65,6 @@ class IndexOrders extends InertiaAction
     public function jsonResponse(): AnonymousResourceCollection
     {
         return OrderResource::collection($this->handle());
-
     }
 
 
@@ -78,8 +74,8 @@ class IndexOrders extends InertiaAction
             'Marketing/Orders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('orders'),
-                'pageHead' => [
+                'title'       => __('orders'),
+                'pageHead'    => [
                     'title' => __('orders'),
                 ],
                 'orders' => OrderResource::collection($orders),
@@ -102,7 +98,7 @@ class IndexOrders extends InertiaAction
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
-        $this->parent = app('currentTenant');
+        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
 
         return $this->handle();
@@ -121,9 +117,9 @@ class IndexOrders extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('orders')
                     ]
                 ],
@@ -131,7 +127,7 @@ class IndexOrders extends InertiaAction
         };
 
         return match ($routeName) {
-            'orders.index' => $headCrumb(),
+            'orders.index'            => $headCrumb(),
             'shops.show.orders.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
@@ -140,5 +136,4 @@ class IndexOrders extends InertiaAction
             default => []
         };
     }
-
 }

@@ -14,7 +14,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowHumanResourcesDashboard
 {
     use AsAction;
@@ -54,7 +53,6 @@ class ShowHumanResourcesDashboard
                 ]
 
             ]
-
         );
     }
 
@@ -68,6 +66,4 @@ class ShowHumanResourcesDashboard
             ]
         ];
     }
-
-
 }

@@ -107,7 +107,7 @@ class IndexWarehouses
             (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 'inventory.warehouses.index' => [
-                    'route' => 'inventory.warehouses.index',
+                    'route'      => 'inventory.warehouses.index',
                     'modelLabel' => [
                         'label' => __('warehouses')
                     ],
@@ -115,5 +115,4 @@ class IndexWarehouses
             ]
         );
     }
-
 }

@@ -8,7 +8,6 @@
 
 namespace Database\Seeders;
 
-
 use App\Models\Assets\Country;
 use App\Models\Assets\Timezone;
 use CommerceGuys\Addressing\Country\CountryRepository;
@@ -18,7 +17,6 @@ use Illuminate\Database\Seeder;
 
 class TimezoneSeeder extends Seeder
 {
-
     /**
      * @throws \Exception
      */
@@ -56,8 +54,8 @@ class TimezoneSeeder extends Seeder
         foreach (DateTimeZone::listAbbreviations() as $abbreviation => $abbreviationData) {
             foreach ($abbreviationData as $timezoneData) {
                 if ($timezone = Timezone::where('name', $timezoneData['timezone_id'])->first()) {
-                    $data          = $timezone->data;
-                    $abbreviations = data_get($data, 'abbreviations', []);
+                    $data            = $timezone->data;
+                    $abbreviations   = data_get($data, 'abbreviations', []);
                     $abbreviations[] = $abbreviation;
                     data_set($data, 'abbreviations', array_unique($abbreviations));
                     $timezone->data = $data;
@@ -95,20 +93,14 @@ class TimezoneSeeder extends Seeder
                 $_country = $countryRepository->get($countryCode);
 
                 $timezones=[];
-                foreach($_country->getTimezones() as $timezoneName){
+                foreach ($_country->getTimezones() as $timezoneName) {
                     if ($timezone = Timezone::where('name', $timezoneName)->first()) {
                         $timezones[$timezone->id]=$timezone->id;
                     }
                 }
 
                 $country->timezones()->sync($timezones);
-
-
-
-
             }
         }
     }
-
-
 }

@@ -9,9 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('location_stock', function (Blueprint $table) {
@@ -21,7 +19,7 @@ return new class extends Migration
             $table->unsignedMediumInteger('location_id');
             $table->foreign('location_id')->references('id')->on('locations');
             $table->decimal('quantity', 16, 3);
-            $table->enum('type',['picking','storing']);
+            $table->enum('type', ['picking','storing']);
             $table->smallInteger('picking_priority')->nullable()->index();
             $table->string('notes')->nullable();
             $table->jsonb('data');

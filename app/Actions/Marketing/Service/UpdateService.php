@@ -17,9 +17,9 @@ class UpdateService
     public function handle(Service $service, array $modelData, bool $skipHistoric=false): Service
     {
         $service= $this->update($service, $modelData, ['data', 'settings']);
-        if(!$skipHistoric and $service->wasChanged(
-                ['price', 'code','name']
-            )){
+        if (!$skipHistoric and $service->wasChanged(
+            ['price', 'code','name']
+        )) {
             //todo create HistoricService and update current_historic_service_id if
         }
 

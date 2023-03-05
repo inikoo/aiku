@@ -20,7 +20,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexWebsites
 {
     use AsAction;
@@ -79,8 +78,8 @@ class IndexWebsites
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'code',label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name',label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
 
 
                 ->defaultSort('code');
@@ -106,5 +105,4 @@ class IndexWebsites
             ],
         ];
     }
-
 }

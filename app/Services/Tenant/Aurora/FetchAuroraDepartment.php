@@ -20,7 +20,7 @@ class FetchAuroraDepartment extends FetchAurora
             'name'       => $this->auroraModelData->{'Category Label'},
             'state'      => match ($this->auroraModelData->{'Product Category Status'}) {
                 'In Process' => 'in-process',
-                default => strtolower($this->auroraModelData->{'Product Category Status'})
+                default      => strtolower($this->auroraModelData->{'Product Category Status'})
             },
             'created_at' => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),
             'source_id'  => $this->auroraModelData->{'Category Key'},
@@ -34,5 +34,4 @@ class FetchAuroraDepartment extends FetchAurora
             ->leftJoin('Product Category Dimension', 'Product Category Key', 'Category Key')
             ->where('Category Key', $id)->first();
     }
-
 }

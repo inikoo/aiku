@@ -25,9 +25,8 @@ trait WithActionUpdate
                 } else {
                     $value = json_encode($value);
                 }
-
             }
-            if(preg_match('/\./',$key) or $value){
+            if (preg_match('/\./', $key) or $value) {
                 $data[preg_replace('/\./', '->', $key)] = $value;
             }
         }
@@ -44,7 +43,4 @@ trait WithActionUpdate
 
         return $model;
     }
-
-
 }
-

@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-
 /**
  * App\Models\Inventory\LocationStock
  *
@@ -80,5 +79,4 @@ class LocationStock extends Pivot
     {
         return $this->belongsTo(Location::class);
     }
-
 }

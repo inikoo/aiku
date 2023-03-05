@@ -70,6 +70,4 @@ class FetchAuroraGuest extends FetchAurora
             ->table('Staff Dimension')
             ->where('Staff Key', $id)->first();
     }
-
-
 }

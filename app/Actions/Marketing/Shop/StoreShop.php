@@ -12,7 +12,6 @@ use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreShop
 {
     use AsAction;
@@ -37,5 +36,4 @@ class StoreShop
 
         return AttachPaymentAccountToShop::run($shop, $paymentAccount);
     }
-
 }

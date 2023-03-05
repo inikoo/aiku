@@ -55,5 +55,4 @@ class RegenerateSlugs
 
         return $exitCode;
     }
-
 }

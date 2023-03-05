@@ -64,13 +64,3 @@ Route::get('/{shop}/invoices/{invoice}', [ShowInvoice::class, 'inShop'])->name('
 Route::get('/{shop}/delivery-notes', [IndexDeliveryNotes::class, 'inShop'])->name('show.delivery-notes.index');
 
 Route::get('/{shop}/delivery-notes/{delivery}', [ShowDeliveryNote::class, 'inShop'])->name('show.delivery-notes.show');
-
-
-
-
-
-
-
-
-
-

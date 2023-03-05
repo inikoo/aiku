@@ -8,7 +8,6 @@
 
 namespace App\Services\Tenant;
 
-
 use AllowDynamicProperties;
 use App\Models\Central\Tenant;
 use App\Models\Dispatch\DeliveryNote;
@@ -63,7 +62,6 @@ use Illuminate\Support\Facades\DB;
  */
 #[AllowDynamicProperties] class AuroraTenantService implements SourceTenantService
 {
-
     public function initialisation(Tenant $tenant)
     {
         $database_settings = data_get(config('database.connections'), 'aurora');
@@ -287,6 +285,4 @@ use Illuminate\Support\Facades\DB;
     {
         return (new FetchAuroraPayment($this))->fetch($id);
     }
-
-
 }

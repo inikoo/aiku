@@ -26,7 +26,6 @@ class StoreOrder
         array $modelData,
         Address $seedBillingAddress,
         Address $seedDeliveryAddress
-
     ): Order {
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
@@ -50,8 +49,8 @@ class StoreOrder
         $billingAddress  = StoreHistoricAddress::run($seedBillingAddress);
         $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
 
-        AttachHistoricAddressToModel::run($order,$billingAddress,['scope'=>'billing']);
-        AttachHistoricAddressToModel::run($order,$deliveryAddress,['scope'=>'delivery']);
+        AttachHistoricAddressToModel::run($order, $billingAddress, ['scope'=>'billing']);
+        AttachHistoricAddressToModel::run($order, $deliveryAddress, ['scope'=>'delivery']);
 
         HydrateOrder::make()->originalItems($order);
 

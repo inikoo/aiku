@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-
 /**
  * App\Models\HumanResources\EmployeeJobPosition
  *
@@ -46,7 +45,6 @@ class EmployeeJobPosition extends Pivot
                 HydrateJobPosition::run(
                     $employeeJobPosition->jobPosition
                 );
-
             }
         );
         static::deleted(
@@ -55,7 +53,6 @@ class EmployeeJobPosition extends Pivot
                 HydrateJobPosition::run(
                     $employeeJobPosition->jobPosition
                 );
-
             }
         );
     }
@@ -69,5 +66,4 @@ class EmployeeJobPosition extends Pivot
     {
         return $this->belongsTo(JobPosition::class);
     }
-
 }

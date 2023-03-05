@@ -7,18 +7,12 @@
 
 namespace App\Actions\Marketing\Shop\Hydrators;
 
-use App\Models\Accounting\Payment;
-use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShopHydratePaymentAccounts implements ShouldBeUnique
 {
-
     use AsAction;
 
     public function handle(Shop $shop): void
@@ -35,8 +29,4 @@ class ShopHydratePaymentAccounts implements ShouldBeUnique
     {
         return $shop->id;
     }
-
-
 }
-
-

@@ -11,10 +11,8 @@ use App\Actions\HydrateModel;
 use App\Models\Sales\Order;
 use Illuminate\Support\Collection;
 
-
 class HydrateOrder extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:order {tenants?*} {--i|id=}';
 
 
@@ -25,21 +23,17 @@ class HydrateOrder extends HydrateModel
 
     public function originalItems(Order $order): void
     {
-
         $order->stats->update(
             [
-                'number_items_at_creation'=>$order->transactions()->count()
+                'number_items_at_creation'=> $order->transactions()->count()
 
             ]
         );
-
     }
 
     public function items(Order $order): void
     {
-
         //todo
-
     }
 
 
@@ -52,7 +46,4 @@ class HydrateOrder extends HydrateModel
     {
         return Order::all();
     }
-
 }
-
-

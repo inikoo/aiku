@@ -7,10 +7,8 @@
 
 namespace App\Services\Tenant\Aurora;
 
-
 use App\Models\Central\Tenant;
 use App\Services\Tenant\SourceTenantService;
-
 
 class FetchAurora
 {
@@ -22,7 +20,7 @@ class FetchAurora
     protected ?object $auroraModelData;
     protected SourceTenantService $tenantSource;
 
-    function __construct(SourceTenantService $tenantSource)
+    public function __construct(SourceTenantService $tenantSource)
     {
         $this->tenantSource    = $tenantSource;
         $this->tenant          = $tenantSource->tenant;
@@ -49,5 +47,4 @@ class FetchAurora
     protected function parseModel(): void
     {
     }
-
 }

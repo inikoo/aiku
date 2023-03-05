@@ -7,16 +7,12 @@
 
 namespace App\Models\Central;
 
-
-use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-
-
 
 /**
  * App\Models\Central\CentralUser
@@ -31,9 +27,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Central\Tenant> $tenants
+ *
  * @method static Builder|CentralUser newModelQuery()
  * @method static Builder|CentralUser newQuery()
  * @method static Builder|CentralUser query()
+ *
  * @mixin \Eloquent
  */
 class CentralUser extends Model
@@ -58,7 +56,6 @@ class CentralUser extends Model
             ->saveSlugsTo('username');
     }
 
-
     public function tenants(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -66,7 +63,4 @@ class CentralUser extends Model
             'central_user_tenant',
         )->using(CentralUserTenant::class);
     }
-
-
-
 }

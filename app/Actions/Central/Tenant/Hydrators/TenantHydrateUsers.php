@@ -7,7 +7,6 @@
 
 namespace App\Actions\Central\Tenant\Hydrators;
 
-
 use App\Models\Central\Tenant;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -15,10 +14,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class TenantHydrateUsers implements ShouldBeUnique
 {
-
     use AsAction;
 
     public function handle(Tenant $tenant): void
@@ -66,8 +63,4 @@ class TenantHydrateUsers implements ShouldBeUnique
         $tenant=app('currentTenant');
         return ['central','tenant:'.$tenant->code];
     }
-
-
 }
-
-

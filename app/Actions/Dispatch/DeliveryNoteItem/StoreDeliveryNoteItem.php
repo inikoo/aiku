@@ -17,9 +17,6 @@ class StoreDeliveryNoteItem
 
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNoteItem
     {
-
-
-
         /** @var \App\Models\Dispatch\DeliveryNoteItem $deliveryNoteItem */
         $deliveryNoteItem = $deliveryNote->deliveryNoteItems()->create($modelData);
 
@@ -27,5 +24,3 @@ class StoreDeliveryNoteItem
         return $deliveryNoteItem;
     }
 }
-
-

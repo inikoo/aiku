@@ -8,11 +8,11 @@ return [
     'release'     => trim(
         exec(
             'git '.(
-            (env('APP_ENV') == 'production' or env('APP_ENV') == 'staging')
-                ?
-                '--git-dir '.env('REPO_DIR')
-                :
-                ''
+                (env('APP_ENV') == 'production' or env('APP_ENV') == 'staging')
+                    ?
+                    '--git-dir '.env('REPO_DIR')
+                    :
+                    ''
             ).' log --pretty="%h" -n1 HEAD'
         )
     ),

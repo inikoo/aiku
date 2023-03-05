@@ -12,8 +12,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-trait WithAuroraImages{
-
+trait WithAuroraImages
+{
     public function getModelImagesCollection($model, $id): Collection
     {
         return DB::connection('aurora')
@@ -52,5 +52,3 @@ trait WithAuroraImages{
         }
     }
 }
-
-

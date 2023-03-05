@@ -13,10 +13,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class HydrateCentralUser
 {
-
     use AsAction;
 
     public string $commandSignature = 'hydrate:central-user {--username}';
@@ -24,14 +22,13 @@ class HydrateCentralUser
 
     public function handle(CentralUser $centralUser): void
     {
-
         CentralUserHydrateTenants::run($centralUser);
     }
 
 
     protected function getModel($username): ?CentralUser
     {
-        return CentralUser::where('username',$username)->first();
+        return CentralUser::where('username', $username)->first();
     }
     protected function getAllModels(): Collection
     {
@@ -50,7 +47,6 @@ class HydrateCentralUser
 
     public function asCommand(Command $command): int
     {
-
         if ($command->option('username')) {
             if ($model = $this->getModel($command->option('username'))) {
                 $this->handle($model);
@@ -61,10 +57,5 @@ class HydrateCentralUser
         }
 
         return 0;
-
     }
-
-
 }
-
-

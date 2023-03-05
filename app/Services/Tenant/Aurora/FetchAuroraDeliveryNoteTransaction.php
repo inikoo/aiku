@@ -10,10 +10,8 @@ namespace App\Services\Tenant\Aurora;
 use App\Models\Dispatch\DeliveryNote;
 use Illuminate\Support\Facades\DB;
 
-
 class FetchAuroraDeliveryNoteTransaction extends FetchAurora
 {
-
     protected function parseDeliveryNoteTransaction(DeliveryNote $deliveryNote): void
     {
         if ($this->auroraModelData->{'Part SKU'}) {
@@ -28,9 +26,9 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
                     'submitted',
                     'in-queue',
                     'picker-assigned' => 'on-hold',
-                    'packing' => 'picked',
-                    'finalised' => 'packed',
-                    default => $deliveryNote->state
+                    'packing'         => 'picked',
+                    'finalised'       => 'packed',
+                    default           => $deliveryNote->state
                 };
 
                 $status = 'in-process';
@@ -88,5 +86,4 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
             ->table('Inventory Transaction Fact')
             ->where('Inventory Transaction Key', $id)->first();
     }
-
 }

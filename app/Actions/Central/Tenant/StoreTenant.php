@@ -7,13 +7,11 @@
 
 namespace App\Actions\Central\Tenant;
 
-
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Models\Central\Tenant;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class StoreTenant
 {
@@ -37,8 +35,6 @@ class StoreTenant
         DB::statement("CREATE SCHEMA pika_$tenant->slug");
         $tenant->execute(
             function (Tenant $tenant) {
-
-
                 Artisan::call('tenants:artisan "migrate:fresh --force  --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->slug);
                 Artisan::call('tenants:artisan "db:seed --force   --class=TenantsSeeder" --tenant='.$tenant->slug);
 
@@ -61,8 +57,4 @@ class StoreTenant
 
         return $tenant;
     }
-
-
-
-
 }

@@ -8,7 +8,6 @@
 
 namespace App\Services\Tenant;
 
-
 use App\Models\Central\Tenant;
 use App\Models\Dispatch\DeliveryNote;
 
@@ -103,4 +102,3 @@ interface SourceTenantService
 
     public function initialisation(Tenant $tenant);
 }
-

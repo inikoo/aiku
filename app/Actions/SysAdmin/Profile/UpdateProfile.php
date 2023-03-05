@@ -92,5 +92,4 @@ class UpdateProfile
     {
         return new UserResource($user);
     }
-
 }

@@ -75,15 +75,15 @@ class Stock extends Model
     use UsesTenantConnection;
 
     protected $casts = [
-        'data' => 'array',
-        'settings' => 'array',
-        'activated_at' => 'datetime',
+        'data'             => 'array',
+        'settings'         => 'array',
+        'activated_at'     => 'datetime',
         'discontinuing_at' => 'datetime',
-        'discontinued_at' => 'datetime',
+        'discontinued_at'  => 'datetime',
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}',
     ];
 
@@ -102,13 +102,11 @@ class Stock extends Model
         static::created(
             function (Stock $stock) {
                 HydrateTenant::make()->inventoryStats();
-                if($stock->stock_family_id){
+                if ($stock->stock_family_id) {
                     HydrateStockFamily::make()->stocksStats($stock->stockFamily);
                 }
             }
         );
-
-
     }
 
 
@@ -142,6 +140,4 @@ class Stock extends Model
     {
         return $this->belongsTo(StockFamily::class);
     }
-
-
 }

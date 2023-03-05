@@ -41,5 +41,4 @@ class PaymentAccountShop extends Pivot
     ];
 
     protected $guarded = [];
-
 }

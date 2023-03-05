@@ -100,6 +100,4 @@ class Warehouse extends Model
     {
         return 'slug';
     }
-
-
 }

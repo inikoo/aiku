@@ -11,7 +11,6 @@ use App\Models\Central\CentralUser;
 use Illuminate\Support\Facades\Hash;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreCentralUser
 {
     use AsAction;
@@ -20,6 +19,5 @@ class StoreCentralUser
     {
         $modelData['password']  = Hash::make($modelData['password']);
         return CentralUser::create($modelData);
-
     }
 }

@@ -17,7 +17,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-
 /**
  * App\Models\Inventory\StockFamily
  *
@@ -94,6 +93,4 @@ class StockFamily extends Model
     {
         return $this->hasOne(StockFamilyStats::class);
     }
-
-
 }

@@ -14,7 +14,6 @@ use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class FetchInvoiceTransactions
 {
     use AsAction;
@@ -35,6 +34,4 @@ class FetchInvoiceTransactions
 
         return null;
     }
-
-
 }

@@ -19,7 +19,6 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchInvoices extends FetchAction
 {
-
     public string $commandSignature = 'fetch:invoices {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
@@ -27,7 +26,6 @@ class FetchInvoices extends FetchAction
         if ($invoiceData = $tenantSource->fetchInvoice($tenantSourceId)) {
             if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
                 ->first()) {
-
                 UpdateInvoice::run($invoice, $invoiceData['invoice']);
 
                 $currentBillingAddress = $invoice->getAddress('billing');
@@ -65,7 +63,7 @@ class FetchInvoices extends FetchAction
         return null;
     }
 
-    function updateAurora(Invoice $invoice)
+    public function updateAurora(Invoice $invoice)
     {
         DB::connection('aurora')->table('Invoice Dimension')
             ->where('Invoice Key', $invoice->source_id)
@@ -89,7 +87,7 @@ class FetchInvoices extends FetchAction
         $invoice->invoiceTransactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         $query = DB::connection('aurora')
             ->table('Invoice Dimension')
@@ -103,7 +101,7 @@ class FetchInvoices extends FetchAction
         return $query;
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Invoice Dimension');
         if ($this->onlyNew) {
@@ -112,5 +110,4 @@ class FetchInvoices extends FetchAction
 
         return $query->count();
     }
-
 }

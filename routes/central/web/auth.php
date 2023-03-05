@@ -16,8 +16,6 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\FacebookAuthController;
 use Illuminate\Support\Facades\Route;
 
-
-
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
                 ->name('register');
@@ -42,9 +40,10 @@ Route::middleware('guest')->group(function () {
                 ->name('password.update');
 
 
-    Route::get('auth/facebook', [FacebookAuthController::class, 'facebookRedirect'])->name('facebook.store');;
-    Route::get('auth/facebook/callback', [FacebookAuthController::class, 'loginWithFacebook'])->name('facebook.callback');;
-
+    Route::get('auth/facebook', [FacebookAuthController::class, 'facebookRedirect'])->name('facebook.store');
+    ;
+    Route::get('auth/facebook/callback', [FacebookAuthController::class, 'loginWithFacebook'])->name('facebook.callback');
+    ;
 });
 
 Route::middleware('auth')->group(function () {
@@ -67,4 +66,3 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('logout');
 });
-

@@ -7,14 +7,12 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Marketing\Department\StoreDepartment;
 use App\Actions\Marketing\Department\UpdateDepartment;
 use App\Models\Marketing\Department;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class FetchDepartments
 {
@@ -43,6 +41,4 @@ class FetchDepartments
 
         return null;
     }
-
-
 }

@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Models\SysAdmin\Guest;
@@ -16,10 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchDeletedGuests extends FetchAction
 {
-
     public string $commandSignature = 'fetch:deleted-guests {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Guest
@@ -42,7 +39,7 @@ class FetchDeletedGuests extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Staff Deleted Dimension')
@@ -54,11 +51,10 @@ class FetchDeletedGuests extends FetchAction
             });
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Staff Deleted Dimension')
             ->where('Staff Deleted Type', '=', 'Contractor')
             ->count();
     }
-
 }

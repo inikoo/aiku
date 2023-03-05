@@ -15,7 +15,6 @@ use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\Sales\Invoice\IndexInvoices;
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/', ShowAccountingDashboard::class)->name('dashboard');
 
 Route::get('/providers', IndexPaymentServiceProviders::class)->name('payment-service-providers.index');
@@ -41,5 +40,3 @@ Route::get('/payments', IndexPayments::class)->name('payments.index');
 Route::get('/payments/{payment}', ShowPayment::class)->name('payments.show');
 
 Route::get('/invoices', IndexInvoices::class)->name('show.invoices.index');
-
-

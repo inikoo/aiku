@@ -12,7 +12,6 @@ use Illuminate\Support\Str;
 
 class FetchAuroraDeletedEmployee extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $auDeletedModel = json_decode(gzuncompress($this->auroraModelData->{'Staff Deleted Metadata'}));
@@ -34,7 +33,7 @@ class FetchAuroraDeletedEmployee extends FetchAurora
 
                 'source_id'  => $auDeletedModel->data->{'Staff Key'},
                 'state'      => match ($auDeletedModel->data->{'Staff Currently Working'}) {
-                    'No' => 'left',
+                    'No'    => 'left',
                     default => 'working'
                 },
                 'data'       => [
@@ -51,5 +50,4 @@ class FetchAuroraDeletedEmployee extends FetchAurora
             ->table('Staff Deleted Dimension')
             ->where('Staff Deleted Key', $id)->first();
     }
-
 }

@@ -22,7 +22,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexUser
 {
     use AsAction;
@@ -105,7 +104,7 @@ class IndexUser
             (new ShowSysAdminDashboard())->getBreadcrumbs(),
             [
                 'sysadmin.users.index' => [
-                    'route' => 'sysadmin.users.index',
+                    'route'      => 'sysadmin.users.index',
                     'modelLabel' => [
                         'label' => __('users')
                     ],
@@ -113,6 +112,4 @@ class IndexUser
             ]
         );
     }
-
-
 }

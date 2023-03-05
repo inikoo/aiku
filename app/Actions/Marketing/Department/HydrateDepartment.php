@@ -15,10 +15,8 @@ use App\Models\Marketing\Product;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-
 class HydrateDepartment extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:department {tenants?*} {--i|id=} ';
 
 
@@ -26,12 +24,11 @@ class HydrateDepartment extends HydrateModel
     {
         $this->familiesStats($department);
         $this->productsStats($department);
-
     }
 
     public function familiesStats(Department $department)
     {
-        $familyStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
+        $familyStates  = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Family::where('department_id', $department->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
@@ -74,8 +71,4 @@ class HydrateDepartment extends HydrateModel
     {
         return Department::withTrashed()->get();
     }
-
-
 }
-
-

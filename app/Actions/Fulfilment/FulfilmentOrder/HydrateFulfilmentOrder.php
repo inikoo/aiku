@@ -11,10 +11,8 @@ use App\Actions\HydrateModel;
 use App\Models\Fulfilment\FulfilmentOrder;
 use Illuminate\Support\Collection;
 
-
 class HydrateFulfilmentOrder extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:fulfilment-order {tenants?*} {--i|id=}';
 
 
@@ -25,21 +23,17 @@ class HydrateFulfilmentOrder extends HydrateModel
 
     public function originalItems(FulfilmentOrder $fulfilmentOrder): void
     {
-
         $fulfilmentOrder->stats->update(
             [
-                'number_items_at_creation'=>$fulfilmentOrder->items()->count()
+                'number_items_at_creation'=> $fulfilmentOrder->items()->count()
 
             ]
         );
-
     }
 
     public function items(FulfilmentOrder $fulfilmentOrder): void
     {
-
         //todo
-
     }
 
 
@@ -52,7 +46,4 @@ class HydrateFulfilmentOrder extends HydrateModel
     {
         return FulfilmentOrder::all();
     }
-
 }
-
-

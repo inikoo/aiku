@@ -10,10 +10,7 @@ use App\Actions\Central\Deployment\StoreDeployment;
 use App\Actions\Central\Deployment\UpdateDeployment;
 use Illuminate\Support\Facades\Route;
 
-
-
 Route::get('/latest', [ShowDeployment::class, 'latest'])->name('latest');
 Route::get('/{deployment}', ShowDeployment::class)->name('show');
 Route::post('/create', StoreDeployment::class)->name('store');
 Route::post('/latest/edit', [UpdateDeployment::class, 'latest'])->name('edit.latest');
-

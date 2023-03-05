@@ -14,8 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
-
-
 /**
  * App\Models\Assets\Country
  *
@@ -34,22 +32,25 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assets\Timezone> $timezones
+ *
  * @method static Builder|Country newModelQuery()
  * @method static Builder|Country newQuery()
  * @method static Builder|Country onlyTrashed()
  * @method static Builder|Country query()
  * @method static Builder|Country withTrashed()
  * @method static Builder|Country withoutTrashed()
+ *
  * @mixin \Eloquent
  */
-class Country extends Model {
+class Country extends Model
+{
     use SoftDeletes;
     use UsesLandlordConnection;
 
     protected $table = 'countries';
 
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
     ];
 
     protected $attributes = [
@@ -60,5 +61,4 @@ class Country extends Model {
     {
         return $this->belongsToMany(Timezone::class);
     }
-
 }

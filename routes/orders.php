@@ -12,4 +12,3 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexOrders::class)->name('index');
 Route::get('/{order}', ShowOrder::class)->name('show');
-

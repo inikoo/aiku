@@ -9,9 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('delivery_note_items', function (Blueprint $table) {
@@ -35,7 +33,7 @@ return new class extends Migration
                     'cancelled'
                 ]
             )->index();
-            $table->enum('status',['in-process','done','done-with-missing','fail']);
+            $table->enum('status', ['in-process','done','done-with-missing','fail']);
 
 
 

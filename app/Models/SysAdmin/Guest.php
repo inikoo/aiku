@@ -18,7 +18,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-
 /**
  * App\Models\SysAdmin\Guest
  *
@@ -133,5 +132,4 @@ class Guest extends Model implements HasMedia
     {
         return 'slug';
     }
-
 }

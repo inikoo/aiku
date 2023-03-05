@@ -7,7 +7,6 @@
 
 namespace App\Actions\Central\Admin;
 
-
 use App\Models\Central\Admin;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsCommand;
@@ -15,7 +14,6 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class CreateAdminAccessToken
 {
-
     use asCommand;
     use WithAttributes;
 

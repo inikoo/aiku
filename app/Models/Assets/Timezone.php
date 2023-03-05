@@ -27,18 +27,19 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assets\Country> $countries
+ *
  * @method static Builder|Timezone newModelQuery()
  * @method static Builder|Timezone newQuery()
  * @method static Builder|Timezone query()
+ *
  * @mixin \Eloquent
  */
 class Timezone extends Model
 {
-
     use UsesLandlordConnection;
 
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
     ];
 
     protected $attributes = [
@@ -50,8 +51,8 @@ class Timezone extends Model
         $hours     = $this->offset / 3600;
         $remainder = $this->offset % 3600;
         $sign      = $hours > 0 ? '+' : '-';
-        $hour      = (int)abs($hours);
-        $minutes   = (int)abs($remainder / 60);
+        $hour      = (int) abs($hours);
+        $minutes   = (int) abs($remainder / 60);
 
         if ($hour == 0 and $minutes == 0) {
             $sign = ' ';

@@ -21,4 +21,3 @@ Route::get('/users/{user}', ShowUser::class)->name('users.show');
 Route::get('/guests', IndexGuest::class)->name('guests.index');
 Route::get('/guests/{guest}', ShowGuest::class)->name('guests.show');
 Route::get('/dashtv', DisplayDashTV::class)->name('dashtv');
-

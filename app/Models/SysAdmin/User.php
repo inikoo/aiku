@@ -21,7 +21,6 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-
 /**
  * App\Models\SysAdmin\User
  *
@@ -62,7 +61,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class User extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
     use SoftDeletes;
     use InteractsWithMedia;
     use HasRoles;
@@ -143,5 +144,4 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasOne(UserStats::class);
     }
-
 }

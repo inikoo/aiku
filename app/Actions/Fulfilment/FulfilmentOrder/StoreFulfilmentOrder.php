@@ -25,7 +25,6 @@ class StoreFulfilmentOrder
         array $modelData,
         Address $deliveryAddress,
         array $items
-
     ): FulfilmentOrder {
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
@@ -40,7 +39,7 @@ class StoreFulfilmentOrder
         $fulfilmentOrder->stats()->create();
 
         $deliveryAddress = StoreHistoricAddress::run($deliveryAddress);
-        AttachHistoricAddressToModel::run($fulfilmentOrder,$deliveryAddress,['scope'=>'delivery']);
+        AttachHistoricAddressToModel::run($fulfilmentOrder, $deliveryAddress, ['scope'=>'delivery']);
 
 
         foreach ($items as $itemData) {

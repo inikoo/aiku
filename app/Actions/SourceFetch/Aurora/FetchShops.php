@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Marketing\Shop\StoreShop;
@@ -18,20 +17,14 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchShops extends FetchAction
 {
-
-
     public string $commandSignature = 'fetch:shops {tenants?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Shop
     {
         if ($shopData = $tenantSource->fetchShop($tenantSourceId)) {
-
-
-
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])
                 ->first()) {
                 $shop = UpdateShop::run(
@@ -55,7 +48,7 @@ class FetchShops extends FetchAction
 
                 $accountData = DB::connection('aurora')->table('Payment Account Dimension')
                     ->select('Payment Account Key')
-                    ->leftJoin('Payment Account Store Bridge','Payment Account Store Payment Account Key','Payment Account Key')
+                    ->leftJoin('Payment Account Store Bridge', 'Payment Account Store Payment Account Key', 'Payment Account Key')
                     ->where('Payment Account Block', 'Accounts')
                     ->where('Payment Account Store Store Key', $shopData['shop']['source_id'])
                     ->first();
@@ -64,9 +57,6 @@ class FetchShops extends FetchAction
 
 
                 if ($accountData) {
-
-
-
                     $shop->accounts()->update(
                         [
                             'source_id' => $accountData->{'Payment Account Key'}
@@ -87,7 +77,7 @@ class FetchShops extends FetchAction
     }
 
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Store Dimension')
@@ -95,9 +85,8 @@ class FetchShops extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Store Dimension')->count();
     }
-
 }

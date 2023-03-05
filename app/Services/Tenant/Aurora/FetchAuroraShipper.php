@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraShipper extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $this->parsedData['shipper'] = [
@@ -37,5 +36,4 @@ class FetchAuroraShipper extends FetchAurora
             ->table('Shipper Dimension')
             ->where('Shipper Key', $id)->first();
     }
-
 }

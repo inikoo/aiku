@@ -13,10 +13,8 @@ use App\Models\HumanResources\JobPosition;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-
 class HydrateJobPosition extends HydrateModel
 {
-
     use WithNormalise;
 
     public string $commandSignature = 'hydrate:job-positions {tenants?*} {--i|id=}';
@@ -24,7 +22,6 @@ class HydrateJobPosition extends HydrateModel
     public function handle(JobPosition $jobPosition): void
     {
         $jobPosition->update(
-
             [
                 'number_employees' => DB::connection('tenant')->table('employee_job_position')->where('job_position_id', $jobPosition->id)->count(),
                 'number_work_time' => DB::connection('tenant')->table('employee_job_position')->where('job_position_id', $jobPosition->id)->sum('share'),
@@ -66,8 +63,4 @@ class HydrateJobPosition extends HydrateModel
     {
         return JobPosition::all();
     }
-
-
 }
-
-

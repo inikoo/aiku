@@ -19,7 +19,6 @@ class UpdateInvoice
         Invoice $invoice,
         array $modelData
     ): Invoice {
-
         $invoice->update(Arr::except($modelData, ['data']));
         $invoice->update($this->extractJson($modelData));
 

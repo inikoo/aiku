@@ -19,7 +19,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-
 /**
  * App\Models\Central\AdminUser
  *
@@ -43,12 +42,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Model|\Eloquent $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read Model|\Eloquent $userable
+ *
  * @method static Builder|AdminUser newModelQuery()
  * @method static Builder|AdminUser newQuery()
  * @method static Builder|AdminUser onlyTrashed()
  * @method static Builder|AdminUser query()
  * @method static Builder|AdminUser withTrashed()
  * @method static Builder|AdminUser withoutTrashed()
+ *
  * @mixin Eloquent
  */
 class AdminUser extends Authenticatable
@@ -62,7 +63,7 @@ class AdminUser extends Authenticatable
     protected $casts = [
         'data'     => 'array',
         'settings' => 'array',
-        'status'   => 'boolean'
+        'status'   => 'boolean',
     ];
 
     protected $attributes = [
@@ -92,27 +93,22 @@ class AdminUser extends Authenticatable
 
     protected $guarded = [];
 
-
     public function userable(): MorphTo
     {
-        return $this->morphTo(null,null,null,'numeric_id');
+        return $this->morphTo(null, null, null, 'numeric_id');
     }
 
     public function tenant(): MorphTo
     {
-        return $this->morphTo('userable','userable_type','userable_id','numeric_id');
+        return $this->morphTo('userable', 'userable_type', 'userable_id', 'numeric_id');
     }
 
     public function getUserable(): Model|Eloquent
     {
-
-        if($this->userable_type=='Tenant'){
+        if ($this->userable_type == 'Tenant') {
             return $this->tenant;
-        }else{
+        } else {
             return $this->userable;
         }
-
     }
-
-
 }

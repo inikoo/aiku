@@ -7,11 +7,9 @@
 
 namespace App\Actions\Web\Webpage;
 
-
 use App\Models\Web\Webnode;
 use App\Models\Web\Webpage;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class StoreWebpage
 {
@@ -33,6 +31,4 @@ class StoreWebpage
 
         return $webpage;
     }
-
-
 }

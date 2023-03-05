@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Permission\Models\Role as SpatieRole;
 
-
 /**
  * App\Models\SysAdmin\Role
  *
@@ -33,4 +32,3 @@ class Role extends SpatieRole
 {
     use UsesTenantConnection;
 }
-

@@ -12,10 +12,8 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
-
 class JobPositionLightResource extends JsonResource
 {
-
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         /** @var \App\Models\HumanResources\JobPosition $jobPosition */
@@ -25,7 +23,7 @@ class JobPositionLightResource extends JsonResource
         return [
             'id'       => $jobPosition->id,
             'slug'     => $jobPosition->slug,
-            'code' => $jobPosition->name,
+            'code'     => $jobPosition->name,
         ];
     }
 }

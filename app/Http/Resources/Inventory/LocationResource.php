@@ -20,19 +20,17 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class LocationResource extends JsonResource
 {
-
     public function toArray($request): array
     {
-
         return [
-            'id'=>$this->id,
-            'slug'=>$this->slug,
-            'code'=>$this->code,
+            'id'       => $this->id,
+            'slug'     => $this->slug,
+            'code'     => $this->code,
             'quantity' => $this->whenPivotLoaded(new LocationStock(), function () {
                 return $this->pivot->quantity;
             }),
-            'warehouse_slug'=>$this->warehouse_slug,
-            'warehouse_area_slug'=>$this->warehouse_area_slug,
+            'warehouse_slug'     => $this->warehouse_slug,
+            'warehouse_area_slug'=> $this->warehouse_area_slug,
         ];
     }
 }

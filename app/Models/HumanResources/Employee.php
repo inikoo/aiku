@@ -122,7 +122,6 @@ class Employee extends Model implements HasMedia
                 if ($employee->wasChanged('state')) {
                     HydrateTenant::make()->employeesStats();
                 }
-
             }
         });
     }
@@ -155,6 +154,4 @@ class Employee extends Model implements HasMedia
     {
         return 'slug';
     }
-
-
 }

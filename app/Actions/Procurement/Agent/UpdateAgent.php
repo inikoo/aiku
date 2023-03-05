@@ -10,7 +10,6 @@ namespace App\Actions\Procurement\Agent;
 use App\Actions\WithActionUpdate;
 use App\Models\Procurement\Agent;
 
-
 class UpdateAgent
 {
     use WithActionUpdate;

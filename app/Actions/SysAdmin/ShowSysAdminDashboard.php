@@ -14,8 +14,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
-
 class ShowSysAdminDashboard
 {
     use AsAction;
@@ -35,7 +33,6 @@ class ShowSysAdminDashboard
 
     public function htmlResponse(): Response
     {
-
         /** @var Tenant $tenant */
         $tenant=app('currentTenant');
 
@@ -61,7 +58,6 @@ class ShowSysAdminDashboard
                 ]
 
             ]
-
         );
     }
 
@@ -75,6 +71,4 @@ class ShowSysAdminDashboard
             ]
         ];
     }
-
-
 }

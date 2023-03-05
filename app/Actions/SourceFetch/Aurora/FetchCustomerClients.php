@@ -5,9 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\SourceFetch\Aurora;
-
 
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
@@ -21,7 +19,6 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchCustomerClients extends FetchAction
 {
-
     public string $commandSignature = 'fetch:customer-clients {tenants?*} {--s|source_id=}';
 
 
@@ -54,7 +51,7 @@ class FetchCustomerClients extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         $query = DB::connection('aurora')
             ->table('Customer Client Dimension')
@@ -72,7 +69,7 @@ class FetchCustomerClients extends FetchAction
         return $query;
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Customer Client Dimension');
 
@@ -85,5 +82,4 @@ class FetchCustomerClients extends FetchAction
 
         return $query->count();
     }
-
 }

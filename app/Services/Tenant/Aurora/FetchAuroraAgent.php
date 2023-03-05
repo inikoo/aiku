@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraAgent extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $phone = $this->auroraModelData->{'Agent Main Plain Mobile'};
@@ -45,5 +44,4 @@ class FetchAuroraAgent extends FetchAurora
             ->table('Agent Dimension')
             ->where('Agent Key', $id)->first();
     }
-
 }

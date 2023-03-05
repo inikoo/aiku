@@ -32,12 +32,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\Product $product
  * @property-read \App\Models\Marketing\HistoricProductStats|null $stats
+ *
  * @method static Builder|HistoricProduct newModelQuery()
  * @method static Builder|HistoricProduct newQuery()
  * @method static Builder|HistoricProduct onlyTrashed()
  * @method static Builder|HistoricProduct query()
  * @method static Builder|HistoricProduct withTrashed()
  * @method static Builder|HistoricProduct withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class HistoricProduct extends Model
@@ -50,7 +52,8 @@ class HistoricProduct extends Model
         'status' => 'boolean',
     ];
 
-    public $timestamps = ["created_at"];
+    public $timestamps = ['created_at'];
+
     public const UPDATED_AT = null;
 
     protected $guarded = [];

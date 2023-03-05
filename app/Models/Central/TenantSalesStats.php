@@ -77,9 +77,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Central\Tenant $tenant
+ *
  * @method static Builder|TenantSalesStats newModelQuery()
  * @method static Builder|TenantSalesStats newQuery()
  * @method static Builder|TenantSalesStats query()
+ *
  * @mixin \Eloquent
  */
 class TenantSalesStats extends Model

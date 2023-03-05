@@ -13,17 +13,14 @@ use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProvid
 use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Support\Collection;
 
-
 class HydratePaymentServiceProvider extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:payment-service-provider {tenants?*} {--i|id=} ';
 
     public function handle(PaymentServiceProvider $paymentServiceProvider): void
     {
         PaymentServiceProviderHydrateAccounts::run($paymentServiceProvider);
         PaymentServiceProviderHydratePayments::run($paymentServiceProvider);
-
     }
 
 
@@ -36,8 +33,4 @@ class HydratePaymentServiceProvider extends HydrateModel
     {
         return PaymentServiceProvider::withTrashed()->get();
     }
-
-
 }
-
-

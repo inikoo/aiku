@@ -9,7 +9,6 @@
 namespace App\Actions\Helpers\Address;
 
 use App\Models\Helpers\Address;
-use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DeleteAddress

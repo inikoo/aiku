@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Models\Inventory\WarehouseArea;
@@ -16,11 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchWarehouseAreas extends FetchAction
 {
-
-
     public string $commandSignature = 'fetch:warehouse-areas {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?WarehouseArea
@@ -46,7 +42,7 @@ class FetchWarehouseAreas extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Warehouse Area Dimension')
@@ -54,10 +50,8 @@ class FetchWarehouseAreas extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Warehouse Area Dimension')->count();
     }
-
-
 }

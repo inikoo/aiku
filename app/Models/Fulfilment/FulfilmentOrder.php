@@ -7,7 +7,6 @@
 
 namespace App\Models\Fulfilment;
 
-
 use App\Models\Traits\HasOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -79,6 +78,4 @@ class FulfilmentOrder extends Model
     {
         return $this->hasOne(FulfilmentOrderStats::class);
     }
-
-
 }

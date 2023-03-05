@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
 use App\Models\Marketing\Shop;
@@ -19,8 +18,6 @@ use Illuminate\Console\Command;
 
 class FetchShopCategories extends FetchAction
 {
-
-
     public string $commandSignature = 'fetch:shop-categories {tenants?*} {--s|source_id=}';
 
 
@@ -78,7 +75,7 @@ class FetchShopCategories extends FetchAction
         }
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Store Dimension')
@@ -86,7 +83,7 @@ class FetchShopCategories extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         $count = 0;
 
@@ -111,5 +108,4 @@ class FetchShopCategories extends FetchAction
 
         return $count;
     }
-
 }

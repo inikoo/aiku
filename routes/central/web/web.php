@@ -5,10 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
 
 Route::get('/', function () {
     return Inertia::render('Central/Welcome', [
@@ -50,9 +48,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-Route::prefix('setup')->middleware(['auth', 'verified', 'verify.new'])->name('setup.')
-    ->group(__DIR__.'/setup.php');
 
 */
-
-

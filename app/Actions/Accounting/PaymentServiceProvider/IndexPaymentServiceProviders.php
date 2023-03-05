@@ -22,7 +22,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexPaymentServiceProviders extends InertiaAction
 {
     private Shop|Tenant $parent;
@@ -31,8 +30,6 @@ class IndexPaymentServiceProviders extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-
-
                 $query->where('payment_service_providers.code', '~*', "\y$value\y")
                     ->orWhere('payment_service_providers.data', '=', $value);
             });
@@ -42,7 +39,7 @@ class IndexPaymentServiceProviders extends InertiaAction
         return QueryBuilder::for(PaymentServiceProvider::class)
             ->defaultSort('payment_service_providers.code')
             ->select(['code', 'slug', 'number_accounts', 'number_payments'])
-            ->leftJoin('payment_service_provider_stats','payment_service_providers.id','payment_service_provider_stats.payment_service_provider_id')
+            ->leftJoin('payment_service_provider_stats', 'payment_service_providers.id', 'payment_service_provider_stats.payment_service_provider_id')
             ->allowedSorts(['code', 'number_accounts', 'number_payments'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -71,8 +68,8 @@ class IndexPaymentServiceProviders extends InertiaAction
             'Accounting/PaymentServiceProviders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('Payment Service Providers'),
-                'pageHead' => [
+                'title'       => __('Payment Service Providers'),
+                'pageHead'    => [
                     'title' => __('Payment Service Providers'),
                 ],
                 'payment_service_providers' => PaymentServiceProviderResource::collection($payment_service_providers),
@@ -96,7 +93,7 @@ class IndexPaymentServiceProviders extends InertiaAction
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
-        $this->parent = app('currentTenant');
+        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
 
         return $this->handle();
@@ -108,7 +105,7 @@ class IndexPaymentServiceProviders extends InertiaAction
             (new ShowAccountingDashboard())->getBreadcrumbs(),
             [
                 'accounting.payment-service-providers.index' => [
-                    'route' => 'accounting.payment-service-providers.index',
+                    'route'      => 'accounting.payment-service-providers.index',
                     'modelLabel' => [
                         'label' => __('Providers')
                     ],
@@ -116,5 +113,4 @@ class IndexPaymentServiceProviders extends InertiaAction
             ]
         );
     }
-
 }

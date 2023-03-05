@@ -9,9 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('guests', function (Blueprint $table) {
@@ -19,7 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->boolean('status')->index()->default(true);
             $table->enum('type', ['contractor', 'external-employee','external-administrator'])->default('contractor');
-            $table->string('name',256)->nullable()->index();
+            $table->string('name', 256)->nullable()->index();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('identity_document_type')->nullable();

@@ -10,12 +10,9 @@ namespace App\Actions\Marketing\Department;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Marketing\DepartmentResource;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\InertiaTableCustomerResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,7 +22,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexDepartments extends InertiaAction
 {
     private Shop|Tenant $parent;
@@ -34,8 +30,6 @@ class IndexDepartments extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-
-
                 $query->where('departments.name', '~*', "\y$value\y")
                     ->orWhere('departments.code', '=', $value);
             });
@@ -80,8 +74,8 @@ class IndexDepartments extends InertiaAction
             'Marketing/Departments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('departments'),
-                'pageHead' => [
+                'title'       => __('departments'),
+                'pageHead'    => [
                     'title' => __('departments'),
                 ],
                 'departments' => DepartmentResource::collection($departments),
@@ -104,7 +98,7 @@ class IndexDepartments extends InertiaAction
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
-        $this->parent = app('currentTenant');
+        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
 
         return $this->handle();
@@ -123,9 +117,9 @@ class IndexDepartments extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('departments')
                     ]
                 ],
@@ -133,7 +127,7 @@ class IndexDepartments extends InertiaAction
         };
 
         return match ($routeName) {
-            'departments.index' => $headCrumb(),
+            'departments.index'            => $headCrumb(),
             'shops.show.departments.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
@@ -142,5 +136,4 @@ class IndexDepartments extends InertiaAction
             default => []
         };
     }
-
 }

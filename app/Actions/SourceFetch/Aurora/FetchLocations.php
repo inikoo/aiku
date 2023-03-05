@@ -17,8 +17,6 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchLocations extends FetchAction
 {
-
-
     public string $commandSignature = 'fetch:locations {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Location
@@ -44,7 +42,7 @@ class FetchLocations extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Location Dimension')
@@ -56,9 +54,8 @@ class FetchLocations extends FetchAction
     }
 
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Location Dimension')->count();
     }
-
 }

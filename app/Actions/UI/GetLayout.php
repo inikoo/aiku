@@ -7,8 +7,6 @@
 
 namespace App\Actions\UI;
 
-
-use App\Http\Resources\Marketing\ShopResource;
 use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
@@ -215,5 +213,4 @@ class GetLayout
             'shops'      => $shops
         ];
     }
-
 }

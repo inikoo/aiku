@@ -9,16 +9,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
 
             $table->enum('type', ['purchase','fulfilment-delivery', 'dispatch-return', 'return-picked', 'fulfilment-return','picked', 'location-transfer', 'found' ,'consumption','write-off'])->index();
-            $table->enum('flow',['in','out'])->index();
+            $table->enum('flow', ['in','out'])->index();
             $table->morphs('stockable');
             $table->unsignedMediumInteger('location_id')->nullable()->index();
             $table->foreign('location_id')->references('id')->on('locations');
@@ -28,7 +26,6 @@ return new class extends Migration
             $table->jsonb('data');
             $table->timestampsTz();
             $table->unsignedBigInteger('source_id')->nullable()->nullable()->index();
-
         });
     }
 

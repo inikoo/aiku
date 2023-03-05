@@ -26,8 +26,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
-
 class IndexPayments extends InertiaAction
 {
     private Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent;
@@ -163,9 +161,9 @@ class IndexPayments extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('payments')
                     ]
                 ],
@@ -185,19 +183,17 @@ class IndexPayments extends InertiaAction
             ),
             'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
             array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-service-providers.show.payment-accounts.show',$parent),
+                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-service-providers.show.payment-accounts.show', $parent),
                 $headCrumb([$parent->paymentServiceProvider->slug,$parent->slug])
             ),
 
             'accounting.payment-accounts.show.payments.index' =>
             array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-accounts.show',$parent),
+                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-accounts.show', $parent),
                 $headCrumb([$parent->slug])
             ),
 
             default => []
         };
-
     }
-
 }

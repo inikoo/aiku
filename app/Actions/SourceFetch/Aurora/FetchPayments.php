@@ -7,8 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
-
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Models\Accounting\Payment;
@@ -17,10 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchPayments extends FetchAction
 {
-
     public string $commandSignature = 'fetch:payments {tenants?*} {--s|source_id=}';
 
 
@@ -35,8 +31,7 @@ class FetchPayments extends FetchAction
                 );
                 $this->markAuroraModel($payment);
             } else {
-
-                if($paymentData['customer']){
+                if ($paymentData['customer']) {
                     $payment = StorePayment::run(
                         parent: $paymentData['customer'],
                         modelData:      $paymentData['payment']
@@ -44,8 +39,6 @@ class FetchPayments extends FetchAction
 
                     $this->markAuroraModel($payment);
                 }
-
-
             }
 
 
@@ -55,14 +48,14 @@ class FetchPayments extends FetchAction
         return null;
     }
 
-    function markAuroraModel(Payment $payment){
+    public function markAuroraModel(Payment $payment)
+    {
         DB::connection('aurora')->table('Payment Dimension')
             ->where('Payment Key', $payment->source_id)
             ->update(['aiku_id' => $payment->id]);
-
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Payment Dimension')
@@ -70,9 +63,8 @@ class FetchPayments extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Payment Dimension')->count();
     }
-
 }

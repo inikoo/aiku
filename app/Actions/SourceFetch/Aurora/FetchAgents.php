@@ -16,17 +16,14 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchAgents extends FetchAction
 {
-
     public string $commandSignature = 'fetch:agents {tenants?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Agent
     {
         if ($agentData = $tenantSource->fetchAgent($tenantSourceId)) {
-
             $owner=app('currentTenant');
 
             if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])
@@ -49,7 +46,7 @@ class FetchAgents extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Agent Dimension')
@@ -58,7 +55,7 @@ class FetchAgents extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')
             ->table('Agent Dimension')
@@ -66,5 +63,4 @@ class FetchAgents extends FetchAction
             ->where('aiku_ignore', 'No')
             ->count();
     }
-
 }

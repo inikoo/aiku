@@ -13,18 +13,15 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class UserHydrateTenants implements ShouldBeUnique
 {
-
     use AsAction;
     use WithTenantJob;
 
     public function handle(User $user): void
     {
-
         $numberOtherTenants       = DB::table('central.central_user_tenant')->where('central_user_id', $user->central_user_id)->whereNot('tenant_id', app('currentTenant')->id)->count();
-        $numberOtherActiveTenants = DB::table('central.central_user_tenant')->leftJoin('central.tenants','tenants.id','tenant_id')->where('central_user_id', $user->central_user_id)
+        $numberOtherActiveTenants = DB::table('central.central_user_tenant')->leftJoin('central.tenants', 'tenants.id', 'tenant_id')->where('central_user_id', $user->central_user_id)
             ->whereNot('tenant_id', app('currentTenant')->id)
             ->where('tenants.status', true)
             ->count();
@@ -41,8 +38,4 @@ class UserHydrateTenants implements ShouldBeUnique
     {
         return $user->id;
     }
-
-
 }
-
-

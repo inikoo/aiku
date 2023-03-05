@@ -10,7 +10,6 @@ namespace App\Actions\Inventory\StockFamily;
 use App\Models\Inventory\StockFamily;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreStockFamily
 {
     use AsAction;

@@ -9,23 +9,19 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
-use App\Actions\Utils\SetPhoto;
 use App\Models\HumanResources\Employee;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchDeletedEmployees extends FetchAction
 {
-
     public string $commandSignature = 'fetch:deleted-employees {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Employee
     {
         if ($employeeData = $tenantSource->fetchDeletedEmployee($tenantSourceId)) {
-
             if ($employee = Employee::withTrashed()->where('source_id', $employeeData['employee']['source_id'])->first()) {
                 $employee = UpdateEmployee::run(
                     employee:  $employee,
@@ -42,7 +38,7 @@ class FetchDeletedEmployees extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Staff Deleted Dimension')
@@ -52,14 +48,12 @@ class FetchDeletedEmployees extends FetchAction
             ->when(app()->environment('testing'), function ($query) {
                 return $query->limit(20);
             });
-
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Staff Deleted Dimension')
             ->where('Staff Deleted Type', '!=', 'Contractor')
             ->count();
     }
-
 }

@@ -23,15 +23,14 @@ class CurrencySeeder extends Seeder
      */
     public function run()
     {
-
         $currencyRepository = new CurrencyRepository();
 
-        foreach( $currencyRepository->getAll() as $currency){
+        foreach ($currencyRepository->getAll() as $currency) {
             Currency::UpdateOrCreate(
                 ['code' => $currency->getCurrencyCode()],
                 [
-                    'name'           => $currency->getName(),
-                    'symbol'         => $currency->getSymbol(),
+                    'name'            => $currency->getName(),
+                    'symbol'          => $currency->getSymbol(),
                     'fraction_digits' => $currency->getFractionDigits(),
 
 
@@ -40,25 +39,19 @@ class CurrencySeeder extends Seeder
         }
 
         $countryRepository = new CountryRepository();
-        $countryList = $countryRepository->getList('en-GB');
+        $countryList       = $countryRepository->getList('en-GB');
         foreach ($countryList as $countryCode => $countryName) {
             if ($country = Country::where('code', $countryCode)->first()) {
-
                 $_country = $countryRepository->get($countryCode);
 
 
-                if($currency=Currency::where('code', $_country->getCurrencyCode())->first()){
+                if ($currency=Currency::where('code', $_country->getCurrencyCode())->first()) {
                     $country->currency_id=$currency->id;
                     $country->save();
-                }else{
+                } else {
                     print "Currency not found : {$_country->getCurrencyCode()} for country $countryCode\n";
                 }
-
             }
         }
-
-
-
     }
-
 }

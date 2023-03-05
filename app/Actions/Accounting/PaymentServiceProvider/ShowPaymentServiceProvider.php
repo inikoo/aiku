@@ -16,7 +16,6 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
-
 /**
  * @property PaymentServiceProvider $paymentServiceProvider
  */
@@ -106,5 +105,4 @@ class ShowPaymentServiceProvider extends InertiaAction
             ]
         );
     }
-
 }

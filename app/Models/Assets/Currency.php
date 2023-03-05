@@ -23,9 +23,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static Builder|Currency newModelQuery()
  * @method static Builder|Currency newQuery()
  * @method static Builder|Currency query()
+ *
  * @mixin \Eloquent
  */
 class Currency extends Model
@@ -33,7 +35,7 @@ class Currency extends Model
     use UsesLandlordConnection;
 
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
     ];
 
     protected $attributes = [

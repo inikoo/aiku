@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait HasAddress
 {
-
     public function addresses(): MorphToMany
     {
         return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
@@ -33,8 +32,4 @@ trait HasAddress
     {
         return $this->addresses()->where('scope', '=', $scope)->first();
     }
-
-
 }
-
-

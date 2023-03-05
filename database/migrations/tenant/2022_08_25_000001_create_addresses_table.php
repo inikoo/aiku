@@ -9,17 +9,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create(
             'addresses',
             function (Blueprint $table) {
                 $table->id();
-                $table->string('address_line_1',255)->nullable();
-                $table->string('address_line_2',255)->nullable();
+                $table->string('address_line_1', 255)->nullable();
+                $table->string('address_line_2', 255)->nullable();
                 $table->string('sorting_code')->nullable();
                 $table->string('postal_code')->nullable();
                 $table->string('locality')->nullable();
@@ -43,11 +41,6 @@ return new class extends Migration
             $table->string('sub_scope')->nullable()->index();
             $table->timestampsTz();
         });
-
-
-
-
-
     }
 
 

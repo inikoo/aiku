@@ -55,12 +55,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\TradeUnit> $tradeUnits
+ *
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
  * @method static Builder|Product onlyTrashed()
  * @method static Builder|Product query()
  * @method static Builder|Product withTrashed()
  * @method static Builder|Product withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Product extends Model
@@ -70,13 +72,13 @@ class Product extends Model
     use UsesTenantConnection;
 
     protected $casts = [
-        'data' => 'array',
+        'data'     => 'array',
         'settings' => 'array',
-        'status' => 'boolean',
+        'status'   => 'boolean',
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
         'settings' => '{}',
     ];
 
@@ -99,7 +101,7 @@ class Product extends Model
     {
         static::created(
             function (Product $product) {
-                if($product->family_id){
+                if ($product->family_id) {
                     HydrateFamily::make()->productsStats($product->family);
                 }
                 HydrateShop::make()->productsStats($product->shop);
@@ -108,14 +110,12 @@ class Product extends Model
 
         static::updated(function (Product $product) {
             if ($product->wasChanged('state')) {
-                if($product->family_id){
+                if ($product->family_id) {
                     HydrateFamily::make()->productsStats($product->family);
                 }
                 HydrateShop::make()->productsStats($product->shop);
             }
-
         });
-
     }
 
     public function family(): BelongsTo
@@ -135,7 +135,7 @@ class Product extends Model
 
     public function salesStats(): MorphOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope','sales');
+        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales');
     }
 
     public function historicRecords(): HasMany

@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Inventory\Stock\UpdateStock;
 use App\Models\Inventory\Stock;
@@ -16,10 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchStocks extends FetchAction
 {
-
     public string $commandSignature = 'fetch:stocks {tenants?*} {--s|source_id=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Stock
@@ -50,7 +47,7 @@ class FetchStocks extends FetchAction
 
             DB::connection('aurora')
                 ->table('Part Dimension')
-                ->where('Part SKU',$stock->source_id)
+                ->where('Part SKU', $stock->source_id)
                 ->update(['aiku_id' => $stock->id]);
 
             return $stock;
@@ -60,7 +57,7 @@ class FetchStocks extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Part Dimension')
@@ -69,13 +66,11 @@ class FetchStocks extends FetchAction
             ->when(app()->environment('testing'), function ($query) {
                 return $query->limit(20);
             });
-
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Part Dimension')
             ->count();
     }
-
 }

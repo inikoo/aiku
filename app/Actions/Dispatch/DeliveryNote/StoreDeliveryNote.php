@@ -22,7 +22,6 @@ class StoreDeliveryNote
         Order $order,
         array $modelData,
         Address $seedDeliveryAddress,
-
     ): DeliveryNote {
         $modelData['shop_id']     = $order->shop_id;
         $modelData['customer_id'] = $order->customer_id;
@@ -32,11 +31,9 @@ class StoreDeliveryNote
         $deliveryNote->stats()->create();
 
         $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
-        AttachHistoricAddressToModel::run($deliveryNote,$deliveryAddress,['scope'=>'delivery']);
+        AttachHistoricAddressToModel::run($deliveryNote, $deliveryAddress, ['scope'=>'delivery']);
 
 
         return $deliveryNote;
     }
 }
-
-

@@ -18,7 +18,6 @@ use App\Actions\WithActionUpdate;
 use App\Models\Sales\Customer;
 use Illuminate\Console\Command;
 
-
 class DeleteCustomer
 {
     use WithActionUpdate;
@@ -130,5 +129,4 @@ class DeleteCustomer
 
         return 0;
     }
-
 }

@@ -85,7 +85,7 @@ class FetchAuroraEmployee extends FetchAurora
             'employment_end_at' => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
             'type'              => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),
             'state'             => match ($this->auroraModelData->{'Staff Currently Working'}) {
-                'No' => 'left',
+                'No'    => 'left',
                 default => 'working'
             },
             'data'              => $data,
@@ -146,20 +146,19 @@ class FetchAuroraEmployee extends FetchAurora
     protected function parseJobPosition($isSupervisor, $sourceCode): string
     {
         return match ($sourceCode) {
-            'WAHM' => 'wah-m',
+            'WAHM'  => 'wah-m',
             'WAHSK' => 'wah-sk',
             'WAHSC' => 'wah-sc',
-            'PICK' => 'dist-pik,dist-pak',
+            'PICK'  => 'dist-pik,dist-pak',
             'OHADM' => 'dist-m',
             'PRODM' => 'prod-m',
             'PRODO' => 'prod-w',
-            'CUSM' => 'cus-m',
-            'CUS' => 'cus-c',
-            'MRK' => $isSupervisor ? 'mrk-m' : 'mrk-c',
-            'WEB' => $isSupervisor ? 'web-m' : 'web-c',
-            'HR' => $isSupervisor ? 'hr-m' : 'hr-c',
+            'CUSM'  => 'cus-m',
+            'CUS'   => 'cus-c',
+            'MRK'   => $isSupervisor ? 'mrk-m' : 'mrk-c',
+            'WEB'   => $isSupervisor ? 'web-m' : 'web-c',
+            'HR'    => $isSupervisor ? 'hr-m' : 'hr-c',
             default => strtolower($sourceCode)
         };
     }
-
 }

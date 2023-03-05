@@ -22,7 +22,6 @@ class StoreInvoice
         Order $order,
         array $modelData,
         Address $billingAddress,
-
     ): Invoice {
         $modelData['currency_id'] = $order->shop->currency_id;
         $modelData['shop_id']     = $order->shop_id;

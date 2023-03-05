@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources;
 
-
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Guest;
@@ -15,17 +14,13 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class AttachJobPosition
 {
-
     use AsAction;
 
 
-    public function handle(Employee|Guest $model, JobPosition $jobPosition):void
+    public function handle(Employee|Guest $model, JobPosition $jobPosition): void
     {
         $model->jobPositions()->attach($jobPosition->id);
 
         $model->user?->assignJoBPositionRoles($jobPosition);
-
     }
-
-
 }

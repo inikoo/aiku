@@ -7,7 +7,6 @@
 
 namespace App\Actions\SysAdmin\User;
 
-
 use App\Actions\Central\CentralUser\Hydrators\CentralUserHydrateTenants;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Central\CentralUser;
@@ -17,7 +16,6 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 use  Spatie\Multitenancy\Landlord;
-
 
 class StoreUser
 {
@@ -30,9 +28,9 @@ class StoreUser
         });
         $user=$parent->user()->create(
             [
-            'central_user_id'=>$centralUser->id,
-            'username'=>$centralUser->username,
-            'password'=>$centralUser->password,
+            'central_user_id'=> $centralUser->id,
+            'username'       => $centralUser->username,
+            'password'       => $centralUser->password,
             ]
         );
         $user->stats()->create();
@@ -43,6 +41,4 @@ class StoreUser
 
         return $user;
     }
-
-
 }

@@ -13,10 +13,8 @@ use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class AttachHistoricAddressToModel
 {
-
     use AsAction;
 
     public function handle(

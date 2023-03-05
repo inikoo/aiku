@@ -7,17 +7,13 @@
 
 namespace App\Actions\SysAdmin\User;
 
-
 use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\User\Hydrators\UserHydrateTenants;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Collection;
 
-
 class HydrateUser extends HydrateModel
 {
-
-
     public string $commandSignature = 'hydrate:users {tenants?*} {--i|id=}';
 
 
@@ -35,8 +31,4 @@ class HydrateUser extends HydrateModel
     {
         return User::all();
     }
-
-
 }
-
-

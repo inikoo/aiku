@@ -7,7 +7,6 @@
 
 namespace App\Actions;
 
-
 use App\Models\Central\Tenant;
 use App\Services\Tenant\AuroraTenantService;
 use Exception;
@@ -15,7 +14,6 @@ use Illuminate\Support\Arr;
 
 trait WithTenantSource
 {
-
     /**
      * @throws \Exception
      */
@@ -28,7 +26,7 @@ trait WithTenantSource
 
         $tenantSource = match (Arr::get($tenant->source, 'type')) {
             'Aurora' => new AuroraTenantService(),
-            default => null
+            default  => null
         };
 
         if (!$tenantSource) {
@@ -37,6 +35,4 @@ trait WithTenantSource
 
         return $tenantSource;
     }
-
 }
-

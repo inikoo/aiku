@@ -20,9 +20,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Marketing\HistoricService $historicService
+ *
  * @method static Builder|HistoricServiceStats newModelQuery()
  * @method static Builder|HistoricServiceStats newQuery()
  * @method static Builder|HistoricServiceStats query()
+ *
  * @mixin \Eloquent
  */
 class HistoricServiceStats extends Model
@@ -32,7 +34,6 @@ class HistoricServiceStats extends Model
     protected $table = 'historic_service_stats';
 
     protected $guarded = [];
-
 
     public function historicService(): BelongsTo
     {

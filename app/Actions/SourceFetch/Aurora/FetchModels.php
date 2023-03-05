@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnused */
 
 /*
@@ -9,7 +10,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\WithTenantsArgument;
 use App\Actions\WithTenantSource;
 use App\Models\Central\Tenant;
@@ -18,7 +18,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class FetchModels
 {
@@ -50,14 +49,15 @@ class FetchModels
 
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->execute(
-            /**
-             * @throws \Exception
-             */ function (Tenant $tenant) use ($command) {
-                $tenantSource = $this->getTenantSource($tenant);
-                $tenantSource->initialisation(app('currentTenant'));
+                /**
+                 * @throws \Exception
+                 */ 
+                function (Tenant $tenant) use ($command) {
+                    $tenantSource = $this->getTenantSource($tenant);
+                    $tenantSource->initialisation(app('currentTenant'));
 
-                $this->handle($tenantSource);
-            }
+                    $this->handle($tenantSource);
+                }
             );
 
             if ($result !== 0) {
@@ -67,6 +67,4 @@ class FetchModels
 
         return $exitCode;
     }
-
-
 }

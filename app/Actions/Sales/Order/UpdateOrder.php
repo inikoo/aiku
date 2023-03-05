@@ -10,7 +10,6 @@ namespace App\Actions\Sales\Order;
 
 use App\Actions\WithActionUpdate;
 use App\Models\Sales\Order;
-use Illuminate\Support\Arr;
 
 class UpdateOrder
 {
@@ -20,9 +19,6 @@ class UpdateOrder
         Order $order,
         array $modelData
     ): Order {
-
-
-
         return $this->update($order, $modelData, ['data']);
     }
 }

@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-
 /**
  * App\Models\Sales\Transaction
  *
@@ -99,6 +98,4 @@ class Transaction extends Model
     {
         $this->attributes['quantity'] = sprintf('%.3f', $val);
     }
-
-
 }

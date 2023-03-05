@@ -136,6 +136,4 @@ class Supplier extends Model
     {
         return $this->belongsTo(Agent::class);
     }
-
-
 }

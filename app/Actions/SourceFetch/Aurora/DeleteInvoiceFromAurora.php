@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Sales\Invoice\DeleteInvoice;
 use App\Models\Sales\Invoice;
 use App\Services\Tenant\SourceTenantService;
@@ -15,7 +14,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class DeleteInvoiceFromAurora
 {
-
     use AsAction;
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
@@ -36,6 +34,4 @@ class DeleteInvoiceFromAurora
 
         return null;
     }
-
-
 }

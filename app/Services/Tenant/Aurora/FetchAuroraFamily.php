@@ -27,8 +27,8 @@ class FetchAuroraFamily extends FetchAurora
             'name'       => $this->auroraModelData->{'Category Label'},
             'state'      => match ($this->auroraModelData->{'Product Category Status'}) {
                 'In Process' => 'in-process',
-                'Suspended' => 'active',
-                default => strtolower($this->auroraModelData->{'Product Category Status'})
+                'Suspended'  => 'active',
+                default      => strtolower($this->auroraModelData->{'Product Category Status'})
             },
             'created_at' => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),
             'source_id'  => $this->auroraModelData->{'Category Key'},
@@ -42,5 +42,4 @@ class FetchAuroraFamily extends FetchAurora
             ->leftJoin('Product Category Dimension', 'Product Category Key', 'Category Key')
             ->where('Category Key', $id)->first();
     }
-
 }

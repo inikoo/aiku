@@ -20,11 +20,8 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
-
 class ShowWebUser extends InertiaAction
 {
-
-
     public function handle(WebUser $webUser): WebUser
     {
         return $webUser;
@@ -145,5 +142,4 @@ class ShowWebUser extends InertiaAction
             default => []
         };
     }
-
 }

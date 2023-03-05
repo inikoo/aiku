@@ -9,22 +9,18 @@ namespace App\Actions\Accounting\PaymentServiceProvider\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Enums\PaymentStateEnum;
-use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class PaymentServiceProviderHydratePayments implements ShouldBeUnique
 {
-
     use AsAction;
     use WithTenantJob;
 
     public function handle(PaymentServiceProvider $paymentServiceProvider): void
     {
-
         $paymentRecords = $paymentServiceProvider->payments()->count();
         $refunds        = $paymentServiceProvider->payments()->where('type', 'refund')->count();
 
@@ -56,7 +52,7 @@ class PaymentServiceProviderHydratePayments implements ShouldBeUnique
             $stats["number_payment_records_state_$state"] = Arr::get($stateCounts, $state, 0);
         }
 
-        $stateCounts =$paymentServiceProvider->payments()->where('type','payment')
+        $stateCounts =$paymentServiceProvider->payments()->where('type', 'payment')
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -65,7 +61,7 @@ class PaymentServiceProviderHydratePayments implements ShouldBeUnique
             $stats["number_payments_state_$state"] = Arr::get($stateCounts, $state, 0);
         }
 
-        $stateCounts = $paymentServiceProvider->payments()->where('type','refund')
+        $stateCounts = $paymentServiceProvider->payments()->where('type', 'refund')
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -81,8 +77,4 @@ class PaymentServiceProviderHydratePayments implements ShouldBeUnique
     {
         return $paymentServiceProvider->id;
     }
-
-
 }
-
-

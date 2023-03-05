@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-
 /**
  * App\Models\Marketing\ShopAccountingStats
  *
@@ -50,9 +49,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Marketing\Shop $shop
+ *
  * @method static Builder|ShopAccountingStats newModelQuery()
  * @method static Builder|ShopAccountingStats newQuery()
  * @method static Builder|ShopAccountingStats query()
+ *
  * @mixin \Eloquent
  */
 class ShopAccountingStats extends Model
@@ -67,6 +68,4 @@ class ShopAccountingStats extends Model
     {
         return $this->belongsTo(Shop::class);
     }
-
-
 }

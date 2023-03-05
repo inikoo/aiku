@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Models\Accounting\PaymentAccount;
@@ -16,11 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchPaymentAccounts extends FetchAction
 {
-
-
     public string $commandSignature = 'fetch:payment-accounts {tenants?*} {--s|source_id=}';
 
 
@@ -51,7 +47,7 @@ class FetchPaymentAccounts extends FetchAction
     }
 
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Payment Account Dimension')
@@ -59,9 +55,8 @@ class FetchPaymentAccounts extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Payment Account Dimension')->count();
     }
-
 }

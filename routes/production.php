@@ -10,4 +10,3 @@ use App\Actions\Production\ShowProductionDashboard;
 
 Route::get('/', ShowProductionDashboard::class)->name('dashboard');
 Route::get('/products/', ShowProductionDashboard::class)->name('products.index');
-

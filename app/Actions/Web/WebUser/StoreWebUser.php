@@ -13,14 +13,12 @@ use App\Models\Web\WebUser;
 use Illuminate\Support\Facades\Hash;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreWebUser
 {
     use AsAction;
 
     public function handle(Customer $customer, array $modelData = []): Webuser
     {
-
         $modelData['password']=Hash::make($modelData['password']);
         /** @var WebUser $webUser */
         $webUser = $customer->webUsers()->create(
@@ -30,12 +28,8 @@ class StoreWebUser
                     'website_id' => $customer->shop->website->id
                 ]
             )
-
-
         );
 
         return $webUser;
     }
-
-
 }

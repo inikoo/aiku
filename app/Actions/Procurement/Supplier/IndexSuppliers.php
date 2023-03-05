@@ -21,7 +21,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexSuppliers extends InertiaAction
 {
     private Agent|Tenant $parent;
@@ -111,7 +110,7 @@ class IndexSuppliers extends InertiaAction
             (new ShowProcurementDashboard())->getBreadcrumbs(),
             [
                 'procurement.suppliers.index' => [
-                    'route' => 'procurement.suppliers.index',
+                    'route'      => 'procurement.suppliers.index',
                     'modelLabel' => [
                         'label' => __('suppliers')
                     ],
@@ -119,5 +118,4 @@ class IndexSuppliers extends InertiaAction
             ]
         );
     }
-
 }

@@ -19,14 +19,11 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-
 /**
  * @property Location $location
  */
 class ShowLocation extends InertiaAction
 {
-
-
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("inventory.view");
@@ -132,5 +129,4 @@ class ShowLocation extends InertiaAction
             default => []
         };
     }
-
 }

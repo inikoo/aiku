@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Sales\Customer\DeleteCustomer;
 use App\Models\Sales\Customer;
 use App\Services\Tenant\SourceTenantService;
@@ -15,7 +14,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class DeleteCustomerFromAurora
 {
-
     use AsAction;
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
@@ -32,6 +30,4 @@ class DeleteCustomerFromAurora
 
         return null;
     }
-
-
 }

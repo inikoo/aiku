@@ -15,24 +15,22 @@ use Illuminate\Support\Facades\Cookie;
 
 class SetLocale
 {
-
     public function handle(Request $request, Closure $next)
     {
-
         /** @var User $user */
 
-       if ($user = auth()->user()) {
-           $locale =Arr::get($user->settings, 'language');
-       } else {
-           $locale = Cookie::get('language');
+        if ($user = auth()->user()) {
+            $locale =Arr::get($user->settings, 'language');
+        } else {
+            $locale = Cookie::get('language');
 
-           if (!$locale) {
-               $locale = substr(locale_accept_from_http(Arr::get($_SERVER,'HTTP_ACCEPT_LANGUAGE','en')), 0, 2);
-           }
-       }
+            if (!$locale) {
+                $locale = substr(locale_accept_from_http(Arr::get($_SERVER, 'HTTP_ACCEPT_LANGUAGE', 'en')), 0, 2);
+            }
+        }
 
 
-       app()->setLocale($locale);
+        app()->setLocale($locale);
 
         return $next($request);
     }

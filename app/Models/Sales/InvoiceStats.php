@@ -30,7 +30,7 @@ class InvoiceStats extends Model
 {
     use UsesTenantConnection;
 
-    protected $table = 'invoice_stats';
+    protected $table   = 'invoice_stats';
     protected $guarded = [];
 
     public function invoice(): BelongsTo

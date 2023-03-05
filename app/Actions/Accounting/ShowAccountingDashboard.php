@@ -9,13 +9,11 @@ namespace App\Actions\Accounting;
 
 use App\Actions\UI\WithInertia;
 use App\Models\Central\Tenant;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 /**
  * @property Tenant $tenant
@@ -100,7 +98,6 @@ class ShowAccountingDashboard
                 ]
 
             ]
-
         );
     }
 
@@ -114,6 +111,4 @@ class ShowAccountingDashboard
             ]
         ];
     }
-
-
 }

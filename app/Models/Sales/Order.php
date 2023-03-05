@@ -105,8 +105,4 @@ class Order extends Model
     {
         return $this->hasOne(OrderStats::class);
     }
-
-
-
 }
-

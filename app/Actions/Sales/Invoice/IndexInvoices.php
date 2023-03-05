@@ -10,7 +10,6 @@ namespace App\Actions\Sales\Invoice;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Sales\InvoiceResource;
-use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Invoice;
@@ -23,7 +22,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexInvoices extends InertiaAction
 {
     private Shop|Tenant $parent;
@@ -32,8 +30,6 @@ class IndexInvoices extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-
-
                 $query->where('invoices.number', '~*', "\y$value\y")
                     ->orWhere('invoices.total', '=', $value)
                     ->orWhere('invoices.net', '=', $value);
@@ -79,8 +75,8 @@ class IndexInvoices extends InertiaAction
             'Marketing/Invoices',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('invoices'),
-                'pageHead' => [
+                'title'       => __('invoices'),
+                'pageHead'    => [
                     'title' => __('invoices'),
                 ],
                 'invoices' => InvoiceResource::collection($invoices),
@@ -98,7 +94,6 @@ class IndexInvoices extends InertiaAction
             $table->column(key: 'total', label: __('total'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'net', label: __('net'), canBeHidden: false, sortable: true, searchable: true);
-
         });
     }
 
@@ -106,7 +101,7 @@ class IndexInvoices extends InertiaAction
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
-        $this->parent = app('currentTenant');
+        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
 
         return $this->handle();
@@ -125,9 +120,9 @@ class IndexInvoices extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('invoices')
                     ]
                 ],
@@ -135,7 +130,7 @@ class IndexInvoices extends InertiaAction
         };
 
         return match ($routeName) {
-            'invoices.index' => $headCrumb(),
+            'invoices.index'            => $headCrumb(),
             'shops.show.invoices.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
@@ -144,5 +139,4 @@ class IndexInvoices extends InertiaAction
             default => []
         };
     }
-
 }

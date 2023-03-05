@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Models\Web\Website;
@@ -16,11 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchWebsites extends FetchAction
 {
-
-
     public string $commandSignature = 'fetch:websites {tenants?*} {--s|source_id=}';
 
 
@@ -39,7 +35,6 @@ class FetchWebsites extends FetchAction
                     modelData: $websiteData['website'],
                 );
                 usleep(1000000);
-
             }
 
             return $website;
@@ -48,7 +43,7 @@ class FetchWebsites extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Website Dimension')
@@ -56,9 +51,8 @@ class FetchWebsites extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Website Dimension')->count();
     }
-
 }

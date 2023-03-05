@@ -12,11 +12,8 @@ use App\Models\Central\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;
 
-
 class ShowAccount extends InertiaAction
 {
-
-
     private Tenant $tenant;
 
     public function asController(): void
@@ -71,7 +68,6 @@ class ShowAccount extends InertiaAction
 
 
             ]
-
         );
     }
 
@@ -80,6 +76,4 @@ class ShowAccount extends InertiaAction
     {
         return [];
     }
-
-
 }

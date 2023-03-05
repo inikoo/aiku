@@ -10,8 +10,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -19,7 +18,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-
         Schema::create('country_language', function (Blueprint $table) {
             $table->id();
             $table->unsignedSmallInteger('country_id');
@@ -58,7 +56,6 @@ return new class extends Migration
     {
         Schema::table('countries', function (Blueprint $table) {
             $table->dropColumn('timezone_id');
-
         });
         Schema::dropIfExists('country_timezone');
         Schema::dropIfExists('country_language');

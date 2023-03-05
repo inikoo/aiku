@@ -20,7 +20,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexAgents extends InertiaAction
 {
     public function handle(): LengthAwarePaginator
@@ -96,7 +95,7 @@ class IndexAgents extends InertiaAction
             (new ShowProcurementDashboard())->getBreadcrumbs(),
             [
                 'procurement.agents.index' => [
-                    'route' => 'procurement.agents.index',
+                    'route'      => 'procurement.agents.index',
                     'modelLabel' => [
                         'label' => __('agents')
                     ],
@@ -104,5 +103,4 @@ class IndexAgents extends InertiaAction
             ]
         );
     }
-
 }

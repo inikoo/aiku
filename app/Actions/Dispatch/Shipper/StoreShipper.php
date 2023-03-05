@@ -10,7 +10,6 @@ namespace App\Actions\Dispatch\Shipper;
 use App\Models\Dispatch\Shipper;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreShipper
 {
     use AsAction;
@@ -19,6 +18,4 @@ class StoreShipper
     {
         return Shipper::create($modelData);
     }
-
-
 }

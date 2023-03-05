@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Central\CentralUser\StoreCentralUser;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
@@ -19,27 +18,20 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchUsers extends FetchAction
 {
-
     public string $commandSignature = 'fetch:users {tenants?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?User
     {
-
         if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
-
-
             if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])
                 ->first()) {
                 $user = UpdateUser::run($user, $userData['user']);
             } else {
                 $centralUser = CentralUser::where('username', $userData['user']['username'])->first();
                 if (!$centralUser) {
-
-
                     $centralUser = StoreCentralUser::run(
                         [
                             'username' => $userData['user']['username'],
@@ -69,7 +61,7 @@ class FetchUsers extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('User Dimension')
@@ -77,11 +69,10 @@ class FetchUsers extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         $query = DB::connection('aurora')->table('User Dimension');
 
         return $query->count();
     }
-
 }

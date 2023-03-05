@@ -7,7 +7,6 @@
 
 namespace App\Models\Sales;
 
-
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;

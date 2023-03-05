@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\Procurement\SupplierProduct\UpdateSupplierProduct;
 use App\Models\Procurement\SupplierProduct;
@@ -16,10 +15,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchDeletedSupplierProducts extends FetchAction
 {
-
     public string $commandSignature = 'fetch:deleted-supplier-products {tenants?*} {--s|source_id=}';
 
 
@@ -33,7 +30,6 @@ class FetchDeletedSupplierProducts extends FetchAction
                         supplierProduct: $supplierProduct,
                         modelData:       $supplierDeletedProductData['supplierProduct'],
                         skipHistoric:    true
-
                     );
                 } else {
                     $supplierProduct = StoreSupplierProduct::run(
@@ -49,7 +45,7 @@ class FetchDeletedSupplierProducts extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Supplier Part Deleted Dimension')
@@ -57,12 +53,11 @@ class FetchDeletedSupplierProducts extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')
             ->table('Supplier Part Deleted Dimension')
             ->select('Supplier Part Deleted Key as source_id')
             ->count();
     }
-
 }

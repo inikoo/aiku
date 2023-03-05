@@ -5,7 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\WithTenantsArgument;
@@ -20,7 +19,6 @@ use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Symfony\Component\Console\Helper\ProgressBar;
-
 
 class FetchAction
 {
@@ -48,7 +46,7 @@ class FetchAction
         return null;
     }
 
-    function getModelsQuery(): ?Builder
+    public function getModelsQuery(): ?Builder
     {
         return null;
     }
@@ -189,14 +187,15 @@ class FetchAction
     }
 
 
-    function asController(ActionRequest $request)
+    public function asController(ActionRequest $request)
     {
         $validatedData = $request->validated();
 
         return $this->tenant->execute(
-        /**
-         * @throws \Exception
-         */ function (Tenant $tenant) use ($validatedData) {
+            /**
+             * @throws \Exception
+             */ 
+            function (Tenant $tenant) use ($validatedData) {
                 $tenantSource = $this->getTenantSource($tenant);
                 $tenantSource->initialisation(app('currentTenant'));
 
@@ -219,7 +218,4 @@ class FetchAction
             ];
         }
     }
-
-
 }
-

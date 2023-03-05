@@ -7,8 +7,8 @@
 
 namespace App\Models\Accounting;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateAccounting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,12 +36,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
+ *
  * @method static Builder|PaymentAccount newModelQuery()
  * @method static Builder|PaymentAccount newQuery()
  * @method static Builder|PaymentAccount onlyTrashed()
  * @method static Builder|PaymentAccount query()
  * @method static Builder|PaymentAccount withTrashed()
  * @method static Builder|PaymentAccount withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class PaymentAccount extends Model
@@ -74,7 +76,6 @@ class PaymentAccount extends Model
             }
         );
     }
-
 
     public function getSlugOptions(): SlugOptions
     {

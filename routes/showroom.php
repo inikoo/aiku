@@ -6,8 +6,6 @@
  */
 
 
-use App\Actions\Sales\Order\IndexOrders;
-use App\Actions\Sales\Order\ShowOSMHub;
 use App\Actions\Showroom\ShowShowroomDashboard;
 
 Route::get('/', ShowShowroomDashboard::class)->name('dashboard');

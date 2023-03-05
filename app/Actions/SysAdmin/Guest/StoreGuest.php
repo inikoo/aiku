@@ -18,5 +18,4 @@ class StoreGuest
     {
         return Guest::create($modelData);
     }
-
 }

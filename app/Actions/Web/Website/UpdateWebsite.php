@@ -10,7 +10,6 @@ namespace App\Actions\Web\Website;
 use App\Actions\WithActionUpdate;
 use App\Models\Web\Website;
 
-
 class UpdateWebsite
 {
     use WithActionUpdate;

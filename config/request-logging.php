@@ -22,7 +22,7 @@ return [
     ],
 
     'request-duration-limit' => false,
-    'show-response-html' => false,
+    'show-response-html'     => false,
 
     'exclude-response-fields' => [
     ],
@@ -38,9 +38,9 @@ return [
     'warning-log-level' => 'warning',
 
     'database-logging' => [
-        'enabled' => true,
-        'table' => 'requests',
-        'persistence' => 7,
+        'enabled'        => true,
+        'table'          => 'requests',
+        'persistence'    => 7,
         'limit-response' => 2000,
     ],
 ];

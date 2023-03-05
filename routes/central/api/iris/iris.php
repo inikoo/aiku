@@ -16,4 +16,3 @@ Route::prefix('fulfilment')
 Route::prefix('dropshipping')
     ->name('dropshipping.')
     ->group(__DIR__.'/dropshipping.php');
-

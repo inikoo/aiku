@@ -7,20 +7,19 @@
 
 namespace App\Actions;
 
-
 use App\Models\Central\Tenant;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 
-trait WithTenantsOption{
+trait WithTenantsOption
+{
     protected function getTenants($command): Collection|array
     {
         $tenants = Arr::wrap($command->option('tenant'));
 
         return  Tenant::query()
             ->when(!blank($tenants), function ($query) use ($tenants) {
-                $query->whereIn('slug',$tenants);
+                $query->whereIn('slug', $tenants);
             })->get();
     }
-
 }

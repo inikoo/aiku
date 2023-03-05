@@ -14,10 +14,8 @@ use App\Models\Marketing\Product;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-
 class HydrateFamily extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:family {tenants?*} {--i|id=} ';
 
     public function handle(Family $family): void
@@ -51,8 +49,4 @@ class HydrateFamily extends HydrateModel
     {
         return Family::withTrashed()->get();
     }
-
-
 }
-
-

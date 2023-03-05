@@ -53,7 +53,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class CustomerClient extends Model
 {
-
     use SoftDeletes;
     use HasSlug;
     use HasAddress;
@@ -89,7 +88,7 @@ class CustomerClient extends Model
     {
         static::creating(
             function (CustomerClient $customerClient) {
-                $customerClient->name=$customerClient->company_name==''?$customerClient->contact_name:$customerClient->company_name;
+                $customerClient->name=$customerClient->company_name=='' ? $customerClient->contact_name : $customerClient->company_name;
             }
         );
 
@@ -104,7 +103,7 @@ class CustomerClient extends Model
                 HydrateCustomer::make()->clients($customerClient->customer);
             }
             if ($customerClient->wasChanged(['company_name','contact_name'])) {
-                $customerClient->name=$customerClient->company_name==''?$customerClient->contact_name:$customerClient->company_name;
+                $customerClient->name=$customerClient->company_name=='' ? $customerClient->contact_name : $customerClient->company_name;
             }
         });
     }
@@ -118,6 +117,4 @@ class CustomerClient extends Model
     {
         return $this->belongsTo(Customer::class)->withTrashed();
     }
-
-
 }

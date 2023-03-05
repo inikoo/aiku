@@ -10,7 +10,6 @@ namespace App\Actions\Accounting\PaymentServiceProvider;
 use App\Actions\WithActionUpdate;
 use App\Models\Accounting\PaymentServiceProvider;
 
-
 class UpdatePaymentServiceProvider
 {
     use WithActionUpdate;

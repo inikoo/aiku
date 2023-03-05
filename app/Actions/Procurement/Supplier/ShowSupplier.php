@@ -18,11 +18,8 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
-
 class ShowSupplier extends InertiaAction
 {
-
-
     public function handle(Supplier $supplier): Supplier
     {
         return $supplier;
@@ -100,5 +97,4 @@ class ShowSupplier extends InertiaAction
             default => []
         };
     }
-
 }

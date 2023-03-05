@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnused */
 
 /*
@@ -8,7 +9,6 @@
  */
 
 namespace App\Actions\Sales\Customer;
-
 
 use App\Actions\Web\WebUser\HydrateWebUser;
 use App\Actions\Web\WebUser\StoreWebUser;
@@ -22,7 +22,7 @@ class CreateCustomerApiUser
 {
     use AsAction;
 
-    public string $commandSignature = 'customer:api-user {tenant_code} {customer_id}';
+    public string $commandSignature   = 'customer:api-user {tenant_code} {customer_id}';
     public string $commandDescription = 'Create an user with api token to the given customer.';
 
     public function handle(Customer $customer, $tokenData): string
@@ -61,6 +61,4 @@ class CreateCustomerApiUser
             }
         });
     }
-
-
 }

@@ -9,12 +9,9 @@ namespace App\Services\Tenant\Aurora;
 
 use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchAuroraWarehouseArea extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $this->parsedData['warehouse'] = FetchWarehouses::run($this->tenantSource, $this->auroraModelData->{'Warehouse Area Warehouse Key'});
@@ -33,5 +30,4 @@ class FetchAuroraWarehouseArea extends FetchAurora
             ->table('Warehouse Area Dimension')
             ->where('Warehouse Area Key', $id)->first();
     }
-
 }

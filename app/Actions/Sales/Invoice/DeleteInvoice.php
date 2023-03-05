@@ -18,7 +18,6 @@ class DeleteInvoice
         Invoice $invoice,
         array $modelData
     ): Invoice {
-
         $invoice->invoiceTransactions()->delete();
         $invoice->delete();
 

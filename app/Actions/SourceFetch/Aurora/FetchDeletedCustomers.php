@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
@@ -13,24 +12,20 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchDeletedCustomers extends FetchAction
 {
-
     public string $commandSignature = 'fetch:deleted-customers {tenants?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
     {
         if ($customerData = $tenantSource->fetchDeletedCustomer($tenantSourceId)) {
-            if($customerData['customer']) {
+            if ($customerData['customer']) {
                 if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                     ->first()) {
-
-                    if(Arr::get($customer->data,'deleted.source')=='aurora'){
+                    if (Arr::get($customer->data, 'deleted.source')=='aurora') {
                         $customer = UpdateCustomer::run($customer, $customerData['customer']);
                     }
-
                 } else {
                     $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['contact_address']);
                     if (!empty($customerData['delivery_address'])) {
@@ -49,7 +44,7 @@ class FetchDeletedCustomers extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Customer Deleted Dimension')
@@ -57,9 +52,8 @@ class FetchDeletedCustomers extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Customer Deleted Dimension')->count();
     }
-
 }

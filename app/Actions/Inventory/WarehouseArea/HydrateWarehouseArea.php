@@ -11,26 +11,23 @@ use App\Actions\HydrateModel;
 use App\Models\Inventory\WarehouseArea;
 use Illuminate\Support\Collection;
 
-
 class HydrateWarehouseArea extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:warehouse-area {tenants?*} {--i|id=}';
 
     public function handle(WarehouseArea $warehouseArea): void
     {
-
         $this->locations($warehouseArea);
     }
 
     public function locations(WarehouseArea $warehouseArea): void
     {
-        if(!$warehouseArea->id){
+        if (!$warehouseArea->id) {
             return;
         }
         $warehouseArea->stats->update(
             [
-                'number_locations'=>$warehouseArea->locations->count(),
+                'number_locations'=> $warehouseArea->locations->count(),
 
             ]
         );
@@ -45,7 +42,4 @@ class HydrateWarehouseArea extends HydrateModel
     {
         return WarehouseArea::all();
     }
-
 }
-
-

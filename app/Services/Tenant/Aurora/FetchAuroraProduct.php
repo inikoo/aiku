@@ -39,10 +39,10 @@ class FetchAuroraProduct extends FetchAurora
         }
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
-            'InProcess' => 'in-process',
+            'InProcess'     => 'in-process',
             'Discontinuing' => 'discontinuing',
-            'Discontinued' => 'discontinued',
-            default => 'active',
+            'Discontinued'  => 'discontinued',
+            default         => 'active',
         };
 
 
@@ -85,5 +85,4 @@ class FetchAuroraProduct extends FetchAurora
             ->table('Product Dimension')
             ->where('Product ID', $id)->first();
     }
-
 }

@@ -12,7 +12,6 @@ use Illuminate\Support\Str;
 
 trait EnumHelperTrait
 {
-
     public static function values(): array
     {
         return array_column(self::cases(), 'value');
@@ -21,12 +20,10 @@ trait EnumHelperTrait
     public static function valuesDB(): array
     {
         return Arr::map(
-            array_column(self::cases(), 'value')
-            ,
+            array_column(self::cases(), 'value'),
             function (string $value) {
                 return Str::kebab($value);
             }
         );
     }
 }
-

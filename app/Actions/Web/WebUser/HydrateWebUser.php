@@ -11,17 +11,14 @@ use App\Actions\HydrateModel;
 use App\Models\Web\WebUser;
 use Illuminate\Support\Collection;
 
-
 class HydrateWebUser extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:web-user {tenants?*} {--i|id=}';
 
 
     public function handle(WebUser $webUser): void
     {
         $this->tokens($webUser);
-
     }
 
     public function tokens(WebUser $webUser): void
@@ -31,7 +28,6 @@ class HydrateWebUser extends HydrateModel
                'number_api_tokens'=> $webUser->tokens->count()
             ]
         );
-
     }
 
 
@@ -44,7 +40,4 @@ class HydrateWebUser extends HydrateModel
     {
         return WebUser::withTrashed()->get();
     }
-
 }
-
-

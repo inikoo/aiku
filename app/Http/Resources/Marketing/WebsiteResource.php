@@ -12,7 +12,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class WebsiteResource extends JsonResource
 {
-
     public function toArray($request): array|\JsonSerializable|Arrayable
     {
         return parent::toArray($request);

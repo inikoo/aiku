@@ -9,9 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('payments', function (Blueprint $table) {
@@ -26,16 +24,16 @@ return new class extends Migration
 
             $table->string('reference')->index();
             $table->string('slug')->unique();
-            $table->enum('status',['in-process','success','fail'])->index();
+            $table->enum('status', ['in-process','success','fail'])->index();
 
             //PaymentStateEnum
             $table->string('state')->index();
-            $table->enum('subsequent_status',['unchanged','refunded','with-refund'])->index()->nullable();
+            $table->enum('subsequent_status', ['unchanged','refunded','with-refund'])->index()->nullable();
 
-            $table->decimal('amount',12,2);
+            $table->decimal('amount', 12, 2);
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('central.currencies');
-            $table->decimal('dc_amount',12,2);
+            $table->decimal('dc_amount', 12, 2);
 
             $table->jsonb('data');
             $table->dateTimeTz('date')->index()->comment('Most relevant date at current state');
@@ -44,10 +42,9 @@ return new class extends Migration
 
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->enum('type',['payment','refund']);
+            $table->enum('type', ['payment','refund']);
             $table->boolean('with_refund')->default(false);
             $table->unsignedBigInteger('source_id')->index()->nullable();
-
         });
     }
 

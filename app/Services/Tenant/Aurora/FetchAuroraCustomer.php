@@ -12,7 +12,6 @@ use Illuminate\Support\Str;
 
 class FetchAuroraCustomer extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $status = 'approved';
@@ -43,8 +42,8 @@ class FetchAuroraCustomer extends FetchAurora
                 'tax_number_status'        => $this->auroraModelData->{'Customer Tax Number'} == ''
                     ? 'na'
                     : match ($this->auroraModelData->{'Customer Tax Number Valid'}) {
-                        'Yes' => 'valid',
-                        'No' => 'invalid',
+                        'Yes'   => 'valid',
+                        'No'    => 'invalid',
                         default => 'unknown'
                     },
                 'source_id'                => $this->auroraModelData->{'Customer Key'},
@@ -72,5 +71,4 @@ class FetchAuroraCustomer extends FetchAurora
             ->table('Customer Dimension')
             ->where('Customer Key', $id)->first();
     }
-
 }

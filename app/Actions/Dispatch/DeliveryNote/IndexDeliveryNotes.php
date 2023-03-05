@@ -22,7 +22,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexDeliveryNotes extends InertiaAction
 {
     private Shop|Tenant $parent;
@@ -31,8 +30,6 @@ class IndexDeliveryNotes extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-
-
                 $query->where('delivery_notes.date', '~*', "\y$value\y")
                     ->orWhere('delivery_notes.number', '=', $value);
             });
@@ -77,8 +74,8 @@ class IndexDeliveryNotes extends InertiaAction
             'Marketing/DeliveryNotes',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('delivery_notes'),
-                'pageHead' => [
+                'title'       => __('delivery_notes'),
+                'pageHead'    => [
                     'title' => __('delivery_notes'),
                 ],
                 'delivery_notes' => DeliveryNoteResource::collection($delivery_notes),
@@ -101,7 +98,7 @@ class IndexDeliveryNotes extends InertiaAction
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
-        $this->parent = app('currentTenant');
+        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
 
         return $this->handle();
@@ -120,9 +117,9 @@ class IndexDeliveryNotes extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('delivery_notes')
                     ]
                 ],
@@ -130,7 +127,7 @@ class IndexDeliveryNotes extends InertiaAction
         };
 
         return match ($routeName) {
-            'delivery_notes.index' => $headCrumb(),
+            'delivery_notes.index'            => $headCrumb(),
             'shops.show.delivery_notes.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
@@ -139,5 +136,4 @@ class IndexDeliveryNotes extends InertiaAction
             default => []
         };
     }
-
 }

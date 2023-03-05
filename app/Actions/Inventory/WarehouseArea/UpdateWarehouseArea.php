@@ -11,7 +11,6 @@ namespace App\Actions\Inventory\WarehouseArea;
 use App\Actions\WithActionUpdate;
 use App\Models\Inventory\WarehouseArea;
 
-
 class UpdateWarehouseArea
 {
     use WithActionUpdate;
@@ -20,6 +19,4 @@ class UpdateWarehouseArea
     {
         return $this->update($warehouseArea, $modelData, ['data']);
     }
-
 }
-

@@ -18,10 +18,10 @@ class FetchAuroraStockFamily extends FetchAurora
             'name'      => $this->auroraModelData->{'Category Label'},
             'source_id' => $this->auroraModelData->{'Category Key'},
             'state'     => match ($this->auroraModelData->{'Part Category Status'}) {
-                'InUse' => 'active',
+                'InUse'         => 'active',
                 'Discontinuing' => 'discontinuing',
-                'NotInUse' => 'discontinued',
-                default => 'in-process',
+                'NotInUse'      => 'discontinued',
+                default         => 'in-process',
             }
         ];
     }
@@ -34,5 +34,4 @@ class FetchAuroraStockFamily extends FetchAurora
             ->leftJoin('Part Category Dimension', 'Part Category Key', 'Category Key')
             ->where('Category Key', $id)->first();
     }
-
 }

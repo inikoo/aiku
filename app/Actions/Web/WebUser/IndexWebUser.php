@@ -25,7 +25,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexWebUser extends InertiaAction
 {
     private Shop|Tenant $parent;
@@ -46,7 +45,7 @@ class IndexWebUser extends InertiaAction
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Customer') {
                     $query->where('webusers.customer_id', $this->parent->id);
-                }elseif (class_basename($this->parent) == 'Website') {
+                } elseif (class_basename($this->parent) == 'Website') {
                     $query->where('webusers.website_id', $this->parent->id);
                 }
             })
@@ -104,7 +103,7 @@ class IndexWebUser extends InertiaAction
         return $this->handle();
     }
 
-    public function InShopInCustomer(Shop $shop,Customer $customer): LengthAwarePaginator
+    public function InShopInCustomer(Shop $shop, Customer $customer): LengthAwarePaginator
     {
         $this->parent = $customer;
         $this->validateAttributes();
@@ -127,7 +126,7 @@ class IndexWebUser extends InertiaAction
         };
 
         return match ($routeName) {
-            'customers.index' => $headCrumb(),
+            'customers.index'            => $headCrumb(),
             'shops.show.customers.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
@@ -136,5 +135,4 @@ class IndexWebUser extends InertiaAction
             default => []
         };
     }
-
 }

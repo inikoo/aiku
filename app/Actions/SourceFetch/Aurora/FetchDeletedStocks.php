@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Inventory\Stock\UpdateStock;
 use App\Models\Inventory\Stock;
@@ -16,17 +15,15 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchDeletedStocks extends FetchAction
 {
-
     public string $commandSignature = 'fetch:deleted-stocks {tenants?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Stock
     {
         if ($deletedStockData = $tenantSource->fetchDeletedStock($tenantSourceId)) {
-            if($deletedStockData['stock']) {
+            if ($deletedStockData['stock']) {
                 if ($stock = Stock::withTrashed()->where('source_id', $deletedStockData['stock']['source_id'])
                     ->first()) {
                     $stock = UpdateStock::run(
@@ -38,7 +35,6 @@ class FetchDeletedStocks extends FetchAction
                         owner:     $tenantSource->tenant,
                         modelData: $deletedStockData['stock']
                     );
-
                 }
 
                 DB::connection('aurora')->table('Part Deleted Dimension')
@@ -52,7 +48,7 @@ class FetchDeletedStocks extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Part Deleted Dimension')
@@ -60,9 +56,8 @@ class FetchDeletedStocks extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Part Deleted Dimension')->count();
     }
-
 }

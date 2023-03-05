@@ -7,8 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
-
 use App\Actions\WithTenantsArgument;
 
 use Illuminate\Console\Command;
@@ -17,14 +15,12 @@ use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-
 /**
  * @property array|\ArrayAccess|mixed $timeStart
  * @property $timeLastStep
  */
 class FetchReset
 {
-
     use AsAction;
     use WithTenantsArgument;
     use WithAttributes;
@@ -56,13 +52,13 @@ class FetchReset
                     DB::connection('aurora')->table('pika_fetch_error')->truncate();
 
 
-                    $this->timeStart = microtime(true);
+                    $this->timeStart    = microtime(true);
                     $this->timeLastStep =  microtime(true);
 
                     DB::connection('aurora')->table('Agent Dimension')
                         ->update(
                             [
-                                'aiku_id' => null,
+                                'aiku_id'       => null,
                                 'agent_aiku_id' => null,
                             ]
                         );
@@ -183,7 +179,6 @@ class FetchReset
                                 'aiku_workshop_id' => null,
 
                             ]
-
                         );
                     DB::connection('aurora')->table('Supplier Part Historic Dimension')
                         ->update(
@@ -204,7 +199,7 @@ class FetchReset
                     $command->line("✅ supplier products and PO \t".$this->stepTime());
                     DB::connection('aurora')->table('Inventory Transaction Fact')
                         ->update([
-                                     'aiku_id' => null,
+                                     'aiku_id'         => null,
                                      'aiku_dn_item_id' => null,
                                      'aiku_picking_id' => null,
 
@@ -264,8 +259,6 @@ class FetchReset
 
 
                     $command->line("✅ orders \t\t".$this->stepTime());
-
-
                 }
             });
 
@@ -277,13 +270,12 @@ class FetchReset
         return $exitCode;
     }
 
-    function stepTime(): string
+    public function stepTime(): string
     {
-        $rollTime = microtime(true) - $this->timeStart;
-        $diff = microtime(true) - $this->timeLastStep;
+        $rollTime          = microtime(true) - $this->timeStart;
+        $diff              = microtime(true) - $this->timeLastStep;
         $this->timeLastStep=microtime(true);
 
         return "\t".round($rollTime, 2).'s' . "\t\t".round($diff, 2).'s';
     }
-
 }

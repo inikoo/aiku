@@ -24,7 +24,6 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeliveryNotes extends FetchAction
 {
-
     public string $commandSignature = 'fetch:delivery_notes {tenants?*} {--s|source_id=}  {--N|only_new : Fetch only new}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?DeliveryNote
@@ -96,14 +95,14 @@ class FetchDeliveryNotes extends FetchAction
         $deliveryNote->deliveryNoteItems()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
 
-    function updateAurora(DeliveryNote $deliveryNote)
+    public function updateAurora(DeliveryNote $deliveryNote)
     {
         DB::connection('aurora')->table('Delivery Note Dimension')
             ->where('Delivery Note Key', $deliveryNote->source_id)
             ->update(['aiku_id' => $deliveryNote->id]);
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         $query = DB::connection('aurora')
             ->table('Delivery Note Dimension')
@@ -116,7 +115,7 @@ class FetchDeliveryNotes extends FetchAction
         return $query;
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Delivery Note Dimension');
         if ($this->onlyNew) {
@@ -125,5 +124,4 @@ class FetchDeliveryNotes extends FetchAction
 
         return $query->count();
     }
-
 }

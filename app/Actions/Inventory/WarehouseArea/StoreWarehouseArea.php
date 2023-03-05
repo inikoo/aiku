@@ -18,7 +18,6 @@ class StoreWarehouseArea
 
     public function handle(Warehouse $warehouse, array $modelData): WarehouseArea
     {
-
         /** @var WarehouseArea $warehouseArea */
         $warehouseArea= $warehouse->warehouseAreas()->create($modelData);
         $warehouseArea->stats()->create();

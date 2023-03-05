@@ -23,7 +23,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexFamilies extends InertiaAction
 {
     private Shop|Tenant|Department $parent;
@@ -32,8 +31,6 @@ class IndexFamilies extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-
-
                 $query->where('families.name', '~*', "\y$value\y")
                     ->orWhere('families.code', '=', $value);
             });
@@ -48,7 +45,7 @@ class IndexFamilies extends InertiaAction
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Shop') {
                     $query->where('families.shop_id', $this->parent->id);
-                } elseif(class_basename($this->parent) == 'Department') {
+                } elseif (class_basename($this->parent) == 'Department') {
                     $query->where('families.department_id', $this->parent->id);
                 }
             })
@@ -80,8 +77,8 @@ class IndexFamilies extends InertiaAction
             'Marketing/Families',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('families'),
-                'pageHead' => [
+                'title'       => __('families'),
+                'pageHead'    => [
                     'title' => __('families'),
                 ],
                 'families' => FamilyResource::collection($families),
@@ -104,7 +101,7 @@ class IndexFamilies extends InertiaAction
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
-        $this->parent = app('currentTenant');
+        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
 
         return $this->handle();
@@ -131,9 +128,9 @@ class IndexFamilies extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('families')
                     ]
                 ],
@@ -141,7 +138,7 @@ class IndexFamilies extends InertiaAction
         };
 
         return match ($routeName) {
-            'families.index' => $headCrumb(),
+            'families.index'            => $headCrumb(),
             'shops.show.families.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
@@ -150,5 +147,4 @@ class IndexFamilies extends InertiaAction
             default => []
         };
     }
-
 }

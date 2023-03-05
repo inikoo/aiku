@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
-
 class CreateDropshippingOrderFromIris extends fromIris
 {
     use WithTenantSource;
@@ -46,7 +45,6 @@ class CreateDropshippingOrderFromIris extends fromIris
 
 
             ]
-
         );
     }
 
@@ -186,7 +184,4 @@ class CreateDropshippingOrderFromIris extends fromIris
 
         return new DropshippingOrderResource($order);
     }
-
-
 }
-

@@ -20,9 +20,8 @@ class DeleteCustomerClient
 
     public function handle(CustomerClient $customerClient, array $deletedData=[], bool $skipHydrate = false): CustomerClient
     {
-
         $customerClient->delete();
-        $customerClient=$this->update($customerClient,$deletedData,['data']);
+        $customerClient=$this->update($customerClient, $deletedData, ['data']);
         if (!$skipHydrate) {
             HydrateCustomer::make()->clients($customerClient->customer);
         }

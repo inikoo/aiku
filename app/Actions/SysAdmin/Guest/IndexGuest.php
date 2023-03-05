@@ -22,7 +22,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexGuest
 {
     use AsAction;
@@ -101,7 +100,7 @@ class IndexGuest
             (new ShowSysAdminDashboard())->getBreadcrumbs(),
             [
                 'sysadmin.guests.index' => [
-                    'route' => 'sysadmin.guests.index',
+                    'route'      => 'sysadmin.guests.index',
                     'modelLabel' => [
                         'label' => __('guests')
                     ],
@@ -109,6 +108,4 @@ class IndexGuest
             ]
         );
     }
-
-
 }

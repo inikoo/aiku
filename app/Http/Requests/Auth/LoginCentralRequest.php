@@ -16,7 +16,6 @@ use Illuminate\Validation\ValidationException;
 
 class LoginCentralRequest extends FormRequest
 {
-
     public function authorize(): bool
     {
         return true;

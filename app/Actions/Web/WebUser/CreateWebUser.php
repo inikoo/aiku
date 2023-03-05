@@ -13,11 +13,9 @@ use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Web\Website;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-
 
 class CreateWebUser extends InertiaAction
 {
@@ -63,13 +61,13 @@ class CreateWebUser extends InertiaAction
                         'label' => __('password')
                     ]
                 ],
-                'parent'=>$this->parent
+                'parent'=> $this->parent
             ]
         );
     }
 
 
-    public function asController(Request $request)
+    public function asController()
     {
         $this->parent = app('currentTenant');
         $this->validateAttributes();
@@ -102,7 +100,7 @@ class CreateWebUser extends InertiaAction
         };
 
         return match ($routeName) {
-            'customers.index' => $headCrumb(),
+            'customers.index'            => $headCrumb(),
             'shops.show.customers.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
@@ -111,5 +109,4 @@ class CreateWebUser extends InertiaAction
             default => []
         };
     }
-
 }

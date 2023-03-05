@@ -16,7 +16,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-
 /**
  * App\Models\Web\Webnode
  *
@@ -70,5 +69,4 @@ class Webnode extends Model
     {
         return $this->hasMany(Webpage::class);
     }
-
 }

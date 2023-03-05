@@ -12,7 +12,6 @@ use App\Actions\WithActionUpdate;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Marketing\Shop;
 
-
 class AttachPaymentAccountToShop
 {
     use WithActionUpdate;

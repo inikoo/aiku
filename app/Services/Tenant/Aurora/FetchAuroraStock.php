@@ -28,10 +28,10 @@ class FetchAuroraStock extends FetchAurora
                     :
                     null,
             'state'           => match ($this->auroraModelData->{'Part Status'}) {
-                'In Use' => 'active',
+                'In Use'        => 'active',
                 'Discontinuing' => 'discontinuing',
-                'In Process' => 'in-process',
-                'Not In Use' => 'discontinued'
+                'In Process'    => 'in-process',
+                'Not In Use'    => 'discontinued'
             }
         ];
     }
@@ -60,5 +60,4 @@ class FetchAuroraStock extends FetchAurora
             ->table('Part Dimension')
             ->where('Part SKU', $id)->first();
     }
-
 }

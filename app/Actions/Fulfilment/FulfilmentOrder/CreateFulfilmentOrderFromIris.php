@@ -16,10 +16,8 @@ use App\Models\Web\WebUser;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
-
 class CreateFulfilmentOrderFromIris extends fromIris
 {
-
     public function rules(): array
     {
         return array_merge(
@@ -32,7 +30,6 @@ class CreateFulfilmentOrderFromIris extends fromIris
 
 
             ]
-
         );
     }
 
@@ -78,8 +75,8 @@ class CreateFulfilmentOrderFromIris extends fromIris
 
             $items[] = [
                 'item_type' => 'HistoricProduct',
-                'item_id' => $product->current_historic_product_id,
-                'quantity' => Arr::get($item, 'quantity')
+                'item_id'   => $product->current_historic_product_id,
+                'quantity'  => Arr::get($item, 'quantity')
             ];
         }
 
@@ -99,7 +96,4 @@ class CreateFulfilmentOrderFromIris extends fromIris
 
         return new FulfilmentOrderResource($fulfilmentOrder);
     }
-
-
 }
-

@@ -13,10 +13,8 @@ use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class UpdateHistoricAddressToModel
 {
-
     use AsAction;
 
     public function handle(
@@ -25,8 +23,6 @@ class UpdateHistoricAddressToModel
         Address $address,
         array $scopeData
     ): Address {
-
-
         $model->addresses()->attach([$address->id], $scopeData);
         $model->addresses()->detach([$currentAddress->id]);
 

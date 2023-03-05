@@ -11,20 +11,16 @@ use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreShipment
 {
     use AsAction;
 
-    public function handle(DeliveryNote $parent ,array $modelData): ?Shipment
+    public function handle(DeliveryNote $parent, array $modelData): ?Shipment
     {
-        if(class_basename($parent)=='DeliveryNote'){
-
+        if (class_basename($parent)=='DeliveryNote') {
             $parent->shipments()->create($modelData);
         }
 
         return null;
     }
-
-
 }

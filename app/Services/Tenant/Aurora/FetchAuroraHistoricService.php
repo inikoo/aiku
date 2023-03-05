@@ -7,15 +7,10 @@
 
 namespace App\Services\Tenant\Aurora;
 
-
-use App\Actions\SourceFetch\Aurora\FetchProducts;
-use App\Actions\SourceFetch\Aurora\FetchServices;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraHistoricService extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $this->parsedData['service'] = $this->parseService($this->auroraModelData->{'Product ID'});
@@ -48,5 +43,4 @@ class FetchAuroraHistoricService extends FetchAurora
             ->table('Product History Dimension')
             ->where('Product Key', $id)->first();
     }
-
 }

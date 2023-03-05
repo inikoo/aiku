@@ -22,10 +22,8 @@ use App\Models\Marketing\Shop;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-
 class HydrateShop extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:shop {tenants?*} {--i|id=} ';
 
 
@@ -43,8 +41,8 @@ class HydrateShop extends HydrateModel
     }
 
 
-    public function salesStats(Shop $shop){
-
+    public function salesStats(Shop $shop)
+    {
     }
 
     public function customerStats(Shop $shop)
@@ -69,8 +67,6 @@ class HydrateShop extends HydrateModel
         $this->customerNumberInvoicesStats($shop);
 
         HydrateTenant::make()->customersStats();
-
-
     }
 
     public function customerNumberInvoicesStats(Shop $shop)
@@ -113,7 +109,7 @@ class HydrateShop extends HydrateModel
     public function departmentsStats(Shop $shop)
     {
         $departmentStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
-        $stateCounts   = Department::where('shop_id', $shop->id)
+        $stateCounts      = Department::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -128,7 +124,7 @@ class HydrateShop extends HydrateModel
 
     public function familiesStats(Shop $shop)
     {
-        $familyStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
+        $familyStates  = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Family::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
@@ -180,11 +176,8 @@ class HydrateShop extends HydrateModel
         $shop->stats->update($stats);
     }
 
-    public function sales(Shop $shop){
-
-
-
-
+    public function sales(Shop $shop)
+    {
     }
 
 
@@ -197,8 +190,4 @@ class HydrateShop extends HydrateModel
     {
         return Shop::withTrashed()->get();
     }
-
-
 }
-
-

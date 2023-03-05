@@ -11,7 +11,6 @@ use App\Actions\WithActionUpdate;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 /**
  * @property User $user
  */
@@ -48,6 +47,4 @@ class SetAvatarFromImage
 
         return $user;
     }
-
-
 }

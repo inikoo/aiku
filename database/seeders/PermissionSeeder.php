@@ -8,7 +8,6 @@
 
 namespace Database\Seeders;
 
-
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use Exception;
@@ -17,7 +16,6 @@ use Spatie\Permission\PermissionRegistrar;
 
 class PermissionSeeder extends Seeder
 {
-
     public function run()
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
@@ -29,15 +27,14 @@ class PermissionSeeder extends Seeder
         $currentPermissions=Permission::all()->pluck('name');
         $currentPermissions->diff($permissions)
             ->each(function ($permissionName) {
-            Permission::where('name',$permissionName)->first()->delete();
-
-        });
+                Permission::where('name', $permissionName)->first()->delete();
+            });
 
 
         $currentRoles=Role::all()->pluck('name');
         $currentRoles->diff(collect(config("blueprint.roles"))->keys())
             ->each(function ($roleName) {
-                Role::where('name',$roleName)->first()->delete();
+                Role::where('name', $roleName)->first()->delete();
             });
 
 
@@ -49,7 +46,7 @@ class PermissionSeeder extends Seeder
         });
 
 
-        $roles->each(function ($permission_names, $role_name)  {
+        $roles->each(function ($permission_names, $role_name) {
             if (!$role = (new Role())->where('name', $role_name)
                 ->first()) {
                 $role = Role::create(['name' => $role_name]);

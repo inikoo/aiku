@@ -17,7 +17,7 @@ class StoreCentralDomain
 {
     use AsAction;
 
-    public function handle(Tenant $tenant, array $modelData):CentralDomain
+    public function handle(Tenant $tenant, array $modelData): CentralDomain
     {
         /** @var CentralDomain $centralDomain */
         $centralDomain = $tenant->centralDomains()->create($modelData);
@@ -25,8 +25,8 @@ class StoreCentralDomain
         StoreAdminUser::run(
             $centralDomain,
             [
-                'username'=>'iris-'.$centralDomain->slug,
-                'password'=>wordwrap(Str::random(), 4, '-', true)
+                'username'=> 'iris-'.$centralDomain->slug,
+                'password'=> wordwrap(Str::random(), 4, '-', true)
             ]
         );
         SetIrisDomain::run($centralDomain);

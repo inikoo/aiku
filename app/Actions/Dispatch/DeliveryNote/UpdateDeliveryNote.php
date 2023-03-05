@@ -14,9 +14,8 @@ class UpdateDeliveryNote
 {
     use WithActionUpdate;
 
-    public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote {
-
+    public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
+    {
         return $this->update($deliveryNote, $modelData, ['data']);
-
     }
 }

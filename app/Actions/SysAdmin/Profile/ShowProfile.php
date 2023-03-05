@@ -15,7 +15,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowProfile
 {
     use AsAction;
@@ -40,21 +39,21 @@ class ShowProfile
         return Inertia::render(
             'SysAdmin/Profile',
             [
-                'title' => __('Profile'),
+                'title'       => __('Profile'),
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'pageHead' => [
+                'pageHead'    => [
                     'title' => __('My Profile'),
 
                 ],
-                'profile' => $user->only('username','email','avatar','about'),
-                'pageBody'=>[
-                    'current'=>'profile',
+                'profile' => $user->only('username', 'email', 'avatar', 'about'),
+                'pageBody'=> [
+                    'current'=> 'profile',
                     'layout' => [
-                        'profile'=>[
-                            'title'=>__('Profile'),
-                            'notes'=>__('This information will be synchronised in all your workspaces.'),
-                            'icon'=> 'fa-light fa-user-circle',
-                            'current'=>true,
+                        'profile'=> [
+                            'title'  => __('Profile'),
+                            'notes'  => __('This information will be synchronised in all your workspaces.'),
+                            'icon'   => 'fa-light fa-user-circle',
+                            'current'=> true,
                             'fields' => [
                                 'username' => [
                                     'label' => __('Username')
@@ -65,23 +64,23 @@ class ShowProfile
                                 ],
                                 'photo' => [
                                     'label' => __('Photo'),
-                                    'info' => __('user photo or icon'),
+                                    'info'  => __('user photo or icon'),
                                 ]
 
                             ]
                         ],
-                        'password'=>[
-                            'title'=>__('Password'),
-                            'icon'=> 'fa-light fa-key',
+                        'password'=> [
+                            'title'  => __('Password'),
+                            'icon'   => 'fa-light fa-key',
                             'fields' => [
                                 'password' => [
                                     'label' => __('Password')
                                 ]
                             ]
                         ],
-                        'workplaces'=>[
-                            'title'=>__('Workplaces'),
-                            'icon'=> 'fa-light fa-clone',
+                        'workplaces'=> [
+                            'title'=> __('Workplaces'),
+                            'icon' => 'fa-light fa-clone',
 
                         ]
                     ]
@@ -103,6 +102,4 @@ class ShowProfile
             ]
         );
     }
-
-
 }

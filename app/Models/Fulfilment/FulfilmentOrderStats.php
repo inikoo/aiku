@@ -35,12 +35,11 @@ class FulfilmentOrderStats extends Model
 {
     use UsesTenantConnection;
 
-    protected $table = 'fulfilment_order_stats';
+    protected $table   = 'fulfilment_order_stats';
     protected $guarded = [];
 
     public function fulfilmentOrder(): BelongsTo
     {
         return $this->belongsTo(FulfilmentOrder::class);
     }
-
 }

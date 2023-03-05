@@ -53,7 +53,6 @@ class Address extends Model
     protected static function booted()
     {
         static::created(
-
             function (Address $address) {
                 if ($country = (new Country())->firstWhere('id', $address->country_id)) {
                     $address->country_code = $country->code;
@@ -94,7 +93,6 @@ class Address extends Model
 
     public function getChecksum(): string
     {
-
         return md5(
             json_encode(
                 array_filter(
@@ -127,23 +125,19 @@ class Address extends Model
             return  $country->name;
         }
         return '';
-
     }
 
     public function getLocation(): array
     {
-
         return[
             $this->country_code,
             $this->getCountryName(),
             $this->locality??$this->administrative_area??$this->postal_code
         ];
-
     }
 
     public function owner(): MorphTo
     {
         return $this->morphTo(__FUNCTION__, 'owner_type', 'owner_id');
     }
-
 }

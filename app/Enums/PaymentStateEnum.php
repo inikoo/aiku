@@ -7,20 +7,13 @@
 
 namespace App\Enums;
 
-
-
-enum PaymentStateEnum:string
+enum PaymentStateEnum: string
 {
     use EnumHelperTrait;
     case IN_PROCESS = 'in_process';
-    case APPROVING = 'approving';
-    case COMPLETED = 'completed';
-    case CANCELLED = 'cancelled';
-    case ERROR = 'error';
-    case DECLINED = 'declined';
-
-
-
+    case APPROVING  = 'approving';
+    case COMPLETED  = 'completed';
+    case CANCELLED  = 'cancelled';
+    case ERROR      = 'error';
+    case DECLINED   = 'declined';
 }
-
-

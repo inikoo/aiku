@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
-
 /**
  * App\Models\Central\Deployment
  *
@@ -22,9 +21,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static Builder|Deployment newModelQuery()
  * @method static Builder|Deployment newQuery()
  * @method static Builder|Deployment query()
+ *
  * @mixin \Eloquent
  */
 class Deployment extends Model
@@ -32,14 +33,12 @@ class Deployment extends Model
     use UsesLandlordConnection;
 
     protected $guarded = [];
+
     protected $attributes = [
         'data' => '{}',
     ];
+
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
     ];
-
-
-
-
 }

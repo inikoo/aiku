@@ -18,7 +18,6 @@ class StoreSupplierProduct
 
     public function handle(Supplier $supplier, array $modelData, bool $skipHistoric = false): SupplierProduct
     {
-
         /** @var SupplierProduct $supplierProduct */
 
         $supplierProduct = $supplier->products()->create($modelData);

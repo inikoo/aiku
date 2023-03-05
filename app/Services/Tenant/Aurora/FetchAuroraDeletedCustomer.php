@@ -13,7 +13,6 @@ use stdClass;
 
 class FetchAuroraDeletedCustomer extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $this->parsedData['customer'] = null;
@@ -28,7 +27,7 @@ class FetchAuroraDeletedCustomer extends FetchAurora
         $state  = 'active';
 
 
-        $taxNumber          = $auroraDeletedData->{'Customer Tax Number'} ?? null;
+        $taxNumber          = $auroraDeletedData->{'Customer Tax Number'}          ?? null;
         $registrationNumber = $auroraDeletedData->{'Customer Registration Number'} ?? null;
         if ($registrationNumber) {
             $registrationNumber = Str::limit($registrationNumber);
@@ -42,7 +41,7 @@ class FetchAuroraDeletedCustomer extends FetchAurora
         ];
 
         $contactName = $this->auroraModelData->{'Customer Deleted Contact Name'} ?? null;
-        $name        = $this->auroraModelData->{'Customer Deleted Name'} ?? null;
+        $name        = $this->auroraModelData->{'Customer Deleted Name'}         ?? null;
 
         if ($contactName == $name) {
             $name = null;
@@ -66,8 +65,8 @@ class FetchAuroraDeletedCustomer extends FetchAurora
                 'tax_number_status'        => $taxNumber
                     ? 'na'
                     : match ($taxNumberValid) {
-                        'Yes' => 'valid',
-                        'No' => 'invalid',
+                        'Yes'   => 'valid',
+                        'No'    => 'invalid',
                         default => 'unknown'
                     },
                 'created_at'               => $auroraDeletedData->{'Customer First Contacted Date'}??$this->auroraModelData->{'Customer Deleted Date'},
@@ -94,9 +93,9 @@ class FetchAuroraDeletedCustomer extends FetchAurora
         if ($data->{"$prefix Address Country 2 Alpha Code"} == 'XX' and $data->{"$prefix Address Postal Code"} == '35550') {
             $data->{"$prefix Address Country 2 Alpha Code"} = 'ES';
         } elseif ($data->{"$prefix Address Country 2 Alpha Code"} == 'XX' and
-            $data->{"$prefix Address Postal Code"} == '' and
-            $data->{"$prefix Address Postal Town"} == '' and
-            $data->{"$prefix Address Postal Address Line 1"} == '') {
+            $data->{"$prefix Address Postal Code"}                == ''   and
+            $data->{"$prefix Address Postal Town"}                == ''   and
+            $data->{"$prefix Address Postal Address Line 1"}      == '') {
             $data->{"$prefix Address Country 2 Alpha Code"} = config('app.country');
         }
 
@@ -110,5 +109,4 @@ class FetchAuroraDeletedCustomer extends FetchAurora
             ->table('Customer Deleted Dimension')
             ->where('Customer Key', $id)->first();
     }
-
 }

@@ -79,5 +79,4 @@ class FulfilmentOrderItem extends Model
     {
         $this->attributes['quantity'] = sprintf('%.3f', $val);
     }
-
 }

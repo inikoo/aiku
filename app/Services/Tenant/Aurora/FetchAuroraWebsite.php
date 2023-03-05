@@ -11,15 +11,13 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebsite extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Website Store Key'});
 
         $status = match ($this->auroraModelData->{'Website Status'}) {
             'Closed' => 'closed',
-            default => 'construction',
+            default  => 'construction',
         };
 
 
@@ -51,5 +49,4 @@ class FetchAuroraWebsite extends FetchAurora
             ->table('Website Dimension')
             ->where('Website Key', $id)->first();
     }
-
 }

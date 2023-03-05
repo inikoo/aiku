@@ -11,7 +11,6 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\WithActionUpdate;
 use App\Models\Inventory\Warehouse;
 
-
 class UpdateWarehouse
 {
     use WithActionUpdate;
@@ -19,6 +18,5 @@ class UpdateWarehouse
     public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {
         return $this->update($warehouse, $modelData, ['data','settings']);
-
     }
 }

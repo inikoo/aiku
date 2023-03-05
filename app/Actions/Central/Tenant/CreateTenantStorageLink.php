@@ -7,9 +7,7 @@
 
 /** @noinspection PhpUnused */
 
-
 namespace App\Actions\Central\Tenant;
-
 
 use App\Actions\WithTenantsArgument;
 use App\Models\Central\Tenant;
@@ -21,7 +19,7 @@ class CreateTenantStorageLink
     use AsAction;
     use WithTenantsArgument;
 
-    public string $commandSignature = 'create:tenant-storage-link {tenants?*} ';
+    public string $commandSignature   = 'create:tenant-storage-link {tenants?*} ';
     public string $commandDescription = 'Create the symbolic links configured for the application';
 
 
@@ -78,6 +76,4 @@ class CreateTenantStorageLink
 
         return $exitCode;
     }
-
-
 }

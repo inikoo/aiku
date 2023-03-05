@@ -12,8 +12,6 @@ use Illuminate\Support\Str;
 
 class FetchAuroraPaymentAccount extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $data = [
@@ -58,8 +56,7 @@ class FetchAuroraPaymentAccount extends FetchAurora
     }
 
 
-    protected
-    function fetchData(
+    protected function fetchData(
         $id
     ): object|null {
         return DB::connection('aurora')

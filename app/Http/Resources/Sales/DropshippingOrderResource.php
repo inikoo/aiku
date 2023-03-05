@@ -16,12 +16,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class DropshippingOrderResource extends JsonResource
 {
-
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
-            'number' => $this->number,
+            'id'              => $this->id,
+            'number'          => $this->number,
             'customer_number' => $this->customer_number,
         ];
     }

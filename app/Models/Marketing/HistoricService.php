@@ -31,12 +31,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\Service $product
  * @property-read \App\Models\Marketing\HistoricServiceStats|null $stats
+ *
  * @method static Builder|HistoricService newModelQuery()
  * @method static Builder|HistoricService newQuery()
  * @method static Builder|HistoricService onlyTrashed()
  * @method static Builder|HistoricService query()
  * @method static Builder|HistoricService withTrashed()
  * @method static Builder|HistoricService withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class HistoricService extends Model
@@ -50,7 +52,8 @@ class HistoricService extends Model
 
     ];
 
-    public $timestamps = ["created_at"];
+    public $timestamps = ['created_at'];
+
     public const UPDATED_AT = null;
 
     protected $guarded = [];

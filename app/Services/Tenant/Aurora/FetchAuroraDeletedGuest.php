@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedGuest extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $auDeletedModel = json_decode(gzuncompress($this->auroraModelData->{'Staff Deleted Metadata'}));
@@ -26,7 +25,7 @@ class FetchAuroraDeletedGuest extends FetchAurora
                 'phone'                    => $auDeletedModel->data->{'Staff Telephone'},
                 'identity_document_number' => $auDeletedModel->data->{'Staff Official ID'},
                 'date_of_birth'            => $this->parseDate($auDeletedModel->data->{'Staff Birthday'}),
-                'created_at'      => $this->parseDate($auDeletedModel->data->{'Staff Valid From'}),
+                'created_at'               => $this->parseDate($auDeletedModel->data->{'Staff Valid From'}),
 
 
                 'source_id'  => $auDeletedModel->data->{'Staff Key'},
@@ -45,5 +44,4 @@ class FetchAuroraDeletedGuest extends FetchAurora
             ->table('Staff Deleted Dimension')
             ->where('Staff Deleted Key', $id)->first();
     }
-
 }

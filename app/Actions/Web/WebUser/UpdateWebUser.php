@@ -12,15 +12,13 @@ use App\Models\Web\WebUser;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 
-
 class UpdateWebUser
 {
     use WithActionUpdate;
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
-
-        if(Arr::exists($modelData,'password')){
+        if (Arr::exists($modelData, 'password')) {
             $modelData['password']=Hash::make($modelData['password']);
         }
 

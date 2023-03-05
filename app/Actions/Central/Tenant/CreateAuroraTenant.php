@@ -5,9 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\Central\Tenant;
-
 
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
@@ -107,7 +105,7 @@ class CreateAuroraTenant
             ->where('Payment Service Provider Block', 'Accounts')->first();
 
         if ($accountsServiceProviderData) {
-            $tenant->execute(fn(Tenant $tenant) => $tenant->accountsServiceProvider()->update(
+            $tenant->execute(fn (Tenant $tenant) => $tenant->accountsServiceProvider()->update(
                 [
                     'source_id' => $accountsServiceProviderData->{'Payment Service Provider Key'}
                 ]
@@ -160,5 +158,4 @@ class CreateAuroraTenant
 
         return 0;
     }
-
 }

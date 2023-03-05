@@ -20,9 +20,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Marketing\Service $service
+ *
  * @method static Builder|ServiceStats newModelQuery()
  * @method static Builder|ServiceStats newQuery()
  * @method static Builder|ServiceStats query()
+ *
  * @mixin \Eloquent
  */
 class ServiceStats extends Model
@@ -32,7 +34,6 @@ class ServiceStats extends Model
     protected $table = 'service_stats';
 
     protected $guarded = [];
-
 
     public function service(): BelongsTo
     {

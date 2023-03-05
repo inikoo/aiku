@@ -11,5 +11,4 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class WarehouseResource extends JsonResource
 {
-
 }

@@ -7,16 +7,15 @@
 
 namespace App\Models\Marketing;
 
-
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Models\Sales\SalesStats;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Query\Builder;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -43,12 +42,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\DepartmentStats|null $stats
- * @method static \Illuminate\Database\Eloquent\Builder|Department newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Department newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Department onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Department query()
- * @method static \Illuminate\Database\Eloquent\Builder|Department withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Department withoutTrashed()
+ *
+ * @method static Builder|Department newModelQuery()
+ * @method static Builder|Department newQuery()
+ * @method static Builder|Department onlyTrashed()
+ * @method static Builder|Department query()
+ * @method static Builder|Department withTrashed()
+ * @method static Builder|Department withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Department extends Model
@@ -128,5 +129,4 @@ class Department extends Model
     {
         return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-tenant-currency');
     }
-
 }

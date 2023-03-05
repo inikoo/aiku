@@ -7,11 +7,9 @@
 
 namespace App\Actions\Central\User;
 
-
 use App\Models\Central\Tenant;
 use App\Models\Central\User;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class StoreUser
 {
@@ -24,6 +22,4 @@ class StoreUser
 
         return $user;
     }
-
-
 }

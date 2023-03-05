@@ -7,7 +7,6 @@
 
 namespace App\Actions\Web\WebUser;
 
-
 use App\Models\Central\Tenant;
 
 use App\Models\Web\WebUser;
@@ -16,11 +15,10 @@ use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CreateWebUserApiToken
-
 {
     use AsAction;
 
-    public string $commandSignature = 'web-user:token {tenant_code} {web_user_slug}';
+    public string $commandSignature   = 'web-user:token {tenant_code} {web_user_slug}';
     public string $commandDescription = 'Add api token to web user.';
 
     public function handle(WebUser $webUser, $tokenData): string
@@ -32,7 +30,6 @@ class CreateWebUserApiToken
 
         HydrateWebUser::make()->tokens($webUser);
         return $token;
-
     }
 
     public function asCommand(Command $command): int
@@ -40,7 +37,7 @@ class CreateWebUserApiToken
         $tenant = Tenant::where('code', ($command->argument('tenant_code')))->firstOrFail();
 
         return $tenant->execute(function () use ($command) {
-            if ($webUser = WebUser::where('slug',$command->argument('web_user_slug'))->first()) {
+            if ($webUser = WebUser::where('slug', $command->argument('web_user_slug'))->first()) {
                 $token = $this->handle($webUser, []);
                 $command->line("Web user access token: $token");
 
@@ -52,6 +49,4 @@ class CreateWebUserApiToken
             }
         });
     }
-
-
 }

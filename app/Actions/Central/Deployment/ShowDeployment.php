@@ -11,7 +11,6 @@ use App\Models\Central\Deployment;
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowDeployment
 {
     use AsAction;
@@ -34,5 +33,4 @@ class ShowDeployment
             );
         }
     }
-
 }

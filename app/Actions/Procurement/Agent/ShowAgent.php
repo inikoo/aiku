@@ -9,15 +9,12 @@ namespace App\Actions\Procurement\Agent;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\ShowProcurementDashboard;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-
 
 /**
  * @property Agent $agent
@@ -108,5 +105,4 @@ class ShowAgent extends InertiaAction
             ]
         );
     }
-
 }

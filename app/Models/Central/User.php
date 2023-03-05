@@ -9,7 +9,6 @@ namespace App\Models\Central;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
@@ -32,9 +31,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Central\Tenant $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ *
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
+ *
  * @mixin \Eloquent
  */
 class User extends Authenticatable
@@ -60,10 +61,9 @@ class User extends Authenticatable
 
     protected $casts = [
 
-        'data'              => 'array',
-        'settings'          => 'array',
+        'data'     => 'array',
+        'settings' => 'array',
     ];
-
 
     protected $attributes = [
         'data'     => '{}',
@@ -74,6 +74,4 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Tenant::class);
     }
-
-
 }

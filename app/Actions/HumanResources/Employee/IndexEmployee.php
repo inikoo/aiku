@@ -109,7 +109,7 @@ class IndexEmployee
             (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
             [
                 'hr.employees.index' => [
-                    'route' => 'hr.employees.index',
+                    'route'      => 'hr.employees.index',
                     'modelLabel' => [
                         'label' => __('employees')
                     ],
@@ -117,5 +117,4 @@ class IndexEmployee
             ]
         );
     }
-
 }

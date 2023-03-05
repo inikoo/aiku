@@ -8,7 +8,6 @@
 
 /** @noinspection PhpUnused */
 
-
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
@@ -21,10 +20,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchCustomers extends FetchAction
 {
-
     public string $commandSignature = 'fetch:customers {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new}';
 
 
@@ -122,7 +119,7 @@ class FetchCustomers extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         $query = DB::connection('aurora')
             ->table('Customer Dimension')
@@ -140,7 +137,7 @@ class FetchCustomers extends FetchAction
         return $query;
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Customer Dimension');
 
@@ -153,5 +150,4 @@ class FetchCustomers extends FetchAction
 
         return $query->count();
     }
-
 }

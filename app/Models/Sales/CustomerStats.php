@@ -43,9 +43,9 @@ class CustomerStats extends Model
     use UsesTenantConnection;
 
     protected $casts = [
-        'last_submitted_order_at' => 'datetime',
+        'last_submitted_order_at'     => 'datetime',
         'last_dispatched_delivery_at' => 'datetime',
-        'last_invoiced_at' => 'datetime',
+        'last_invoiced_at'            => 'datetime',
     ];
     protected $guarded = [];
 
@@ -53,5 +53,4 @@ class CustomerStats extends Model
     {
         return $this->belongsTo(Customer::class);
     }
-
 }

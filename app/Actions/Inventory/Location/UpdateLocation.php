@@ -10,7 +10,6 @@ namespace App\Actions\Inventory\Location;
 use App\Actions\WithActionUpdate;
 use App\Models\Inventory\Location;
 
-
 class UpdateLocation
 {
     use WithActionUpdate;
@@ -19,5 +18,4 @@ class UpdateLocation
     {
         return $this->update($location, $modelData, ['data']);
     }
-
 }

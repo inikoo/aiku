@@ -9,10 +9,8 @@ namespace App\Services\Tenant\Aurora;
 
 use Illuminate\Support\Facades\DB;
 
-
 class FetchAuroraTransaction extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         if ($this->auroraModelData->{'Product Key'}) {
@@ -30,7 +28,7 @@ class FetchAuroraTransaction extends FetchAurora
                     'Submitted by Customer', 'In Process' => 'submitted',
                     'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => 'in-warehouse',
                     'Ready to Ship' => 'finalised',
-                    'Dispatched' => 'dispatched',
+                    'Dispatched'    => 'dispatched',
                     'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other' => 'no-dispatched',
                     'Cancelled', 'Suspended', 'Cancelled by Customer' => 'cancelled',
                     'Unknown' => null
@@ -68,5 +66,4 @@ class FetchAuroraTransaction extends FetchAurora
             ->table('Order Transaction Fact')
             ->where('Order Transaction Fact Key', $id)->first();
     }
-
 }

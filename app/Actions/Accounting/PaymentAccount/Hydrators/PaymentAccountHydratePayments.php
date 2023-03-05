@@ -14,10 +14,8 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class PaymentAccountHydratePayments implements ShouldBeUnique
 {
-
     use AsAction;
     use WithTenantJob;
 
@@ -53,7 +51,7 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
             $stats["number_payment_records_state_$state"] = Arr::get($stateCounts, $state, 0);
         }
 
-        $stateCounts =$paymentAccount->payments()->where('type','payment')
+        $stateCounts =$paymentAccount->payments()->where('type', 'payment')
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -62,7 +60,7 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
             $stats["number_payments_state_$state"] = Arr::get($stateCounts, $state, 0);
         }
 
-        $stateCounts =$paymentAccount->payments()->where('type','refund')
+        $stateCounts =$paymentAccount->payments()->where('type', 'refund')
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -78,8 +76,4 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
     {
         return $paymentAccount->id;
     }
-
-
 }
-
-

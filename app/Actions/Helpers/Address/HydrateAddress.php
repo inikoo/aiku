@@ -12,10 +12,8 @@ use App\Models\Helpers\Address;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-
 class HydrateAddress extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:address {tenants?*} {--i|id=}';
 
 
@@ -34,7 +32,4 @@ class HydrateAddress extends HydrateModel
     {
         return Address::get();
     }
-
 }
-
-

@@ -14,7 +14,7 @@ class StoreWarehouse
 {
     use AsAction;
 
-    public function handle( $modelData): Warehouse
+    public function handle($modelData): Warehouse
     {
         $warehouse = Warehouse::create($modelData);
         $warehouse->stats()->create();

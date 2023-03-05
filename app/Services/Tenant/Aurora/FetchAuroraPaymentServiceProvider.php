@@ -12,8 +12,6 @@ use Illuminate\Support\Str;
 
 class FetchAuroraPaymentServiceProvider extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $data = [
@@ -36,19 +34,18 @@ class FetchAuroraPaymentServiceProvider extends FetchAurora
         $createdDateData = DB::connection('aurora')
             ->table('Payment Account Dimension')
             ->select('Payment Account From')
-            ->where('Payment Account Service Provider Key',$this->auroraModelData->{'Payment Service Provider Key'})
+            ->where('Payment Account Service Provider Key', $this->auroraModelData->{'Payment Service Provider Key'})
             ->orderBy('Payment Account From')->first();
 
         if ($createdDateData and $this->parseDate($createdDateData->{'Payment Account From'})) {
             $this->parsedData['paymentServiceProvider']['created_at'] = $this->parseDate($createdDateData->{'Payment Account From'});
-        }else{
-
+        } else {
             $createdDateData = DB::connection('aurora')->table('Payment Dimension')
                 ->select('Payment Created Date as date')
-                ->where('Payment Service Provider Key',$this->auroraModelData->{'Payment Service Provider Key'})
+                ->where('Payment Service Provider Key', $this->auroraModelData->{'Payment Service Provider Key'})
                 ->orderBy('Payment Created Date')->first();
 
-            if($createdDateData and  $this->parseDate($createdDateData->{'date'})){
+            if ($createdDateData and  $this->parseDate($createdDateData->{'date'})) {
                 $this->parsedData['paymentServiceProvider']['created_at'] = $this->parseDate($createdDateData->{'date'});
             }
         }
@@ -61,5 +58,4 @@ class FetchAuroraPaymentServiceProvider extends FetchAurora
             ->table('Payment Service Provider Dimension')
             ->where('Payment Service Provider Key', $id)->first();
     }
-
 }

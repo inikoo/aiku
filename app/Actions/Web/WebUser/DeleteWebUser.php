@@ -12,7 +12,6 @@ use App\Actions\WithActionUpdate;
 use App\Models\Web\WebUser;
 use Illuminate\Console\Command;
 
-
 class DeleteWebUser
 {
     use WithActionUpdate;
@@ -21,8 +20,8 @@ class DeleteWebUser
 
     public function handle(WebUser $webUser, array $deletedData=[], bool $skipHydrate = false): WebUser
     {
-         $webUser->delete();
-        $webUser=$this->update($webUser,$deletedData,['data']);
+        $webUser->delete();
+        $webUser=$this->update($webUser, $deletedData, ['data']);
 
         if (!$skipHydrate) {
             HydrateCustomer::make()->webUsers($webUser->customer);
@@ -40,5 +39,4 @@ class DeleteWebUser
 
         return 0;
     }
-
 }

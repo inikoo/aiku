@@ -17,9 +17,9 @@ class UpdateSupplierProduct
     public function handle(SupplierProduct $supplierProduct, array $modelData, bool $skipHistoric=false): SupplierProduct
     {
         $supplierProduct= $this->update($supplierProduct, $modelData, ['data', 'settings']);
-        if(!$skipHistoric and $supplierProduct->wasChanged(
+        if (!$skipHistoric and $supplierProduct->wasChanged(
             ['price', 'code','name','units']
-            )){
+        )) {
             //todo create HistoricSupplierProduct and update current_historic_product_id if
         }
 

@@ -15,20 +15,17 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
-
 class UpdateCustomerStockFromIris extends fromIris
 {
-
     public function rules(): array
     {
         return array_merge(
             $this->baseRules(),
             [
-                'stock_id' => ['required', 'integer'],
-                'code' => ['sometimes', 'required', 'alpha_dash'],
+                'stock_id'    => ['required', 'integer'],
+                'code'        => ['sometimes', 'required', 'alpha_dash'],
                 'description' => ['sometimes', 'nullable', 'string', 'max:10000']
             ]
-
         );
     }
 
@@ -52,7 +49,7 @@ class UpdateCustomerStockFromIris extends fromIris
                                                      ]);
         }
 
-        return StoreStock::run($webUser->customer, Arr::except($modelData,'stock_id'));
+        return StoreStock::run($webUser->customer, Arr::except($modelData, 'stock_id'));
     }
 
     public function jsonResponse(?Stock $stock): StockResource
@@ -63,7 +60,4 @@ class UpdateCustomerStockFromIris extends fromIris
 
         return new StockResource($stock);
     }
-
-
 }
-

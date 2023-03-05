@@ -18,7 +18,6 @@ class StoreCustomer
 
     public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
     {
-
         /** @var \App\Models\Sales\Customer $customer */
         $customer = $shop->customers()->create($customerData);
         $customer->stats()->create();

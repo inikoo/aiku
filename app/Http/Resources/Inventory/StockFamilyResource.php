@@ -18,7 +18,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class StockFamilyResource extends JsonResource
 {
-
     public function toArray($request): array
     {
         return [

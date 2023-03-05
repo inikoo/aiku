@@ -64,6 +64,4 @@ class UpdateUser
     {
         return Redirect::route('account.users.edit', $user->id);
     }
-
-
 }

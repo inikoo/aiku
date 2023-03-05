@@ -13,7 +13,6 @@ use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreSupplier
 {
     use AsAction;
@@ -38,6 +37,4 @@ class StoreSupplier
 
         return $supplier;
     }
-
-
 }

@@ -16,7 +16,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 /**
  * @property Tenant $tenant
  * @property User $user
@@ -135,7 +134,6 @@ class ShowInventoryDashboard
                 ]
 
             ]
-
         );
     }
 
@@ -149,6 +147,4 @@ class ShowInventoryDashboard
             ]
         ];
     }
-
-
 }

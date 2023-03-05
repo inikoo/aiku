@@ -5,9 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\SourceFetch\Aurora;
-
 
 use App\Actions\Sales\Transaction\StoreTransaction;
 use App\Models\Sales\Order;
@@ -16,7 +14,6 @@ use App\Services\Tenant\SourceTenantService;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class FetchTransactions
 {
@@ -44,6 +41,4 @@ class FetchTransactions
 
         return null;
     }
-
-
 }

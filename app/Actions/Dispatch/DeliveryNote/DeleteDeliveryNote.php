@@ -7,7 +7,6 @@
 
 namespace App\Actions\Dispatch\DeliveryNote;
 
-
 use App\Models\Dispatch\DeliveryNote;
 use Lorisleiva\Actions\Concerns\AsAction;
 

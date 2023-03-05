@@ -11,7 +11,6 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StorePaymentAccount
 {
     use AsAction;
@@ -23,5 +22,4 @@ class StorePaymentAccount
         $paymentAccount->stats()->create();
         return $paymentAccount;
     }
-
 }

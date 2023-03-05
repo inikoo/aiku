@@ -59,5 +59,4 @@ class FetchAuroraService extends FetchAurora
             ->table('Product Dimension')
             ->where('Product ID', $id)->first();
     }
-
 }

@@ -7,7 +7,6 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
-
 use App\Actions\Central\CentralUser\StoreCentralUser;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\WithTenantsArgument;
@@ -26,7 +25,6 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class CreateGuestUser
 {
-
     use AsAction;
     use WithAttributes;
     use WithTenantsArgument;
@@ -55,7 +53,6 @@ class CreateGuestUser
     {
         $guest = StoreGuest::run(
             array_merge(Arr::only($guestUserData, ['name', 'email']), ['slug' => Arr::get($guestUserData, 'username')])
-
         );
 
 
@@ -80,7 +77,7 @@ class CreateGuestUser
     {
         return [
 
-            'username' => ['required', new AlphaDashDot, 'unique:App\Models\Central\CentralUser,username'],
+            'username' => ['required', new AlphaDashDot(), 'unique:App\Models\Central\CentralUser,username'],
             'password' => ['required', app()->isProduction() ? Password::min(8)->uncompromised() : null],
             'name'     => 'sometimes|required',
             'email'    => 'sometimes|required|email'
@@ -134,8 +131,7 @@ class CreateGuestUser
                             $this->centralUser,
                             array_merge(
                                 ['email' => $this->centralUser->email],
-                                ['name' => $command->argument('name')]
-                                ,
+                                ['name' => $command->argument('name')],
                             ),
                             $roles
                         );
@@ -176,6 +172,4 @@ class CreateGuestUser
 
         return $exitCode;
     }
-
-
 }

@@ -26,12 +26,9 @@ use App\Models\SysAdmin\Guest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-
 
 class HydrateTenant extends HydrateModel
 {
-
     use WithNormalise;
 
     public string $commandSignature = 'hydrate:tenant {tenants?*}';
@@ -53,7 +50,8 @@ class HydrateTenant extends HydrateModel
         TenantHydrateAccounting::run($tenant);
     }
 
-    public function fulfilmentStats(){
+    public function fulfilmentStats()
+    {
         /** @var Tenant $tenant */
         $tenant = app('currentTenant');
     }
@@ -104,12 +102,12 @@ class HydrateTenant extends HydrateModel
         ];
 
 
-        $shopStates = ['in-process', 'open', 'closing-down', 'closed'];
+        $shopStates      = ['in-process', 'open', 'closing-down', 'closed'];
         $shopStatesCount = Shop::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
         foreach ($shopStates as $shopState) {
-            $stats['number_shops_state_'.preg_replace('/-/','_',$shopState)] = Arr::get($shopStatesCount, preg_replace('/-/','_',$shopState), 0);
+            $stats['number_shops_state_'.preg_replace('/-/', '_', $shopState)] = Arr::get($shopStatesCount, preg_replace('/-/', '_', $shopState), 0);
         }
 
         $shopTypes      = ['shop', 'fulfilment_house', 'agent'];
@@ -133,13 +131,13 @@ class HydrateTenant extends HydrateModel
         }
 
         $shopStatesSubtypesCount = Shop::selectRaw("concat(state,'_',subtype) as state_subtype, count(*) as total")
-            ->groupBy('state','state_subtype')
+            ->groupBy('state', 'state_subtype')
             ->pluck('total', 'state_subtype')->all();
 
 
         foreach ($shopStates as $shopState) {
             foreach ($shopSubtypes as $shopSubtype) {
-                $stats['number_shops_state_subtype_'.preg_replace('/-/','_',$shopState).'_'.$shopSubtype] = Arr::get($shopStatesSubtypesCount, preg_replace('/-/','_',$shopState).'_'.$shopSubtype, 0);
+                $stats['number_shops_state_subtype_'.preg_replace('/-/', '_', $shopState).'_'.$shopSubtype] = Arr::get($shopStatesSubtypesCount, preg_replace('/-/', '_', $shopState).'_'.$shopSubtype, 0);
             }
         }
 
@@ -282,8 +280,4 @@ class HydrateTenant extends HydrateModel
 
         return $exitCode;
     }
-
-
 }
-
-

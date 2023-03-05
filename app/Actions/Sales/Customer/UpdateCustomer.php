@@ -10,7 +10,6 @@ namespace App\Actions\Sales\Customer;
 use App\Actions\WithActionUpdate;
 use App\Models\Sales\Customer;
 
-
 class UpdateCustomer
 {
     use WithActionUpdate;

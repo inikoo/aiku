@@ -16,7 +16,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowUser
 {
     use AsAction;
@@ -48,8 +47,8 @@ class ShowUser
                 'title'       => __('user'),
                 'breadcrumbs' => $this->getBreadcrumbs($user),
                 'pageHead'    => [
-                    'title' => '@'.$user->username,
-                    'capitalize'=>false
+                    'title'     => '@'.$user->username,
+                    'capitalize'=> false
 
                 ],
                 'user'        => $user
@@ -78,6 +77,4 @@ class ShowUser
             ]
         );
     }
-
-
 }

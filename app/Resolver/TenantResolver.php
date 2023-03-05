@@ -21,15 +21,12 @@ class TenantResolver extends TenantFinder
 
     public function findForRequest(Request $request): ?Tenant
     {
-
-
         $subdomain = current(explode('.', $request->getHost()));
         if (in_array($subdomain, ['www', 'aiku'])) {
             return null;
         }
-        if(in_array($subdomain,['app','agents'])){
-
-             if ($request->hasCookie('tenant')) {
+        if (in_array($subdomain, ['app','agents'])) {
+            if ($request->hasCookie('tenant')) {
                 $tenant = $this->getTenantModel()->find(decrypt($request->cookie('tenant')));
 
                 if (!empty($tenant)) {
@@ -38,11 +35,8 @@ class TenantResolver extends TenantFinder
                 Cookie::forget('tenant');
             }
             return null;
-
         }
 
         return $this->getTenantModel()->where('slug', $subdomain)->first();
     }
 }
-
-

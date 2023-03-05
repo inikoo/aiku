@@ -5,9 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\Central\Tenant;
-
 
 use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
 use App\Actions\WithTenantsOption;
@@ -29,9 +27,8 @@ class CreateTenantAdminUser
         return 'Create admin-user for tenant';
     }
 
-    public function handle(Tenant $tenant,array $adminUserData, ?array $tokenData = null): object
+    public function handle(Tenant $tenant, array $adminUserData, ?array $tokenData = null): object
     {
-
         $token = null;
 
 
@@ -59,8 +56,8 @@ class CreateTenantAdminUser
         }
 
         return (object)[
-            'password' => $password,
-            'token' => $token,
+            'password'  => $password,
+            'token'     => $token,
             'adminUser' => $adminUser
         ];
     }
@@ -90,7 +87,7 @@ class CreateTenantAdminUser
         }
 
 
-        foreach($tenants as $tenant){
+        foreach ($tenants as $tenant) {
             $result = $this->handle(
                 $tenant,
                 $adminUserData,
@@ -108,8 +105,6 @@ class CreateTenantAdminUser
 
                     ]
                 );
-
-
             }
         }
 
@@ -117,6 +112,4 @@ class CreateTenantAdminUser
 
         return 0;
     }
-
-
 }

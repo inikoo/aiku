@@ -66,7 +66,7 @@ class SalesStats extends Model
 {
     use UsesTenantConnection;
 
-    protected $table = 'sales_stats';
+    protected $table   = 'sales_stats';
     protected $guarded = [];
 
 

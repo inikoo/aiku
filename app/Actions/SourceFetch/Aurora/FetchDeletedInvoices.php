@@ -14,20 +14,15 @@ use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
-use phpDocumentor\Reflection\Types\Collection;
-
 
 class FetchDeletedInvoices extends FetchAction
 {
-
     public string $commandSignature = 'fetch:deleted-invoices {tenants?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
     {
         if ($deletedInvoiceData = $tenantSource->fetchDeletedInvoice($tenantSourceId)) {
-
-
             if ($deletedInvoiceData['invoice']) {
                 if ($invoice = Invoice::withTrashed()->where('source_id', $deletedInvoiceData['invoice']['source_id'])
                     ->first()) {
@@ -41,7 +36,6 @@ class FetchDeletedInvoices extends FetchAction
                         modelData:          $deletedInvoiceData['invoice'],
                         billingAddress: $deletedInvoiceData['billing_address']
                     );
-
                 }
 
 
@@ -57,7 +51,7 @@ class FetchDeletedInvoices extends FetchAction
     }
 
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Invoice Deleted Dimension')
@@ -65,9 +59,8 @@ class FetchDeletedInvoices extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')->table('Invoice Deleted Dimension')->count();
     }
-
 }

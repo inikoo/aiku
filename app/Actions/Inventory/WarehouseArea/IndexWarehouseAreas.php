@@ -22,11 +22,8 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexWarehouseAreas extends InertiaAction
 {
-
-
     private Warehouse|Tenant $parent;
 
     public function handle(): LengthAwarePaginator
@@ -118,9 +115,9 @@ class IndexWarehouseAreas extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('areas')
                     ]
                 ],
@@ -142,5 +139,4 @@ class IndexWarehouseAreas extends InertiaAction
             default => []
         };
     }
-
 }

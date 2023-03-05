@@ -16,7 +16,6 @@ use App\Actions\SourceFetch\Aurora\FetchWarehouseAreas;
 use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use Illuminate\Support\Facades\Route;
 
-
 Route::post('/shop', FetchShops::class)->name('shops');
 Route::post('/customer', FetchCustomers::class)->name('customers');
 Route::post('/order', FetchOrders::class)->name('orders');

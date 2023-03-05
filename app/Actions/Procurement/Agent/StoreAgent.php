@@ -28,6 +28,4 @@ class StoreAgent
 
         return $agent;
     }
-
-
 }

@@ -11,7 +11,6 @@ use Illuminate\Database\Seeder;
 
 class TenantsSeeder extends Seeder
 {
-
     public function run()
     {
         $this->call([

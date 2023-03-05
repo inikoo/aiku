@@ -10,9 +10,7 @@ namespace App\Actions\Marketing\Family;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\Marketing\DepartmentResource;
 use App\Http\Resources\Marketing\FamilyResource;
-use App\Models\Marketing\Department;
 use App\Models\Marketing\Family;
 use App\Models\Marketing\Shop;
 use Illuminate\Http\Request;
@@ -21,7 +19,6 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class ShowFamily extends InertiaAction
 {
@@ -59,20 +56,20 @@ class ShowFamily extends InertiaAction
         return Inertia::render(
             'Marketing/Family',
             [
-                'title' => __('family'),
+                'title'       => __('family'),
                 'breadcrumbs' => $this->getBreadcrumbs($family),
-                'pageHead' => [
+                'pageHead'    => [
                     'title' => $family->code,
 
 
                 ],
-                'family' => new FamilyResource($family),
+                'family'   => new FamilyResource($family),
                 'treeMaps' => [
                     [
                         [
-                            'name' => __('products'),
-                            'icon' => ['fal', 'fa-cube'],
-                            'href' => ['shops.show.products.index', $family->slug],
+                            'name'  => __('products'),
+                            'icon'  => ['fal', 'fa-cube'],
+                            'href'  => ['shops.show.products.index', $family->slug],
                             'index' => [
                                 'number' => $family->stats->number_products
                             ]
@@ -103,11 +100,11 @@ class ShowFamily extends InertiaAction
             (new IndexShops())->getBreadcrumbs(),
             [
                 'shops.show' => [
-                    'route' => 'shops.show',
+                    'route'           => 'shops.show',
                     'routeParameters' => $family->id,
-                    'name' => $family->code,
-                    'index' => [
-                        'route' => 'shops.index',
+                    'name'            => $family->code,
+                    'index'           => [
+                        'route'   => 'shops.index',
                         'overlay' => __('Families list')
                     ],
                     'modelLabel' => [
@@ -117,5 +114,4 @@ class ShowFamily extends InertiaAction
             ]
         );
     }
-
 }

@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -33,12 +32,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Central\AdminUser|null $adminUser
  * @property-read \App\Models\Central\CentralDomainStats|null $stats
  * @property-read \App\Models\Central\Tenant $tenant
+ *
  * @method static Builder|CentralDomain newModelQuery()
  * @method static Builder|CentralDomain newQuery()
  * @method static Builder|CentralDomain onlyTrashed()
  * @method static Builder|CentralDomain query()
  * @method static Builder|CentralDomain withTrashed()
  * @method static Builder|CentralDomain withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class CentralDomain extends Model
@@ -53,7 +54,6 @@ class CentralDomain extends Model
             ->generateSlugsFrom('slug')
             ->saveSlugsTo('slug');
     }
-
 
     public function tenant(): BelongsTo
     {
@@ -71,5 +71,4 @@ class CentralDomain extends Model
     {
         return $this->morphOne(AdminUser::class, 'userable');
     }
-
 }

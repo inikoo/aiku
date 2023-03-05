@@ -16,7 +16,6 @@ use Symfony\Component\Process\Exception\RuntimeException;
 use Symfony\Component\Process\Process;
 use Throwable;
 
-
 class StoreDeployment
 {
     use AsAction;
@@ -30,8 +29,7 @@ class StoreDeployment
 
     public function handle(array $modelData): Deployment
     {
-            return Deployment::create($modelData);
-
+        return Deployment::create($modelData);
     }
 
 
@@ -138,5 +136,4 @@ class StoreDeployment
     {
         return preg_match('/^[0-9a-f]{7,40}$/', $hash) == true;
     }
-
 }

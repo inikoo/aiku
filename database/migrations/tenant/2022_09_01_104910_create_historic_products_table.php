@@ -9,9 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('historic_products', function (Blueprint $table) {
@@ -25,12 +23,11 @@ return new class extends Migration
             $table->unsignedDecimal('price', 18)->comment('unit price');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
-            $table->unsignedDecimal('units',12,3)->nullable()->comment('units per outer');
+            $table->unsignedDecimal('units', 12, 3)->nullable()->comment('units per outer');
 
             //$table->unsignedSmallInteger('currency_id')->nullable();
             //$table->foreign('currency_id')->references('id')->on('central.currencies');
             $table->unsignedBigInteger('source_id')->nullable()->unique();
-
         });
     }
 

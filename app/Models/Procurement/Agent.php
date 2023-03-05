@@ -20,7 +20,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-
 /**
  * App\Models\Procurement\Agent
  *
@@ -137,5 +136,4 @@ class Agent extends Model
     {
         return 'slug';
     }
-
 }

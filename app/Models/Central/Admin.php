@@ -7,12 +7,10 @@
 
 namespace App\Models\Central;
 
-
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
-
 
 /**
  * App\Models\Central\Admin
@@ -25,28 +23,29 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Central\AdminUser|null $adminUser
+ *
  * @method static Builder|Admin newModelQuery()
  * @method static Builder|Admin newQuery()
  * @method static Builder|Admin query()
+ *
  * @mixin \Eloquent
  */
 class Admin extends Model
 {
-
     use UsesLandlordConnection;
 
     protected $guarded = [];
+
     protected $attributes = [
         'data' => '{}',
     ];
-    protected $casts = [
-        'data' => 'array'
-    ];
 
+    protected $casts = [
+        'data' => 'array',
+    ];
 
     public function adminUser(): MorphOne
     {
         return $this->morphOne(AdminUser::class, 'userable');
     }
-
 }

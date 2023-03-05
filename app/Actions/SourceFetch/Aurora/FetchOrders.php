@@ -19,7 +19,6 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchOrders extends FetchAction
 {
-
     public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=}  {--N|only_new : Fetch only new}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
@@ -68,7 +67,7 @@ class FetchOrders extends FetchAction
 
     private function fetchTransactions($tenantSource, $order): void
     {
-        $transactionsToDelete = $order->transactions()->pluck('source_id','id')->all();
+        $transactionsToDelete = $order->transactions()->pluck('source_id', 'id')->all();
         foreach (
             DB::connection('aurora')
                 ->table('Order Transaction Fact')
@@ -78,21 +77,18 @@ class FetchOrders extends FetchAction
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
             FetchTransactions::run($tenantSource, $auroraData->{'Order Transaction Fact Key'}, $order);
-
         }
-        $order->transactions()->whereIn('id',array_keys($transactionsToDelete))->delete();
-
-
+        $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
 
-    function updateAurora(Order $order)
+    public function updateAurora(Order $order)
     {
         DB::connection('aurora')->table('Order Dimension')
             ->where('Order Key', $order->source_id)
             ->update(['aiku_id' => $order->id]);
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         $query = DB::connection('aurora')
             ->table('Order Dimension')
@@ -106,7 +102,7 @@ class FetchOrders extends FetchAction
         return $query;
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Order Dimension');
         if ($this->onlyNew) {
@@ -115,5 +111,4 @@ class FetchOrders extends FetchAction
 
         return $query->count();
     }
-
 }

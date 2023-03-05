@@ -5,7 +5,6 @@
 *  Copyright (c) 2022, Raul A Perusquia Flores
 */
 
-
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\WithTenantsArgument;
@@ -18,7 +17,6 @@ use Illuminate\Console\Command;
 use Laravolt\Avatar\Avatar;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
-
 
 class SetAvatar
 {
@@ -46,7 +44,7 @@ class SetAvatar
             $image_path = $temporaryDirectory->path('avatar.png');
             /** @var Employee|Guest $parent */
             $parent=$user->parent;
-            (new Avatar)->create($parent->name)->save($image_path);
+            (new Avatar())->create($parent->name)->save($image_path);
 
             $checksum = md5_file($image_path);
 
@@ -78,11 +76,12 @@ class SetAvatar
 
 
         $result = (int)$tenant->execute(
-        /**
-         * @throws \Spatie\TemporaryDirectory\Exceptions\PathAlreadyExists
-         * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-         * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
-         */ function () use ($command) {
+            /**
+             * @throws \Spatie\TemporaryDirectory\Exceptions\PathAlreadyExists
+             * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
+             * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
+             */ 
+            function () use ($command) {
                 $user = User::find($command->argument('user_id'));
                 if (!$user) {
                     $command->error('User not found');
@@ -99,6 +98,4 @@ class SetAvatar
 
         return $exitCode;
     }
-
-
 }

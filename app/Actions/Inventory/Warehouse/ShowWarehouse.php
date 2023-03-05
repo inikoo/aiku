@@ -17,7 +17,6 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 /**
  * @property Warehouse $warehouse
  */
@@ -83,18 +82,18 @@ class ShowWarehouse
                     'current' => 'dashboard',
                     'items'   => [
                         'dashboard' => [
-                            'name' => __('dashboard'),
-                            'icon' => 'fal fa-tachometer-alt',
+                            'name'    => __('dashboard'),
+                            'icon'    => 'fal fa-tachometer-alt',
                             'content' => 'content dashboard',
                         ],
                         'details'   => [
-                            'name' => __('details'),
-                            'icon' => 'fal fa-clock',
+                            'name'    => __('details'),
+                            'icon'    => 'fal fa-clock',
                             'content' => 'content details',
                         ],
                         'history'   => [
-                            'name' => __('changelog'),
-                            'icon' => 'fal fa-clock',
+                            'name'    => __('changelog'),
+                            'icon'    => 'fal fa-clock',
                             'content' => 'content changelog',
                         ]
                     ]
@@ -133,5 +132,4 @@ class ShowWarehouse
             ]
         );
     }
-
 }

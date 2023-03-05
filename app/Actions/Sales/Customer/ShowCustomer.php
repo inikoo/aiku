@@ -18,11 +18,8 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
-
 class ShowCustomer extends InertiaAction
 {
-
-
     public function handle(Customer $customer): Customer
     {
         return $customer;
@@ -108,7 +105,7 @@ class ShowCustomer extends InertiaAction
 
         if ($this->routeName == 'customers.show') {
             $shopMeta = [
-                'href' => ['shops.show', $customer->shop->slug],
+                'href'     => ['shops.show', $customer->shop->slug],
                 'name'     => $customer->shop->code,
                 'leftIcon' => [
                     'icon'    => 'fal fa-store-alt',
@@ -175,7 +172,7 @@ class ShowCustomer extends InertiaAction
         };
 
         return match ($routeName) {
-            'customers.show' => $headCrumb([$customer->shop->slug]),
+            'customers.show'            => $headCrumb([$customer->shop->slug]),
             'shops.show.customers.show' => array_merge(
                 (new ShowShop())->getBreadcrumbs($customer->shop),
                 $headCrumb([$customer->shop->slug, $customer->slug])
@@ -183,5 +180,4 @@ class ShowCustomer extends InertiaAction
             default => []
         };
     }
-
 }

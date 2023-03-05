@@ -10,7 +10,6 @@ namespace App\Actions\Marketing\TradeUnit;
 use App\Models\Marketing\TradeUnit;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreTradeUnit
 {
     use AsAction;

@@ -15,7 +15,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 /**
  * @property Tenant $tenant
  * @property User $user
@@ -54,27 +53,27 @@ class ShowProcurementDashboard
 
                     [
                         [
-                            'name' => __('agents'),
-                            'icon' => ['fal', 'fa-people-arrows'],
-                            'href' => ['procurement.agents.index'],
+                            'name'  => __('agents'),
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'href'  => ['procurement.agents.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_active_agents
                             ]
 
                         ],
                         [
-                            'name' => __('suppliers'),
-                            'icon' => ['fal', 'fa-users'],
-                            'href' => ['procurement.suppliers.index'],
+                            'name'  => __('suppliers'),
+                            'icon'  => ['fal', 'fa-users'],
+                            'href'  => ['procurement.suppliers.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_active_suppliers
                             ]
 
                         ],
                         [
-                            'name' => __('Supplier Product'),
-                            'icon' => ['fal', 'fa-parachute-box'],
-                            'href' => ['procurement.supplier-products.index'],
+                            'name'  => __('Supplier Product'),
+                            'icon'  => ['fal', 'fa-parachute-box'],
+                            'href'  => ['procurement.supplier-products.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_active_global_agents
                             ]
@@ -84,7 +83,6 @@ class ShowProcurementDashboard
                 ]
 
             ]
-
         );
     }
 
@@ -98,6 +96,4 @@ class ShowProcurementDashboard
             ]
         ];
     }
-
-
 }

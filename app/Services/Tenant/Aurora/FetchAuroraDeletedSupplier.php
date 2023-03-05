@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedSupplier extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $auroraDeletedData = json_decode(gzuncompress($this->auroraModelData->{'Supplier Deleted Metadata'}));
@@ -72,5 +71,4 @@ class FetchAuroraDeletedSupplier extends FetchAurora
             ->table('Supplier Deleted Dimension')
             ->where('Supplier Deleted Key', $id)->first();
     }
-
 }

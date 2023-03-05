@@ -6,7 +6,6 @@
  */
 
 
-use App\Actions\Sales\Order\IndexOrders;
 use App\Actions\Sales\Order\ShowOSMHub;
 
 Route::get('/', ShowOSMHub::class)->name('hub');

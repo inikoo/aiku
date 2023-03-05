@@ -9,8 +9,6 @@ namespace App\Actions\HumanResources\JobPosition;
 
 use App\Actions\HumanResources\ShowHumanResourcesDashboard;
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\HumanResources\EmployeeInertiaResource;
-use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Models\HumanResources\Employee;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -86,9 +84,9 @@ class IndexJobPosition
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->column(key: 'slug',label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name',label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_positions',label: __('position'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: true, searchable: true)
 
                 ->defaultSort('code');
         });
@@ -116,5 +114,4 @@ class IndexJobPosition
             ]
         );
     }
-
 }

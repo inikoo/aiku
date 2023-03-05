@@ -21,7 +21,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexStocks extends InertiaAction
 {
     private StockFamily|Tenant $parent;
@@ -112,7 +111,7 @@ class IndexStocks extends InertiaAction
             (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 'inventory.stocks.index' => [
-                    'route' => 'inventory.stocks.index',
+                    'route'      => 'inventory.stocks.index',
                     'modelLabel' => [
                         'label' => __('stocks')
                     ],

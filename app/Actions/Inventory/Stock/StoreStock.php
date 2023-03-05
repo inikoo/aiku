@@ -15,7 +15,6 @@ use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreStock
 {
     use AsAction;
@@ -39,11 +38,9 @@ class StoreStock
             'code' => [
                 'required',
                 Rule::unique('stocks', 'code')->where(
-                    fn($query) => $query->where('owner_type', 'Customer')->where('owner_id', $request->user()->customer->id)
+                    fn ($query) => $query->where('owner_type', 'Customer')->where('owner_id', $request->user()->customer->id)
                 )
             ],
         ];
     }
-
-
 }

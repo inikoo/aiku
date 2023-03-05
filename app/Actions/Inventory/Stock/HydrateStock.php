@@ -11,10 +11,8 @@ use App\Actions\HydrateModel;
 use App\Models\Inventory\Stock;
 use Illuminate\Support\Collection;
 
-
 class HydrateStock extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:stock {tenants?*} {--i|id=} ';
 
 
@@ -52,7 +50,4 @@ class HydrateStock extends HydrateModel
     {
         return Stock::withTrashed()->all();
     }
-
 }
-
-

@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedInvoice extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         if (!$this->auroraModelData->{'Invoice Deleted Order Key'}) {
@@ -80,5 +79,4 @@ class FetchAuroraDeletedInvoice extends FetchAurora
             ->table('Invoice Deleted Dimension')
             ->where('Invoice Deleted Key', $id)->first();
     }
-
 }

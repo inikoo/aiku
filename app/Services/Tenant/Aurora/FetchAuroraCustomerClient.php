@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraCustomerClient extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         if (!$this->auroraModelData->{'Customer Client Customer Key'}) {
@@ -55,5 +54,4 @@ class FetchAuroraCustomerClient extends FetchAurora
             ->table('Customer Client Dimension')
             ->where('Customer Client Key', $id)->first();
     }
-
 }

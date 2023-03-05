@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedLocation extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $parent = null;
@@ -25,11 +23,10 @@ class FetchAuroraDeletedLocation extends FetchAurora
         }
 
         if (is_numeric($this->auroraModelData->{'Location Deleted Warehouse Area Key'})) {
-             $parent = FetchWarehouseAreas::run($this->tenantSource, $this->auroraModelData->{'Location Deleted Warehouse Area Key'});
+            $parent = FetchWarehouseAreas::run($this->tenantSource, $this->auroraModelData->{'Location Deleted Warehouse Area Key'});
         }
-        if(!$parent){
+        if (!$parent) {
             $parent = FetchWarehouses::run($this->tenantSource, $this->auroraModelData->{'Location Deleted Warehouse Key'});
-
         }
 
         $this->parsedData['parent']   = $parent;
@@ -47,5 +44,4 @@ class FetchAuroraDeletedLocation extends FetchAurora
             ->table('Location Deleted Dimension')
             ->where('Location Deleted Key', $id)->first();
     }
-
 }

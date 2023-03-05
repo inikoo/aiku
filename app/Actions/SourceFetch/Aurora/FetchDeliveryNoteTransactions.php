@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Dispatch\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\DeliveryNoteItem;
@@ -42,6 +41,4 @@ class FetchDeliveryNoteTransactions
 
         return null;
     }
-
-
 }

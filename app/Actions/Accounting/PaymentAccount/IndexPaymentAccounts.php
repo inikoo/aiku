@@ -24,7 +24,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexPaymentAccounts extends InertiaAction
 {
     private Shop|Tenant|PaymentServiceProvider $parent;
@@ -33,8 +32,6 @@ class IndexPaymentAccounts extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-
-
                 $query->where('payment_accounts.code', '~*', "\y$value\y")
                     ->orWhere('payment_accounts.name', '=', $value)
                     ->orWhere('payment_accounts.data', '=', $value);
@@ -45,7 +42,7 @@ class IndexPaymentAccounts extends InertiaAction
         return QueryBuilder::for(PaymentAccount::class)
             ->defaultSort('payment_accounts.code')
             ->select(['payment_accounts.code', 'payment_accounts.slug','payment_accounts.name', 'payment_service_providers.slug as payment_service_providers_slug', 'number_payments'])
-            ->leftJoin('payment_account_stats','payment_accounts.id','payment_account_stats.payment_account_id')
+            ->leftJoin('payment_account_stats', 'payment_accounts.id', 'payment_account_stats.payment_account_id')
             ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'PaymentServiceProvider') {
@@ -80,8 +77,8 @@ class IndexPaymentAccounts extends InertiaAction
             'Accounting/PaymentAccounts',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('Payment Accounts '),
-                'pageHead' => [
+                'title'       => __('Payment Accounts '),
+                'pageHead'    => [
                     'title' => __('Payment Accounts'),
                 ],
                 'payment_accounts' => PaymentAccountResource::collection($payment_accounts),
@@ -98,7 +95,6 @@ class IndexPaymentAccounts extends InertiaAction
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'payment_service_providers_slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true);
-
         });
     }
 
@@ -106,7 +102,7 @@ class IndexPaymentAccounts extends InertiaAction
     public function asController(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
-        $this->parent = app('currentTenant');
+        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
 
         return $this->handle();
@@ -133,9 +129,9 @@ class IndexPaymentAccounts extends InertiaAction
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
                 $routeName => [
-                    'route' => $routeName,
+                    'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('accounts')
                     ]
                 ],
@@ -156,5 +152,4 @@ class IndexPaymentAccounts extends InertiaAction
             default => []
         };
     }
-
 }

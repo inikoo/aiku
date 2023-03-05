@@ -16,7 +16,6 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowShop
 {
     use AsAction;
@@ -45,20 +44,20 @@ class ShowShop
         return Inertia::render(
             'Marketing/Shop',
             [
-                'title' => __('shop'),
+                'title'       => __('shop'),
                 'breadcrumbs' => $this->getBreadcrumbs($shop),
-                'pageHead' => [
+                'pageHead'    => [
                     'title' => $shop->name,
 
 
                 ],
-                'shop' => new ShopResource($shop),
+                'shop'     => new ShopResource($shop),
                 'treeMaps' => [
                     [
                         [
-                            'name' => __('customers'),
-                            'icon' => ['fal', 'fa-user'],
-                            'href' => ['shops.show.customers.index', $shop->slug],
+                            'name'  => __('customers'),
+                            'icon'  => ['fal', 'fa-user'],
+                            'href'  => ['shops.show.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_customers
                             ]
@@ -66,25 +65,25 @@ class ShowShop
                     ],
                     [
                         [
-                            'name' => __('departments'),
-                            'icon' => ['fal', 'fa-folder-tree'],
-                            'href' => ['shops.show.departments.index', $shop->slug],
+                            'name'  => __('departments'),
+                            'icon'  => ['fal', 'fa-folder-tree'],
+                            'href'  => ['shops.show.departments.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_departments
                             ]
                         ],
                         [
-                            'name' => __('families'),
-                            'icon' => ['fal', 'fa-folder'],
-                            'href' => ['shops.show.families.index', $shop->slug],
+                            'name'  => __('families'),
+                            'icon'  => ['fal', 'fa-folder'],
+                            'href'  => ['shops.show.families.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_families
                             ]
                         ],
                         [
-                            'name' => __('products'),
-                            'icon' => ['fal', 'fa-cube'],
-                            'href' => ['shops.show.products.index', $shop->slug],
+                            'name'  => __('products'),
+                            'icon'  => ['fal', 'fa-cube'],
+                            'href'  => ['shops.show.products.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_products
                             ]
@@ -92,25 +91,25 @@ class ShowShop
                     ],
                     [
                         [
-                            'name' => __('orders'),
-                            'icon' => ['fal', 'fa-shopping-cart'],
-                            'href' => ['shops.show.orders.index', $shop->slug],
+                            'name'  => __('orders'),
+                            'icon'  => ['fal', 'fa-shopping-cart'],
+                            'href'  => ['shops.show.orders.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_orders
                             ]
                         ],
                         [
-                            'name' => __('invoices'),
-                            'icon' => ['fal', 'fa-file-invoice'],
-                            'href' => ['shops.show.invoices.index', $shop->slug],
+                            'name'  => __('invoices'),
+                            'icon'  => ['fal', 'fa-file-invoice'],
+                            'href'  => ['shops.show.invoices.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_invoices
                             ]
                         ],
                         [
-                            'name' => __('delivery-notes'),
-                            'icon' => ['fal', 'fa-sticky-note'],
-                            'href' => ['shops.show.delivery-notes.index', $shop->slug],
+                            'name'  => __('delivery-notes'),
+                            'icon'  => ['fal', 'fa-sticky-note'],
+                            'href'  => ['shops.show.delivery-notes.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_deliveries
                             ]
@@ -141,11 +140,11 @@ class ShowShop
             (new IndexShops())->getBreadcrumbs(),
             [
                 'shops.show' => [
-                    'route' => 'shops.show',
+                    'route'           => 'shops.show',
                     'routeParameters' => $shop->id,
-                    'name' => $shop->code,
-                    'index' => [
-                        'route' => 'shops.index',
+                    'name'            => $shop->code,
+                    'index'           => [
+                        'route'   => 'shops.index',
                         'overlay' => __('Shops list')
                     ],
                     'modelLabel' => [
@@ -155,5 +154,4 @@ class ShowShop
             ]
         );
     }
-
 }

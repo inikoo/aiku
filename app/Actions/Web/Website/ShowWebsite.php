@@ -20,7 +20,6 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowWebsite extends InertiaAction
 {
     use AsAction;
@@ -57,9 +56,9 @@ class ShowWebsite extends InertiaAction
         return Inertia::render(
             'Marketing/Website',
             [
-                'title' => __('Website'),
+                'title'       => __('Website'),
                 'breadcrumbs' => $this->getBreadcrumbs($website),
-                'pageHead' => [
+                'pageHead'    => [
                     'title' => $website->number,
 
 
@@ -89,11 +88,11 @@ class ShowWebsite extends InertiaAction
             (new IndexShops())->getBreadcrumbs(),
             [
                 'shops.show' => [
-                    'route' => 'shops.show',
+                    'route'           => 'shops.show',
                     'routeParameters' => $website->id,
-                    'name' => $website->number,
-                    'index' => [
-                        'route' => 'shops.index',
+                    'name'            => $website->number,
+                    'index'           => [
+                        'route'   => 'shops.index',
                         'overlay' => __('Websites list')
                     ],
                     'modelLabel' => [
@@ -103,5 +102,4 @@ class ShowWebsite extends InertiaAction
             ]
         );
     }
-
 }

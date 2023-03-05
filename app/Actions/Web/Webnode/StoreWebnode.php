@@ -12,21 +12,18 @@ use App\Models\Web\Website;
 use App\Models\Web\Webnode;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StoreWebnode
 {
     use AsAction;
 
-    public function handle(Website $website, array $modelData,array $webpageData): Webnode
+    public function handle(Website $website, array $modelData, array $webpageData): Webnode
     {
         /** @var Webnode $webnode */
         $webnode = $website->webnodes()->create($modelData);
         $webnode->stats()->create();
 
-        StoreWebpage::run($webnode,$webpageData);
+        StoreWebpage::run($webnode, $webpageData);
 
         return $webnode;
     }
-
-
 }

@@ -17,7 +17,6 @@ use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class FetchHistoricProducts
 {
     use AsAction;
@@ -26,8 +25,6 @@ class FetchHistoricProducts
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id): ?HistoricProduct
     {
         if ($historicProductData = $tenantSource->fetchHistoricProduct($source_id)) {
-
-
             if ($historicProduct = HistoricProduct::withTrashed()->where('source_id', $historicProductData['historic_product']['source_id'])
                 ->first()) {
                 $historicProduct = UpdateHistoricProduct::run(
@@ -48,6 +45,4 @@ class FetchHistoricProducts
 
         return null;
     }
-
-
 }

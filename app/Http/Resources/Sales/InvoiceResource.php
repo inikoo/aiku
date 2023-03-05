@@ -27,14 +27,14 @@ class InvoiceResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug' => $this->slug,
-            'number' => $this->number,
-            'total' => $this->total,
-            'net' => $this->net,
-            'state' => $this->state,
+            'slug'       => $this->slug,
+            'number'     => $this->number,
+            'total'      => $this->total,
+            'net'        => $this->net,
+            'state'      => $this->state,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'shop_slug' => $this->shop_slug
+            'shop_slug'  => $this->shop_slug
         ];
     }
 }

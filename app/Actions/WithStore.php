@@ -7,16 +7,13 @@
 
 namespace App\Actions;
 
-use Illuminate\Support\Arr;
-
-trait WithStore{
-
-    function postStore($res,$model){
+trait WithStore
+{
+    public function postStore($res, $model)
+    {
         $res->model    = $model;
         $res->model_id = $model->id;
         $res->status   = $res->changes ? 'inserted' : 'unchanged';
         return $res;
     }
-
 }
-

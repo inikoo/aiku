@@ -23,7 +23,6 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-
 class IndexCustomers extends InertiaAction
 {
     private Shop|Tenant $parent;
@@ -32,8 +31,6 @@ class IndexCustomers extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-
-
                 $query->where('customers.name', '~*', "\y$value\y")
                     ->orWhere('customers.email', 'LIKE', "%$value")
                     ->orWhere('customers.reference', '=', $value);
@@ -138,7 +135,7 @@ class IndexCustomers extends InertiaAction
         };
 
         return match ($routeName) {
-            'customers.index' => $headCrumb(),
+            'customers.index'            => $headCrumb(),
             'shops.show.customers.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
@@ -147,5 +144,4 @@ class IndexCustomers extends InertiaAction
             default => []
         };
     }
-
 }

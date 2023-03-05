@@ -10,7 +10,6 @@ namespace App\Actions\Inventory\StockFamily;
 use App\Actions\Inventory\ShowInventoryDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\StockFamilyResource;
-use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,7 +19,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
-
 
 class IndexStockFamilies
 {
@@ -101,7 +99,7 @@ class IndexStockFamilies
             (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 'inventory.stock-families.index' => [
-                    'route' => 'inventory.stock-families.index',
+                    'route'      => 'inventory.stock-families.index',
                     'modelLabel' => [
                         'label' => __('families')
                     ],
@@ -109,5 +107,4 @@ class IndexStockFamilies
             ]
         );
     }
-
 }

@@ -16,7 +16,6 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-
     public function authorize(): bool
     {
         return true;
@@ -44,8 +43,7 @@ class LoginRequest extends FormRequest
 
 
         if (!Auth::attempt(
-            array_merge($this->validated(), ['status' => true])
-            ,
+            array_merge($this->validated(), ['status' => true]),
             $this->boolean('remember')
         )) {
             RateLimiter::hit($this->throttleKey());

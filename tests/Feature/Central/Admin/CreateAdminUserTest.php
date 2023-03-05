@@ -14,24 +14,18 @@ use Tests\TestCase;
 
 class CreateAdminUserTest extends TestCase
 {
-
-
-
-
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         $process = new Process(['devops/load_test_snapshot.sh','devops/devel/snapshots/initialise-dbs.dump']);
         $process->run();
-
     }
 
     public function testAdminUserCommands()
     {
-
-        $adminUserAData=new stdClass();
-        $adminUserAData->name=fake()->name();
-        $adminUserAData->email=fake()->unique()->safeEmail();
+        $adminUserAData          =new stdClass();
+        $adminUserAData->name    =fake()->name();
+        $adminUserAData->email   =fake()->unique()->safeEmail();
         $adminUserAData->username=fake()->userName();
 
 
@@ -43,15 +37,5 @@ class CreateAdminUserTest extends TestCase
 
         $this->expectException(ValidationException::class);
         $this->artisan("create:admin-user  $adminUserAData->username '$adminUserAData->name' $adminUserAData->email -a")->assertExitCode(1);
-
-
-
     }
-
-
-
-
-
-
-
 }

@@ -7,13 +7,11 @@
 
 namespace App\Models\Traits;
 
-
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Role;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles as SpatieHasRoles;
-
 
 trait HasRoles
 {
@@ -30,7 +28,6 @@ trait HasRoles
     public function removeJoBPositionRoles(JobPosition $jobPosition): void
     {
         foreach ($jobPosition->roles as $roleID) {
-
             $currentRole=$this->roles()->wherePivot('role_id', $roleID)->first();
 
             if ($currentRole && $currentRole->pivot->direct_role) {
@@ -41,23 +38,21 @@ trait HasRoles
         }
     }
 
-    function assignDirectRole(Role $role): void
+    public function assignDirectRole(Role $role): void
     {
         $this->assignRole($role);
         $this->roles()->updateExistingPivot($role->id, ['direct_role' => true]);
     }
 
-    function removeDirectRole(Role $role): void
+    public function removeDirectRole(Role $role): void
     {
         $currentRole=$this->roles()->wherePivot('role_id', $role->id)->first();
 
         if ($currentRole &&  $currentRole->pivot->job_position_role) {
-
             $this->roles()->updateExistingPivot($role->id, ['direct_role' => false]);
         } else {
             $this->removeRole($role->id);
         }
-
     }
 
     public function roles(): BelongsToMany
@@ -80,7 +75,4 @@ trait HasRoles
                 $q->whereNull($teamField)->orWhere($teamField, getPermissionsTeamId());
             });
     }
-
 }
-
-

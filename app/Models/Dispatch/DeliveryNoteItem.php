@@ -31,12 +31,14 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Picking> $pickings
+ *
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()
  * @method static Builder|DeliveryNoteItem onlyTrashed()
  * @method static Builder|DeliveryNoteItem query()
  * @method static Builder|DeliveryNoteItem withTrashed()
  * @method static Builder|DeliveryNoteItem withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class DeliveryNoteItem extends Model
@@ -47,7 +49,7 @@ class DeliveryNoteItem extends Model
     protected $table = 'delivery_note_items';
 
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
     ];
 
     protected $attributes = [
@@ -55,9 +57,9 @@ class DeliveryNoteItem extends Model
     ];
 
     protected $guarded = [];
+
     public function pickings(): BelongsToMany
     {
         return $this->belongsToMany(Picking::class)->withTimestamps();
     }
-
 }

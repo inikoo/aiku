@@ -7,7 +7,6 @@
 
 namespace App\Models\Sales;
 
-
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Actions\Sales\Customer\HydrateCustomer;
 use App\Models\Marketing\Shop;
@@ -88,14 +87,12 @@ class Invoice extends Model
             function (Invoice $invoice) {
                 HydrateCustomer::make()->invoices($invoice->customer);
                 HydrateShop::make()->invoices($invoice->shop);
-
             }
         );
         static::deleted(
             function (Invoice $invoice) {
                 HydrateCustomer::make()->invoices($invoice->customer);
                 HydrateShop::make()->invoices($invoice->shop);
-
             }
         );
     }

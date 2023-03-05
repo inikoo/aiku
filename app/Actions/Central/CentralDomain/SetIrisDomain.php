@@ -43,8 +43,6 @@ class SetIrisDomain
         if ($response->status() == 201 or $response->status() == 200) {
             $centralDomain->update(['state' => 'iris-enabled']);
             $centralDomain->adminUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
-
-
         }
 
         return $response;
@@ -54,7 +52,7 @@ class SetIrisDomain
     {
         if ($command->option('domain')) {
             $centralDomain = CentralDomain::where('slug', ($command->option('domain')))->firstOrFail();
-            if ($centralDomain->state == 'created' or $centralDomain->state == 'iris-enabled'  ) {
+            if ($centralDomain->state == 'created' or $centralDomain->state == 'iris-enabled') {
                 $response = $this->handle($centralDomain);
                 if (!($response->status() == 201 or $response->status() == 200)) {
                     $command->error($response->status());

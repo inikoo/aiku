@@ -12,8 +12,6 @@ use Illuminate\Support\Str;
 
 class FetchAuroraShop extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $this->parsedData['source_department_key'] = $this->auroraModelData->{'Store Department Category Key'};
@@ -67,5 +65,4 @@ class FetchAuroraShop extends FetchAurora
             ->table('Store Dimension')
             ->where('Store Key', $id)->first();
     }
-
 }

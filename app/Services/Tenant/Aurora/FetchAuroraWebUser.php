@@ -12,7 +12,6 @@ use Illuminate\Support\Str;
 
 class FetchAuroraWebUser extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $data = [];
@@ -68,5 +67,4 @@ class FetchAuroraWebUser extends FetchAurora
             ->table('Website User Dimension')
             ->where('Website User Key', $id)->first();
     }
-
 }

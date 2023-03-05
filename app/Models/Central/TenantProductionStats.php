@@ -21,9 +21,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Central\Tenant $tenant
+ *
  * @method static Builder|TenantProductionStats newModelQuery()
  * @method static Builder|TenantProductionStats newQuery()
  * @method static Builder|TenantProductionStats query()
+ *
  * @mixin \Eloquent
  */
 class TenantProductionStats extends Model

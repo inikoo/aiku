@@ -10,10 +10,8 @@ namespace App\Actions\Procurement\SupplierProduct;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
-use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -22,7 +20,6 @@ use Lorisleiva\Actions\ActionRequest;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
-
 
 class IndexSupplierProducts extends InertiaAction
 {
@@ -41,7 +38,7 @@ class IndexSupplierProducts extends InertiaAction
         return QueryBuilder::for(SupplierProduct::class)
             ->defaultSort('supplier_products.code')
             ->select(['code', 'slug', 'name'])
-            ->where('supplier_products.slug','supplier_products', 'supplier_products.id')
+            ->where('supplier_products.slug', 'supplier_products', 'supplier_products.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Agent') {
                     $query->where('supplier_products.current_historic_supplier_product_id', $this->parent->id);
@@ -113,7 +110,7 @@ class IndexSupplierProducts extends InertiaAction
             (new ShowProcurementDashboard())->getBreadcrumbs(),
             [
                 'procurement.supplier-products.index' => [
-                    'route' => 'procurement.supplier-products.index',
+                    'route'      => 'procurement.supplier-products.index',
                     'modelLabel' => [
                         'label' => __('supplier_products')
                     ],
@@ -121,5 +118,4 @@ class IndexSupplierProducts extends InertiaAction
             ]
         );
     }
-
 }

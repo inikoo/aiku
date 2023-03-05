@@ -19,7 +19,7 @@ use Spatie\Multitenancy\Actions\MigrateTenantAction;
 
 return [
 
-    'landlord_database_connection_name '=>'central',
+    'landlord_database_connection_name '=> 'central',
 
     /*
      * This class is responsible for determining which tenant should be current
@@ -28,7 +28,7 @@ return [
      * This class should extend `Spatie\Multitenancy\TenantFinder\TenantFinder`
      *
      */
-    'tenant_finder' =>  TenantResolver::class,
+    'tenant_finder' => TenantResolver::class,
 
     /*
      * These fields are used by tenant:artisan command to match one or more tenant
@@ -91,10 +91,10 @@ return [
      * Your custom action should always extend the default one.
      */
     'actions' => [
-        'make_tenant_current_action' => MakeTenantCurrentAction::class,
-        'forget_current_tenant_action' => ForgetCurrentTenantAction::class,
+        'make_tenant_current_action'     => MakeTenantCurrentAction::class,
+        'forget_current_tenant_action'   => ForgetCurrentTenantAction::class,
         'make_queue_tenant_aware_action' => MakeQueueTenantAwareAction::class,
-        'migrate_tenant' => MigrateTenantAction::class,
+        'migrate_tenant'                 => MigrateTenantAction::class,
     ],
 
     /*
@@ -104,10 +104,10 @@ return [
      * resolve JobDecorator to getAction() like so: JobDecorator::class => 'getAction'
      */
     'queueable_to_job' => [
-        SendQueuedMailable::class => 'mailable',
+        SendQueuedMailable::class      => 'mailable',
         SendQueuedNotifications::class => 'notification',
-        CallQueuedListener::class => 'class',
-        BroadcastEvent::class => 'event',
+        CallQueuedListener::class      => 'class',
+        BroadcastEvent::class          => 'event',
     ],
 
     /*

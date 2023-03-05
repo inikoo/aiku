@@ -10,7 +10,6 @@ namespace App\Actions\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\PaymentServiceProvider;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StorePaymentServiceProvider
 {
     use AsAction;
@@ -22,5 +21,4 @@ class StorePaymentServiceProvider
         $paymentServiceProvider->stats()->create();
         return $paymentServiceProvider;
     }
-
 }

@@ -11,21 +11,20 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedSupplierProduct extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         $deleted_at        = $this->parseDate($this->auroraModelData->{'Supplier Part Deleted Date'});
         $auroraDeletedData = json_decode(gzuncompress($this->auroraModelData->{'Supplier Part Deleted Metadata'}));
 
         $this->parsedData['supplier'] = $this->parseSupplier($auroraDeletedData->{'Supplier Part Supplier Key'});
-        if(!$this->parsedData['supplier']){
+        if (!$this->parsedData['supplier']) {
             return;
         }
-        if(!$auroraDeletedData->{'Supplier Part Part SKU'}){
+        if (!$auroraDeletedData->{'Supplier Part Part SKU'}) {
             return;
         }
         $stock = $this->parseStock($auroraDeletedData->{'Supplier Part Part SKU'});
-        if(!$stock){
+        if (!$stock) {
             return;
         }
 
@@ -37,9 +36,9 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
             $status = 0;
         }
         $state = match ($auroraDeletedData->{'Supplier Part Status'}) {
-            'NoAvailable' => 'no-available',
+            'NoAvailable'  => 'no-available',
             'Discontinued' => 'discontinued',
-            default => 'active',
+            default        => 'active',
         };
 
 
@@ -83,5 +82,4 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
             ->table('Supplier Part Deleted Dimension')
             ->where('Supplier Part Deleted Key', $id)->first();
     }
-
 }

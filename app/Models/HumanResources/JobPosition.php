@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-
 /**
  * App\Models\HumanResources\JobPosition
  *
@@ -48,7 +47,4 @@ class JobPosition extends Model
 
 
     protected $guarded = [];
-
-
-
 }

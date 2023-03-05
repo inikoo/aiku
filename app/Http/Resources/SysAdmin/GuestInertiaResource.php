@@ -12,10 +12,8 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
-
 class GuestInertiaResource extends JsonResource
 {
-
     /** @noinspection PhpUndefinedFieldInspection */
     public function toArray($request): array|Arrayable|JsonSerializable
     {

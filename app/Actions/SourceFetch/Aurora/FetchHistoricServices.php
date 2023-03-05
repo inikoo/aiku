@@ -5,7 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Marketing\HistoricService\StoreHistoricService;
@@ -15,7 +14,6 @@ use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class FetchHistoricServices
 {
     use AsAction;
@@ -24,8 +22,6 @@ class FetchHistoricServices
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id): ?HistoricService
     {
         if ($historicServiceData = $tenantSource->fetchHistoricService($source_id)) {
-
-
             if ($historicService = HistoricService::withTrashed()->where('source_id', $historicServiceData['historic_service']['source_id'])
                 ->first()) {
                 $historicService = UpdateHistoricService::run(
@@ -46,6 +42,4 @@ class FetchHistoricServices
 
         return null;
     }
-
-
 }

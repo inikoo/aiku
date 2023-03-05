@@ -20,7 +20,6 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class ShowInvoice extends InertiaAction
 {
     use AsAction;
@@ -58,9 +57,9 @@ class ShowInvoice extends InertiaAction
         return Inertia::render(
             'Marketing/Invoice',
             [
-                'title' => __('invoice'),
+                'title'       => __('invoice'),
                 'breadcrumbs' => $this->getBreadcrumbs($invoice),
-                'pageHead' => [
+                'pageHead'    => [
                     'title' => $invoice->number,
 
 
@@ -91,11 +90,11 @@ class ShowInvoice extends InertiaAction
             (new IndexShops())->getBreadcrumbs(),
             [
                 'shops.show' => [
-                    'route' => 'shops.show',
+                    'route'           => 'shops.show',
                     'routeParameters' => $invoice->id,
-                    'name' => $invoice->number,
-                    'index' => [
-                        'route' => 'shops.index',
+                    'name'            => $invoice->number,
+                    'index'           => [
+                        'route'   => 'shops.index',
                         'overlay' => __('Invoices list')
                     ],
                     'modelLabel' => [
@@ -105,5 +104,4 @@ class ShowInvoice extends InertiaAction
             ]
         );
     }
-
 }

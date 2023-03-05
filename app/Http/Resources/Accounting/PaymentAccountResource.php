@@ -24,11 +24,11 @@ class PaymentAccountResource extends JsonResource
     {
         return [
             'payment_service_providers_slug' => $this->payment_service_providers_slug,
-            'number_payments' => $this->number_payments,
-            'slug' => $this->slug,
-            'code' => $this->code,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'number_payments'                => $this->number_payments,
+            'slug'                           => $this->slug,
+            'code'                           => $this->code,
+            'created_at'                     => $this->created_at,
+            'updated_at'                     => $this->updated_at,
         ];
     }
 }

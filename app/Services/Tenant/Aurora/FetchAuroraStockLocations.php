@@ -56,5 +56,4 @@ class FetchAuroraStockLocations extends FetchAurora
             ->table('Part Location Dimension')
             ->where('Part SKU', $id)->get();
     }
-
 }

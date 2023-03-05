@@ -19,7 +19,6 @@ use App\Actions\Inventory\WarehouseArea\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\ShowWarehouseArea;
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/', ShowInventoryDashboard::class)->name('dashboard');
 
 Route::get('/warehouses', IndexWarehouses::class)->name('warehouses.index');

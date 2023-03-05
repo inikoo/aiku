@@ -12,18 +12,15 @@ use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
-class
-PaymentServiceProviderHydrateAccounts implements ShouldBeUnique
+class PaymentServiceProviderHydrateAccounts implements ShouldBeUnique
 {
-
     use AsAction;
     use WithTenantJob;
 
     public function handle(PaymentServiceProvider $paymentServiceProvider): void
     {
         $stats=[
-            'number_accounts'=>$paymentServiceProvider->accounts()->count()
+            'number_accounts'=> $paymentServiceProvider->accounts()->count()
         ];
         $paymentServiceProvider->stats()->update($stats);
     }
@@ -32,7 +29,4 @@ PaymentServiceProviderHydrateAccounts implements ShouldBeUnique
     {
         return $paymentServiceProvider->id;
     }
-
 }
-
-

@@ -12,10 +12,8 @@ use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Models\Procurement\Supplier;
 use Illuminate\Support\Collection;
 
-
 class HydrateSupplier extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:supplier {tenants?*} {--i|id=} ';
 
     public function handle(Supplier $supplier): void
@@ -33,8 +31,4 @@ class HydrateSupplier extends HydrateModel
     {
         return Supplier::withTrashed()->get();
     }
-
-
 }
-
-

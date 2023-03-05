@@ -14,19 +14,16 @@ use App\Models\Web\WebUser;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
-
 class CreateCustomerStockFromIris extends fromIris
 {
-
     public function rules(): array
     {
         return array_merge(
             $this->baseRules(),
             [
-                'code' => ['required', 'alpha_dash'],
+                'code'        => ['required', 'alpha_dash'],
                 'description' => ['sometimes', 'nullable', 'string', 'max:10000']
             ]
-
         );
     }
 
@@ -52,7 +49,4 @@ class CreateCustomerStockFromIris extends fromIris
 
         return new StockResource($stock);
     }
-
-
 }
-

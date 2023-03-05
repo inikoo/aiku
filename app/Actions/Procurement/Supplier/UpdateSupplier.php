@@ -10,7 +10,6 @@ namespace App\Actions\Procurement\Supplier;
 use App\Actions\WithActionUpdate;
 use App\Models\Procurement\Supplier;
 
-
 class UpdateSupplier
 {
     use WithActionUpdate;

@@ -12,14 +12,13 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-
 class StorePayment
 {
     use AsAction;
 
     public function handle(PaymentAccount|Customer $parent, array $modelData): Payment
     {
-        if(class_basename($parent)=='Customer'){
+        if (class_basename($parent)=='Customer') {
             $modelData['shop_id']=$parent->shop_id;
         }
 
@@ -27,5 +26,4 @@ class StorePayment
         $payment = $parent->payments()->create($modelData);
         return $payment;
     }
-
 }

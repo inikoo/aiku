@@ -5,7 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
@@ -18,10 +17,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-
 class FetchSuppliers extends FetchAction
 {
-
     public string $commandSignature = 'fetch:suppliers {tenants?*} {--s|source_id=}';
 
 
@@ -32,10 +29,10 @@ class FetchSuppliers extends FetchAction
                 ->first()) {
                 $supplier = UpdateSupplier::run($supplier, $supplierData['supplier']);
 
-                if($supplier->getAddress('contact')){
+                if ($supplier->getAddress('contact')) {
                     UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
-                }else{
-                    StoreAddressAttachToModel::run($supplier,  $supplierData['address'], ['scope' => 'contact']);
+                } else {
+                    StoreAddressAttachToModel::run($supplier, $supplierData['address'], ['scope' => 'contact']);
                 }
                 $supplier->location = $supplier->getLocation();
                 $supplier->save();
@@ -53,7 +50,7 @@ class FetchSuppliers extends FetchAction
         return null;
     }
 
-    function getModelsQuery(): Builder
+    public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
             ->table('Supplier Dimension')
@@ -63,7 +60,7 @@ class FetchSuppliers extends FetchAction
             ->orderBy('source_id');
     }
 
-    function count(): ?int
+    public function count(): ?int
     {
         return DB::connection('aurora')
             ->table('Supplier Dimension')
@@ -71,5 +68,4 @@ class FetchSuppliers extends FetchAction
             ->where('aiku_ignore', 'No')
             ->count();
     }
-
 }

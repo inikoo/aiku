@@ -75,16 +75,15 @@ class Location extends Model
         static::created(
             function (Location $location) {
                 HydrateWarehouse::make()->locations($location->warehouse);
-                if($location->warehouse_area_id){
+                if ($location->warehouse_area_id) {
                     HydrateWarehouseArea::make()->locations($location->warehouseArea);
                 }
-
             }
         );
         static::deleted(
             function (Location $location) {
                 HydrateWarehouse::make()->locations($location->warehouse);
-                if($location->warehouse_area_id){
+                if ($location->warehouse_area_id) {
                     HydrateWarehouseArea::make()->locations($location->warehouseArea);
                 }
             }
@@ -127,5 +126,4 @@ class Location extends Model
     {
         return 'slug';
     }
-
 }

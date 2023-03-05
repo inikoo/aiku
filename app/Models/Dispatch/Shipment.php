@@ -29,12 +29,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Dispatch\Shipper|null $shipper
+ *
  * @method static Builder|Shipment newModelQuery()
  * @method static Builder|Shipment newQuery()
  * @method static Builder|Shipment onlyTrashed()
  * @method static Builder|Shipment query()
  * @method static Builder|Shipment withTrashed()
  * @method static Builder|Shipment withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Shipment extends Model
@@ -44,7 +46,7 @@ class Shipment extends Model
     use UsesTenantConnection;
 
     protected $casts = [
-        'data'   => 'array',
+        'data' => 'array',
     ];
 
     protected $attributes = [

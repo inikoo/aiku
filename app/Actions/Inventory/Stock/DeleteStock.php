@@ -26,7 +26,7 @@ class DeleteStock
         //Todo: PKA-18
         if (!$skipHydrate) {
             HydrateTenant::make()->inventoryStats();
-            if($stock->stock_family_id){
+            if ($stock->stock_family_id) {
                 HydrateStockFamily::make()->stocksStats($stock->stockFamily);
             }
         }

@@ -10,12 +10,9 @@ namespace App\Services\Tenant\Aurora;
 use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use App\Actions\SourceFetch\Aurora\FetchWarehouseAreas;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchAuroraLocation extends FetchAurora
 {
-
-
     protected function parseModel(): void
     {
         $parent = null;
@@ -41,5 +38,4 @@ class FetchAuroraLocation extends FetchAurora
             ->table('Location Dimension')
             ->where('Location Key', $id)->first();
     }
-
 }

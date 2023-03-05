@@ -9,8 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('web_users', function (Blueprint $table) {
@@ -41,7 +40,6 @@ return new class extends Migration {
             $table->unique(['website_id', 'username']);
             $table->enum('web_login_version', ['current', 'au'])->index()->default('current');
             $table->unsignedBigInteger('source_id')->nullable()->unique();
-
         });
     }
 

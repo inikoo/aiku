@@ -13,10 +13,8 @@ use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Models\Procurement\Agent;
 use Illuminate\Support\Collection;
 
-
 class HydrateAgent extends HydrateModel
 {
-
     public string $commandSignature = 'hydrate:agent {tenants?*} {--i|id=} ';
 
     public function handle(Agent $agent): void
@@ -35,8 +33,4 @@ class HydrateAgent extends HydrateModel
     {
         return Agent::withTrashed()->get();
     }
-
-
 }
-
-

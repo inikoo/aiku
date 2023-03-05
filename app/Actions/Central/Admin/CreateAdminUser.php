@@ -7,7 +7,6 @@
 
 namespace App\Actions\Central\Admin;
 
-
 use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
 use App\Models\Central\Admin;
 use App\Rules\AlphaDashDot;
@@ -18,10 +17,8 @@ use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\Concerns\AsCommand;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-
 class CreateAdminUser
 {
-
     use asCommand;
     use WithAttributes;
 
@@ -40,11 +37,11 @@ class CreateAdminUser
     public function rules(): array
     {
         return [
-            'code'     => ['required', new AlphaDashDot, 'unique:App\Models\Central\Admin,code'],
+            'code'     => ['required', new AlphaDashDot(), 'unique:App\Models\Central\Admin,code'],
             'password' => ['required', app()->isLocal() ? null : Password::min(8)->uncompromised()],
             'name'     => 'sometimes|required',
             'email'    => ['required', 'email', 'unique:App\Models\Central\Admin,email'],
-            'username' => ['sometimes', 'required', new AlphaDashDot, 'unique:App\Models\Central\AdminUser,username'],
+            'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\Central\AdminUser,username'],
 
         ];
     }

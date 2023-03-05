@@ -9,14 +9,11 @@ namespace App\Services\Tenant\Aurora;
 
 use Illuminate\Support\Facades\DB;
 
-
 class FetchAuroraInvoiceTransaction extends FetchAurora
 {
-
     protected function parseModel(): void
     {
         if ($this->auroraModelData->{'Product Key'}) {
-
             $historicItem = $this->parseHistoricItem($this->auroraModelData->{'Product Key'});
 
 
@@ -42,5 +39,4 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
             ->table('Order Transaction Fact')
             ->where('Order Transaction Fact Key', $id)->first();
     }
-
 }

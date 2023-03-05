@@ -126,5 +126,4 @@ class FetchAuroraUser extends FetchAurora
             ->whereIn('User Type', ['Staff', 'Contractor'])
             ->where('User Key', $id)->first();
     }
-
 }

@@ -40,8 +40,7 @@ class HandleInertiaRequests extends Middleware
 
         $firstLoadOnlyProps=[];
 
-        if(!$request->inertia() or Session::get('reloadLayout')){
-
+        if (!$request->inertia() or Session::get('reloadLayout')) {
             $firstLoadOnlyProps= [
 
                 'tenant'   => app('currentTenant') ? app('currentTenant')->only('name', 'code') : null,
@@ -57,13 +56,12 @@ class HandleInertiaRequests extends Middleware
 
 
 
-            if(Session::get('reloadLayout')=='remove') {
+            if (Session::get('reloadLayout')=='remove') {
                 Session::forget('reloadLayout');
             }
-            if(Session::get('reloadLayout')) {
+            if (Session::get('reloadLayout')) {
                 Session::put('reloadLayout', 'remove');
             }
-
         }
 
 
@@ -79,10 +77,10 @@ class HandleInertiaRequests extends Middleware
                     'user' => $request->user() ? $request->user()->only('username', 'email', 'avatar') : null,
                 ],
                 'flash' => [
-                    'notification' => fn() => $request->session()->get('notification')
+                    'notification' => fn () => $request->session()->get('notification')
                 ],
                 'ziggy' => function () use ($request) {
-                    return array_merge((new Ziggy)->toArray(), [
+                    return array_merge((new Ziggy())->toArray(), [
                         'location' => $request->url(),
                     ]);
                 },

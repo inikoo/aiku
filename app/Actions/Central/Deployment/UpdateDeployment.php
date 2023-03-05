@@ -12,7 +12,6 @@ use App\Actions\WithActionUpdate;
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\ActionRequest;
 
-
 class UpdateDeployment
 {
     use WithActionUpdate;
@@ -22,10 +21,10 @@ class UpdateDeployment
         return $this->update($deployment, $modelData);
     }
 
-    function latest(ActionRequest $request): Deployment|JsonResponse
+    public function latest(ActionRequest $request): Deployment|JsonResponse
     {
         if ($deployment = Deployment::latest()->first()) {
-           return $this->handle($deployment,$request->all());
+            return $this->handle($deployment, $request->all());
         } else {
             return response()->json(
                 [
@@ -35,5 +34,4 @@ class UpdateDeployment
             );
         }
     }
-
 }

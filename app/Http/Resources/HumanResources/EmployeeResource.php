@@ -12,10 +12,8 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
-
 class EmployeeResource extends JsonResource
 {
-
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         /** @var \App\Models\HumanResources\Employee $employee */

@@ -47,7 +47,7 @@ class HistoricSupplierProduct extends Model
         'status' => 'boolean',
     ];
 
-    public $timestamps = ["created_at"];
+    public $timestamps      = ["created_at"];
     public const UPDATED_AT = null;
 
     protected $guarded = [];

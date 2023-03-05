@@ -7,14 +7,12 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-
 use App\Actions\Marketing\Family\StoreFamily;
 use App\Actions\Marketing\Family\UpdateFamily;
 use App\Models\Marketing\Family;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
-
 
 class FetchFamilies
 {
@@ -43,6 +41,4 @@ class FetchFamilies
 
         return null;
     }
-
-
 }

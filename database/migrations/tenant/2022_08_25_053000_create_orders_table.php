@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('orders', function (Blueprint $table) {
@@ -26,7 +25,7 @@ return new class extends Migration {
 
             $shopSubtypes = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
 
-            $table->enum('type',$shopSubtypes)->index()->nullable();
+            $table->enum('type', $shopSubtypes)->index()->nullable();
             $table->enum('state', ['submitted', 'in-warehouse','packed', 'finalised', 'dispatched','cancelled'])->default('in-basket')->index();
 
 

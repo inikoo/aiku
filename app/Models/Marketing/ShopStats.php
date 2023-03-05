@@ -79,9 +79,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Marketing\Shop $shop
+ *
  * @method static Builder|ShopStats newModelQuery()
  * @method static Builder|ShopStats newQuery()
  * @method static Builder|ShopStats query()
+ *
  * @mixin \Eloquent
  */
 class ShopStats extends Model
@@ -96,6 +98,4 @@ class ShopStats extends Model
     {
         return $this->belongsTo(Shop::class);
     }
-
-
 }
