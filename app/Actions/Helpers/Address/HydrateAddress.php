@@ -19,7 +19,7 @@ class HydrateAddress extends HydrateModel
 
     public function handle(Address $address): void
     {
-      AddressHydrateUsage::run($address);
+        AddressHydrateUsage::run($address);
     }
 
     protected function getModel(int $id): Address
