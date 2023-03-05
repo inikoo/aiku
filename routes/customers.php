@@ -11,6 +11,7 @@ use App\Actions\Sales\Customer\ShowCustomer;
 use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\CreateWebUser;
 use App\Actions\Web\WebUser\ShowWebUser;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexCustomers::class)->name('index');
 Route::get('/{customer}', ShowCustomer::class)->name('show');

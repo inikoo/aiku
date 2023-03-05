@@ -18,7 +18,6 @@ defineProps(['orders', 'title', 'pageHead']);
     <PageHeading :data="pageHead"></PageHeading>
     <Table :resource="orders" class="mt-5">
 
-
         <template #cell(code)="{ item: order }">
             <Link :href="route('shops.show.orders.show',[order.shop_slug,order.slug])">
                 {{ order.code }}

@@ -13,10 +13,11 @@ import {
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import DashboardNavigation from "@/Components/Navigation/DashboardNavigation.vue";
 
 library.add(faFolder, faCube);
 
-const props = defineProps(['title', 'pageHead', 'order']);
+const props = defineProps(['title', 'pageHead', 'order', 'treeMaps']);
 
 
 </script>
@@ -25,6 +26,8 @@ const props = defineProps(['title', 'pageHead', 'order']);
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-
+    <div class="m-4">
+        <DashboardNavigation v-for="(treeMap,idx) in treeMaps" :key="idx" :nodes="treeMap"/>
+    </div>
 </template>
 

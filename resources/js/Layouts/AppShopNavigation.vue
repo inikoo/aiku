@@ -5,36 +5,40 @@
   -->
 
 <script setup>
-import {Link} from '@inertiajs/vue3';
+import { Link } from "@inertiajs/vue3";
 
-import {trans} from 'laravel-vue-i18n';
+import { trans } from "laravel-vue-i18n";
+import DropDownShops from "@/Components/DropDownShops.vue";
 
-const props = defineProps(['shopsData']);
+const props = defineProps(["shopsData"]);
+
 
 </script>
 
 <template>
     <div class="border border-sky-500 pl-6 pr-3">
-        <font-awesome-icon aria-hidden="true" class="mr-3" icon="fal fa-store-alt"/>
-        <span v-if="!shopsData">{{ trans('Stores') }}</span>
+        <font-awesome-icon aria-hidden="true" class="mr-3" icon="fal fa-store-alt" />
+        <span v-if="!shopsData.current">{{ trans("Stores") }}</span>
         <span v-else>{{ shopsData.current.data.name }}</span>
-        <font-awesome-icon aria-hidden="true" class="ml-4 opacity-50 hover:opacity-100" icon="fal fa-chevron-down"/>
-    </div>
+        <DropDownShops></DropDownShops>
+    </div><!--{{shopsData.items.data}}-->
     <div class="ml-5 space-x-4">
-        <Link :href="shopsData?route('dashboard.show'):route('dashboard.show')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-cube"/>
+        <Link :title="trans('products')"
+              :href="shopsData.current?route('shops.show.products.index', shopsData.current.data.slug):route('products.index')">
+            <font-awesome-icon aria-hidden="true" icon="fal fa-cube" />
         </Link>
-        <Link :href="shopsData?route('dashboard.show'):route('dashboard.show')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-globe"/>
+        <Link :title="trans('websites')"
+              :href="shopsData.current?route('websites.index', shopsData.current.data.slug):route('websites.index')">
+            <font-awesome-icon aria-hidden="true" icon="fal fa-globe" />
         </Link>
-        <Link :title="trans('customers')" :href="shopsData?route('shops.show.customers.index',shopsData.current.data.slug):route('customers.index')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-user"/>
+        <Link :title="trans('customers')"
+              :href="shopsData.current?route('shops.show.customers.index',shopsData.current.data.slug):route('customers.index')">
+            <font-awesome-icon aria-hidden="true" icon="fal fa-user" />
         </Link>
-        <Link :href="shopsData?route('dashboard.show'):route('dashboard.show')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-shopping-cart"/>
+        <Link :title="trans('orders')"
+              :href="shopsData.current?route('shops.show.orders.index', shopsData.current.data.slug):route('orders.index')">
+            <font-awesome-icon aria-hidden="true" icon="fal fa-shopping-cart" />
         </Link>
-
-
     </div>
 
 </template>
