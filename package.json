@@ -27,7 +27,6 @@
         "@fortawesome/free-solid-svg-icons": "^6.1.2",
         "@fortawesome/vue-fontawesome": "^3.0.1",
         "@headlessui/vue": "^1.7.0",
-        "@heroicons/vue": "^2.0.16",
         "@inertiajs/vue3": "^1.0.0",
         "@protonemedia/inertiajs-tables-laravel-query-builder": "^2.1.0",
         "@vue-hero-icons/outline": "^1.7.2",
