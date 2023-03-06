@@ -71,6 +71,7 @@ import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import SearchBar from '@/Components/SearchBar.vue';
 
+const showComponent = ref(false)
 
 </script>
 

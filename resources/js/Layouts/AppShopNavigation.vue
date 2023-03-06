@@ -38,8 +38,6 @@ const handleShopChange = (shop) => {
             @change:shop="handleShopChange"
             :shops="shops"/>
 
-
-
     </div>
     <div class="ml-5 space-x-4">
         <Link :title="trans('products')"
