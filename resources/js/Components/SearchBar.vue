@@ -8,6 +8,7 @@
 import { computed, ref } from 'vue'
 import {
     Combobox,
+    ComboboxInput,
     ComboboxOptions,
     ComboboxOption,
     Dialog,
@@ -61,7 +62,10 @@ function onSelect(person) {
                 <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
                     <DialogPanel class="mx-auto max-w-3xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
                         <Combobox v-slot="{ activeOption }" @update:modelValue="onSelect">
-
+                            <div class="relative">
+                                <MagnifyingGlassIcon class="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-gray-400" aria-hidden="true" />
+                                <ComboboxInput class="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." @change="query = $event.target.value" />
+                            </div>
 
                             <ComboboxOptions v-if="query === '' || filteredPeople.length > 0" class="flex divide-x divide-gray-100" as="div" static hold>
                                 <div :class="['max-h-96 min-w-0 flex-auto scroll-py-4 overflow-y-auto px-6 py-4', activeOption && 'sm:h-96']">
