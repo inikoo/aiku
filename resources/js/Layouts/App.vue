@@ -8,16 +8,16 @@
 
 
 <script setup>
-import { ref, inject } from "vue";
+import {ref, inject} from 'vue';
 import {
     Menu,
     MenuButton,
     MenuItem,
-    MenuItems
-} from "@headlessui/vue";
-import Breadcrumbs from "@/Components/Navigation/Breadcrumbs.vue";
-import { trans } from "laravel-vue-i18n";
-import { library } from "@fortawesome/fontawesome-svg-core";
+    MenuItems,
+} from '@headlessui/vue';
+import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
+import {trans} from 'laravel-vue-i18n';
+import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faHome,
     faDollyFlatbedAlt,
@@ -65,12 +65,12 @@ const layout = initialiseApp();
 
 const sidebarOpen = ref(false);
 
-import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
-import AppLeftSideBar from "@/Layouts/AppLeftSideBar.vue";
-import AppShopNavigation from "@/Layouts/AppShopNavigation.vue";
-import SearchBar from "@/Components/SearchBar.vue";
+import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/vue';
+import AppLeftSideBar from '@/Layouts/AppLeftSideBar.vue';
+import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
+import SearchBar from '@/Components/SearchBar.vue';
 
-const showComponent = ref(false);
 
 </script>
 
@@ -90,7 +90,7 @@ const showComponent = ref(false);
                                 {{ layout.tenant.name }}
                             </div>
 
-                            <app-shop-navigation :shops="layout.shops"></app-shop-navigation>
+                            <AppShopNavigation :shops="layout.shops"/>
 
 
                         </div>
@@ -106,10 +106,9 @@ const showComponent = ref(false);
                                 </SearchBar>
                             </button>
 
-                            <button type="button"
-                                    class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                                <span class="sr-only">{{ trans("View notifications") }}</span>
-                                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
+                            <button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                                <span class="sr-only">{{ trans('View notifications') }}</span>
+                                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
 
                             </button>
 
@@ -178,12 +177,15 @@ const showComponent = ref(false);
                             <div class="text-sm font-medium leading-none text-gray-400">{{ user.email }}</div>
                         </div>
 
-                        <button type="button"
+                        <Button type="button"
                                 class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                             <span class="sr-only">{{ trans("View notifications") }}</span>
-                            <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
+                            <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" /></Button>
+                        <Button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                            <span class="sr-only">{{ trans('View notifications') }}</span>
+                            <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
 
-                        </button>
+                        </Button>
 
                     </div>
                     <div class="mt-3 space-y-1 px-2">
