@@ -138,8 +138,7 @@ class ShowCustomer extends InertiaAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->can('hr.edit'));
-        $this->set('canViewUsers', $request->user()->can('users.view'));
+        $this->set('canEdit', $request->user()->can('shops.customers.edit'));
     }
 
     #[Pure] public function jsonResponse(Customer $customer): CustomerResource

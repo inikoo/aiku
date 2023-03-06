@@ -7,8 +7,8 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
-use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\InertiaAction;
+use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Central\Tenant;
@@ -102,7 +102,7 @@ class IndexPaymentServiceProviders extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowAccountingDashboard())->getBreadcrumbs(),
+            (new AccountingDashboard())->getBreadcrumbs(),
             [
                 'accounting.payment-service-providers.index' => [
                     'route'      => 'accounting.payment-service-providers.index',

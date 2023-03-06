@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 02 Mar 2023 21:26:06 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Mon, 06 Mar 2023 18:44:12 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Showroom;
+namespace App\Actions\UI\Dispatch;
 
 use App\Actions\UI\WithInertia;
 use App\Models\Central\Tenant;
@@ -19,14 +19,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * @property Tenant $tenant
  * @property User $user
  */
-class ShowShowroomDashboard
+class ShowDispatchHub
 {
     use AsAction;
     use WithInertia;
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("showroom.view");
+        return $request->user()->hasPermissionTo("osm.view");
     }
 
 
@@ -44,12 +44,12 @@ class ShowShowroomDashboard
 
 
         return Inertia::render(
-            'CRM/CRMDashboard',
+            'Dispatch/DispatchHub',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('showroom'),
+                'title'       => 'dispatch',
                 'pageHead'    => [
-                    'title' => __('showroom'),
+                    'title' => __('Dispatch'),
                 ],
 
 
@@ -61,9 +61,9 @@ class ShowShowroomDashboard
     public function getBreadcrumbs(): array
     {
         return [
-            'showroom.dashboard' => [
-                'route' => 'showroom.dashboard',
-                'name'  => __('Showroom'),
+            'dispatch.hub' => [
+                'route' => 'dispatch.hub',
+                'name'  => __('dispatch'),
             ]
         ];
     }

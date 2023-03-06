@@ -7,11 +7,10 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
-use App\Actions\SysAdmin\ShowSysAdminDashboard;
+use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\SysAdmin\Guest;
-
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -60,7 +59,7 @@ class ShowGuest
     public function getBreadcrumbs(Guest $guest): array
     {
         return array_merge(
-            (new ShowSysAdminDashboard())->getBreadcrumbs(),
+            (new SysAdminDashboard())->getBreadcrumbs(),
             [
                 'sysadmin.guests.show' => [
                     'route'           => 'sysadmin.guests.show',

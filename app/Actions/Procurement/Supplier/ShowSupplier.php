@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Agent\ShowAgent;
-use App\Actions\Procurement\ShowProcurementDashboard;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Supplier;
 use Illuminate\Http\Request;
@@ -87,7 +87,7 @@ class ShowSupplier extends InertiaAction
 
         return match ($routeName) {
             'suppliers.show' => array_merge(
-                (new ShowProcurementDashboard())->getBreadcrumbs(),
+                (new ProcurementDashboard())->getBreadcrumbs(),
                 $headCrumb()
             ),
             'agent.show.suppliers.show' => array_merge(

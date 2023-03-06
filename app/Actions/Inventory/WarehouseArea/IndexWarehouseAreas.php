@@ -8,8 +8,8 @@
 namespace App\Actions\Inventory\WarehouseArea;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\ShowInventoryDashboard;
 use App\Actions\Inventory\Warehouse\ShowWarehouse;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Warehouse;
@@ -128,7 +128,7 @@ class IndexWarehouseAreas extends InertiaAction
         return match ($routeName) {
             'inventory.warehouse_areas.index' =>
             array_merge(
-                (new ShowInventoryDashboard())->getBreadcrumbs(),
+                (new InventoryDashboard())->getBreadcrumbs(),
                 $headCrumb()
             ),
             'inventory.warehouses.show.warehouse_areas.index' =>

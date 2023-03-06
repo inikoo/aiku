@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\StockFamily;
 
-use App\Actions\Inventory\ShowInventoryDashboard;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\StockFamilyResource;
 use App\Models\Inventory\StockFamily;
@@ -96,7 +96,7 @@ class IndexStockFamilies
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowInventoryDashboard())->getBreadcrumbs(),
+            (new InventoryDashboard())->getBreadcrumbs(),
             [
                 'inventory.stock-families.index' => [
                     'route'      => 'inventory.stock-families.index',

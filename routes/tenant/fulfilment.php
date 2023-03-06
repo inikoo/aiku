@@ -1,12 +1,12 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 1 Dec 2022, 15:45, Plane Bali-KL
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 06 Mar 2023 18:44:51 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 
-use App\Actions\Fulfilment\ShowFulfilmentDashboard;
+use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowFulfilmentDashboard::class)->name('dashboard');
+Route::get('/', FulfilmentDashboard::class)->name('dashboard');

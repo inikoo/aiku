@@ -8,7 +8,7 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\HumanResources\ShowHumanResourcesDashboard;
+use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
@@ -106,7 +106,7 @@ class IndexEmployee
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            (new HumanResourcesDashboard())->getBreadcrumbs(),
             [
                 'hr.employees.index' => [
                     'route'      => 'hr.employees.index',

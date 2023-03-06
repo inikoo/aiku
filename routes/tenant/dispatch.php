@@ -1,10 +1,10 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 Feb 2023 13:37:34 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Mon, 06 Mar 2023 18:44:11 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Dispatch\ShowDispatchHub;
+use App\Actions\UI\Dispatch\ShowDispatchHub;
 
 Route::get('/', ShowDispatchHub::class)->name('hub');

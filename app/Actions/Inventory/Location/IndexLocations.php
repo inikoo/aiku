@@ -8,9 +8,9 @@
 namespace App\Actions\Inventory\Location;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\ShowInventoryDashboard;
 use App\Actions\Inventory\Warehouse\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\ShowWarehouseArea;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Location;
@@ -148,7 +148,7 @@ class IndexLocations extends InertiaAction
 
         return match ($routeName) {
             'inventory.locations.index' => array_merge(
-                (new ShowInventoryDashboard())->getBreadcrumbs(),
+                (new InventoryDashboard())->getBreadcrumbs(),
                 $headCrumb()
             ),
             'inventory.warehouses.show.locations.index' => array_merge(

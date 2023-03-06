@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 18 Oct 2022 08:29:42 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 06 Mar 2023 18:44:51 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Production;
+namespace App\Actions\UI\Fulfilment;
 
 use App\Actions\UI\WithInertia;
 use App\Models\Central\Tenant;
@@ -14,7 +14,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowProductionDashboard
+class FulfilmentDashboard
 {
     use AsAction;
     use WithInertia;
@@ -24,7 +24,7 @@ class ShowProductionDashboard
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("production.view");
+        return $request->user()->hasPermissionTo("fulfilment.view");
     }
 
 
@@ -40,12 +40,12 @@ class ShowProductionDashboard
 
 
         return Inertia::render(
-            'Production/ProductionDashboard',
+            'Fulfilment/FulfilmentDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('production'),
+                'title'       => __('fulfilment'),
                 'pageHead'    => [
-                    'title' => __('production'),
+                    'title' => __('fulfilment'),
                 ],
                 'treeMaps'    => [
 
@@ -53,9 +53,9 @@ class ShowProductionDashboard
                         [
                             'name'  => __('Products'),
                             'icon'  => ['fal', 'fa-flask'],
-                            'href'  => ['production.products.index'],
+                            'href'  => ['fulfilment.products.index'],
                             'index' => [
-                                'number' => $this->tenant->productionStats->number_products
+                                'number' => $this->tenant->FulfilmentStats->number_products
                             ]
                         ]
                     ]
@@ -69,9 +69,9 @@ class ShowProductionDashboard
     public function getBreadcrumbs(): array
     {
         return [
-            'production.dashboard' => [
-                'route' => 'production.dashboard',
-                'name'  => __('production'),
+            'fulfilment.dashboard' => [
+                'route' => 'fulfilment.dashboard',
+                'name'  => __('fulfilment'),
             ]
         ];
     }

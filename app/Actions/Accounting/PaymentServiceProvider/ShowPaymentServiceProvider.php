@@ -7,8 +7,8 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
-use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\InertiaAction;
+use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Models\Accounting\PaymentServiceProvider;
 use Inertia\Inertia;
@@ -88,7 +88,7 @@ class ShowPaymentServiceProvider extends InertiaAction
     public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider): array
     {
         return array_merge(
-            (new ShowAccountingDashboard())->getBreadcrumbs(),
+            (new AccountingDashboard())->getBreadcrumbs(),
             [
                 'accounting.payment-service-providers.show' => [
                     'route'           => 'accounting.payment-service-providers.show',

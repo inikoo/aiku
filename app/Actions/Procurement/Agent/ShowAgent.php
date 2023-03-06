@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Agent;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\ShowProcurementDashboard;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
@@ -88,7 +88,7 @@ class ShowAgent extends InertiaAction
     public function getBreadcrumbs(Agent $agent): array
     {
         return array_merge(
-            (new ShowProcurementDashboard())->getBreadcrumbs(),
+            (new ProcurementDashboard())->getBreadcrumbs(),
             [
                 'procurement.agents.show' => [
                     'route'           => 'procurement.agents.show',

@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 14 Sept 2022 15:12:52 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 06 Mar 2023 16:34:04 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory;
+namespace App\Actions\UI\Inventory;
 
 use App\Actions\UI\WithInertia;
 use App\Models\Central\Tenant;
@@ -20,7 +20,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * @property Tenant $tenant
  * @property User $user
  */
-class ShowInventoryDashboard
+class InventoryDashboard
 {
     use AsAction;
     use WithInertia;

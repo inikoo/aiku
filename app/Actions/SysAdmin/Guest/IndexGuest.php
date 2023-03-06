@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
-use App\Actions\SysAdmin\ShowSysAdminDashboard;
+use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\GuestInertiaResource;
 use App\Http\Resources\SysAdmin\GuestResource;
@@ -97,7 +97,7 @@ class IndexGuest
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowSysAdminDashboard())->getBreadcrumbs(),
+            (new SysAdminDashboard())->getBreadcrumbs(),
             [
                 'sysadmin.guests.index' => [
                     'route'      => 'sysadmin.guests.index',

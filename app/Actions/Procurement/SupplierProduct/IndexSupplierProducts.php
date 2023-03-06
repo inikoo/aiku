@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\SupplierProduct;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\ShowProcurementDashboard;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
@@ -107,7 +107,7 @@ class IndexSupplierProducts extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowProcurementDashboard())->getBreadcrumbs(),
+            (new ProcurementDashboard())->getBreadcrumbs(),
             [
                 'procurement.supplier-products.index' => [
                     'route'      => 'procurement.supplier-products.index',

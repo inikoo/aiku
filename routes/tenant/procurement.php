@@ -1,20 +1,20 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 25 Oct 2022 12:11:26 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 06 Mar 2023 18:47:05 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 
 use App\Actions\Procurement\Agent\IndexAgents;
 use App\Actions\Procurement\Agent\ShowAgent;
-use App\Actions\Procurement\ShowProcurementDashboard;
 use App\Actions\Procurement\Supplier\IndexSuppliers;
 use App\Actions\Procurement\Supplier\ShowSupplier;
 use App\Actions\Procurement\SupplierProduct\IndexSupplierProducts;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowProcurementDashboard::class)->name('dashboard');
+Route::get('/', ProcurementDashboard::class)->name('dashboard');
 Route::get('/suppliers', IndexSuppliers::class)->name('suppliers.index');
 Route::get('/suppliers/{supplier}', ShowSupplier::class)->name('suppliers.show');
 

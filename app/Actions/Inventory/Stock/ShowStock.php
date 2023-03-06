@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Actions\Inventory\ShowInventoryDashboard;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Stock;
@@ -67,7 +67,7 @@ class ShowStock
     public function getBreadcrumbs(Stock $stock): array
     {
         return array_merge(
-            (new ShowInventoryDashboard())->getBreadcrumbs(),
+            (new InventoryDashboard())->getBreadcrumbs(),
             [
                 'inventory.stocks.show' => [
                     'route'           => 'inventory.stocks.show',

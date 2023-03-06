@@ -9,8 +9,8 @@ namespace App\Actions\Accounting\Payment;
 
 use App\Actions\Accounting\PaymentAccount\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
-use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\InertiaAction;
+use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -123,7 +123,7 @@ class ShowPayment extends InertiaAction
 
         return match ($routeName) {
             'accounting.payments.show' => array_merge(
-                (new ShowaccountingDashboard())->getBreadcrumbs(),
+                (new AccountingDashboard())->getBreadcrumbs(),
                 $headCrumb([$payment->slug])
             ),
             'accounting.payment-service-provider.show.payments.show' => array_merge(

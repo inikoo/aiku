@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 02 Mar 2023 20:08:12 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Mon, 06 Mar 2023 18:43:21 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 
-use App\Actions\CRM\ShowCRMDashboard;
+use App\Actions\UI\CRM\CRMDashboard;
 
-Route::get('/', ShowCRMDashboard::class)->name('dashboard');
+Route::get('/', CRMDashboard::class)->name('dashboard');

@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\User;
 
-use App\Actions\SysAdmin\ShowSysAdminDashboard;
+use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\User;
@@ -101,7 +101,7 @@ class IndexUser
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowSysAdminDashboard())->getBreadcrumbs(),
+            (new SysAdminDashboard())->getBreadcrumbs(),
             [
                 'sysadmin.users.index' => [
                     'route'      => 'sysadmin.users.index',

@@ -1,14 +1,13 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 14 Sept 2022 15:11:13 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 06 Mar 2023 16:34:04 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 
 use App\Actions\Inventory\Location\IndexLocations;
 use App\Actions\Inventory\Location\ShowLocation;
-use App\Actions\Inventory\ShowInventoryDashboard;
 use App\Actions\Inventory\Stock\IndexStocks;
 use App\Actions\Inventory\Stock\ShowStock;
 use App\Actions\Inventory\StockFamily\IndexStockFamilies;
@@ -17,9 +16,10 @@ use App\Actions\Inventory\Warehouse\IndexWarehouses;
 use App\Actions\Inventory\Warehouse\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\ShowWarehouseArea;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowInventoryDashboard::class)->name('dashboard');
+Route::get('/', InventoryDashboard::class)->name('dashboard');
 
 Route::get('/warehouses', IndexWarehouses::class)->name('warehouses.index');
 Route::get('/warehouses/{warehouse}', ShowWarehouse::class)->name('warehouses.show');

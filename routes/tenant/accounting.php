@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 01 Mar 2023 14:51:52 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Mon, 06 Mar 2023 18:42:58 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -11,11 +11,11 @@ use App\Actions\Accounting\PaymentAccount\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentAccount\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\IndexPaymentServiceProviders;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
-use App\Actions\Accounting\ShowAccountingDashboard;
 use App\Actions\Sales\Invoice\IndexInvoices;
+use App\Actions\UI\Accounting\AccountingDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowAccountingDashboard::class)->name('dashboard');
+Route::get('/', AccountingDashboard::class)->name('dashboard');
 
 Route::get('/providers', IndexPaymentServiceProviders::class)->name('payment-service-providers.index');
 Route::get('/providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');

@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 25 Oct 2022 12:12:19 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 06 Mar 2023 18:47:05 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement;
+namespace App\Actions\UI\Procurement;
 
 use App\Actions\UI\WithInertia;
 use App\Models\Central\Tenant;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * @property Tenant $tenant
  * @property User $user
  */
-class ShowProcurementDashboard
+class ProcurementDashboard
 {
     use AsAction;
     use WithInertia;

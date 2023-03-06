@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 01 Mar 2023 14:52:41 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Mon, 06 Mar 2023 18:42:58 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting;
+namespace App\Actions\UI\Accounting;
 
 use App\Actions\UI\WithInertia;
 use App\Models\Central\Tenant;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * @property Tenant $tenant
  * @property User $user
  */
-class ShowAccountingDashboard
+class AccountingDashboard
 {
     use AsAction;
     use WithInertia;

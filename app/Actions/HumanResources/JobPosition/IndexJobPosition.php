@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
-use App\Actions\HumanResources\ShowHumanResourcesDashboard;
+use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Models\HumanResources\Employee;
@@ -103,7 +103,7 @@ class IndexJobPosition
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            (new HumanResourcesDashboard())->getBreadcrumbs(),
             [
                 'hr.employees.index' => [
                     'route'      => 'hr.employees.index',

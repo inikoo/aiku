@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Agent;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\ShowProcurementDashboard;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
@@ -92,7 +92,7 @@ class IndexAgents extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowProcurementDashboard())->getBreadcrumbs(),
+            (new ProcurementDashboard())->getBreadcrumbs(),
             [
                 'procurement.agents.index' => [
                     'route'      => 'procurement.agents.index',

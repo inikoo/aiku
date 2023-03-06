@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\HumanResources\ShowHumanResourcesDashboard;
+use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
@@ -91,12 +91,12 @@ class ShowEmployee
     public function getBreadcrumbs(Employee $employee): array
     {
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            (new HumanResourcesDashboard())->getBreadcrumbs(),
             [
                 'hr.employees.show' => [
                     'route'           => 'hr.employees.show',
                     'routeParameters' => $employee->id,
-                    'name'            => $employee->code,
+                    'name'            => $employee->slug,
                     'index'           => [
                         'route'   => 'hr.employees.index',
                         'overlay' => __('Employees list')

@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\ShowInventoryDashboard;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Stock;
@@ -108,7 +108,7 @@ class IndexStocks extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowInventoryDashboard())->getBreadcrumbs(),
+            (new InventoryDashboard())->getBreadcrumbs(),
             [
                 'inventory.stocks.index' => [
                     'route'      => 'inventory.stocks.index',

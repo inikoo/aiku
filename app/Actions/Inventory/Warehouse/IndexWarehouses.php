@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
-use App\Actions\Inventory\ShowInventoryDashboard;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
@@ -104,7 +104,7 @@ class IndexWarehouses
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowInventoryDashboard())->getBreadcrumbs(),
+            (new InventoryDashboard())->getBreadcrumbs(),
             [
                 'inventory.warehouses.index' => [
                     'route'      => 'inventory.warehouses.index',
