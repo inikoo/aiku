@@ -2,7 +2,7 @@
 
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 
-defineProps(['shops']);
+defineProps(['shops', 'shopsName']);
 defineEmits(['change:shop']);
 
 
@@ -10,9 +10,10 @@ defineEmits(['change:shop']);
 
 <template>
     <Menu as="div" class="relative inline-block text-left ml-5 pl-8" >
-        <div >
+        <div v-for="(shop, shopIndex) in shops" :key="shopIndex" v-if="shopIndex === 0">
             <MenuButton>
-                {{ shops[0].name }}
+                {{shop.name}}
+
                 <font-awesome-icon aria-hidden="true" class="ml-4 opacity-50 hover:opacity-100"
                                    icon="fal fa-chevron-down" />
             </MenuButton>
