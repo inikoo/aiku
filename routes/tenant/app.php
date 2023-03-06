@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 21 Sep 2022  Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 06 Mar 2023 13:30:46 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 declare(strict_types=1);
@@ -10,7 +10,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 
 Route::middleware([
-    "web",
+    "app",
 ])->group(function () {
     Route::middleware(["auth"])->group(function () {
         Route::get('/', function () {
@@ -18,48 +18,48 @@ Route::middleware([
         });
         Route::prefix("dashboard")
             ->name("dashboard.")
-            ->group(__DIR__ . "/dashboard.php");
+            ->group(__DIR__."/dashboard.php");
         Route::prefix("account")
             ->name("account.")
-            ->group(__DIR__ . "/account.php");
+            ->group(__DIR__."/account.php");
         Route::prefix("showroom")
             ->name("showroom.")
-            ->group(__DIR__ . "/showroom.php");
+            ->group(__DIR__."/showroom.php");
         Route::prefix("crm")
             ->name("crm.")
-            ->group(__DIR__ . "/crm.php");
+            ->group(__DIR__."/crm.php");
         Route::prefix("hr")
             ->name("hr.")
-            ->group(__DIR__ . "/hr.php");
+            ->group(__DIR__."/hr.php");
         Route::prefix("inventory")
             ->name("inventory.")
-            ->group(__DIR__ . "/inventory.php");
+            ->group(__DIR__."/inventory.php");
         Route::prefix("fulfilment")
             ->name("fulfilment.")
-            ->group(__DIR__ . "/fulfilment.php");
+            ->group(__DIR__."/fulfilment.php");
         Route::prefix("production")
             ->name("production.")
-            ->group(__DIR__ . "/production.php");
+            ->group(__DIR__."/production.php");
         Route::prefix("procurement")
             ->name("procurement.")
-            ->group(__DIR__ . "/procurement.php");
+            ->group(__DIR__."/procurement.php");
 
         Route::prefix("shops")
             ->name("shops.")
 
-            ->group(__DIR__ . "/shops.php");
+            ->group(__DIR__."/shops.php");
         Route::prefix("websites")
             ->name("websites.")
-            ->group(__DIR__ . "/websites.php");
+            ->group(__DIR__."/websites.php");
         Route::prefix("customers")
             ->name("customers.")
-            ->group(__DIR__ . "/customers.php");
+            ->group(__DIR__."/customers.php");
         Route::prefix("orders")
             ->name("orders.")
-            ->group(__DIR__ . "/orders.php");
+            ->group(__DIR__."/orders.php");
         Route::prefix("products")
             ->name("products.")
-            ->group(__DIR__ . "/products.php");
+            ->group(__DIR__."/products.php");
 
         Route::prefix("osm")
             ->name("osm.")
@@ -69,14 +69,14 @@ Route::middleware([
             ->group(__DIR__."/dispatch.php");
         Route::prefix("profile")
             ->name("profile.")
-            ->group(__DIR__ . "/profile.php");
+            ->group(__DIR__."/profile.php");
 
         Route::prefix("sysadmin")
             ->name("sysadmin.")
-            ->group(__DIR__ . "/sysadmin.php");
+            ->group(__DIR__."/sysadmin.php");
         Route::prefix("accounting")
             ->name("accounting.")
-            ->group(__DIR__ . "/accounting.php");
+            ->group(__DIR__."/accounting.php");
     });
-    require __DIR__ . "/auth.php";
+    require __DIR__."/auth.php";
 });

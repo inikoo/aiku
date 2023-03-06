@@ -46,9 +46,8 @@ class RouteServiceProvider extends ServiceProvider
             ->name('central.')
             ->group(base_path('routes/central/web/web.php'));
 
-        Route::middleware('app')
-            ->namespace($this->namespace)
-            ->group(base_path('routes/tenant.php'));
+        Route::namespace($this->namespace)
+            ->group(base_path('routes/tenant/app.php'));
     }
 
     /**

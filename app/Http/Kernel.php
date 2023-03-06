@@ -36,6 +36,8 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
+use Spatie\Multitenancy\Http\Middleware\EnsureValidTenantSession;
+use Spatie\Multitenancy\Http\Middleware\NeedsTenant;
 
 class Kernel extends HttpKernel
 {
@@ -84,6 +86,8 @@ class Kernel extends HttpKernel
             SetLocale::class
         ],
         'app'     => [
+            NeedsTenant::class,
+
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -91,6 +95,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleInertiaRequests::class,
+            EnsureValidTenantSession::class,
             SetLocale::class
         ],
 

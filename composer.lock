@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "913fd94e62b6b504b52fb3a036fbba3c",
+    "content-hash": "3bf42b28a804a6535cffdbb853d97998",
     "packages": [
         {
             "name": "akempes/laravel-request-logging",
@@ -2005,81 +2005,6 @@
                 }
             ],
             "time": "2022-05-21T17:30:32+00:00"
-        },
-        {
-            "name": "jackwh/laravel-new-relic",
-            "version": "v1.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/JackWH/laravel-new-relic.git",
-                "reference": "1f6ac3824f7750c15caac88588d24f90faccf28c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/JackWH/laravel-new-relic/zipball/1f6ac3824f7750c15caac88588d24f90faccf28c",
-                "reference": "1f6ac3824f7750c15caac88588d24f90faccf28c",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/contracts": "^9.0",
-                "illuminate/support": "^9.0",
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "nunomaduro/collision": "^6.0",
-                "nunomaduro/larastan": "^2.0.1",
-                "orchestra/testbench": "^7.0",
-                "pestphp/pest": "^1.21",
-                "pestphp/pest-plugin-laravel": "^1.1",
-                "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan-deprecation-rules": "^1.0",
-                "phpstan/phpstan-phpunit": "^1.0",
-                "phpunit/phpunit": "^9.5",
-                "roave/security-advisories": "dev-latest",
-                "spatie/laravel-ray": "^1.26"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "JackWH\\LaravelNewRelic\\LaravelNewRelicServiceProvider"
-                    ],
-                    "aliases": {
-                        "NewRelicTransaction": "JackWH\\LaravelNewRelic\\Facades\\NewRelicTransaction"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "JackWH\\LaravelNewRelic\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jack Webb-Heller",
-                    "email": "hello@jwh.fyi",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Monitor your Laravel application performance with New Relic",
-            "homepage": "https://github.com/JackWH/laravel-new-relic",
-            "keywords": [
-                "JackWH",
-                "laravel",
-                "laravel-new-relic",
-                "monitoring",
-                "new relic",
-                "performance"
-            ],
-            "support": {
-                "issues": "https://github.com/JackWH/laravel-new-relic/issues",
-                "source": "https://github.com/JackWH/laravel-new-relic/tree/v1.0.2"
-            },
-            "time": "2022-06-03T21:51:45+00:00"
         },
         {
             "name": "jean85/pretty-package-versions",
