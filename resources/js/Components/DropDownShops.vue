@@ -1,15 +1,18 @@
 <script setup>
 
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
+
 defineProps(['shops']);
 defineEmits(['change:shop']);
+
 
 </script>
 
 <template>
-    <Menu as="div" class="relative inline-block text-left ml-5 pl-8">
-        <div>
+    <Menu as="div" class="relative inline-block text-left ml-5 pl-8" >
+        <div >
             <MenuButton>
+                {{ shops[0].name }}
                 <font-awesome-icon aria-hidden="true" class="ml-4 opacity-50 hover:opacity-100"
                                    icon="fal fa-chevron-down" />
             </MenuButton>

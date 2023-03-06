@@ -42,7 +42,7 @@ const handleShopChange = (shop) => {
 <template>
     <div class="border border-sky-500 pl-6 pr-3">
         <font-awesome-icon aria-hidden="true" class="mr-3" icon="fal fa-store-alt" />
-        {{currentName}}
+        <!--{{currentName}}-->
         <DropDownShops
             @change:shop="handleShopChange"
             :shops="shops.items.data"/>
