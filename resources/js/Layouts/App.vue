@@ -15,6 +15,8 @@ import {
     MenuItem,
     MenuItems,
 } from '@headlessui/vue';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
 import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
 import {trans} from 'laravel-vue-i18n';
 import {library} from '@fortawesome/fontawesome-svg-core';

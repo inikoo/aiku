@@ -20,6 +20,7 @@ let currentSlug = ref(props.shops.current.data.slug)
 let currentName = ref(props.shops.current.data.name)
 const handleShopChange = (shop) => {
 
+    console.log(shop)
     currentSlug.value = shop.slug
     currentName.value = shop.name
     let parameters = route().params;
@@ -31,14 +32,11 @@ const handleShopChange = (shop) => {
 </script>
 
 <template>
-    <div class="border border-sky-500 pl-6 pr-3">
-        <FontAwesomeIcon aria-hidden="true"  icon="fal fa-store-alt" />
 
-        <DropDownShops
-            @change:shop="handleShopChange"
-            :shops="shops"/>
+    <DropDownShops
+        @select:shop="handleShopChange"
+        :shops="shops"/>
 
-    </div>
     <div class="ml-5 space-x-4">
         <Link :title="trans('products')"
               :href="shops.current?route('shops.show.products.index', currentSlug):route('products.index')">

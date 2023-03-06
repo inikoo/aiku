@@ -18,7 +18,7 @@ import {i18nVue, loadLanguageAsync} from 'laravel-vue-i18n';
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'pika';
 import {createPinia} from 'pinia';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+
 import {faSearch, faBell, faAngleUp,faChevronRight,faChevronDown,faTimes, faBars as farBars,faEllipsisV, faIndent as farIndent} from '../private/pro-regular-svg-icons';
 import {
     faHome,
@@ -81,7 +81,7 @@ createInertiaApp({
                              use(plugin).
                              use(createPinia()).
                              use(ZiggyVue, Ziggy).
-                             component('font-awesome-icon', FontAwesomeIcon).
+
                              use(i18nVue, {
                                  resolve: async lang => {
                                      const languages = import.meta.glob(

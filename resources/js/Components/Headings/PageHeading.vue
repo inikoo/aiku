@@ -13,6 +13,7 @@ import {faEmptySet} from '@/../private/pro-light-svg-icons';
 import {faPlus} from '@/../private/pro-solid-svg-icons';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import {useLocaleStore} from '@/Stores/locale.js';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faEmptySet,faPlus);
 const props = defineProps(['data']);

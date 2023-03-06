@@ -8,6 +8,7 @@
 import {computed} from 'vue';
 import {trans} from 'laravel-vue-i18n';
 import {Link} from '@inertiajs/vue3';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const props = defineProps(['breadcrumbs']);
 
