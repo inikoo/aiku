@@ -72,8 +72,6 @@ import SearchBar from "@/Components/SearchBar.vue";
 
 const showComponent = ref(false);
 
-const toggle = ref(false)
-
 </script>
 
 <template>
@@ -99,7 +97,7 @@ const toggle = ref(false)
 
                         <div class="flex items-center">
 
-                            <button v-on:click="showComponent = !showComponent" type="button"
+                            <button v-on:click="showComponent = !showComponent"
                                     class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                                 <span class="sr-only">{{ trans("Search") }}</span>
                                 <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg">
