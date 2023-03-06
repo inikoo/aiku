@@ -88,7 +88,7 @@ import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
                                 {{ layout.tenant.name }}
                             </div>
 
-                            <app-shop-navigation :shopsData="layout.shops"></app-shop-navigation>
+                            <app-shop-navigation :shops="layout.shops"></app-shop-navigation>
 
 
                         </div>
