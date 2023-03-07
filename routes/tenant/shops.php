@@ -21,6 +21,8 @@ use App\Actions\Sales\Invoice\IndexInvoices;
 use App\Actions\Sales\Invoice\ShowInvoice;
 use App\Actions\Sales\Order\IndexOrders;
 use App\Actions\Sales\Order\ShowOrder;
+use App\Actions\Web\Website\IndexWebsites;
+use App\Actions\Web\Website\ShowWebsite;
 use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\CreateWebUser;
 use App\Actions\Web\WebUser\ShowWebUser;
@@ -64,3 +66,6 @@ Route::get('/{shop}/invoices/{invoice}', [ShowInvoice::class, 'inShop'])->name('
 Route::get('/{shop}/delivery-notes', [IndexDeliveryNotes::class, 'inShop'])->name('show.delivery-notes.index');
 
 Route::get('/{shop}/delivery-notes/{delivery}', [ShowDeliveryNote::class, 'inShop'])->name('show.delivery-notes.show');
+
+Route::get('/{shop}/websites', [IndexWebsites::class, 'inShop'])->name('show.websites.index');
+Route::get('/{shop}/websites/{website}', [ShowWebsite::class, 'inShop'])->name('show.websites.show');

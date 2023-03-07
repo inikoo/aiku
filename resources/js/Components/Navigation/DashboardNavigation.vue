@@ -10,6 +10,7 @@ import {faEmptySet} from '@/../private/pro-light-svg-icons';
 library.add(faEmptySet);
 defineProps(['nodes']);
 import {useLocaleStore} from '@/Stores/locale.js';
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 const locale = useLocaleStore();
 
 </script>
@@ -21,7 +22,7 @@ const locale = useLocaleStore();
 
                 <Link :href="route(node.href[0],node.href[1])" class="group flex items-center">
                     <span class="flex items-center px-6 py-4 text-lg font-medium">
-                        <font-awesome-icon size="lg"
+                        <FontAwesomeIcon size="lg"
                                            :icon="node.icon"
                                            class="flex-shrink-0 "
                                            aria-hidden="true"
@@ -30,9 +31,9 @@ const locale = useLocaleStore();
                             {{ node.name }}
                         </span>
                          <span v-if="node.index" class="ml-4 font-medium text-gray-500 group-hover:text-gray-900 whitespace-nowrap">
-                           <font-awesome-icon icon="fal fa-bars" class="mr-1"/>
+                           <FontAwesomeIcon icon="fal fa-bars" class="mr-1"/>
                              <span v-if="node.index.number">{{ locale.number(node.index.number) }}</span>
-                             <font-awesome-icon v-else icon="fal fa-empty-set"/>
+                             <FontAwesomeIcon v-else icon="fal fa-empty-set"/>
 
                         </span>
 

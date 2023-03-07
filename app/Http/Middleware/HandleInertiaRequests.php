@@ -38,10 +38,11 @@ class HandleInertiaRequests extends Middleware
         /** @var \App\Models\SysAdmin\User $user */
         $user = $request->user();
 
-        $firstLoadOnlyProps=[];
+        $firstLoadOnlyProps = [];
+
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
-            $firstLoadOnlyProps= [
+            $firstLoadOnlyProps = [
 
                 'tenant'   => app('currentTenant') ? app('currentTenant')->only('name', 'code') : null,
                 'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
@@ -54,20 +55,13 @@ class HandleInertiaRequests extends Middleware
                 }
             ];
 
-
-
-            if (Session::get('reloadLayout')=='remove') {
+            if (Session::get('reloadLayout') == 'remove') {
                 Session::forget('reloadLayout');
             }
             if (Session::get('reloadLayout')) {
                 Session::put('reloadLayout', 'remove');
             }
         }
-
-
-
-
-        //dd($firstLoadOnlyProps);
 
         return array_merge(
             parent::share($request),

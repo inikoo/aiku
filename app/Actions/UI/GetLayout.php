@@ -11,6 +11,8 @@ use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\SysAdmin\User;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetLayout
@@ -20,12 +22,8 @@ class GetLayout
     public function handle(User $user): array
     {
         /** @var Tenant $tenant */
-        $tenant    = app('currentTenant');
-        $shopCount = $tenant->marketingStats->number_shops;
-        $shop      = null;
-        if ($shopCount == 1) {
-            $shop = Shop::first();
-        }
+        $tenant = app('currentTenant');
+
 
         $navigation = [];
 
@@ -35,59 +33,6 @@ class GetLayout
                 'icon'  => ['fal', 'fa-tachometer-alt-fast'],
                 'route' => 'dashboard.show'
             ];
-
-
-        /*
-
-        if ($shopCount == 1) {
-            if ($user->can('shops.view')) {
-                $navigation[] = [
-                    'name'            => __('shop'),
-                    'icon'            => ['fal', 'fa-store-alt'],
-                    'route'           => 'shops.show',
-                    'routeParameters' => $shop->id
-                ];
-            }
-            if ($user->can('websites.view')) {
-                $navigation[] = [
-                    'name'  => __('websites'),
-                    'icon'  => ['fal', 'fa-globe'],
-                    'route' => 'websites.index'
-                ];
-            }
-            if ($user->can('shops.customers.view')) {
-                $navigation[] = [
-                    'name'            => __('customers'),
-                    'icon'            => ['fal', 'fa-user'],
-                    'route'           => 'shops.show.customers.index',
-                    'routeParameters' => $shop->id
-
-                ];
-            }
-        } else {
-            if ($user->can('shops.view')) {
-                $navigation[] = [
-                    'name'  => __('shops'),
-                    'icon'  => ['fal', 'fa-store-alt'],
-                    'route' => 'shops.index'
-                ];
-            }
-            if ($user->can('websites.view')) {
-                $navigation[] = [
-                    'name'  => __('websites'),
-                    'icon'  => ['fal', 'fa-globe'],
-                    'route' => 'websites.index'
-                ];
-            }
-            if ($user->can('shops.customers.view')) {
-                $navigation[] = [
-                    'name'  => __('customers'),
-                    'icon'  => ['fal', 'fa-user'],
-                    'route' => 'customers.index'
-                ];
-            }
-        }
-*/
 
 
         if ($user->can('showroom.view')) {
@@ -202,10 +147,36 @@ class GetLayout
         }
 
 
+        $shopCount       = $tenant->marketingStats->number_shops;
+        $currentShop     = null;
+        $currentShopSlug = null;
+
+        if ($shopCount == 1) {
+            $currentShopInstance = Shop::first();
+            $currentShop         = new ShopsNavigationResource($currentShopInstance);
+            $currentShopSlug     = $currentShopInstance->slug;
+        } elseif ($shopCount > 1) {
+            $routeName       = Route::current()->getName();
+
+            if (Str::startsWith($routeName, 'shops.show')) {
+                $currentShopInstance = Route::current()->parameters()['shop'];
+                $currentShop         = new ShopsNavigationResource($currentShopInstance);
+                $currentShopSlug     = $currentShopInstance->slug;
+            } elseif (!Str::startsWith($routeName, ['customers', 'orders', 'products', 'websites'])) {
+                if (session()->has('currentShop')) {
+                    $currentShopInstance = Shop::where('slug', session('currentShop'))->first();
+                    $currentShop         = new ShopsNavigationResource($currentShopInstance);
+                    $currentShopSlug     = $currentShopInstance->slug;
+                }
+            }
+        }
+
+
+        session(['currentShop' => $currentShopSlug]);
 
         $shops = [
-            'current' => new ShopsNavigationResource(Shop::latest()->first()),
-          //  'current' => null,
+            'count'   => $shopCount,
+            'current' => $currentShop,
             'items'   => ShopsNavigationResource::collection(Shop::all())
         ];
 

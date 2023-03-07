@@ -8,9 +8,15 @@ import {ref} from 'vue';
 const props = defineProps(['shops']);
 defineEmits(['select:shop', 'select:shops']);
 
-let currentLabel = ref(props.shops.current.data.name);
 
-let currentSlug = ref(props.shops.current.data.slug ?? null);
+let currentLabel=ref(trans('All shops'));
+let currentSlug=ref(null);
+
+if(props.shops.current){
+    currentLabel = ref(props.shops.current.data.name);
+    currentSlug = ref(props.shops.current.data.slug);
+}
+
 
 </script>
 

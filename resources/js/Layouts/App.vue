@@ -93,6 +93,7 @@ const showComponent = ref(false)
                                 {{ layout.tenant.name }}
                             </div>
 
+
                             <AppShopNavigation :shops="layout.shops"/>
 
 
