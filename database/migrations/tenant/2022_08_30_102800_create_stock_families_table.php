@@ -15,9 +15,7 @@ return new class () extends Migration {
         Schema::create('stock_families', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique();
-
             $table->string('code')->index();
-
             $stockFamilyStates=['in-process', 'active','discontinuing', 'discontinued'];
             $table->enum('state', $stockFamilyStates)->nullable()->index();
             $table->string('name', 255)->nullable();
@@ -25,7 +23,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampstz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

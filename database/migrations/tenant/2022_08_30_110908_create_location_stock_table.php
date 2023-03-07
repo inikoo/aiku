@@ -13,10 +13,10 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('location_stock', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('stock_id');
+            $table->increments('id');
+            $table->unsignedInteger('stock_id');
             $table->foreign('stock_id')->references('id')->on('stocks');
-            $table->unsignedMediumInteger('location_id');
+            $table->unsignedInteger('location_id');
             $table->foreign('location_id')->references('id')->on('locations');
             $table->decimal('quantity', 16, 3);
             $table->enum('type', ['picking','storing']);

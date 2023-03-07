@@ -13,16 +13,14 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('stock_trade_unit', function (Blueprint $table) {
-            $table->unsignedBigInteger('stock_id')->nullable();
+            $table->unsignedInteger('stock_id')->nullable();
             $table->foreign('stock_id')->references('id')->on('stocks');
-            $table->unsignedBigInteger('trade_unit_id')->nullable();
+            $table->unsignedInteger('trade_unit_id')->nullable();
             $table->foreign('trade_unit_id')->references('id')->on('trade_units');
             $table->decimal('quantity', 12, 3);
-
             $table->timestampsTz();
         });
     }
-
 
     public function down()
     {

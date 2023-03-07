@@ -13,17 +13,17 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('fulfilment_orders', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->string('number')->nullable()->index();
 
-            $table->unsignedMediumInteger('shop_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
 
-            $table->unsignedBigInteger('customer_id')->index();
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
-            $table->unsignedBigInteger('customer_client_id')->nullable()->index();
+            $table->unsignedInteger('customer_client_id')->nullable()->index();
             $table->foreign('customer_client_id')->references('id')->on('customers');
 
 

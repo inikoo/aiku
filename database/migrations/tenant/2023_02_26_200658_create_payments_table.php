@@ -13,12 +13,14 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('payment_account_id')->constrained();
-            $table->unsignedMediumInteger('shop_id')->index();
+            $table->increments('id');
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->foreignId('customer_id')->constrained();
+            $table->unsignedSmallInteger('payment_account_id')->index();
+            $table->foreign('payment_account_id')->references('id')->on('payment_accounts');
 
+            $table->unsignedInteger('customer_id')->index();
+            $table->foreign('customer_id')->references('id')->on('customers');
 
 
 
@@ -44,7 +46,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->enum('type', ['payment','refund']);
             $table->boolean('with_refund')->default(false);
-            $table->unsignedBigInteger('source_id')->index()->nullable();
+            $table->unsignedInteger('source_id')->index()->nullable();
         });
     }
 

@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('guests', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->boolean('status')->index()->default(true);
             $table->enum('type', ['contractor', 'external-employee','external-administrator'])->default('contractor');
@@ -27,7 +27,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

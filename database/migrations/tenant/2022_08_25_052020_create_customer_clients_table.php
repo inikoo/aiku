@@ -13,13 +13,13 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('customer_clients', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->string('reference')->nullable()->index();
             $table->boolean('status')->default(true)->index();
-            $table->unsignedMediumInteger('shop_id')->index()->nullable();
+            $table->unsignedSmallInteger('shop_id')->index()->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedMediumInteger('customer_id')->index()->nullable();
+            $table->unsignedInteger('customer_id')->index()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('name')->nullable();
             $table->string('contact_name')->nullable()->index();
@@ -31,7 +31,7 @@ return new class () extends Migration {
             $table->dateTimeTz('deactivated_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
 
             $table->index([DB::raw('name(64)')]);
         });

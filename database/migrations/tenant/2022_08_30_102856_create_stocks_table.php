@@ -13,9 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('stocks', function (Blueprint $table) {
-            $table->id();
-
-
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
             $table->morphs('owner');
@@ -31,13 +29,13 @@ return new class () extends Migration {
 
             $table->string('barcode')->index()->nullable();
             $table->text('description')->nullable();
-            $table->unsignedMediumInteger('units_per_pack')->nullable()->comment('units per pack');
-            $table->unsignedMediumInteger('units_per_carton')->nullable()->comment('units per carton');
+            $table->unsignedSmallInteger('units_per_pack')->nullable()->comment('units per pack');
+            $table->unsignedSmallInteger('units_per_carton')->nullable()->comment('units per carton');
             $table->decimal('quantity', 16, 3)->nullable()->default(0)->comment('stock quantity in units');
             $table->float('available_forecast')->nullable()->comment('days');
             $table->decimal('value', 16)->nullable();
-            $table->unsignedBigInteger('image_id')->nullable();
-            $table->unsignedBigInteger('package_image_id')->nullable();
+            $table->unsignedInteger('image_id')->nullable();
+            $table->unsignedInteger('package_image_id')->nullable();
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();
@@ -45,7 +43,7 @@ return new class () extends Migration {
             $table->dateTimeTz('discontinuing_at')->nullable();
             $table->dateTimeTz('discontinued_at')->nullable();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

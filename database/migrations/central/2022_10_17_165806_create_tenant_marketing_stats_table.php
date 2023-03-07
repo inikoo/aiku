@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('tenant_marketing_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('tenant_id');
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
 
             $table->unsignedSmallInteger('number_shops')->default(0);
@@ -38,7 +38,7 @@ return new class () extends Migration {
                 }
             }
 
-            $table->unsignedBigInteger('number_orphan_families')->default(0);
+            $table->unsignedInteger('number_orphan_families')->default(0);
 
             $table->timestampsTz();
         });

@@ -13,13 +13,19 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('delivery_note_items', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
 
-            $table->foreignId('delivery_note_id')->constrained();
-            $table->foreignId('stock_id')->nullable()->constrained();
+            $table->unsignedInteger('delivery_note_id')->index();
+            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
 
-            $table->foreignId('transaction_id')->nullable()->constrained();
-            $table->foreignId('picking_id')->nullable()->constrained();
+            $table->unsignedInteger('stock_id')->index();
+            $table->foreign('stock_id')->references('id')->on('stocks');
+
+            $table->unsignedInteger('transaction_id')->index();
+            $table->foreign('transaction_id')->references('id')->on('transactions');
+
+            $table->unsignedInteger('picking_id')->nullable()->index();
+            $table->foreign('picking_id')->references('id')->on('pickings');
 
             $table->enum(
                 'state',
@@ -35,14 +41,12 @@ return new class () extends Migration {
             )->index();
             $table->enum('status', ['in-process','done','done-with-missing','fail']);
 
-
-
             $table->decimal('required', 16, 3);
             $table->decimal('quantity', 16, 3)->default(0);
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

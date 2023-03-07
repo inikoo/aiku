@@ -13,9 +13,9 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('product_trade_unit', function (Blueprint $table) {
-            $table->unsignedBigInteger('product_id')->nullable();
+            $table->unsignedInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
-            $table->unsignedBigInteger('trade_unit_id')->nullable();
+            $table->unsignedInteger('trade_unit_id')->nullable();
             $table->foreign('trade_unit_id')->references('id')->on('trade_units');
             $table->decimal('quantity', 12, 3);
             $table->string('notes')->nullable();

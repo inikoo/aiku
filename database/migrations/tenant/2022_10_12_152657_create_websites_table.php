@@ -13,9 +13,9 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('websites', function (Blueprint $table) {
-            $table->mediumIncrements('id');
+            $table->smallIncrements('id');
             $table->string('slug')->unique();
-            $table->unsignedMediumInteger('shop_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->enum('state', ['construction', 'live', 'maintenance', 'closed'])->default('construction')->index();
             $table->string('code')->index();
@@ -24,14 +24,12 @@ return new class () extends Migration {
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->jsonb('webnodes');
+            $table->unsignedSmallInteger('current_layout_id')->index()->nullable();
             $table->timestampsTz();
             $table->timestampTz('launched_at')->nullable();
             $table->timestampTz('closed_at')->nullable();
-            $table->unsignedBigInteger('current_layout_id')->index()->nullable();
-
             $table->softDeletesTz();
-
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

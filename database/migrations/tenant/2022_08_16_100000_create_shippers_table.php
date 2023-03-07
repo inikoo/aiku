@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('shippers', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
             $table->string('api_shipper')->nullable()->index();
@@ -28,7 +28,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

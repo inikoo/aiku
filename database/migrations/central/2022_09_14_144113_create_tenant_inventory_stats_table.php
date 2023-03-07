@@ -13,25 +13,23 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('tenant_inventory_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('tenant_id');
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
 
             $table->unsignedSmallInteger('number_warehouses')->default(0);
 
             $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
 
-            $table->unsignedMediumInteger('number_locations')->default(0);
-            $table->unsignedMediumInteger('number_locations_state_operational')->default(0);
-            $table->unsignedMediumInteger('number_locations_state_broken')->default(0);
+            $table->unsignedInteger('number_locations')->default(0);
+            $table->unsignedInteger('number_locations_state_operational')->default(0);
+            $table->unsignedInteger('number_locations_state_broken')->default(0);
             $table->unsignedSmallInteger('number_empty_locations')->default(0);
-
-
 
 
             $table->unsignedBigInteger('number_stock_families')->default(0);
 
-            $stockFamilyStates=['in-process', 'active','discontinuing', 'discontinued'];
+            $stockFamilyStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
             foreach ($stockFamilyStates as $stockFamilyState) {
                 $table->unsignedBigInteger('number_stock_families_state_'.str_replace('-', '_', $stockFamilyState))->default(0);
             }

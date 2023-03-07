@@ -13,21 +13,21 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('historic_products', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->boolean('status')->index();
-            $table->dateTimeTz('created_at')->nullable();
-            $table->dateTimeTz('deleted_at')->nullable();
-            $table->foreignid('product_id')->constrained();
+
+            $table->unsignedInteger('product_id')->index();
+            $table->foreign('product_id')->references('id')->on('products');
 
             $table->unsignedDecimal('price', 18)->comment('unit price');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
             $table->unsignedDecimal('units', 12, 3)->nullable()->comment('units per outer');
 
-            //$table->unsignedSmallInteger('currency_id')->nullable();
-            //$table->foreign('currency_id')->references('id')->on('central.currencies');
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->dateTimeTz('created_at')->nullable();
+            $table->dateTimeTz('deleted_at')->nullable();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

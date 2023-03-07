@@ -20,8 +20,8 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
 
-            $table->unsignedBigInteger('number_payment_service_providers')->default(0);
-            $table->unsignedBigInteger('number_payment_accounts')->default(0);
+            $table->unsignedSmallInteger('number_payment_service_providers')->default(0);
+            $table->unsignedSmallInteger('number_payment_accounts')->default(0);
 
             $table = $this->paymentStats($table);
 

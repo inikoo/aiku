@@ -13,24 +13,24 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('customer_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('customer_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
-            $table->unsignedBigInteger('number_web_users')->default(0);
-            $table->unsignedBigInteger('number_active_web_users')->default(0);
+            $table->unsignedInteger('number_web_users')->default(0);
+            $table->unsignedInteger('number_active_web_users')->default(0);
 
             $table->timestampTz('last_submitted_order_at')->nullable();
             $table->timestampTz('last_dispatched_delivery_at')->nullable();
             $table->timestampTz('last_invoiced_at')->nullable();
-            $table->unsignedBigInteger('number_deliveries')->default(0);
-            $table->unsignedBigInteger('number_deliveries_type_order')->default(0);
-            $table->unsignedBigInteger('number_deliveries_type_replacement')->default(0);
-            $table->unsignedBigInteger('number_invoices')->default(0);
-            $table->unsignedBigInteger('number_invoices_type_invoice')->default(0);
-            $table->unsignedBigInteger('number_invoices_type_refund')->default(0);
-            $table->unsignedBigInteger('number_clients')->default(0);
-            $table->unsignedBigInteger('number_active_clients')->default(0);
+            $table->unsignedInteger('number_deliveries')->default(0);
+            $table->unsignedInteger('number_deliveries_type_order')->default(0);
+            $table->unsignedInteger('number_deliveries_type_replacement')->default(0);
+            $table->unsignedInteger('number_invoices')->default(0);
+            $table->unsignedInteger('number_invoices_type_invoice')->default(0);
+            $table->unsignedInteger('number_invoices_type_refund')->default(0);
+            $table->unsignedInteger('number_clients')->default(0);
+            $table->unsignedInteger('number_active_clients')->default(0);
             $table->timestampsTz();
         });
     }

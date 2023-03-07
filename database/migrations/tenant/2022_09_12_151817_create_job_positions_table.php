@@ -13,15 +13,13 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('job_positions', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->string('name');
             $table->string('department')->nullable();
             $table->string('team')->nullable();
             $table->jsonb('roles');
             $table->jsonb('data');
-
-
             $table->unsignedSmallInteger('number_employees')->default(0);
             $table->double('number_work_time')->default(0);
             $table->decimal('share_work_time', 7, 6)->nullable();

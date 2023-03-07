@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('location_stats', function (Blueprint $table) {
-            $table->mediumIncrements('id');
-            $table->unsignedMediumInteger('location_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('location_id')->index();
             $table->foreign('location_id')->references('id')->on('locations');
 
             $table->unsignedSmallInteger('number_stock_slots')->default(0);

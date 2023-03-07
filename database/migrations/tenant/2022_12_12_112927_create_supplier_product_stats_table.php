@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('supplier_product_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('supplier_product_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('supplier_product_id')->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->timestampsTz();
         });

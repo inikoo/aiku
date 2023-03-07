@@ -13,20 +13,22 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('historic_services', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
 
             $table->boolean('status')->index();
-            $table->dateTimeTz('created_at')->nullable();
-            $table->dateTimeTz('deleted_at')->nullable();
-            $table->foreignid('service_id')->constrained();
+
+
+            $table->unsignedInteger('service_id')->index();
+            $table->foreign('service_id')->references('id')->on('services');
+
+
             $table->unsignedDecimal('price', 18)->comment('unit price');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
-
-            // $table->unsignedSmallInteger('currency_id')->nullable();
-            // $table->foreign('currency_id')->references('id')->on('central.currencies');
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->dateTimeTz('created_at')->nullable();
+            $table->dateTimeTz('deleted_at')->nullable();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

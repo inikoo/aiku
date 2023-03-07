@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('invoice_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('invoice_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('invoice_id')->index();
             $table->foreign('invoice_id')->references('id')->on('invoices');
 
             $table->unsignedSmallInteger('number_items')->default(0)->comment('current number of items');

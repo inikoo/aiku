@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('payment_service_providers', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->string('type')->index();
             $table->string('code')->index();
             $table->string('slug')->unique();
@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->dateTimeTz('last_used_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->index()->nullable();
+            $table->unsignedInteger('source_id')->index()->nullable();
         });
     }
 

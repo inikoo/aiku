@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('shops', function (Blueprint $table) {
-            $table->mediumIncrements('id');
+            $table->smallIncrements('id');
             $table->string('slug')->unique()->nullable();
             $table->string('code')->unique();
             $table->string('name');
@@ -26,7 +26,7 @@ return new class () extends Migration {
             $table->enum('tax_number_status', ['valid', 'invalid', 'na', 'unknown'])->nullable()->default('na');
             $table->string('identity_document_type')->nullable();
             $table->string('identity_document_number')->nullable();
-            $table->unsignedBigInteger('address_id')->nullable()->index();
+            $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
 
@@ -50,7 +50,7 @@ return new class () extends Migration {
             $table->jsonb('settings');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedSmallInteger('source_id')->nullable()->unique();
         });
     }
 

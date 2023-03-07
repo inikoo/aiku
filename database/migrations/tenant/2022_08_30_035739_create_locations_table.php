@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('locations', function (Blueprint $table) {
-            $table->mediumIncrements('id');
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
@@ -25,7 +25,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

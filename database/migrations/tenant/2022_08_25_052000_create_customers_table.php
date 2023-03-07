@@ -13,12 +13,13 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('customers', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
 
-            $table->unsignedMediumInteger('shop_id')->index()->nullable();
+            $table->unsignedSmallInteger('shop_id')->index()->nullable();
+            $table->foreign('shop_id')->references('id')->on('shops');
+
             $table->string('slug')->unique();
             $table->string('reference')->unique()->comment('customer public id');
-            $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('name', 256)->nullable()->fulltext();
             $table->string('contact_name', 256)->nullable()->index()->fulltext();
             $table->string('company_name', 256)->nullable();
@@ -45,7 +46,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
 
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
 
             $table->index([DB::raw('name(64)')]);
         });

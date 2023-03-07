@@ -18,9 +18,9 @@ return new class () extends Migration {
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
             $table->unsignedSmallInteger('number_locations')->default(0);
-            $table->unsignedMediumInteger('number_locations_state_operational')->default(0);
-            $table->unsignedMediumInteger('number_locations_state_broken')->default(0);
-            $table->unsignedSmallInteger('number_empty_locations')->default(0);
+            $table->unsignedInteger('number_locations_state_operational')->default(0);
+            $table->unsignedInteger('number_locations_state_broken')->default(0);
+            $table->unsignedInteger('number_empty_locations')->default(0);
             $table->decimal('stock_value', 16)->default(0);
             $table->timestampsTz();
         });

@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create(
             'addresses',
             function (Blueprint $table) {
-                $table->id();
+                $table->increments('id');
                 $table->string('address_line_1', 255)->nullable();
                 $table->string('address_line_2', 255)->nullable();
                 $table->string('sorting_code')->nullable();
@@ -34,8 +34,9 @@ return new class () extends Migration {
         );
 
         Schema::create('addressables', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('address_id')->constrained();
+            $table->increments('id');
+            $table->unsignedInteger('address_id')->index();
+            $table->foreign('address_id')->references('id')->on('addresses');
             $table->morphs('addressable');
             $table->string('scope')->nullable()->index();
             $table->string('sub_scope')->nullable()->index();

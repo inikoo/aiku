@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('pickings', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
 
             $table->boolean('fulfilled')->default(false)->index();
 
@@ -21,21 +21,19 @@ return new class () extends Migration {
             $table->enum('status', ['processing', 'packed', 'partially_packed', 'out_of_stock', 'cancelled'])->index()->default('processing');
 
 
-            $table->unsignedBigInteger('delivery_note_id')->index();
+            $table->unsignedInteger('delivery_note_id')->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
 
-
-            $table->unsignedBigInteger('stock_movement_id')->nullable()->index();
+            $table->unsignedInteger('stock_movement_id')->nullable()->index();
             $table->foreign('stock_movement_id')->references('id')->on('stock_movements');
 
-
-            $table->unsignedBigInteger('stock_id')->index();
+            $table->unsignedInteger('stock_id')->index();
             $table->foreign('stock_id')->references('id')->on('stocks');
 
-            $table->unsignedBigInteger('picker_id')->nullable()->index();
+            $table->unsignedSmallInteger('picker_id')->nullable()->index();
             $table->foreign('picker_id')->references('id')->on('employees');
 
-            $table->unsignedBigInteger('packer_id')->nullable()->index();
+            $table->unsignedSmallInteger('packer_id')->nullable()->index();
             $table->foreign('packer_id')->references('id')->on('employees');
 
             $table->decimal('required', 16, 3);

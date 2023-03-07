@@ -13,8 +13,10 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('webpage_stats', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->foreignId('webpage_id')->constrained();
+            $table->increments('id');
+            $table->unsignedInteger('webpage_id');
+            $table->foreign('webpage_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
+
             $table->timestampsTz();
         });
     }

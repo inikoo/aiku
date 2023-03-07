@@ -13,11 +13,11 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->nullable()->index();
             $table->morphs('owner');
-            $table->unsignedBigInteger('current_historic_product_id')->index()->nullable();
-            $table->unsignedMediumInteger('shop_id')->nullable();
+            $table->unsignedInteger('current_historic_product_id')->index()->nullable();
+            $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
 
             $table->unsignedSmallInteger('family_id')->nullable();
@@ -37,14 +37,14 @@ return new class () extends Migration {
             $table->unsignedDecimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
 
 
-            $table->unsignedMediumInteger('available')->default(0)->nullable();
-            $table->unsignedBigInteger('image_id')->nullable();
+            $table->unsignedInteger('available')->default(0)->nullable();
+            $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('settings');
             $table->jsonb('data');
 
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

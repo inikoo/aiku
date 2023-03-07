@@ -13,10 +13,10 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('central_user_tenant', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('tenant_id')->index();
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedBigInteger('central_user_id')->index();
+            $table->unsignedSmallInteger('central_user_id')->index();
             $table->foreign('central_user_id')->references('id')->on('central_users')->onUpdate('cascade')->onDelete('cascade');
             $table->unique(['tenant_id', 'central_user_id']);
             $table->boolean('status')->default('true')->index();

@@ -16,8 +16,9 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('payment_service_provider_stats', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('payment_service_provider_id')->constrained();
+            $table->increments('id');
+            $table->unsignedInteger('payment_service_provider_id')->index();
+            $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
             $table->unsignedSmallInteger('number_accounts')->default(0);
 
             $table = $this->paymentStats($table);

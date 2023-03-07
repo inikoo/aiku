@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('central_users', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->string('username')->unique();
             $table->string('password');
             $table->string('email')->nullable();

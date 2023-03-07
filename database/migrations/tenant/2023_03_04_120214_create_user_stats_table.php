@@ -13,8 +13,9 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('user_stats', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('user_id')->index();
+            $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedSmallInteger('number_other_tenants')->default(0);
             $table->unsignedSmallInteger('number_other_active_tenants')->default(0);
             $table->timestampsTz();

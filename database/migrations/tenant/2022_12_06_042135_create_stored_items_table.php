@@ -13,13 +13,18 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('stored_items', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
             $table->boolean('status')->default('false')->comment('false for returned goods');
             $table->enum('state', ['booked','received','stored','returned']);
-            $table->foreignId('customer_id')->constrained();
-            $table->foreignId('location_id')->nullable()->constrained();
+
+
+            $table->unsignedInteger('customer_id')->index();
+            $table->foreign('customer_id')->references('id')->on('customers');
+
+            $table->unsignedInteger('location_id')->index();
+            $table->foreign('location_id')->references('id')->on('locations');
 
             $table->string('notes');
             $table->boolean('return_requested');
@@ -30,7 +35,7 @@ return new class () extends Migration {
             $table->dateTimeTz('returned_at')->nullable();
 
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

@@ -13,12 +13,12 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('fulfilment_order_items', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('shop_id')->index();
+            $table->increments('id');
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedBigInteger('customer_id')->index();
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedBigInteger('fulfilment_order_id')->index();
+            $table->unsignedInteger('fulfilment_order_id')->index();
             $table->foreign('fulfilment_order_id')->references('id')->on('fulfilment_orders');
 
             $table->enum('state', ['submitted', 'in-warehouse','packed', 'finalised', 'dispatched'])->default('in-process')->index();

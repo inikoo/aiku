@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('employees', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->string('slug')->unique();
             //these are no normal, hydra-table from contact
             $table->string('name', 256)->nullable()->index();
@@ -42,7 +42,7 @@ return new class () extends Migration {
             $table->jsonb('errors');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

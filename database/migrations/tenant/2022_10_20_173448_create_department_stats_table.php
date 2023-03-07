@@ -17,18 +17,18 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('department_id')->index();
             $table->foreign('department_id')->references('id')->on('departments');
 
-            $table->unsignedBigInteger('number_sub_departments')->default(0);
+            $table->unsignedSmallInteger('number_sub_departments')->default(0);
 
-            $table->unsignedBigInteger('number_families')->default(0);
+            $table->unsignedSmallInteger('number_families')->default(0);
             $familyStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
             foreach ($familyStates as $familyState) {
-                $table->unsignedBigInteger('number_families_state_'.str_replace('-', '_', $familyState))->default(0);
+                $table->unsignedSmallInteger('number_families_state_'.str_replace('-', '_', $familyState))->default(0);
             }
 
-            $table->unsignedBigInteger('number_products')->default(0);
+            $table->unsignedInteger('number_products')->default(0);
             $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
             foreach ($productStates as $productState) {
-                $table->unsignedBigInteger('number_products_state_'.str_replace('-', '_', $productState))->default(0);
+                $table->unsignedInteger('number_products_state_'.str_replace('-', '_', $productState))->default(0);
             }
 
             $table->timestampsTz();

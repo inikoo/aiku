@@ -13,9 +13,9 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('fulfilment_order_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('order_id')->index();
-            $table->foreign('order_id')->references('id')->on('orders');
+            $table->increments('id');
+            $table->unsignedInteger('fulfilment_order_id')->index();
+            $table->foreign('fulfilment_order_id')->references('id')->on('fulfilment_orders');
             $table->unsignedSmallInteger('number_items_at_creation')->default(0);
             $table->unsignedSmallInteger('number_cancelled_items')->default(0);
             $table->unsignedSmallInteger('number_add_up_items')->default(0);

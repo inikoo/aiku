@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('order_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('order_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('order_id')->index();
             $table->foreign('order_id')->references('id')->on('orders');
             $table->unsignedSmallInteger('number_items_at_creation')->default(0);
             $table->unsignedSmallInteger('number_cancelled_items')->default(0);

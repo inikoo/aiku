@@ -13,14 +13,14 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('tenant_fulfilment_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('tenant_id');
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedMediumInteger('number_customers_with_stocks')->default(0);
-            $table->unsignedMediumInteger('number_customers_with_active_stocks')->default(0);
-            $table->unsignedMediumInteger('number_customers_with_assets')->default(0);
-            $table->unsignedMediumInteger('number_assets')->default(0);
+            $table->unsignedInteger('number_customers_with_stocks')->default(0);
+            $table->unsignedInteger('number_customers_with_active_stocks')->default(0);
+            $table->unsignedInteger('number_customers_with_assets')->default(0);
+            $table->unsignedInteger('number_assets')->default(0);
 
             $table->timestampsTz();
         });

@@ -13,10 +13,10 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('services', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->nullable()->index();
-            $table->unsignedBigInteger('current_historic_service_id')->index()->nullable();
-            $table->unsignedMediumInteger('shop_id')->nullable();
+            $table->unsignedInteger('current_historic_service_id')->index()->nullable();
+            $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
 
             $table->boolean('status')->nullable()->index();
@@ -31,7 +31,7 @@ return new class () extends Migration {
 
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

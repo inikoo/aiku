@@ -13,13 +13,13 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('web_users', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->enum('type', ['web', 'api'])->index();
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
 
-            $table->unsignedBigInteger('customer_id')->index();
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
             $table->boolean('status')->default(true)->index();
@@ -39,7 +39,7 @@ return new class () extends Migration {
             $table->unique(['website_id', 'email']);
             $table->unique(['website_id', 'username']);
             $table->enum('web_login_version', ['current', 'au'])->index()->default('current');
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

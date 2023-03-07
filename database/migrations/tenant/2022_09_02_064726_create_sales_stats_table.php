@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('sales_stats', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->morphs('model');
             $table->string('scope');
 

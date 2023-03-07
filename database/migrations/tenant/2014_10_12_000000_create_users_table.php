@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('central_user_id');
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('central_user_id');
             $table->foreign('central_user_id')->references('id')->on('central.central_users');
             $table->string('username')->unique();
             $table->boolean('status')->default(true);
@@ -27,7 +27,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('password');
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

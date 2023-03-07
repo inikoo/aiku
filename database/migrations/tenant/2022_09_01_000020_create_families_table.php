@@ -13,18 +13,15 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('families', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->increments('id');
             $table->string('slug')->unique();
-
             $table->string('code')->index();
-
-            $table->unsignedMediumInteger('shop_id')->nullable();
+            $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-
-            $table->unsignedMediumInteger('department_id')->nullable();
+            $table->unsignedSmallInteger('department_id')->nullable();
             $table->foreign('department_id')->references('id')->on('departments');
 
-            $table->unsignedMediumInteger('root_department_id')->nullable();
+            $table->unsignedSmallInteger('root_department_id')->nullable();
             $table->foreign('root_department_id')->references('id')->on('departments');
 
             $table->enum('state', ['in-process', 'active', 'discontinuing', 'discontinued'])->nullable()->index();
@@ -34,7 +31,7 @@ return new class () extends Migration {
 
             $table->timestampstz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

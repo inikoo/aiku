@@ -13,19 +13,18 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('stock_movements', function (Blueprint $table) {
-            $table->id();
-
+            $table->increments('id');
             $table->enum('type', ['purchase','fulfilment-delivery', 'dispatch-return', 'return-picked', 'fulfilment-return','picked', 'location-transfer', 'found' ,'consumption','write-off'])->index();
             $table->enum('flow', ['in','out'])->index();
             $table->morphs('stockable');
-            $table->unsignedMediumInteger('location_id')->nullable()->index();
+            $table->unsignedInteger('location_id')->nullable()->index();
             $table->foreign('location_id')->references('id')->on('locations');
             $table->nullableMorphs('operation');
             $table->decimal('quantity', 16, 3);
             $table->decimal('amount', 16, 3);
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->unsignedBigInteger('source_id')->nullable()->nullable()->index();
+            $table->unsignedInteger('source_id')->nullable()->index();
         });
     }
 

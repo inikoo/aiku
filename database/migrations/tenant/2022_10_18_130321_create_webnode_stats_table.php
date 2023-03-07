@@ -14,7 +14,8 @@ return new class () extends Migration {
     {
         Schema::create('webnode_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->foreignId('webnode_id')->constrained();
+            $table->unsignedSmallInteger('webnode_id')->index();
+            $table->foreign('webnode_id')->references('id')->on('webnodes');
             $table->timestampsTz();
         });
     }

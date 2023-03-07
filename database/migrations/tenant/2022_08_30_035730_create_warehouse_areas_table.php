@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->string('name');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedSmallInteger('source_id')->nullable()->unique();
         });
     }
 

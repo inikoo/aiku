@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('trade_units', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
             $table->string('name', 255)->nullable();
@@ -23,12 +23,12 @@ return new class () extends Migration {
             $table->jsonb('dimensions')->nullable();
 
             $table->string('type')->default('piece')->index()->nullable()->comment('unit type');
-            $table->unsignedBigInteger('image_id')->nullable();
+            $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
 
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

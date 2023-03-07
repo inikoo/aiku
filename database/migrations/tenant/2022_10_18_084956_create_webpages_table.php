@@ -13,18 +13,20 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('webpages', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
             $webpageTypes = ['storefront', 'product', 'category', 'shopping-cart', 'checkout', 'store-info', 'engagement'];
             $table->enum('type', $webpageTypes)->index();
-            $table->foreignId('webnode_id')->constrained();
+            $table->unsignedInteger('webnode_id');
+            $table->foreign('webnode_id')->references('id')->on('webnodes')->onUpdate('cascade')->onDelete('cascade');
+
             $table->jsonb('components');
             $table->timestampsTz();
         });
 
         Schema::table('webnodes', function (Blueprint $table) {
-            $table->unsignedSmallInteger('main_webpage_id')->index()->nullable();
+            $table->unsignedInteger('main_webpage_id')->index()->nullable();
             $table->foreign('main_webpage_id')->references('id')->on('webpages');
         });
     }

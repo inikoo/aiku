@@ -13,11 +13,11 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('delivery_notes', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
-            $table->unsignedMediumInteger('shop_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedBigInteger('customer_id')->index();
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('number')->index();
             $table->enum('type', ['order', 'replacement'])->default('order')->index();
@@ -48,13 +48,13 @@ return new class () extends Migration {
             $table->foreign('shipment_id')->references('id')->on('shipments');
 
             $table->decimal('weight', 16)->nullable()->default(0);
-            $table->unsignedMediumInteger('number_stocks')->default(0);
-            $table->unsignedMediumInteger('number_picks')->default(0);
+            $table->unsignedSmallInteger('number_stocks')->default(0);
+            $table->unsignedSmallInteger('number_picks')->default(0);
 
 
-            $table->unsignedMediumInteger('picker_id')->nullable()->index()->comment('Main picker');
+            $table->unsignedSmallInteger('picker_id')->nullable()->index()->comment('Main picker');
             $table->foreign('picker_id')->references('id')->on('employees');
-            $table->unsignedMediumInteger('packer_id')->nullable()->index()->comment('Main packer');
+            $table->unsignedSmallInteger('packer_id')->nullable()->index()->comment('Main packer');
             $table->foreign('packer_id')->references('id')->on('employees');
 
             $table->dateTimeTz('date')->index();
@@ -75,7 +75,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

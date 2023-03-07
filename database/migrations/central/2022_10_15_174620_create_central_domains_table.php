@@ -13,11 +13,11 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('central_domains', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->string('slug')->unique();
-            $table->unsignedBigInteger('tenant_id');
+            $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedMediumInteger('website_id')->index();
+            $table->unsignedSmallInteger('website_id')->index();
             $table->string('domain')->index();
             $table->enum('state', ['created','iris-enabled'])->default('created');
             $table->timestampsTz();

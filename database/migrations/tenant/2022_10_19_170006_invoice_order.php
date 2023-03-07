@@ -15,9 +15,12 @@ return new class () extends Migration {
         Schema::create(
             'invoice_order',
             function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('order_id')->constrained();
-                $table->foreignId('invoice_id')->constrained();
+                $table->increments('id');
+                $table->unsignedInteger('order_id');
+                $table->foreign('order_id')->references('id')->on('orders');
+                $table->unsignedInteger('invoice_id');
+                $table->foreign('invoice_id')->references('id')->on('invoices');
+
                 $table->timestampsTz();
                 $table->unique(
                     [

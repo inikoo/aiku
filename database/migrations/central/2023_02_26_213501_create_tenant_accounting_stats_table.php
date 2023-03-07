@@ -16,19 +16,19 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('tenant_accounting_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('tenant_id');
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('number_payment_service_providers')->default(0);
-            $table->unsignedBigInteger('number_payment_accounts')->default(0);
+            $table->unsignedInteger('number_payment_service_providers')->default(0);
+            $table->unsignedInteger('number_payment_accounts')->default(0);
 
             $table = $this->paymentStats($table);
 
 
-            $table->unsignedBigInteger('number_invoices')->default(0);
-            $table->unsignedBigInteger('number_invoices_type_invoice')->default(0);
-            $table->unsignedBigInteger('number_invoices_type_refund')->default(0);
+            $table->unsignedInteger('number_invoices')->default(0);
+            $table->unsignedInteger('number_invoices_type_invoice')->default(0);
+            $table->unsignedInteger('number_invoices_type_refund')->default(0);
 
 
             $table->timestampsTz();

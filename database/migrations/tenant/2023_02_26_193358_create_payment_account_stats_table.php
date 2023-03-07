@@ -16,9 +16,9 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('payment_account_stats', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('payment_account_id')->constrained();
-
+            $table->increments('id');
+            $table->unsignedInteger('payment_account_id')->index();
+            $table->foreign('payment_account_id')->references('id')->on('payment_accounts');
             $table = $this->paymentStats($table);
 
 

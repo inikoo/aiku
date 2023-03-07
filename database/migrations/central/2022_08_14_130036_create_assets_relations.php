@@ -11,15 +11,10 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up(): void
     {
         Schema::create('country_language', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->unsignedSmallInteger('country_id');
             $table->unsignedSmallInteger('language_id');
             $table->unsignedSmallInteger('priority')->default(1)->index();
@@ -31,7 +26,7 @@ return new class () extends Migration {
         });
 
         Schema::create('country_timezone', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->unsignedSmallInteger('country_id');
             $table->unsignedSmallInteger('timezone_id');
             $table->unsignedSmallInteger('priority')->default(1)->index();
@@ -47,11 +42,7 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
+
     public function down(): void
     {
         Schema::table('countries', function (Blueprint $table) {

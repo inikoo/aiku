@@ -13,12 +13,11 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('stock_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('stock_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('stock_id')->index();
             $table->foreign('stock_id')->references('id')->on('stocks');
             $table->unsignedSmallInteger('number_locations')->default(0);
             $table->decimal('stock_value', 16)->default(0);
-
             $table->timestampsTz();
         });
     }

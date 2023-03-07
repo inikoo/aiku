@@ -16,12 +16,11 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('stock_family_id')->index();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
-            $table->unsignedBigInteger('number_stocks')->default(0);
+            $table->unsignedInteger('number_stocks')->default(0);
             $stockStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
             foreach ($stockStates as $stockState) {
-                $table->unsignedBigInteger('number_stocks_state_'.str_replace('-', '_', $stockState))->default(0);
+                $table->unsignedInteger('number_stocks_state_'.str_replace('-', '_', $stockState))->default(0);
             }
-
             $table->softDeletesTz();
             $table->timestampsTz();
         });

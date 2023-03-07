@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('tenant_sales_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('tenant_id');
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
 
 

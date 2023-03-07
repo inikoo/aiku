@@ -13,25 +13,22 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('invoices', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
-
             $table->string('number')->index();
 
-            $table->unsignedMediumInteger('shop_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-
-            $table->unsignedBigInteger('customer_id')->index();
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-
-            $table->unsignedBigInteger('order_id')->index();
+            $table->unsignedInteger('order_id')->index();
             $table->foreign('order_id')->references('id')->on('orders');
 
 
             $table->enum('type', ['invoice', 'refund'])->index();
 
-
             $table->unsignedSmallInteger('currency_id');
+            $table->foreign('currency_id')->references('id')->on('central.currencies');
             $table->decimal('exchange', 16, 6)->default(1);
 
             $table->decimal('net', 16)->default(0);
@@ -45,7 +42,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable();
+            $table->unsignedInteger('source_id')->index()->nullable();
         });
     }
 

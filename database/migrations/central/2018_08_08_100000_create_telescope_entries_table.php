@@ -5,43 +5,26 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * The database schema.
-     *
-     * @var \Illuminate\Database\Schema\Builder
-     */
     protected $schema;
 
-    /**
-     * Create a new migration instance.
-     *
-     * @return void
-     */
+
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
     }
 
-    /**
-     * Get the migration connection name.
-     *
-     * @return string|null
-     */
+
     public function getConnection()
     {
         return config('telescope.storage.database.connection');
     }
 
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+
     public function up()
     {
         $this->schema->create('telescope_entries', function (Blueprint $table) {
             $table->bigIncrements('sequence');
-            $table->uuid('uuid');
+            $table->uuid();
             $table->uuid('batch_id');
             $table->string('family_hash')->nullable();
             $table->boolean('should_display_on_index')->default(true);
@@ -74,11 +57,7 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
+
     public function down()
     {
         $this->schema->dropIfExists('telescope_entries_tags');

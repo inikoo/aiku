@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('agents', function (Blueprint $table) {
-            $table->mediumIncrements('id');
+            $table->smallIncrements('id');
             $table->boolean('status')->default(true)->index();
             $table->string('slug')->unique();
             $table->string('code')->index();
@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->string('contact_name', 256)->nullable()->index();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
-            $table->unsignedBigInteger('address_id')->nullable()->index();
+            $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
 
@@ -35,8 +35,9 @@ return new class () extends Migration {
 
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->uuid('global_id')->index()->nullable();
-            $table->unsignedBigInteger('source_id')->index()->nullable();
+            $table->unsignedSmallInteger('central_agent_id')->nullable();
+            $table->foreign('central_agent_id')->references('id')->on('central.central_agents');
+            $table->unsignedInteger('source_id')->index()->nullable();
         });
     }
 

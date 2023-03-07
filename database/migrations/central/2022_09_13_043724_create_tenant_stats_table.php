@@ -13,13 +13,10 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('tenant_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('tenant_id');
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
-
-
             $table->unsignedSmallInteger('number_employees')->default(0);
-
             $employeeStates = ['hired', 'working', 'left'];
             foreach ($employeeStates as $employeeState) {
                 $table->unsignedSmallInteger('number_employees_state_'.$employeeState)->default(0);

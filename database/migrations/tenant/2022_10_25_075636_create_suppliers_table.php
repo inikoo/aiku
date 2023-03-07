@@ -13,9 +13,9 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('suppliers', function (Blueprint $table) {
-            $table->mediumIncrements('id');
+            $table->increments('id');
             $table->enum('type', ['supplier', 'sub-supplier'])->index()->comment('sub-supplier: agents supplier');
-            $table->unsignedMediumInteger('agent_id')->nullable();
+            $table->unsignedSmallInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('agents');
 
             $table->boolean('status')->default(true)->index();
@@ -27,7 +27,7 @@ return new class () extends Migration {
             $table->string('contact_name', 256)->nullable()->index();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
-            $table->unsignedBigInteger('address_id')->nullable()->index();
+            $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
 
@@ -39,8 +39,10 @@ return new class () extends Migration {
 
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->uuid('global_id')->index()->nullable();
-            $table->unsignedBigInteger('source_id')->index()->nullable();
+            $table->unsignedSmallInteger('central_agent_id')->nullable();
+            $table->foreign('central_agent_id')->references('id')->on('central.central_suppliers');
+
+            $table->unsignedInteger('source_id')->index()->nullable();
         });
     }
 

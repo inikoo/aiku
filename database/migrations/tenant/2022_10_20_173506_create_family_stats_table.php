@@ -13,14 +13,14 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('family_stats', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->unsignedSmallInteger('family_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('family_id')->index();
             $table->foreign('family_id')->references('id')->on('families');
-            $table->unsignedBigInteger('number_products')->default(0);
+            $table->unsignedInteger('number_products')->default(0);
 
             $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
             foreach ($productStates as $productState) {
-                $table->unsignedBigInteger('number_products_state_'.str_replace('-', '_', $productState))->default(0);
+                $table->unsignedInteger('number_products_state_'.str_replace('-', '_', $productState))->default(0);
             }
 
             $table->timestampsTz();

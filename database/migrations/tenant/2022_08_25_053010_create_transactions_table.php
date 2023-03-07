@@ -13,12 +13,12 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('shop_id')->index();
+            $table->increments('id');
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedBigInteger('customer_id')->index();
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedBigInteger('order_id')->index();
+            $table->unsignedInteger('order_id')->index();
             $table->foreign('order_id')->references('id')->on('orders');
             $table->enum('state', ['submitted', 'in-warehouse', 'packed', 'finalised', 'no-dispatched', 'dispatched', 'cancelled'])->default('submitted')->nullable()->index();
 
@@ -26,11 +26,11 @@ return new class () extends Migration {
             $table->decimal('quantity', 16, 3);
             $table->decimal('discounts', 16)->default(0);
             $table->decimal('net', 16)->default(0);
-            $table->unsignedBigInteger('tax_band_id')->nullable()->index();
+            $table->unsignedSmallInteger('tax_band_id')->nullable()->index();
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

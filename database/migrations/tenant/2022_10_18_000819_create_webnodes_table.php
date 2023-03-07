@@ -13,11 +13,11 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('webnodes', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('slug')->unique();
             $table->enum('type', ['structural', 'content'])->index();
             $table->string('locus')->unique()->nullable()->comment('for structural type, identification od the node');
-            $table->unsignedMediumInteger('website_id')->index();
+            $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
             $table->timestampsTz();
         });

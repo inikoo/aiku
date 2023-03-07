@@ -13,18 +13,22 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('invoice_transactions', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
 
             $table->unsignedBigInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
 
-            $table->unsignedBigInteger('customer_id')->index();
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
-            $table->foreignId('invoice_id')->constrained();
-            $table->foreignId('order_id')->nullable()->constrained();
-            $table->foreignId('transaction_id')->nullable()->constrained();
 
+
+            $table->unsignedInteger('order_id');
+            $table->foreign('order_id')->references('id')->on('orders');
+            $table->unsignedInteger('invoice_id')->nullable();
+            $table->foreign('invoice_id')->references('id')->on('invoices');
+            $table->unsignedInteger('transaction_id')->nullable();
+            $table->foreign('transaction_id')->references('id')->on('transactions');
 
             $table->nullableMorphs('item');
 
@@ -34,14 +38,14 @@ return new class () extends Migration {
             $table->decimal('discounts', 16)->default(0);
 
             $table->decimal('tax', 16)->default(0);
-            $table->unsignedMediumInteger('tax_band_id')->nullable()->index();
+            $table->unsignedSmallInteger('tax_band_id')->nullable()->index();
             $table->jsonb('data');
 
             $table->timestampsTz();
             $table->softDeletesTz();
 
-            $table->unsignedBigInteger('source_id')->nullable()->index();
-            $table->unsignedBigInteger('source_alt_id')->nullable()->index();
+            $table->unsignedInteger('source_id')->nullable();
+            $table->unsignedBigInteger('source_alt_id')->nullable();
         });
     }
 

@@ -10,7 +10,10 @@ namespace App\Models\Central;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Central\Admin
@@ -33,6 +36,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 class Admin extends Model
 {
     use UsesLandlordConnection;
+    use HasSlug;
+    use SoftDeletes;
 
     protected $guarded = [];
 
@@ -43,6 +48,14 @@ class Admin extends Model
     protected $casts = [
         'data' => 'array',
     ];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(8);
+    }
 
     public function adminUser(): MorphOne
     {

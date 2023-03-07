@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('historic_service_stats', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('historic_service_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('historic_service_id')->index();
             $table->foreign('historic_service_id')->references('id')->on('historic_services');
             $table->timestampsTz();
         });

@@ -13,17 +13,17 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('supplier_products', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->enum('composition', ['unit', 'multiple', 'mix'])->default('unit');
 
             $table->string('slug')->nullable()->index();
 
-            $table->unsignedBigInteger('current_historic_supplier_product_id')->index()->nullable();
+            $table->unsignedInteger('current_historic_supplier_product_id')->index()->nullable();
 
-            $table->unsignedMediumInteger('supplier_id')->nullable();
+            $table->unsignedInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
 
-            $table->unsignedMediumInteger('agent_id')->nullable();
+            $table->unsignedSmallInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('agents');
 
 
@@ -38,8 +38,8 @@ return new class () extends Migration {
             $table->text('description')->nullable();
 
             $table->unsignedDecimal('cost', 18, 4)->comment('unit cost');
-            $table->unsignedMediumInteger('units_per_pack')->nullable()->comment('units per pack');
-            $table->unsignedMediumInteger('units_per_carton')->nullable()->comment('units per carton');
+            $table->unsignedInteger('units_per_pack')->nullable()->comment('units per pack');
+            $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
 
 
             $table->jsonb('settings');
@@ -48,8 +48,10 @@ return new class () extends Migration {
 
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->uuid('global_id')->index()->nullable();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->unsignedSmallInteger('central_supplier_product_id')->nullable();
+            $table->foreign('central_supplier_product_id')->references('id')->on('central.central_supplier_products');
+
+            $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }
 

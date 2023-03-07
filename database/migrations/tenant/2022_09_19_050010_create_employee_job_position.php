@@ -13,10 +13,10 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('employee_job_position', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('job_position_id')->index();
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('job_position_id')->index();
             $table->foreign('job_position_id')->references('id')->on('job_positions');
-            $table->unsignedBigInteger('employee_id')->index();
+            $table->unsignedSmallInteger('employee_id')->index();
             $table->foreign('employee_id')->references('id')->on('employees');
             $table->double('share')->nullable();
             $table->timestampsTz();

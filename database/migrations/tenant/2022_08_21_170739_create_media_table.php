@@ -13,8 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('media', function (Blueprint $table) {
-            $table->bigIncrements('id');
-
+            $table->increments('id');
             $table->morphs('model');
             $table->uuid()->nullable()->unique();
             $table->string('collection_name');
@@ -28,8 +27,7 @@ return new class () extends Migration {
             $table->json('custom_properties');
             $table->json('generated_conversions');
             $table->json('responsive_images');
-            $table->unsignedInteger('order_column')->nullable()->index();
-
+            $table->unsignedSmallInteger('order_column')->nullable()->index();
             $table->nullableTimestamps();
         });
     }

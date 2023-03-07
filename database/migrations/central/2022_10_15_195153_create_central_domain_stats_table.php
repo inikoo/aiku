@@ -13,8 +13,9 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('central_domain_stats', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('central_domain_id')->constrained();
+            $table->smallIncrements('id');
+            $table->unsignedSmallInteger('central_domain_id');
+            $table->foreign('central_domain_id')->references('id')->on('central.central_domains')->onDelete('cascade');
             $table->timestampsTz();
         });
     }

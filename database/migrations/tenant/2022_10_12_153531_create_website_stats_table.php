@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
-            $table->unsignedBigInteger('number_webpages')->default(0);
+            $table->unsignedInteger('number_webpages')->default(0);
             $table->timestampsTz();
         });
     }
