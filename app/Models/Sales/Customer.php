@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -79,6 +80,7 @@ class Customer extends Model
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
+    use Searchable;
 
     protected $casts = [
         'data'            => 'array',
