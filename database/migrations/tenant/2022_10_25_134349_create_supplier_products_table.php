@@ -49,7 +49,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedSmallInteger('central_supplier_product_id')->nullable();
-            $table->foreign('central_supplier_product_id')->references('id')->on('central.central_supplier_products');
+            //$table->foreign('central_supplier_product_id')->references('id')->on('central.central_supplier_products');
 
             $table->unsignedInteger('source_id')->nullable()->unique();
         });

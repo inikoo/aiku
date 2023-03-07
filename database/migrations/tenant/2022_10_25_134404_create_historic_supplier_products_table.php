@@ -32,7 +32,7 @@ return new class () extends Migration {
             $table->foreign('currency_id')->references('id')->on('central.currencies');
 
             $table->unsignedSmallInteger('central_historic_supplier_product_id')->nullable();
-            $table->foreign('central_historic_supplier_product_id')->references('id')->on('central.central_historic_supplier_products');
+            //$table->foreign('central_historic_supplier_product_id')->references('id')->on('central.central_historic_supplier_products');
 
 
             $table->unsignedInteger('source_id')->nullable()->unique();
