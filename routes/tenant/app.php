@@ -61,6 +61,9 @@ Route::middleware([
             ->name("products.")
             ->group(__DIR__."/products.php");
 
+        Route::prefix("search")
+            ->name("search.")
+            ->group(__DIR__."/search.php");
         Route::prefix("osm")
             ->name("osm.")
             ->group(__DIR__."/osm.php");
