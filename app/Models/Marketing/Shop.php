@@ -74,14 +74,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Service> $services
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @property-read Website|null $website
- *
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop onlyTrashed()
  * @method static Builder|Shop query()
  * @method static Builder|Shop withTrashed()
  * @method static Builder|Shop withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class Shop extends Model

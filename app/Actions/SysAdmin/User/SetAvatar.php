@@ -34,7 +34,7 @@ class SetAvatar
     public function handle(User $user): User
     {
         try {
-            $seed=$user->global_id;
+            $seed=$user->central_user_id;
             $user->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
                 ->preservingOriginal()
                 ->toMediaCollection('profile');
@@ -80,7 +80,7 @@ class SetAvatar
              * @throws \Spatie\TemporaryDirectory\Exceptions\PathAlreadyExists
              * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
              * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
-             */ 
+             */
             function () use ($command) {
                 $user = User::find($command->argument('user_id'));
                 if (!$user) {

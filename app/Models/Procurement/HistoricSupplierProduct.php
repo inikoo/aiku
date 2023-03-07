@@ -27,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $units_per_carton
  * @property string|null $cbm
  * @property int|null $currency_id
+ * @property int|null $central_historic_supplier_product_id
  * @property int|null $source_id
  * @property-read HistoricProductStats|null $stats
  * @method static Builder|HistoricSupplierProduct newModelQuery()

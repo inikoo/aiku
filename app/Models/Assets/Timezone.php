@@ -27,11 +27,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assets\Country> $countries
- *
  * @method static Builder|Timezone newModelQuery()
  * @method static Builder|Timezone newQuery()
  * @method static Builder|Timezone query()
- *
  * @mixin \Eloquent
  */
 class Timezone extends Model

@@ -36,14 +36,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Shipment> $shipments
- *
  * @method static Builder|Shipper newModelQuery()
  * @method static Builder|Shipper newQuery()
  * @method static Builder|Shipper onlyTrashed()
  * @method static Builder|Shipper query()
  * @method static Builder|Shipper withTrashed()
  * @method static Builder|Shipper withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class Shipper extends Model

@@ -64,14 +64,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Dispatch\Shipment|null $shipments
  * @property-read Shop $shop
  * @property-read \App\Models\Dispatch\DeliveryNoteStats|null $stats
- *
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
  * @method static Builder|DeliveryNote onlyTrashed()
  * @method static Builder|DeliveryNote query()
  * @method static Builder|DeliveryNote withTrashed()
  * @method static Builder|DeliveryNote withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class DeliveryNote extends Model

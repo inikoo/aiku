@@ -19,18 +19,21 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Central\Admin
  *
  * @property int $id
+ * @property string $slug
  * @property string $code
  * @property string $name
  * @property string $email
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Central\AdminUser|null $adminUser
- *
  * @method static Builder|Admin newModelQuery()
  * @method static Builder|Admin newQuery()
+ * @method static Builder|Admin onlyTrashed()
  * @method static Builder|Admin query()
- *
+ * @method static Builder|Admin withTrashed()
+ * @method static Builder|Admin withoutTrashed()
  * @mixin \Eloquent
  */
 class Admin extends Model

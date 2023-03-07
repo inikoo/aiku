@@ -32,14 +32,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Central\AdminUser|null $adminUser
  * @property-read \App\Models\Central\CentralDomainStats|null $stats
  * @property-read \App\Models\Central\Tenant $tenant
- *
  * @method static Builder|CentralDomain newModelQuery()
  * @method static Builder|CentralDomain newQuery()
  * @method static Builder|CentralDomain onlyTrashed()
  * @method static Builder|CentralDomain query()
  * @method static Builder|CentralDomain withTrashed()
  * @method static Builder|CentralDomain withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class CentralDomain extends Model

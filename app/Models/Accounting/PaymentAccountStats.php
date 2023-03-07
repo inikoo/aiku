@@ -44,11 +44,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
- *
  * @method static Builder|PaymentAccountStats newModelQuery()
  * @method static Builder|PaymentAccountStats newQuery()
  * @method static Builder|PaymentAccountStats query()
- *
  * @mixin \Eloquent
  */
 class PaymentAccountStats extends Model

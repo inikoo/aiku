@@ -22,23 +22,21 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property bool $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $service_id
  * @property string $price unit price
  * @property string|null $code
  * @property string|null $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\Service $product
  * @property-read \App\Models\Marketing\HistoricServiceStats|null $stats
- *
  * @method static Builder|HistoricService newModelQuery()
  * @method static Builder|HistoricService newQuery()
  * @method static Builder|HistoricService onlyTrashed()
  * @method static Builder|HistoricService query()
  * @method static Builder|HistoricService withTrashed()
  * @method static Builder|HistoricService withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class HistoricService extends Model

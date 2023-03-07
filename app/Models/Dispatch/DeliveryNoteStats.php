@@ -21,11 +21,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Dispatch\DeliveryNote $deliveryNote
- *
  * @method static Builder|DeliveryNoteStats newModelQuery()
  * @method static Builder|DeliveryNoteStats newQuery()
  * @method static Builder|DeliveryNoteStats query()
- *
  * @mixin \Eloquent
  */
 class DeliveryNoteStats extends Model

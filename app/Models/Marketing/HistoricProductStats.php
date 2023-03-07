@@ -18,11 +18,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $historic_product_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static Builder|HistoricProductStats newModelQuery()
  * @method static Builder|HistoricProductStats newQuery()
  * @method static Builder|HistoricProductStats query()
- *
  * @mixin \Eloquent
  */
 class HistoricProductStats extends Model

@@ -23,11 +23,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static Builder|Language newModelQuery()
  * @method static Builder|Language newQuery()
  * @method static Builder|Language query()
- *
  * @mixin \Eloquent
  */
 class Language extends Model

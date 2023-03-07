@@ -20,8 +20,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $id
  * @property int $shop_id
  * @property int $customer_id
- * @property int $invoice_id
- * @property int|null $order_id
+ * @property int $order_id
+ * @property int|null $invoice_id
  * @property int|null $transaction_id
  * @property string|null $item_type
  * @property int|null $item_id

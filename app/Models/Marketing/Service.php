@@ -41,14 +41,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ServiceStats|null $stats
- *
  * @method static Builder|Service newModelQuery()
  * @method static Builder|Service newQuery()
  * @method static Builder|Service onlyTrashed()
  * @method static Builder|Service query()
  * @method static Builder|Service withTrashed()
  * @method static Builder|Service withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class Service extends Model

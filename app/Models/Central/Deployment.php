@@ -21,11 +21,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static Builder|Deployment newModelQuery()
  * @method static Builder|Deployment newQuery()
  * @method static Builder|Deployment query()
- *
  * @mixin \Eloquent
  */
 class Deployment extends Model

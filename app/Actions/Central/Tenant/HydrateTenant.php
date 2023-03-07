@@ -248,8 +248,8 @@ class HydrateTenant extends HydrateModel
 
             'number_agents'               => Agent::count(),
             'number_active_agents'        => Agent::where('status', true)->count(),
-            'number_active_tenant_agents' => Agent::where('status', true)->whereNull('global_id')->count(),
-            'number_active_global_agents' => Agent::where('status', true)->whereNotNull('global_id')->count(),
+            'number_active_tenant_agents' => Agent::where('status', true)->whereNull('central_agent_id')->count(),
+            'number_active_global_agents' => Agent::where('status', true)->whereNotNull('central_agent_id')->count(),
 
         ];
 

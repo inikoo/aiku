@@ -56,14 +56,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\TradeUnit> $tradeUnits
- *
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
  * @method static Builder|Product onlyTrashed()
  * @method static Builder|Product query()
  * @method static Builder|Product withTrashed()
  * @method static Builder|Product withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class Product extends Model

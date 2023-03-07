@@ -42,14 +42,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\DepartmentStats|null $stats
- *
  * @method static Builder|Department newModelQuery()
  * @method static Builder|Department newQuery()
  * @method static Builder|Department onlyTrashed()
  * @method static Builder|Department query()
  * @method static Builder|Department withTrashed()
  * @method static Builder|Department withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class Department extends Model

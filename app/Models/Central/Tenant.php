@@ -51,13 +51,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Central\TenantStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
- *
  * @method static TenantCollection<int, static> all($columns = ['*'])
  * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()
  * @method static Builder|Tenant query()
- *
  * @mixin \Eloquent
  */
 class Tenant extends SpatieTenant

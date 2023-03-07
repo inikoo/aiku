@@ -20,11 +20,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $central_user_id
  * @property bool $status
  * @property-read \App\Models\Central\Tenant $tenant
- *
  * @method static Builder|CentralUserTenant newModelQuery()
  * @method static Builder|CentralUserTenant newQuery()
  * @method static Builder|CentralUserTenant query()
- *
  * @mixin \Eloquent
  */
 class CentralUserTenant extends Pivot

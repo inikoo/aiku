@@ -20,11 +20,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Marketing\Product $product
- *
  * @method static Builder|ProductStats newModelQuery()
  * @method static Builder|ProductStats newQuery()
  * @method static Builder|ProductStats query()
- *
  * @mixin \Eloquent
  */
 class ProductStats extends Model

@@ -33,14 +33,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentServiceProviderStats|null $stats
- *
  * @method static Builder|PaymentServiceProvider newModelQuery()
  * @method static Builder|PaymentServiceProvider newQuery()
  * @method static Builder|PaymentServiceProvider onlyTrashed()
  * @method static Builder|PaymentServiceProvider query()
  * @method static Builder|PaymentServiceProvider withTrashed()
  * @method static Builder|PaymentServiceProvider withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class PaymentServiceProvider extends Model

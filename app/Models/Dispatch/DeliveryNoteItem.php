@@ -18,8 +18,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property int $delivery_note_id
- * @property int|null $stock_id
- * @property int|null $transaction_id
+ * @property int $stock_id
+ * @property int $transaction_id
  * @property int|null $picking_id
  * @property string $state
  * @property string $status
@@ -31,14 +31,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Picking> $pickings
- *
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()
  * @method static Builder|DeliveryNoteItem onlyTrashed()
  * @method static Builder|DeliveryNoteItem query()
  * @method static Builder|DeliveryNoteItem withTrashed()
  * @method static Builder|DeliveryNoteItem withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class DeliveryNoteItem extends Model

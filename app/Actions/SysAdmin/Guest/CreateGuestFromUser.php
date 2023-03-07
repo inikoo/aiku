@@ -26,7 +26,7 @@ class CreateGuestFromUser
     use WithTenantsArgument;
 
 
-    public string $commandSignature = 'create:guest-existing-user {global_id} {name} {tenants?*}  {--r|roles=*}';
+    public string $commandSignature = 'create:guest-existing-user {username} {name} {tenants?*}  {--r|roles=*}';
 
     public function getCommandDescription(): string
     {
@@ -56,7 +56,7 @@ class CreateGuestFromUser
 
     public function asCommand(Command $command): int
     {
-        $centralUser = CentralUser::where('global_id', $command->argument('global_id'))->firstOrFail();
+        $centralUser = CentralUser::where('username', $command->argument('username'))->firstOrFail();
 
 
         $tenants  = $this->getTenants($command);

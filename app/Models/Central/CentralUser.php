@@ -27,11 +27,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Central\Tenant> $tenants
- *
  * @method static Builder|CentralUser newModelQuery()
  * @method static Builder|CentralUser newQuery()
  * @method static Builder|CentralUser query()
- *
  * @mixin \Eloquent
  */
 class CentralUser extends Model

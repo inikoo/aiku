@@ -15,7 +15,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property bool $status false for returned goods
  * @property string $state
  * @property int $customer_id
- * @property int|null $location_id
+ * @property int $location_id
  * @property string $notes
  * @property bool $return_requested
  * @property \Illuminate\Support\Carbon|null $created_at

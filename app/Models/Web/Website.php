@@ -30,11 +30,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property array $data
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\Webnode> $webnodes
+ * @property int|null $current_layout_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $launched_at
  * @property string|null $closed_at
- * @property int|null $current_layout_id
  * @property string|null $deleted_at
  * @property int|null $source_id
  * @property-read Shop $shop

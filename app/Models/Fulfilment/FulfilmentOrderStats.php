@@ -16,7 +16,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * App\Models\Fulfilment\FulfilmentOrderStats
  *
  * @property int $id
- * @property int $order_id
+ * @property int $fulfilment_order_id
  * @property int $number_items_at_creation
  * @property int $number_cancelled_items
  * @property int $number_add_up_items

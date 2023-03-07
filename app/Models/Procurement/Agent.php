@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null $global_id
+ * @property int|null $central_agent_id
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read Model|\Eloquent $owner

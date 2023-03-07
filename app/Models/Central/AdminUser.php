@@ -42,14 +42,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Model|\Eloquent $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read Model|\Eloquent $userable
- *
  * @method static Builder|AdminUser newModelQuery()
  * @method static Builder|AdminUser newQuery()
  * @method static Builder|AdminUser onlyTrashed()
  * @method static Builder|AdminUser query()
  * @method static Builder|AdminUser withTrashed()
  * @method static Builder|AdminUser withoutTrashed()
- *
  * @mixin Eloquent
  */
 class AdminUser extends Authenticatable

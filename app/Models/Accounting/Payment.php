@@ -24,8 +24,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Payments\Payment
  *
  * @property int $id
- * @property int $payment_account_id
  * @property int $shop_id
+ * @property int $payment_account_id
  * @property int $customer_id
  * @property string $reference
  * @property string $slug
@@ -47,14 +47,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
- *
  * @method static Builder|Payment newModelQuery()
  * @method static Builder|Payment newQuery()
  * @method static Builder|Payment onlyTrashed()
  * @method static Builder|Payment query()
  * @method static Builder|Payment withTrashed()
  * @method static Builder|Payment withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class Payment extends Model
