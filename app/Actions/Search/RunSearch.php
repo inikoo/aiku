@@ -12,22 +12,18 @@ use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
-use Throwable;
 
 class RunSearch extends InertiaAction
 {
-    /**
-     * @throws Throwable
-     */
-    public function handle(Request $request): AnonymousResourceCollection
+    public function handle(String $q): AnonymousResourceCollection
     {
-        $q = $request->get('q');
-
-        throw_if(is_null($q), BadRequestException::class);
-
-        $items = Product::search($q)->get();
+        $items = Product::search($q)->paginate(2);
 
         return ProductResource::collection($items);
+    }
+
+    public function asController(Request $request): AnonymousResourceCollection
+    {
+        return $this->handle($request->get('q'));
     }
 }

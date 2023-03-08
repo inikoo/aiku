@@ -8,6 +8,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\Search\RunSearch;
 use App\Actions\UI\GetLayout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -78,6 +79,7 @@ class HandleInertiaRequests extends Middleware
                         'location' => $request->url(),
                     ]);
                 },
+                'searchResults' => RunSearch::run("jbb-01")
 
             ]
         );

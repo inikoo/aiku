@@ -73,7 +73,7 @@ import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import SearchBar from '@/Components/SearchBar.vue';
 
-const showComponent = ref(false)
+const showSearchDialog = ref(true)
 
 </script>
 
@@ -101,12 +101,12 @@ const showComponent = ref(false)
 
                         <div class="flex items-center">
 
-                            <button v-on:click="showComponent = !showComponent"
+                            <button v-on:click="showSearchDialog = !showSearchDialog"
                                     class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                                 <span class="sr-only">{{ trans("Search") }}</span>
                                 <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg">
                                 </font-awesome-icon>
-                                <SearchBar v-if="showComponent" v-on:close="showComponent = false">
+                                <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false">
                                 </SearchBar>
                             </button>
 

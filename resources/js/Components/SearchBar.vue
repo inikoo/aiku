@@ -15,6 +15,9 @@ import {
     TransitionChild,
     TransitionRoot,
 } from '@headlessui/vue'
+import { usePage } from '@inertiajs/vue3'
+
+const searchResults = computed(() => usePage().props.searchResults)
 
 const people = [
     {
@@ -84,15 +87,14 @@ function handleKeyDown() {
                                 <input type="text" v-model="searchInput" @input="handleSearchInput" @keydown="handleKeyDown"
                                 class="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." @change="query = $event.target.value">
                             </div>
-
                             <ComboboxOptions v-if="query === '' || filteredPeople.length > 0" class="flex divide-x divide-gray-100" as="div" static hold>
                                 <div :class="['max-h-96 min-w-0 flex-auto scroll-py-4 overflow-y-auto px-6 py-4', activeOption && 'sm:h-96']">
                                     <h2 v-if="query === ''" class="mt-2 mb-4 text-xs font-semibold text-gray-500">Recent searches</h2>
                                     <div hold class="-mx-2 text-sm text-gray-700">
-                                        <ComboboxOption v-for="person in query === '' ? recent : filteredPeople" :key="person.id" :value="person" as="template" v-slot="{ active }">
+                                        <ComboboxOption v-for="item in searchResults.data" :key="item.id" :value="item" as="template" v-slot="{ active }">
                                             <div :class="['group flex cursor-default select-none items-center rounded-md p-2', active && 'bg-gray-100 text-gray-900']">
-                                                <img :src="person.imageUrl" alt="" class="h-6 w-6 flex-none rounded-full" />
-                                                <span class="ml-3 flex-auto truncate">{{ person.name }}</span>
+                                                <img :src="item.imageUrl" alt="" class="h-6 w-6 flex-none rounded-full" />
+                                                <span class="ml-3 flex-auto truncate">{{ item.name }}</span>
                                                 <ChevronRightIcon v-if="active" class="ml-3 h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
                                             </div>
                                         </ComboboxOption>
