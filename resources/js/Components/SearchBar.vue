@@ -8,7 +8,6 @@
 import { computed, ref } from 'vue'
 import {
     Combobox,
-    ComboboxInput,
     ComboboxOptions,
     ComboboxOption,
     Dialog,
@@ -48,6 +47,24 @@ const filteredPeople = computed(() =>
 function onSelect(person) {
     window.location = person.url
 }
+
+const searchInput = ref('');
+
+let timeoutId;
+
+function handleSearchInput() {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+        console.log(searchInput.value);
+    }, 1000);
+}
+
+function handleKeyDown() {
+    clearTimeout(timeoutId);
+}
+
+
+
 </script>
 
 
@@ -64,7 +81,8 @@ function onSelect(person) {
                         <Combobox v-slot="{ activeOption }" @update:modelValue="onSelect">
                             <div class="relative">
                                 <FontAwesomeIcon class="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-gray-400" aria-hidden="true" icon="fa-regular fa-search" size="lg"/>
-                                <ComboboxInput class="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." @change="query = $event.target.value" />
+                                <input type="text" v-model="searchInput" @input="handleSearchInput" @keydown="handleKeyDown"
+                                class="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." @change="query = $event.target.value">
                             </div>
 
                             <ComboboxOptions v-if="query === '' || filteredPeople.length > 0" class="flex divide-x divide-gray-100" as="div" static hold>
