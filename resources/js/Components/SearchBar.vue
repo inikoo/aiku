@@ -56,7 +56,7 @@ function handleSearchInput() {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
         console.log(searchInput.value);
-    }, 1000);
+    }, 200);
 }
 
 function handleKeyDown() {
