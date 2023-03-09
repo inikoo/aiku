@@ -26,9 +26,7 @@ const open = ref(true)
 const query = ref('')
 
 
-function onSelect(person) {
-    window.location = person.url
-}
+
 
 const searchInput = ref('');
 
@@ -76,7 +74,6 @@ function handleKeyDown() {
                             </div>
                             <ComboboxOptions  class="flex divide-x divide-gray-100" as="div" static hold>
                                 <div :class="['max-h-96 min-w-0 flex-auto scroll-py-4 overflow-y-auto px-6 py-4', activeOption && 'sm:h-96']">
-                                    <h2 v-if="query === ''" class="mt-2 mb-4 text-xs font-semibold text-gray-500">Recent searches</h2>
                                     <div hold class="-mx-2 text-sm text-gray-700">
                                         <ComboboxOption v-for="item in searchResults.data" :key="item.id" :value="item" as="template" v-slot="{ active }">
                                             <div :class="['group flex cursor-default select-none items-center rounded-md p-2', active && 'bg-gray-100 text-gray-900']">
