@@ -73,7 +73,7 @@ import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import SearchBar from '@/Components/SearchBar.vue';
 
-const showSearchDialog = ref(true)
+const showSearchDialog = ref(false)
 
 </script>
 
