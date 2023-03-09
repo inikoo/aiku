@@ -26,4 +26,8 @@ class RunSearch extends InertiaAction
     {
         return $this->handle($request->get('q'));
     }
+    public function htmlResponse($items)
+    {
+        return back();
+    }
 }

@@ -16,6 +16,7 @@ import {
     TransitionRoot,
 } from '@headlessui/vue'
 import { usePage } from '@inertiajs/vue3'
+import {router} from "@inertiajs/vue3";
 
 const searchResults = computed(() => usePage().props.searchResults)
 
@@ -59,6 +60,14 @@ function handleSearchInput() {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
         console.log(searchInput.value);
+        router.get(
+            route('search.run', {
+                _query: {
+                    q: 'jbb-03'
+                }
+            })
+        );
+
     }, 200);
 }
 
