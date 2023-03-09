@@ -9,6 +9,8 @@
 namespace App\Http\Middleware;
 
 use App\Actions\UI\GetLayout;
+use App\Http\Resources\Marketing\ProductResource;
+use App\Models\Marketing\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
@@ -67,18 +69,30 @@ class HandleInertiaRequests extends Middleware
             parent::share($request),
             $firstLoadOnlyProps,
             [
-                'auth'  => [
+                'auth'          => [
                     'user' => $request->user() ? $request->user()->only('username', 'email', 'avatar') : null,
                 ],
-                'flash' => [
+                'flash'         => [
                     'notification' => fn () => $request->session()->get('notification')
                 ],
-                'ziggy' => function () use ($request) {
+
+                'ziggy'         => function () use ($request) {
                     return array_merge((new Ziggy())->toArray(), [
                         'location' => $request->url(),
                     ]);
                 },
-                'searchResults' => ['data' => []]
+
+                'searchQuery'       => fn () => $request->session()->get('fastSearchQuery'),
+                'searchResults'     => function () use ($request) {
+                    $query=$request->session()->get('fastSearchQuery');
+                    if ($query) {
+                        $items = Product::search($query)->paginate(5);
+                        return ProductResource::collection($items);
+                    } else {
+                        return ['data' => []];
+                    }
+                },
+
 
             ]
         );

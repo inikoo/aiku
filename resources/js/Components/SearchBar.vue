@@ -17,6 +17,7 @@ import {
 } from '@headlessui/vue'
 import { usePage } from '@inertiajs/vue3'
 import {router} from "@inertiajs/vue3";
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 const searchResults = computed(() => usePage().props.searchResults)
 
@@ -63,7 +64,7 @@ function handleSearchInput() {
         router.get(
             route('search.run', {
                 _query: {
-                    q: 'jbb-03'
+                    q: searchInput.value
                 }
             })
         );
@@ -104,12 +105,11 @@ function handleKeyDown() {
                                             <div :class="['group flex cursor-default select-none items-center rounded-md p-2', active && 'bg-gray-100 text-gray-900']">
                                                 <img :src="item.imageUrl" alt="" class="h-6 w-6 flex-none rounded-full" />
                                                 <span class="ml-3 flex-auto truncate">{{ item.name }}</span>
-                                                <ChevronRightIcon v-if="active" class="ml-3 h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
+                                                <FontAwesomeIcon icon="fa-regular fa-chevron-right" v-if="active" class="ml-3 h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
                                             </div>
                                         </ComboboxOption>
                                     </div>
                                 </div>
-
                                 <div v-if="activeOption" class="hidden h-96 w-1/2 flex-none flex-col divide-y divide-gray-100 overflow-y-auto sm:flex">
                                     <div class="flex-none p-6 text-center">
                                         <img :src="activeOption.imageUrl" alt="" class="mx-auto h-16 w-16 rounded-full" />
@@ -141,7 +141,7 @@ function handleKeyDown() {
                             </ComboboxOptions>
 
                             <div v-if="query !== '' && filteredPeople.length === 0" class="py-14 px-6 text-center text-sm sm:px-14">
-                                <UsersIcon class="mx-auto h-6 w-6 text-gray-400" aria-hidden="true" />
+
                                 <p class="mt-4 font-semibold text-gray-900">No people found</p>
                                 <p class="mt-2 text-gray-500">We couldn’t find anything with that term. Please try again.</p>
                             </div>
