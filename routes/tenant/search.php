@@ -7,6 +7,10 @@
 
 
 use App\Actions\Search\RunSearch;
+use App\Actions\Search\ShowSearch;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', RunSearch::class)->name('run');
+//Route::get('/', RunSearch::class)->name('run');
+
+
+Route::get('/', ShowSearch::class)->name('show');
