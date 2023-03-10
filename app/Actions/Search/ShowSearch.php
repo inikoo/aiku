@@ -20,6 +20,8 @@ class ShowSearch extends InertiaAction
     use WithInertia;
     use AsController;
 
+
+
     public function handle(): Response
     {
         return Inertia::render('Search/Search');
