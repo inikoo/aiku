@@ -4,6 +4,12 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
+<script setup>
+import LanguageChooser from '@/Components/Personalisation/LanguageChooser.vue'
+
+
+</script>
+
 <template>
     <footer class="bg-white">
         <div class="mx-auto max-w-7xl py-12 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
@@ -17,8 +23,4 @@
     </footer>
 </template>
 
-<script setup>
-import LanguageChooser from '@/Components/Personalisation/LanguageChooser.vue'
 
-
-</script>

@@ -4,6 +4,24 @@
   -  Copyright (c) 2022, Inikoo
   -  Version 4.0
   -->
+<script setup>
+import { ref } from 'vue'
+
+import {useForm} from '@inertiajs/vue3';
+import ValidationErrors from '@/Components/ValidationErrors.vue';
+
+const formAccessCode = useForm({
+    code: '',
+});
+const submitAccessCode = () => {
+    formAccessCode.post(route('setup.access-code'), {
+
+    });
+};
+const showInstructions = ref(null)
+
+
+</script>
 
 <template>
 
@@ -40,21 +58,3 @@
 
 </template>
 
-<script setup>
-import { ref } from 'vue'
-
-import {useForm} from '@inertiajs/vue3';
-import ValidationErrors from '@/Components/ValidationErrors.vue';
-
-const formAccessCode = useForm({
-                                   code: '',
-                     });
-const submitAccessCode = () => {
-    formAccessCode.post(route('setup.access-code'), {
-
-    });
-};
-const showInstructions = ref(null)
-
-
-</script>

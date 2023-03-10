@@ -5,6 +5,23 @@
   -  Version 4.0
   -->
 
+<script setup>
+
+import {useForm} from '@inertiajs/vue3';
+import ValidationErrors from '@/Components/ValidationErrors.vue';
+
+const formUsername = useForm({
+    username: '',
+});
+const submitUsername = () => {
+    formUsername.post(route('setup.username'), {
+
+    });
+};
+
+
+</script>
+
 <template >
 
 
@@ -32,19 +49,3 @@
 
 </template>
 
-<script setup>
-
-import {useForm} from '@inertiajs/vue3';
-import ValidationErrors from '@/Components/ValidationErrors.vue';
-
-const formUsername = useForm({
-                         username: '',
-                     });
-const submitUsername = () => {
-    formUsername.post(route('setup.username'), {
-
-    });
-};
-
-
-</script>

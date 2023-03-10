@@ -3,6 +3,53 @@
   -  Created: Fri, 09 Sept 2022 00:59:50 Malaysia Time, Kuala Lumpur, Malaysia
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
+<script setup>
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {faLanguage} from '@/../private/pro-regular-svg-icons';
+
+
+
+import {getActiveLanguage, loadLanguageAsync, wTrans} from 'laravel-vue-i18n';
+import {usePage} from '@inertiajs/vue3';
+import VueCookies from 'vue-cookies';
+import {Inertia} from '@inertiajs/inertia';
+
+library.add(faLanguage);
+
+import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/vue';
+import {ref} from 'vue';
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+const languageCode = ref(getActiveLanguage());
+
+const languages = [
+    {
+        name      : wTrans('English'),
+        nativeName: 'English',
+        code      : 'en',
+    },
+    {
+        name      : wTrans('Spanish'),
+        nativeName: 'Español',
+        code      : 'es',
+    },
+
+];
+
+function setLanguage(code) {
+    open.value = false;
+    loadLanguageAsync(code);
+    languageCode.value = code;
+    VueCookies.set('language', code, '1y');
+    if (usePage().props.auth.user) {
+        Inertia.patch('/profile', {
+            language: code,
+        });
+
+    }
+
+}
+</script>
 
 <template>
     <Menu as="div" class="relative inline-block text-left">
@@ -38,49 +85,3 @@
     </Menu>
 </template>
 
-<script setup>
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {faLanguage} from '@/../private/pro-regular-svg-icons';
-
-
-
-import {getActiveLanguage, loadLanguageAsync, wTrans} from 'laravel-vue-i18n';
-import {usePage} from '@inertiajs/vue3';
-import VueCookies from 'vue-cookies';
-import {Inertia} from '@inertiajs/inertia';
-
-library.add(faLanguage);
-
-import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/vue';
-import {ref} from 'vue';
-
-const languageCode = ref(getActiveLanguage());
-
-const languages = [
-    {
-        name      : wTrans('English'),
-        nativeName: 'English',
-        code      : 'en',
-    },
-    {
-        name      : wTrans('Spanish'),
-        nativeName: 'Español',
-        code      : 'es',
-    },
-
-];
-
-function setLanguage(code) {
-    open.value = false;
-    loadLanguageAsync(code);
-    languageCode.value = code;
-    VueCookies.set('language', code, '1y');
-    if (usePage().props.auth.user) {
-        Inertia.patch('/profile', {
-            language: code,
-        });
-
-    }
-
-}
-</script>

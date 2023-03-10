@@ -1,3 +1,79 @@
+<script setup>
+
+import PerPageSelector from '@/Components/Table/PerPageSelector.vue'
+
+import { computed } from "vue";
+
+
+const props = defineProps({
+    onClick: {
+        type: Function,
+        required: false,
+    },
+    perPageOptions: {
+        type: Array,
+        default() {
+            return () => [15, 30, 50, 100];
+        },
+        required: false
+    },
+    onPerPageChange: {
+        type: Function,
+        default() {
+            return () => {};
+        },
+        required: false,
+    },
+    hasData: {
+        type: Boolean,
+        required: true,
+    },
+    meta: {
+        type: Object,
+        required: false,
+    }
+});
+
+
+
+const hasLinks = computed(() => {
+    if(!("links" in pagination.value)) {
+        return false;
+    }
+
+    return pagination.value.links.length > 0;
+});
+
+const hasPagination = computed(() => {
+    return Object.keys(pagination.value).length > 0;
+});
+
+const pagination = computed(() => {
+    return props.meta;
+});
+
+const previousPageUrl = computed(() => {
+    if ("prev_page_url" in pagination.value) {
+        return pagination.value.prev_page_url;
+    }
+
+    return null;
+});
+
+const nextPageUrl = computed(() => {
+    if ("next_page_url" in pagination.value) {
+        return pagination.value.next_page_url;
+    }
+
+    return null;
+});
+
+const perPage = computed(() => {
+    return parseInt(pagination.value.per_page);
+});
+</script>
+
+
 <template>
     <nav
         v-if="hasPagination"
@@ -186,77 +262,3 @@
     </nav>
 </template>
 
-<script setup>
-
-import PerPageSelector from '@/Components/Table/PerPageSelector.vue'
-
-import { computed } from "vue";
-
-
-const props = defineProps({
-                              onClick: {
-                                  type: Function,
-                                  required: false,
-                              },
-                              perPageOptions: {
-                                  type: Array,
-                                  default() {
-                                      return () => [15, 30, 50, 100];
-                                  },
-                                  required: false
-                              },
-                              onPerPageChange: {
-                                  type: Function,
-                                  default() {
-                                      return () => {};
-                                  },
-                                  required: false,
-                              },
-                              hasData: {
-                                  type: Boolean,
-                                  required: true,
-                              },
-                              meta: {
-                                  type: Object,
-                                  required: false,
-                              }
-                          });
-
-
-
-const hasLinks = computed(() => {
-    if(!("links" in pagination.value)) {
-        return false;
-    }
-
-    return pagination.value.links.length > 0;
-});
-
-const hasPagination = computed(() => {
-    return Object.keys(pagination.value).length > 0;
-});
-
-const pagination = computed(() => {
-    return props.meta;
-});
-
-const previousPageUrl = computed(() => {
-    if ("prev_page_url" in pagination.value) {
-        return pagination.value.prev_page_url;
-    }
-
-    return null;
-});
-
-const nextPageUrl = computed(() => {
-    if ("next_page_url" in pagination.value) {
-        return pagination.value.next_page_url;
-    }
-
-    return null;
-});
-
-const perPage = computed(() => {
-    return parseInt(pagination.value.per_page);
-});
-</script>

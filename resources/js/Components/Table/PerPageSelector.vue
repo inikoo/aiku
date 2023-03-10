@@ -1,3 +1,44 @@
+<script setup>
+import { computed } from "vue";
+import uniq from "lodash-es/uniq";
+
+const props = defineProps({
+    dusk: {
+        type: String,
+        default: null,
+        required: false,
+    },
+
+    value: {
+        type: Number,
+        default: 15,
+        required: false,
+    },
+
+    options: {
+        type: Array,
+        default() {
+            return [15, 30, 50, 100];
+        },
+        required: false,
+    },
+
+    onChange: {
+        type: Function,
+        required: true,
+    },
+});
+
+const perPageOptions = computed(() => {
+    let options = [...props.options];
+
+    options.push(parseInt(props.value));
+
+    return uniq(options).sort((a, b) => a - b);
+});
+</script>
+
+
 <template>
     <select
         name="per_page"
@@ -16,42 +57,3 @@
     </select>
 </template>
 
-<script setup>
-import { computed } from "vue";
-import uniq from "lodash-es/uniq";
-
-const props = defineProps({
-                              dusk: {
-                                  type: String,
-                                  default: null,
-                                  required: false,
-                              },
-
-                              value: {
-                                  type: Number,
-                                  default: 15,
-                                  required: false,
-                              },
-
-                              options: {
-                                  type: Array,
-                                  default() {
-                                      return [15, 30, 50, 100];
-                                  },
-                                  required: false,
-                              },
-
-                              onChange: {
-                                  type: Function,
-                                  required: true,
-                              },
-                          });
-
-const perPageOptions = computed(() => {
-    let options = [...props.options];
-
-    options.push(parseInt(props.value));
-
-    return uniq(options).sort((a, b) => a - b);
-});
-</script>

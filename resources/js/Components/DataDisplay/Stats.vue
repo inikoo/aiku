@@ -3,6 +3,14 @@
   -  Created: Sat, 10 Sept 2022 13:07:27 Malaysia Time, Kuala Lumpur, Malaysia
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
+
+<script setup>
+import {Link} from '@inertiajs/vue3';
+
+defineProps(['stats']);
+
+</script>
+
 <template>
 
 
@@ -21,9 +29,4 @@
 
 </template>
 
-<script setup>
-import {Link} from '@inertiajs/vue3';
 
-defineProps(['stats']);
-
-</script>
