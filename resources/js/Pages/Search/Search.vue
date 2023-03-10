@@ -77,19 +77,19 @@ function handleKeyDown() {
 
         <div v-for="item in searchResults.data" :key="item.id"  class="overflow-hidden bg-white mt-20 shadow sm:rounded-md max-w-2xl ">
             <ul role="list" class="divide-y divide-gray-200">
-                <li v-for="application in applications" :key="application.applicant.email">
-                    <a :href="application.href" class="block hover:bg-gray-50">
+                <li>
+                    <a :href="item.href" class="block hover:bg-gray-50">
                         <div class="flex items-center px-4 py-4 sm:px-6">
                             <div class="flex min-w-0 flex-1 items-center">
                                 <div class="flex-shrink-0">
-                                    <img class="h-12 w-12 rounded-full" :src="application.applicant.imageUrl" alt="" />
+                                    <img class="h-12 w-12 rounded-full" :src="item.imageUrl" alt="" />
                                 </div>
                                 <div class="min-w-0 flex-1 px-4 md:grid md:grid-cols-2 md:gap-4">
                                     <div>
-                                        <p class="truncate text-sm font-medium text-indigo-600">{{ application.applicant.name }}</p>
+                                        <p class="truncate text-sm font-medium text-indigo-600">{{ item.name }}</p>
                                         <p class="mt-2 flex items-center text-sm text-gray-500">
                                             <FontAwesomeIcon class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" icon="far fa-chevron-right" aria-hidden="true" />
-                                            <span class="truncate">{{ application.applicant.email }}</span>
+                                            <span class="truncate">{{ item.email }}</span>
                                         </p>
                                     </div>
                                     <div class="hidden md:block">
@@ -97,11 +97,11 @@ function handleKeyDown() {
                                             <p class="text-sm text-gray-900">
                                                 Applied on
                                                 {{ ' ' }}
-                                                <time :datetime="application.date">{{ application.dateFull }}</time>
+                                                <time :datetime="item.date">{{ item.dateFull }}</time>
                                             </p>
                                             <p class="mt-2 flex items-center text-sm text-gray-500">
                                                 <FontAwesomeIcon class="mr-1.5 h-5 w-5 flex-shrink-0 text-green-400" icon="far fa-chevron-right" aria-hidden="true" />
-                                                {{ application.stage }}
+                                                {{ item.stage }}
                                             </p>
                                         </div>
                                     </div>
