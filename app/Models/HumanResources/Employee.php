@@ -9,6 +9,7 @@ namespace App\Models\HumanResources;
 
 use App\Actions\Central\Tenant\HydrateTenant;
 use App\Actions\HumanResources\Employee\HydrateEmployee;
+use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -155,5 +156,10 @@ class Employee extends Model implements HasMedia
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function universalSearch(): MorphOne
+    {
+        return $this->morphOne(UniversalSearch::class, 'model');
     }
 }
