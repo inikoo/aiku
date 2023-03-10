@@ -1,3 +1,13 @@
+<script setup>
+import {Head, Link} from '@inertiajs/vue3';
+import PageHeading from '@/Components/Headings/PageHeading.vue';
+import JobPositionBadges from '@/Components/Elements/Badges/JobPositionBadges.vue';
+import Table from '@/Components/Table/Table.vue';
+
+defineProps(['employees', 'title','pageHead']);
+
+</script>
+
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
@@ -15,12 +25,3 @@
     </Table>
 </template>
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import JobPositionBadges from '@/Components/Elements/Badges/JobPositionBadges.vue';
-import Table from '@/Components/Table/Table.vue';
-
-defineProps(['employees', 'title','pageHead']);
-
-</script>

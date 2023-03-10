@@ -1,3 +1,23 @@
+<script setup>
+import {Head, Link, useForm} from '@inertiajs/vue3';
+import Password from '@/Components/Password.vue';
+import ValidationErrors from '@/Components/ValidationErrors.vue';
+
+const form = useForm({
+    name: '',
+    email: '',
+    password: '',
+});
+
+const submit = () => {
+    form.post(route('register'), {
+        onFinish: () => form.reset('password'),
+    });
+};
+
+</script>
+
+
 <template>
     <Head title="Register" />
     <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -90,21 +110,3 @@
         </div>
     </div>
 </template>
-<script setup>
-import {Head, Link, useForm} from '@inertiajs/vue3';
-import Password from '@/Components/Password.vue';
-import ValidationErrors from '@/Components/ValidationErrors.vue';
-
-const form = useForm({
-                         name: '',
-                         email: '',
-                         password: '',
-                     });
-
-const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password'),
-    });
-};
-
-</script>

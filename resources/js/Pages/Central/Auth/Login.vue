@@ -1,3 +1,24 @@
+<script setup>
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import Password from '@/Components/Password.vue';
+import Checkbox from '@/Components/Checkbox.vue';
+
+
+
+const form = useForm({
+    login: '',
+    password: '',
+    remember: false
+});
+
+const submit = () => {
+    form.post(route('login'), {
+        onFinish: () => form.reset('password'),
+    });
+};
+</script>
+
+
 <template>
     <Head title="Login" />
 
@@ -91,23 +112,3 @@
         </div>
     </div>
 </template>
-<script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import Password from '@/Components/Password.vue';
-import Checkbox from '@/Components/Checkbox.vue';
-import ValidationErrors from '@/Components/ValidationErrors.vue';
-
-
-
-const form = useForm({
-                         login: '',
-                         password: '',
-                         remember: false
-                     });
-
-const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
-    });
-};
-</script>
