@@ -4,6 +4,15 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
+<script setup>
+import {Head, Link} from '@inertiajs/vue3';
+import {Table} from '@protonemedia/inertiajs-tables-laravel-query-builder';
+import  PageHeading from '@/Components/Headings/PageHeading.vue'
+defineProps(['users', 'title', 'pageHead', 'labels']);
+import { trans } from 'laravel-vue-i18n';
+
+</script>
+
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
@@ -23,11 +32,3 @@
 
 </template>
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
-import {Table} from '@protonemedia/inertiajs-tables-laravel-query-builder';
-import  PageHeading from '@/Components/Headings/PageHeading.vue'
-defineProps(['users', 'title', 'pageHead', 'labels']);
-import { trans } from 'laravel-vue-i18n';
-
-</script>

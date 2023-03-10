@@ -4,6 +4,34 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
+<script setup lang="ts">
+import {Head, Link} from '@inertiajs/vue3';
+import PageHeading from '@/Components/Headings/PageHeading.vue';
+import Table from '@/Components/Table/Table.vue';
+
+
+const props = defineProps<{
+    records: object
+    title: string
+    pageHead: object
+}>()
+
+const warehouseAreaRoute = route().current().replace(/index$/i, 'show')
+
+const locationRoute = warehouseAreaRoute + '.locations.index'
+
+function warehouseAreaRouteParameters(warehouseArea) {
+    switch (route().current()) {
+        case 'inventory.warehouse_areas.index':
+            return [warehouseArea.slug]
+        case 'inventory.warehouses.show.warehouse_areas.index':
+            return [warehouseArea.warehouse_slug, warehouseArea.slug]
+        default:
+            return []
+    }
+}
+</script>
+
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
@@ -21,32 +49,3 @@
     </Table>
 </template>
 
-<script setup lang="ts">
-import {Head, Link} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
-
-
-const props = defineProps<{
-    records: object
-    title: string
-    pageHead: object
-}>()
-
-const warehouseAreaRoute = route().current().replace(/index$/i, 'show')
-
-const locationRoute = warehouseAreaRoute + '.locations.index'
-
-
-
-function warehouseAreaRouteParameters(warehouseArea) {
-    switch (route().current()) {
-        case 'inventory.warehouse_areas.index':
-            return [warehouseArea.slug]
-        case 'inventory.warehouses.show.warehouse_areas.index':
-            return [warehouseArea.warehouse_slug, warehouseArea.slug]
-        default:
-            return []
-    }
-}
-</script>

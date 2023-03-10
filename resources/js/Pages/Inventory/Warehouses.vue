@@ -5,6 +5,15 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
+<script setup lang="ts">
+import {Head, Link} from '@inertiajs/vue3';
+import PageHeading from '@/Components/Headings/PageHeading.vue';
+import Table from '@/Components/Table/Table.vue';
+
+defineProps(['warehouses', 'title','pageHead']);
+
+</script>
+
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
@@ -22,11 +31,3 @@
     </Table>
 </template>
 
-<script setup lang="ts">
-import {Head, Link} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
-
-defineProps(['warehouses', 'title','pageHead']);
-
-</script>

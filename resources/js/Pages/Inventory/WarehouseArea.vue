@@ -4,15 +4,6 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<template layout="App">
-    <Head :title="title" />
-    <PageHeading :data="pageHead"></PageHeading>
-
-
-
-
-</template>
-
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
@@ -24,3 +15,13 @@ import {faInventory,faWarehouse,faMapSigns} from '@/../private/pro-light-svg-ico
 library.add(faInventory,faWarehouse,faMapSigns);
 
 </script>
+
+<template layout="App">
+    <Head :title="title" />
+    <PageHeading :data="pageHead"></PageHeading>
+
+
+
+
+</template>
+

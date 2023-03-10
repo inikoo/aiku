@@ -4,17 +4,8 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<template layout="App">
-    <Head :title="title" />
-    <PageHeading :data="pageHead"></PageHeading>
-
-
-
-
-</template>
-
 <script setup>
-import { Head,Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
@@ -22,3 +13,10 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 defineProps(["title","pageHead","guest"])
 
 </script>
+
+<template layout="App">
+    <Head :title="title" />
+    <PageHeading :data="pageHead"></PageHeading>
+
+</template>
+
