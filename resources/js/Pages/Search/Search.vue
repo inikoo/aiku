@@ -75,7 +75,7 @@ function handleKeyDown() {
             </div>
         </div>
 
-        <div class="overflow-hidden bg-white mt-20 shadow sm:rounded-md max-w-2xl ">
+        <div v-for="item in searchResults.data" :key="item.id"  class="overflow-hidden bg-white mt-20 shadow sm:rounded-md max-w-2xl ">
             <ul role="list" class="divide-y divide-gray-200">
                 <li v-for="application in applications" :key="application.applicant.email">
                     <a :href="application.href" class="block hover:bg-gray-50">
