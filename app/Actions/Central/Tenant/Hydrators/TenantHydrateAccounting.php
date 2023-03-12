@@ -47,8 +47,8 @@ class TenantHydrateAccounting implements ShouldBeUnique
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (PaymentStateEnum::asDatabaseColumns() as $state) {
-            $stats["number_payment_records_state_$state"] = Arr::get($stateCounts, $state, 0);
+        foreach (PaymentStateEnum::cases() as $state) {
+            $stats["number_payment_records_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
         }
 
         $stateCounts = Payment::where('type', 'payment')
@@ -56,8 +56,8 @@ class TenantHydrateAccounting implements ShouldBeUnique
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (PaymentStateEnum::asDatabaseColumns() as $state) {
-            $stats["number_payments_state_$state"] = Arr::get($stateCounts, $state, 0);
+        foreach (PaymentStateEnum::cases() as $state) {
+            $stats["number_payments_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
         }
 
         $stateCounts = Payment::where('type', 'refund')
@@ -65,8 +65,8 @@ class TenantHydrateAccounting implements ShouldBeUnique
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (PaymentStateEnum::asDatabaseColumns() as $state) {
-            $stats["number_refunds_state_$state"] = Arr::get($stateCounts, $state, 0);
+        foreach (PaymentStateEnum::cases() as $state) {
+            $stats["number_refunds_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
         }
 
         $tenant->accountingStats()->update($stats);

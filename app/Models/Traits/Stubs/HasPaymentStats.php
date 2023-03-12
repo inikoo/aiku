@@ -30,10 +30,10 @@ trait HasPaymentStats
         $table->decimal('dc_amount_refunded', 16)->default(0);
 
 
-        foreach (PaymentStateEnum::asDatabaseColumns() as $state) {
-            $table->unsignedBigInteger("number_payment_records_state_$state")->default(0);
-            $table->unsignedBigInteger("number_payments_state_$state")->default(0);
-            $table->unsignedBigInteger("number_refunds_state_$state")->default(0);
+        foreach (PaymentStateEnum::cases() as $state) {
+            $table->unsignedBigInteger("number_payment_records_state_{$state->snake()}")->default(0);
+            $table->unsignedBigInteger("number_payments_state_{$state->snake()}")->default(0);
+            $table->unsignedBigInteger("number_refunds_state_{$state->snake()}")->default(0);
         }
 
         return $table;

@@ -20,8 +20,8 @@ return new class () extends Migration {
 
             $table->unsignedInteger('number_customers')->default(0);
 
-            foreach (CustomerStateEnum::asDatabaseColumns() as $customerState) {
-                $table->unsignedInteger("number_customers_state_$customerState")->default(0);
+            foreach (CustomerStateEnum::cases() as $customerState) {
+                $table->unsignedInteger("number_customers_state_{$customerState->snake()}")->default(0);
             }
             $customerNumberInvoicesStates = ['none', 'one', 'many'];
             foreach ($customerNumberInvoicesStates as $customerNumberInvoicesState) {

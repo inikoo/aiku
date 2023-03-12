@@ -16,8 +16,8 @@ trait HasDispatchedEmailStats
     {
         $table->unsignedBigInteger('number_dispatched_emails')->default(0);
 
-        foreach (DispatchedEmailStateEnum::asDatabaseColumns() as $state) {
-            $table->unsignedBigInteger("number_dispatched_emails_state_$state")->default(0);
+        foreach (DispatchedEmailStateEnum::cases() as $state) {
+            $table->unsignedBigInteger("number_dispatched_emails_state_{$state->snake()}")->default(0);
         }
         $table->unsignedBigInteger('number_provoked_unsubscribe')->default(0);
 

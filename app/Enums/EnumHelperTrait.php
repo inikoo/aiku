@@ -7,23 +7,11 @@
 
 namespace App\Enums;
 
-use Illuminate\Support\Arr;
-
 trait EnumHelperTrait
 {
     public static function values(): array
     {
         return array_column(self::cases(), 'value');
-    }
-
-    public static function asDatabaseColumns(): array
-    {
-        return Arr::map(
-            array_column(self::cases(), 'value'),
-            function (string $value) {
-                return str_replace('-', '_', $value);
-            }
-        );
     }
 
     public function snake(): string
