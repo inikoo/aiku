@@ -7,7 +7,7 @@
 
 namespace App\Models\HumanResources;
 
-use App\Actions\HumanResources\Employee\HydrateEmployee;
+use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateJobPositionsShare;
 use App\Actions\HumanResources\JobPosition\HydrateJobPosition;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,7 +41,7 @@ class EmployeeJobPosition extends Pivot
     {
         static::created(
             function (EmployeeJobPosition $employeeJobPosition) {
-                HydrateEmployee::make()->updateJobPositionsShare($employeeJobPosition->employee);
+                EmployeeHydrateJobPositionsShare::run($employeeJobPosition->employee);
                 HydrateJobPosition::run(
                     $employeeJobPosition->jobPosition
                 );
@@ -49,7 +49,7 @@ class EmployeeJobPosition extends Pivot
         );
         static::deleted(
             function (EmployeeJobPosition $employeeJobPosition) {
-                HydrateEmployee::make()->updateJobPositionsShare($employeeJobPosition->employee);
+                EmployeeHydrateJobPositionsShare::run($employeeJobPosition->employee);
                 HydrateJobPosition::run(
                     $employeeJobPosition->jobPosition
                 );

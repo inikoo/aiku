@@ -15,26 +15,26 @@ return new class () extends Migration {
         Schema::create('employees', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique();
-            //these are no normal, hydra-table from contact
+
             $table->string('name', 256)->nullable()->index();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('identity_document_type')->nullable();
             $table->string('identity_document_number')->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->enum('gender', ['Make', 'Female', 'Other'])->nullable();
-            //=====
+            $table->string('gender')->nullable();
+
             $table->string('worker_number')->nullable();
             $table->string('job_title')->nullable();
 
-            $table->enum('type', ['employee', 'volunteer', 'temporal-worker', 'work-experience'])->default('employee');
-            $table->enum('state', ['hired', 'working', 'left'])->default('working');
+            $table->string('type')->default('employee');
+            $table->string('state')->default('working');
             $table->date('employment_start_at')->nullable();
             $table->date('employment_end_at')->nullable();
             $table->string('emergency_contact', 1024)->nullable();
             $table->jsonb('salary')->nullable();
             $table->jsonb('working_hours')->nullable();
-            $table->decimal('week_working_hours', 4, 2)->default(0);
+            $table->decimal('week_working_hours', 4)->default(0);
 
             $table->jsonb('data');
             $table->jsonb('job_position_scopes');

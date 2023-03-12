@@ -17,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class TenantHydrateUsers implements ShouldBeUnique
 {
     use AsAction;
+    use HasTenantHydrate;
 
     public function handle(Tenant $tenant): void
     {
@@ -50,17 +51,5 @@ class TenantHydrateUsers implements ShouldBeUnique
         }
 
         $tenant->stats->update($stats);
-    }
-
-    public function getJobUniqueId(Tenant $tenant): string
-    {
-        return $tenant->id;
-    }
-
-    public function getJobTags(): array
-    {
-        /** @var Tenant $tenant */
-        $tenant=app('currentTenant');
-        return ['central','tenant:'.$tenant->code];
     }
 }

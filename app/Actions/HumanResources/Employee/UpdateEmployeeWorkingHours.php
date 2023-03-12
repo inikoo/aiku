@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -21,8 +22,7 @@ class UpdateEmployeeWorkingHours
                 'working_hours' => $workingHours
             ]
         );
-        HydrateEmployee::make()->weekWorkingHours($employee);
-
+        EmployeeHydrateWeekWorkingHours::run($employee);
         return $employee;
     }
 }

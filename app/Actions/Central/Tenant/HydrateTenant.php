@@ -9,6 +9,7 @@ namespace App\Actions\Central\Tenant;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateCustomers;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateWarehouse;
@@ -18,7 +19,6 @@ use App\Enums\Marketing\Shop\ShopStateEnum;
 use App\Enums\Marketing\Shop\ShopSubtypeEnum;
 use App\Enums\Marketing\Shop\ShopTypeEnum;
 use App\Models\Central\Tenant;
-use App\Models\HumanResources\Employee;
 use App\Models\Marketing\Shop;
 use App\Models\SysAdmin\Guest;
 use Illuminate\Console\Command;
@@ -37,7 +37,7 @@ class HydrateTenant extends HydrateModel
         /** @var Tenant $tenant */
         $tenant = app('currentTenant');
 
-        $this->employeesStats();
+        TenantHydrateEmployees::run($tenant);
         $this->guestsStats();
         TenantHydrateWarehouse::run($tenant);
         TenantHydrateInventory::run($tenant);
@@ -104,29 +104,6 @@ class HydrateTenant extends HydrateModel
         }
 
         $tenant->marketingStats->update($stats);
-    }
-
-
-    public function employeesStats()
-    {
-        /** @var Tenant $tenant */
-        $tenant = app('currentTenant');
-
-        $stats = [
-            'number_employees' => Employee::count()
-        ];
-
-        $employeeStates     = ['hired', 'working', 'left'];
-        $employeeStateCount = Employee::selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-
-
-        foreach ($employeeStates as $employeeState) {
-            $stats['number_employees_state_'.$employeeState] = Arr::get($employeeStateCount, $employeeState, 0);
-        }
-
-        $tenant->stats->update($stats);
     }
 
     public function guestsStats()

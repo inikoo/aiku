@@ -7,8 +7,10 @@
 
 namespace App\Models\HumanResources;
 
-use App\Actions\Central\Tenant\HydrateTenant;
-use App\Actions\HumanResources\Employee\HydrateEmployee;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateEmployees;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
+use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -77,6 +79,9 @@ class Employee extends Model implements HasMedia
         'working_hours'       => 'array',
         'job_position_scopes' => 'array',
         'date_of_birth'       => 'datetime:Y-m-d',
+        'gender'              => GenderEnum::class,
+        'state'               => EmployeeStateEnum::class,
+        'type'                => EmployeeTypeEnum::class
 
     ];
 
@@ -92,7 +97,6 @@ class Employee extends Model implements HasMedia
     protected $guarded = [];
 
 
-
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -103,26 +107,12 @@ class Employee extends Model implements HasMedia
     }
 
 
-
     protected static function booted()
     {
-        static::created(
-            function (Employee $employee) {
-                HydrateEmployee::make()->weekWorkingHours($employee);
-                HydrateTenant::make()->employeesStats();
-            }
-        );
-        static::deleted(
-            function (Employee $employee) {
-                HydrateEmployee::make()->weekWorkingHours($employee);
-                HydrateTenant::make()->employeesStats();
-            }
-        );
-
         static::updated(function (Employee $employee) {
             if (!$employee->wasRecentlyCreated) {
                 if ($employee->wasChanged('state')) {
-                    HydrateTenant::make()->employeesStats();
+                    TenantHydrateEmployees::dispatch(app('currentTenant'));
                 }
             }
         });

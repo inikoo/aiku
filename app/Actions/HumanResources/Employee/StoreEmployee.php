@@ -7,7 +7,9 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
+use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,6 +21,8 @@ class StoreEmployee
     {
         $employee =  Employee::create($modelData);
         EmployeeHydrateUniversalSearch::run($employee);
+        EmployeeHydrateWeekWorkingHours::run($employee);
+        TenantHydrateEmployees::dispatch(app('currentTenant'));
         return $employee;
     }
 }
