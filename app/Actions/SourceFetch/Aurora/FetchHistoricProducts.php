@@ -14,6 +14,7 @@ use App\Actions\Marketing\HistoricProduct\StoreHistoricProduct;
 use App\Actions\Marketing\HistoricProduct\UpdateHistoricProduct;
 use App\Models\Marketing\HistoricProduct;
 use App\Services\Tenant\SourceTenantService;
+use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -38,6 +39,9 @@ class FetchHistoricProducts
                 );
             }
 
+            DB::connection('aurora')->table('Product History Dimension')
+                ->where('Product Key', $historicProduct->source_id)
+                ->update(['aiku_id'=>$historicProduct->id]);
 
             return $historicProduct;
         }

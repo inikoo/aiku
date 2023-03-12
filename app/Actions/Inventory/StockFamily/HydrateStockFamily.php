@@ -8,10 +8,8 @@
 namespace App\Actions\Inventory\StockFamily;
 
 use App\Actions\HydrateModel;
-use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class HydrateStockFamily extends HydrateModel
@@ -25,18 +23,6 @@ class HydrateStockFamily extends HydrateModel
 
     public function stocksStats(StockFamily $stockFamily)
     {
-        $stockStates   = ['in-process', 'active', 'discontinuing', 'discontinued'];
-        $stateCounts   = Stock::where('stock_family_id', $stockFamily->id)
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-        $stats         = [
-            'number_stocks' => $stockFamily->stocks->count(),
-        ];
-        foreach ($stockStates as $stockState) {
-            $stats['number_stocks_state_'.str_replace('-', '_', $stockState)] = Arr::get($stateCounts, $stockState, 0);
-        }
-        $stockFamily->stats->update($stats);
     }
 
 

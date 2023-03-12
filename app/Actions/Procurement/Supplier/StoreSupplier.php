@@ -7,7 +7,9 @@
 
 namespace App\Actions\Procurement\Supplier;
 
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -34,6 +36,10 @@ class StoreSupplier
         $supplier->location = $supplier->getLocation();
         $supplier->save();
 
+        TenantHydrateProcurement::dispatch(app('currentTenant'));
+        if ($supplier->agent_id) {
+            AgentHydrateSuppliers::dispatch($supplier->agent);
+        }
 
         return $supplier;
     }

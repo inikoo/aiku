@@ -7,7 +7,6 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Central\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -67,19 +66,6 @@ class Warehouse extends Model
             ->slugsShouldBeNoLongerThan(4);
     }
 
-    protected static function booted()
-    {
-        static::created(
-            function () {
-                HydrateTenant::make()->warehouseStats();
-            }
-        );
-        static::deleted(
-            function () {
-                HydrateTenant::make()->warehouseStats();
-            }
-        );
-    }
 
     public function warehouseAreas(): HasMany
     {

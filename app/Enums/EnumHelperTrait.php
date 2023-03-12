@@ -8,7 +8,6 @@
 namespace App\Enums;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 trait EnumHelperTrait
 {
@@ -17,12 +16,12 @@ trait EnumHelperTrait
         return array_column(self::cases(), 'value');
     }
 
-    public static function valuesDB(): array
+    public static function asDatabaseColumns(): array
     {
         return Arr::map(
             array_column(self::cases(), 'value'),
             function (string $value) {
-                return Str::kebab($value);
+                return str_replace('-', '_', $value);
             }
         );
     }

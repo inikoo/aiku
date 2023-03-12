@@ -8,20 +8,15 @@
 namespace App\Actions\Central\Tenant;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateAccounting;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateCustomers;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithNormalise;
 use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;
-use App\Models\Inventory\Stock;
-use App\Models\Inventory\StockFamily;
-use App\Models\Inventory\Warehouse;
-use App\Models\Inventory\WarehouseArea;
-use App\Models\Inventory\WarehouseStats;
 use App\Models\Marketing\Shop;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
-use App\Models\Sales\Customer;
 use App\Models\SysAdmin\Guest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -41,13 +36,14 @@ class HydrateTenant extends HydrateModel
 
         $this->employeesStats();
         $this->guestsStats();
-        $this->warehouseStats();
-        $this->inventoryStats();
+        TenantHydrateWarehouse::run($tenant);
+        TenantHydrateInventory::run($tenant);
         $this->procurementStats();
         $this->marketingStats();
         $this->fulfilmentStats();
         TenantHydrateUsers::run($tenant);
         TenantHydrateAccounting::run($tenant);
+        TenantHydrateCustomers::run($tenant);
     }
 
     public function fulfilmentStats()
@@ -56,41 +52,6 @@ class HydrateTenant extends HydrateModel
         $tenant = app('currentTenant');
     }
 
-
-
-
-    public function customersStats()
-    {
-        /** @var Tenant $tenant */
-        $tenant = app('currentTenant');
-
-        $stats = [
-            'number_customers' => Customer::count()
-        ];
-
-
-        $customerStates      = ['in-process', 'active', 'losing', 'lost', 'registered'];
-        $customerStatesCount = Customer::selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-
-
-        foreach ($customerStates as $customerState) {
-            $stats['number_customers_state_'.str_replace('-', '_', $customerState)] = Arr::get($customerStatesCount, $customerState, 0);
-        }
-
-        $customerTradeStates      = ['none', 'one', 'many'];
-        $customerTradeStatesCount = Customer::selectRaw('trade_state, count(*) as total')
-            ->groupBy('trade_state')
-            ->pluck('total', 'trade_state')->all();
-
-        foreach ($customerTradeStates as $customerTradeState) {
-            $stats['number_customers_trade_state_'.$customerTradeState] = Arr::get($customerTradeStatesCount, $customerTradeState, 0);
-        }
-
-
-        $tenant->salesStats->update($stats);
-    }
 
     public function marketingStats()
     {
@@ -144,20 +105,6 @@ class HydrateTenant extends HydrateModel
         $tenant->marketingStats->update($stats);
     }
 
-    public function warehouseStats()
-    {
-        /** @var Tenant $tenant */
-        $tenant = app('currentTenant');
-        $stats  = [
-            'number_warehouses'                  => Warehouse::count(),
-            'number_warehouse_areas'             => WarehouseArea::count(),
-            'number_locations'                   => WarehouseStats::sum('number_locations'),
-            'number_locations_state_operational' => WarehouseStats::sum('number_locations_state_operational'),
-            'number_locations_state_broken'      => WarehouseStats::sum('number_locations_state_broken'),
-        ];
-
-        $tenant->inventoryStats->update($stats);
-    }
 
     public function employeesStats()
     {
@@ -187,7 +134,7 @@ class HydrateTenant extends HydrateModel
         $tenant = app('currentTenant');
 
 
-        $numberGuests       = Guest::count();
+        $numberGuests = Guest::count();
 
         $numberActiveGuests = Guest::where('status', true)
             ->count();
@@ -204,57 +151,10 @@ class HydrateTenant extends HydrateModel
     }
 
 
-    public function inventoryStats()
-    {
-        /** @var Tenant $tenant */
-        $tenant = app('currentTenant');
-        $stats  = [
-            'number_stocks'         => Stock::count(),
-            'number_stock_families' => StockFamily::count(),
-        ];
-
-        $stockFamilyStates     = ['in-process', 'active', 'discontinuing', 'discontinued'];
-        $stockFamilyStateCount = StockFamily::selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-
-
-        foreach ($stockFamilyStates as $stockFamilyState) {
-            $stats['number_stock_families_state_'.str_replace('-', '_', $stockFamilyState)] = Arr::get($stockFamilyStateCount, $stockFamilyState, 0);
-        }
-
-        $stockStates     = ['in-process', 'active', 'discontinuing', 'discontinued'];
-        $stockStateCount = Stock::selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-
-
-        foreach ($stockStates as $stockState) {
-            $stats['number_stocks_state_'.str_replace('-', '_', $stockState)] = Arr::get($stockStateCount, $stockState, 0);
-        }
-
-        $tenant->inventoryStats->update($stats);
-    }
-
     public function procurementStats()
     {
         /** @var Tenant $tenant */
         $tenant = app('currentTenant');
-
-
-        $stats = [
-            'number_suppliers'        => Supplier::where('type', 'supplier')->count(),
-            'number_active_suppliers' => Supplier::where('type', 'supplier')->where('status', true)->count(),
-
-            'number_agents'               => Agent::count(),
-            'number_active_agents'        => Agent::where('status', true)->count(),
-            'number_active_tenant_agents' => Agent::where('status', true)->whereNull('central_agent_id')->count(),
-            'number_active_global_agents' => Agent::where('status', true)->whereNotNull('central_agent_id')->count(),
-
-        ];
-
-
-        $tenant->procurementStats->update($stats);
     }
 
     protected function getAllModels(): Collection

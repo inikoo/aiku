@@ -8,7 +8,9 @@
 
 namespace App\Actions\Marketing\Product;
 
+use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\HistoricProduct\StoreHistoricProduct;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
@@ -33,15 +35,21 @@ class StoreProduct
             );
         }
         $product->salesStats()->create([
-                                           'scope' => 'sales'
-                                       ]);
+            'scope' => 'sales'
+        ]);
         /** @var Tenant $tenant */
         $tenant = app('currentTenant');
         if ($product->shop->currency_id != $tenant->currency_id) {
             $product->salesStats()->create([
-                                               'scope' => 'sales-tenant-currency'
-                                           ]);
+                'scope' => 'sales-tenant-currency'
+            ]);
         }
+
+
+        if ($product->family_id) {
+            FamilyHydrateProducts::dispatch($product->family);
+        }
+        ShopHydrateProducts::dispatch($product->shop);
 
         return $product;
     }

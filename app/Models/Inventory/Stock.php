@@ -7,8 +7,6 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Central\Tenant\HydrateTenant;
-use App\Actions\Inventory\StockFamily\HydrateStockFamily;
 use App\Models\Marketing\TradeUnit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -94,19 +92,6 @@ class Stock extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug');
-    }
-
-
-    protected static function booted()
-    {
-        static::created(
-            function (Stock $stock) {
-                HydrateTenant::make()->inventoryStats();
-                if ($stock->stock_family_id) {
-                    HydrateStockFamily::make()->stocksStats($stock->stockFamily);
-                }
-            }
-        );
     }
 
 

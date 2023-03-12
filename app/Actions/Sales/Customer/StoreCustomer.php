@@ -7,9 +7,13 @@
 
 namespace App\Actions\Sales\Customer;
 
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomerInvoices;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomers;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use Illuminate\Support\Facades\Bus;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreCustomer
@@ -26,6 +30,14 @@ class StoreCustomer
         $customer->location = $customer->getLocation();
         $customer->save();
 
+
+        Bus::chain([
+            ShopHydrateCustomers::makeJob($customer->shop),
+            ShopHydrateCustomerInvoices::makeJob($customer->shop)
+        ])->dispatch();
+
+
+        TenantHydrateCustomers::dispatch(app('currentTenant'));
 
         return $customer;
     }

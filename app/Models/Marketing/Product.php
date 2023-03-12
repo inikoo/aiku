@@ -7,8 +7,8 @@
 
 namespace App\Models\Marketing;
 
-use App\Actions\Marketing\Family\HydrateFamily;
-use App\Actions\Marketing\Shop\HydrateShop;
+use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Models\Sales\SalesStats;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -69,7 +68,7 @@ class Product extends Model
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
-    use Searchable;
+
 
     protected $casts = [
         'data'     => 'array',
@@ -99,21 +98,12 @@ class Product extends Model
 
     protected static function booted()
     {
-        static::created(
-            function (Product $product) {
-                if ($product->family_id) {
-                    HydrateFamily::make()->productsStats($product->family);
-                }
-                HydrateShop::make()->productsStats($product->shop);
-            }
-        );
-
         static::updated(function (Product $product) {
             if ($product->wasChanged('state')) {
                 if ($product->family_id) {
-                    HydrateFamily::make()->productsStats($product->family);
+                    FamilyHydrateProducts::dispatch($product->family);
                 }
-                HydrateShop::make()->productsStats($product->shop);
+                ShopHydrateProducts::dispatch($product->shop);
             }
         });
     }

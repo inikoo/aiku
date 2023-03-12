@@ -12,6 +12,8 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
+use App\Models\Leads\Prospect;
+use App\Models\Mailroom\Outbox;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
@@ -68,9 +70,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Outbox> $outboxes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Prospect> $prospects
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Service> $services
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @property-read Website|null $website
@@ -153,6 +157,11 @@ class Shop extends Model
         return $this->hasMany(Customer::class);
     }
 
+    public function prospects(): HasMany
+    {
+        return $this->hasMany(Prospect::class);
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
@@ -207,5 +216,10 @@ class Shop extends Model
     public function accounts(): PaymentAccount
     {
         return $this->paymentAccounts()->where('payment_accounts.data->service-code', 'accounts')->first();
+    }
+
+    public function outboxes(): HasMany
+    {
+        return $this->hasMany(Outbox::class);
     }
 }

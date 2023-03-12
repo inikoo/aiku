@@ -8,6 +8,8 @@
 namespace App\Actions\Marketing\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Actions\Mailroom\Outbox\StoreOutbox;
+use App\Enums\Mailroom\Outbox\OutboxTypeEnum;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -24,7 +26,7 @@ class StoreShop
         $shop->accountingStats()->create();
 
 
-        $paymentAccount       = StorePaymentAccount::run($tenant->accountsServiceProvider(), [
+        $paymentAccount = StorePaymentAccount::run($tenant->accountsServiceProvider(), [
             'code' => 'accounts-'.$shop->slug,
             'name' => 'Accounts '.$shop->code,
             'data' => [
@@ -33,6 +35,20 @@ class StoreShop
         ]);
         $paymentAccount->slug = 'accounts-'.$shop->slug;
         $paymentAccount->save();
+
+
+        foreach (OutboxTypeEnum::cases() as $case) {
+            StoreOutbox::run(
+                $shop,
+                [
+                    'scope' => str($case->scope()->value)->camel()->kebab()->value(),
+                    'name'  => $case->label(),
+                    'type'  => str($case->value)->camel()->kebab()->value(),
+
+                ]
+            );
+        }
+
 
         return AttachPaymentAccountToShop::run($shop, $paymentAccount);
     }

@@ -30,6 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property bool $is_empty
  * @property array $data
+ * @property \Illuminate\Support\Carbon|null $audited_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -54,7 +55,7 @@ class Location extends Model
 
     protected $casts = [
         'data'       => 'array',
-        'audited_at' => 'array'
+        'audited_at' => 'datetime'
     ];
 
     protected $attributes = [

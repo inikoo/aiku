@@ -8,7 +8,7 @@
 namespace App\Models\Marketing;
 
 use App\Actions\Marketing\Department\HydrateDepartment;
-use App\Actions\Marketing\Shop\HydrateShop;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
 use App\Models\Sales\SalesStats;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -75,28 +75,12 @@ class Family extends Model
 
     protected static function booted()
     {
-        static::created(
-            function (Family $family) {
-                if ($family->department_id) {
-                    HydrateDepartment::make()->familiesStats($family->department);
-                }
-                HydrateShop::make()->familiesStats($family->shop);
-            }
-        );
-        static::deleted(
-            function (Family $family) {
-                if ($family->department_id) {
-                    HydrateDepartment::make()->familiesStats($family->department);
-                }
-                HydrateShop::make()->familiesStats($family->shop);
-            }
-        );
         static::updated(function (Family $family) {
             if ($family->wasChanged('state')) {
                 if ($family->department_id) {
                     HydrateDepartment::make()->familiesStats($family->department);
                 }
-                HydrateShop::make()->familiesStats($family->shop);
+                ShopHydrateFamilies::dispatch($family->shop);
             }
         });
     }

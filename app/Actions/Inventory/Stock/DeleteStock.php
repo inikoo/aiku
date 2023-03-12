@@ -7,8 +7,8 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Actions\Central\Tenant\HydrateTenant;
-use App\Actions\Inventory\StockFamily\HydrateStockFamily;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Actions\WithActionUpdate;
 use App\Actions\WithTenantArgument;
 use App\Models\Inventory\Stock;
@@ -27,9 +27,9 @@ class DeleteStock
         $stock = $this->update($stock, $deletedData, ['data']);
         //Todo: PKA-18
         if (!$skipHydrate) {
-            HydrateTenant::make()->inventoryStats();
+            TenantHydrateInventory::dispatch(app('currentTenant'));
             if ($stock->stock_family_id) {
-                HydrateStockFamily::make()->stocksStats($stock->stockFamily);
+                StockFamilyHydrateStocks::dispatch($stock->stockFamily);
             }
         }
 

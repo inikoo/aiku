@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\PaymentServiceProvider\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Enums\PaymentStateEnum;
+use App\Enums\Accounting\PaymentStateEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
@@ -48,7 +48,7 @@ class PaymentServiceProviderHydratePayments implements ShouldBeUnique
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (PaymentStateEnum::valuesDB() as $state) {
+        foreach (PaymentStateEnum::asDatabaseColumns() as $state) {
             $stats["number_payment_records_state_$state"] = Arr::get($stateCounts, $state, 0);
         }
 
@@ -57,7 +57,7 @@ class PaymentServiceProviderHydratePayments implements ShouldBeUnique
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (PaymentStateEnum::valuesDB() as $state) {
+        foreach (PaymentStateEnum::asDatabaseColumns() as $state) {
             $stats["number_payments_state_$state"] = Arr::get($stateCounts, $state, 0);
         }
 
@@ -66,7 +66,7 @@ class PaymentServiceProviderHydratePayments implements ShouldBeUnique
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (PaymentStateEnum::valuesDB() as $state) {
+        foreach (PaymentStateEnum::asDatabaseColumns() as $state) {
             $stats["number_refunds_state_$state"] = Arr::get($stateCounts, $state, 0);
         }
 

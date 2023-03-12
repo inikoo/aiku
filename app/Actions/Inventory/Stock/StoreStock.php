@@ -8,6 +8,8 @@
 
 namespace App\Actions\Inventory\Stock;
 
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Stock;
 use App\Models\Sales\Customer;
@@ -25,11 +27,13 @@ class StoreStock
         $stock = $owner->stocks()->create($modelData);
         $stock->stats()->create();
 
+        TenantHydrateInventory::dispatch(app('currentTenant'));
+        if ($stock->stock_family_id) {
+            StockFamilyHydrateStocks::dispatch($stock->stockFamily);
+        }
+
         return $stock;
     }
-
-
-
 
 
     public function rules(ActionRequest $request): array

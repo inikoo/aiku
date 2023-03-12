@@ -103,6 +103,19 @@ class FetchReset
 
                     $command->line('✅ shops');
 
+
+                    DB::connection('aurora')->table('Email Campaign Type Dimension')
+                        ->update(['aiku_id' => null]);
+                    DB::connection('aurora')->table('Email Campaign Dimension')
+                        ->update(['aiku_id' => null]);
+                    DB::connection('aurora')->table('Email Tracking Dimension')
+                        ->update(['aiku_id' => null]);
+                    DB::connection('aurora')->table('Email Tracking Event Dimension')
+                        ->update(['aiku_id' => null]);
+
+                    $command->line("✅ mailroom \t\t".$this->stepTime());
+
+
                     DB::connection('aurora')->table('Warehouse Dimension')
                         ->update(['aiku_id' => null]);
                     DB::connection('aurora')->table('Warehouse Area Dimension')
@@ -227,6 +240,8 @@ class FetchReset
                     DB::connection('aurora')->table('Customer Portfolio Fact')
                         ->update(['aiku_id' => null]);
                     DB::connection('aurora')->table('Website User Dimension')
+                        ->update(['aiku_id' => null]);
+                    DB::connection('aurora')->table('Prospect Dimension')
                         ->update(['aiku_id' => null]);
                     $command->line("✅ customers \t\t".$this->stepTime());
 

@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Sales\Customer\CustomerStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,9 +19,9 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
 
             $table->unsignedInteger('number_customers')->default(0);
-            $customerStates = ['in-process', 'active', 'losing', 'lost', 'registered'];
-            foreach ($customerStates as $customerState) {
-                $table->unsignedInteger('number_customers_state_'.str_replace('-', '_', $customerState))->default(0);
+
+            foreach (CustomerStateEnum::asDatabaseColumns() as $customerState) {
+                $table->unsignedInteger("number_customers_state_$customerState")->default(0);
             }
             $customerNumberInvoicesStates = ['none', 'one', 'many'];
             foreach ($customerNumberInvoicesStates as $customerNumberInvoicesState) {

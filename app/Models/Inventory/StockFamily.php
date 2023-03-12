@@ -7,7 +7,7 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Central\Tenant\HydrateTenant;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -59,19 +59,9 @@ class StockFamily extends Model
 
     protected static function booted()
     {
-        static::created(
-            function () {
-                HydrateTenant::make()->inventoryStats();
-            }
-        );
-        static::deleted(
-            function () {
-                HydrateTenant::make()->inventoryStats();
-            }
-        );
         static::updated(function (StockFamily $stockFamily) {
             if ($stockFamily->wasChanged('state')) {
-                HydrateTenant::make()->inventoryStats();
+                TenantHydrateInventory::dispatch(app('currentTenant'));
             }
         });
     }

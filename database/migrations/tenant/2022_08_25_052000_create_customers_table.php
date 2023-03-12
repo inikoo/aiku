@@ -34,8 +34,8 @@ return new class () extends Migration {
 
             $table->enum('status', ['pending-approval', 'approved', 'rejected', 'banned'])->index();
 
-            $customerStates = ['in-process', 'active', 'losing', 'lost', 'registered'];
-            $table->enum('state', $customerStates)->index()->nullable();
+
+            $table->string('state')->index()->nullable();
 
             $customerTradeStates = ['none', 'one', 'many'];
             $table->enum('trade_state', $customerTradeStates)->index()->nullable()->default('none')->comment('number of invoices');

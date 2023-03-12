@@ -28,7 +28,7 @@ class FetchShops extends FetchAction
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])
                 ->first()) {
                 $shop = UpdateShop::run(
-                    shop:      $shop,
+                    shop: $shop,
                     modelData: $shopData['shop']
                 );
 
@@ -41,7 +41,7 @@ class FetchShops extends FetchAction
                 }
             } else {
                 $shop = StoreShop::run(
-                    tenant:    app('currentTenant'),
+                    tenant: app('currentTenant'),
                     modelData: $shopData['shop']
                 );
 
@@ -52,10 +52,6 @@ class FetchShops extends FetchAction
                     ->where('Payment Account Block', 'Accounts')
                     ->where('Payment Account Store Store Key', $shopData['shop']['source_id'])
                     ->first();
-
-
-
-
                 if ($accountData) {
                     $shop->accounts()->update(
                         [
@@ -69,6 +65,53 @@ class FetchShops extends FetchAction
                     StoreAddressAttachToModel::run($shop, $shopData['collectionAddress'], ['scope' => 'collection']);
                 }
             }
+
+
+            $auroraOutboxes = DB::connection('aurora')->table('Email Campaign Type Dimension')
+                ->where('Email Campaign Type Store Key', $shop->source_id)
+                ->get()
+                ->pluck('Email Campaign Type Key', 'Email Campaign Type Code')->all();
+
+
+            foreach ($shop->outboxes as $outbox) {
+                $sourceId = match ($outbox->type) {
+                    'new-customer'               => $auroraOutboxes['New Customer'],
+                    'abandoned-cart'             => $auroraOutboxes['AbandonedCart'],
+                    'basket-low-stock'           => $auroraOutboxes['Basket Low Stock'] ?? null,
+                    'basket-reminder1'           => $auroraOutboxes['Basket Reminder 1'],
+                    'basket-reminder2'           => $auroraOutboxes['Basket Reminder 2'],
+                    'basket-reminder3'           => $auroraOutboxes['Basket Reminder 3'],
+                    'delivery-confirmation'      => $auroraOutboxes['Delivery Confirmation'],
+                    'delivery-note-dispatched'   => $auroraOutboxes['Delivery Note Dispatched'],
+                    'delivery-note-undispatched' => $auroraOutboxes['Delivery Note Undispatched'],
+                    'invite'                     => $auroraOutboxes['Invite'],
+                    'invite-full-mailshot'       => $auroraOutboxes['Invite Full Mailshot'],
+                    'invite-mailshot'            => $auroraOutboxes['Invite Mailshot'],
+                    'invoice-deleted'            => $auroraOutboxes['Invoice Deleted'],
+                    'marketing'                  => $auroraOutboxes['Marketing'],
+                    'new-order'                  => $auroraOutboxes['New Order'],
+                    'newsletter'                 => $auroraOutboxes['Newsletter'],
+                    'oos-notification'           => $auroraOutboxes['OOS Notification'],
+                    'order-confirmation'         => $auroraOutboxes['Order Confirmation'],
+                    'password-reminder'          => $auroraOutboxes['Password Reminder'],
+                    'registration'               => $auroraOutboxes['Registration'],
+                    'registration-approved'      => $auroraOutboxes['Registration Approved'],
+                    'registration-rejected'      => $auroraOutboxes['Registration Rejected'],
+                    'reorder-reminder'           => $auroraOutboxes['GR Reminder'],
+
+
+                    default => null
+                };
+
+                if ($sourceId) {
+                    $outbox->update(
+                        [
+                            'source_id' => $sourceId
+                        ]
+                    );
+                }
+            }
+
 
             return $shop;
         }

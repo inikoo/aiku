@@ -7,7 +7,7 @@
 
 namespace App\Models\Procurement;
 
-use App\Actions\Central\Tenant\HydrateTenant;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
@@ -85,21 +85,10 @@ class Agent extends Model
 
     protected static function booted()
     {
-        static::created(
-            function () {
-                HydrateTenant::make()->procurementStats();
-            }
-        );
-        static::deleted(
-            function () {
-                HydrateTenant::make()->procurementStats();
-            }
-        );
-
         static::updated(function (Agent $agent) {
             if (!$agent->wasRecentlyCreated) {
                 if ($agent->wasChanged('status')) {
-                    HydrateTenant::make()->procurementStats();
+                    TenantHydrateProcurement::dispatch(app('currentTenant'));
                 }
             }
         });

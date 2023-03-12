@@ -50,17 +50,18 @@ class FetchAction
     {
         return null;
     }
-
     public function fetchAll(SourceTenantService $tenantSource, Command $command = null): void
     {
-        foreach ($this->getModelsQuery()->get() as $auroraData) {
-            if ($command && $command->getOutput()->isDebug()) {
-                $command->line("Fetching: ".$auroraData->{'source_id'});
+        $this->getModelsQuery()->chunk(10000, function ($chunkedData) use ($command, $tenantSource) {
+            foreach ($chunkedData as $auroraData) {
+                if ($command && $command->getOutput()->isDebug()) {
+                    $command->line("Fetching: ".$auroraData->{'source_id'});
+                }
+                $model = $this->handle($tenantSource, $auroraData->{'source_id'});
+                unset($model);
+                $this->progressBar?->advance();
             }
-            $model = $this->handle($tenantSource, $auroraData->{'source_id'});
-            unset($model);
-            $this->progressBar?->advance();
-        }
+        });
     }
 
     public function fetchSome(SourceTenantService $tenantSource, array $tenantIds): void
@@ -122,7 +123,7 @@ class FetchAction
                         $this->progressBar->setFormat('debug');
                         $this->progressBar->start();
                     } else {
-                        $command->line('Steps '.$this->count());
+                        $command->line('Steps '.number_format($this->count()));
                     }
 
                     $this->fetchAll($tenantSource, $command);
@@ -194,7 +195,7 @@ class FetchAction
         return $this->tenant->execute(
             /**
              * @throws \Exception
-             */ 
+             */
             function (Tenant $tenant) use ($validatedData) {
                 $tenantSource = $this->getTenantSource($tenant);
                 $tenantSource->initialisation(app('currentTenant'));

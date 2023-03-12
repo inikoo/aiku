@@ -32,6 +32,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $lw
  * @property string $yda
  * @property string $tdy
+ * @property string $all_ly
  * @property string $1y_ly
  * @property string $1q_ly
  * @property string $1m_ly

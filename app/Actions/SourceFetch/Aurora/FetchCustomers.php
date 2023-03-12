@@ -46,11 +46,9 @@ class FetchCustomers extends FetchAction
                     } else {
                         StoreAddressAttachToModel::run($customer, $customerData['delivery_address'], ['scope' => 'delivery']);
                     }
-                } else {
-                    if ($deliveryAddress) {
-                        $customer->addresses()->detach($deliveryAddress->id);
-                        $deliveryAddress->delete();
-                    }
+                } elseif ($deliveryAddress) {
+                    $customer->addresses()->detach($deliveryAddress->id);
+                    $deliveryAddress->delete();
                 }
             } else {
                 $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['contact_address']);

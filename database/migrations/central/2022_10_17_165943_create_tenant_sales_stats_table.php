@@ -5,11 +5,15 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Sales\Customer\CustomerStateEnum;
+use App\Models\Traits\Stubs\HasDateIntervalsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasDateIntervalsStats;
+
     public function up()
     {
         Schema::create('tenant_sales_stats', function (Blueprint $table) {
@@ -20,10 +24,12 @@ return new class () extends Migration {
 
             $table->unsignedBigInteger('number_customers')->default(0);
 
-            $customerStates = ['in-process', 'active', 'losing', 'lost', 'registered'];
-            foreach ($customerStates as $customerState) {
-                $table->unsignedBigInteger('number_customers_state_'.str_replace('-', '_', $customerState))->default(0);
+
+            foreach (CustomerStateEnum::asDatabaseColumns() as $customerState) {
+                $table->unsignedInteger("number_customers_state_$customerState")->default(0);
             }
+
+
             $customerTradeStates = ['none', 'one', 'many'];
             foreach ($customerTradeStates as $customerTradeState) {
                 $table->unsignedBigInteger('number_customers_trade_state_'.$customerTradeState)->default(0);
@@ -44,25 +50,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('currency_id')->nullable();
             $table->foreign('currency_id')->references('id')->on('currencies');
 
-
-            $periods           = ['all', '1y', '1q', '1m', '1w', 'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'yda', 'tdy'];
-            $periods_last_year = ['1y', '1q', '1m', '1w', 'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'yda', 'tdy'];
-            $previous_years    = ['py1', 'py2', 'py3', 'py4', 'py5'];
-            $previous_quarters = ['pq1', 'pq2', 'pq3', 'pq4', 'pq5'];
-
-            foreach ($periods as $col) {
-                $table->decimal($col)->default(0);
-            }
-            foreach ($periods_last_year as $col) {
-                $table->decimal($col.'_ly')->default(0);
-            }
-            foreach ($previous_years as $col) {
-                $table->decimal($col)->default(0);
-            }
-            foreach ($previous_quarters as $col) {
-                $table->decimal($col)->default(0);
-            }
-
+            $table=$this->dateIntervals($table);
 
             $table->timestampsTz();
             $table->unique(['tenant_id', 'currency_id']);

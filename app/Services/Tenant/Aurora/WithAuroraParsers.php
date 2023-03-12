@@ -15,15 +15,19 @@ use App\Actions\SourceFetch\Aurora\FetchDeletedEmployees;
 use App\Actions\SourceFetch\Aurora\FetchDeletedGuests;
 use App\Actions\SourceFetch\Aurora\FetchDeletedStocks;
 use App\Actions\SourceFetch\Aurora\FetchDeletedSuppliers;
+use App\Actions\SourceFetch\Aurora\FetchDispatchedEmails;
 use App\Actions\SourceFetch\Aurora\FetchEmployees;
 use App\Actions\SourceFetch\Aurora\FetchGuests;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchLocations;
+use App\Actions\SourceFetch\Aurora\FetchMailshots;
 use App\Actions\SourceFetch\Aurora\FetchOrders;
+use App\Actions\SourceFetch\Aurora\FetchOutboxes;
 use App\Actions\SourceFetch\Aurora\FetchPaymentAccounts;
 use App\Actions\SourceFetch\Aurora\FetchPaymentServiceProviders;
 use App\Actions\SourceFetch\Aurora\FetchProducts;
+use App\Actions\SourceFetch\Aurora\FetchProspects;
 use App\Actions\SourceFetch\Aurora\FetchServices;
 use App\Actions\SourceFetch\Aurora\FetchShippers;
 use App\Actions\SourceFetch\Aurora\FetchShops;
@@ -39,6 +43,10 @@ use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Stock;
+use App\Models\Leads\Prospect;
+use App\Models\Mailroom\DispatchedEmail;
+use App\Models\Mailroom\Mailshot;
+use App\Models\Mailroom\Outbox;
 use App\Models\Marketing\HistoricProduct;
 use App\Models\Marketing\HistoricService;
 use App\Models\Marketing\Product;
@@ -59,8 +67,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value != '' && $value != '0000-00-00 00:00:00'
-                             && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                  != '' && $value != '0000-00-00 00:00:00'
+                                              && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
     protected function parseLanguageID($locale): int|null
@@ -224,6 +232,9 @@ trait WithAuroraParsers
 
     public function parseCustomer($source_id): ?Customer
     {
+        if (!$source_id) {
+            return null;
+        }
         $customer = Customer::where('source_id', $source_id)->first();
         if (!$customer) {
             $customer = FetchCustomers::run($this->tenantSource, $source_id);
@@ -350,5 +361,52 @@ trait WithAuroraParsers
         }
 
         return $guest;
+    }
+
+    public function parseOutbox($source_id): ?Outbox
+    {
+        $outbox = Outbox::where('source_id', $source_id)->first();
+        if (!$outbox) {
+            $outbox = FetchOutboxes::run($this->tenantSource, $source_id);
+        }
+
+        return $outbox;
+    }
+
+    public function parseMailshot($source_id): ?Mailshot
+    {
+        if (!$source_id) {
+            return null;
+        }
+
+        $mailshot = Mailshot::where('source_id', $source_id)->first();
+        if (!$mailshot) {
+            $mailshot = FetchMailshots::run($this->tenantSource, $source_id);
+        }
+
+        return $mailshot;
+    }
+
+    public function parseProspect($source_id): ?Prospect
+    {
+        if (!$source_id) {
+            return null;
+        }
+
+        $prospect = Prospect::where('source_id', $source_id)->first();
+        if (!$prospect) {
+            $prospect = FetchProspects::run($this->tenantSource, $source_id);
+        }
+
+        return $prospect;
+    }
+
+    public function parseDispatchedEmail($source_id): ?DispatchedEmail
+    {
+        $dispatchedEmail = DispatchedEmail::where('source_id', $source_id)->first();
+        if (!$dispatchedEmail) {
+            $dispatchedEmail = FetchDispatchedEmails::run($this->tenantSource, $source_id);
+        }
+        return $dispatchedEmail;
     }
 }

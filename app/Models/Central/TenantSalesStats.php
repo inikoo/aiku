@@ -19,10 +19,10 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $tenant_id
  * @property int $number_customers
  * @property int $number_customers_state_in_process
+ * @property int $number_customers_state_registered
  * @property int $number_customers_state_active
  * @property int $number_customers_state_losing
  * @property int $number_customers_state_lost
- * @property int $number_customers_state_registered
  * @property int $number_customers_trade_state_none
  * @property int $number_customers_trade_state_one
  * @property int $number_customers_trade_state_many
@@ -52,6 +52,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property string $lw
  * @property string $yda
  * @property string $tdy
+ * @property string $all_ly
  * @property string $1y_ly
  * @property string $1q_ly
  * @property string $1m_ly

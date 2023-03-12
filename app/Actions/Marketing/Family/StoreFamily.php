@@ -7,6 +7,8 @@
 
 namespace App\Actions\Marketing\Family;
 
+use App\Actions\Marketing\Department\HydrateDepartment;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Family;
@@ -38,6 +40,11 @@ class StoreFamily
                                               'scope' => 'sales-tenant-currency'
                                           ]);
         }
+
+        if ($family->department_id) {
+            HydrateDepartment::make()->familiesStats($family->department);
+        }
+        ShopHydrateFamilies::dispatch($family->shop);
 
         return $family;
     }

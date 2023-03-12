@@ -7,8 +7,7 @@
 
 namespace App\Models\Procurement;
 
-use App\Actions\Central\Tenant\HydrateTenant;
-use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
@@ -92,24 +91,10 @@ class Supplier extends Model
 
     protected static function booted()
     {
-        static::created(
-            function (Supplier $supplier) {
-                HydrateTenant::make()->procurementStats();
-                if ($supplier->agent_id) {
-                    AgentHydrateSuppliers::dispatch($supplier->agent);
-                }
-            }
-        );
-        static::deleted(
-            function () {
-                HydrateTenant::make()->procurementStats();
-            }
-        );
-
         static::updated(function (Supplier $supplier) {
             if (!$supplier->wasRecentlyCreated) {
                 if ($supplier->wasChanged('status')) {
-                    HydrateTenant::make()->procurementStats();
+                    TenantHydrateProcurement::dispatch(app('currentTenant'));
                 }
             }
         });

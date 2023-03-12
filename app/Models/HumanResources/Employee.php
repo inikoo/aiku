@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -54,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read UniversalSearch|null $universalSearch
  * @property-read User|null $user
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
@@ -69,7 +69,6 @@ class Employee extends Model implements HasMedia
     use InteractsWithMedia;
     use HasSlug;
     use SoftDeletes;
-    use Searchable;
 
     protected $casts = [
         'data'                => 'array',

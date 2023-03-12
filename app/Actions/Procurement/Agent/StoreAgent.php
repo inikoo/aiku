@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Agent;
 
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
@@ -25,6 +26,7 @@ class StoreAgent
         StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
         $agent->location   = $agent->getLocation();
         $agent->save();
+        TenantHydrateProcurement::dispatch(app('currentTenant'));
 
         return $agent;
     }

@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->id();
             $table->nullableMorphs('model');
             $table->string('primary_term');
-            $table->string('secondary_term');
+            $table->string('secondary_term')->nullable();
             $table->timestampsTz();
         });
     }

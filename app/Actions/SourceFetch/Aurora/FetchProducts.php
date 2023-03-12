@@ -26,17 +26,23 @@ class FetchProducts extends FetchAction
             if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
                 ->first()) {
                 $product = UpdateProduct::run(
-                    product:      $product,
-                    modelData:    $productData['product'],
+                    product: $product,
+                    modelData: $productData['product'],
                     skipHistoric: true
                 );
             } else {
                 $product = StoreProduct::run(
-                    shop:         $productData['shop'],
-                    modelData:    $productData['product'],
+                    shop: $productData['shop'],
+                    modelData: $productData['product'],
                     skipHistoric: true
                 );
             }
+
+
+            DB::connection('aurora')->table('Product Dimension')
+                ->where('Product ID', $product->source_id)
+                ->update(['aiku_id'=> $product->id]);
+
 
             $historicProduct = HistoricProduct::where('source_id', $productData['historic_product_source_id'])->first();
             if (!$historicProduct) {

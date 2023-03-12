@@ -7,7 +7,6 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Central\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,14 +39,7 @@ class WarehouseStats extends Model
 
     protected $guarded = [];
 
-    protected static function booted()
-    {
-        static::updated(function (WarehouseStats $warehouseStats) {
-            if (!$warehouseStats->wasRecentlyCreated) {
-                HydrateTenant::make()->warehouseStats();
-            }
-        });
-    }
+
 
     public function warehouse(): BelongsTo
     {

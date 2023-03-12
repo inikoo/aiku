@@ -99,6 +99,15 @@ interface SourceTenantService
 
     public function fetchPayment($id);
 
+    public function fetchOutbox($id);
+
+    public function fetchMailshot($id);
+
+    public function fetchDispatchedEmail($id);
+
+    public function fetchProspect($id);
+
+    public function fetchEmailTrackingEvent($id);
 
     public function initialisation(Tenant $tenant);
 }

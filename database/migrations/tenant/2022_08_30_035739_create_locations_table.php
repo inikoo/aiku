@@ -23,6 +23,7 @@ return new class () extends Migration {
             $table->string('code', 64);
             $table->boolean('is_empty')->default(true);
             $table->jsonb('data');
+            $table->dateTimeTz('audited_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();

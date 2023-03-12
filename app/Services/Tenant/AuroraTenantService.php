@@ -25,6 +25,8 @@ use App\Services\Tenant\Aurora\FetchAuroraDeletedSupplierProduct;
 use App\Services\Tenant\Aurora\FetchAuroraDeliveryNote;
 use App\Services\Tenant\Aurora\FetchAuroraDeliveryNoteTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraDepartment;
+use App\Services\Tenant\Aurora\FetchAuroraDispatchedEmail;
+use App\Services\Tenant\Aurora\FetchAuroraEmailTrackingEvent;
 use App\Services\Tenant\Aurora\FetchAuroraEmployee;
 use App\Services\Tenant\Aurora\FetchAuroraFamily;
 use App\Services\Tenant\Aurora\FetchAuroraGuest;
@@ -33,12 +35,15 @@ use App\Services\Tenant\Aurora\FetchAuroraHistoricService;
 use App\Services\Tenant\Aurora\FetchAuroraInvoice;
 use App\Services\Tenant\Aurora\FetchAuroraInvoiceTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraLocation;
+use App\Services\Tenant\Aurora\FetchAuroraMailshot;
 use App\Services\Tenant\Aurora\FetchAuroraOrder;
+use App\Services\Tenant\Aurora\FetchAuroraOutbox;
 use App\Services\Tenant\Aurora\FetchAuroraPayment;
 use App\Services\Tenant\Aurora\FetchAuroraPaymentAccount;
 use App\Services\Tenant\Aurora\FetchAuroraPaymentServiceProvider;
 use App\Services\Tenant\Aurora\FetchAuroraProduct;
 use App\Services\Tenant\Aurora\FetchAuroraProductStocks;
+use App\Services\Tenant\Aurora\FetchAuroraProspect;
 use App\Services\Tenant\Aurora\FetchAuroraService;
 use App\Services\Tenant\Aurora\FetchAuroraShipper;
 use App\Services\Tenant\Aurora\FetchAuroraShop;
@@ -280,9 +285,33 @@ use Illuminate\Support\Facades\DB;
     {
         return (new FetchAuroraPaymentAccount($this))->fetch($id);
     }
-
     public function fetchPayment($id): ?array
     {
         return (new FetchAuroraPayment($this))->fetch($id);
+    }
+
+    public function fetchOutbox($id): ?array
+    {
+        return (new FetchAuroraOutbox($this))->fetch($id);
+    }
+
+    public function fetchMailshot($id): ?array
+    {
+        return (new FetchAuroraMailshot($this))->fetch($id);
+    }
+
+    public function fetchDispatchedEmail($id): ?array
+    {
+        return (new FetchAuroraDispatchedEmail($this))->fetch($id);
+    }
+
+    public function fetchProspect($id): ?array
+    {
+        return (new FetchAuroraProspect($this))->fetch($id);
+    }
+
+    public function fetchEmailTrackingEvent($id): ?array
+    {
+        return (new FetchAuroraEmailTrackingEvent($this))->fetch($id);
     }
 }

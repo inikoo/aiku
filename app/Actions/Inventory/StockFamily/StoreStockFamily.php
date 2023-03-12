@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\StockFamily;
 
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
 use App\Models\Inventory\StockFamily;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,7 +20,7 @@ class StoreStockFamily
         /** @var StockFamily $stockFamily */
         $stockFamily = StockFamily::create($modelData);
         $stockFamily->stats()->create();
-
+        TenantHydrateInventory::dispatch(app('currentTenant'));
         return $stockFamily;
     }
 }

@@ -8,16 +8,16 @@
 
 namespace App\Actions\Marketing\Shop;
 
-use App\Actions\Central\Tenant\HydrateTenant;
 use App\Actions\HydrateModel;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomerInvoices;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomers;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydratePaymentAccounts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydratePayments;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Models\Marketing\Department;
-use App\Models\Marketing\Family;
-use App\Models\Sales\Customer;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
-use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -31,11 +31,13 @@ class HydrateShop extends HydrateModel
     {
         ShopHydratePaymentAccounts::run($shop);
         ShopHydratePayments::run($shop);
-        $this->customerStats($shop);
+        ShopHydrateCustomers::run($shop);
+        ShopHydrateCustomerInvoices::run($shop);
+
         $this->orderStats($shop);
         $this->departmentsStats($shop);
-        $this->familiesStats($shop);
-        $this->productsStats($shop);
+        ShopHydrateFamilies::run($shop);
+        ShopHydrateProducts::run($shop);
         $this->invoices($shop);
         $this->salesStats($shop);
     }
@@ -45,48 +47,6 @@ class HydrateShop extends HydrateModel
     {
     }
 
-    public function customerStats(Shop $shop)
-    {
-        $stats          = [
-            'number_customers' => $shop->customers->count(),
-        ];
-        $customerStates = ['in-process', 'active', 'losing', 'lost', 'registered'];
-
-        $stateCounts = Customer::where('shop_id', $shop->id)
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-
-
-        foreach ($customerStates as $customerState) {
-            $stats['number_customers_state_'.str_replace('-', '_', $customerState)] =
-                Arr::get($stateCounts, $customerState, 0);
-        }
-
-        $shop->stats->update($stats);
-        $this->customerNumberInvoicesStats($shop);
-
-        HydrateTenant::make()->customersStats();
-    }
-
-    public function customerNumberInvoicesStats(Shop $shop)
-    {
-        $stats = [];
-
-        $customerNumberInvoicesStates = ['none', 'one', 'many'];
-
-        $numberInvoicesStateCounts = Customer::where('shop_id', $shop->id)
-            ->selectRaw('trade_state, count(*) as total')
-            ->groupBy('trade_state')
-            ->pluck('total', 'trade_state')->all();
-
-
-        foreach ($customerNumberInvoicesStates as $customerNumberInvoicesState) {
-            $stats['number_customers_trade_state_'.$customerNumberInvoicesState] =
-                Arr::get($numberInvoicesStateCounts, $customerNumberInvoicesState, 0);
-        }
-        $shop->stats->update($stats);
-    }
 
     public function orderStats(Shop $shop)
     {
@@ -113,44 +73,11 @@ class HydrateShop extends HydrateModel
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
-        $stats         = [
+        $stats            = [
             'number_departments' => $shop->departments->count(),
         ];
         foreach ($departmentStates as $departmentState) {
             $stats['number_departments_state_'.str_replace('-', '_', $departmentState)] = Arr::get($stateCounts, $departmentState, 0);
-        }
-        $shop->stats->update($stats);
-    }
-
-    public function familiesStats(Shop $shop)
-    {
-        $familyStates  = ['in-process', 'active', 'discontinuing', 'discontinued'];
-        $stateCounts   = Family::where('shop_id', $shop->id)
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-        $stats         = [
-            'number_families' => $shop->families->count(),
-        ];
-        foreach ($familyStates as $familyState) {
-            $stats['number_families_state_'.str_replace('-', '_', $familyState)] = Arr::get($stateCounts, $familyState, 0);
-        }
-        $shop->stats->update($stats);
-    }
-
-
-    public function productsStats(Shop $shop)
-    {
-        $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
-        $stateCounts   = Product::where('shop_id', $shop->id)
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-        $stats         = [
-            'number_products' => $shop->products->count(),
-        ];
-        foreach ($productStates as $productState) {
-            $stats['number_products_state_'.str_replace('-', '_', $productState)] = Arr::get($stateCounts, $productState, 0);
         }
         $shop->stats->update($stats);
     }

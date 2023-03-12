@@ -55,7 +55,8 @@
     cd ../../
     rm -rf public/tenants
     rm -rf storage/tenants
-
+    php artisan cache:clear
+    php artisan horizon:clear
 @endtask
 
 @task('initialise-dbs')
@@ -169,8 +170,12 @@ php artisan create:guest-user pika 'Developer' -a -r super-admin
     echo "shop customers"
     php artisan fetch:customers {{$instance}} -q
     php artisan fetch:deleted-customers {{$instance}} -q
-    php artisan fetch:payments {{$instance}} -q
     php artisan fetch:web-users {{$instance}} -q
+    php artisan fetch:prospects {{$instance}} -q
+    php artisan fetch:mailshots {{$instance}} -q
+    php artisan fetch:dispatched-emails {{$instance}} -q
+    php artisan fetch:email-tracking-events {{$instance}} -q
+
 @endtask
 
 @task('tenant-fetch-orders')
@@ -178,6 +183,8 @@ php artisan create:guest-user pika 'Developer' -a -r super-admin
     cd ../../
     echo "orders"
     php artisan fetch:orders {{$instance}} -q
+    php artisan fetch:payments {{$instance}} -q
+
 @endtask
 
 @task('tenant-fetch-delivery-notes')

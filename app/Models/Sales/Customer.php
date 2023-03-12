@@ -7,7 +7,8 @@
 
 namespace App\Models\Sales;
 
-use App\Actions\Marketing\Shop\HydrateShop;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomerInvoices;
+use App\Enums\Sales\Customer\CustomerStateEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
@@ -24,7 +25,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -48,7 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $tax_number_data
  * @property array $location
  * @property string $status
- * @property string|null $state
+ * @property CustomerStateEnum|null $state
  * @property string|null $trade_state number of invoices
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -80,12 +80,12 @@ class Customer extends Model
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
-    use Searchable;
 
     protected $casts = [
         'data'            => 'array',
         'tax_number_data' => 'array',
         'location'        => 'array',
+        'state'           => CustomerStateEnum::class
 
     ];
 
@@ -113,15 +113,9 @@ class Customer extends Model
             }
         );
 
-        static::created(
-            function (Customer $customer) {
-                HydrateShop::make()->customerStats($customer->shop);
-            }
-        );
-
         static::updated(function (Customer $customer) {
             if ($customer->wasChanged('trade_state')) {
-                HydrateShop::make()->customerNumberInvoicesStats($customer->shop);
+                ShopHydrateCustomerInvoices::dispatch($customer->shop);
             }
             if ($customer->wasChanged(['company_name', 'contact_name'])) {
                 $customer->name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
