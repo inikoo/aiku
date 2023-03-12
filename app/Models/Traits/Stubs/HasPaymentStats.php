@@ -7,7 +7,7 @@
 
 namespace App\Models\Traits\Stubs;
 
-use App\Enums\Accounting\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasPaymentStats

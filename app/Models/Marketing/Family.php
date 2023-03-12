@@ -9,6 +9,7 @@ namespace App\Models\Marketing;
 
 use App\Actions\Marketing\Department\HydrateDepartment;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
+use App\Enums\Marketing\Family\FamilyStateEnum;
 use App\Models\Sales\SalesStats;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -59,7 +60,8 @@ class Family extends Model
     use UsesTenantConnection;
 
     protected $casts = [
-        'data' => 'array',
+        'data'  => 'array',
+        'state' => FamilyStateEnum::class
     ];
 
     protected $attributes = [

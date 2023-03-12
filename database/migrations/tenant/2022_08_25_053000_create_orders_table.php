@@ -26,7 +26,7 @@ return new class () extends Migration {
             $shopSubtypes = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
 
             $table->enum('type', $shopSubtypes)->index()->nullable();
-            $table->enum('state', ['submitted', 'in-warehouse','packed', 'finalised', 'dispatched','cancelled'])->default('in-basket')->index();
+            $table->string('state')->default('submitted')->index();
 
 
             $table->dateTimeTz('date');

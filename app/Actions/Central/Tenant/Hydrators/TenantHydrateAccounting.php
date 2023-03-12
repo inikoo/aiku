@@ -7,7 +7,7 @@
 
 namespace App\Actions\Central\Tenant\Hydrators;
 
-use App\Enums\Accounting\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;

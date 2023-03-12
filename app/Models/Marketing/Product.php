@@ -9,6 +9,7 @@ namespace App\Models\Marketing;
 
 use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
+use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Models\Sales\SalesStats;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -74,6 +75,7 @@ class Product extends Model
         'data'     => 'array',
         'settings' => 'array',
         'status'   => 'boolean',
+        'state'    => ProductStateEnum::class
     ];
 
     protected $attributes = [

@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 08 Mar 2023 12:56:54 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sun, 12 Mar 2023 23:45:17 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Accounting;
+namespace App\Enums\Accounting\Payment;
 
 use App\Enums\EnumHelperTrait;
 

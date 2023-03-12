@@ -8,6 +8,9 @@
 namespace App\Models\Marketing;
 
 use App\Actions\Central\Tenant\HydrateTenant;
+use App\Enums\Marketing\Shop\ShopStateEnum;
+use App\Enums\Marketing\Shop\ShopSubtypeEnum;
+use App\Enums\Marketing\Shop\ShopTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Fulfilment\FulfilmentOrder;
@@ -97,6 +100,9 @@ class Shop extends Model
         'data'     => 'array',
         'settings' => 'array',
         'location' => 'array',
+        'type'     => ShopTypeEnum::class,
+        'subtype'  => ShopSubtypeEnum::class,
+        'state'    => ShopStateEnum::class
     ];
 
     protected $attributes = [

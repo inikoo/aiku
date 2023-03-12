@@ -29,15 +29,9 @@ return new class () extends Migration {
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
-
-            $shopStates = ['in-process', 'open', 'closing-down', 'closed'];
-
-            $table->enum('state', $shopStates)->index();
-            $table->enum('type', ['shop', 'fulfilment_house', 'agent'])->index();
-            $shopSubtypes = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
-
-            $table->enum('subtype', $shopSubtypes)->nullable();
-
+            $table->string('state')->index();
+            $table->string('type')->index();
+            $table->string('subtype')->nullable();
             $table->date('open_at')->nullable();
             $table->date('closed_at')->nullable();
             $table->unsignedSmallInteger('language_id');

@@ -25,4 +25,9 @@ trait EnumHelperTrait
             }
         );
     }
+
+    public function snake(): string
+    {
+        return preg_replace('/-/', '_', $this->value);
+    }
 }

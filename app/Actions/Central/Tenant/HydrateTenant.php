@@ -14,6 +14,9 @@ use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithNormalise;
+use App\Enums\Marketing\Shop\ShopStateEnum;
+use App\Enums\Marketing\Shop\ShopSubtypeEnum;
+use App\Enums\Marketing\Shop\ShopTypeEnum;
 use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;
 use App\Models\Marketing\Shop;
@@ -63,32 +66,30 @@ class HydrateTenant extends HydrateModel
         ];
 
 
-        $shopStates      = ['in-process', 'open', 'closing-down', 'closed'];
         $shopStatesCount = Shop::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
-        foreach ($shopStates as $shopState) {
-            $stats['number_shops_state_'.preg_replace('/-/', '_', $shopState)] = Arr::get($shopStatesCount, preg_replace('/-/', '_', $shopState), 0);
+        foreach (ShopStateEnum::cases() as $shopState) {
+            $stats['number_shops_state_'.$shopState->snake()] = Arr::get($shopStatesCount, $shopState->value, 0);
         }
 
-        $shopTypes      = ['shop', 'fulfilment_house', 'agent'];
+
         $shopTypesCount = Shop::selectRaw('type, count(*) as total')
             ->groupBy('type')
             ->pluck('total', 'type')->all();
 
 
-        foreach ($shopTypes as $shopType) {
-            $stats['number_shops_type_'.$shopType] = Arr::get($shopTypesCount, $shopType, 0);
+        foreach (ShopTypeEnum::cases() as $shopType) {
+            $stats['number_shops_type_'.$shopType->snake()] = Arr::get($shopTypesCount, $shopType->value, 0);
         }
 
-        $shopSubtypes      = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
         $shopSubtypesCount = Shop::selectRaw('subtype, count(*) as total')
             ->groupBy('subtype')
             ->pluck('total', 'subtype')->all();
 
 
-        foreach ($shopSubtypes as $shopSubtype) {
-            $stats['number_shops_subtype_'.$shopSubtype] = Arr::get($shopSubtypesCount, $shopSubtype, 0);
+        foreach (ShopSubtypeEnum::cases() as $shopSubtype) {
+            $stats['number_shops_subtype_'.$shopSubtype->snake()] = Arr::get($shopSubtypesCount, $shopSubtype->value, 0);
         }
 
         $shopStatesSubtypesCount = Shop::selectRaw("concat(state,'_',subtype) as state_subtype, count(*) as total")
@@ -96,9 +97,9 @@ class HydrateTenant extends HydrateModel
             ->pluck('total', 'state_subtype')->all();
 
 
-        foreach ($shopStates as $shopState) {
-            foreach ($shopSubtypes as $shopSubtype) {
-                $stats['number_shops_state_subtype_'.preg_replace('/-/', '_', $shopState).'_'.$shopSubtype] = Arr::get($shopStatesSubtypesCount, preg_replace('/-/', '_', $shopState).'_'.$shopSubtype, 0);
+        foreach (ShopStateEnum::cases() as $shopState) {
+            foreach (ShopSubtypeEnum::cases() as $shopSubtype) {
+                $stats['number_shops_state_subtype_'.$shopState->snake().'_'.$shopSubtype->snake()] = Arr::get($shopStatesSubtypesCount, $shopState->value.'_'.$shopSubtype->value, 0);
             }
         }
 

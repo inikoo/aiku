@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Shop\Hydrators;
 
 use App\Actions\WithTenantJob;
+use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -21,7 +22,6 @@ class ShopHydrateProducts implements ShouldBeUnique
 
     public function handle(Shop $shop): void
     {
-        $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts   = Product::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
@@ -29,8 +29,8 @@ class ShopHydrateProducts implements ShouldBeUnique
         $stats         = [
             'number_products' => $shop->products->count(),
         ];
-        foreach ($productStates as $productState) {
-            $stats['number_products_state_'.str_replace('-', '_', $productState)] = Arr::get($stateCounts, $productState, 0);
+        foreach (ProductStateEnum::cases() as $productState) {
+            $stats['number_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
         }
         $shop->stats->update($stats);
     }

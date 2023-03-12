@@ -8,6 +8,7 @@
 namespace App\Models\Marketing;
 
 use App\Actions\Marketing\Shop\HydrateShop;
+use App\Enums\Marketing\Department\DepartmentStateEnum;
 use App\Models\Sales\SalesStats;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -59,7 +60,8 @@ class Department extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'data' => 'array',
+        'data'  => 'array',
+        'state' => DepartmentStateEnum::class
     ];
 
     protected $attributes = [

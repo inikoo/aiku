@@ -7,6 +7,7 @@
 
 namespace App\Models\Sales;
 
+use App\Enums\Sales\Order\OrderStateEnum;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasOrder;
@@ -79,7 +80,8 @@ class Order extends Model
     use Searchable;
 
     protected $casts = [
-        'data' => 'array'
+        'data'  => 'array',
+        'state' => OrderStateEnum::class
     ];
 
     protected $attributes = [

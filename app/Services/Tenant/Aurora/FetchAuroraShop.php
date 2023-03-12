@@ -26,7 +26,7 @@ class FetchAuroraShop extends FetchAurora
 
             'type'                     =>
                 match ($this->auroraModelData->{'Store Type'}) {
-                    'Dropshipping', 'Fulfilment' => 'fulfilment_house',
+                    'Dropshipping', 'Fulfilment' => 'fulfilment-house',
                     default => 'shop'
                 },
             'subtype'                  => strtolower($this->auroraModelData->{'Store Type'}),

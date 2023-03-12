@@ -24,7 +24,7 @@ return new class () extends Migration {
             $table->foreign('family_id')->references('id')->on('families');
 
 
-            $table->enum('state', ['in-process', 'active', 'discontinuing', 'discontinued'])->nullable()->index();
+            $table->string('state')->nullable()->index();
             $table->boolean('status')->nullable()->index();
             $table->enum('composition', ['unit', 'multiple', 'mix'])->default('unit');
 

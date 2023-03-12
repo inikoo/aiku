@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('department_id')->nullable();
             $table->foreign('department_id')->references('id')->on('departments');
 
-            $table->enum('state', ['in-process', 'active', 'discontinuing', 'discontinued'])->nullable()->index();
+            $table->string('state')->nullable()->index();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
             $table->jsonb('data');

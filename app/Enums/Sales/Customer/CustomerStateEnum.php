@@ -17,6 +17,5 @@ enum CustomerStateEnum: string
     case REGISTERED = 'registered';
     case ACTIVE     = 'active';
     case LOSING     = 'losing';
-
-    case LOST = 'lost';
+    case LOST       = 'lost';
 }

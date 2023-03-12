@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\PaymentAccount\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Enums\Accounting\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Models\Accounting\PaymentAccount;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;

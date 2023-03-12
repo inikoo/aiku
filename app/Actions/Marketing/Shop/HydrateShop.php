@@ -15,6 +15,7 @@ use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydratePaymentAccounts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydratePayments;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
+use App\Enums\Sales\Order\OrderStateEnum;
 use App\Models\Marketing\Department;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
@@ -53,22 +54,21 @@ class HydrateShop extends HydrateModel
         $stats       = [
             'number_orders' => $shop->orders->count(),
         ];
-        $orderStates = ['in-basket', 'in-process', 'in-warehouse', 'packed', 'finalised', 'dispatched', 'returned', 'cancelled'];
+
         $stateCounts = Order::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
 
-        foreach ($orderStates as $orderState) {
-            $stats['number_orders_state_'.str_replace('-', '_', $orderState)] = Arr::get($stateCounts, $orderState, 0);
+        foreach (OrderStateEnum::cases() as $orderState) {
+            $stats['number_orders_state_'.$orderState->snake()] = Arr::get($stateCounts, $orderState->value, 0);
         }
         $shop->stats->update($stats);
     }
 
     public function departmentsStats(Shop $shop)
     {
-        $departmentStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stateCounts      = Department::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
@@ -76,8 +76,8 @@ class HydrateShop extends HydrateModel
         $stats            = [
             'number_departments' => $shop->departments->count(),
         ];
-        foreach ($departmentStates as $departmentState) {
-            $stats['number_departments_state_'.str_replace('-', '_', $departmentState)] = Arr::get($stateCounts, $departmentState, 0);
+        foreach (OrderStateEnum::cases() as $departmentState) {
+            $stats['number_departments_state_'.$departmentState->snake()] = Arr::get($stateCounts, $departmentState->value, 0);
         }
         $shop->stats->update($stats);
     }
