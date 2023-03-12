@@ -15,6 +15,7 @@ use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydratePaymentAccounts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydratePayments;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
+use App\Enums\Marketing\Department\DepartmentStateEnum;
 use App\Enums\Sales\Order\OrderStateEnum;
 use App\Models\Marketing\Department;
 use App\Models\Sales\Invoice;
@@ -76,7 +77,7 @@ class HydrateShop extends HydrateModel
         $stats            = [
             'number_departments' => $shop->departments->count(),
         ];
-        foreach (OrderStateEnum::cases() as $departmentState) {
+        foreach (DepartmentStateEnum::cases() as $departmentState) {
             $stats['number_departments_state_'.$departmentState->snake()] = Arr::get($stateCounts, $departmentState->value, 0);
         }
         $shop->stats->update($stats);

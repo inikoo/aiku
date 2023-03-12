@@ -22,21 +22,7 @@ return new class () extends Migration {
             $table->string('number')->index();
             $table->enum('type', ['order', 'replacement'])->default('order')->index();
 
-            $table->enum(
-                'state',
-                [
-                    'submitted',
-                    'in-queue',
-                    'picker-assigned',
-                    'picking',
-                    'picked',
-                    'packing',
-                    'packed',
-                    'finalised',
-                    'dispatched',
-                    'cancelled'
-                ]
-            )->index();
+            $table->string('state')->index();
 
             $table->boolean('can_dispatch')->nullable();
             $table->boolean('restocking')->nullable();

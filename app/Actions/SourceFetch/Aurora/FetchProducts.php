@@ -72,7 +72,8 @@ class FetchProducts extends FetchAction
         $query = DB::connection('aurora')
             ->table('Product Dimension')
             ->where('Product Type', 'Product')
-            ->select('Product ID as source_id');
+            ->select('Product ID as source_id')
+            ->orderBy('Product ID');
 
         if ($this->shop) {
             $query->where('Product Store Key', $this->shop->source_id);

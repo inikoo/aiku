@@ -7,6 +7,7 @@
 
 namespace App\Models\Dispatch;
 
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
@@ -81,6 +82,7 @@ class DeliveryNote extends Model
 
     protected $casts = [
         'data'               => 'array',
+        'state'              => DeliveryNoteStateEnum::class,
         'date'               => 'datetime',
         'order_submitted_at' => 'datetime',
         'assigned_at'        => 'datetime',

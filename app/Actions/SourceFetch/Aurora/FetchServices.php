@@ -63,7 +63,8 @@ class FetchServices extends FetchAction
         return DB::connection('aurora')
             ->table('Product Dimension')
             ->where('Product Type', 'Service')
-            ->select('Product ID as source_id');
+            ->select('Product ID as source_id')
+            ->orderBy('Product ID');
     }
 
     public function count(): ?int
