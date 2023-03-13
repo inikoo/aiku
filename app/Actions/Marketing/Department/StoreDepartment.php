@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Department;
 
+use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateUniversalSearch;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
@@ -32,6 +33,8 @@ class StoreDepartment
                                                'scope' => 'sales-tenant-currency'
                                            ]);
         }
+
+        DepartmentHydrateUniversalSearch::dispatch($department);
 
         return $department;
     }

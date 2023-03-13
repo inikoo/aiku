@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Department;
 
+use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Marketing\Department;
 
@@ -16,6 +17,8 @@ class UpdateDepartment
 
     public function handle(Department $department, array $modelData): Department
     {
-        return $this->update($department, $modelData, ['data']);
+        $department = $this->update($department, $modelData, ['data']);
+        DepartmentHydrateUniversalSearch::dispatch($department);
+        return $department;
     }
 }
