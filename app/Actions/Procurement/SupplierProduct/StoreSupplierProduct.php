@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\SupplierProduct;
 
 use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct;
+use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -33,7 +34,7 @@ class StoreSupplierProduct
             );
         }
 
-
+        SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
         return $supplierProduct;
     }
 }
