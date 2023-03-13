@@ -6,8 +6,8 @@
  */
 
 
-use App\Actions\Marketing\Product\IndexProducts;
-use App\Actions\Marketing\Product\ShowProduct;
+use App\Actions\Marketing\Product\UI\IndexProducts;
+use App\Actions\Marketing\Product\UI\ShowProduct;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexProducts::class)->name('index');

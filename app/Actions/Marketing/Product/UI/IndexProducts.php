@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 Febr 2023 17:54:17 Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Mon, 13 Mar 2023 15:05:41 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Marketing\Product;
+namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
@@ -98,28 +98,24 @@ class IndexProducts extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
-        $this->routeName = $request->route()->getName();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inShop(Shop $shop): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->validateAttributes();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inShopInDepartment(Shop $shop, Department $department): LengthAwarePaginator
+    public function inShopInDepartment(Shop $shop, Department $department, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $department;
-        $this->validateAttributes();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
