@@ -12,6 +12,7 @@ use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -79,6 +80,7 @@ class DeliveryNote extends Model
     use HasSlug;
     use HasAddress;
     use UsesTenantConnection;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'               => 'array',

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatch\DeliveryNote;
 
+use App\Actions\Dispatch\DeliveryNote\Hydrators\DeliveryNoteHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Dispatch\DeliveryNote;
 
@@ -16,6 +17,8 @@ class UpdateDeliveryNote
 
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
-        return $this->update($deliveryNote, $modelData, ['data']);
+        $deliveryNote = $this->update($deliveryNote, $modelData, ['data']);
+        DeliveryNoteHydrateUniversalSearch::dispatch($deliveryNote);
+        return $deliveryNote;
     }
 }
