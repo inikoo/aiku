@@ -10,6 +10,7 @@ namespace App\Models\Procurement;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -64,6 +65,7 @@ class Agent extends Model
     use HasAddress;
     use HasSlug;
     use UsesTenantConnection;
+    use HasUniversalSearch;
 
     protected $casts = [
         'shared_data' => 'array',

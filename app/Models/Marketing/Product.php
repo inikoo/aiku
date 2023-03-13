@@ -11,6 +11,7 @@ use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Models\Sales\SalesStats;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -69,6 +70,7 @@ class Product extends Model
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
+    use HasUniversalSearch;
 
 
     protected $casts = [

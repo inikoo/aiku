@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,7 +28,7 @@ class StoreAgent
         $agent->location   = $agent->getLocation();
         $agent->save();
         TenantHydrateProcurement::dispatch(app('currentTenant'));
-
+        AgentHydrateUniversalSearch::dispatch($agent);
         return $agent;
     }
 }

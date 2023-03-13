@@ -8,6 +8,7 @@
 namespace App\Models\Inventory;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -46,6 +47,7 @@ class StockFamily extends Model
     use HasSlug;
     use SoftDeletes;
     use UsesTenantConnection;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'       => 'array',

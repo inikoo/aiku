@@ -1,25 +1,23 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sun, 06 Nov 2022 13:40:32 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Created: Sun, 30 Oct 2022 01:03:02 Greenwich Mean Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Central\User;
 
 use App\Actions\Central\User\Hydrators\UserHydrateUniversalSearch;
-use App\Models\Central\Tenant;
+use App\Actions\WithActionUpdate;
 use App\Models\Central\User;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreUser
+class UpdateUser
 {
-    use AsAction;
+    use WithActionUpdate;
 
-    public function handle(Tenant $tenant, $modelData): User
+    public function handle(User $user, array $modelData): User
     {
-        /** @var User $user */
-        $user = $tenant->users()->create($modelData);
+        $user = $this->update($user, $modelData, ['data']);
         UserHydrateUniversalSearch::dispatch($user);
         return $user;
     }

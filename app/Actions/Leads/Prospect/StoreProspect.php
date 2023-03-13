@@ -8,6 +8,7 @@
 namespace App\Actions\Leads\Prospect;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Leads\Prospect\Hydrators\ProspectHydrateUniversalSearch;
 use App\Models\Leads\Prospect;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,9 +26,10 @@ class StoreProspect
         $prospect->location = $prospect->getLocation();
         $prospect->save();
 
+        // TODO Create Hydrators actions
         //ShopHydrateProspects::dispatch($prospect->shop);
         //TenantHydrateProspects::dispatch(app('currentTenant'));
-
+        ProspectHydrateUniversalSearch::dispatch($prospect);
         return $prospect;
     }
 }

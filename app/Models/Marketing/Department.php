@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Enums\Marketing\Department\DepartmentStateEnum;
 use App\Models\Sales\SalesStats;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -56,6 +57,7 @@ class Department extends Model
     use HasSlug;
     use SoftDeletes;
     use UsesTenantConnection;
+    use HasUniversalSearch;
 
     protected $guarded = [];
 

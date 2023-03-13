@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dropshipping\CustomerClient;
 
+use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Dropshipping\CustomerClient;
 
@@ -16,6 +17,8 @@ class UpdateCustomerClient
 
     public function handle(CustomerClient $customerClient, array $modelData): CustomerClient
     {
-        return $this->update($customerClient, $modelData, ['data']);
+        $customerClient = $this->update($customerClient, $modelData, ['data']);
+        CustomerClientHydrateUniversalSearch::dispatch($customerClient);
+        return $customerClient;
     }
 }

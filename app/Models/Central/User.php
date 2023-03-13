@@ -7,6 +7,7 @@
 
 namespace App\Models\Central;
 
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -41,6 +42,7 @@ class User extends Authenticatable
     use HasApiTokens;
     use HasSlug;
     use UsesLandlordConnection;
+    use HasUniversalSearch;
 
     protected $guarded = [
     ];

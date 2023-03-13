@@ -11,6 +11,7 @@ use App\Actions\Marketing\Department\HydrateDepartment;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
 use App\Enums\Marketing\Family\FamilyStateEnum;
 use App\Models\Sales\SalesStats;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -58,6 +59,7 @@ class Family extends Model
     use HasSlug;
     use SoftDeletes;
     use UsesTenantConnection;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'  => 'array',

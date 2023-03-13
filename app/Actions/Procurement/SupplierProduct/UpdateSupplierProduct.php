@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\SupplierProduct;
 
+use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Procurement\SupplierProduct;
 
@@ -23,7 +24,7 @@ class UpdateSupplierProduct
             //todo create HistoricSupplierProduct and update current_historic_product_id if
         }
 
-
+        SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
         return $supplierProduct;
     }
 }

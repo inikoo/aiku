@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Product;
 
+use App\Actions\Marketing\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Marketing\Product;
 
@@ -22,7 +23,7 @@ class UpdateProduct
         )) {
             //todo create HistoricProduct and update current_historic_product_id if
         }
-
+        ProductHydrateUniversalSearch::dispatch($product);
 
         return $product;
     }

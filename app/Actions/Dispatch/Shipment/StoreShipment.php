@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatch\Shipment;
 
+use App\Actions\Dispatch\Shipment\Hydrators\ShipmentHydrateUniversalSearch;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,12 +16,16 @@ class StoreShipment
 {
     use AsAction;
 
-    public function handle(DeliveryNote $parent, array $modelData): ?Shipment
+    public function handle(DeliveryNote $parent, array $modelData): Shipment
     {
         if (class_basename($parent)=='DeliveryNote') {
             $parent->shipments()->create($modelData);
         }
+        /** @var Shipment $shipment */
+        $shipment = $parent->shipments()->create($modelData);
 
-        return null;
+        ShipmentHydrateUniversalSearch::dispatch($shipment);
+
+        return $shipment;
     }
 }

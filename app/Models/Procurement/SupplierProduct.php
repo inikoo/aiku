@@ -9,6 +9,7 @@ namespace App\Models\Procurement;
 
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,6 +63,7 @@ class SupplierProduct extends Model
     use UsesTenantConnection;
     use SoftDeletes;
     use HasSlug;
+    use HasUniversalSearch;
 
     protected $casts = [
         'shared_data' => 'array',

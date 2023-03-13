@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatch\DeliveryNote;
 
+use App\Actions\Dispatch\DeliveryNote\Hydrators\DeliveryNoteHydrateUniversalSearch;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Models\Dispatch\DeliveryNote;
@@ -33,7 +34,7 @@ class StoreDeliveryNote
         $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
         AttachHistoricAddressToModel::run($deliveryNote, $deliveryAddress, ['scope'=>'delivery']);
 
-
+        DeliveryNoteHydrateUniversalSearch::dispatch($deliveryNote);
         return $deliveryNote;
     }
 }
