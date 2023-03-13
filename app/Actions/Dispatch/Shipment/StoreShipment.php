@@ -18,9 +18,6 @@ class StoreShipment
 
     public function handle(DeliveryNote $parent, array $modelData): Shipment
     {
-        if (class_basename($parent)=='DeliveryNote') {
-            $parent->shipments()->create($modelData);
-        }
         /** @var Shipment $shipment */
         $shipment = $parent->shipments()->create($modelData);
 

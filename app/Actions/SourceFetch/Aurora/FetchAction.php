@@ -94,7 +94,7 @@ class FetchAction
                 }
 
 
-                if (in_array($command->getName(), ['fetch:orders', 'fetch:invoices', 'fetch:customers', 'fetch:delivery_notes'])) {
+                if (in_array($command->getName(), ['fetch:orders', 'fetch:invoices', 'fetch:customers', 'fetch:delivery-notes'])) {
                     $this->onlyNew = (bool)$command->option('only_new');
                 }
 

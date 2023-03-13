@@ -24,7 +24,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeliveryNotes extends FetchAction
 {
-    public string $commandSignature = 'fetch:delivery_notes {tenants?*} {--s|source_id=}  {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:delivery-notes {tenants?*} {--s|source_id=}  {--N|only_new : Fetch only new}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?DeliveryNote
     {

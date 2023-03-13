@@ -41,7 +41,8 @@ orders
 payments
 delivery-notes
 invoices
-deleted-invoices )
+deleted-invoices
+)
 for i in "${array[@]}";
 do
   (

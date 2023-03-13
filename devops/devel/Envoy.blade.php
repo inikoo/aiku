@@ -191,7 +191,7 @@ php artisan create:guest-user pika 'Developer' -a -r super-admin
     echo "tenant-fetch-delivery-notes" > step
     cd ../../
     echo "delivery notes"
-    php artisan fetch:delivery_notes {{$instance}} -q
+    php artisan fetch:delivery-notes {{$instance}} -q
 @endtask
 
 @task('tenant-fetch-invoices')
