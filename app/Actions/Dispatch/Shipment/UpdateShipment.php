@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatch\Shipment;
 
+use App\Actions\Dispatch\Shipment\Hydrators\ShipmentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Dispatch\Shipment;
 
@@ -16,6 +17,8 @@ class UpdateShipment
 
     public function handle(Shipment $shipment, array $modelData): Shipment
     {
-        return $this->update($shipment, $modelData, ['data']);
+        $shipment = $this->update($shipment, $modelData, ['data']);
+        ShipmentHydrateUniversalSearch::dispatch($shipment);
+        return $shipment;
     }
 }
