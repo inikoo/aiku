@@ -16,15 +16,16 @@ use App\Actions\Marketing\Product\ShowProduct;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Customer\IndexCustomers;
-use App\Actions\Sales\Customer\ShowCustomer;
+use App\Actions\Sales\Customer\UI\EditCustomer;
+use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Actions\Sales\Invoice\IndexInvoices;
 use App\Actions\Sales\Invoice\ShowInvoice;
 use App\Actions\Sales\Order\IndexOrders;
 use App\Actions\Sales\Order\ShowOrder;
 use App\Actions\Web\Website\IndexWebsites;
 use App\Actions\Web\Website\ShowWebsite;
-use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\CreateWebUser;
+use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\ShowWebUser;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,8 @@ Route::get('/{shop}', ShowShop::class)->name('show');
 
 Route::get('/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('show.customers.index');
 Route::get('/{shop}/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('show.customers.show');
+Route::get('/{shop}/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('show.customers.edit');
+
 Route::get('/{shop}/customers/{customer}/web-users', [IndexWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.index');
 Route::get('/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.show');
 

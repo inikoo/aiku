@@ -8,7 +8,7 @@
 namespace App\Actions\Web\WebUser;
 
 use App\Actions\InertiaAction;
-use App\Actions\Sales\Customer\ShowCustomer;
+use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Web\InertiaTableWebUserResource;
 use App\Models\Central\Tenant;

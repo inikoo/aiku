@@ -8,6 +8,7 @@
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faPlus} from '@/../private/pro-solid-svg-icons';
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 library.add(faPlus);
 
@@ -86,13 +87,13 @@ switch (props.size) {
     >
 
 
-        <font-awesome-icon
+        <FontAwesomeIcon
             v-if="action==='create'"
             aria-hidden="true"
             icon="fas fa-plus"
             :class="[iconClass]"/>
 
-        <font-awesome-icon
+        <FontAwesomeIcon
             v-if="leftIcon"
             :title="leftIcon['tooltip']"
             aria-hidden="true"
