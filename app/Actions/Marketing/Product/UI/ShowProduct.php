@@ -26,7 +26,7 @@ class ShowProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->can_edit = $request->user()->can('shops.products.edit');
+        $this->canEdit = $request->user()->can('shops.products.edit');
 
         return $request->user()->hasPermissionTo("shops.products.view");
     }
@@ -54,7 +54,7 @@ class ShowProduct extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($product),
                 'pageHead'    => [
                     'title' => $product->code,
-                    'edit'  => $this->can_edit ? [
+                    'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)

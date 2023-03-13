@@ -55,7 +55,7 @@ class IndexCustomers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->can_edit = $request->user()->can('shops.customers.edit');
+        $this->canEdit = $request->user()->can('shops.customers.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -79,7 +79,7 @@ class IndexCustomers extends InertiaAction
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title'   => __('customers'),
-                    'create'  => $this->can_edit && $this->routeName=='shops.show.customers.index' ? [
+                    'create'  => $this->canEdit && $this->routeName=='shops.show.customers.index' ? [
                         'route' => [
                             'name'       => 'shops.show.customers.create',
                             'parameters' => array_values($this->originalParameters)
