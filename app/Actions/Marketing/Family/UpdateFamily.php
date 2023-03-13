@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Family;
 
+use App\Actions\Marketing\Family\Hydrators\FamilyHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Marketing\Family;
 
@@ -16,6 +17,8 @@ class UpdateFamily
 
     public function handle(Family $family, array $modelData): Family
     {
-        return $this->update($family, $modelData, ['data']);
+        $family = $this->update($family, $modelData, ['data']);
+        FamilyHydrateUniversalSearch::dispatch($family);
+        return $family;
     }
 }

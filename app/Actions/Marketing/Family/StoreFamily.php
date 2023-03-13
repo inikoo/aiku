@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Family;
 
 use App\Actions\Marketing\Department\HydrateDepartment;
+use App\Actions\Marketing\Family\Hydrators\FamilyHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
@@ -45,6 +46,7 @@ class StoreFamily
             HydrateDepartment::make()->familiesStats($family->department);
         }
         ShopHydrateFamilies::dispatch($family->shop);
+        FamilyHydrateUniversalSearch::dispatch($family);
 
         return $family;
     }
