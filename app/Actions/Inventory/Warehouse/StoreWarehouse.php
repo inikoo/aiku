@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\Warehouse;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateWarehouse;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,6 +21,9 @@ class StoreWarehouse
         $warehouse = Warehouse::create($modelData);
         $warehouse->stats()->create();
         TenantHydrateWarehouse::run(app('currentTenant'));
+
+        WarehouseHydrateUniversalSearch::dispatch($warehouse);
+
 
         return $warehouse;
     }

@@ -55,7 +55,7 @@ class StoreOrder
 
         HydrateOrder::make()->originalItems($order);
 
-        OrderHydrateUniversalSearch::run($order);
+        OrderHydrateUniversalSearch::dispatch($order);
 
 
         return $order;

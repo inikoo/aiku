@@ -8,6 +8,7 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Inventory\Warehouse;
 
@@ -17,6 +18,8 @@ class UpdateWarehouse
 
     public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {
-        return $this->update($warehouse, $modelData, ['data','settings']);
+        $warehouse = $this->update($warehouse, $modelData, ['data','settings']);
+        WarehouseHydrateUniversalSearch::dispatch($warehouse);
+        return $warehouse;
     }
 }

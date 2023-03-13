@@ -9,6 +9,7 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Stock;
@@ -31,6 +32,7 @@ class StoreStock
         if ($stock->stock_family_id) {
             StockFamilyHydrateStocks::dispatch($stock->stockFamily);
         }
+        StockHydrateUniversalSearch::dispatch($stock);
 
         return $stock;
     }

@@ -7,6 +7,7 @@
 
 namespace App\Models\Inventory;
 
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -45,6 +46,7 @@ class Warehouse extends Model
     use HasSlug;
     use SoftDeletes;
     use UsesTenantConnection;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'     => 'array',

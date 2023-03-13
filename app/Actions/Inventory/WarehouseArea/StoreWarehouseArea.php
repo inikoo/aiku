@@ -8,6 +8,7 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
+use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -21,6 +22,8 @@ class StoreWarehouseArea
         /** @var WarehouseArea $warehouseArea */
         $warehouseArea= $warehouse->warehouseAreas()->create($modelData);
         $warehouseArea->stats()->create();
+        WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
+
         return $warehouseArea;
     }
 }

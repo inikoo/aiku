@@ -8,6 +8,7 @@
 namespace App\Models\Inventory;
 
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -45,6 +46,7 @@ class WarehouseArea extends Model
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
+    use HasUniversalSearch;
 
     protected $guarded = [];
 
