@@ -10,6 +10,7 @@ namespace App\Actions\Marketing\Product;
 
 use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\HistoricProduct\StoreHistoricProduct;
+use App\Actions\Marketing\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Product;
@@ -50,7 +51,7 @@ class StoreProduct
             FamilyHydrateProducts::dispatch($product->family);
         }
         ShopHydrateProducts::dispatch($product->shop);
-
+        ProductHydrateUniversalSearch::dispatch($product);
         return $product;
     }
 }
