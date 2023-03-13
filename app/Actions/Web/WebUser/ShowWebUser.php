@@ -8,10 +8,9 @@
 namespace App\Actions\Web\WebUser;
 
 use App\Actions\InertiaAction;
-use App\Actions\Sales\Customer\ShowCustomer;
+use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Http\Resources\Web\WebUserResource;
 use App\Models\Marketing\Shop;
-
 use App\Models\Sales\Customer;
 use App\Models\Web\WebUser;
 use Illuminate\Http\Request;

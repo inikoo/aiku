@@ -1,18 +1,16 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 17 Oct 2022 17:54:17 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 13 Mar 2023 17:41:13 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\Customer;
+namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -20,6 +18,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowCustomer extends InertiaAction
 {
+    use HasUICustomer;
+    private bool $can_edit;
+
     public function handle(Customer $customer): Customer
     {
         return $customer;
@@ -28,21 +29,21 @@ class ShowCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->can_edit = $request->user()->can('shops.customers.edit');
+
         return $request->user()->hasPermissionTo("shops.customers.view");
     }
 
-    public function asController(Customer $customer, Request $request): Customer
+    public function asController(Customer $customer, ActionRequest $request): Customer
     {
-        $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
+        $this->initialisation($request);
 
         return $this->handle($customer);
     }
 
-    public function inShop(Shop $shop, Customer $customer, Request $request): Customer
+    public function inShop(Shop $shop, Customer $customer, ActionRequest $request): Customer
     {
-        $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
+        $this->initialisation($request);
 
         return $this->handle($customer);
     }
@@ -101,7 +102,7 @@ class ShowCustomer extends InertiaAction
             ]
         };
 
-        $shopMeta=[];
+        $shopMeta = [];
 
         if ($this->routeName == 'customers.show') {
             $shopMeta = [
@@ -115,7 +116,6 @@ class ShowCustomer extends InertiaAction
         }
 
 
-
         return Inertia::render(
             'Sales/Customer',
             [
@@ -126,7 +126,15 @@ class ShowCustomer extends InertiaAction
                     'meta'  => array_filter([
                         $shopMeta,
                         $webUsersMeta
-                    ])
+                    ]),
+                    'edit'  => $this->can_edit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+
+
+                    ] : false,
 
                 ],
                 'customer'    => new CustomerResource($customer)
@@ -134,12 +142,6 @@ class ShowCustomer extends InertiaAction
         );
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->fillFromRequest($request);
-
-        $this->set('canEdit', $request->user()->can('shops.customers.edit'));
-    }
 
     #[Pure] public function jsonResponse(Customer $customer): CustomerResource
     {
@@ -147,36 +149,4 @@ class ShowCustomer extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, Customer $customer): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($customer, $routeName) {
-            $indexRouteParameters = $routeParameters;
-            array_pop($indexRouteParameters);
-
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'name'            => $customer->reference,
-                    'index'           => [
-                        'route'           => preg_replace('/show$/', 'index', $routeName),
-                        'routeParameters' => $indexRouteParameters,
-                        'overlay'         => __('customers list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('customer')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'customers.show'            => $headCrumb([$customer->shop->slug]),
-            'shops.show.customers.show' => array_merge(
-                (new ShowShop())->getBreadcrumbs($customer->shop),
-                $headCrumb([$customer->shop->slug, $customer->slug])
-            ),
-            default => []
-        };
-    }
 }

@@ -16,14 +16,17 @@ class InertiaAction
     use AsAction;
     use WithAttributes;
 
-    protected ?string $routeName = null;
+    protected ?string $routeName        = null;
+    protected array $originalParameters = [];
 
 
-    public function prepareForValidation(ActionRequest $request): void
+
+    public function initialisation(ActionRequest $request): void
     {
-        $this->routeName = $request->route()->getName();
+        $this->routeName         = $request->route()->getName();
+        $this->originalParameters=$request->route()->originalParameters();
+        $request->validate();
     }
-
 
     /**
      * @throws \Exception
