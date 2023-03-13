@@ -17,7 +17,7 @@ return new class () extends Migration {
             $table->string('slug')->unique();
             $table->string('code')->nullable();
 
-            $table->unsignedInteger('shipper_id')->index();
+            $table->unsignedInteger('shipper_id')->index()->nullable();
             $table->foreign('shipper_id')->references('id')->on('shippers');
 
             $table->string('tracking')->nullable()->index();
