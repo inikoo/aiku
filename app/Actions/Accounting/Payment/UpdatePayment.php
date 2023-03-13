@@ -7,6 +7,7 @@
 
 namespace App\Actions\Accounting\Payment;
 
+use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Accounting\Payment;
 
@@ -16,6 +17,8 @@ class UpdatePayment
 
     public function handle(Payment $payment, array $modelData): Payment
     {
-        return $this->update($payment, $modelData, ['data']);
+        $payment = $this->update($payment, $modelData, ['data']);
+        PaymentHydrateUniversalSearch::dispatch($payment);
+        return $payment;
     }
 }

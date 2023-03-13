@@ -7,6 +7,7 @@
 
 namespace App\Actions\Accounting\Payment;
 
+use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Sales\Customer;
@@ -24,6 +25,7 @@ class StorePayment
 
         /** @var Payment $payment */
         $payment = $parent->payments()->create($modelData);
+        PaymentHydrateUniversalSearch::dispatch($payment);
         return $payment;
     }
 }
