@@ -12,6 +12,7 @@ use App\Enums\Leads\Prospect\ProspectStateEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -57,6 +58,7 @@ class Prospect extends Model
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'            => 'array',
