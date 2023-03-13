@@ -29,7 +29,7 @@ class ShowCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->can_edit = $request->user()->can('shops.customers.edit');
+        $this->canEdit = $request->user()->can('shops.customers.edit');
 
         return $request->user()->hasPermissionTo("shops.customers.view");
     }
@@ -127,7 +127,7 @@ class ShowCustomer extends InertiaAction
                         $shopMeta,
                         $webUsersMeta
                     ]),
-                    'edit'  => $this->can_edit ? [
+                    'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)

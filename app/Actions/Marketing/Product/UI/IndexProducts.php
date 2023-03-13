@@ -1,21 +1,19 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 Febr 2023 17:54:17 Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Mon, 13 Mar 2023 15:05:41 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Marketing\Product;
+namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,6 +23,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexProducts extends InertiaAction
 {
+    use HasUIProducts;
+
     private Shop|Tenant|Department $parent;
 
     public function handle(): LengthAwarePaginator
@@ -57,6 +57,7 @@ class IndexProducts extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('shops.products.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -79,7 +80,14 @@ class IndexProducts extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('products'),
                 'pageHead'    => [
-                    'title' => __('products'),
+                    'title'   => __('products'),
+                    'create'  => $this->canEdit && $this->routeName=='shops.show.products.index' ? [
+                        'route' => [
+                            'name'       => 'shops.show.products.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('product')
+                    ] : false,
                 ],
                 'products' => ProductResource::collection($products),
 
@@ -98,53 +106,24 @@ class IndexProducts extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
-        $this->routeName = $request->route()->getName();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inShop(Shop $shop): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->validateAttributes();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inShopInDepartment(Shop $shop, Department $department): LengthAwarePaginator
+    public function inShopInDepartment(Shop $shop, Department $department, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $department;
-        $this->validateAttributes();
-
+        $this->initialisation($request);
         return $this->handle();
-    }
-
-    public function getBreadcrumbs(string $routeName, Shop|Tenant|Department $parent): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('products')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'products.index'            => $headCrumb(),
-            'shops.show.products.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
-            ),
-            default => []
-        };
     }
 }
