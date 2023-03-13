@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\StockFamily;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
 use App\Models\Inventory\StockFamily;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -21,6 +22,7 @@ class StoreStockFamily
         $stockFamily = StockFamily::create($modelData);
         $stockFamily->stats()->create();
         TenantHydrateInventory::dispatch(app('currentTenant'));
+        StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
         return $stockFamily;
     }
 }

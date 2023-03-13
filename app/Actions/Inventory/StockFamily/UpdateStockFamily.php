@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\StockFamily;
 
+use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Inventory\StockFamily;
 
@@ -16,6 +17,8 @@ class UpdateStockFamily
 
     public function handle(StockFamily $stockFamily, array $modelData): StockFamily
     {
-        return $this->update($stockFamily, $modelData, ['data']);
+        $stockFamily = $this->update($stockFamily, $modelData, ['data']);
+        StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
+        return $stockFamily;
     }
 }
