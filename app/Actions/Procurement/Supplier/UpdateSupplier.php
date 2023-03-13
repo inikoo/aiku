@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier;
 
+use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Procurement\Supplier;
 
@@ -16,6 +17,8 @@ class UpdateSupplier
 
     public function handle(Supplier $supplier, array $modelData): Supplier
     {
-        return $this->update($supplier, $modelData, ['shared_data','tenant_data','settings']);
+        $supplier = $this->update($supplier, $modelData, ['shared_data','tenant_data','settings']);
+        SupplierHydrateUniversalSearch::dispatch($supplier);
+        return $supplier;
     }
 }

@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\Supplier;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
+use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -41,6 +42,7 @@ class StoreSupplier
             AgentHydrateSuppliers::dispatch($supplier->agent);
         }
 
+        SupplierHydrateUniversalSearch::dispatch($supplier);
         return $supplier;
     }
 }
