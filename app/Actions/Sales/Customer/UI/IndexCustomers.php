@@ -73,18 +73,18 @@ class IndexCustomers extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $shops)
     {
         return Inertia::render(
-            'Sales/CreateCustomer',
+            'Sales/Customers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('customers'),
                 'pageHead'    => [
-                    'title' => __('customers'),
+                    'title'   => __('customers'),
                     'create'  => $this->can_edit && $this->routeName=='shops.show.customers.index' ? [
                         'route' => [
                             'name'       => 'shops.show.customers.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=>__('customer')
+                        'label'=> __('customer')
                     ] : false,
 
                 ],
@@ -119,13 +119,11 @@ class IndexCustomers extends InertiaAction
         return $this->handle();
     }
 
-    public function inShop(Shop $shop,ActionRequest $request): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
         $this->initialisation($request);
 
         return $this->handle();
     }
-
-
 }
