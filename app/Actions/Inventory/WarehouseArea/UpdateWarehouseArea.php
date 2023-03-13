@@ -8,6 +8,7 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
+use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Inventory\WarehouseArea;
 
@@ -17,6 +18,8 @@ class UpdateWarehouseArea
 
     public function handle(WarehouseArea $warehouseArea, array $modelData): WarehouseArea
     {
-        return $this->update($warehouseArea, $modelData, ['data']);
+        $warehouseArea = $this->update($warehouseArea, $modelData, ['data']);
+        WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
+        return $warehouseArea;
     }
 }
