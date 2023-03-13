@@ -17,6 +17,7 @@ use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\WebUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -80,6 +81,7 @@ class Customer extends Model
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'            => 'array',

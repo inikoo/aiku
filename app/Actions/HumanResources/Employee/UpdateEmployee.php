@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\HumanResources\Employee;
 
@@ -16,9 +17,11 @@ class UpdateEmployee
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-        return $this->update($employee, $modelData, [
+        $employee =  $this->update($employee, $modelData, [
             'data',
             'salary',
         ]);
+        EmployeeHydrateUniversalSearch::dispatch($employee);
+        return $employee;
     }
 }

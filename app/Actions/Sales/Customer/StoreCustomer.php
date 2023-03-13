@@ -11,6 +11,7 @@ use App\Actions\Central\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomers;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Support\Facades\Bus;
@@ -37,7 +38,10 @@ class StoreCustomer
         ])->dispatch();
 
 
+
         TenantHydrateCustomers::dispatch(app('currentTenant'));
+
+        CustomerHydrateUniversalSearch::dispatch($customer);
 
         return $customer;
     }

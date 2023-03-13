@@ -20,9 +20,9 @@ class StoreEmployee
     public function handle(array $modelData): Employee
     {
         $employee =  Employee::create($modelData);
-        EmployeeHydrateUniversalSearch::run($employee);
         EmployeeHydrateWeekWorkingHours::run($employee);
         TenantHydrateEmployees::dispatch(app('currentTenant'));
+        EmployeeHydrateUniversalSearch::run($employee);
         return $employee;
     }
 }

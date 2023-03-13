@@ -7,6 +7,7 @@
 
 namespace App\Actions\Sales\Customer;
 
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Sales\Customer;
 
@@ -16,6 +17,9 @@ class UpdateCustomer
 
     public function handle(Customer $customer, array $modelData): Customer
     {
-        return $this->update($customer, $modelData, ['data', 'tax_number_data']);
+        $customer =  $this->update($customer, $modelData, ['data', 'tax_number_data']);
+
+        CustomerHydrateUniversalSearch::dispatch($customer);
+        return $customer;
     }
 }

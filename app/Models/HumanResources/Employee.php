@@ -13,6 +13,7 @@ use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\User;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -71,6 +72,7 @@ class Employee extends Model implements HasMedia
     use InteractsWithMedia;
     use HasSlug;
     use SoftDeletes;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'                => 'array',
@@ -145,10 +147,5 @@ class Employee extends Model implements HasMedia
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    public function universalSearch(): MorphOne
-    {
-        return $this->morphOne(UniversalSearch::class, 'model');
     }
 }
