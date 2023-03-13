@@ -21,6 +21,6 @@ class UpdateLocation
 
         LocationHydrateUniversalSearch::dispatch($location);
 
-        return $this->update($location, $modelData, ['data']);
+        return $location;
     }
 }

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\Stock;
 
+use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Inventory\Stock;
 
@@ -16,6 +17,9 @@ class UpdateStock
 
     public function handle(Stock $stock, array $modelData): Stock
     {
-        return $this->update($stock, $modelData, ['data', 'settings']);
+        $stock = $this->update($stock, $modelData, ['data', 'settings']);
+        StockHydrateUniversalSearch::dispatch($stock);
+
+        return $stock;
     }
 }
