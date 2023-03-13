@@ -17,10 +17,8 @@ class UpdateEmployee
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-        $employee =  $this->update($employee, $modelData, [
-            'data',
-            'salary',
-        ]);
+        $employee =  $this->update($employee, $modelData, ['data', 'salary',]);
+
         EmployeeHydrateUniversalSearch::dispatch($employee);
         return $employee;
     }

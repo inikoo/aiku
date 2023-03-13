@@ -11,6 +11,7 @@ use App\Enums\Sales\Order\OrderStateEnum;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasOrder;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -78,6 +79,7 @@ class Order extends Model
     use HasSlug;
     use SoftDeletes;
     use Searchable;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'  => 'array',

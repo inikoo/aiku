@@ -8,6 +8,7 @@
 
 namespace App\Actions\Sales\Order;
 
+use App\Actions\Sales\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Sales\Order;
 
@@ -15,10 +16,11 @@ class UpdateOrder
 {
     use WithActionUpdate;
 
-    public function handle(
-        Order $order,
-        array $modelData
-    ): Order {
-        return $this->update($order, $modelData, ['data']);
+    public function handle(Order $order, array $modelData): Order
+    {
+        $order =  $this->update($order, $modelData, ['data']);
+
+        OrderHydrateUniversalSearch::dispatch($order);
+        return $order;
     }
 }

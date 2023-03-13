@@ -10,6 +10,7 @@ namespace App\Actions\Sales\Order;
 
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Sales\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Customer;
@@ -53,6 +54,9 @@ class StoreOrder
         AttachHistoricAddressToModel::run($order, $deliveryAddress, ['scope'=>'delivery']);
 
         HydrateOrder::make()->originalItems($order);
+
+        OrderHydrateUniversalSearch::run($order);
+
 
         return $order;
     }
