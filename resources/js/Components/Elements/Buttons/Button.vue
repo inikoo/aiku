@@ -60,7 +60,7 @@ switch (props.size) {
         break;
     case 'm':
         sizeClass = 'rounded-md x-4 py-2 text-sm';
-        iconClass= '-ml-1 mr-2 h-5 w-5';
+        iconClass= '-ml-1 mr-2 ';
         break;
     case 'l':
         sizeClass = 'rounded-md px-4 py-2 text-base';
@@ -82,7 +82,7 @@ switch (props.size) {
     <button
         type="button"
         :class="[
-        'border inline-flex items-center font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
+        'px-5 border inline-flex items-center font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
         typeClass,sizeClass]"
     >
 
@@ -91,6 +91,7 @@ switch (props.size) {
             v-if="action==='create'"
             aria-hidden="true"
             icon="fas fa-plus"
+            size="sm"
             :class="[iconClass]"/>
 
         <FontAwesomeIcon

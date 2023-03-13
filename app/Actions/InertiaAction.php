@@ -18,8 +18,7 @@ class InertiaAction
 
     protected ?string $routeName        = null;
     protected array $originalParameters = [];
-
-
+    protected bool $can_edit            =false;
 
     public function initialisation(ActionRequest $request): void
     {

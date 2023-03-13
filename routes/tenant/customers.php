@@ -6,7 +6,7 @@
  */
 
 
-use App\Actions\Sales\Customer\IndexCustomers;
+use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Actions\Web\WebUser\CreateWebUser;
 use App\Actions\Web\WebUser\IndexWebUser;

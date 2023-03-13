@@ -1,21 +1,19 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 17 Oct 2022 17:54:17 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 13 Mar 2023 21:14:37 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\Customer;
+namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\InertiaTableCustomerResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,6 +23,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexCustomers extends InertiaAction
 {
+    use HasUICustomers;
     private Shop|Tenant $parent;
 
     public function handle(): LengthAwarePaginator
@@ -56,6 +55,7 @@ class IndexCustomers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->can_edit = $request->user()->can('shops.customers.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -73,12 +73,20 @@ class IndexCustomers extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $shops)
     {
         return Inertia::render(
-            'Sales/Customers',
+            'Sales/CreateCustomer',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title' => __('customers'),
+                    'create'  => $this->can_edit && $this->routeName=='shops.show.customers.index' ? [
+                        'route' => [
+                            'name'       => 'shops.show.customers.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=>__('customer')
+                    ] : false,
+
                 ],
                 'customers'   => InertiaTableCustomerResource::collection($shops),
 
@@ -103,45 +111,21 @@ class IndexCustomers extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
-        $this->routeName = $request->route()->getName();
+        $this->initialisation($request);
 
         return $this->handle();
     }
 
-    public function InShop(Shop $shop): LengthAwarePaginator
+    public function inShop(Shop $shop,ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->validateAttributes();
+        $this->initialisation($request);
 
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('customers')
-                    ]
-                ],
-            ];
-        };
 
-        return match ($routeName) {
-            'customers.index'            => $headCrumb(),
-            'shops.show.customers.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
-            ),
-            default => []
-        };
-    }
 }

@@ -19,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowCustomer extends InertiaAction
 {
     use HasUICustomer;
-    private bool $can_edit;
+
 
     public function handle(Customer $customer): Customer
     {
@@ -132,8 +132,6 @@ class ShowCustomer extends InertiaAction
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
-
-
                     ] : false,
 
                 ],
@@ -147,6 +145,4 @@ class ShowCustomer extends InertiaAction
     {
         return new CustomerResource($customer);
     }
-
-
 }

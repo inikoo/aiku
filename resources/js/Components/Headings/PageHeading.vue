@@ -70,6 +70,21 @@ const locale = useLocaleStore();
                 </Button>
                 </Link>
             </span>
+            <span v-if="data['create']" class="hidden sm:block">
+                <Link :href="route(data['create']['route']['name'],data['create']['route']['parameters'])">
+                <Button type='secondary' action="create" class="capitalize">
+                 {{data['create']['label']}}
+                </Button>
+                </Link>
+            </span>
+
+            <span v-if="data['cancelCreate']" class="hidden sm:block">
+                <Link :href="route(data['cancelCreate']['route']['name'],data['cancelCreate']['route']['parameters'])">
+                <Button type='secondary' action="cancel" class="capitalize">
+                   {{ trans('Cancel') }}
+                </Button>
+                </Link>
+            </span>
 
 
             <span v-if="data['exitEdit']"  class="hidden sm:block">

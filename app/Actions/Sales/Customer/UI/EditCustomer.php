@@ -19,7 +19,6 @@ use Lorisleiva\Actions\ActionRequest;
 class EditCustomer extends InertiaAction
 {
     use HasUICustomer;
-    private bool $can_edit;
 
     public function handle(Customer $customer): Customer
     {
