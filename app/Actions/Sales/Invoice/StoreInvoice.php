@@ -36,7 +36,7 @@ class StoreInvoice
         $billingAddress = StoreHistoricAddress::run($billingAddress);
         AttachHistoricAddressToModel::run($invoice, $billingAddress, ['scope' => 'billing']);
 
-        InvoiceHydrateUniversalSearch::run($invoice);
+        InvoiceHydrateUniversalSearch::dispatch($invoice);
 
 
         return $invoice;

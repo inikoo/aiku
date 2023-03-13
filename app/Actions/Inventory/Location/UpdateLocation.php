@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\Location;
 
+use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Inventory\Location;
 
@@ -16,6 +17,10 @@ class UpdateLocation
 
     public function handle(Location $location, array $modelData): Location
     {
+        $location =  $this->update($location, $modelData, ['data']);
+
+        LocationHydrateUniversalSearch::dispatch($location);
+
         return $this->update($location, $modelData, ['data']);
     }
 }

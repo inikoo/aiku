@@ -9,6 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\Inventory\WarehouseArea\HydrateWarehouseArea;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,6 +53,7 @@ class Location extends Model
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'       => 'array',

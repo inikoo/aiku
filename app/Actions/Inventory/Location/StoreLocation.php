@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\Location;
 
+use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -24,6 +25,8 @@ class StoreLocation
         /** @var Location $location */
         $location = $parent->locations()->create($modelData);
         $location->stats()->create();
+
+        LocationHydrateUniversalSearch::dispatch($location);
 
         return $location;
     }
