@@ -9,6 +9,7 @@ namespace App\Actions\Sales\Invoice;
 
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Sales\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
@@ -34,6 +35,8 @@ class StoreInvoice
 
         $billingAddress = StoreHistoricAddress::run($billingAddress);
         AttachHistoricAddressToModel::run($invoice, $billingAddress, ['scope' => 'billing']);
+
+        InvoiceHydrateUniversalSearch::run($invoice);
 
 
         return $invoice;

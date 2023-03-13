@@ -7,6 +7,7 @@
 
 namespace App\Actions\Sales\Invoice;
 
+use App\Actions\Sales\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Sales\Invoice;
 use Illuminate\Support\Arr;
@@ -15,12 +16,12 @@ class UpdateInvoice
 {
     use WithActionUpdate;
 
-    public function handle(
-        Invoice $invoice,
-        array $modelData
-    ): Invoice {
+    public function handle(Invoice $invoice, array $modelData): Invoice
+    {
         $invoice->update(Arr::except($modelData, ['data']));
         $invoice->update($this->extractJson($modelData));
+
+        InvoiceHydrateUniversalSearch::dispatch($invoice);
 
         return $this->update($invoice, $modelData, ['data']);
     }

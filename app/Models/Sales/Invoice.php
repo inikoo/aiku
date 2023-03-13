@@ -11,6 +11,7 @@ use App\Actions\Marketing\Shop\HydrateShop;
 use App\Actions\Sales\Customer\HydrateCustomer;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -64,6 +65,7 @@ class Invoice extends Model
     use SoftDeletes;
     use HasSlug;
     use HasAddress;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'    => 'array',
