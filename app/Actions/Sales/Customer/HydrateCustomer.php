@@ -9,6 +9,7 @@
 namespace App\Actions\Sales\Customer;
 
 use App\Actions\HydrateModel;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Invoice;
 use Illuminate\Support\Arr;
@@ -21,10 +22,10 @@ class HydrateCustomer extends HydrateModel
 
     public function handle(Customer $customer): void
     {
-        $this->contact($customer);
         $this->invoices($customer);
         $this->webUsers($customer);
         $this->clients($customer);
+        CustomerHydrateUniversalSearch::run($customer);
     }
 
     public function webUsers(Customer $customer): void
@@ -65,15 +66,6 @@ class HydrateCustomer extends HydrateModel
         $customer->stats->update($stats);
     }
 
-
-    public function contact(Customer $customer): void
-    {
-        $customer->update(
-            [
-                'location' => $customer->billingAddress->getLocation()
-            ]
-        );
-    }
 
     public function clients(Customer $customer): void
     {
