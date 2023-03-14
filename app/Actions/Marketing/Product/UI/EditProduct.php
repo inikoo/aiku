@@ -26,7 +26,6 @@ class EditProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-
         return $request->user()->hasPermissionTo("shops.products.edit");
     }
 
@@ -46,14 +45,13 @@ class EditProduct extends InertiaAction
 
     public function htmlResponse(Product $product): Response
     {
-
         return Inertia::render(
-            'Marketing/Product',
+            'EditModel',
             [
                 'title'       => __('product'),
                 'breadcrumbs' => $this->getBreadcrumbs($product),
                 'pageHead'    => [
-                    'title' => $product->code,
+                    'title'     => $product->code,
                     'exitEdit'  => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
@@ -63,19 +61,34 @@ class EditProduct extends InertiaAction
 
 
                 ],
-                'product'  => new ProductResource($product),
-                'treeMaps' => [
-                    [
+                'formData' => [
+                    'blueprint' => [
                         [
-                            'name'  => __('products'),
-                            'icon'  => ['fal', 'fa-cube'],
-                            'href'  => ['shops.show.products.index', $product->slug],
-                            'index' => [
-                                'number' => $product->stats->number_products
+                            'title'  => __('id'),
+                            'fields' => [
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'value' => $product->code
+                                ],
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('label'),
+                                    'value' => $product->name
+                                ],
                             ]
-                        ],
+                        ]
+
                     ],
+                    'args' => [
+                        'updateRoute' => [
+                            'name'      => 'models.product.update',
+                            'parameters'=> $product->slug
+
+                        ],
+                    ]
                 ]
+
             ]
         );
     }
@@ -84,5 +97,4 @@ class EditProduct extends InertiaAction
     {
         return new ProductResource($product);
     }
-
 }

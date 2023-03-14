@@ -9,7 +9,9 @@ namespace App\Actions\Marketing\Product;
 
 use App\Actions\Marketing\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\Product;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateProduct
 {
@@ -26,5 +28,30 @@ class UpdateProduct
         ProductHydrateUniversalSearch::dispatch($product);
 
         return $product;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo("shops.products.edit");
+    }
+    public function rules(): array
+    {
+        return [
+            'code' => ['sometimes', 'required'],
+            'name' => ['sometimes', 'required'],
+        ];
+    }
+
+
+    public function asController(Product $product, ActionRequest $request): Product
+    {
+        $request->validate();
+        return $this->handle($product, $request->all());
+    }
+
+
+    public function jsonResponse(Product $product): ProductResource
+    {
+        return new ProductResource($product);
     }
 }
