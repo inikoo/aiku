@@ -23,7 +23,7 @@ class CreateCustomer extends InertiaAction
     public function handle(): Response
     {
         return Inertia::render(
-            'Sales/CreateCustomer',
+            'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('new customer'),

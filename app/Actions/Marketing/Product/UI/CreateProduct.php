@@ -23,7 +23,7 @@ class CreateProduct extends InertiaAction
     public function handle(): Response
     {
         return Inertia::render(
-            'Marketing/CreateProduct',
+            'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('new product'),
