@@ -11,8 +11,10 @@ use App\Actions\Marketing\Department\UI\CreateDepartment;
 use App\Actions\Marketing\Department\UI\EditDepartment;
 use App\Actions\Marketing\Department\UI\IndexDepartments;
 use App\Actions\Marketing\Department\UI\ShowDepartment;
-use App\Actions\Marketing\Family\IndexFamilies;
-use App\Actions\Marketing\Family\ShowFamily;
+use App\Actions\Marketing\Family\UI\CreateFamily;
+use App\Actions\Marketing\Family\UI\EditFamily;
+use App\Actions\Marketing\Family\UI\IndexFamilies;
+use App\Actions\Marketing\Family\UI\ShowFamily;
 use App\Actions\Marketing\Product\UI\CreateProduct;
 use App\Actions\Marketing\Product\UI\EditProduct;
 use App\Actions\Marketing\Product\UI\IndexProducts;
@@ -60,8 +62,10 @@ Route::get('/{shop}/departments/{department}/families', [IndexFamilies::class, '
 Route::get('/{shop}/departments/{department}/products', [IndexProducts::class, 'inShopInDepartment'])->name('show.departments.show.products.index');
 
 Route::get('/{shop}/families', [IndexFamilies::class, 'inShop'])->name('show.families.index');
-
+Route::get('/{shop}/families/create', CreateFamily::class)->name('show.families.create');
 Route::get('/{shop}/families/{family}', [ShowFamily::class, 'inShop'])->name('show.families.show');
+Route::get('/{shop}/families/{family}/edit', [EditFamily::class, 'inShop'])->name('show.families.edit');
+
 
 Route::get('/{shop}/products', [IndexProducts::class, 'inShop'])->name('show.products.index');
 Route::get('/{shop}/products/create', CreateProduct::class)->name('show.products.create');

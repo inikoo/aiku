@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 22 Feb 2023 11:05:40 Central European Standard Time, Malaga, Spain
+ * Created: Tue, 14 Mar 2023 11:41:21 Central European Standard Time, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Marketing\Family;
+namespace App\Actions\Marketing\Family\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\IndexShops;
@@ -22,8 +22,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowFamily extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
+    use HasUIFamily;
 
     public function handle(Family $family): Family
     {
@@ -32,19 +31,21 @@ class ShowFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('shops.families.edit');
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
-    public function asController(Family $family): Family
+    public function asController(Family $family, ActionRequest $request): Family
     {
+        $this->initialisation($request);
         return $this->handle($family);
     }
 
-    public function inShop(Shop $shop, Family $family, Request $request): Family
+    public function inShop(Shop $shop, Family $family, ActionRequest $request): Family
     {
         $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle($family);
     }
 
@@ -60,22 +61,14 @@ class ShowFamily extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($family),
                 'pageHead'    => [
                     'title' => $family->code,
-
-
+                    'edit'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+                    ] : false,
                 ],
                 'family'   => new FamilyResource($family),
-                'treeMaps' => [
-                    [
-                        [
-                            'name'  => __('products'),
-                            'icon'  => ['fal', 'fa-cube'],
-                            'href'  => ['shops.show.products.index', $family->slug],
-                            'index' => [
-                                'number' => $family->stats->number_products
-                            ]
-                        ],
-                    ],
-                ]
             ]
         );
     }
@@ -94,24 +87,5 @@ class ShowFamily extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(Family $family): array
-    {
-        return array_merge(
-            (new IndexShops())->getBreadcrumbs(),
-            [
-                'shops.show' => [
-                    'route'           => 'shops.show',
-                    'routeParameters' => $family->id,
-                    'name'            => $family->code,
-                    'index'           => [
-                        'route'   => 'shops.index',
-                        'overlay' => __('Families list')
-                    ],
-                    'modelLabel' => [
-                        'label' => __('family')
-                    ],
-                ],
-            ]
-        );
-    }
+
 }

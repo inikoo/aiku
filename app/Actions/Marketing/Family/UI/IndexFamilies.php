@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 February 2023 17:54:17 Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Tue, 14 Mar 2023 11:41:18 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Marketing\Family;
+namespace App\Actions\Marketing\Family\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
@@ -25,6 +25,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexFamilies extends InertiaAction
 {
+    use HasUIFamilies;
+
     private Shop|Tenant|Department $parent;
 
     public function handle(): LengthAwarePaginator
@@ -57,6 +59,7 @@ class IndexFamilies extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('shops.families.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -80,6 +83,13 @@ class IndexFamilies extends InertiaAction
                 'title'       => __('families'),
                 'pageHead'    => [
                     'title' => __('families'),
+                    'create'  => $this->canEdit && $this->routeName=='shops.show.families.index' ? [
+                        'route' => [
+                            'name'       => 'shops.show.families.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('family')
+                    ] : false,
                 ],
                 'families' => FamilyResource::collection($families),
 
@@ -98,53 +108,30 @@ class IndexFamilies extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
+        //$this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
+        $this->initialisation($request);
         $this->routeName = $request->route()->getName();
 
         return $this->handle();
     }
 
-    public function inShop(Shop $shop): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inShopInDepartment(Shop $shop, Department $department): LengthAwarePaginator
+    public function inShopInDepartment(Shop $shop, Department $department, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $department;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant|Department $parent): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('families')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'families.index'            => $headCrumb(),
-            'shops.show.families.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
-            ),
-            default => []
-        };
-    }
 }
