@@ -65,17 +65,21 @@ return [
 
     'inventory',
     'inventory.stocks',
+    'inventory.stocks.edit',
     'inventory.stocks.view',
     'inventory.warehouses',
+    'inventory.warehouses.edit',
     'inventory.warehouses.view',
     'inventory.warehouses.dispatch',
     'inventory.warehouses.dispatch.pick',
     'inventory.warehouses.dispatch.pack',
 
     'fulfilment',
+    'fulfilment.edit',
     'fulfilment.view',
 
     'production',
+    'production.edit',
     'production.view',
 
     'dispatch',
@@ -83,6 +87,7 @@ return [
     'dispatch.pack',
 
     'procurement',
+    'procurement.edit',
     'procurement.view'
 
 

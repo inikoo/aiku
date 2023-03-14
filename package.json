@@ -33,6 +33,7 @@
         "@vue-hero-icons/solid": "^1.7.2",
         "laravel-vue-i18n": "^2.2.2",
         "pinia": "^2.0.20",
-        "vue-cookies": "^1.8.1"
+        "vue-cookies": "^1.8.1",
+        "vue-tel-input": "^6.0.5"
     }
 }

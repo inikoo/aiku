@@ -75,6 +75,11 @@ class EditCustomer extends InertiaAction
                                     'label' => __('company'),
                                     'value' => $customer->company_name
                                 ],
+                                'phone'        => [
+                                    'type'  => 'phone',
+                                    'label' => __('Phone'),
+                                    'value' => $customer->phone
+                                ],
 
                             ]
                         ]

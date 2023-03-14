@@ -9,11 +9,11 @@
 import {useForm} from '@inertiajs/vue3';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {faSave} from '@/../private/pro-light-svg-icons';
-import Input from '@/Components/Forms/Fields/Primitives/Input.vue';
-
 import {library} from '@fortawesome/fontawesome-svg-core';
-
 library.add(faSave);
+import Input from '@/Components/Forms/Fields/Input.vue';
+import Phone from '@/Components/Forms/Fields/Phone.vue';
+
 
 const props = defineProps(['fieldData', 'field', 'args']);
 
@@ -24,7 +24,7 @@ const getComponent = (componentName) => {
 
     const components = {
         'input': Input,
-
+        'phone': Phone,
     };
     return components[componentName] ?? null;
 
