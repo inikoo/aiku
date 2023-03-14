@@ -8,7 +8,6 @@
 namespace App\Actions\Marketing\Department\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
@@ -16,14 +15,10 @@ use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowDepartment extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
+    use HasUIDepartment;
     public function handle(Department $department): Department
     {
         return $department;
