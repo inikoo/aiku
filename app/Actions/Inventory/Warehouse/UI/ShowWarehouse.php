@@ -1,38 +1,37 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 15 Sept 2022 14:41:26 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Tue, 14 Mar 2023 15:31:00 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\Warehouse;
+namespace App\Actions\Inventory\Warehouse\UI;
 
+use App\Actions\InertiaAction;
 use App\Actions\UI\Inventory\InventoryDashboard;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\Marketing\DepartmentResource;
 use App\Models\Inventory\Warehouse;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * @property Warehouse $warehouse
  */
-class ShowWarehouse
+class ShowWarehouse extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
+    use HasUIWarehouse;
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('inventory.warehouses.edit');
+
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
-    public function asController(Warehouse $warehouse): void
+    public function asController(Warehouse $warehouse, ActionRequest $request): void
     {
+        $this->initialisation($request);
         $this->warehouse    = $warehouse;
     }
 
@@ -49,6 +48,12 @@ class ShowWarehouse
                 'pageHead'    => [
                     'icon'  => 'fal fa-warehouse',
                     'title' => $this->warehouse->name,
+                    'edit'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+                    ] : false,
                     'meta'  => [
                         [
                             'name'     => trans_choice('warehouse area|warehouse areas', $this->warehouse->stats->number_warehouse_areas),
@@ -100,36 +105,15 @@ class ShowWarehouse
 
 
                 ],
-                'warehouse'   => $this->warehouse
+                'warehouse'   => $this->warehouse,
             ]
         );
     }
 
 
-    #[Pure] public function jsonResponse(): WarehouseResource
+    public function jsonResponse(): WarehouseResource
     {
         return new WarehouseResource($this->warehouse);
     }
 
-
-    public function getBreadcrumbs(Warehouse $warehouse): array
-    {
-        return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
-            [
-                'inventory.warehouses.show' => [
-                    'route'           => 'inventory.warehouses.show',
-                    'routeParameters' => $warehouse->slug,
-                    'name'            => $warehouse->code,
-                    'index'           => [
-                        'route'   => 'inventory.warehouses.index',
-                        'overlay' => __('warehouses list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('warehouse')
-                    ],
-                ],
-            ]
-        );
-    }
 }

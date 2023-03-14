@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\WarehouseArea;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\Warehouse\ShowWarehouse;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Central\Tenant;

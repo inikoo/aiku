@@ -1,35 +1,31 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 14 Sept 2022 19:25:53 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Tue, 14 Mar 2023 15:30:55 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\Warehouse;
+namespace App\Actions\Inventory\Warehouse\UI;
 
-use App\Actions\UI\Inventory\InventoryDashboard;
-use App\Actions\UI\WithInertia;
+use App\Actions\InertiaAction;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 /**
  * @property array $breadcrumbs
- * @property bool $canEdit
  * @property string $title
  */
-class IndexWarehouses
+class IndexWarehouses extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
 
+    use HasUIWarehouses;
 
     public function handle(): LengthAwarePaginator
     {
@@ -53,6 +49,7 @@ class IndexWarehouses
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('inventory.warehouses.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -62,9 +59,9 @@ class IndexWarehouses
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $request->validate();
 
-
+        //$request->validate();
+        $this->initialisation($request);
         return $this->handle();
     }
 
@@ -84,6 +81,13 @@ class IndexWarehouses
                 'title'       => __('warehouses'),
                 'pageHead'    => [
                     'title' => __('warehouses'),
+                    'create'  => $this->canEdit && $this->routeName=='inventory.warehouses.index' ? [
+                        'route' => [
+                            'name'       => 'inventory.warehouses.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('warehouse')
+                    ] : false,
                 ],
                 'warehouses'  => WarehouseResource::collection($warehouses),
 
@@ -101,18 +105,4 @@ class IndexWarehouses
     }
 
 
-    public function getBreadcrumbs(): array
-    {
-        return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
-            [
-                'inventory.warehouses.index' => [
-                    'route'      => 'inventory.warehouses.index',
-                    'modelLabel' => [
-                        'label' => __('warehouses')
-                    ],
-                ],
-            ]
-        );
-    }
 }

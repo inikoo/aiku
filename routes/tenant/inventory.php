@@ -12,8 +12,10 @@ use App\Actions\Inventory\Stock\IndexStocks;
 use App\Actions\Inventory\Stock\ShowStock;
 use App\Actions\Inventory\StockFamily\IndexStockFamilies;
 use App\Actions\Inventory\StockFamily\ShowStockFamily;
-use App\Actions\Inventory\Warehouse\IndexWarehouses;
-use App\Actions\Inventory\Warehouse\ShowWarehouse;
+use App\Actions\Inventory\Warehouse\UI\CreateWarehouse;
+use App\Actions\Inventory\Warehouse\UI\EditWarehouse;
+use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\ShowWarehouseArea;
 use App\Actions\UI\Inventory\InventoryDashboard;
@@ -22,7 +24,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', InventoryDashboard::class)->name('dashboard');
 
 Route::get('/warehouses', IndexWarehouses::class)->name('warehouses.index');
+Route::get('/warehouses/create', CreateWarehouse::class)->name('warehouses.create');
 Route::get('/warehouses/{warehouse}', ShowWarehouse::class)->name('warehouses.show');
+Route::get('/warehouses/{warehouse}/edit', [EditWarehouse::class, 'inShop'])->name('warehouses.edit');
 
 
 Route::get('/areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('warehouse_areas.index');

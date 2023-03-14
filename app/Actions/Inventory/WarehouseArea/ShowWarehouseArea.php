@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
-use App\Actions\Inventory\Warehouse\ShowWarehouse;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\LocationResource;
