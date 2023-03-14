@@ -55,12 +55,12 @@ class EditEmployee extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('contact information'),
+                            'title'  => __('personal information'),
                             'fields' => [
 
                                 'name' => [
                                     'type'  => 'input',
-                                    'label' => __('contact name'),
+                                    'label' => __('name'),
                                     'value' => $employee->name
                                 ],
 
