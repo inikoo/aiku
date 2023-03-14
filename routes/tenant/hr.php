@@ -6,13 +6,19 @@
  */
 
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
-use App\Actions\HumanResources\Employee\IndexEmployee;
-use App\Actions\HumanResources\Employee\ShowEmployee;
+use App\Actions\HumanResources\Employee\UI\CreateEmployee;
+use App\Actions\HumanResources\Employee\UI\EditEmployee;
+use App\Actions\HumanResources\Employee\UI\IndexEmployee;
+use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 
 Route::get('/', HumanResourcesDashboard::class)->name('dashboard');
 Route::get('/employees', IndexEmployee::class)->name('employees.index');
+Route::get('/employees/create', CreateEmployee::class)->name('employees.create');
+
 Route::get('/employees/{employee}', ShowEmployee::class)->name('employees.show');
+Route::get('/employees/{employee}/edit', EditEmployee::class)->name('employees.edit');
+
 Route::post('/employees/{employee}/user', ShowEmployee::class)->name('employees.show.user');
 Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('employees.show.user.store');
 

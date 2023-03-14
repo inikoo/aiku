@@ -9,7 +9,9 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateEmployee
 {
@@ -21,5 +23,30 @@ class UpdateEmployee
 
         EmployeeHydrateUniversalSearch::dispatch($employee);
         return $employee;
+    }
+
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo("hr.edit");
+    }
+    public function rules(): array
+    {
+        return [
+            'name' => ['sometimes','required'],
+        ];
+    }
+
+
+    public function asController(Employee $employee, ActionRequest $request): Employee
+    {
+        $request->validate();
+        return $this->handle($employee, $request->all());
+    }
+
+
+    public function jsonResponse(Employee $employee): EmployeeResource
+    {
+        return new EmployeeResource($employee);
     }
 }

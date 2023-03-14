@@ -1,24 +1,20 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 23 Sep 2021 02:39:37 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2021, Inikoo
- *  Version 4.0
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 14 Mar 2023 19:12:29 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee;
+namespace App\Actions\HumanResources\Employee\UI;
 
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
-use App\Actions\UI\WithInertia;
+use App\Actions\InertiaAction;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -28,11 +24,9 @@ use Spatie\QueryBuilder\QueryBuilder;
  * @property bool $canEdit
  * @property string $title
  */
-class IndexEmployee
+class IndexEmployee extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
+    use HasUIEmployees;
 
     public function handle(): LengthAwarePaginator
     {
@@ -56,6 +50,8 @@ class IndexEmployee
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('hr.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -79,6 +75,13 @@ class IndexEmployee
                 'title'       => __('employees'),
                 'pageHead'    => [
                     'title' => __('employees'),
+                    'create'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'hr.employees.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('employee')
+                    ] : false,
                 ],
                 'employees'   => EmployeeInertiaResource::collection($employees),
 
@@ -96,25 +99,12 @@ class IndexEmployee
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
+        $this->initialisation($request);
 
         return $this->handle();
     }
 
-    public function getBreadcrumbs(): array
-    {
-        return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
-            [
-                'hr.employees.index' => [
-                    'route'      => 'hr.employees.index',
-                    'modelLabel' => [
-                        'label' => __('employees')
-                    ],
-                ],
-            ]
-        );
-    }
+
 }

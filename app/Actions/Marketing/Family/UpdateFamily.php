@@ -9,9 +9,7 @@ namespace App\Actions\Marketing\Family;
 
 use App\Actions\Marketing\Family\Hydrators\FamilyHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
-use App\Http\Resources\Marketing\FamilyResource;
 use App\Models\Marketing\Family;
-use Lorisleiva\Actions\ActionRequest;
 
 class UpdateFamily
 {
@@ -22,30 +20,5 @@ class UpdateFamily
         $family = $this->update($family, $modelData, ['data']);
         FamilyHydrateUniversalSearch::dispatch($family);
         return $family;
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo("shops.products.edit");
-    }
-    public function rules(): array
-    {
-        return [
-            'code' => ['sometimes', 'required'],
-            'name' => ['sometimes', 'required'],
-        ];
-    }
-
-
-    public function asController(Family $family, ActionRequest $request): Family
-    {
-        $request->validate();
-        return $this->handle($family, $request->all());
-    }
-
-
-    public function jsonResponse(Family $family): FamilyResource
-    {
-        return new FamilyResource($family);
     }
 }

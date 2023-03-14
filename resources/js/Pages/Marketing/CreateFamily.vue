@@ -1,7 +1,7 @@
 <!--
-  - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Tue, 14 Mar 2023 19:09:33 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+  - Created: Mon, 13 Mar 2023 15:36:10 Central European Standard Time, Malaga, Spain
+  - Copyright (c) 2023, Inikoo LTD
   -->
 
 <script setup>

@@ -93,9 +93,7 @@ class Family extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 
     public function shop(): BelongsTo

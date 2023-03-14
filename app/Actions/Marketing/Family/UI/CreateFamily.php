@@ -23,7 +23,7 @@ class CreateFamily extends InertiaAction
     public function handle(): Response
     {
         return Inertia::render(
-            'CreateModel',
+            'Marketing/CreateFamily',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('new Family'),
