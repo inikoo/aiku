@@ -1,20 +1,18 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 Febr 2023 17:54:17 Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Tue, 14 Mar 2023 08:13:54 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Marketing\Department;
+namespace App\Actions\Marketing\Department\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,6 +22,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDepartments extends InertiaAction
 {
+    use HasUIDepartments;
+
     private Shop|Tenant $parent;
 
     public function handle(): LengthAwarePaginator
@@ -54,6 +54,7 @@ class IndexDepartments extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('shops.departments.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -77,6 +78,13 @@ class IndexDepartments extends InertiaAction
                 'title'       => __('departments'),
                 'pageHead'    => [
                     'title' => __('departments'),
+                    'create'  => $this->canEdit && $this->routeName=='shops.show.departments.index' ? [
+                        'route' => [
+                            'name'       => 'shops.show.departments.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('department')
+                    ] : false,
                 ],
                 'departments' => DepartmentResource::collection($departments),
 
@@ -95,45 +103,21 @@ class IndexDepartments extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
+        //$this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
-        $this->routeName = $request->route()->getName();
+        $this->initialisation($request);
+        //$this->routeName = $request->route()->getName();
 
         return $this->handle();
     }
 
-    public function InShop(Shop $shop): LengthAwarePaginator
+    public function InShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
-    }
-
-    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('departments')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'departments.index'            => $headCrumb(),
-            'shops.show.departments.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
-            ),
-            default => []
-        };
     }
 }

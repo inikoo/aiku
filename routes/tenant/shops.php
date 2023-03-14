@@ -7,8 +7,10 @@
 
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
-use App\Actions\Marketing\Department\IndexDepartments;
-use App\Actions\Marketing\Department\ShowDepartment;
+use App\Actions\Marketing\Department\UI\CreateDepartment;
+use App\Actions\Marketing\Department\UI\EditDepartment;
+use App\Actions\Marketing\Department\UI\IndexDepartments;
+use App\Actions\Marketing\Department\UI\ShowDepartment;
 use App\Actions\Marketing\Family\IndexFamilies;
 use App\Actions\Marketing\Family\ShowFamily;
 use App\Actions\Marketing\Product\UI\CreateProduct;
@@ -48,8 +50,10 @@ Route::get('/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::cla
 Route::get('/{shop}/customers/{customer}/web-users/create', [CreateWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.create');
 
 Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('show.departments.index');
-
+Route::get('/{shop}/departments/create', CreateDepartment::class)->name('show.departments.create');
 Route::get('/{shop}/departments/{department}', [ShowDepartment::class, 'inShop'])->name('show.departments.show');
+Route::get('/{shop}/departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('show.departments.edit');
+
 
 Route::get('/{shop}/departments/{department}/families', [IndexFamilies::class, 'inShopInDepartment'])->name('show.departments.show.families.index');
 
