@@ -83,12 +83,12 @@ class UpdateProfile
         return $this->handle($request->user(), Arr::except($validated, 'avatar'), Arr::get($validated, 'avatar'));
     }
 
-    public function HtmlResponse(): RedirectResponse
+    public function htmlResponse(): RedirectResponse
     {
         return Redirect::route('profile.show');
     }
 
-    public function JsonResponse(User $user): UserResource
+    public function jsonResponse(User $user): UserResource
     {
         return new UserResource($user);
     }

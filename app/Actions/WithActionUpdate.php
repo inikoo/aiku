@@ -10,10 +10,12 @@ namespace App\Actions;
 
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 trait WithActionUpdate
 {
     use AsAction;
+    use WithAttributes;
 
     protected function extractJson($modelData, $field = ['data']): array
     {

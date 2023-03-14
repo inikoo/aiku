@@ -8,14 +8,20 @@
 
 use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Actions\Sales\Customer\UI\ShowCustomer;
+use App\Actions\Sales\Customer\UpdateCustomer;
 use App\Actions\Web\WebUser\CreateWebUser;
 use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\ShowWebUser;
 use Illuminate\Support\Facades\Route;
 
+Route::patch('/{customer}', UpdateCustomer::class)->name('update');
+
+
 Route::get('/', IndexCustomers::class)->name('index');
 Route::get('/{customer}', ShowCustomer::class)->name('show');
 Route::get('/{customer}/edit', [ShowCustomer::class, 'inShop'])->name('edit');
+
+
 
 
 Route::get('/{customer}/web-users', [IndexWebUser::class, 'inCustomer'])->name('show.web-users.index');

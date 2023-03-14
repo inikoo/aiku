@@ -119,9 +119,6 @@ class Customer extends Model
             if ($customer->wasChanged('trade_state')) {
                 ShopHydrateCustomerInvoices::dispatch($customer->shop);
             }
-            if ($customer->wasChanged(['company_name', 'contact_name'])) {
-                $customer->name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
-            }
         });
     }
 

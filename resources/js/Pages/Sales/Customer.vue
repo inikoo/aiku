@@ -5,11 +5,10 @@
   -->
 
 <script setup>
-import { Head } from "@inertiajs/inertia-vue3";
+import { Head , useForm} from '@inertiajs/vue3';
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faGlobe } from "@/../private/pro-light-svg-icons";
-import { useForm } from "@inertiajs/inertia-vue3";
 
 library.add(faGlobe);
 
@@ -20,7 +19,6 @@ import {
     Dialog,
     DialogPanel,
     DialogTitle,
-    DialogDescription,
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue";

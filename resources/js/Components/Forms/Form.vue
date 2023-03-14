@@ -4,8 +4,25 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
-const props = defineProps(['form', 'layout', 'url', 'method']);
+<script setup lang="ts">
+const props = defineProps(
+    {
+        'form':{
+
+        },
+        'layout':{
+
+        },
+        'url':{
+            type:String,
+
+        },
+        'method':{
+            type:String,
+            default:'post'
+        }
+    },
+);
 import SubmitButtons from '@/Components/Forms/SubmitButtons.vue';
 
 function submit() {
@@ -23,10 +40,7 @@ function submit() {
 </script>
 
 <template>
-    <form class="divide-y divide-gray-200 lg:col-span-9"
-
-          @submit.prevent="submit"
-    >
+    <form class="divide-y divide-gray-200 lg:col-span-9" @submit.prevent="submit">
 
         <div class="py-6 px-4 sm:p-6 lg:pb-8">
             <div>

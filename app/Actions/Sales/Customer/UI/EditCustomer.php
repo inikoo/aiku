@@ -13,7 +13,6 @@ use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditCustomer extends InertiaAction
@@ -24,7 +23,6 @@ class EditCustomer extends InertiaAction
     {
         return $customer;
     }
-
 
     public function authorize(ActionRequest $request): bool
     {
@@ -45,103 +43,57 @@ class EditCustomer extends InertiaAction
         return $this->handle($customer);
     }
 
-
-    private function makeRoute(Customer $customer, $suffix = '', $parameters = []): array
-    {
-        $route = $this->routeName;
-        if ($this->routeName == 'shops.show.customers.show') {
-            $routeParameters = [
-                $customer->shop->slug,
-                $customer->slug
-            ];
-        } else {
-            $routeParameters = [
-                $customer->slug
-            ];
-        }
-
-        $route           .= $suffix;
-        $routeParameters = array_merge_recursive($routeParameters, $parameters);
-
-
-        return [$route, $routeParameters];
-    }
-
-
     public function htmlResponse(Customer $customer): Response
     {
-        $webUsersMeta = match ($customer->stats->number_web_users) {
-            0 => [
-                'name'                  => 'add web user',
-                'leftIcon'              => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web user')
-                ],
-                'emptyWithCreateAction' => [
-                    'label' => __('web user')
-                ]
-            ],
-            1 => [
-                'href'     => $this->makeRoute($customer, '.web-users.show', [$customer->webUsers->first()->slug]),
-                'name'     => $customer->webUsers->first()->slug,
-                'leftIcon' => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web user'),
-                ],
-
-            ],
-            default => [
-                'name'     => $customer->webUsers->count(),
-                'leftIcon' => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web users')
-                ],
-            ]
-        };
-
-        $shopMeta = [];
-
-        if ($this->routeName == 'customers.show') {
-            $shopMeta = [
-                'href'     => ['shops.show', $customer->shop->slug],
-                'name'     => $customer->shop->code,
-                'leftIcon' => [
-                    'icon'    => 'fal fa-store-alt',
-                    'tooltip' => __('Shop'),
-                ],
-            ];
-        }
-
-
         return Inertia::render(
-            'Sales/Customer',
+            'EditModel',
             [
                 'title'       => __('customer'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $customer),
                 'pageHead'    => [
-                    'title' => $customer->name,
-                    'meta'  => array_filter([
-                        $shopMeta,
-                        $webUsersMeta
-                    ]),
-                    'exitEdit'  => [
+                    'title'    => $customer->name,
+                    'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                             'parameters' => array_values($this->originalParameters),
                         ]
+                    ],
+                ],
 
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'    => __('contact information'),
+                            'subtitle' => '',
+                            'fields'   => [
+
+                                'contact_name' => [
+                                    'type'  => 'input',
+                                    'label' => __('contact name'),
+                                    'value' => $customer->contact_name
+                                ],
+                                'company_name' => [
+                                    'type'  => 'input',
+                                    'label' => __('company'),
+                                    'value' => $customer->company_name
+                                ],
+
+                            ]
+                        ]
 
                     ],
+                    'args'      => [
+                        'updateRoute' => [
+                            'name'      => 'customers.update',
+                            'parameters'=> $customer->slug
+
+                        ],
+                    ]
 
                 ],
-                'customer'    => new CustomerResource($customer)
+
+                'customer' => new CustomerResource($customer)
             ]
         );
-    }
-
-
-    #[Pure] public function jsonResponse(Customer $customer): CustomerResource
-    {
-        return new CustomerResource($customer);
     }
 }
