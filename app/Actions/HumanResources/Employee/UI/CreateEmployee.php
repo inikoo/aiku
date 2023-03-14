@@ -1,23 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 13 Mar 2023 21:14:37 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 14 Mar 2023 19:09:33 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\Customer\UI;
+namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateCustomer extends InertiaAction
+class CreateEmployee extends InertiaAction
 {
-    use HasUICustomers;
-
-    private Shop $parent;
+    use HasUIEmployees;
 
 
     public function handle(): Response
@@ -25,13 +22,13 @@ class CreateCustomer extends InertiaAction
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title'       => __('new customer'),
+                'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __('new employee'),
                 'pageHead'    => [
-                    'title'        => __('new customer'),
+                    'title'        => __('new employee'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'shops.show.customers.index',
+                            'name'       => 'hr.employees.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -45,13 +42,12 @@ class CreateCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops.customers.edit');
+        return $request->user()->can('hr.edit');
     }
 
 
-    public function asController(Shop $shop, ActionRequest $request): Response
+    public function asController(ActionRequest $request): Response
     {
-        $this->parent = $shop;
         $this->initialisation($request);
 
         return $this->handle();

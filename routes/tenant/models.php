@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\Marketing\Department\UpdateDepartment;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use Illuminate\Support\Facades\Route;
@@ -13,3 +14,4 @@ use Illuminate\Support\Facades\Route;
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
 
 Route::patch('/department/{department}', UpdateDepartment::class)->name('department.update');
+Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.update');

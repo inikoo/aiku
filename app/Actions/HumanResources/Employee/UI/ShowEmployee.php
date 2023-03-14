@@ -1,26 +1,22 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 08 Sept 2022 00:30:30 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 14 Mar 2023 19:13:28 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee;
+namespace App\Actions\HumanResources\Employee\UI;
 
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
-use App\Actions\UI\WithInertia;
+use App\Actions\InertiaAction;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowEmployee
+class ShowEmployee extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
+    use HasUIEmployee;
 
     public function handle(Employee $employee): Employee
     {
@@ -30,17 +26,18 @@ class ShowEmployee
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('hr.edit');
         return $request->user()->hasPermissionTo("hr.view");
     }
 
-    public function asController(Employee $employee): Employee
+    public function asController(Employee $employee, ActionRequest $request): Employee
     {
+        $this->initialisation($request);
         return $this->handle($employee);
     }
 
     public function htmlResponse(Employee $employee): Response
     {
-        $this->validateAttributes();
 
 
         return Inertia::render(
@@ -67,45 +64,25 @@ class ShowEmployee
                                     'tooltip' => __('User')
                                 ]
                             ] : []
-                    ]
+                    ],
+                    'edit'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+                    ] : false,
                 ],
                 'employee'    => new EmployeeResource($employee)
             ]
         );
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->can('hr.edit'));
-        $this->set('canViewUsers', $request->user()->can('users.view'));
-    }
 
-    #[Pure] public function jsonResponse(Employee $employee): EmployeeResource
+   public function jsonResponse(Employee $employee): EmployeeResource
     {
         return new EmployeeResource($employee);
     }
 
 
-    public function getBreadcrumbs(Employee $employee): array
-    {
-        return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
-            [
-                'hr.employees.show' => [
-                    'route'           => 'hr.employees.show',
-                    'routeParameters' => $employee->id,
-                    'name'            => $employee->slug,
-                    'index'           => [
-                        'route'   => 'hr.employees.index',
-                        'overlay' => __('Employees list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('employee')
-                    ],
-                ],
-            ]
-        );
-    }
 }
