@@ -46,7 +46,7 @@ class EditFamily extends InertiaAction
     public function htmlResponse(Family $family): Response
     {
         return Inertia::render(
-            'Marketing/Family',
+            'EditModel',
             [
                 'title'       => __('family'),
                 'breadcrumbs' => $this->getBreadcrumbs($family),
@@ -61,18 +61,32 @@ class EditFamily extends InertiaAction
 
 
                 ],
-                'family'   => new FamilyResource($family),
-                'treeMaps' => [
-                    [
+                'formData' => [
+                    'blueprint' => [
                         [
-                            'name'  => __('families'),
-                            'icon'  => ['fal', 'fa-cube'],
-                            'href'  => ['shops.show.families.index', $family->slug],
-                            'index' => [
-                                'number' => $family->stats->number_products
+                            'title'  => __('id'),
+                            'fields' => [
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'value' => $family->code
+                                ],
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('label'),
+                                    'value' => $family->name
+                                ],
                             ]
-                        ],
+                        ]
+
                     ],
+                    'args' => [
+                        'updateRoute' => [
+                            'name'      => 'models.family.update',
+                            'parameters'=> $family->slug
+
+                        ],
+                    ]
                 ]
             ]
         );
