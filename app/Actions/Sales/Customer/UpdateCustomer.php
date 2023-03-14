@@ -11,7 +11,6 @@ use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Sales\Customer;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -55,10 +54,6 @@ class UpdateCustomer
         return $this->handle($customer, $request->all());
     }
 
-    public function htmlResponse(): RedirectResponse
-    {
-        return back();
-    }
 
     public function jsonResponse(Customer $customer): CustomerResource
     {

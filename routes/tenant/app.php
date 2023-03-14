@@ -83,6 +83,9 @@ Route::middleware([
         Route::prefix("sessions")
             ->name("sessions.")
             ->group(__DIR__."/sessions.php");
+        Route::prefix("models")
+            ->name("models.")
+            ->group(__DIR__."/models.php");
     });
     require __DIR__."/auth.php";
 });

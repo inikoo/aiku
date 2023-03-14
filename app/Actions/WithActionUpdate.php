@@ -8,6 +8,7 @@
 
 namespace App\Actions;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -44,5 +45,10 @@ trait WithActionUpdate
         $model->update($this->extractJson($modelData, $jsonFields));
 
         return $model;
+    }
+
+    public function htmlResponse(): RedirectResponse
+    {
+        return back();
     }
 }

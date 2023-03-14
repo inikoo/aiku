@@ -8,7 +8,6 @@
 namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Inertia\Inertia;
@@ -64,7 +63,6 @@ class EditCustomer extends InertiaAction
                     'blueprint' => [
                         [
                             'title'    => __('contact information'),
-                            'subtitle' => '',
                             'fields'   => [
 
                                 'contact_name' => [
@@ -84,7 +82,7 @@ class EditCustomer extends InertiaAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'      => 'customers.update',
+                            'name'      => 'models.customer.update',
                             'parameters'=> $customer->slug
 
                         ],
@@ -92,7 +90,6 @@ class EditCustomer extends InertiaAction
 
                 ],
 
-                'customer' => new CustomerResource($customer)
             ]
         );
     }

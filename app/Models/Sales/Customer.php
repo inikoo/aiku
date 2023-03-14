@@ -104,7 +104,8 @@ class Customer extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('reference')
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     protected static function booted()

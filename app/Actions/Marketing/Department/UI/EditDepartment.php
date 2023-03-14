@@ -26,7 +26,7 @@ class EditDepartment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("shops.departments.edit");
+        return $request->user()->hasPermissionTo("shops.products.edit");
     }
 
     public function asController(Department $department, ActionRequest $request): Department
@@ -46,7 +46,7 @@ class EditDepartment extends InertiaAction
     public function htmlResponse(Department $department): Response
     {
         return Inertia::render(
-            'Marketing/Department',
+            'EditModel',
             [
                 'title'       => __('department'),
                 'breadcrumbs' => $this->getBreadcrumbs($department),
@@ -61,18 +61,33 @@ class EditDepartment extends InertiaAction
 
 
                 ],
-                'department'  => new DepartmentResource($department),
-                'treeMaps'    => [
-                    [
+
+                'formData' => [
+                    'blueprint' => [
                         [
-                            'name'  => __('departments'),
-                            'icon'  => ['fal', 'fa-cube'],
-                            'href'  => ['shops.show.departments.index', $department->slug],
-                            'index' => [
-                                'number' => $department->stats->number_sub_departments
+                            'title'  => __('id'),
+                            'fields' => [
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'value' => $department->code
+                                ],
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('label'),
+                                    'value' => $department->name
+                                ],
                             ]
-                        ],
+                        ]
+
                     ],
+                    'args' => [
+                        'updateRoute' => [
+                            'name'      => 'models.department.update',
+                            'parameters'=> $department->slug
+
+                        ],
+                    ]
                 ]
             ]
         );
