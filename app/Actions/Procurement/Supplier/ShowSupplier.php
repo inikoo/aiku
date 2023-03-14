@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\ShowAgent;
+use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Supplier;

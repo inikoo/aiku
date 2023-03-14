@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 12:55:50 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Wed, 15 Mar 2023 13:52:58 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\Agent;
+namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
@@ -22,6 +22,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexAgents extends InertiaAction
 {
+    use HasUIAgents;
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -44,6 +45,7 @@ class IndexAgents extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('procurement.agents.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -53,8 +55,8 @@ class IndexAgents extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $request->validate();
-
+        //$request->validate();
+        $this->initialisation($request);
         return $this->handle();
     }
 
@@ -74,6 +76,13 @@ class IndexAgents extends InertiaAction
                 'title'       => __('agents'),
                 'pageHead'    => [
                     'title' => __('agents'),
+                    'create'  => $this->canEdit && $this->routeName=='procurement.agents.index' ? [
+                        'route' => [
+                            'name'       => 'procurement.agents.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('agent')
+                    ] : false,
                 ],
                 'agents'      => AgentResource::collection($agents),
 
@@ -89,18 +98,5 @@ class IndexAgents extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(): array
-    {
-        return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
-            [
-                'procurement.agents.index' => [
-                    'route'      => 'procurement.agents.index',
-                    'modelLabel' => [
-                        'label' => __('agents')
-                    ],
-                ],
-            ]
-        );
-    }
+
 }

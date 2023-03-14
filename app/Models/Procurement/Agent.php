@@ -100,6 +100,7 @@ class Agent extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
 

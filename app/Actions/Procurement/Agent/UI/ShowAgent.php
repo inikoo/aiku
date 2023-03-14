@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 13:06:04 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Wed, 15 Mar 2023 13:52:57 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\Agent;
+namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
@@ -21,13 +21,17 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowAgent extends InertiaAction
 {
+    use HasUIAgent;
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('procurement.agents.edit');
+
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(Agent $agent): void
+    public function asController(Agent $agent, ActionRequest $request): void
     {
+        $this->initialisation($request);
         $this->agent    = $agent;
     }
 
@@ -44,6 +48,12 @@ class ShowAgent extends InertiaAction
                 'pageHead'    => [
                     'icon'  => 'fal fa-agent',
                     'title' => $this->agent->name,
+                    'edit'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+                    ] : false,
                     'meta'  => [
                         [
                             'name'     => trans_choice('supplier|suppliers', $this->agent->stats->number_active_suppliers),
@@ -85,24 +95,5 @@ class ShowAgent extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(Agent $agent): array
-    {
-        return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
-            [
-                'procurement.agents.show' => [
-                    'route'           => 'procurement.agents.show',
-                    'routeParameters' => $agent->slug,
-                    'name'            => $agent->code,
-                    'index'           => [
-                        'route'   => 'procurement.agents.index',
-                        'overlay' => __('agents list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('agent')
-                    ],
-                ],
-            ]
-        );
-    }
+
 }

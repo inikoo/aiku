@@ -13,6 +13,7 @@ use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Marketing\Department\UpdateDepartment;
 use App\Actions\Marketing\Family\UpdateFamily;
 use App\Actions\Marketing\Product\UpdateProduct;
+use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use Illuminate\Support\Facades\Route;
 
@@ -31,3 +32,7 @@ Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.
 Route::patch('/areas/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse_area.update');
 
 Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');
+
+Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
+
+
