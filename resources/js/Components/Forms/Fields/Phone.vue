@@ -6,31 +6,46 @@
 
 <script setup>
 
-import { faExclamationCircle ,faCheckCircle} from "../../../../private/pro-solid-svg-icons";
+import {faExclamationCircle, faCheckCircle} from '../../../../private/pro-solid-svg-icons';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
-library.add(faExclamationCircle,faCheckCircle);
 
-const props = defineProps(['form', 'fieldName','options']);
+library.add(faExclamationCircle, faCheckCircle);
 
-import VueTelInput from 'vue-tel-input';
+const props = defineProps(['form', 'fieldName', 'options']);
+
+import {VueTelInput} from 'vue-tel-input';
 import 'vue-tel-input/dist/vue-tel-input.css';
 
-let defaultCountry=null
-if(props.options!==undefined && props.options.defaultCountry ){
-    defaultCountry=props.options.defaultCountry;
+import {ref} from 'vue';
+
+let defaultCountry = null;
+if (props.options !== undefined && props.options.defaultCountry) {
+    defaultCountry = props.options.defaultCountry;
 }
 
+const handleChange = (e) => {
+    props.form.phone = e.target.value.replace(/\s/g, '');
+};
+
+const phone = ref(props.form[props['fieldName']]);
 
 
 </script>
 
 <template>
     <div class="mt-1 relative rounded-md shadow-sm">
-        <vue-tel-input v-model="phone" mode="international"></vue-tel-input>
+
+        <VueTelInput
+            @input="handleChange"
+            v-model="phone"
+            inputOptions.placeholder="''"
+            :defaultCountry="defaultCountry"
+        ></VueTelInput>
+
 
         <div v-if="form.errors[fieldName] || form.recentlySuccessful " class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500" aria-hidden="true" />
+            <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500" aria-hidden="true"/>
             <FontAwesomeIcon icon="fas fa-check-circle" v-if="form.recentlySuccessful" class="mt-1.5  h-5 w-5 text-green-500" aria-hidden="true"/>
 
         </div>

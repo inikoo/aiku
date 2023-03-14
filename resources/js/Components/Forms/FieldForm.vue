@@ -56,8 +56,8 @@ if (props['fieldData']['type'] === 'address') {
 
 }
 
-
 const form = useForm(formFields);
+form.type='edit';
 
 </script>
 
