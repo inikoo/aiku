@@ -36,12 +36,7 @@ class EditWarehouse extends InertiaAction
         return $this->handle($warehouse);
     }
 
-    public function inShop(Warehouse $warehouse, ActionRequest $request): Warehouse
-    {
-        $this->initialisation($request);
 
-        return $this->handle($warehouse);
-    }
 
     public function htmlResponse(Warehouse $warehouse): Response
     {

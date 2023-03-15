@@ -30,7 +30,7 @@ Route::get('/', InventoryDashboard::class)->name('dashboard');
 Route::get('/warehouses', IndexWarehouses::class)->name('warehouses.index');
 Route::get('/warehouses/create', CreateWarehouse::class)->name('warehouses.create');
 Route::get('/warehouses/{warehouse}', ShowWarehouse::class)->name('warehouses.show');
-Route::get('/warehouses/{warehouse}/edit', [EditWarehouse::class, 'inShop'])->name('warehouses.edit');
+Route::get('/warehouses/{warehouse}/edit', EditWarehouse::class)->name('warehouses.edit');
 
 
 Route::get('/areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('warehouse_areas.index');
