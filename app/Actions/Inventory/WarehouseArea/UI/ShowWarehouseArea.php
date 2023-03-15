@@ -1,12 +1,13 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 16 Sept 2022 12:42:08 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Wed, 15 Mar 2023 08:39:50 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\WarehouseArea;
+namespace App\Actions\Inventory\WarehouseArea\UI;
 
+use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Actions\UI\WithInertia;
@@ -21,13 +22,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
 /**
  * @property WarehouseArea $warehouseArea
  */
-class ShowWarehouseArea
+class ShowWarehouseArea extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
-    private ?string $routeName = null;
+    use HasUIWarehouseArea;
 
     public function prepareForValidation(ActionRequest $request): void
     {
@@ -37,20 +34,23 @@ class ShowWarehouseArea
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('inventory.warehouse_areas.edit');
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
-    public function inOrganisation(WarehouseArea $warehouseArea): void
+    public function inOrganisation(WarehouseArea $warehouseArea, ActionRequest $request): void
     {
         $this->warehouseArea = $warehouseArea;
-        $this->validateAttributes();
+        //$this->validateAttributes();
+        $this->initialisation($request);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea): void
+    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): void
     {
         $this->warehouseArea = $warehouseArea;
-        $this->validateAttributes();
+        //$this->validateAttributes();
+        $this->initialisation($request);
     }
 
     public function htmlResponse(): Response
@@ -63,6 +63,12 @@ class ShowWarehouseArea
                 'pageHead'      => [
                     'icon'  => 'fal fa-map-signs',
                     'title' => $this->warehouseArea->name,
+                    'edit'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+                    ] : false,
                     'meta'  => [
                         [
                             'name'     => trans_choice('location|locations', $this->warehouseArea->stats->number_locations),
@@ -100,40 +106,4 @@ class ShowWarehouseArea
         return new LocationResource($this->warehouseArea);
     }
 
-
-    public function getBreadcrumbs(string $routeName, WarehouseArea $warehouseArea): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($warehouseArea, $routeName) {
-            $indexRouteParameters = $routeParameters;
-            array_pop($indexRouteParameters);
-
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'name'            => $warehouseArea->code,
-                    'index'           => [
-                        'route'           => preg_replace('/show$/', 'index', $routeName),
-                        'routeParameters' => $indexRouteParameters,
-                        'overlay'         => __('warehouse areas list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('area')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'inventory.warehouse_areas.show' => array_merge(
-                (new InventoryDashboard())->getBreadcrumbs(),
-                $headCrumb([$warehouseArea->slug])
-            ),
-            'inventory.warehouses.show.warehouse_areas.show' => array_merge(
-                (new ShowWarehouse())->getBreadcrumbs($warehouseArea->warehouse),
-                $headCrumb([$warehouseArea->warehouse->slug, $warehouseArea->slug])
-            ),
-            default => []
-        };
-    }
 }

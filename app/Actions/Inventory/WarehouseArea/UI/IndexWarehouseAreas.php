@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 15 Sept 2022 18:56:59 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Wed, 15 Mar 2023 08:39:46 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\WarehouseArea;
+namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
@@ -24,6 +24,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWarehouseAreas extends InertiaAction
 {
+    use HasUIWarehouseAreas;
+
     private Warehouse|Tenant $parent;
 
     public function handle(): LengthAwarePaginator
@@ -54,6 +56,7 @@ class IndexWarehouseAreas extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('inventory.warehouse_areas.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -62,24 +65,24 @@ class IndexWarehouseAreas extends InertiaAction
     }
 
 
-    public function inOrganisation(): LengthAwarePaginator
+    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
     {
-        $this->validateAttributes();
+        //$this->validateAttributes();
         $this->parent = app('currentTenant');
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inWarehouse(Warehouse $warehouse): LengthAwarePaginator
+    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $warehousesAreas): AnonymousResourceCollection
+    public function jsonResponse($warehousesAreas): AnonymousResourceCollection
     {
         return WarehouseAreaResource::collection($warehousesAreas);
     }
@@ -94,6 +97,13 @@ class IndexWarehouseAreas extends InertiaAction
                 'title'       => __('warehouse areas'),
                 'pageHead'    => [
                     'title' => __('warehouse areas'),
+                    'create'  => $this->canEdit && $this->routeName=='inventory.warehouse_areas.index' ? [
+                        'route' => [
+                            'name'       => 'inventory.warehouse_areas.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('warehouse areas')
+                    ] : false,
                 ],
                 'records'     => WarehouseAreaResource::collection($warehousesAreas),
 
@@ -107,36 +117,5 @@ class IndexWarehouseAreas extends InertiaAction
                 ->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true)
                 ->defaultSort('code');
         });
-    }
-
-
-    public function getBreadcrumbs(string $routeName, Warehouse|Tenant $parent): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('areas')
-                    ]
-                ],
-            ];
-        };
-
-
-        return match ($routeName) {
-            'inventory.warehouse_areas.index' =>
-            array_merge(
-                (new InventoryDashboard())->getBreadcrumbs(),
-                $headCrumb()
-            ),
-            'inventory.warehouses.show.warehouse_areas.index' =>
-            array_merge(
-                (new ShowWarehouse())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
-            ),
-            default => []
-        };
     }
 }

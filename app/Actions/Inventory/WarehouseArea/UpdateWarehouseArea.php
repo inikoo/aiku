@@ -10,7 +10,9 @@ namespace App\Actions\Inventory\WarehouseArea;
 
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Inventory\WarehouseArea;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateWarehouseArea
 {
@@ -21,5 +23,30 @@ class UpdateWarehouseArea
         $warehouseArea = $this->update($warehouseArea, $modelData, ['data']);
         WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
         return $warehouseArea;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    }
+    public function rules(): array
+    {
+        return [
+            'code' => ['sometimes', 'required'],
+            'name' => ['sometimes', 'required'],
+        ];
+    }
+
+
+    public function asController(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    {
+        $request->validate();
+        return $this->handle($warehouseArea, $request->all());
+    }
+
+
+    public function jsonResponse(WarehouseArea $warehouseArea): WarehouseAreaResource
+    {
+        return new WarehouseAreaResource($warehouseArea);
     }
 }

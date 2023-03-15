@@ -16,8 +16,10 @@ use App\Actions\Inventory\Warehouse\UI\CreateWarehouse;
 use App\Actions\Inventory\Warehouse\UI\EditWarehouse;
 use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\Inventory\WarehouseArea\IndexWarehouseAreas;
-use App\Actions\Inventory\WarehouseArea\ShowWarehouseArea;
+use App\Actions\Inventory\WarehouseArea\UI\CreateWarehouseArea;
+use App\Actions\Inventory\WarehouseArea\UI\EditWarehouseArea;
+use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
+use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -30,7 +32,9 @@ Route::get('/warehouses/{warehouse}/edit', [EditWarehouse::class, 'inShop'])->na
 
 
 Route::get('/areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('warehouse_areas.index');
+Route::get('/areas/create', CreateWarehouseArea::class)->name('warehouse_areas.create');
 Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inOrganisation'])->name('warehouse_areas.show');
+Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inOrganisation'])->name('warehouse_areas.edit');
 
 
 Route::get('/locations', [IndexLocations::class, 'inOrganisation'])->name('locations.index');
