@@ -37,6 +37,7 @@
         "opcodesio/log-viewer": "^1.2",
         "phlak/semver": "^4.0",
         "predis/predis": "^2.1",
+        "propaganistas/laravel-phone": "^5.0",
         "protonemedia/inertiajs-tables-laravel-query-builder": "^2.0",
         "sentry/sentry-laravel": "^3.2",
         "spatie/laravel-medialibrary": "^10.0.0",

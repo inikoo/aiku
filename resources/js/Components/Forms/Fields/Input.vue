@@ -17,7 +17,6 @@ const props = defineProps(['form', 'fieldName','options']);
 const handleChange = (form) => {
     if(form.type==='edit'){
         form.clearErrors();
-
     }
 }
 

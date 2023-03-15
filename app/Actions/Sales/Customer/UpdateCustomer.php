@@ -20,18 +20,18 @@ class UpdateCustomer
 
     public function handle(Customer $customer, array $modelData): Customer
     {
-        if (Arr::hasAny($modelData, ['contact_name','company_name'])) {
-            $contact_name=Arr::exists($modelData, 'contact_name') ? Arr::get($modelData, 'contact_name') : $customer->contact_name;
-            $company_name=Arr::exists($modelData, 'company_name') ? Arr::get($modelData, 'company_name') : $customer->company_name;
+        if (Arr::hasAny($modelData, ['contact_name', 'company_name'])) {
+            $contact_name = Arr::exists($modelData, 'contact_name') ? Arr::get($modelData, 'contact_name') : $customer->contact_name;
+            $company_name = Arr::exists($modelData, 'company_name') ? Arr::get($modelData, 'company_name') : $customer->company_name;
 
-            $modelData['name']=$company_name ?: $contact_name;
+            $modelData['name'] = $company_name ?: $contact_name;
         }
 
-        $customer =  $this->update($customer, $modelData, ['data', 'tax_number_data']);
-
+        $customer = $this->update($customer, $modelData, ['data', 'tax_number_data']);
 
 
         CustomerHydrateUniversalSearch::dispatch($customer);
+
         return $customer;
     }
 
@@ -39,11 +39,13 @@ class UpdateCustomer
     {
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
+
     public function rules(): array
     {
         return [
             'contact_name' => ['sometimes'],
             'company_name' => ['sometimes'],
+            'phone'        => 'sometimes|phone:AUTO',
         ];
     }
 
@@ -51,6 +53,7 @@ class UpdateCustomer
     public function asController(Customer $customer, ActionRequest $request): Customer
     {
         $request->validate();
+
         return $this->handle($customer, $request->all());
     }
 
