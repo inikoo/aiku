@@ -10,8 +10,10 @@ use App\Actions\Inventory\Location\UI\CreateLocation;
 use App\Actions\Inventory\Location\UI\EditLocation;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Location\UI\ShowLocation;
-use App\Actions\Inventory\Stock\IndexStocks;
-use App\Actions\Inventory\Stock\ShowStock;
+use App\Actions\Inventory\Stock\UI\CreateStock;
+use App\Actions\Inventory\Stock\UI\EditStock;
+use App\Actions\Inventory\Stock\UI\IndexStocks;
+use App\Actions\Inventory\Stock\UI\ShowStock;
 use App\Actions\Inventory\StockFamily\IndexStockFamilies;
 use App\Actions\Inventory\StockFamily\ShowStockFamily;
 use App\Actions\Inventory\Warehouse\UI\CreateWarehouse;
@@ -65,5 +67,7 @@ Route::get('/families', IndexStockFamilies::class)->name('stock-families.index')
 Route::get('/families/{stockFamily:slug}', ShowStockFamily::class)->name('stock-families.show');
 Route::get('/families/{stockFamily:slug}/stocks', [IndexStocks::class, 'inStockFamily'])->name('stock-families.show.stocks.index');
 
-Route::get('/stocks', IndexStocks::class)->name('stocks.index');
+Route::get('/stocks', [IndexStocks::class, 'inStockFamily'])->name('stocks.index');
+Route::get('/stocks/create', CreateStock::class)->name('stocks.create');
 Route::get('/stocks/{stock}', ShowStock::class)->name('stocks.show');
+Route::get('/stocks/{stock}/edit', EditStock::class)->name('stocks.edit');

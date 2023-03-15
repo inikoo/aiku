@@ -88,7 +88,7 @@ class IndexSupplierProducts extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('supplier_products'),
                 'pageHead'    => [
-                    'title' => __('supplier_products'),
+                    'title' => __('supplier products'),
                 ],
                 'supplier_products'   => SupplierProductResource::collection($supplier_products),
 

@@ -9,7 +9,9 @@ namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Stock;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStock
 {
@@ -21,5 +23,30 @@ class UpdateStock
         StockHydrateUniversalSearch::dispatch($stock);
 
         return $stock;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    }
+    public function rules(): array
+    {
+        return [
+            'code' => ['sometimes', 'required'],
+            'name' => ['sometimes', 'required'],
+        ];
+    }
+
+
+    public function asController(Stock $stock, ActionRequest $request): Stock
+    {
+        $request->validate();
+        return $this->handle($stock, $request->all());
+    }
+
+
+    public function jsonResponse(Stock $stock): StockResource
+    {
+        return new StockResource($stock);
     }
 }
