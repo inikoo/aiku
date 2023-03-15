@@ -65,6 +65,7 @@ class Warehouse extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(4);
     }
 

@@ -7,6 +7,7 @@
 
 
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Marketing\Department\UpdateDepartment;
 use App\Actions\Marketing\Family\UpdateFamily;
 use App\Actions\Marketing\Product\UpdateProduct;
@@ -20,4 +21,7 @@ Route::patch('/product/{product}', UpdateProduct::class)->name('product.update')
 Route::patch('/family/{family}', UpdateFamily::class)->name('family.update');
 
 Route::patch('/department/{department}', UpdateDepartment::class)->name('department.update');
+
 Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.update');
+
+Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');

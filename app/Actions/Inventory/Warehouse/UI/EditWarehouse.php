@@ -51,7 +51,7 @@ class EditWarehouse extends InertiaAction
                 'title'       => __('warehouse'),
                 'breadcrumbs' => $this->getBreadcrumbs($warehouse),
                 'pageHead'    => [
-                    'title'     => $warehouse->locations,
+                    'title'     => $warehouse->code,
                     'exitEdit'  => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
