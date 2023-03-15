@@ -1,90 +1,19 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 15 Sept 2022 14:41:26 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Mon, 13 Mar 2023 15:06:29 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\Location;
+namespace App\Actions\Inventory\Location\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Models\Inventory\Location;
-use App\Models\Inventory\Warehouse;
-use App\Models\Inventory\WarehouseArea;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Inertia\Inertia;
-use Inertia\Response;
-use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Location $location
- */
-class ShowLocation extends InertiaAction
+trait HasUILocation
 {
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo("inventory.view");
-    }
-
-
-    public function inOrganisation(Location $location): void
-    {
-        $this->location = $location;
-        $this->validateAttributes();
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location): void
-    {
-        $this->location = $location;
-        $this->validateAttributes();
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function InWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location): void
-    {
-        $this->location = $location;
-        $this->validateAttributes();
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, Location $location): void
-    {
-        $this->location = $location;
-        $this->validateAttributes();
-    }
-
-    public function htmlResponse(): Response
-    {
-        $this->validateAttributes();
-
-
-        return Inertia::render(
-            'Inventory/Location',
-            [
-                'title'       => __('location'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->location),
-                'pageHead'    => [
-                    'icon'  => 'fal fa-inventory',
-                    'title' => $this->location->code,
-
-
-                ],
-                'location'    => $this->location
-            ]
-        );
-    }
-
-
-    public function jsonResponse(): JsonResource
-    {
-        return new JsonResource($this->location);
-    }
-
-
     public function getBreadcrumbs(string $routeName, Location $location): array
     {
         $headCrumb = function (array $routeParameters = []) use ($location, $routeName) {
@@ -129,4 +58,5 @@ class ShowLocation extends InertiaAction
             default => []
         };
     }
+
 }

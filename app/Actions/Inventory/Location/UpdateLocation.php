@@ -9,7 +9,9 @@ namespace App\Actions\Inventory\Location;
 
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateLocation
 {
@@ -22,5 +24,30 @@ class UpdateLocation
         LocationHydrateUniversalSearch::dispatch($location);
 
         return $location;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo("inventory.locations.edit");
+    }
+    public function rules(): array
+    {
+        return [
+            'code' => ['sometimes', 'required'],
+            'name' => ['sometimes', 'required'],
+        ];
+    }
+
+
+    public function asController(Location $location, ActionRequest $request): Location
+    {
+        $request->validate();
+        return $this->handle($location, $request->all());
+    }
+
+
+    public function jsonResponse(Location $location): LocationResource
+    {
+        return new LocationResource($location);
     }
 }

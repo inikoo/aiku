@@ -1,16 +1,13 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 16 Sept 2022 12:27:08 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Wed, 15 Mar 2023 11:34:32 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\Location;
+namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
-use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Location;
@@ -26,6 +23,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexLocations extends InertiaAction
 {
+    use HasUILocations;
+
     protected ?Warehouse $warehouse                       = null;
     protected WarehouseArea|Warehouse|Tenant|null $parent = null;
 
@@ -62,42 +61,43 @@ class IndexLocations extends InertiaAction
     }
 
 
-    public function inOrganisation(): LengthAwarePaginator
+    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
     {
-        $this->validateAttributes();
-
+        $this->parent = app('currentTenant');
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inWarehouse(Warehouse $warehouse): LengthAwarePaginator
+    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
-
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inWarehouseArea(WarehouseArea $warehouseArea): LengthAwarePaginator
+    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouseArea;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function InWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea): LengthAwarePaginator
+    public function InWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouseArea;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('inventory.locations.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -119,6 +119,13 @@ class IndexLocations extends InertiaAction
                 'title'       => __('locations'),
                 'pageHead'    => [
                     'title' => __('locations'),
+                    'create'  => $this->canEdit && $this->routeName=='inventory.locations.index' ? [
+                        'route' => [
+                            'name'       => 'inventory.locations.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('locations')
+                    ] : false,
                 ],
                 'records'     => LocationResource::collection($locations),
 
@@ -132,39 +139,5 @@ class IndexLocations extends InertiaAction
         });
     }
 
-    public function getBreadcrumbs(string $routeName, WarehouseArea|Warehouse|Tenant|null $parent): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('locations')
-                    ]
-                ],
-            ];
-        };
 
-        return match ($routeName) {
-            'inventory.locations.index' => array_merge(
-                (new InventoryDashboard())->getBreadcrumbs(),
-                $headCrumb()
-            ),
-            'inventory.warehouses.show.locations.index' => array_merge(
-                (new ShowWarehouse())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
-            ),
-            'inventory.warehouse_areas.show.locations.index' => array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouse_areas.show', $parent),
-                $headCrumb([$parent->slug])
-            ),
-            'inventory.warehouses.show.warehouse_areas.show.locations.index' => array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouses.show.warehouse_areas.show', $parent),
-                $headCrumb([$parent->warehouse->slug, $parent->slug])
-            ),
-
-            default => []
-        };
-    }
 }

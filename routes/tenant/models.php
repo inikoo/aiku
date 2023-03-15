@@ -7,6 +7,7 @@
 
 
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Marketing\Department\UpdateDepartment;
@@ -28,3 +29,5 @@ Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.upda
 Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');
 
 Route::patch('/areas/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse_area.update');
+
+Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');

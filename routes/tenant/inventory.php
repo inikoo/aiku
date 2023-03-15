@@ -6,8 +6,10 @@
  */
 
 
-use App\Actions\Inventory\Location\IndexLocations;
-use App\Actions\Inventory\Location\ShowLocation;
+use App\Actions\Inventory\Location\UI\CreateLocation;
+use App\Actions\Inventory\Location\UI\EditLocation;
+use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Actions\Inventory\Location\UI\ShowLocation;
 use App\Actions\Inventory\Stock\IndexStocks;
 use App\Actions\Inventory\Stock\ShowStock;
 use App\Actions\Inventory\StockFamily\IndexStockFamilies;
@@ -38,7 +40,10 @@ Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inOrganisa
 
 
 Route::get('/locations', [IndexLocations::class, 'inOrganisation'])->name('locations.index');
+Route::get('/locations/create', CreateLocation::class)->name('locations.create');
 Route::get('/locations/{location}', [ShowLocation::class, 'inOrganisation'])->name('locations.show');
+Route::get('/locations/{location}/edit', [EditLocation::class, 'inOrganisation'])->name('locations.edit');
+
 
 Route::scopeBindings()->group(function () {
     Route::get('/areas/{warehouseArea}/locations', [IndexLocations::class, 'inWarehouseArea'])->name('warehouse_areas.show.locations.index');
