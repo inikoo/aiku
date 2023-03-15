@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 09:48:31 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Wed, 15 Mar 2023 14:14:56 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\Supplier;
+namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
@@ -23,6 +23,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSuppliers extends InertiaAction
 {
+    use HasUISuppliers;
+
     private Agent|Tenant $parent;
 
     public function handle(): LengthAwarePaginator
@@ -53,6 +55,7 @@ class IndexSuppliers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('procurement.suppliers.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -62,8 +65,9 @@ class IndexSuppliers extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $request->validate();
+        //$request->validate();
         $this->parent    = app('currentTenant');
+        $this->initialisation($request);
         return $this->handle();
     }
 
@@ -89,6 +93,13 @@ class IndexSuppliers extends InertiaAction
                 'title'       => __('suppliers'),
                 'pageHead'    => [
                     'title' => __('suppliers'),
+                    'create'  => $this->canEdit && $this->routeName=='procurement.suppliers.index' ? [
+                        'route' => [
+                            'name'       => 'procurement.suppliers.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('supplier')
+                    ] : false,
                 ],
                 'suppliers'   => SupplierResource::collection($suppliers),
 
@@ -103,19 +114,4 @@ class IndexSuppliers extends InertiaAction
         });
     }
 
-
-    public function getBreadcrumbs(): array
-    {
-        return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
-            [
-                'procurement.suppliers.index' => [
-                    'route'      => 'procurement.suppliers.index',
-                    'modelLabel' => [
-                        'label' => __('suppliers')
-                    ],
-                ],
-            ]
-        );
-    }
 }

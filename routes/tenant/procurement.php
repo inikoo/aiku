@@ -10,16 +10,19 @@ use App\Actions\Procurement\Agent\UI\CreateAgent;
 use App\Actions\Procurement\Agent\UI\EditAgent;
 use App\Actions\Procurement\Agent\UI\IndexAgents;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
-use App\Actions\Procurement\Supplier\IndexSuppliers;
-use App\Actions\Procurement\Supplier\ShowSupplier;
+use App\Actions\Procurement\Supplier\UI\CreateSupplier;
+use App\Actions\Procurement\Supplier\UI\EditSupplier;
+use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\Procurement\Supplier\UI\ShowSupplier;
 use App\Actions\Procurement\SupplierProduct\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ProcurementDashboard::class)->name('dashboard');
 Route::get('/suppliers', IndexSuppliers::class)->name('suppliers.index');
+Route::get('/suppliers/create', CreateSupplier::class)->name('suppliers.create');
 Route::get('/suppliers/{supplier}', ShowSupplier::class)->name('suppliers.show');
-
+Route::get('/suppliers/{supplier}/edit', EditSupplier::class)->name('suppliers.edit');
 
 Route::get('/agents', IndexAgents::class)->name('agents.index');
 Route::get('/agents/create', CreateAgent::class)->name('agents.create');

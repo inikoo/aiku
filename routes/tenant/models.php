@@ -14,6 +14,7 @@ use App\Actions\Marketing\Department\UpdateDepartment;
 use App\Actions\Marketing\Family\UpdateFamily;
 use App\Actions\Marketing\Product\UpdateProduct;
 use App\Actions\Procurement\Agent\UpdateAgent;
+use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use Illuminate\Support\Facades\Route;
 
@@ -35,4 +36,4 @@ Route::patch('/location/{location}', UpdateLocation::class)->name('location.upda
 
 Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
 
-
+Route::patch('/supplier/{supplier}', UpdateSupplier::class)->name('supplier.update');
