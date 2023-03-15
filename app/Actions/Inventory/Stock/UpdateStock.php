@@ -27,7 +27,7 @@ class UpdateStock
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return $request->user()->hasPermissionTo("inventory.stocks.edit");
     }
     public function rules(): array
     {

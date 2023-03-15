@@ -128,4 +128,9 @@ class Stock extends Model
     {
         return $this->belongsTo(StockFamily::class);
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 }
