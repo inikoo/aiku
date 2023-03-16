@@ -1,19 +1,16 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 13:06:04 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Thu, 16 Mar 2023 15:40:56 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Accounting\PaymentAccount;
+namespace App\Actions\Accounting\PaymentAccount\UI;
 
-use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
-use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -23,6 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowPaymentAccount extends InertiaAction
 {
+    use HasUIPaymentAccount;
     public function handle(PaymentAccount $paymentAccount): PaymentAccount
     {
         return $paymentAccount;
@@ -34,27 +32,24 @@ class ShowPaymentAccount extends InertiaAction
         return $request->user()->hasPermissionTo("accounting.view");
     }
 
-    public function asController(PaymentAccount $paymentAccount, Request $request): PaymentAccount
+    public function asController(PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
         $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle($paymentAccount);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, Request $request): PaymentAccount
+    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
         $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
-
+        $this->initialisation($request);
         return $this->handle($paymentAccount);
     }
 
     public function htmlResponse(PaymentAccount $paymentAccount): Response
     {
-        $this->validateAttributes();
-
 
         return Inertia::render(
             'Accounting/PaymentAccount',
@@ -69,10 +64,10 @@ class ShowPaymentAccount extends InertiaAction
                         $this->routeName=='accounting.payment-accounts.show'
                     ) ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'payments.create', $this->routeName) ,
+                            'name'       => preg_replace('/show$/', 'show.payments.create', $this->routeName) ,
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('warehouse')
+                        'label'=> __('payment')
                     ] : false,
                     'meta'  => [
                         [
@@ -109,39 +104,4 @@ class ShowPaymentAccount extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, PaymentAccount $paymentAccount): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($paymentAccount, $routeName) {
-            $indexRouteParameters = $routeParameters;
-            array_pop($indexRouteParameters);
-
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'name'            => $paymentAccount->code,
-                    'index'           => [
-                        'route'           => preg_replace('/show$/', 'index', $routeName),
-                        'routeParameters' => $indexRouteParameters,
-                        'overlay'         => __('accounts list')
-                    ],
-                    'modelLabel' => [
-                        'label' => __('account')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'accounting.payment-accounts.show' => array_merge(
-                (new AccountingDashboard())->getBreadcrumbs(),
-                $headCrumb([$paymentAccount->slug])
-            ),
-            'accounting.payment-service-providers.show.payment-accounts.show' => array_merge(
-                (new ShowPaymentServiceProvider())->getBreadcrumbs($paymentAccount->paymentServiceProvider),
-                $headCrumb([$paymentAccount->paymentServiceProvider->slug, $paymentAccount->slug])
-            ),
-            default => []
-        };
-    }
 }

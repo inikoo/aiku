@@ -5,19 +5,17 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Accounting\Payment\UI;
+namespace App\Actions\Accounting\PaymentAccount\UI;
 
-use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\UI\Accounting\AccountingDashboard;
-use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 
-trait HasUIPayments
+trait HasUIPaymentAccounts
 {
-    public function getBreadcrumbs(string $routeName, Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent): array
+    public function getBreadcrumbs(string $routeName, Shop|Tenant|PaymentServiceProvider $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -25,35 +23,23 @@ trait HasUIPayments
                     'route'           => $routeName,
                     'routeParameters' => $routeParameters,
                     'modelLabel'      => [
-                        'label' => __('payments')
+                        'label' => __('accounts')
                     ]
                 ],
             ];
         };
 
         return match ($routeName) {
-            'accounting.payments.index' =>
+            'accounting.payment-accounts.index' =>
             array_merge(
                 (new AccountingDashboard())->getBreadcrumbs(),
                 $headCrumb()
             ),
-            'accounting.payment-service-providers.show.payments.index' =>
+            'accounting.payment-service-providers.show.payment-accounts.index' =>
             array_merge(
                 (new ShowPaymentServiceProvider())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])
             ),
-            'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
-            array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-service-providers.show.payment-accounts.show', $parent),
-                $headCrumb([$parent->paymentServiceProvider->slug,$parent->slug])
-            ),
-
-            'accounting.payment-accounts.show.payments.index' =>
-            array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-accounts.show', $parent),
-                $headCrumb([$parent->slug])
-            ),
-
             default => []
         };
     }

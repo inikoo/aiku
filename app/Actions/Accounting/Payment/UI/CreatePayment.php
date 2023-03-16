@@ -20,10 +20,33 @@ class CreatePayment extends InertiaAction
 {
     use HasUIPayments;
 
+//
+    /*'route' => [
+    'name'       => 'accounting.payments.index',
+    ],*/
     private Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent;
 
     public function handle(): Response
     {
+        /*dd([
+            'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+            'title'       => __('new payment'),
+            'pageHead'    => [
+                'title'        => __('new payment'),
+                'cancelCreate' => [
+                    'name' => match ($this->routeName) {
+                        'accounting.payment-accounts.show.payments.create' => 'accounting.payment-accounts.show' ,
+                        default => preg_replace('/create$/', 'index', $this->routeName)
+
+
+                    },
+                    'parameters' => array_values($this->originalParameters)
+                ]
+
+            ],
+
+
+        ]);*/
         return Inertia::render(
             'CreateModel',
             [
@@ -33,14 +56,14 @@ class CreatePayment extends InertiaAction
                     'title'        => __('new payment'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'accounting.payments.index',
+                            'name' => match ($this->routeName) {
+                                'accounting.payment-accounts.show.payments.create' => 'accounting.payment-accounts.show',
+                                default                                            => preg_replace('/create$/', 'index', $this->routeName)
+                            },
                             'parameters' => array_values($this->originalParameters)
-                        ],
+                        ]
                     ]
-
                 ],
-
-
             ]
         );
     }
@@ -55,6 +78,13 @@ class CreatePayment extends InertiaAction
     {
         $this->initialisation($request);
         $this->parent = app('currentTenant');
+        return $this->handle();
+    }
+
+    public function inPaymentAccount(PaymentAccount $paymentAccount, ActionRequest $request): Response
+    {
+        $this->initialisation($request);
+        $this->parent = $paymentAccount;
         return $this->handle();
     }
 }

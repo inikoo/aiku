@@ -9,8 +9,9 @@ use App\Actions\Accounting\Payment\UI\CreatePayment;
 use App\Actions\Accounting\Payment\UI\EditPayment;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\Payment\UI\ShowPayment;
-use App\Actions\Accounting\PaymentAccount\IndexPaymentAccounts;
-use App\Actions\Accounting\PaymentAccount\ShowPaymentAccount;
+use App\Actions\Accounting\PaymentAccount\UI\CreatePaymentAccount;
+use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
+use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\IndexPaymentServiceProviders;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\Sales\Invoice\IndexInvoices;
@@ -35,8 +36,10 @@ Route::get('/providers/{paymentServiceProvider}/payments/{payment}', [ShowPaymen
 
 
 Route::get('/accounts', IndexPaymentAccounts::class)->name('payment-accounts.index');
+Route::get('/accounts/create', CreatePaymentAccount::class)->name('payment-accounts.create');
 Route::get('/accounts/{paymentAccount}', ShowPaymentAccount::class)->name('payment-accounts.show');
 Route::get('/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.index');
+Route::get('/accounts/{paymentAccount}/payments/create', [CreatePayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.create');
 Route::get('/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.show');
 
 
