@@ -1,16 +1,14 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 Febr 2023 17:54:17 Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Thu, 16 Mar 2023 08:17:51 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Accounting\Payment;
+namespace App\Actions\Accounting\Payment\UI;
 
-use App\Actions\Accounting\PaymentAccount\ShowPaymentAccount;
-use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
+
 use App\Actions\InertiaAction;
-use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -18,7 +16,6 @@ use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,6 +25,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPayments extends InertiaAction
 {
+    use HasUIPayments;
+
     private Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent;
 
     public function handle(): LengthAwarePaginator
@@ -45,12 +44,11 @@ class IndexPayments extends InertiaAction
         return QueryBuilder::for(Payment::class)
             ->defaultSort('payments.reference')
             ->select(['payments.reference', 'payments.slug', 'payments.status', 'payments.date',
-                      'payment_accounts.slug as payment_accounts_slug',
-                      'payment_service_providers.slug as payment_service_providers_slug'
-                     ])
+                'payment_accounts.slug as payment_accounts_slug',
+                'payment_service_providers.slug as payment_service_providers_slug'
+            ])
             ->leftJoin('payment_accounts', 'payments.payment_account_id', 'payment_accounts.id')
             ->leftJoin('payment_service_providers', 'payment_accounts.payment_service_provider_id', 'payment_service_providers.id')
-
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'PaymentServiceProvider') {
                     $query->where('payment_accounts.payment_service_provider_id', $this->parent->id);
@@ -70,6 +68,7 @@ class IndexPayments extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('accounting.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -90,11 +89,36 @@ class IndexPayments extends InertiaAction
             'Accounting/Payments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title'       => __('Payments '),
-                'pageHead'    => [
-                    'title' => __('Payments'),
+                'title' => __('payments '),
+                'pageHead' => [
+                    'title' => __('payments'),
+                    'create' => $this->canEdit &&
+                    (
+                        $this->routeName == 'accounting.payment-accounts.show.payments.index' or
+                        $this->routeName == 'accounting.payment-service-providers.show.payment-accounts.show.payments.index'
+                    )
+
+                        ? [
+                            'route' =>
+                                match ($this->routeName) {
+                                    'accounting.payment-accounts.show.payments.index' =>
+                                    [
+                                        'name' => 'accounting.payment-accounts.show.payments.create',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ],
+                                    'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
+                                    [
+                                        'name' => 'accounting.payment-service-providers.show.payment-accounts.show.payments.create',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ]
+                                }
+
+
+                            ,
+                            'label' => __('payments')
+                        ] : false,
                 ],
-                'payments'    => PaymentResource::collection($payments),
+                'payments' => PaymentResource::collection($payments),
 
 
             ]
@@ -114,86 +138,46 @@ class IndexPayments extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
-        $this->parent    = app('currentTenant');
-        $this->routeName = $request->route()->getName();
-
+        //$this->fillFromRequest($request);
+        $this->parent = app('currentTenant');
+        //$this->routeName = $request->route()->getName();
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider): LengthAwarePaginator
+    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $paymentServiceProvider;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inPaymentAccount(PaymentAccount $paymentAccount): LengthAwarePaginator
+    public function inPaymentAccount(PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $paymentAccount;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount): LengthAwarePaginator
+    public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $paymentAccount;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inShop(Shop $shop): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->validateAttributes();
-
+        //$this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('payments')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'accounting.payments.index' =>
-            array_merge(
-                (new AccountingDashboard())->getBreadcrumbs(),
-                $headCrumb()
-            ),
-            'accounting.payment-service-providers.show.payments.index' =>
-            array_merge(
-                (new ShowPaymentServiceProvider())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
-            ),
-            'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
-            array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-service-providers.show.payment-accounts.show', $parent),
-                $headCrumb([$parent->paymentServiceProvider->slug,$parent->slug])
-            ),
-
-            'accounting.payment-accounts.show.payments.index' =>
-            array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-accounts.show', $parent),
-                $headCrumb([$parent->slug])
-            ),
-
-            default => []
-        };
-    }
 }

@@ -16,7 +16,6 @@ use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -99,28 +98,24 @@ class IndexPaymentAccounts extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
-        $this->routeName = $request->route()->getName();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider): LengthAwarePaginator
+    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $paymentServiceProvider;
-        $this->validateAttributes();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function inShop(Shop $shop): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->validateAttributes();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 

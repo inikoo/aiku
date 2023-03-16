@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\UpdateStock;
@@ -40,3 +41,5 @@ Route::patch('/stock/{stock}', UpdateStock::class)->name('stock.update');
 Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
 
 Route::patch('/supplier/{supplier}', UpdateSupplier::class)->name('supplier.update');
+
+Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');

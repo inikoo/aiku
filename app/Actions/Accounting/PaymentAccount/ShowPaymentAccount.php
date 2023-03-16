@@ -30,6 +30,7 @@ class ShowPaymentAccount extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('accounting.edit');
         return $request->user()->hasPermissionTo("accounting.view");
     }
 
@@ -61,8 +62,18 @@ class ShowPaymentAccount extends InertiaAction
                 'title'       => $paymentAccount->name,
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $paymentAccount),
                 'pageHead'    => [
-                    'icon'  => 'fal fa-agent',
-                    'title' => $paymentAccount->slug,
+                    'icon'    => 'fal fa-agent',
+                    'title'   => $paymentAccount->slug,
+                    'create'  => $this->canEdit && (
+                        $this->routeName=='accounting.payment-service-providers.show.payment-accounts.show' or
+                        $this->routeName=='accounting.payment-accounts.show'
+                    ) ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'payments.create', $this->routeName) ,
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('warehouse')
+                    ] : false,
                     'meta'  => [
                         [
                             'name'   => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
@@ -83,7 +94,7 @@ class ShowPaymentAccount extends InertiaAction
                             ]
                         ],
 
-                    ]
+                    ],
 
                 ],
                 'payment_account' => $paymentAccount
