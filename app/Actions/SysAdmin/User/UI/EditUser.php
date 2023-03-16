@@ -5,48 +5,48 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\Stock\UI;
+namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Inventory\StockResource;
-use App\Models\Inventory\Stock;
+use App\Http\Resources\SysAdmin\UserResource;
+use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditStock extends InertiaAction
+class EditUser extends InertiaAction
 {
-    use HasUIStock;
-    public function handle(Stock $stock): Stock
+    use HasUIUser;
+    public function handle(User $user): User
     {
-        return $stock;
+        return $user;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.stocks.edit');
-        return $request->user()->hasPermissionTo("inventory.stocks.view");
+        $this->canEdit = $request->user()->can('sysadmin.edit');
+        return $request->user()->hasPermissionTo("sysadmin.view");
     }
 
-    public function asController(Stock $stock, ActionRequest $request): Stock
+    public function asController(User $user, ActionRequest $request): User
     {
         $this->initialisation($request);
 
-        return $this->handle($stock);
+        return $this->handle($user);
     }
 
 
 
-    public function htmlResponse(Stock $stock): Response
+    public function htmlResponse(User $user): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('stock'),
-                'breadcrumbs' => $this->getBreadcrumbs($stock),
+                'title'       => __('user'),
+                'breadcrumbs' => $this->getBreadcrumbs($user),
                 'pageHead'    => [
-                    'title'     => $stock->code,
+                    'title'     => $user->username,
                     'exitEdit'  => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
@@ -62,15 +62,15 @@ class EditStock extends InertiaAction
                         [
                             'title'  => __('id'),
                             'fields' => [
-                                'code' => [
+                                'username' => [
                                     'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $stock->code
+                                    'label' => __('username'),
+                                    'value' => $user->username
                                 ],
-                                'quantity' => [
+                                'email' => [
                                     'type'  => 'input',
-                                    'label' => __('label'),
-                                    'value' => $stock->quantity
+                                    'label' => __('email'),
+                                    'value' => $user->email
                                 ],
                             ]
                         ]
@@ -78,8 +78,8 @@ class EditStock extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.stock.update',
-                            'parameters'=> $stock->slug
+                            'name'      => 'models.user.update',
+                            'parameters'=> $user->username
 
                         ],
                     ]
@@ -88,8 +88,8 @@ class EditStock extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Stock $stock): StockResource
+    #[Pure] public function jsonResponse(User $user): UserResource
     {
-        return new StockResource($stock);
+        return new UserResource($user);
     }
 }

@@ -18,6 +18,7 @@ use App\Actions\Marketing\Product\UpdateProduct;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Sales\Customer\UpdateCustomer;
+use App\Actions\SysAdmin\User\UpdateUser;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
@@ -43,3 +44,5 @@ Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
 Route::patch('/supplier/{supplier}', UpdateSupplier::class)->name('supplier.update');
 
 Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');
+
+Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
