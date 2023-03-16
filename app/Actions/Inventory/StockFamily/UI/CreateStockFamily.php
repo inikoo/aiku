@@ -5,16 +5,16 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\Warehouse\UI;
+namespace App\Actions\Inventory\StockFamily\UI;
 
 use App\Actions\InertiaAction;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateWarehouse extends InertiaAction
+class CreateStockFamily extends InertiaAction
 {
-    use HasUIWarehouses;
+    use HasUIStockFamilies;
 
 
     public function handle(): Response
@@ -23,12 +23,12 @@ class CreateWarehouse extends InertiaAction
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('new warehouse'),
+                'title'       => __('new stock family'),
                 'pageHead'    => [
-                    'title'        => __('new warehouse'),
+                    'title'        => __('new stock family'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'inventory.warehouses.index',
+                            'name'       => 'inventory.stock-families.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -42,7 +42,7 @@ class CreateWarehouse extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('inventory.warehouses.edit');
+        return $request->user()->can('inventory.stocks.edit');
     }
 
 

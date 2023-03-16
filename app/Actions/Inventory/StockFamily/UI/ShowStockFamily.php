@@ -1,12 +1,13 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 25 Oct 2022 08:11:23 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Thu, 16 Mar 2023 13:21:47 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\StockFamily;
+namespace App\Actions\Inventory\StockFamily\UI;
 
+use App\Actions\InertiaAction;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\StockFamilyResource;
@@ -18,21 +19,22 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowStockFamily
+class ShowStockFamily extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
 
+    use HasUIStockFamily;
 
     private StockFamily $stockFamily;
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('inventory.stock-families.edit');
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
-    public function asController(StockFamily $stockFamily): void
+    public function asController(StockFamily $stockFamily, ActionRequest $request): void
     {
+        $this->initialisation($request);
         $this->stockFamily = $stockFamily;
     }
 
@@ -49,6 +51,12 @@ class ShowStockFamily
                 'pageHead'    => [
                     'icon'  => 'fal fa-inventory',
                     'title' => $this->stockFamily->code,
+                    'edit'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+                    ] : false,
                     'meta'  => [
                         [
                             'name'     => trans_choice('stock | stocks', $this->stockFamily->stats->number_stocks),
@@ -77,24 +85,4 @@ class ShowStockFamily
     }
 
 
-    public function getBreadcrumbs(StockFamily $stockFamily): array
-    {
-        return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
-            [
-                'inventory.stocks.show' => [
-                    'route'           => 'inventory.stock-families.show',
-                    'routeParameters' => $stockFamily->slug,
-                    'name'            => $stockFamily->code,
-                    'index'           => [
-                        'route'   => 'inventory.stock-families.index',
-                        'overlay' => __('stocks family list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('stock family')
-                    ],
-                ],
-            ]
-        );
-    }
 }

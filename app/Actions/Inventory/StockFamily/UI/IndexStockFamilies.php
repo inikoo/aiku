@@ -1,12 +1,13 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 24 Oct 2022 22:25:58 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Thu, 16 Mar 2023 13:21:43 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\StockFamily;
+namespace App\Actions\Inventory\StockFamily\UI;
 
+use App\Actions\InertiaAction;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\StockFamilyResource;
@@ -20,11 +21,9 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexStockFamilies
+class IndexStockFamilies extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
+    use HasUIStockFamilies;
 
     public function handle(): LengthAwarePaginator
     {
@@ -48,16 +47,21 @@ class IndexStockFamilies
 
     public function authorize(ActionRequest $request): bool
     {
+
+        $this->canEdit = $request->user()->can('inventory.stocks.edit');
+
         return
             (
+
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.view')
+                $request->user()->hasPermissionTo('inventory.stocks.view')
             );
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $request->validate();
+        //$request->validate();
+        $this->initialisation($request);
         return $this->handle();
     }
 
@@ -74,9 +78,15 @@ class IndexStockFamilies
             'Inventory/StockFamilies',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('families'),
                 'pageHead'    => [
                     'title' => __('families'),
+                    'create'  => $this->canEdit && $this->routeName=='inventory.stock-families.index' ? [
+                        'route' => [
+                            'name'       => 'inventory.stock-families.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('family')
+                    ] : false,
                 ],
                 'stockFamilies'  => StockFamilyResource::collection($stocks),
 
@@ -93,18 +103,5 @@ class IndexStockFamilies
     }
 
 
-    public function getBreadcrumbs(): array
-    {
-        return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
-            [
-                'inventory.stock-families.index' => [
-                    'route'      => 'inventory.stock-families.index',
-                    'modelLabel' => [
-                        'label' => __('families')
-                    ],
-                ],
-            ]
-        );
-    }
+
 }

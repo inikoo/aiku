@@ -10,6 +10,7 @@ use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\UpdateStock;
+use App\Actions\Inventory\StockFamily\UpdateStockFamily;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Marketing\Department\UpdateDepartment;
@@ -38,6 +39,8 @@ Route::patch('/areas/{warehouseArea}', UpdateWarehouseArea::class)->name('wareho
 Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');
 
 Route::patch('/stock/{stock}', UpdateStock::class)->name('stock.update');
+
+Route::patch('/stock-family/{stockFamily:slug}', UpdateStockFamily::class)->name('stock-family.update');
 
 Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
 

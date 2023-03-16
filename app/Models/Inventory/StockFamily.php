@@ -73,6 +73,7 @@ class StockFamily extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->slugsShouldBeNoLongerThan(32)
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
 
