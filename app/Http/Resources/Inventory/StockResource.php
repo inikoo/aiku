@@ -12,7 +12,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property string $code
  * @property number $quantity
- * @property int $id
+ * @property string $slug
  * @property string $description
  */
 class StockResource extends JsonResource
@@ -20,11 +20,11 @@ class StockResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'          => $this->id,
-            'code'        => $this->code,
-            'description' => $this->description,
-            'quantity'    => $this->quantity,
-            'locations'   => LocationResource::collection($this->whenLoaded('locations')),
+            'slug'          => $this->slug,
+            'code'          => $this->code,
+            'description'   => $this->description,
+            'quantity'      => $this->quantity,
+            'locations'     => LocationResource::collection($this->whenLoaded('locations')),
         ];
     }
 }
