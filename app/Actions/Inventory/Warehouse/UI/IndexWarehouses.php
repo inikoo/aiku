@@ -48,7 +48,6 @@ class IndexWarehouses extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        dd($this);
         $this->canEdit = $request->user()->can('inventory.warehouses.edit');
         return
             (
