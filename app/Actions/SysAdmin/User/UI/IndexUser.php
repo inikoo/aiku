@@ -1,32 +1,27 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 07 Sept 2022 20:07:27 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Thu, 16 Mar 2023 10:55:21 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\SysAdmin\User;
+namespace App\Actions\SysAdmin\User\UI;
 
-use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Actions\UI\WithInertia;
+use App\Actions\InertiaAction;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexUser
+class IndexUser extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
+    use HasuiUsers;
 
     public function handle(): LengthAwarePaginator
     {
@@ -49,6 +44,7 @@ class IndexUser
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('sysadmin.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -72,6 +68,13 @@ class IndexUser
                 'title'       => __('users'),
                 'pageHead'    => [
                     'title' => __('users'),
+                    'create'  => $this->canEdit && $this->routeName=='sysadmin.users.index' ? [
+                        'route' => [
+                            'name'       => 'sysadmin.users.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('user')
+                    ] : false,
                 ],
                 'labels'      => [
                     'usernameNoSet' => __('username no set')
@@ -91,25 +94,10 @@ class IndexUser
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
-
+        //$this->fillFromRequest($request);
+        $this->initialisation($request);
         return $this->handle();
-    }
-
-    public function getBreadcrumbs(): array
-    {
-        return array_merge(
-            (new SysAdminDashboard())->getBreadcrumbs(),
-            [
-                'sysadmin.users.index' => [
-                    'route'      => 'sysadmin.users.index',
-                    'modelLabel' => [
-                        'label' => __('users')
-                    ],
-                ],
-            ]
-        );
     }
 }

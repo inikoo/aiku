@@ -118,7 +118,6 @@ class User extends Authenticatable implements HasMedia
             });
     }
 
-
     public function parent(): MorphTo
     {
         return $this->morphTo();

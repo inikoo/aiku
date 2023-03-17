@@ -27,7 +27,7 @@ const columnsType={
     <PageHeading :data="pageHead"></PageHeading>
     <Table :resource="stocks"  :columnsType=columnsType  class="mt-5">
         <template #cell(code)="{ item: stock }">
-            <Link :href="route('inventory.stocks.show',stock.id)">
+            <Link :href="route('inventory.stocks.show',stock.slug)">
                 {{ stock.code }}
             </Link>
         </template>

@@ -24,7 +24,6 @@ use Spatie\QueryBuilder\QueryBuilder;
  */
 class IndexWarehouses extends InertiaAction
 {
-
     use HasUIWarehouses;
 
     public function handle(): LengthAwarePaginator
@@ -59,7 +58,6 @@ class IndexWarehouses extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-
         //$request->validate();
         $this->initialisation($request);
         return $this->handle();
@@ -80,7 +78,7 @@ class IndexWarehouses extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('warehouses'),
                 'pageHead'    => [
-                    'title' => __('warehouses'),
+                    'title'   => __('warehouses'),
                     'create'  => $this->canEdit && $this->routeName=='inventory.warehouses.index' ? [
                         'route' => [
                             'name'       => 'inventory.warehouses.create',
@@ -103,6 +101,4 @@ class IndexWarehouses extends InertiaAction
                 ->defaultSort('code');
         });
     }
-
-
 }

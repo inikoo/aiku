@@ -5,47 +5,48 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Inventory\Stock\UI;
+namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Inventory\StockResource;
-use App\Models\Inventory\Stock;
+use App\Http\Resources\Accounting\PaymentResource;
+use App\Models\Accounting\Payment;
 use Inertia\Inertia;
 use Inertia\Response;
+use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditStock extends InertiaAction
+class EditPayment extends InertiaAction
 {
-    use HasUIStock;
-    public function handle(Stock $stock): Stock
+    use HasUIPayment;
+    public function handle(Payment $payment): Payment
     {
-        return $stock;
+        return $payment;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.stocks.edit');
-        return $request->user()->hasPermissionTo("inventory.stocks.view");
+        $this->canEdit = $request->user()->can('accounting.edit');
+        return $request->user()->hasPermissionTo("accounting.view");
     }
 
-    public function asController(Stock $stock, ActionRequest $request): Stock
+    public function asController(Payment $payment, ActionRequest $request): Payment
     {
         $this->initialisation($request);
 
-        return $this->handle($stock);
+        return $this->handle($payment);
     }
 
 
 
-    public function htmlResponse(Stock $stock): Response
+    public function htmlResponse(Payment $payment): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('stock'),
-                'breadcrumbs' => $this->getBreadcrumbs($stock),
+                'title'       => __('payment'),
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $payment),
                 'pageHead'    => [
-                    'title'     => $stock->code,
+                    'title'     => $payment->reference,
                     'exitEdit'  => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
@@ -61,15 +62,15 @@ class EditStock extends InertiaAction
                         [
                             'title'  => __('id'),
                             'fields' => [
-                                'code' => [
+                                'amount' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => $stock->code
+                                    'value' => $payment->amount
                                 ],
-                                'quantity' => [
+                                'date' => [
                                     'type'  => 'input',
-                                    'label' => __('quantity'),
-                                    'value' => $stock->quantity
+                                    'label' => __('label'),
+                                    'value' => $payment->date
                                 ],
                             ]
                         ]
@@ -77,8 +78,8 @@ class EditStock extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.stock.update',
-                            'parameters'=> $stock->slug
+                            'name'      => 'models.payment.update',
+                            'parameters'=> $payment->slug
 
                         ],
                     ]
@@ -87,8 +88,8 @@ class EditStock extends InertiaAction
         );
     }
 
-    public function jsonResponse(Stock $stock): StockResource
+    #[Pure] public function jsonResponse(Payment $payment): PaymentResource
     {
-        return new StockResource($stock);
+        return new PaymentResource($payment);
     }
 }

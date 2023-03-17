@@ -14,8 +14,10 @@ use App\Actions\Inventory\Stock\UI\CreateStock;
 use App\Actions\Inventory\Stock\UI\EditStock;
 use App\Actions\Inventory\Stock\UI\IndexStocks;
 use App\Actions\Inventory\Stock\UI\ShowStock;
-use App\Actions\Inventory\StockFamily\IndexStockFamilies;
-use App\Actions\Inventory\StockFamily\ShowStockFamily;
+use App\Actions\Inventory\StockFamily\UI\CreateStockFamily;
+use App\Actions\Inventory\StockFamily\UI\EditStockFamily;
+use App\Actions\Inventory\StockFamily\UI\IndexStockFamilies;
+use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
 use App\Actions\Inventory\Warehouse\UI\CreateWarehouse;
 use App\Actions\Inventory\Warehouse\UI\EditWarehouse;
 use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
@@ -64,8 +66,11 @@ Route::scopeBindings()->group(function () {
 });
 
 Route::get('/families', IndexStockFamilies::class)->name('stock-families.index');
+Route::get('/families/create', CreateStockFamily::class)->name('stock-families.create');
 Route::get('/families/{stockFamily:slug}', ShowStockFamily::class)->name('stock-families.show');
+Route::get('/families/{stockFamily:slug}/edit', EditStockFamily::class)->name('stock-families.edit');
 Route::get('/families/{stockFamily:slug}/stocks', [IndexStocks::class, 'inStockFamily'])->name('stock-families.show.stocks.index');
+
 
 Route::get('/stocks', [IndexStocks::class, 'inStockFamily'])->name('stocks.index');
 Route::get('/stocks/create', CreateStock::class)->name('stocks.create');

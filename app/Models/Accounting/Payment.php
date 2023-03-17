@@ -109,6 +109,7 @@ class Payment extends Model
 
                 return $slug;
             })
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(16);
     }
 

@@ -14,6 +14,10 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
+/**
+ * @property Stock $stock
+ */
+
 class ShowStock extends InertiaAction
 {
     use HasUIStock;

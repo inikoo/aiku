@@ -32,8 +32,8 @@ class UpdateStock
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required'],
-            'name' => ['sometimes', 'required'],
+            'code'     => ['sometimes', 'required'],
+            'quantity' => ['sometimes', 'required'],
         ];
     }
 

@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\Stock\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Stock;
@@ -39,7 +38,7 @@ class IndexStocks extends InertiaAction
 
         return QueryBuilder::for(Stock::class)
             ->defaultSort('stocks.code')
-            ->select(['code', 'stocks.id as id', 'description', 'stock_value', 'number_locations','quantity'])
+            ->select(['code', 'stocks.slug', 'description', 'stock_value', 'number_locations','quantity'])
             ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'StockFamily') {
@@ -92,7 +91,7 @@ class IndexStocks extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stocks'),
                 'pageHead'    => [
-                    'title' => __('stocks'),
+                    'title'   => __('stocks'),
                     'create'  => $this->canEdit && $this->routeName=='inventory.stocks.index' ? [
                         'route' => [
                             'name'       => 'inventory.stocks.create',
@@ -114,7 +113,4 @@ class IndexStocks extends InertiaAction
                 ->defaultSort('code');
         });
     }
-
-
-
 }
