@@ -9,7 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Mailroom\Mailshot\StoreMailshot;
 use App\Actions\Mailroom\Mailshot\UpdateMailshot;
-use App\Models\Mailroom\Mailshot;
+use App\Models\Mail\Mailshot;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

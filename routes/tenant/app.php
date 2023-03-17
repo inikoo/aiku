@@ -80,6 +80,9 @@ Route::middleware([
         Route::prefix("accounting")
             ->name("accounting.")
             ->group(__DIR__."/accounting.php");
+        Route::prefix("mail")
+            ->name("mail.")
+            ->group(__DIR__."/mail.php");
         Route::prefix("sessions")
             ->name("sessions.")
             ->group(__DIR__."/sessions.php");

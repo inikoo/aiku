@@ -16,7 +16,7 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Leads\Prospect;
-use App\Models\Mailroom\Outbox;
+use App\Models\Mail\Outbox;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;

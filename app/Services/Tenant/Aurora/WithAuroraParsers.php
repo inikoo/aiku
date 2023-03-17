@@ -44,9 +44,9 @@ use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Stock;
 use App\Models\Leads\Prospect;
-use App\Models\Mailroom\DispatchedEmail;
-use App\Models\Mailroom\Mailshot;
-use App\Models\Mailroom\Outbox;
+use App\Models\Mail\DispatchedEmail;
+use App\Models\Mail\Mailshot;
+use App\Models\Mail\Outbox;
 use App\Models\Marketing\HistoricProduct;
 use App\Models\Marketing\HistoricService;
 use App\Models\Marketing\Product;
@@ -67,7 +67,7 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                    != '' && $value != '0000-00-00 00:00:00'
+        return ($value                                                                     != '' && $value != '0000-00-00 00:00:00'
                                                                                 && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 

@@ -88,8 +88,11 @@ return [
 
     'procurement',
     'procurement.edit',
-    'procurement.view'
+    'procurement.view',
 
+    'mail',
+    'mail.edit',
+    'mail.view',
 
 
 ];

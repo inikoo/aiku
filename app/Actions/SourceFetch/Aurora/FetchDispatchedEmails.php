@@ -9,7 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Mailroom\DispatchedEmail\StoreDispatchEmail;
 use App\Actions\Mailroom\DispatchedEmail\UpdateDispatchedEmail;
-use App\Models\Mailroom\DispatchedEmail;
+use App\Models\Mail\DispatchedEmail;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

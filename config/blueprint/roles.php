@@ -23,7 +23,8 @@ return
             'procurement',
             'fulfilment',
             'accounting',
-            'shops'
+            'shops',
+            'mail'
         ],
 
         'system-admin'          => [

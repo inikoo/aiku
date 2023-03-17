@@ -1,0 +1,93 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 10 Mar 2023 20:59:01 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Models\Mail;
+
+use App\Enums\Mailroom\Mailshot\MailshotStateEnum;
+use App\Models\Marketing\Shop;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Sluggable\SlugOptions;
+
+/**
+ * App\Models\Mailroom\Mailshot
+ *
+ * @property int $id
+ * @property int|null $shop_id
+ * @property int|null $outbox_id
+ * @property MailshotStateEnum $state
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
+ * @property-read \App\Models\Mail\Outbox|null $outbox
+ * @property-read Shop|null $shop
+ * @property-read \App\Models\Mail\MailshotStats|null $stats
+ * @method static Builder|Mailshot newModelQuery()
+ * @method static Builder|Mailshot newQuery()
+ * @method static Builder|Mailshot onlyTrashed()
+ * @method static Builder|Mailshot query()
+ * @method static Builder|Mailshot withTrashed()
+ * @method static Builder|Mailshot withoutTrashed()
+ * @mixin \Eloquent
+ */
+class Mailshot extends Model
+{
+    use UsesTenantConnection;
+    use SoftDeletes;
+
+    protected $casts = [
+        'data'  => 'array',
+        'state' => MailshotStateEnum::class
+    ];
+
+    protected $attributes = [
+        'data' => '{}',
+    ];
+
+
+    protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+    }
+
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(Shop::class);
+    }
+
+    public function outbox(): BelongsTo
+    {
+        return $this->belongsTo(Outbox::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(MailshotStats::class);
+    }
+
+    public function dispatchedEmails(): HasMany
+    {
+        return $this->hasMany(DispatchedEmail::class);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
+}

@@ -7,6 +7,7 @@
 
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
+use App\Actions\Mail\Outbox\IndexOutboxes;
 use App\Actions\Marketing\Department\UI\CreateDepartment;
 use App\Actions\Marketing\Department\UI\EditDepartment;
 use App\Actions\Marketing\Department\UI\IndexDepartments;
@@ -87,3 +88,13 @@ Route::get('/{shop}/delivery-notes/{delivery}', [ShowDeliveryNote::class, 'inSho
 
 Route::get('/{shop}/websites', [IndexWebsites::class, 'inShop'])->name('show.websites.index');
 Route::get('/{shop}/websites/{website}', [ShowWebsite::class, 'inShop'])->name('show.websites.show');
+
+Route::get('/{shop}/outboxes', [IndexOutboxes::class, 'inShop'])->name('show.outboxes.index');
+Route::get('/{shop}/outboxes/marketing', [IndexOutboxes::class, 'inShop'])->name('show.outboxes.marketing.index');
+Route::get('/{shop}/outboxes/user-notification', [IndexOutboxes::class, 'inShop'])->name('show.outboxes.user-notification.index');
+Route::get('/{shop}/outboxes/customer-notification', [IndexOutboxes::class, 'inShop'])->name('show.outboxes.customer-notification.index');
+
+Route::get('/{shop}/outboxes/{outbox}', [ShowOutbox::class, 'inShop'])->name('show.outboxes.show');
+Route::get('/{shop}/outboxes/{outbox}/marketing', [ShowOutbox::class, 'inShop'])->name('show.outboxes.marketing.show');
+Route::get('/{shop}/outboxes/{outbox}/user-notification', [ShowOutbox::class, 'inShop'])->name('show.outboxes.user-notification.show');
+Route::get('/{shop}/outboxes/{outbox}/customer-notification', [ShowOutbox::class, 'inShop'])->name('show.outboxes.customer-notification.show');
