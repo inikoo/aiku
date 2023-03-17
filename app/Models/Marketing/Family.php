@@ -32,7 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $shop_id
  * @property int|null $department_id
  * @property int|null $root_department_id
- * @property string|null $state
+ * @property FamilyStateEnum|null $state
  * @property string|null $name
  * @property string|null $description
  * @property array $data
@@ -46,6 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\FamilyStats|null $stats
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Family newModelQuery()
  * @method static Builder|Family newQuery()
  * @method static Builder|Family onlyTrashed()

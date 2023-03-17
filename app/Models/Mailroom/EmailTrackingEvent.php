@@ -15,12 +15,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * App\Models\Mailroom\EmailTrackingEvent
  *
  * @property int $id
- * @property string $notification_id
+ * @property string|null $notification_id
  * @property int $dispatched_email_id
  * @property EmailTrackingEventTypeEnum $type
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $source_id
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTrackingEvent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTrackingEvent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTrackingEvent query()

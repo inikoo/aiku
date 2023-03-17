@@ -14,10 +14,12 @@ return new class () extends Migration {
     {
         Schema::create('outboxes', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->unsignedSmallInteger('mailroom_id')->nullable();
+            $table->foreign('mailroom_id')->references('id')->on('mailrooms');
+
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('slug')->unique();
-            $table->string('scope')->index();
             $table->string('type')->index();
             $table->string('name');
             $table->string('state')->index()->default('in-process');

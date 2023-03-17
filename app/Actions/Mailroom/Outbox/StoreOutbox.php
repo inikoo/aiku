@@ -7,18 +7,18 @@
 
 namespace App\Actions\Mailroom\Outbox;
 
+use App\Models\Mailroom\Mailroom;
 use App\Models\Mailroom\Outbox;
-use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreOutbox
 {
     use AsAction;
 
-    public function handle(Shop $shop, array $modelData): Outbox
+    public function handle(Mailroom $mailroom, array $modelData): Outbox
     {
         /** @var Outbox $outbox */
-        $outbox = $shop->outboxes()->create($modelData);
+        $outbox = $mailroom->outboxes()->create($modelData);
         $outbox->stats()->create();
 
         return $outbox;

@@ -52,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Supplier newModelQuery()
  * @method static Builder|Supplier newQuery()
  * @method static Builder|Supplier onlyTrashed()

@@ -8,6 +8,8 @@
 namespace App\Actions\Central\Tenant;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
+use App\Actions\Mailroom\Mailroom\StoreMailroom;
+use App\Enums\Mailroom\Mailroom\MailroomCodeEnum;
 use App\Models\Central\Tenant;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +41,6 @@ class StoreTenant
                 Artisan::call('tenants:artisan "db:seed --force   --class=TenantsSeeder" --tenant='.$tenant->slug);
 
 
-
                 CreateTenantStorageLink::run();
 
                 StorePaymentServiceProvider::run(
@@ -51,6 +52,14 @@ class StoreTenant
                                    'code' => 'accounts'
                                ]
                 );
+
+                foreach (MailroomCodeEnum::cases() as $case) {
+                    StoreMailroom::run(
+                        [
+                            'code' => $case->value
+                        ]
+                    );
+                }
             }
         );
 

@@ -11,6 +11,7 @@ use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Mailroom\Outbox\StoreOutbox;
 use App\Enums\Mailroom\Outbox\OutboxTypeEnum;
 use App\Models\Central\Tenant;
+use App\Models\Mailroom\Mailroom;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -38,12 +39,14 @@ class StoreShop
 
 
         foreach (OutboxTypeEnum::cases() as $case) {
+            $mailroom=Mailroom::where('code', $case->scope()->value)->first();
+
             StoreOutbox::run(
-                $shop,
+                $mailroom,
                 [
-                    'scope' => str($case->scope()->value)->camel()->kebab()->value(),
-                    'name'  => $case->label(),
-                    'type'  => str($case->value)->camel()->kebab()->value(),
+                    'shop_id'=> $shop->id,
+                    'name'   => $case->label(),
+                    'type'   => str($case->value)->camel()->kebab()->value(),
 
                 ]
             );

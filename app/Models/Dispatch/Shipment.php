@@ -22,14 +22,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property string|null $code
- * @property int $shipper_id
+ * @property int|null $shipper_id
  * @property string|null $tracking
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Dispatch\Shipper $shipper
+ * @property-read \App\Models\Dispatch\Shipper|null $shipper
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Shipment newModelQuery()
  * @method static Builder|Shipment newQuery()
  * @method static Builder|Shipment onlyTrashed()

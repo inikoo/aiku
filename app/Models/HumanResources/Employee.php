@@ -36,11 +36,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property \Illuminate\Support\Carbon|null $date_of_birth
- * @property string|null $gender
+ * @property GenderEnum|null $gender
  * @property string|null $worker_number
  * @property string|null $job_title
- * @property string $type
- * @property string $state
+ * @property EmployeeTypeEnum $type
+ * @property EmployeeStateEnum $state
  * @property string|null $employment_start_at
  * @property string|null $employment_end_at
  * @property string|null $emergency_contact

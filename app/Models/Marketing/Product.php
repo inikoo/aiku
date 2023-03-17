@@ -34,7 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $current_historic_product_id
  * @property int|null $shop_id
  * @property int|null $family_id
- * @property string|null $state
+ * @property ProductStateEnum|null $state
  * @property bool|null $status
  * @property string $composition
  * @property string $code
@@ -57,6 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\TradeUnit> $tradeUnits
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
  * @method static Builder|Product onlyTrashed()

@@ -51,6 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
  * @property-read Shop $shop
  * @property-read \App\Models\Sales\InvoiceStats|null $stats
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Invoice newModelQuery()
  * @method static Builder|Invoice newQuery()
  * @method static Builder|Invoice onlyTrashed()

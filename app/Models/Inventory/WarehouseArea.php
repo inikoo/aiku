@@ -32,6 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read \App\Models\Inventory\WarehouseAreaStats|null $stats
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea newQuery()

@@ -22,9 +22,9 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Mailroom\Outbox
  *
  * @property int $id
+ * @property int|null $mailroom_id
  * @property int|null $shop_id
  * @property string $slug
- * @property string $scope
  * @property string $type
  * @property string $name
  * @property string $state
@@ -58,7 +58,6 @@ class Outbox extends Model
         return 'slug';
     }
 
-
     protected $casts = [
         'data' => 'array',
     ];
@@ -73,7 +72,13 @@ class Outbox extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return abbreviate($this->type).' '.$this->shop->slug;
+                if ($this->type=='reorder-reminder') {
+                    $abbreviation='ror';
+                } else {
+                    $abbreviation= abbreviate($this->type);
+                }
+
+                return $abbreviation.' '.$this->shop->slug;
             })
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(64);

@@ -44,6 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read Customer|null $customer
  * @property-read Shop|null $shop
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|CustomerClient newModelQuery()
  * @method static Builder|CustomerClient newQuery()
  * @method static Builder|CustomerClient onlyTrashed()

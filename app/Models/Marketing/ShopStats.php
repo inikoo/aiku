@@ -43,18 +43,17 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
  * @property int $number_orders
- * @property int $number_orders_state_in_basket
- * @property int $number_orders_state_in_process
+ * @property int $number_orders_state_submitted
  * @property int $number_orders_state_in_warehouse
  * @property int $number_orders_state_packed
  * @property int $number_orders_state_finalised
  * @property int $number_orders_state_dispatched
- * @property int $number_orders_state_returned
  * @property int $number_orders_state_cancelled
  * @property int $number_deliveries
  * @property int $number_deliveries_type_order
  * @property int $number_deliveries_type_replacement
  * @property int $number_deliveries_state_submitted
+ * @property int $number_deliveries_state_in_queue
  * @property int $number_deliveries_state_picker_assigned
  * @property int $number_deliveries_state_picking
  * @property int $number_deliveries_state_picked
@@ -62,7 +61,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_deliveries_state_packed
  * @property int $number_deliveries_state_finalised
  * @property int $number_deliveries_state_dispatched
+ * @property int $number_deliveries_state_cancelled
  * @property int $number_deliveries_cancelled_at_state_submitted
+ * @property int $number_deliveries_cancelled_at_state_in_queue
  * @property int $number_deliveries_cancelled_at_state_picker_assigned
  * @property int $number_deliveries_cancelled_at_state_picking
  * @property int $number_deliveries_cancelled_at_state_picked

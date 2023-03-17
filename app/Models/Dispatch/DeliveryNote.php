@@ -33,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $customer_id
  * @property string $number
  * @property string $type
- * @property string $state
+ * @property DeliveryNoteStateEnum $state
  * @property bool|null $can_dispatch
  * @property bool|null $restocking
  * @property string|null $email
@@ -66,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Dispatch\Shipment|null $shipments
  * @property-read Shop $shop
  * @property-read \App\Models\Dispatch\DeliveryNoteStats|null $stats
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
  * @method static Builder|DeliveryNote onlyTrashed()

@@ -33,7 +33,7 @@ use Spatie\Sluggable\HasSlug;
  * @property string|null $number
  * @property string|null $customer_number Customers own order number
  * @property string|null $type
- * @property string $state
+ * @property OrderStateEnum $state
  * @property string $date
  * @property string|null $submitted_at
  * @property string|null $in_warehouse_at
@@ -64,6 +64,7 @@ use Spatie\Sluggable\HasSlug;
  * @property-read Shop $shop
  * @property-read \App\Models\Sales\OrderStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Transaction> $transactions
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Order newModelQuery()
  * @method static Builder|Order newQuery()
  * @method static Builder|Order onlyTrashed()

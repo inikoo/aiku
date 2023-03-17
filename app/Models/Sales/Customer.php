@@ -66,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop|null $shop
  * @property-read \App\Models\Sales\CustomerStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()

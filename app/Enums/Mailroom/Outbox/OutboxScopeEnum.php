@@ -15,8 +15,8 @@ enum OutboxScopeEnum: string
     use EnumHelperTrait;
 
     case MARKETING             = 'marketing';
-    case CUSTOMER_NOTIFICATION = 'customer_notification';
-    case USER_NOTIFICATION     = 'user_notification';
+    case CUSTOMER_NOTIFICATION = 'customer-notification';
+    case USER_NOTIFICATION     = 'user-notification';
 
     public function label(): string
     {

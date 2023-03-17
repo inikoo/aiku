@@ -22,11 +22,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_dispatched_emails_state_sent_to_provider
  * @property int $number_dispatched_emails_state_rejected_by_provider
  * @property int $number_dispatched_emails_state_sent
+ * @property int $number_dispatched_emails_state_opened
+ * @property int $number_dispatched_emails_state_clicked
  * @property int $number_dispatched_emails_state_soft_bounce
  * @property int $number_dispatched_emails_state_hard_bounce
  * @property int $number_dispatched_emails_state_delivered
  * @property int $number_dispatched_emails_state_marked_as_spam
- * @property int $number_dispatched_emails_state_clicked
  * @property int $number_dispatched_emails_state_error
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at

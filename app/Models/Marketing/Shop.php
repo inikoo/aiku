@@ -51,9 +51,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_number
  * @property int|null $address_id
  * @property array $location
- * @property string $state
- * @property string $type
- * @property string|null $subtype
+ * @property ShopStateEnum $state
+ * @property ShopTypeEnum $type
+ * @property ShopSubtypeEnum|null $subtype
  * @property string|null $open_at
  * @property string|null $closed_at
  * @property int $language_id
