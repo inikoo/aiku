@@ -7,12 +7,12 @@
 
 namespace App\Actions\Mail\Mailshot;
 
-use App\Actions\Accounting\Payment\UI\HasUIPayment;
 use App\Actions\InertiaAction;
-use App\Http\Resources\Accounting\PaymentResource;
+use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Accounting\Payment;
-use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Mail\Mailroom;
+use App\Models\Mail\Mailshot;
+use App\Models\Mail\Outbox;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -23,65 +23,65 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowMailshot extends InertiaAction
 {
-    use HasUIPayment;
-    public function handle(Payment $payment): Payment
+    //use HasUIMailshot;
+    public function handle(Mailshot $mailshot): Mailshot
     {
-        return $payment;
+        return $mailshot;
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('accounting.edit');
-        return $request->user()->hasPermissionTo("accounting.view");
+        $this->canEdit = $request->user()->can('mail.edit');
+        return $request->user()->hasPermissionTo("mail.view");
     }
 
-    public function asController(Payment $payment, ActionRequest $request): Payment
+    public function asController(Mailshot $mailshot, ActionRequest $request): Mailshot
     {
         //$this->routeName = $request->route()->getName();
         //$this->validateAttributes();
         $this->initialisation($request);
-        return $this->handle($payment);
+        return $this->handle($mailshot);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentAccount(PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
+    public function inOutbox(Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
         $this->routeName = $request->route()->getName();
         //$this->validateAttributes();
         $this->initialisation($request);
-        return $this->handle($payment);
+        return $this->handle($mailshot);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
+    public function inMailroomInOutbox(Mailroom $mailroom, Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
         $this->routeName = $request->route()->getName();
         //$this->validateAttributes();
         $this->initialisation($request);
-        return $this->handle($payment);
+        return $this->handle($mailshot);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, Payment $payment, ActionRequest $request): Payment
+    public function inMailroom(Mailroom $mailroom, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
         $this->routeName = $request->route()->getName();
         //$this->validateAttributes();
         $this->initialisation($request);
-        return $this->handle($payment);
+        return $this->handle($mailshot);
     }
 
-    public function htmlResponse(Payment $payment): Response
+    public function htmlResponse(Mailshot $mailshot): Response
     {
-        $this->validateAttributes();
+        //$this->validateAttributes();
 
 
         return Inertia::render(
-            'Accounting/Payment',
+            'Mail/Mailshot',
             [
-                'title'       => __($payment->id),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $payment),
+                'title'       => __($mailshot->id),
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $mailshot),
                 'pageHead'    => [
                     'icon'  => 'fal fa-coins',
-                    'title' => $payment->slug,
+                    'title' => $mailshot->id,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
@@ -90,14 +90,14 @@ class ShowMailshot extends InertiaAction
                     ] : false,
 
                 ],
-                'payment' => $payment
+                'mailshot' => $mailshot
             ]
         );
     }
 
 
-    #[Pure] public function jsonResponse(Payment $payment): PaymentResource
+    #[Pure] public function jsonResponse(Mailshot $mailshot): MailshotResource
     {
-        return new PaymentResource($payment);
+        return new MailshotResource($mailshot);
     }
 }

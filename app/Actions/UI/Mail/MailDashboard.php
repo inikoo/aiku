@@ -44,39 +44,40 @@ class MailDashboard extends InertiaAction
 
                 'treeMaps'    => [
                     [
-                        [
+                        [// TODO Check why it gives error putting de ->stats->//whatever//
                             'name'  => __('mailroom'),
                             'icon'  => ['fal', 'fa-cash-register'],
-                            'href'  => ['mailroom.mailrooms.index'],
+                            'href'  => ['mail.mailrooms.index'],
                             'index' => [
-                                'number' => $this->outbox->stats->outbox_id
+                                'number' => $this->outbox
                             ]
 
                         ],
                         [
                             'name'  => __('outboxes'),
                             'icon'  => ['fal', 'fa-cash-register'],
-                            'href'  => ['mailroom.outboxes.index'],
+                            'href'  => ['mail.outboxes.index'],
                             'index' => [
-                                'number' => $this->outbox->stats->outbox_id
+                                'number' => $this->outbox
                             ]
 
                         ],
                         [
                             'name'  => __('mailshots'),
                             'icon'  => ['fal', 'fa-money-check-alt'],
-                            'href'  => ['mailroom.mailshots.index'],
+                            'href'  => ['mail.mailshots.index'],
                             'index' => [
-                                'number' => $this->outbox->stats->number_mailshots
+                                'number' => $this->outbox
+
                             ]
 
                         ],
                         [
                             'name'  => __('dispatched emails'),
                             'icon'  => ['fal', 'fa-coins'],
-                            'href'  => ['mailroom.dispatched-emails.index'],
+                            'href'  => ['mail.dispatched-emails.index'],
                             'index' => [
-                                'number' => $this->outbox->stats->number_dispatched_emails
+                                'number' => $this->outbox
                             ]
 
                         ],
