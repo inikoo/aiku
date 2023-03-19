@@ -36,7 +36,7 @@ class EditLocation extends InertiaAction
         return $this->handle($location);
     }
 
-    public function inOrganisation(Location $location, ActionRequest $request): Location
+    public function inTenant(Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
 

@@ -5,47 +5,22 @@
   -->
 
 <script setup lang="ts">
-import {Head, Link} from '@inertiajs/vue3';
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableWarehouseAreas from "@/Pages/Tables/TableWarehouseAreas.vue";
 
 
 const props = defineProps<{
-    records: object
+    data: object
     title: string
     pageHead: object
 }>()
 
-const warehouseAreaRoute = route().current().replace(/index$/i, 'show')
-
-const locationRoute = warehouseAreaRoute + '.locations.index'
-
-function warehouseAreaRouteParameters(warehouseArea) {
-    switch (route().current()) {
-        case 'inventory.warehouse_areas.index':
-            return [warehouseArea.slug]
-        case 'inventory.warehouses.show.warehouse_areas.index':
-            return [warehouseArea.warehouse_slug, warehouseArea.slug]
-        default:
-            return []
-    }
-}
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="records" class="mt-5">
-        <template #cell(code)="{ item: warehouseArea }">
-            <Link :href="route(warehouseAreaRoute,warehouseAreaRouteParameters(warehouseArea))">
-                {{ warehouseArea.code }}
-            </Link>
-        </template>
-        <template #cell(number_locations)="{ item: warehouseArea }">
-            <Link :href="route(locationRoute,warehouseAreaRouteParameters(warehouseArea))">
-                {{ warehouseArea['number_locations'] }}
-            </Link>
-        </template>
-    </Table>
+    <TableWarehouseAreas :data="data"/>
 </template>
 

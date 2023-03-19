@@ -8,12 +8,13 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Closure;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,11 +26,7 @@ class IndexLocations extends InertiaAction
 {
     use HasUILocations;
 
-    protected ?Warehouse $warehouse                       = null;
-    protected WarehouseArea|Warehouse|Tenant|null $parent = null;
-
-
-    public function handle(): LengthAwarePaginator
+    public function handle(WarehouseArea|Warehouse|Tenant $parent): AnonymousResourceCollection
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,66 +35,91 @@ class IndexLocations extends InertiaAction
         });
 
 
-        return QueryBuilder::for(Location::class)
-            ->defaultSort('locations.code')
-            ->select(['locations.id', 'locations.code','locations.slug', 'warehouses.slug as warehouse_slug','warehouse_areas.slug as warehouse_area_slug', 'warehouse_area_id'])
-            ->leftJoin('location_stats', 'location_stats.location_id', 'locations.id')
-            ->leftJoin('warehouses', 'locations.warehouse_id', 'warehouses.id')
-            ->leftJoin('warehouse_areas', 'locations.warehouse_area_id', 'warehouse_areas.id')
-            ->when($this->parent, function ($query) {
-                switch (class_basename($this->parent)) {
-                    case 'WarehouseArea':
-                        $query->where('locations.warehouse_area_id', $this->parent->id);
-                        break;
-                    case 'Warehouse':
-                        $query->where('locations.warehouse_id', $this->parent->id);
-                        break;
-                }
-            })
-            ->allowedSorts(['code'])
-            ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
-            ->withQueryString();
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::LOCATIONS->value);
+
+        return LocationResource::collection(
+            QueryBuilder::for(Location::class)
+                ->defaultSort('locations.code')
+                ->select(
+                    [
+                        'locations.id',
+                        'locations.code',
+                        'locations.slug',
+                        'warehouses.slug as warehouse_slug',
+                        'warehouse_areas.slug as warehouse_area_slug',
+                        'warehouse_area_id'
+                    ]
+                )
+                ->leftJoin('location_stats', 'location_stats.location_id', 'locations.id')
+                ->leftJoin('warehouses', 'locations.warehouse_id', 'warehouses.id')
+                ->leftJoin('warehouse_areas', 'locations.warehouse_area_id', 'warehouse_areas.id')
+                ->when($parent, function ($query) use ($parent) {
+                    switch (class_basename($parent)) {
+                        case 'WarehouseArea':
+                            $query->where('locations.warehouse_area_id', $parent->id);
+                            break;
+                        case 'Warehouse':
+                            $query->where('locations.warehouse_id', $parent->id);
+                            break;
+                    }
+                })
+                ->allowedSorts(['code'])
+                ->allowedFilters([$globalSearch])
+                ->paginate(
+                    perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                    pageName: TabsAbbreviationEnum::LOCATIONS->value.'Page'
+                )
+                ->withQueryString()
+        );
     }
 
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function locationsTableStructure(): Closure
     {
-        $this->parent = app('currentTenant');
-        //$this->validateAttributes();
-        $this->initialisation($request);
-        return $this->handle();
+        return function (InertiaTable $table) {
+            $table
+                ->name(TabsAbbreviationEnum::LOCATIONS->value)
+                ->pageName(TabsAbbreviationEnum::LOCATIONS->value.'Page')
+                ->withGlobalSearch()
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('code');
+        };
     }
 
-    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    public function inTenant(ActionRequest $request): AnonymousResourceCollection
     {
-        $this->parent = $warehouse;
-        //$this->validateAttributes();
         $this->initialisation($request);
-        return $this->handle();
+
+        return $this->handle(parent: app('currentTenant'));
     }
 
-    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
+    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): AnonymousResourceCollection
     {
-        $this->parent = $warehouseArea;
-        //$this->validateAttributes();
         $this->initialisation($request);
-        return $this->handle();
+
+        return $this->handle(parent: $warehouse);
     }
 
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function InWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): LengthAwarePaginator
+    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): AnonymousResourceCollection
     {
-        $this->parent = $warehouseArea;
-        //$this->validateAttributes();
         $this->initialisation($request);
-        return $this->handle();
+
+        return $this->handle(parent: $warehouseArea);
     }
+
+
+    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): AnonymousResourceCollection
+    {
+        $this->initialisation($request);
+
+        return $this->handle(parent: $warehouseArea);
+    }
+
 
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.locations.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -105,39 +127,33 @@ class IndexLocations extends InertiaAction
             );
     }
 
-    public function jsonResponse(LengthAwarePaginator $locations): AnonymousResourceCollection
+    public function jsonResponse($locations): AnonymousResourceCollection
     {
-        return LocationResource::collection($locations);
+        return $locations;
     }
 
-    public function htmlResponse(LengthAwarePaginator $locations)
+
+    public function htmlResponse(AnonymousResourceCollection $locations, ActionRequest $request)
     {
         return Inertia::render(
             'Inventory/Locations',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), last($request->route()->parameters())),
                 'title'       => __('locations'),
                 'pageHead'    => [
-                    'title' => __('locations'),
-                    'create'  => $this->canEdit && $this->routeName=='inventory.locations.index' ? [
+                    'title'  => __('locations'),
+                    'create' => $this->canEdit && $this->routeName == 'inventory.locations.index' ? [
                         'route' => [
                             'name'       => 'inventory.locations.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('locations')
+                        'label' => __('locations')
                     ] : false,
                 ],
-                'records'     => LocationResource::collection($locations),
+                'data'        => $locations,
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
-        });
+        )->table($this->locationsTableStructure());
     }
-
-
 }

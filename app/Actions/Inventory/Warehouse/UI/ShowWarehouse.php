@@ -8,9 +8,10 @@
 namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
+use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\WarehouseResource;
-use App\Http\Resources\Marketing\DepartmentResource;
 use App\Models\Inventory\Warehouse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowWarehouse extends InertiaAction
 {
     use HasUIWarehouse;
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.warehouses.edit');
@@ -32,16 +34,15 @@ class ShowWarehouse extends InertiaAction
     public function asController(Warehouse $warehouse, ActionRequest $request): void
     {
         $this->initialisation($request);
-        $this->warehouse    = $warehouse;
+        $this->warehouse = $warehouse;
+        $this->tab       = $request->input('tab', WarehouseTabsEnum::STATS->value);
     }
+
 
     public function htmlResponse(): Response
     {
-        $this->validateAttributes();
-
-
         return Inertia::render(
-            'Inventory/Warehouse',
+            'Inventory/Warehouse/Warehouse',
             [
                 'title'       => __('warehouse'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->warehouse),
@@ -59,7 +60,7 @@ class ShowWarehouse extends InertiaAction
                             'name'     => trans_choice('warehouse area|warehouse areas', $this->warehouse->stats->number_warehouse_areas),
                             'number'   => $this->warehouse->stats->number_warehouse_areas,
                             'href'     => [
-                                'inventory.warehouses.show.warehouse_areas.index',
+                                'inventory.warehouses.show.warehouse-areas.index',
                                 $this->warehouse->slug
                             ],
                             'leftIcon' => [
@@ -82,32 +83,51 @@ class ShowWarehouse extends InertiaAction
                     ]
 
                 ],
-                'tabs' => [
+                'tabs'        => [
 
-                    'current' => 'dashboard',
-                    'items'   => [
-                        'dashboard' => [
-                            'name'    => __('dashboard'),
-                            'icon'    => 'fal fa-tachometer-alt',
-                            'content' => 'content dashboard',
+                    'current'    => $this->tab,
+                    'navigation' => [
+                        WarehouseTabsEnum::STATS->value           => [
+                            'title' => __('stats'),
+                            'icon'  => 'fal fa-chart-line',
                         ],
-                        'details'   => [
-                            'name'    => __('details'),
-                            'icon'    => 'fal fa-clock',
-                            'content' => 'content details',
+                        WarehouseTabsEnum::WAREHOUSE_AREAS->value => [
+                            'title' => __('warehouse areas'),
+                            'icon'  => 'fal fa-map-signs',
                         ],
-                        'history'   => [
-                            'name'    => __('changelog'),
-                            'icon'    => 'fal fa-clock',
-                            'content' => 'content changelog',
+                        WarehouseTabsEnum::LOCATIONS->value       => [
+                            'title' => __('locations'),
+                            'icon'  => 'fal fa-inventory',
+                        ],
+                        WarehouseTabsEnum::DATA->value            => [
+                            'title' => __('data'),
+                            'icon'  => 'fal fa-database',
+                        ],
+                        WarehouseTabsEnum::CHANGELOG->value       => [
+
+                            'title' => __('changelog'),
+                            'icon'  => 'fal fa-clock',
+
+
                         ]
-                    ]
+
+                    ],
 
 
                 ],
-                'warehouse'   => $this->warehouse,
+
+
+                WarehouseTabsEnum::LOCATIONS->value => $this->tab == WarehouseTabsEnum::LOCATIONS->value ?
+                    fn () => IndexLocations::run($this->warehouse)
+                    : Inertia::lazy(fn () => IndexLocations::run($this->warehouse)),
+
+                WarehouseTabsEnum::WAREHOUSE_AREAS->value => $this->tab == WarehouseTabsEnum::WAREHOUSE_AREAS->value ?
+                    fn () => IndexWarehouseAreas::run($this->warehouse)
+                    : Inertia::lazy(fn () => IndexWarehouseAreas::run($this->warehouse)),
+
             ]
-        );
+        )->table(IndexLocations::make()->locationsTableStructure())
+            ->table(IndexWarehouseAreas::make()->warehouseAreasTableStructure());
     }
 
 
@@ -115,5 +135,4 @@ class ShowWarehouse extends InertiaAction
     {
         return new WarehouseResource($this->warehouse);
     }
-
 }

@@ -24,7 +24,7 @@ class EditWarehouseArea extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.warehouse_areas.edit');
+        $this->canEdit = $request->user()->can('inventory.warehouse-areas.edit');
         return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
 
@@ -35,7 +35,7 @@ class EditWarehouseArea extends InertiaAction
         return $this->handle($warehouseArea);
     }
 
-    public function inOrganisation(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    public function inTenant(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $this->initialisation($request);
 

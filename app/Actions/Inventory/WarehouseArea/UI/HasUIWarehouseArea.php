@@ -37,11 +37,11 @@ trait HasUIWarehouseArea
         };
 
         return match ($routeName) {
-            'inventory.warehouse_areas.show' => array_merge(
+            'inventory.warehouse-areas.show' => array_merge(
                 (new InventoryDashboard())->getBreadcrumbs(),
                 $headCrumb([$warehouseArea->slug])
             ),
-            'inventory.warehouses.show.warehouse_areas.show' => array_merge(
+            'inventory.warehouses.show.warehouse-areas.show' => array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($warehouseArea->warehouse),
                 $headCrumb([$warehouseArea->warehouse->slug, $warehouseArea->slug])
             ),

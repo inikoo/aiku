@@ -21,7 +21,7 @@ Route::post('/customer', FetchCustomers::class)->name('customers');
 Route::post('/order', FetchOrders::class)->name('orders');
 
 Route::post('/warehouse', FetchWarehouses::class)->name('warehouses');
-Route::post('/warehouse_area', FetchWarehouseAreas::class)->name('warehouse_areas');
+Route::post('/warehouse_area', FetchWarehouseAreas::class)->name('warehouse-areas');
 Route::post('/location', FetchLocations::class)->name('locations');
 Route::post('/stock', FetchStocks::class)->name('stocks');
 

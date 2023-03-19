@@ -46,17 +46,16 @@ trait HasUILocation
                 (new ShowWarehouse())->getBreadcrumbs($location->warehouse),
                 $headCrumb([$location->warehouse->slug, $location->slug])
             ),
-            'inventory.warehouse_areas.show.locations.show' => array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouse_areas.show', $location->warehouseArea),
+            'inventory.warehouse-areas.show.locations.show' => array_merge(
+                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouse-areas.show', $location->warehouseArea),
                 $headCrumb([$location->warehouseArea->slug, $location->slug])
             ),
-            'inventory.warehouses.show.warehouse_areas.show.locations.show' => array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouses.show.warehouse_areas.show', $location->warehouseArea),
+            'inventory.warehouses.show.warehouse-areas.show.locations.show' => array_merge(
+                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouses.show.warehouse-areas.show', $location->warehouseArea),
                 $headCrumb([$location->warehouse->slug, $location->warehouseArea->slug, $location->slug])
             ),
 
             default => []
         };
     }
-
 }

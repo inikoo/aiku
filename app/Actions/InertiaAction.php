@@ -18,12 +18,14 @@ class InertiaAction
 
     protected ?string $routeName        = null;
     protected array $originalParameters = [];
-    protected bool $canEdit             =false;
+    protected ?string $tab              = null;
+
+    protected bool $canEdit = false;
 
     public function initialisation(ActionRequest $request): void
     {
-        $this->routeName         = $request->route()->getName();
-        $this->originalParameters=$request->route()->originalParameters();
+        $this->routeName          = $request->route()->getName();
+        $this->originalParameters = $request->route()->originalParameters();
         $request->validate();
     }
 

@@ -27,7 +27,7 @@ class CreateWarehouseArea extends InertiaAction
                     'title'        => __('new warehouse area'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'inventory.warehouse_areas.index',
+                            'name'       => 'inventory.warehouse-areas.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -41,7 +41,7 @@ class CreateWarehouseArea extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('inventory.warehouse_areas.edit');
+        return $request->user()->can('inventory.warehouse-areas.edit');
     }
 
 
