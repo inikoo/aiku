@@ -1,149 +1,96 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 13 Mar 2023 17:41:13 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Thu, 16 Mar 2023 08:17:53 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
 namespace App\Actions\Mail\DispatchedEmail;
 
 use App\Actions\InertiaAction;
-use App\Actions\Sales\Customer\UI\HasUICustomer;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\Http\Resources\Mail\DispatchedEmailResource;
+use App\Models\Mail\DispatchedEmail;
+use App\Models\Mail\Mailroom;
+use App\Models\Mail\Outbox;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
+/**
+ * @property DispatchedEmail $dispatchedEmail
+ */
 class ShowDispatchedEmail extends InertiaAction
 {
-    use HasUICustomer;
-
-
-    public function handle(Customer $customer): Customer
+    //use HasUIDispatchedEmail;
+    public function handle(DispatchedEmail $dispatchedEmail): DispatchedEmail
     {
-        return $customer;
+        return $dispatchedEmail;
     }
-
-
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.customers.edit');
-
-        return $request->user()->hasPermissionTo("shops.customers.view");
+        $this->canEdit = $request->user()->can('mail.edit');
+        return $request->user()->hasPermissionTo("mail.view");
     }
 
-    public function asController(Customer $customer, ActionRequest $request): Customer
+    public function asController(DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
+        //$this->routeName = $request->route()->getName();
+        //$this->validateAttributes();
         $this->initialisation($request);
-
-        return $this->handle($customer);
+        return $this->handle($dispatchedEmail);
     }
 
-    public function inShop(Shop $shop, Customer $customer, ActionRequest $request): Customer
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOutbox(Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
+        $this->routeName = $request->route()->getName();
+        //$this->validateAttributes();
         $this->initialisation($request);
-
-        return $this->handle($customer);
+        return $this->handle($dispatchedEmail);
     }
 
-
-    private function makeRoute(Customer $customer, $suffix = '', $parameters = []): array
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inMailroomInOutbox(Mailroom $mailroom, Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
-        $route = $this->routeName;
-        if ($this->routeName == 'shops.show.customers.show') {
-            $routeParameters = [
-                $customer->shop->slug,
-                $customer->slug
-            ];
-        } else {
-            $routeParameters = [
-                $customer->slug
-            ];
-        }
-
-        $route           .= $suffix;
-        $routeParameters = array_merge_recursive($routeParameters, $parameters);
-
-
-        return [$route, $routeParameters];
+        $this->routeName = $request->route()->getName();
+        //$this->validateAttributes();
+        $this->initialisation($request);
+        return $this->handle($dispatchedEmail);
     }
 
-
-    public function htmlResponse(Customer $customer): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inMailroom(Mailroom $mailroom, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
-        $webUsersMeta = match ($customer->stats->number_web_users) {
-            0 => [
-                'name'                  => 'add web user',
-                'leftIcon'              => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web user')
-                ],
-                'emptyWithCreateAction' => [
-                    'label' => __('web user')
-                ]
-            ],
-            1 => [
-                'href'     => $this->makeRoute($customer, '.web-users.show', [$customer->webUsers->first()->slug]),
-                'name'     => $customer->webUsers->first()->slug,
-                'leftIcon' => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web user'),
-                ],
+        $this->routeName = $request->route()->getName();
+        //$this->validateAttributes();
+        $this->initialisation($request);
+        return $this->handle($dispatchedEmail);
+    }
 
-            ],
-            default => [
-                'name'     => $customer->webUsers->count(),
-                'leftIcon' => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web users')
-                ],
-            ]
-        };
-
-        $shopMeta = [];
-
-        if ($this->routeName == 'customers.show') {
-            $shopMeta = [
-                'href'     => ['shops.show', $customer->shop->slug],
-                'name'     => $customer->shop->code,
-                'leftIcon' => [
-                    'icon'    => 'fal fa-store-alt',
-                    'tooltip' => __('Shop'),
-                ],
-            ];
-        }
+    public function htmlResponse(DispatchedEmail $dispatchedEmail): Response
+    {
+        $this->validateAttributes();
 
 
         return Inertia::render(
-            'Sales/Customer',
+            'Mail/DispatchedEmail',
             [
-                'title'       => __('customer'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $customer),
+                'title'       => __($dispatchedEmail->id),
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $dispatchedEmail),
                 'pageHead'    => [
-                    'title' => $customer->name,
-                    'meta'  => array_filter([
-                        $shopMeta,
-                        $webUsersMeta
-                    ]),
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
+                    'icon'  => 'fal fa-coins',
+                    'title' => $dispatchedEmail->id,
 
                 ],
-                'customer'    => new CustomerResource($customer)
+                'dispatched emails' => $dispatchedEmail
             ]
         );
     }
 
 
-    #[Pure] public function jsonResponse(Customer $customer): CustomerResource
+    #[Pure] public function jsonResponse(DispatchedEmail $dispatchedEmail): DispatchedEmailResource
     {
-        return new CustomerResource($customer);
+        return new DispatchedEmailResource($dispatchedEmail);
     }
 }
