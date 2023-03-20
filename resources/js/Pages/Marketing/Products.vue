@@ -17,14 +17,11 @@ defineProps(['products', 'title', 'pageHead']);
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Table :resource="products" class="mt-5">
-
-
         <template #cell(code)="{ item: product }">
             <Link :href="route('shops.show.products.show',[product.shop_slug,product.slug])">
                 {{ product.code }}
             </Link>
         </template>
-
     </Table>
 </template>
 

@@ -21,7 +21,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexUser extends InertiaAction
 {
-    use HasuiUsers;
+    use HasUIUsers;
 
     public function handle(): LengthAwarePaginator
     {
@@ -67,7 +67,7 @@ class IndexUser extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('users'),
                 'pageHead'    => [
-                    'title' => __('users'),
+                    'title'   => __('users'),
                     'create'  => $this->canEdit && $this->routeName=='sysadmin.users.index' ? [
                         'route' => [
                             'name'       => 'sysadmin.users.create',

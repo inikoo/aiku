@@ -27,7 +27,7 @@ import {
     faUsers,
     faUserHardHat, faBars,faUsersCog,faTachometerAltFast,
     faInventory,
-    faAbacus
+    faAbacus,faDatabase,faClock
 } from '../private/pro-light-svg-icons';
 import {useLayoutStore} from '@/Stores/layout';
 
@@ -49,7 +49,9 @@ library.add(faSearch,
             faTimes,
             faEllipsisV,
             farIndent,
-            faAbacus
+            faAbacus,
+            faDatabase,
+            faClock
 );
 
 const initialiseApp = () => {

@@ -39,12 +39,12 @@ trait HasUILocations
                 (new ShowWarehouse())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])
             ),
-            'inventory.warehouse_areas.show.locations.index' => array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouse_areas.show', $parent),
+            'inventory.warehouse-areas.show.locations.index' => array_merge(
+                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouse-areas.show', $parent),
                 $headCrumb([$parent->slug])
             ),
-            'inventory.warehouses.show.warehouse_areas.show.locations.index' => array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouses.show.warehouse_areas.show', $parent),
+            'inventory.warehouses.show.warehouse-areas.show.locations.index' => array_merge(
+                (new ShowWarehouseArea())->getBreadcrumbs('inventory.warehouses.show.warehouse-areas.show', $parent),
                 $headCrumb([$parent->warehouse->slug, $parent->slug])
             ),
 

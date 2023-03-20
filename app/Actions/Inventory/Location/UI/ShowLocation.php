@@ -29,7 +29,7 @@ class ShowLocation extends InertiaAction
     }
 
 
-    public function inOrganisation(Location $location, ActionRequest $request): void
+    public function inTenant(Location $location, ActionRequest $request): void
     {
         $this->location = $location;
         //$this->validateAttributes();

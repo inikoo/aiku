@@ -54,7 +54,7 @@ class InventoryDashboard
             $warehouseAreasNode = [
                 'name'  => __('warehouses areas'),
                 'icon'  => ['fal', 'fa-map-signs'],
-                'href'  => ['inventory.warehouses.show.warehouse_areas.index', $warehouse->slug],
+                'href'  => ['inventory.warehouses.show.warehouse-areas.index', $warehouse->slug],
                 'index' => [
                     'number' => $this->tenant->inventoryStats->number_warehouse_areas
                 ]
@@ -80,7 +80,7 @@ class InventoryDashboard
             $warehouseAreasNode = [
                 'name'  => __('warehouses areas'),
                 'icon'  => ['fal', 'fa-map-signs'],
-                'href'  => ['inventory.warehouse_areas.index'],
+                'href'  => ['inventory.warehouse-areas.index'],
                 'index' => [
                     'number' => $this->tenant->inventoryStats->number_warehouse_areas
                 ]

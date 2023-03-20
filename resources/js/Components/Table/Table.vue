@@ -371,6 +371,7 @@ function dataForNewQueryString() {
         queryData.sort = sort;
     }
 
+
     return queryData;
 }
 
@@ -412,6 +413,7 @@ function generateNewQueryString() {
         query = '';
     }
 
+    console.log(query)
     return query;
 }
 

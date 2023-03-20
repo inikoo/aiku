@@ -1,9 +1,12 @@
 {
     "compilerOptions": {
+        "target": "es5",
+        "lib": ["es5","es2015.core","ES2015","dom"],
         "baseUrl": "./resources",
         "paths": {
             "@/*": ["js/*"]
-        }
+        },
+        "allowSyntheticDefaultImports": true
     },
     "include": [
         "env.d.ts",

@@ -1,0 +1,12 @@
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 19 Mar 2023 14:00:48 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+export interface Location {
+    slug: string,
+    warehouse_area_slug: string,
+    warehouse_slug: string
+    code: string
+}

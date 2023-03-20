@@ -8,16 +8,12 @@
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\UI\Inventory\InventoryDashboard;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * @property WarehouseArea $warehouseArea
@@ -34,14 +30,13 @@ class ShowWarehouseArea extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.warehouse_areas.edit');
+        $this->canEdit = $request->user()->can('inventory.warehouse-areas.edit');
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
-    public function inOrganisation(WarehouseArea $warehouseArea, ActionRequest $request): void
+    public function inTenant(WarehouseArea $warehouseArea, ActionRequest $request): void
     {
         $this->warehouseArea = $warehouseArea;
-        //$this->validateAttributes();
         $this->initialisation($request);
     }
 
@@ -49,7 +44,6 @@ class ShowWarehouseArea extends InertiaAction
     public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): void
     {
         $this->warehouseArea = $warehouseArea;
-        //$this->validateAttributes();
         $this->initialisation($request);
     }
 
@@ -75,12 +69,12 @@ class ShowWarehouseArea extends InertiaAction
                             'number'   => $this->warehouseArea->stats->number_locations,
                             'href'     =>
                                 match ($this->routeName) {
-                                    'inventory.warehouses.show.warehouse_areas.show' => [
-                                        'inventory.warehouses.show.warehouse_areas.show.locations.index',
+                                    'inventory.warehouses.show.warehouse-areas.show' => [
+                                        'inventory.warehouses.show.warehouse-areas.show.locations.index',
                                         [$this->warehouseArea->warehouse->slug, $this->warehouseArea->slug]
                                     ],
                                     default => [
-                                        'inventory.warehouse_areas.show.locations.index',
+                                        'inventory.warehouse-areas.show.locations.index',
                                         $this->warehouseArea->slug
                                     ]
                                 }
@@ -105,5 +99,4 @@ class ShowWarehouseArea extends InertiaAction
     {
         return new LocationResource($this->warehouseArea);
     }
-
 }

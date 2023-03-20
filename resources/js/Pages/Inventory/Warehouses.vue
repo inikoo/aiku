@@ -24,7 +24,7 @@ defineProps(['warehouses', 'title','pageHead']);
             </Link>
         </template>
         <template #cell(number_warehouse_areas)="{ item: warehouse }">
-            <Link :href="route('inventory.warehouses.show.warehouse_areas.index',warehouse.slug)">
+            <Link :href="route('inventory.warehouses.show.warehouse-areas.index',warehouse.slug)">
                 {{ warehouse['number_warehouse_areas'] }}
             </Link>
         </template>
