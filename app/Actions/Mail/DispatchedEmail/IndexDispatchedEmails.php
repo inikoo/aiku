@@ -8,7 +8,10 @@
 namespace App\Actions\Mail\DispatchedEmail;
 
 use App\Actions\InertiaAction;
+use App\Actions\Mail\Mailroom\ShowMailroom;
+use App\Actions\UI\Mail\MailDashboard;
 use App\Http\Resources\Mail\DispatchedEmailResource;
+use App\Models\Central\Tenant;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
@@ -25,7 +28,7 @@ class IndexDispatchedEmails extends InertiaAction
 {
     //use HasUIDispatchedEmails;
 
-    private Mailroom|Outbox|Mailshot $parent;
+    private Mailshot|Outbox|Mailroom|Tenant $parent;
 
     public function handle(): LengthAwarePaginator
     {
@@ -40,11 +43,11 @@ class IndexDispatchedEmails extends InertiaAction
 
         return QueryBuilder::for(DispatchedEmail::class)
             ->defaultSort('dispatched_emails.state')
-            ->select(['dispatched_emails.state', 'dispatched_emails.slug', 'dispatched_emails.number_reads', 'dispatched_emails.number_clicks',
+            ->select(['dispatched_emails.state', 'dispatched_emails.id', 'dispatched_emails.number_reads', 'dispatched_emails.number_clicks',
                 'outboxes.slug as outbox_id',
                 'outboxes.slug as outboxes_id'
             ])
-            ->leftJoin('outboxes', 'dispatched_emails.mailroom_ud', 'outboxes.id')
+            ->leftJoin('outboxes', 'dispatched_emails.outbox_id', 'outboxes.id')
             ->leftJoin('mailrooms', 'outboxes.mailroom_id', 'mailrooms.id')
             ->when($this->parent, function ($query) {
                 if (class_basename($this->parent) == 'Mailroom') {
@@ -110,9 +113,7 @@ class IndexDispatchedEmails extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$this->fillFromRequest($request);
-        //$this->parent = app('currentTenant');
-        //$this->routeName = $request->route()->getName();
+        $this->parent = app('currentTenant');
         $this->initialisation($request);
         return $this->handle();
     }
@@ -148,5 +149,34 @@ class IndexDispatchedEmails extends InertiaAction
         //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle();
+    }
+
+    public function getBreadcrumbs(string $routeName, Mailshot|Outbox|Mailroom|Tenant $parent): array
+    {
+        $headCrumb = function (array $routeParameters = []) use ($routeName) {
+            return [
+                $routeName => [
+                    'route'           => $routeName,
+                    'routeParameters' => $routeParameters,
+                    'modelLabel'      => [
+                        'label' => __('Outbox')
+                    ]
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'mail.outboxes.index' =>
+            array_merge(
+                (new MailDashboard())->getBreadcrumbs(),
+                $headCrumb()
+            ),
+            'mail.mailrooms.show.outboxes.index' =>
+            array_merge(
+                (new ShowMailroom())->getBreadcrumbs($parent),
+                $headCrumb([$parent->slug])
+            ),
+            default => []
+        };
     }
 }

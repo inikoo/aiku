@@ -9,17 +9,17 @@ import { Head, Link } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import Table from "@/Components/Table/Table.vue";
 
-defineProps(["mailshots", "title", "pageHead"]);
+defineProps(["dispatched_emails", "title", "pageHead"]);
 
 const itemRoute = route().current().replace(/index$/i, "show");
 
-function routeParameters(mailshot) {
+function routeParameters(dispatchedEmail) {
     switch (route().current()) {
-        case "mail.mailrooms.show.outboxes.show.mailshots.index":
-            return [mailshot["mailrooms_slug"], mailshot.slug];
+        case "mail.mailrooms.show.outboxes.show.mailshots.show.dispatched-emails.index":
+            return [dispatchedEmail["mailrooms_slug"], dispatchedEmail.slug];
 
         default:
-            return [mailshot.slug];
+            return [dispatchedEmail.slug];
     }
 }
 
@@ -28,12 +28,12 @@ function routeParameters(mailshot) {
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="mailshots" class="mt-5">
+    <Table :resource="dispatched_emails" class="mt-5">
 
 
-        <template #cell(name)="{ item: mailshot }">
-            <Link :href="route(itemRoute,routeParameters(mailshot))">
-                {{ mailshot["name"] }}
+        <template #cell(name)="{ item: dispatchedEmail }">
+            <Link :href="route(itemRoute,routeParameters(dispatchedEmail))">
+                {{ dispatchedEmail["name"] }}
             </Link>
         </template>
 

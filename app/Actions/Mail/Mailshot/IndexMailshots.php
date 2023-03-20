@@ -42,7 +42,7 @@ class IndexMailshots extends InertiaAction
             ->defaultSort('mailshots.state')
             ->select(['mailshots.state', 'mailshots.id', 'mailshots.data',
                 'outboxes.slug as outboxes_slug',
-                'mailrooms.slug as mailroom_id'
+                'mailrooms.id as mailroom_id'
             ])
             ->leftJoin('outboxes', 'mailshots.outbox_id', 'outboxes.id')
             ->leftJoin('mailrooms', 'outboxes.mailroom_id', 'mailrooms.id')
