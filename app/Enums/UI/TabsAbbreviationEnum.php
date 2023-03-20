@@ -16,6 +16,15 @@ enum TabsAbbreviationEnum: string
     case PAYMENT_ACCOUNTS = 'pa';
     case PAYMENTS         = 'p';
 
+    case PORTFOLIO           = 'po';
+    case PRODUCTS            = 'prod';
+    case ORDERS              = 'o';
+    case SALES               = 'sales';
+    case INSIGHTS            = 'i';
+    case DISCOUNTS           = 'disc';
+    case CREDITS             = 'cred';
+    case ATTACHMENTS         = 'attach';
+    case DISPATCHED_EMAILS   = 'de';
 
     case DATA            = 'data';
     case CHANGELOG       = 'hist';
