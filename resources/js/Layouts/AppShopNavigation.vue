@@ -83,6 +83,7 @@ const handleShopsChange = () => {
               :href="isShopSet?route('shops.show.orders.index', currentSlug):route('orders.index')">
             <font-awesome-icon aria-hidden="true" icon="fal fa-shopping-cart"/>
         </Link>
+
     </div>
 </template>
 

@@ -46,7 +46,7 @@ class IndexMailrooms extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('mailroom.view')
+                $request->user()->hasPermissionTo('mail.view')
             );
     }
 

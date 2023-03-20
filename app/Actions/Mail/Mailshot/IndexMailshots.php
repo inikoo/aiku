@@ -8,7 +8,9 @@
 namespace App\Actions\Mail\Mailshot;
 
 use App\Actions\InertiaAction;
+use App\Actions\Mail\Mailshot\UI\HasUIMailshots;
 use App\Http\Resources\Mail\MailshotResource;
+use App\Models\Central\Tenant;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
@@ -22,9 +24,9 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexMailshots extends InertiaAction
 {
-    //use HasUIMailshots;
+    use HasUIMailshots;
 
-    private Mailroom | Outbox $parent;
+    private Outbox|Mailroom|Tenant $parent;
 
     public function handle(): LengthAwarePaginator
     {
@@ -32,7 +34,7 @@ class IndexMailshots extends InertiaAction
             $query->where(function ($query) use ($value) {
                 $query->where('mailshots.state', '~*', "\y$value\y")
                     ->orWhere('mailshots.data', '=', $value);
-            });// reference status date data
+            });
         });
 
 
@@ -40,18 +42,10 @@ class IndexMailshots extends InertiaAction
             ->defaultSort('mailshots.state')
             ->select(['mailshots.state', 'mailshots.id', 'mailshots.data',
                 'outboxes.slug as outboxes_slug',
-                'mailrooms.slug as mailroom_id'
+                'mailrooms.id as mailroom_id'
             ])
             ->leftJoin('outboxes', 'mailshots.outbox_id', 'outboxes.id')
             ->leftJoin('mailrooms', 'outboxes.mailroom_id', 'mailrooms.id')
-            ->when($this->parent, function ($query) {
-                if (class_basename($this->parent) == 'Mailroom') {
-                    $query->where('outboxes.mailroom_id', $this->parent->id);
-                }
-                if (class_basename($this->parent) == 'Outbox') {
-                    $query->where('mailshots.outbox_id', $this->parent->id);
-                }
-            })
             ->allowedSorts(['mailshots.state', 'mailshots.data'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -83,7 +77,14 @@ class IndexMailshots extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
                 'title'       => __('mailshots '),
                 'pageHead'    => [
-                    'title' => __('mailshots'),
+                    'title'   => __('mailshots'),
+                    'create'  => $this->canEdit && $this->routeName=='mail.mailshots.index' ? [
+                        'route' => [
+                            'name'       => 'mail.mailshots.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('mailshot')
+                    ] : false,
                 ],
                 'payments' => MailshotResource::collection($mailshots),
 
@@ -103,9 +104,7 @@ class IndexMailshots extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$this->fillFromRequest($request);
         $this->parent = app('currentTenant');
-        //$this->routeName = $request->route()->getName();
         $this->initialisation($request);
         return $this->handle();
     }
@@ -113,7 +112,6 @@ class IndexMailshots extends InertiaAction
     public function inMailroom(Mailroom $mailroom, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $mailroom;
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle();
     }
@@ -121,7 +119,6 @@ class IndexMailshots extends InertiaAction
     public function inOutbox(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $outbox;
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle();
     }
@@ -130,7 +127,6 @@ class IndexMailshots extends InertiaAction
     public function inMailroomInOutbox(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $outbox;
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle();
     }

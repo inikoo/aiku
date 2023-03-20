@@ -74,9 +74,9 @@ class IndexDeliveryNotes extends InertiaAction
             'Marketing/DeliveryNotes',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title'       => __('delivery_notes'),
+                'title'       => __('delivery notes'),
                 'pageHead'    => [
-                    'title' => __('delivery_notes'),
+                    'title' => __('delivery notes'),
                 ],
                 'delivery_notes' => DeliveryNoteResource::collection($delivery_notes),
 

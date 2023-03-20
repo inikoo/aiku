@@ -9,7 +9,6 @@ namespace App\Actions\Mail\Mailshot;
 
 use App\Actions\InertiaAction;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Models\Accounting\Payment;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
@@ -19,7 +18,7 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property Payment $payment
+ * @property Mailshot $mailshot
  */
 class ShowMailshot extends InertiaAction
 {

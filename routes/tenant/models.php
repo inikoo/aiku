@@ -13,6 +13,7 @@ use App\Actions\Inventory\Stock\UpdateStock;
 use App\Actions\Inventory\StockFamily\UpdateStockFamily;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
+use App\Actions\Mailroom\Outbox\UpdateOutbox;
 use App\Actions\Marketing\Department\UpdateDepartment;
 use App\Actions\Marketing\Family\UpdateFamily;
 use App\Actions\Marketing\Product\UpdateProduct;
@@ -49,3 +50,5 @@ Route::patch('/supplier/{supplier}', UpdateSupplier::class)->name('supplier.upda
 Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');
 
 Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
+
+Route::patch('/outbox/{outbox}', UpdateOutbox::class)->name('outbox.update');
