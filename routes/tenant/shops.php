@@ -8,6 +8,7 @@
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
 use App\Actions\Mail\Outbox\IndexOutboxes;
+use App\Actions\Mail\Outbox\ShowOutbox;
 use App\Actions\Marketing\Department\UI\CreateDepartment;
 use App\Actions\Marketing\Department\UI\EditDepartment;
 use App\Actions\Marketing\Department\UI\IndexDepartments;

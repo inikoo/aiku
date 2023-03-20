@@ -13,6 +13,7 @@ use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Mail\Mailshot\ShowMailshot;
 use App\Actions\Mail\Outbox\IndexOutboxes;
 use App\Actions\Mail\Outbox\ShowOutbox;
+use App\Actions\Mail\Outbox\UI\EditOutbox;
 use App\Actions\UI\Mail\MailDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,8 @@ Route::get('/mailrooms/{mailroom}/dispatched-emails/{dispatchedEmail}', [ShowDis
 
 Route::get('/outboxes', IndexOutboxes::class)->name('outboxes.index');
 Route::get('/outboxes/{outbox}', ShowOutbox::class)->name('outboxes.show');
+Route::get('/outboxes/{outbox}/edit', EditOutbox::class)->name('outboxes.edit');
+
 Route::get('/outboxes/{outbox}/mailshots', [IndexMailshots::class, 'inOutbox'])->name('outboxes.show.mailshots.index');
 Route::get('/outboxes/{outbox}/mailshots/{mailshot}', [ShowMailshot::class, 'inOutbox'])->name('outboxes.show.mailshots.show');
 Route::get('/outboxes/{outbox}/mailshots/{mailshot}/dispatched-emails', [IndexDispatchedEmails::class, 'inOutboxInMailshot'])->name('outboxes.show.mailshots.show.dispatched-emails.index');

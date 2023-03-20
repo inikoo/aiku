@@ -8,7 +8,10 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Actions\InertiaAction;
+use App\Actions\Mail\Mailroom\ShowMailroom;
+use App\Actions\UI\Mail\MailDashboard;
 use App\Http\Resources\Mail\OutboxResource;
+use App\Models\Central\Tenant;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -23,7 +26,7 @@ class IndexOutboxes extends InertiaAction
 {
     //use HasUIOutboxes;
 
-    private Mailroom $parent;
+    private Mailroom|Tenant $parent;
 
     public function handle(): LengthAwarePaginator
     {
@@ -39,12 +42,7 @@ class IndexOutboxes extends InertiaAction
             ->defaultSort('outboxes.name')
             ->select(['outboxes.name', 'outboxes.slug','outboxes.data', 'mailrooms.id as mailrooms_id'])
             ->leftJoin('outbox_stats', 'outbox_stats.id', 'outbox_stats.outbox_id')
-            ->leftJoin('outboxes', 'outboxes_id', 'outboxes.id')
-            ->when($this->parent, function ($query) {
-                if (class_basename($this->parent) == 'Mailroom') {
-                    $query->where('outboxes.mailroom_id', $this->parent->id);
-                }
-            })
+            ->leftJoin('mailrooms', 'mailroom_id', 'mailrooms.id')
             ->allowedSorts(['name', 'data'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -53,7 +51,6 @@ class IndexOutboxes extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('mail.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -77,13 +74,6 @@ class IndexOutboxes extends InertiaAction
                 'title'       => __('outboxes '),
                 'pageHead'    => [
                     'title'   => __('outboxes'),
-                    'create'  => $this->canEdit && $this->routeName=='mail.outboxes.index' ? [
-                        'route' => [
-                            'name'       => 'mail.outboxes.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label'=> __('outboxes')
-                    ] : false,
                 ],
                 'outboxes' => OutboxResource::collection($outboxes),
 
@@ -103,6 +93,7 @@ class IndexOutboxes extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = app('currentTenant');
         $this->initialisation($request);
         return $this->handle();
     }
@@ -112,5 +103,34 @@ class IndexOutboxes extends InertiaAction
         $this->parent = $mailroom;
         $this->initialisation($request);
         return $this->handle();
+    }
+
+    public function getBreadcrumbs(string $routeName, Mailroom|Tenant $parent): array
+    {
+        $headCrumb = function (array $routeParameters = []) use ($routeName) {
+            return [
+                $routeName => [
+                    'route'           => $routeName,
+                    'routeParameters' => $routeParameters,
+                    'modelLabel'      => [
+                        'label' => __('Outbox')
+                    ]
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'mail.outboxes.index' =>
+            array_merge(
+                (new MailDashboard())->getBreadcrumbs(),
+                $headCrumb()
+            ),
+            'mail.mailrooms.show.outboxes.index' =>
+            array_merge(
+                (new ShowMailroom())->getBreadcrumbs($parent),
+                $headCrumb([$parent->slug])
+            ),
+            default => []
+        };
     }
 }

@@ -8,8 +8,9 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Actions\InertiaAction;
+use App\Actions\Mail\Mailroom\ShowMailroom;
+use App\Actions\UI\Mail\MailDashboard;
 use App\Http\Resources\Mail\OutboxResource;
-use App\Models\Accounting\PaymentAccount;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
 use Inertia\Inertia;
@@ -17,11 +18,13 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property PaymentAccount $paymentAccount
+ * @property Outbox $outbox
  */
 class ShowOutbox extends InertiaAction
 {
     //use HasUIOutbox;
+
+
     public function handle(Outbox $outbox): Outbox
     {
         return $outbox;
@@ -55,11 +58,16 @@ class ShowOutbox extends InertiaAction
             'Mail/Outbox',
             [
                 'title'       => $outbox->name,
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName),
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $outbox),
                 'pageHead'    => [
                     'icon'    => 'fal fa-agent',
                     'title'   => $outbox->slug,
-
+                    'edit'    => $this->canEdit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+                    ] : false,
                 ],
                 'outboxes' => $outbox
             ]
@@ -70,5 +78,41 @@ class ShowOutbox extends InertiaAction
     public function jsonResponse(Outbox $outbox): OutboxResource
     {
         return new OutboxResource($outbox);
+    }
+
+    public function getBreadcrumbs(string $routeName, Outbox $outbox): array
+    {
+        $headCrumb = function (array $routeParameters = []) use ($outbox, $routeName) {
+            $indexRouteParameters = $routeParameters;
+            array_pop($indexRouteParameters);
+
+            return [
+                $routeName => [
+                    'route'           => $routeName,
+                    'routeParameters' => $routeParameters,
+                    'name'            => $outbox->id,
+                    'index'           => [
+                        'route'           => preg_replace('/show$/', 'index', $routeName),
+                        'routeParameters' => $indexRouteParameters,
+                        'overlay'         => __('outbox list')
+                    ],
+                    'modelLabel' => [
+                        'label' => __('outbox')
+                    ]
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'mail.outboxes.show' => array_merge(
+                (new MailDashboard())->getBreadcrumbs(),
+                $headCrumb([$outbox->slug])
+            ),
+            'mail.mailrooms.show.outboxes.show' => array_merge(
+                (new ShowMailroom())->getBreadcrumbs($this->outbox),
+                $headCrumb([$outbox->mailroom-> $outbox->slug])
+            ),
+            default => []
+        };
     }
 }

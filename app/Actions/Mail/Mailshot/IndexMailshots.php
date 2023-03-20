@@ -104,7 +104,7 @@ class IndexMailshots extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         //$this->fillFromRequest($request);
-        $this->parent = app('currentTenant');
+        //$this->parent = app('currentTenant');
         //$this->routeName = $request->route()->getName();
         $this->initialisation($request);
         return $this->handle();
