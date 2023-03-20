@@ -7,13 +7,17 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
+use App\Actions\Accounting\Payment\UI\IndexPayments;
+use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
+use App\Enums\UI\PaymentServiceProviderTabsEnum;
+use App\Http\Resources\Accounting\PaymentAccountResource;
+use App\Http\Resources\Accounting\PaymentResource;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Models\Accounting\PaymentServiceProvider;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
@@ -26,8 +30,9 @@ class ShowPaymentServiceProvider extends InertiaAction
         return $request->user()->hasPermissionTo("accounting.view");
     }
 
-    public function asController(PaymentServiceProvider $paymentServiceProvider): void
+    public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): void
     {
+        $this->initialisation($request)->withTab(PaymentServiceProviderTabsEnum::values());
         $this->paymentServiceProvider    = $paymentServiceProvider;
     }
 
@@ -39,7 +44,7 @@ class ShowPaymentServiceProvider extends InertiaAction
         return Inertia::render(
             'Accounting/PaymentServiceProvider',
             [
-                'title'       => __('payment_service_provider'),
+                'title'       => __('payment service provider'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->paymentServiceProvider),
                 'pageHead'    => [
                     'icon'  => 'fal fa-cash-register',
@@ -73,13 +78,26 @@ class ShowPaymentServiceProvider extends InertiaAction
                     ]
 
                 ],
-                'payment_service_provider'   => $this->paymentServiceProvider
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => PaymentServiceProviderTabsEnum::navigation()
+
+                ],
+
+                PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value ?
+                    fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($this->paymentServiceProvider))
+                    : Inertia::lazy(fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($this->paymentServiceProvider))),
+
+                PaymentServiceProviderTabsEnum::PAYMENTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENTS->value ?
+                    fn () => PaymentResource::collection(IndexPayments::run($this->paymentServiceProvider))
+                    : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($this->paymentServiceProvider))),
             ]
-        );
+        )->table(IndexPaymentAccounts::make()->tableStructure())
+            ->table(IndexPayments::make()->tableStructure());
     }
 
 
-    #[Pure] public function jsonResponse(): PaymentServiceProviderResource
+    public function jsonResponse(): PaymentServiceProviderResource
     {
         return new PaymentServiceProviderResource($this->paymentServiceProvider);
     }

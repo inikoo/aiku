@@ -14,20 +14,29 @@ const props = defineProps<{
 }>()
 
 
-
-const itemRoute = route().current().replace(/index$/i, 'show')
-
-function routeParameters(location: Location) {
+function locationRoute(location: Location) {
     switch (route().current()) {
+
+
         case 'inventory.warehouses.show.locations.index':
-            return [location.warehouse_slug, location.slug]
+            return route(
+                'inventory.warehouses.show.locations.show',
+                [location.warehouse_slug, location.slug]);
         case 'inventory.warehouse-areas.show.locations.index':
-            return [location.warehouse_area_slug, location.slug]
+            return route(
+                'inventory.warehouse-areas.show.locations.show',
+                [location.warehouse_area_slug, location.slug]);
         case 'inventory.warehouses.show.warehouse-areas.show.locations.index':
-            return [location.warehouse_slug, location.warehouse_area_slug, location.slug]
+            return route(
+                'inventory.warehouses.show.warehouse-areas.show.locations.show',
+                [location.warehouse_slug, location.warehouse_area_slug, location.slug]
+            )
         default:
-            return [location.slug]
+            return route(
+                'inventory.locations.show',
+                [location.slug]);
     }
+
 }
 
 </script>
@@ -35,8 +44,8 @@ function routeParameters(location: Location) {
 <template>
     <Table :resource="data" :name="'loc'" class="mt-5">
         <template #cell(code)="{ item: location }">
-            <Link :href="route(itemRoute,routeParameters(location))">
-                {{ location.code }}
+            <Link :href="locationRoute(location)">
+                {{ location['code'] }}
             </Link>
         </template>
     </Table>

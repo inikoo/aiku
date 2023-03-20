@@ -9,9 +9,14 @@ namespace App\Enums\UI;
 
 enum TabsAbbreviationEnum: string
 {
-    case STATS           = 'stats';
+    case STATS           = 'sts';
     case WAREHOUSE_AREAS = 'wa';
     case LOCATIONS       = 'loc';
+
+    case PAYMENT_ACCOUNTS = 'pa';
+    case PAYMENTS         = 'p';
+
+
     case DATA            = 'data';
     case CHANGELOG       = 'hist';
 }

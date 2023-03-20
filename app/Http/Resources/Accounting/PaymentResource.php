@@ -12,7 +12,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property string $status
  * @property string $date
- * @property integer $data
+ * @property int $data
  * @property string $slug
  * @property string $reference
  * @property mixed $created_at
@@ -26,11 +26,11 @@ class PaymentResource extends JsonResource
     public function toArray($request): array
     {
         return array(
+            'slug'                           => $this->slug,
             'payment_service_providers_slug' => $this->payment_service_providers_slug,
             'payment_accounts_slug'          => $this->payment_accounts_slug,
             'status'                         => $this->status,
             'date'                           => $this->date,
-            'slug'                           => $this->slug,
             'reference'                      => $this->reference,
             'created_at'                     => $this->created_at,
             'updated_at'                     => $this->updated_at,

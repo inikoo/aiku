@@ -1,12 +1,24 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Sun, 19 Mar 2023 14:00:48 Malaysia Time, Kuala Lumpur, Malaysia
+  - Created: Mon, 20 Mar 2023 16:45:41 Malaysia Time, Kuala Lumpur, Malaysia
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
+
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {faInventory, faWarehouse, faMapSigns, faChartLine} from '../../../private/pro-light-svg-icons';
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import {computed, defineAsyncComponent, ref} from "vue";
+import WarehouseDashboard from "@/Pages/Inventory/WarehouseDashboard.vue";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import TableLocations from "@/Pages/Tables/TableLocations.vue";
+import TableWarehouseAreas from "@/Pages/Tables/TableWarehouseAreas.vue";
+import {useTabChange} from "@/Composables/tab-change";
 
+const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+library.add(faInventory, faWarehouse, faMapSigns, faChartLine);
 
 const props = defineProps<{
     title: string,
@@ -17,40 +29,21 @@ const props = defineProps<{
     },
     warehouse_areas?: object
     locations?: object,
+    dashboard?: object,
 
 }>()
 
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInventory, faWarehouse, faMapSigns, faChartLine} from '@/../private/pro-light-svg-icons';
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import {computed, ref} from "vue";
-
-import {defineAsyncComponent} from 'vue'
-
-import WarehouseDashboard from "@/Pages/Inventory/Warehouse/Tabs/WarehouseDashboard.vue";
-import WarehouseDetails from "@/Pages/Inventory/Warehouse/Tabs/WarehouseDetails.vue";
-import TableLocations from "@/Pages/Tables/TableLocations.vue";
-import TableWarehouseAreas from "@/Pages/Tables/TableWarehouseAreas.vue";
-import {useTabChange} from "@/Composables/tab-change";
-
-const ModelChangelog = defineAsyncComponent(() =>
-    import('@/Pages/ModelChangelog.vue')
-)
-
-
-library.add(faInventory, faWarehouse, faMapSigns, faChartLine);
-
 
 let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug,currentTab);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
 
     const components = {
         dashboard: WarehouseDashboard,
-        details: WarehouseDetails,
         warehouse_areas: TableWarehouseAreas,
         locations: TableLocations,
+        details: ModelDetails,
         history: ModelChangelog
     };
     return components[currentTab.value];

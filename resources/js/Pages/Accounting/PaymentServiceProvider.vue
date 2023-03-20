@@ -4,7 +4,7 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
+<script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -14,12 +14,44 @@ import {
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
+import ModelStats from '@/Components/Navigation/DashboardNavigation.vue';
+import {computed, defineAsyncComponent, ref} from "vue";
+import {useTabChange} from "@/Composables/tab-change";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import TablePayments from "@/Pages/Tables/TablePayments.vue";
+import TablePaymentAccounts from "@/Pages/Tables/TablePaymentAccounts.vue";
+const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
 library.add(faCreditCard, faMoneyCheckAlt, faCashRegister);
 
-const props = defineProps(['title', 'pageHead', 'payment_service_provider', 'treeMaps']);
+const props = defineProps<{
+    title: string,
+    pageHead: object,
+    tabs: {
+        current: string;
+        navigation: object;
+    },
+    payment_accounts?: object
+    payments?: object,
 
+}>()
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug,currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        stats:ModelStats,
+        payment_accounts:TablePaymentAccounts,
+        payments:TablePayments,
+        details: ModelDetails,
+        history: ModelChangelog
+    };
+    return components[currentTab.value];
+
+});
 
 </script>
 
@@ -27,9 +59,8 @@ const props = defineProps(['title', 'pageHead', 'payment_service_provider', 'tre
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <div class="m-4">
-        <DashboardNavigation v-for="(treeMap,idx) in treeMaps" :key="idx" :nodes="treeMap"/>
-    </div>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <component :is="component" :data="props[currentTab]"></component>
 
 </template>
 

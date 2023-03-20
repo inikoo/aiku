@@ -14,6 +14,7 @@ use App\Models\Central\Tenant;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Closure;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,7 +27,7 @@ class IndexWarehouseAreas extends InertiaAction
     use HasUIWarehouseAreas;
 
 
-    public function handle(Warehouse|Tenant $parent): AnonymousResourceCollection
+    public function handle(Warehouse|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,37 +39,35 @@ class IndexWarehouseAreas extends InertiaAction
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WAREHOUSE_AREAS->value);
 
 
-        return WarehouseAreaResource::collection(
-            QueryBuilder::for(WarehouseArea::class)
-                ->defaultSort('warehouse_areas.code')
-                ->select(
-                    [
-                        'warehouse_areas.code as code',
-                        'warehouse_areas.id',
-                        'warehouse_areas.name',
-                        'number_locations',
-                        'warehouses.slug as warehouse_slug',
-                        'warehouse_areas.slug'
-                    ]
-                )
-                ->leftJoin('warehouse_area_stats', 'warehouse_area_stats.warehouse_area_id', 'warehouse_areas.id')
-                ->leftJoin('warehouses', 'warehouse_areas.warehouse_id', 'warehouses.id')
-                ->when($parent, function ($query) use ($parent) {
-                    if (class_basename($parent) == 'Warehouse') {
-                        $query->where('warehouse_areas.warehouse_id', $parent->id);
-                    }
-                })
-                ->allowedSorts(['code', 'name', 'number_locations'])
-                ->allowedFilters([$globalSearch])
-                ->paginate(
-                    perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                    pageName: TabsAbbreviationEnum::WAREHOUSE_AREAS->value.'Page'
-                )
-                ->withQueryString()
-        );
+        return QueryBuilder::for(WarehouseArea::class)
+            ->defaultSort('warehouse_areas.code')
+            ->select(
+                [
+                    'warehouse_areas.code as code',
+                    'warehouse_areas.id',
+                    'warehouse_areas.name',
+                    'number_locations',
+                    'warehouses.slug as warehouse_slug',
+                    'warehouse_areas.slug'
+                ]
+            )
+            ->leftJoin('warehouse_area_stats', 'warehouse_area_stats.warehouse_area_id', 'warehouse_areas.id')
+            ->leftJoin('warehouses', 'warehouse_areas.warehouse_id', 'warehouses.id')
+            ->when($parent, function ($query) use ($parent) {
+                if (class_basename($parent) == 'Warehouse') {
+                    $query->where('warehouse_areas.warehouse_id', $parent->id);
+                }
+            })
+            ->allowedSorts(['code', 'name', 'number_locations'])
+            ->allowedFilters([$globalSearch])
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::WAREHOUSE_AREAS->value.'Page'
+            )
+            ->withQueryString();
     }
 
-    public function warehouseAreasTableStructure(): Closure
+    public function tableStructure(): Closure
     {
         return function (InertiaTable $table) {
             $table
@@ -94,14 +93,14 @@ class IndexWarehouseAreas extends InertiaAction
     }
 
 
-    public function inTenant(ActionRequest $request): AnonymousResourceCollection
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
         return $this->handle(app('currentTenant'));
     }
 
-    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): AnonymousResourceCollection
+    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
@@ -109,13 +108,13 @@ class IndexWarehouseAreas extends InertiaAction
     }
 
 
-    public function jsonResponse($warehousesAreas): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $warehousesAreas): AnonymousResourceCollection
     {
         return WarehouseAreaResource::collection($warehousesAreas);
     }
 
 
-    public function htmlResponse(AnonymousResourceCollection $warehousesAreas, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $warehousesAreas, ActionRequest $request)
     {
         return Inertia::render(
             'Inventory/WarehouseAreas',
@@ -132,10 +131,10 @@ class IndexWarehouseAreas extends InertiaAction
                         'label' => __('warehouse areas')
                     ] : false,
                 ],
-                'data'        => $warehousesAreas
+                'data'        => WarehouseAreaResource::collection($warehousesAreas)
 
 
             ]
-        )->table($this->warehouseAreasTableStructure());
+        )->table($this->tableStructure());
     }
 }

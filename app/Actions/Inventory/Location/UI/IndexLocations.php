@@ -15,6 +15,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Closure;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,7 +27,7 @@ class IndexLocations extends InertiaAction
 {
     use HasUILocations;
 
-    public function handle(WarehouseArea|Warehouse|Tenant $parent): AnonymousResourceCollection
+    public function handle(WarehouseArea|Warehouse|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,44 +38,42 @@ class IndexLocations extends InertiaAction
 
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::LOCATIONS->value);
 
-        return LocationResource::collection(
-            QueryBuilder::for(Location::class)
-                ->defaultSort('locations.code')
-                ->select(
-                    [
-                        'locations.id',
-                        'locations.code',
-                        'locations.slug',
-                        'warehouses.slug as warehouse_slug',
-                        'warehouse_areas.slug as warehouse_area_slug',
-                        'warehouse_area_id'
-                    ]
-                )
-                ->leftJoin('location_stats', 'location_stats.location_id', 'locations.id')
-                ->leftJoin('warehouses', 'locations.warehouse_id', 'warehouses.id')
-                ->leftJoin('warehouse_areas', 'locations.warehouse_area_id', 'warehouse_areas.id')
-                ->when($parent, function ($query) use ($parent) {
-                    switch (class_basename($parent)) {
-                        case 'WarehouseArea':
-                            $query->where('locations.warehouse_area_id', $parent->id);
-                            break;
-                        case 'Warehouse':
-                            $query->where('locations.warehouse_id', $parent->id);
-                            break;
-                    }
-                })
-                ->allowedSorts(['code'])
-                ->allowedFilters([$globalSearch])
-                ->paginate(
-                    perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                    pageName: TabsAbbreviationEnum::LOCATIONS->value.'Page'
-                )
-                ->withQueryString()
-        );
+        return QueryBuilder::for(Location::class)
+            ->defaultSort('locations.code')
+            ->select(
+                [
+                    'locations.id',
+                    'locations.code',
+                    'locations.slug',
+                    'warehouses.slug as warehouse_slug',
+                    'warehouse_areas.slug as warehouse_area_slug',
+                    'warehouse_area_id'
+                ]
+            )
+            ->leftJoin('location_stats', 'location_stats.location_id', 'locations.id')
+            ->leftJoin('warehouses', 'locations.warehouse_id', 'warehouses.id')
+            ->leftJoin('warehouse_areas', 'locations.warehouse_area_id', 'warehouse_areas.id')
+            ->when($parent, function ($query) use ($parent) {
+                switch (class_basename($parent)) {
+                    case 'WarehouseArea':
+                        $query->where('locations.warehouse_area_id', $parent->id);
+                        break;
+                    case 'Warehouse':
+                        $query->where('locations.warehouse_id', $parent->id);
+                        break;
+                }
+            })
+            ->allowedSorts(['code'])
+            ->allowedFilters([$globalSearch])
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::LOCATIONS->value.'Page'
+            )
+            ->withQueryString();
     }
 
 
-    public function locationsTableStructure(): Closure
+    public function tableStructure(): Closure
     {
         return function (InertiaTable $table) {
             $table
@@ -86,21 +85,21 @@ class IndexLocations extends InertiaAction
         };
     }
 
-    public function inTenant(ActionRequest $request): AnonymousResourceCollection
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
         return $this->handle(parent: app('currentTenant'));
     }
 
-    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): AnonymousResourceCollection
+    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
         return $this->handle(parent: $warehouse);
     }
 
-    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): AnonymousResourceCollection
+    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
@@ -108,10 +107,10 @@ class IndexLocations extends InertiaAction
     }
 
 
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): AnonymousResourceCollection
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-
         return $this->handle(parent: $warehouseArea);
     }
 
@@ -127,13 +126,13 @@ class IndexLocations extends InertiaAction
             );
     }
 
-    public function jsonResponse($locations): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $locations): AnonymousResourceCollection
     {
-        return $locations;
+        return LocationResource::collection($locations);
     }
 
 
-    public function htmlResponse(AnonymousResourceCollection $locations, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $locations, ActionRequest $request)
     {
         return Inertia::render(
             'Inventory/Locations',
@@ -150,10 +149,10 @@ class IndexLocations extends InertiaAction
                         'label' => __('locations')
                     ] : false,
                 ],
-                'data'        => $locations,
+                'data'        => LocationResource::collection($locations),
 
 
             ]
-        )->table($this->locationsTableStructure());
+        )->table($this->tableStructure());
     }
 }
