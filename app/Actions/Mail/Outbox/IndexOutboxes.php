@@ -43,6 +43,11 @@ class IndexOutboxes extends InertiaAction
             ->select(['outboxes.name', 'outboxes.slug','outboxes.data', 'mailrooms.id as mailrooms_id'])
             ->leftJoin('outbox_stats', 'outbox_stats.id', 'outbox_stats.outbox_id')
             ->leftJoin('mailrooms', 'mailroom_id', 'mailrooms.id')
+            ->when($this->parent, function ($query) {
+                if (class_basename($this->parent) == 'Mailroom') {
+                    $query->where('outboxes.mailroom_id', $this->parent->id);
+                }
+            })
             ->allowedSorts(['name', 'data'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))

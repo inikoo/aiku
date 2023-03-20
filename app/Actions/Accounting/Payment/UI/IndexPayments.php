@@ -7,7 +7,6 @@
 
 namespace App\Actions\Accounting\Payment\UI;
 
-
 use App\Actions\InertiaAction;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
@@ -89,9 +88,9 @@ class IndexPayments extends InertiaAction
             'Accounting/Payments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title' => __('payments '),
-                'pageHead' => [
-                    'title' => __('payments'),
+                'title'       => __('payments '),
+                'pageHead'    => [
+                    'title'  => __('payments'),
                     'create' => $this->canEdit &&
                     (
                         $this->routeName == 'accounting.payment-accounts.show.payments.index' or
@@ -103,12 +102,12 @@ class IndexPayments extends InertiaAction
                                 match ($this->routeName) {
                                     'accounting.payment-accounts.show.payments.index' =>
                                     [
-                                        'name' => 'accounting.payment-accounts.show.payments.create',
+                                        'name'       => 'accounting.payment-accounts.show.payments.create',
                                         'parameters' => array_values($this->originalParameters)
                                     ],
                                     'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
                                     [
-                                        'name' => 'accounting.payment-service-providers.show.payment-accounts.show.payments.create',
+                                        'name'       => 'accounting.payment-service-providers.show.payment-accounts.show.payments.create',
                                         'parameters' => array_values($this->originalParameters)
                                     ]
                                 }
@@ -140,9 +139,7 @@ class IndexPayments extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$this->fillFromRequest($request);
         $this->parent = app('currentTenant');
-        //$this->routeName = $request->route()->getName();
         $this->initialisation($request);
         return $this->handle();
     }
@@ -150,7 +147,6 @@ class IndexPayments extends InertiaAction
     public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $paymentServiceProvider;
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle();
     }
@@ -179,5 +175,4 @@ class IndexPayments extends InertiaAction
         $this->initialisation($request);
         return $this->handle();
     }
-
 }

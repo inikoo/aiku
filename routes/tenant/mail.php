@@ -11,6 +11,7 @@ use App\Actions\Mail\Mailroom\IndexMailrooms;
 use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Mail\Mailshot\ShowMailshot;
+use App\Actions\Mail\Mailshot\UI\CreateMailshot;
 use App\Actions\Mail\Outbox\IndexOutboxes;
 use App\Actions\Mail\Outbox\ShowOutbox;
 use App\Actions\Mail\Outbox\UI\EditOutbox;
@@ -50,6 +51,8 @@ Route::get('/outboxes/{outbox}/dispatched-emails/{dispatchedEmail}', [ShowDispat
 
 
 Route::get('/mailshots', IndexMailshots::class)->name('mailshots.index');
+Route::get('/mailshots/create', CreateMailshot::class)->name('mailshots.create');
+
 Route::get('/mailshots/{mailshot}', ShowMailshot::class)->name('mailshots.show');
 Route::get('/mailshots/{mailshot}/dispatched-emails', [IndexDispatchedEmails::class, 'inMailshot'])->name('mailshots.show.dispatched-emails.index');
 Route::get('/mailshots/{mailshot}/dispatched-emails/{dispatchedEmail}', [ShowDispatchedEmail::class, 'inMailshot' ])->name('mailshots.show.dispatched-emails.show');
