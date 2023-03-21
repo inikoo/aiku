@@ -4,26 +4,21 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableOrders from '@/Pages/Tables/TableOrders.vue';
 
-defineProps(['orders', 'title', 'pageHead']);
-
+const props = defineProps<{
+    data: object
+    title: string
+    pageHead: object
+}>()
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="orders" class="mt-5">
-
-        <template #cell(code)="{ item: order }">
-            <Link :href="route('shops.show.orders.show',[order.shop_slug,order.slug])">
-                {{ order.code }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableOrders :data="data"/>
 </template>
 
