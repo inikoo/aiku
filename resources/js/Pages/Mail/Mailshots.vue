@@ -4,39 +4,24 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
-import { Head, Link } from "@inertiajs/vue3";
+<script setup lang="ts">
+import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
-import Table from "@/Components/Table/Table.vue";
+import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
 
-defineProps(["mailshots", "title", "pageHead"]);
-
-const itemRoute = route().current().replace(/index$/i, "show");
-
-function routeParameters(mailshot) {
-    switch (route().current()) {
-        case "mail.mailrooms.show.outboxes.show.mailshots.index":
-            return [mailshot["mailrooms_slug"], mailshot.slug];
-
-        default:
-            return [mailshot.slug];
-    }
-}
+const props = defineProps<{
+    data: object
+    title: string
+    pageHead: object
+}>()
 
 </script>
 
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="mailshots" class="mt-5">
+    <TableMailshots :data="data"/>
 
 
-        <template #cell(name)="{ item: mailshot }">
-            <Link :href="route(itemRoute,routeParameters(mailshot))">
-                {{ mailshot["name"] }}
-            </Link>
-        </template>
-
-    </Table>
 </template>
 
