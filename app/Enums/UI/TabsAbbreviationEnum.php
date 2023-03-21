@@ -60,4 +60,9 @@ enum TabsAbbreviationEnum: string
     case AGENTS_PARTS           = 'ap';
 
     case STOCK_HISTORY      = 'sh';
+
+    case PARTS              = 'parts';
+    case DISCONTINUED_PARTS = 'dp';
+    case PARTS_LOCATIONS    = 'pl';
+    case PRODUCT_FAMILIES   = 'pf';
 }
