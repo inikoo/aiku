@@ -17,12 +17,12 @@ enum SupplierTabsEnum: string
 
 
     case DATA               = 'data';
-    case PURCHASES_SALES    = 'portfolio';
+    case PURCHASES_SALES    = 'purchase_sales';
     case SUPPLIER_PRODUCTS  = 'supplier_products';
-    case ISSUES             = 'orders';
-    case PURCHASE_ORDERS    = 'sales';
-    case DELIVERIES         = 'insights';
-    case IMAGES             = 'discounts';
+    case ISSUES             = 'issues';
+    case PURCHASE_ORDERS    = 'purchase_orders';
+    case DELIVERIES         = 'deliveries';
+    case IMAGES             = 'images';
     case ATTACHMENTS        = 'attachments';
     case SYSTEM_USERS       = 'system_users';
 
