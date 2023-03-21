@@ -29,4 +29,17 @@ enum TabsAbbreviationEnum: string
     case DATA      = 'data';
     case CHANGELOG = 'hist';
     case CUSTOMERS = 'cus';
+
+    case PURCHASES_SALES    = 'ps';
+    case SUPPLIER_PRODUCTS  = 'sp';
+
+    case ISSUES             = 'iss';
+
+    case PURCHASE_ORDERS   = 'puord';
+
+    case DELIVERIES         = 'd';
+
+    case IMAGES             = 'img';
+
+    case SYSTEM_USERS       = 'syuser';
 }
