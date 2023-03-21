@@ -55,4 +55,5 @@ enum TabsAbbreviationEnum: string
 
     case UNITS                  = 'u';
     case TARIFF_CODES_ORIGIN    = 'tco';
+    case PROPERTIES_OPERATIONS  = 'propt';
 }
