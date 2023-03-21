@@ -67,4 +67,10 @@ enum TabsAbbreviationEnum: string
     case PRODUCT_FAMILIES   = 'pf';
 
     case STOCK_MOVEMENTS    = 'sm';
+
+    case ALL_PRODUCTS    = 'allp';
+
+    case VOUCHERS            = 'v';
+
+    case SETTINGS            = 's';
 }

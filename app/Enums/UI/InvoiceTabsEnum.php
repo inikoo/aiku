@@ -16,15 +16,16 @@ enum InvoiceTabsEnum: string
     use HasTabs;
 
 
-    case ITEMS                      = 'items';
-    case CUSTOMER_NOTES_HISTORY     = 'customer_notes_history';
-    case PAYMENTS                   = 'payments';
-    case DATA                       = 'data';
-    case SENT_EMAILS                = 'sent_emails';
-    case DISCOUNTS                  = 'discounts';
-    case INVOICES                   = 'invoices';
-    case DELIVERY_NOTES             = 'delivery_notes';
-    case ATTACHMENTS                = 'attachments';
+    case ITEMS                       = 'items';
+    case ALL_PRODUCTS                = 'all_products';
+    case CUSTOMER_NOTES_HISTORY      = 'customer_notes_history';
+    case PAYMENTS                    = 'payments';
+    case DATA                        = 'data';
+    case SENT_EMAILS                 = 'sent_emails';
+    case DISCOUNTS                   = 'discounts';
+    case INVOICES                    = 'invoices';
+    case DELIVERY_NOTES              = 'delivery_notes';
+    case ATTACHMENTS                 = 'attachments';
 
     case CHANGELOG                  = 'changelog';
 
@@ -35,6 +36,9 @@ enum InvoiceTabsEnum: string
             InvoiceTabsEnum::ITEMS => [
                 'title' => __('items'),
                 'icon'  => 'fal fa-bars',
+            ],InvoiceTabsEnum::ALL_PRODUCTS => [
+                'title' => __('all products'),
+                'icon'  => 'fal fa-th-list',
             ],
             InvoiceTabsEnum::CUSTOMER_NOTES_HISTORY => [
                 'title' => __('Customer notes/history'),
