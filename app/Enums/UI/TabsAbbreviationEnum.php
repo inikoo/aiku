@@ -63,4 +63,5 @@ enum TabsAbbreviationEnum: string
     case RELATED_CATEGORIES                     = 'rc';
     case NOTIFICATIONS_TO_BE_SEND_NEXT_SHOT     = 'ntbsns';
     case WORKSHOP                               = 'ws';
+    case POOL_OPTIONS                           = 'popt';
 }
