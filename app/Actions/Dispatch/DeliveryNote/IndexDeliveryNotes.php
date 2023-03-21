@@ -14,7 +14,6 @@ use App\Models\Central\Tenant;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -95,20 +94,18 @@ class IndexDeliveryNotes extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function InShop(Shop $shop): LengthAwarePaginator
+    public function InShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->validateAttributes();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 

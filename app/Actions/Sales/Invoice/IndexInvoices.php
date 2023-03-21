@@ -14,7 +14,6 @@ use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Invoice;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,7 +38,15 @@ class IndexInvoices extends InertiaAction
 
         return QueryBuilder::for(Invoice::class)
             ->defaultSort('invoices.number')
-            ->select(['invoices.number', 'invoices.total','invoices.net', 'invoices.created_at', 'invoices.updated_at', 'invoices.slug', 'shops.slug as shop_slug'])
+            ->select([
+                'invoices.number',
+                'invoices.total',
+                'invoices.net',
+                'invoices.created_at',
+                'invoices.updated_at',
+                'invoices.slug',
+                'shops.slug as shop_slug'
+            ])
             ->leftJoin('invoice_stats', 'invoices.id', 'invoice_stats.invoice_id')
             ->leftJoin('shops', 'invoices.shop_id', 'shops.id')
             ->when($this->parent, function ($query) {
@@ -98,20 +105,18 @@ class IndexInvoices extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
-    public function InShop(Shop $shop): LengthAwarePaginator
+    public function InShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->validateAttributes();
-
+        $this->initialisation($request);
         return $this->handle();
     }
 
