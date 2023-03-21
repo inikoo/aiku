@@ -64,4 +64,7 @@ enum TabsAbbreviationEnum: string
     case NOTIFICATIONS_TO_BE_SEND_NEXT_SHOT     = 'ntbsns';
     case WORKSHOP                               = 'ws';
     case POOL_OPTIONS                           = 'popt';
+    case HEADER                                 = 'hd';
+    case MENU                                   = 'mn';
+    case FOOTER                                 = 'ft';
 }
