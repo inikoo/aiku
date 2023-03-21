@@ -73,4 +73,12 @@ enum TabsAbbreviationEnum: string
     case VOUCHERS            = 'v';
 
     case SETTINGS            = 's';
+
+    case VARIATIONS             = 'vt';
+
+    case WEBPAGES               = 'web';
+
+    case MAILSHOTS              = 'ms';
+
+    case RELATED_PRODUCTS       = 'rp';
 }
