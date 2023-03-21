@@ -81,4 +81,6 @@ enum TabsAbbreviationEnum: string
     case MAILSHOTS              = 'ms';
 
     case RELATED_PRODUCTS       = 'rp';
+
+    case COMMUNICATIONS_HISTORY_NOTES       = 'chn';
 }
