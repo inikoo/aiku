@@ -50,4 +50,9 @@ enum TabsAbbreviationEnum: string
 
     case INVOICES                   = 'inv';
     case DELIVERY_NOTES             = 'dn';
+
+    case SKOS_ORDERED           = 'skoord';
+
+    case UNITS                  = 'u';
+    case TARIFF_CODES_ORIGIN    = 'tco';
 }
