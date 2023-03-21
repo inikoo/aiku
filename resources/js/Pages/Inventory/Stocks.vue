@@ -4,12 +4,17 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import {Head, Link} from '@inertiajs/vue3';
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
 import {useLocaleStore} from '@/Stores/locale.js';
+import TableStocks from "@/Pages/Tables/TableStocks.vue";
 
-const props =defineProps(['stocks', 'title','pageHead']);
+const props = defineProps<{
+    data: object
+    title: string
+    pageHead: object
+}>()
+
 const locale = useLocaleStore();
 
 
@@ -25,16 +30,6 @@ const columnsType={
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="stocks"  :columnsType=columnsType  class="mt-5">
-        <template #cell(code)="{ item: stock }">
-            <Link :href="route('inventory.stocks.show',stock.slug)">
-                {{ stock.code }}
-            </Link>
-        </template>
-        <template #cell(quantity)="{ item: stock }" >
-          {{locale.number(stock['quantity'])}}
-        </template>
-
-    </Table>
+    <TableStocks :data="data"/>
 </template>
 
