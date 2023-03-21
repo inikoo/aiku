@@ -4,7 +4,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-export interface Order {
+export interface Stock {
 
     slug:string,
     code:string,
