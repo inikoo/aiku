@@ -51,7 +51,7 @@ function stockFamilyRoute(stock: Stock) {
                 {{ stock['number'] }}
             </Link>
         </template>
-        <template #cell(shop)="{ item: stock }">
+        <template #cell(stockFamily)="{ item: stock }">
             <Link :href="stockFamilyRoute(stock)">
                 {{ stock['shop'] }}
             </Link>
