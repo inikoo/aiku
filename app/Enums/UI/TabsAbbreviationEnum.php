@@ -58,4 +58,6 @@ enum TabsAbbreviationEnum: string
     case PROPERTIES_OPERATIONS  = 'propt';
     case AGENTS_SUPPLIERS       = 'as';
     case AGENTS_PARTS           = 'ap';
+
+    case STOCK_HISTORY      = 'sh';
 }
