@@ -8,10 +8,12 @@
 namespace App\Actions\Marketing\Department\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -24,9 +26,8 @@ class IndexDepartments extends InertiaAction
 {
     use HasUIDepartments;
 
-    private Shop|Tenant $parent;
 
-    public function handle(): LengthAwarePaginator
+    public function handle(Shop|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -34,24 +35,40 @@ class IndexDepartments extends InertiaAction
                     ->orWhere('departments.code', '=', $value);
             });
         });
-
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DEPARTMENTS->value);
 
         return QueryBuilder::for(Department::class)
             ->defaultSort('departments.code')
             ->select(['departments.code', 'departments.name', 'departments.state', 'departments.created_at', 'departments.updated_at', 'departments.slug', 'shops.slug as shop_slug'])
             ->leftJoin('department_stats', 'departments.id', 'department_stats.department_id')
             ->leftJoin('shops', 'departments.shop_id', 'shops.id')
-            ->when($this->parent, function ($query) {
-                if (class_basename($this->parent) == 'Shop') {
-                    $query->where('departments.shop_id', $this->parent->id);
+            ->when($parent, function ($query) use ($parent) {
+                if (class_basename($parent) == 'Shop') {
+                    $query->where('departments.shop_id', $parent->id);
                 }
             })
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::DEPARTMENTS->value.'Page'
+            )
             ->withQueryString();
     }
 
+    public function tableStructure($parent): Closure
+    {
+        return function (InertiaTable $table) use ($parent) {
+            $table
+                ->name(TabsAbbreviationEnum::DEPARTMENTS->value)
+                ->pageName(TabsAbbreviationEnum::DEPARTMENTS->value.'Page');
+
+            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
+
+
+            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+        };
+    }
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('shops.departments.edit');
@@ -63,21 +80,25 @@ class IndexDepartments extends InertiaAction
     }
 
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $departments): AnonymousResourceCollection
     {
-        return DepartmentResource::collection($this->handle());
+        return DepartmentResource::collection($departments);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $departments)
+    public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'Marketing/Departments',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $parent
+                ),
                 'title'       => __('departments'),
                 'pageHead'    => [
-                    'title' => __('departments'),
+                    'title'   => __('departments'),
                     'create'  => $this->canEdit && $this->routeName=='shops.show.departments.index' ? [
                         'route' => [
                             'name'       => 'shops.show.departments.create',
@@ -90,34 +111,20 @@ class IndexDepartments extends InertiaAction
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->defaultSort('code');
-
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-
-
-            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-        });
+        )->table($this->tableStructure($parent));
     }
 
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$this->fillFromRequest($request);
-        $this->parent    = app('currentTenant');
+        $this->routeName = $request->route()->getName();
         $this->initialisation($request);
-        //$this->routeName = $request->route()->getName();
-
-        return $this->handle();
+        return $this->handle(app('currentTenant'));
     }
 
     public function InShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $shop;
-        //$this->validateAttributes();
         $this->initialisation($request);
-        return $this->handle();
+        return $this->handle($shop);
     }
 }

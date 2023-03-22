@@ -4,27 +4,22 @@
   -  Copyright (c) 2022, Jonathan Lopez
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableDepartments from "@/Pages/Tables/TableDepartments.vue";
 
-defineProps(['departments', 'title', 'pageHead']);
+const props = defineProps <{
+  pageHead: object
+  tittle: string
+  data: object
+}>()
 
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="departments" class="mt-5">
-
-
-        <template #cell(code)="{ item: department }">
-            <Link :href="route('shops.show.departments.show',[department.shop_slug,department.slug])">
-                {{ department.code }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableDepartments  :data="data"  />
 </template>
 
