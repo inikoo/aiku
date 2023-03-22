@@ -9,10 +9,12 @@ namespace App\Actions\Sales\Invoice;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\InvoiceResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Invoice;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -23,9 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexInvoices extends InertiaAction
 {
-    private Shop|Tenant $parent;
-
-    public function handle(): LengthAwarePaginator
+    public function handle(Shop|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -35,7 +35,7 @@ class IndexInvoices extends InertiaAction
             });
         });
 
-
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::INVOICES->value);
         return QueryBuilder::for(Invoice::class)
             ->defaultSort('invoices.number')
             ->select([
@@ -49,15 +49,33 @@ class IndexInvoices extends InertiaAction
             ])
             ->leftJoin('invoice_stats', 'invoices.id', 'invoice_stats.invoice_id')
             ->leftJoin('shops', 'invoices.shop_id', 'shops.id')
-            ->when($this->parent, function ($query) {
-                if (class_basename($this->parent) == 'Shop') {
-                    $query->where('invoices.shop_id', $this->parent->id);
+            ->when($parent, function ($query) use ($parent) {
+                if (class_basename($parent) == 'Shop') {
+                    $query->where('invoices.shop_id', $parent->id);
                 }
             })
             ->allowedSorts(['number', 'total', 'net'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::INVOICES->value.'Page'
+            )
             ->withQueryString();
+    }
+
+    public function tableStructure($parent): Closure
+    {
+        return function (InertiaTable $table) use ($parent) {
+            $table
+                ->name(TabsAbbreviationEnum::INVOICES->value)
+                ->pageName(TabsAbbreviationEnum::INVOICES->value.'Page');
+
+            $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
+
+            $table->column(key: 'total', label: __('total'), canBeHidden: false, sortable: true, searchable: true);
+
+            $table->column(key: 'net', label: __('net'), canBeHidden: false, sortable: true, searchable: true);
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -70,18 +88,22 @@ class IndexInvoices extends InertiaAction
     }
 
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $invoices): AnonymousResourceCollection
     {
-        return InvoiceResource::collection($this->handle());
+        return InvoiceResource::collection($invoices);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $invoices)
+    public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'Marketing/Invoices',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $parent
+                ),
                 'title'       => __('invoices'),
                 'pageHead'    => [
                     'title' => __('invoices'),
@@ -90,34 +112,21 @@ class IndexInvoices extends InertiaAction
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->defaultSort('number');
-
-            $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
-
-
-            $table->column(key: 'total', label: __('total'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'net', label: __('net'), canBeHidden: false, sortable: true, searchable: true);
-        });
+        )->table($this->tableStructure($parent));
     }
 
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
-        return $this->handle();
+        return $this->handle(app('currentTenant'));
     }
 
     public function InShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $shop;
         $this->initialisation($request);
-        return $this->handle();
+        return $this->handle($shop);
     }
 
     public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array

@@ -4,27 +4,23 @@
   -  Copyright (c) 2022, Jonathan Lopez
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableInvoices from "@/Pages/Tables/TableInvoices.vue";
 
-defineProps(['invoices', 'title', 'pageHead']);
+const props = defineProps<{
+  pageHead: object
+  data: object
+  tittle: string
+}>()
+
 
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="invoices" class="mt-5">
-
-
-        <template #cell(code)="{ item: invoice }">
-            <Link :href="route('shops.show.invoices.show',[invoice.shop_slug,invoice.slug])">
-                {{ invoice.code }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableInvoices :data="data" />
 </template>
 
