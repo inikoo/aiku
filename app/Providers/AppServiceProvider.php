@@ -68,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
                 'CentralDomain'   => 'App\Models\Central\CentralDomain',
                 'Order'           => 'App\Models\Sales\Order',
                 'Agent'           => 'App\Models\Procurement\Agent',
+                'Location'        => 'App\Models\Inventory\Location'
             ]
         );
     }

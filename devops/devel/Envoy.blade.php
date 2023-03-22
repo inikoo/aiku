@@ -92,6 +92,7 @@
         echo "Tenant {{ $tenantData->db }}"
         php artisan create:tenant-aurora {{$tenant}} {{$tenantData->db}} {{$tenantData->email}}
     @endforeach
+    php artisan tenants:artisan 'scout:flush App\Models\Search\UniversalSearch'
 @endtask
 
 @task('tenant-guest-admin')

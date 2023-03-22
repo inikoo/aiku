@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 
@@ -79,7 +78,6 @@ class Order extends Model
     use HasOrder;
     use HasSlug;
     use SoftDeletes;
-    use Searchable;
     use HasUniversalSearch;
 
     protected $casts = [

@@ -21,8 +21,7 @@ class LocationHydrateUniversalSearch implements ShouldBeUnique
     {
         $location->universalSearch()->create(
             [
-                'primary_term'   => $location->warehouse_id,
-                'secondary_term' => $location->warehouse_area_id
+                'primary_term'   => $location->code,
             ]
         );
     }

@@ -175,6 +175,7 @@ echo "* Create aurora tenants"
     @endforeach
 @endif
 
+php artisan tenants:artisan 'scout:flush App\Models\Search\UniversalSearch'
 
 
 {{ $php }} artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin
