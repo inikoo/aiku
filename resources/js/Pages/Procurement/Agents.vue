@@ -4,27 +4,21 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableAgents from "@/Pages/Tables/TableAgents.vue";
 
-defineProps(['agents', 'title', 'pageHead']);
-
+const props = defineProps <{
+    pageHead: object
+    tittle: string
+    data:object
+}>()
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="agents" class="mt-5">
-
-
-        <template #cell(code)="{ item: agent }">
-            <Link :href="route('procurement.agents.show',[agent.slug])">
-                {{ agent.code }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableAgents :data="data" />
 </template>
 
