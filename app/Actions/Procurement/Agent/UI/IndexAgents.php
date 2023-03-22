@@ -24,7 +24,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexAgents extends InertiaAction
 {
     use HasUIAgents;
-    public function handle($parent): LengthAwarePaginator
+    public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
