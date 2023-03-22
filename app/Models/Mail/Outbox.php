@@ -35,7 +35,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\Mailshot> $mailshots
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\Mailshot> $mailroom
  * @property-read Shop|null $shop
  * @property-read \App\Models\Mail\OutboxStats|null $stats
  * @method static Builder|Outbox newModelQuery()

@@ -12,6 +12,7 @@ use App\Models\Inventory\Stock;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -42,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Central\AdminUser|null $adminUser
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Central\CentralDomain> $centralDomains
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Central\CentralMedia> $centralMedia
  * @property-read \App\Models\Central\TenantFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\Central\TenantInventoryStats|null $inventoryStats
  * @property-read \App\Models\Central\TenantMarketingStats|null $marketingStats
@@ -154,5 +156,10 @@ class Tenant extends SpatieTenant
     public function accountsServiceProvider(): PaymentServiceProvider
     {
         return PaymentServiceProvider::where('data->service-code', 'accounts')->first();
+    }
+
+    public function centralMedia(): BelongsToMany
+    {
+        return $this->belongsToMany(CentralMedia::class)->withTimestamps();
     }
 }

@@ -26,15 +26,21 @@ class StoreUser
         Landlord::execute(function () use ($centralUser, $tenant) {
             $centralUser->tenants()->syncWithoutDetaching($tenant);
         });
-        $user=$parent->user()->create(
+        /** @var \App\Models\SysAdmin\User $user */
+        $user = $parent->user()->create(
             [
-            'central_user_id'=> $centralUser->id,
-            'username'       => $centralUser->username,
-            'password'       => $centralUser->password,
+                'central_user_id' => $centralUser->id,
+                'username'        => $centralUser->username,
+                'password'        => $centralUser->password,
+                'data->avatar'    => $centralUser->media_id
             ]
         );
         $user->stats()->create();
-        $user=SetAvatar::run($user);
+        if ($centralUser->avatar) {
+            $centralUser->avatar->tenants()->attach($tenant->id);
+        }
+
+
         TenantHydrateUsers::run($tenant);
         CentralUserHydrateTenants::run($centralUser);
 

@@ -43,10 +43,8 @@ Route::middleware([
         Route::prefix("procurement")
             ->name("procurement.")
             ->group(__DIR__."/procurement.php");
-
         Route::prefix("shops")
             ->name("shops.")
-
             ->group(__DIR__."/shops.php");
         Route::prefix("websites")
             ->name("websites.")
@@ -60,7 +58,6 @@ Route::middleware([
         Route::prefix("products")
             ->name("products.")
             ->group(__DIR__."/products.php");
-
         Route::prefix("search")
             ->name("search.")
             ->group(__DIR__."/search.php");
@@ -73,7 +70,6 @@ Route::middleware([
         Route::prefix("profile")
             ->name("profile.")
             ->group(__DIR__."/profile.php");
-
         Route::prefix("sysadmin")
             ->name("sysadmin.")
             ->group(__DIR__."/sysadmin.php");
@@ -89,6 +85,9 @@ Route::middleware([
         Route::prefix("models")
             ->name("models.")
             ->group(__DIR__."/models.php");
+        Route::prefix("media")
+            ->name("media.")
+            ->group(__DIR__."/media.php");
     });
     require __DIR__."/auth.php";
 });

@@ -15,7 +15,6 @@ use App\Models\Central\Tenant;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -134,10 +133,6 @@ class CreateAuroraTenant
 
         DB::connection('aurora')->table('Account Data')
             ->update(['pika_token' => $token]);
-
-
-        //Artisan::call('tenants:seed');
-        //Artisan::call('create:tenant-storage-link');
 
 
         /** @noinspection HttpUrlsUsage */

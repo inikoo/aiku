@@ -18,6 +18,8 @@ class StoreCentralUser
     public function handle(array $modelData): CentralUser
     {
         $modelData['password']  = Hash::make($modelData['password']);
-        return CentralUser::create($modelData);
+        $centralUser            = CentralUser::create($modelData);
+
+        return SetCentralUserAvatar::run($centralUser);
     }
 }

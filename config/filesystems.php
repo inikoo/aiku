@@ -29,20 +29,32 @@ return [
     */
 
     'disks' => [
-
         'local' => [
             'driver' => 'local',
-            'root'   => storage_path('app'),
+            'root'   => storage_path('app/central'),
             'throw'  => false,
         ],
 
         'public' => [
             'driver'     => 'local',
-            'root'       => storage_path('app/public'),
+            'root'       => storage_path('app/public/central'),
             'url'        => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw'      => false,
         ],
+        'tenant' => [
+            'driver' => 'local',
+            'root'   => storage_path('app/tenant'),
+            'throw'  => false,
+        ],
+        'tenant_public' => [
+            'driver'     => 'local',
+            'root'       => storage_path('app/public/central'),
+            'url'        => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw'      => false,
+        ],
+
         'r2' => [
             'driver'   => 's3',
             'key'      => env('CLOUDFLARE_R2_ACCESS_KEY'),
@@ -51,9 +63,6 @@ return [
             'bucket'   => env('CLOUDFLARE_R2_BUCKET'),
             'endpoint' => env('CLOUDFLARE_R2_ENDPOINT'),
         ],
-
-
-
     ],
 
     /*

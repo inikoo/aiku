@@ -17,6 +17,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property int|null $mailroom_id
+ * @property int $number_outboxes
  * @property int $number_mailshots
  * @property int $number_dispatched_emails
  * @property int $number_dispatched_emails_state_ready

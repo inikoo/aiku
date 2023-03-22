@@ -10,6 +10,7 @@ namespace App\Http\Middleware;
 
 use App\Actions\UI\GetLayout;
 use App\Http\Resources\Marketing\ProductResource;
+use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\Marketing\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -65,12 +66,14 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
+
+
         return array_merge(
             parent::share($request),
             $firstLoadOnlyProps,
             [
                 'auth'          => [
-                    'user' => $request->user() ? $request->user()->only('username', 'email', 'avatar') : null,
+                    'user' => $request->user() ? new LoggedUserResource($request->user()) : null,
                 ],
                 'flash'         => [
                     'notification' => fn () => $request->session()->get('notification')
@@ -81,6 +84,7 @@ class HandleInertiaRequests extends Middleware
                         'location' => $request->url(),
                     ]);
                 },
+
 
                 'searchQuery'       => fn () => $request->session()->get('fastSearchQuery'),
                 'searchResults'     => function () use ($request) {

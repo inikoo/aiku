@@ -51,10 +51,17 @@
 @endstory
 
 @task('clean-storage')
-
+    echo "clean-storage"
+    pwd
     cd ../../
-    rm -rf public/tenants
-    rm -rf storage/tenants
+    pwd
+    rm -rf public/tenant
+    rm -rf public/central
+    rm -rf storage/app/tenant
+    rm -rf storage/app/central
+    rm -rf storage/app/public/tenant
+    rm -rf storage/app/public/central
+
     php artisan cache:clear
     php artisan horizon:clear
 @endtask

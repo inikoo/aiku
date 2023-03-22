@@ -45,7 +45,7 @@ class ShowProfile
                     'title' => __('My Profile'),
 
                 ],
-                'profile' => $user->only('username', 'email', 'avatar', 'about'),
+                'profile' => $user->only('username', 'email', ' avatar', 'about'),
                 'pageBody'=> [
                     'current'=> 'profile',
                     'layout' => [
