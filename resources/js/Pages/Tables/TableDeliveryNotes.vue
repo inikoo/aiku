@@ -1,0 +1,42 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2023, Raul A Perusquia Flores
+  -->
+
+<script setup lang="ts">
+import {Link} from '@inertiajs/vue3';
+import Table from '@/Components/Table/Table.vue';
+import {DeliveryNote} from "@/types/delivery-note";
+
+const props = defineProps<{
+    data: object
+}>()
+
+
+function deliveryNoteRoute(deliveryNote: DeliveryNote) {
+    switch (route().current()) {
+        case 'shops.show.delivery-notes.index':
+            return route(
+                'shops.show.delivery-notes.show',
+                [deliveryNote.slug, deliveryNote.slug]);
+        default:
+            return route(
+                'delivery-notes.show',
+                [deliveryNote.slug]);
+    }
+}
+
+</script>
+
+<template>
+    <Table :resource="data" :name="'dn'" class="mt-5">
+        <template #cell(date)="{ item: deliveryNote }">
+            <Link :href="route(deliveryNoteRoute(deliveryNote))">
+                {{ deliveryNote.date }}
+            </Link>
+        </template>
+    </Table>
+</template>
+
+

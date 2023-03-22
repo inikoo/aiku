@@ -8,10 +8,12 @@
 namespace App\Actions\Inventory\Stock\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -23,10 +25,9 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexStocks extends InertiaAction
 {
     use HasUIStocks;
-    private StockFamily|Tenant $parent;
 
 
-    public function handle(): LengthAwarePaginator
+    public function handle(StockFamily|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -35,20 +36,43 @@ class IndexStocks extends InertiaAction
             });
         });
 
-
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::STOCK_MOVEMENTS->value);
         return QueryBuilder::for(Stock::class)
             ->defaultSort('stocks.code')
-            ->select(['code', 'stocks.slug', 'description', 'stock_value', 'number_locations','quantity'])
+            ->select([
+                'code',
+                'stocks.slug',
+                'description',
+                'stock_value',
+                'number_locations',
+                'quantity'])
             ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id')
-            ->when($this->parent, function ($query) {
-                if (class_basename($this->parent) == 'StockFamily') {
-                    $query->where('stocks.stock_family_id', $this->parent->id);
+            ->when($parent, function ($query) use ($parent) {
+                if (class_basename($parent) == 'StockFamily') {
+                    $query->where('stocks.stock_family_id', $parent->id);
                 }
             })
             ->allowedSorts(['code', 'description', 'number_locations', 'number_locations','quantity'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::STOCK_MOVEMENTS->value.'Page'
+            )
             ->withQueryString();
+    }
+
+    public function tableStructure($parent): Closure
+    {
+        return function (InertiaTable $table) use ($parent) {
+            $table
+                ->name(TabsAbbreviationEnum::STOCK_MOVEMENTS->value)
+                ->pageName(TabsAbbreviationEnum::STOCK_MOVEMENTS->value.'Page');
+
+            $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
+
+
+            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -65,26 +89,26 @@ class IndexStocks extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         //$request->validate();
-        $this->initialisation($request);
-        return $this->handle();
+        $this->routeName = $request->route()->getName();
+        return $this->handle(app('currentTenant'));
     }
 
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $stockFamily;
-        //$this->validateAttributes();
         $this->initialisation($request);
-        return $this->handle();
+        return $this->handle($stockFamily);
     }
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $stocks): AnonymousResourceCollection
     {
-        return StockResource::collection($this->handle());
+        return StockResource::collection($stocks);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $stocks)
+    public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Inventory/Stocks',
             [
@@ -104,13 +128,6 @@ class IndexStocks extends InertiaAction
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'code', label: 'SKU', canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'description', label: __('description'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'quantity', label: __('stock'), canBeHidden: false, sortable: true)
-                ->defaultSort('code');
-        });
+        )->table($this->tableStructure($parent));
     }
 }

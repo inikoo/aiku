@@ -4,27 +4,22 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableDeliveryNotes from "@/Pages/Tables/TableDeliveryNotes.vue";
 
-defineProps(['delivery_notes', 'title', 'pageHead']);
+const props = defineProps<{
+  pageHead: object
+  data: object
+  tittle: string
+}>()
 
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="delivery_notes" class="mt-5">
-
-
-        <template #cell(code)="{ item: delivery_notes }">
-            <Link :href="route('shops.show.delivery_notes.show',[delivery_notes.shop_slug,delivery_notes.slug])">
-                {{ delivery_notes.code }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableDeliveryNotes :data="data" />
 </template>
 

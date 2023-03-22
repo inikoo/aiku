@@ -1,0 +1,42 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2023, Raul A Perusquia Flores
+  -->
+
+<script setup lang="ts">
+import {Link} from '@inertiajs/vue3';
+import Table from '@/Components/Table/Table.vue';
+import {Product} from "@/types/product";
+
+const props = defineProps<{
+    data: object
+}>()
+
+
+function productRoute(product: Product) {
+    switch (route().current()) {
+        case 'shops.show.products.index':
+            return route(
+                'shops.show.products.show',
+                [product.slug, product.slug]);
+        default:
+            return route(
+                'products.show',
+                [product.slug]);
+    }
+}
+
+</script>
+
+<template>
+    <Table :resource="data" :name="'prod'" class="mt-5">
+        <template #cell(code)="{ item: product }">
+            <Link :href="route(productRoute(product))">
+                {{ product.code }}
+            </Link>
+        </template>
+    </Table>
+</template>
+
+

@@ -9,12 +9,13 @@ namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Central\Tenant;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,9 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDeliveryNotes extends InertiaAction
 {
-    private Shop|Tenant $parent;
-
-    public function handle(): LengthAwarePaginator
+    public function handle(Shop|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -35,21 +34,38 @@ class IndexDeliveryNotes extends InertiaAction
             });
         });
 
-
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DELIVERY_NOTES->value);
         return QueryBuilder::for(DeliveryNote::class)
             ->defaultSort('delivery_notes.number')
             ->select(['delivery_notes.number', 'delivery_notes.date', 'delivery_notes.state', 'delivery_notes.created_at', 'delivery_notes.updated_at', 'delivery_notes.slug', 'shops.slug as shop_slug'])
             ->leftJoin('delivery_note_stats', 'delivery_notes.id', 'delivery_note_stats.delivery_note_id')
             ->leftJoin('shops', 'delivery_notes.shop_id', 'shops.id')
-            ->when($this->parent, function ($query) {
-                if (class_basename($this->parent) == 'Shop') {
-                    $query->where('delivery_notes.shop_id', $this->parent->id);
+            ->when($parent, function ($query) use ($parent) {
+                if (class_basename($parent) == 'Shop') {
+                    $query->where('delivery_notes.shop_id', $parent->id);
                 }
             })
             ->allowedSorts(['number', 'date'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::DELIVERY_NOTES->value.'Page'
+            )
             ->withQueryString();
+    }
+
+    public function tableStructure($parent): Closure
+    {
+        return function (InertiaTable $table) use ($parent) {
+            $table
+                ->name(TabsAbbreviationEnum::DELIVERY_NOTES->value)
+                ->pageName(TabsAbbreviationEnum::DELIVERY_NOTES->value.'Page');
+
+            $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
+
+
+            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -62,18 +78,22 @@ class IndexDeliveryNotes extends InertiaAction
     }
 
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $delivery_notes): AnonymousResourceCollection
     {
-        return DeliveryNoteResource::collection($this->handle());
+        return DeliveryNoteResource::collection($delivery_notes);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $delivery_notes)
+    public function htmlResponse(LengthAwarePaginator $delivery_notes, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'Marketing/DeliveryNotes',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $parent
+                ),
                 'title'       => __('delivery notes'),
                 'pageHead'    => [
                     'title' => __('delivery notes'),
@@ -82,34 +102,21 @@ class IndexDeliveryNotes extends InertiaAction
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->defaultSort('number');
-
-            $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
-
-
-            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
-        });
+        )->table($this->tableStructure($parent));
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
-        $this->parent    = app('currentTenant');
         $this->routeName = $request->route()->getName();
-
-        return $this->handle();
+        $this->initialisation($request);
+        return $this->handle(app('currentTenant'));
     }
 
-    public function InShop(Shop $shop): LengthAwarePaginator
+    public function InShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $shop;
-        $this->validateAttributes();
-
-        return $this->handle();
+        $this->initialisation($request);
+        return $this->handle($shop);
     }
 
     public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array

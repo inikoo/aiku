@@ -1,0 +1,20 @@
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 21 Mar 2023 00:11:49 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+export interface Order {
+
+    id:string,
+    number:number,
+    customer_number: string,
+    type: string,
+    state: string
+    date: string
+    created_at: string
+    updated_at: string
+    shop: string
+    shop_slug: string
+
+}
