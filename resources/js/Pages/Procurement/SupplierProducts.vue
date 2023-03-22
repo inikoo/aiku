@@ -4,27 +4,21 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 
-defineProps(['supplier_products', 'title', 'pageHead']);
-
+const props = defineProps <{
+    pageHead: object
+    tittle: string
+    data: object
+}>()
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="supplier_products" class="mt-5">
-
-
-        <template #cell(code)="{ item: supplier_product }">
-            <Link :href="route('procurement.supplier-products.index',[supplier_product.slug])">
-                {{ supplier_product.code }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableSupplierProducts :data="data" />
 </template>
 
