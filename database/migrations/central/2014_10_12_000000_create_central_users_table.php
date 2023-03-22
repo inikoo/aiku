@@ -17,7 +17,9 @@ return new class () extends Migration {
             $table->string('username')->unique();
             $table->string('password');
             $table->string('email')->nullable();
+            $table->string('name')->nullable();
             $table->string('about')->nullable();
+            $table->unsignedInteger('media_id')->nullable();
             $table->jsonb('data')->nullable();
             $table->unsignedSmallInteger('number_tenants')->default(0);
             $table->timestampsTz();

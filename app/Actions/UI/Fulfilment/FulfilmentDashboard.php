@@ -55,7 +55,7 @@ class FulfilmentDashboard
                             'icon'  => ['fal', 'fa-flask'],
                             'href'  => ['fulfilment.products.index'],
                             'index' => [
-                                'number' => $this->tenant->FulfilmentStats->number_products
+                                'number' => $this->tenant->fulfilmentStats->number_products
                             ]
                         ]
                     ]

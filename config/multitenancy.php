@@ -7,6 +7,7 @@
 
 use App\Models\Central\Tenant;
 use App\Resolver\TenantResolver;
+use App\Tasks\SetupFilesystemsTask;
 use App\Tasks\SwitchTenantDatabaseSchemaTask;
 use Illuminate\Broadcasting\BroadcastEvent;
 use Illuminate\Events\CallQueuedListener;
@@ -45,6 +46,7 @@ return [
      */
     'switch_tenant_tasks'                => [
         SwitchTenantDatabaseSchemaTask::class,
+        SetupFilesystemsTask::class,
         PrefixCacheTask::class,
         // \Spatie\Multitenancy\Tasks\SwitchRouteCacheTask::class,
     ],
@@ -98,9 +100,9 @@ return [
     ],
 
     /*
-     * You can customize the way in which the package resolves the queuable to a job.
+     * You can customize the way in which the package resolves the queryable to a job.
      *
-     * For example, using the package laravel-actions (by Loris Leiva), you can
+     * For example, using the package laravel-actions (by Loris L), you can
      * resolve JobDecorator to getAction() like so: JobDecorator::class => 'getAction'
      */
     'queueable_to_job'                   => [

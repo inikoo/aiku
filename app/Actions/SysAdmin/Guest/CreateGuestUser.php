@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Spatie\Multitenancy\Landlord;
 
 class CreateGuestUser
 {
@@ -31,9 +32,7 @@ class CreateGuestUser
 
 
     public string $commandSignature = 'create:guest-user {username} {name} {tenants?*} {--E|email=} {--N|name=} {--r|roles=*} {--a|autoPassword}';
-    /**
-     * @var \App\Models\Central\CentralUser|array|\ArrayAccess|\Illuminate\Database\Eloquent\Model|mixed|null
-     */
+
     private ?CentralUser $centralUser = null;
 
 
@@ -51,14 +50,15 @@ class CreateGuestUser
      */
     public function handle(array $guestUserData, array $roles): User
     {
+        $centralUser = Landlord::execute(fn () => StoreCentralUser::run(
+            Arr::only($guestUserData, ['username', 'password', 'email', 'name']),
+        ));
+
+
         $guest = StoreGuest::run(
             array_merge(Arr::only($guestUserData, ['name', 'email']), ['slug' => Arr::get($guestUserData, 'username')])
         );
 
-
-        $centralUser = StoreCentralUser::run(
-            Arr::only($guestUserData, ['username', 'password', 'email']),
-        );
 
         /** @var User $user */
         $user = StoreUser::run(app('currentTenant'), $guest, $centralUser);
@@ -90,19 +90,19 @@ class CreateGuestUser
         if ($command->option('autoPassword')) {
             $password = (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello');
         } else {
-            $password = $this->$command('What is the password?');
+            $password = $command->secret('What is the password?');
         }
 
 
         $this->fill([
-                        'username' => $command->argument('username'),
-                        'password' => $password,
-                        'name'     => $command->argument('name'),
-                    ]);
+            'username' => $command->argument('username'),
+            'password' => $password,
+            'name'     => $command->argument('name'),
+        ]);
         if ($command->option('email')) {
             $this->fill([
-                            'email' => $command->option('email')
-                        ]);
+                'email' => $command->option('email')
+            ]);
         }
 
         $validatedData = $this->validateAttributes();
@@ -127,7 +127,7 @@ class CreateGuestUser
 
 
                     if ($this->centralUser && $this->centralUser->id) {
-                        $guest = CreateGuestFromUser::run(
+                        $guest = CreateGuestFromCentralUser::run(
                             $this->centralUser,
                             array_merge(
                                 ['email' => $this->centralUser->email],

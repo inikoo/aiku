@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->string('email')->nullable();
             $table->string('about')->nullable();
             $table->rememberToken();
-            $table->jsonb('profile');
+            $table->jsonb('data');
             $table->jsonb('settings');
             $table->timestampsTz();
             $table->softDeletesTz();

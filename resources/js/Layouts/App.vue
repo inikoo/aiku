@@ -72,8 +72,12 @@ import AppLeftSideBar from '@/Layouts/AppLeftSideBar.vue';
 import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import SearchBar from '@/Components/SearchBar.vue';
+import {usePage} from '@inertiajs/vue3';
 
 const showSearchDialog = ref(false)
+
+
+const user = ref(usePage().props.auth.user);
 
 </script>
 
@@ -121,9 +125,8 @@ const showSearchDialog = ref(false)
                                     <MenuButton
                                         class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                         <span class="sr-only">{{ trans("Open user menu") }}</span>
-
-                                        <img v-if="$page.props.auth.user['avatar']" class="h-8 w-8 rounded-full"
-                                             :src="$page.props.auth.user['avatar']??null"
+                                        <img v-if="user.data.avatar" class="h-8 w-8 rounded-full"
+                                             :src="route('media.central.show',user.data.avatar)"
                                              alt="" />
 
                                     </MenuButton>
