@@ -24,7 +24,7 @@ use Spatie\QueryBuilder\QueryBuilder;
  * @property bool $canEdit
  * @property string $title
  */
-class IndexEmployee extends InertiaAction
+class IndexEmployees extends InertiaAction
 {
     use HasUIEmployees;
 
