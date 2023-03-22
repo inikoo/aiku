@@ -4,39 +4,24 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
-import { Head, Link } from "@inertiajs/vue3";
+<script setup lang="ts">
+import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
-import Table from "@/Components/Table/Table.vue";
+import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
 
-defineProps(["dispatched_emails", "title", "pageHead"]);
+const props = defineProps<{
+    data: object
+    tittle: string
+    pageHead: object
+}>()
 
-const itemRoute = route().current().replace(/index$/i, "show");
 
-function routeParameters(dispatchedEmail) {
-    switch (route().current()) {
-        case "mail.mailrooms.show.outboxes.show.mailshots.show.dispatched-emails.index":
-            return [dispatchedEmail["mailrooms_slug"], dispatchedEmail.slug];
-
-        default:
-            return [dispatchedEmail.slug];
-    }
-}
 
 </script>
 
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="dispatched_emails" class="mt-5">
-
-
-        <template #cell(name)="{ item: dispatchedEmail }">
-            <Link :href="route(itemRoute,routeParameters(dispatchedEmail))">
-                {{ dispatchedEmail["name"] }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableDispatchedEmails :data="data"/>
 </template>
 
