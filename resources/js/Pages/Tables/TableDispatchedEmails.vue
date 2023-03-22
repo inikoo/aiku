@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {DispatchedEmail} from "@/types/dispatchedEmail";
+import {DispatchedEmail} from "@/types/dispatched-email";
 
 const props = defineProps<{
     data: object

@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {DeliveryNote} from "@/types/deliveryNote";
+import {DeliveryNote} from "@/types/delivery-note";
 
 const props = defineProps<{
     data: object
