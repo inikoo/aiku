@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Family\Hydrators;
 
 use App\Actions\WithTenantJob;
+use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Models\Marketing\Family;
 use App\Models\Marketing\Product;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -21,16 +22,16 @@ class FamilyHydrateProducts implements ShouldBeUnique
 
     public function handle(Family $family): void
     {
-        $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
+        $stats         = [
+            'number_products' => $family->products->count(),
+        ];
         $stateCounts   = Product::where('family_id', $family->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
-        $stats         = [
-            'number_products' => $family->products->count(),
-        ];
-        foreach ($productStates as $productState) {
-            $stats['number_products_state_'.str_replace('-', '_', $productState)] = Arr::get($stateCounts, $productState, 0);
+
+        foreach (ProductStateEnum::cases() as $productState) {
+            $stats['number_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
         }
         $family->stats->update($stats);
     }
