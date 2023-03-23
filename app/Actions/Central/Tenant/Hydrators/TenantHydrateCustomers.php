@@ -8,6 +8,7 @@
 namespace App\Actions\Central\Tenant\Hydrators;
 
 use App\Enums\Sales\Customer\CustomerStateEnum;
+use App\Enums\Sales\Customer\CustomerTradeStateEnum;
 use App\Models\Central\Tenant;
 use App\Models\Sales\Customer;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -31,17 +32,16 @@ class TenantHydrateCustomers implements ShouldBeUnique
             ->pluck('total', 'state')->all();
 
 
-        foreach (CustomerStateEnum::values() as $customerState) {
-            $stats['number_customers_state_'.str_replace('-', '_', $customerState)] = Arr::get($customerStatesCount, $customerState, 0);
+        foreach (CustomerStateEnum::cases() as $customerState) {
+            $stats['number_customers_state_'.$customerState->snake()] = Arr::get($customerStatesCount, $customerState->value, 0);
         }
 
-        $customerTradeStates      = ['none', 'one', 'many'];
         $customerTradeStatesCount = Customer::selectRaw('trade_state, count(*) as total')
             ->groupBy('trade_state')
             ->pluck('total', 'trade_state')->all();
 
-        foreach ($customerTradeStates as $customerTradeState) {
-            $stats['number_customers_trade_state_'.$customerTradeState] = Arr::get($customerTradeStatesCount, $customerTradeState, 0);
+        foreach (CustomerTradeStateEnum::cases() as $customerTradeState) {
+            $stats['number_customers_trade_state_'.$customerTradeState->snake()] = Arr::get($customerTradeStatesCount, $customerTradeState->value, 0);
         }
 
 

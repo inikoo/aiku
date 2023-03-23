@@ -6,6 +6,8 @@
  */
 
 use App\Enums\Sales\Customer\CustomerStateEnum;
+use App\Enums\Sales\Customer\CustomerTradeStateEnum;
+use App\Enums\Sales\Order\OrderStateEnum;
 use App\Models\Traits\Stubs\HasDateIntervalsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -30,15 +32,13 @@ return new class () extends Migration {
             }
 
 
-            $customerTradeStates = ['none', 'one', 'many'];
-            foreach ($customerTradeStates as $customerTradeState) {
-                $table->unsignedBigInteger('number_customers_trade_state_'.$customerTradeState)->default(0);
+            foreach (CustomerTradeStateEnum::cases() as $tradeState) {
+                $table->unsignedBigInteger('number_customers_trade_state_'.$tradeState->snake())->default(0);
             }
 
             $table->unsignedBigInteger('number_orders')->default(0);
-            $orderStates = ['in-basket', 'in-process', 'in-warehouse', 'packed', 'finalised', 'dispatched', 'returned', 'cancelled'];
-            foreach ($orderStates as $orderState) {
-                $table->unsignedBigInteger('number_orders_state_'.str_replace('-', '_', $orderState))->default(0);
+            foreach (OrderStateEnum::cases() as $orderState) {
+                $table->unsignedBigInteger('number_orders_state_'.$orderState->snake())->default(0);
             }
 
 

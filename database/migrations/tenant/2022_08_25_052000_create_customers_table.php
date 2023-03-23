@@ -6,6 +6,7 @@
  */
 
 use App\Enums\Sales\Customer\CustomerStateEnum;
+use App\Enums\Sales\Customer\CustomerTradeStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -33,13 +34,12 @@ return new class () extends Migration {
             $table->jsonb('tax_number_data');
             $table->jsonb('location');
 
-            $table->enum('status', ['pending-approval', 'approved', 'rejected', 'banned'])->index();
+            $table->string('status')->index();
 
 
             $table->string('state')->index()->default(CustomerStateEnum::IN_PROCESS->value);
 
-            $customerTradeStates = ['none', 'one', 'many'];
-            $table->enum('trade_state', $customerTradeStates)->index()->nullable()->default('none')->comment('number of invoices');
+            $table->string('trade_state')->index()->default(CustomerTradeStateEnum::NONE->value)->comment('number of invoices');
 
 
 

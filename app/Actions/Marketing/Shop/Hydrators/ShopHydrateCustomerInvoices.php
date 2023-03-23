@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Shop\Hydrators;
 
 use App\Actions\WithTenantJob;
+use App\Enums\Sales\Customer\CustomerTradeStateEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -23,7 +24,6 @@ class ShopHydrateCustomerInvoices implements ShouldBeUnique
     {
         $stats = [];
 
-        $customerNumberInvoicesStates = ['none', 'one', 'many'];
 
         $numberInvoicesStateCounts = Customer::where('shop_id', $shop->id)
             ->selectRaw('trade_state, count(*) as total')
@@ -31,9 +31,9 @@ class ShopHydrateCustomerInvoices implements ShouldBeUnique
             ->pluck('total', 'trade_state')->all();
 
 
-        foreach ($customerNumberInvoicesStates as $customerNumberInvoicesState) {
-            $stats['number_customers_trade_state_'.$customerNumberInvoicesState] =
-                Arr::get($numberInvoicesStateCounts, $customerNumberInvoicesState, 0);
+        foreach (CustomerTradeStateEnum::cases() as $tradeState) {
+            $stats['number_customers_trade_state_'.$tradeState->snake()] =
+                Arr::get($numberInvoicesStateCounts, $tradeState->value, 0);
         }
         $shop->stats->update($stats);
     }

@@ -9,6 +9,8 @@ namespace App\Models\Sales;
 
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Enums\Sales\Customer\CustomerStateEnum;
+use App\Enums\Sales\Customer\CustomerStatusEnum;
+use App\Enums\Sales\Customer\CustomerTradeStateEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
@@ -88,7 +90,9 @@ class Customer extends Model
         'data'            => 'array',
         'tax_number_data' => 'array',
         'location'        => 'array',
-        'state'           => CustomerStateEnum::class
+        'state'           => CustomerStateEnum::class,
+        'status'          => CustomerStatusEnum::class,
+        'trade_state'     => CustomerTradeStateEnum::class
 
     ];
 

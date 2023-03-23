@@ -10,6 +10,7 @@ namespace App\Actions\Sales\Customer;
 
 use App\Actions\HydrateModel;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
+use App\Enums\Sales\Customer\CustomerTradeStateEnum;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Invoice;
 use Illuminate\Support\Arr;
@@ -45,9 +46,9 @@ class HydrateCustomer extends HydrateModel
         ];
 
         $customer->trade_state = match ($numberInvoices) {
-            0       => 'none',
-            1       => 'one',
-            default => 'many'
+            0       => CustomerTradeStateEnum::NONE,
+            1       => CustomerTradeStateEnum::ONE,
+            default => CustomerTradeStateEnum::MANY
         };
         $customer->save();
 

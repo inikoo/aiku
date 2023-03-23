@@ -10,6 +10,7 @@ use App\Enums\Marketing\Department\DepartmentStateEnum;
 use App\Enums\Marketing\Family\FamilyStateEnum;
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Enums\Sales\Customer\CustomerStateEnum;
+use App\Enums\Sales\Customer\CustomerTradeStateEnum;
 use App\Enums\Sales\Order\OrderStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -28,9 +29,8 @@ return new class () extends Migration {
             foreach (CustomerStateEnum::cases() as $customerState) {
                 $table->unsignedInteger("number_customers_state_{$customerState->snake()}")->default(0);
             }
-            $customerNumberInvoicesStates = ['none', 'one', 'many'];
-            foreach ($customerNumberInvoicesStates as $customerNumberInvoicesState) {
-                $table->unsignedInteger('number_customers_trade_state_'.$customerNumberInvoicesState)->default(0);
+            foreach (CustomerTradeStateEnum::cases() as $tradeState) {
+                $table->unsignedInteger('number_customers_trade_state_'.$tradeState->snake())->default(0);
             }
 
             $table->unsignedInteger('number_departments')->default(0);
@@ -62,13 +62,12 @@ return new class () extends Migration {
             $table->unsignedInteger('number_deliveries_type_replacement')->default(0);
 
 
-
             foreach (DeliveryNoteStateEnum::cases() as $deliveryState) {
                 $table->unsignedInteger('number_deliveries_state_'.$deliveryState->snake())->default(0);
             }
 
             foreach (DeliveryNoteStateEnum::cases() as $deliveryState) {
-                if ($deliveryState->value!='cancelled') {
+                if ($deliveryState->value != 'cancelled') {
                     $table->unsignedInteger('number_deliveries_cancelled_at_state_'.$deliveryState->snake())->default(0);
                 }
             }

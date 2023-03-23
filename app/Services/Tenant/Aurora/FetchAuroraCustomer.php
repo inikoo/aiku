@@ -7,6 +7,8 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Sales\Customer\CustomerStateEnum;
+use App\Enums\Sales\Customer\CustomerStatusEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -14,17 +16,17 @@ class FetchAuroraCustomer extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $status = 'approved';
-        $state  = 'active';
+        $status = CustomerStatusEnum::APPROVED;
+        $state  = CustomerStateEnum::ACTIVE;
         if ($this->auroraModelData->{'Customer Type by Activity'} == 'Rejected') {
-            $status = 'rejected';
+            $status = CustomerStatusEnum::REJECTED;
         } elseif ($this->auroraModelData->{'Customer Type by Activity'} == 'ToApprove') {
-            $state  = 'registered';
-            $status = 'pending-approval';
+            $state  = CustomerStateEnum::REGISTERED;
+            $status = CustomerStatusEnum::PENDING_APPROVAL;
         } elseif ($this->auroraModelData->{'Customer Type by Activity'} == 'Losing') {
-            $state = 'losing';
+            $state = CustomerStateEnum::LOSING;
         } elseif ($this->auroraModelData->{'Customer Type by Activity'} == 'Lost') {
-            $state = 'lost';
+            $state = CustomerStateEnum::LOST;
         }
 
         $this->parsedData['customer'] =
