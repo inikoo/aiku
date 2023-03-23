@@ -6,28 +6,20 @@
   -->
 
 <script setup lang="ts">
-import {Head, Link} from '@inertiajs/vue3';
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableWarehouses from "@/Pages/Tables/TableWarehouses.vue";
 
-defineProps(['warehouses', 'title','pageHead']);
-
+const props = defineProps<{
+  pageHead: object
+  tittle: string
+  data: object
+}>()
 </script>
 
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="warehouses" class="mt-5">
-        <template #cell(code)="{ item: warehouse }">
-            <Link :href="route('inventory.warehouses.show',warehouse.slug)">
-                {{ warehouse.code }}
-            </Link>
-        </template>
-        <template #cell(number_warehouse_areas)="{ item: warehouse }">
-            <Link :href="route('inventory.warehouses.show.warehouse-areas.index',warehouse.slug)">
-                {{ warehouse['number_warehouse_areas'] }}
-            </Link>
-        </template>
-    </Table>
+    <TableWarehouses :data="data" />
 </template>
 

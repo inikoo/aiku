@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
-import TableOutboxes from "@/Pages/Tables/TableOutboxes.vue";
+import TableProspects from "@/Pages/Tables/TableProspects.vue";
 
 const props = defineProps<{
     data: object
@@ -21,6 +21,6 @@ const props = defineProps<{
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <TableOutboxes :data="data" />
+    <TableProspects :data="data" />
 </template>
 

@@ -7,6 +7,7 @@
 
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
+use App\Actions\Leads\Prospect\IndexProspects;
 use App\Actions\Mail\Outbox\IndexOutboxes;
 use App\Actions\Mail\Outbox\ShowOutbox;
 use App\Actions\Marketing\Department\UI\CreateDepartment;
@@ -42,16 +43,18 @@ Route::get('/', IndexShops::class)->name('index');
 Route::get('/{shop}', ShowShop::class)->name('show');
 
 Route::get('/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('show.customers.index');
+Route::get('/{shop}/prospects', [IndexProspects::class, 'inShop'])->name('show.prospects.index');
 Route::get('/{shop}/customers/create', CreateCustomer::class)->name('show.customers.create');
-
 Route::get('/{shop}/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('show.customers.show');
 Route::get('/{shop}/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('show.customers.edit');
+
 
 Route::get('/{shop}/customers/{customer}/web-users', [IndexWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.index');
 Route::get('/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.show');
 
 
 Route::get('/{shop}/customers/{customer}/web-users/create', [CreateWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.create');
+
 
 Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('show.departments.index');
 Route::get('/{shop}/departments/create', CreateDepartment::class)->name('show.departments.create');

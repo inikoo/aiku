@@ -31,11 +31,18 @@ enum TabsAbbreviationEnum: string
     case FAMILY                                 = 'fam';
     case PURCHASES_SALES                        = 'ps';
     case SUPPLIER_PRODUCTS                      = 'sp';
+
+    case WAREHOUSE                              = 'w';
+
+    case OUTBOXES                               = 'out';
     case ISSUES                                 = 'iss';
     case PURCHASE_ORDERS                        = 'puord';
     case DELIVERIES                             = 'd';
     case IMAGES                                 = 'img';
     case SYSTEM_USERS                           = 'syuser';
+
+    case PROSPECTS                              = 'pro';
+    case EMPLOYEES                              = 'emp';
     case ITEMS                                  = 'itms';
     case CUSTOMER_NOTES_HISTORY                 = 'cnh';
     case SENT_EMAILS                            = 'se';

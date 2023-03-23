@@ -5,16 +5,15 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Mail\Outbox;
+namespace App\Actions\Leads\Prospect;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\Mailroom\ShowMailroom;
-use App\Actions\UI\Mail\MailDashboard;
+use App\Actions\Marketing\Shop\ShowShop;
 use App\Enums\UI\TabsAbbreviationEnum;
-use App\Http\Resources\Mail\OutboxResource;
+use App\Http\Resources\Lead\ProspectResource;
 use App\Models\Central\Tenant;
-use App\Models\Mail\Mailroom;
-use App\Models\Mail\Outbox;
+use App\Models\Leads\Prospect;
+use App\Models\Marketing\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,33 +23,43 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexOutboxes extends InertiaAction
+class IndexProspects extends InertiaAction
 {
-    public function handle(Mailroom|Tenant $parent): LengthAwarePaginator
+    public function handle(Shop|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('outboxes.name', '~*', "\y$value\y")
-                    ->orWhere('outboxes.data', '=', $value);
+                $query->where('prospects.name', '~*', "\y$value\y")
+                    ->orWhere('prospects.email', '=', $value)
+                    ->orWhere('prospects.phone', '=', $value)
+                    ->orWhere('prospects.website', '=', $value);
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::OUTBOXES->value);
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PROSPECTS->value);
 
-        return QueryBuilder::for(Outbox::class)
-            ->defaultSort('outboxes.name')
-            ->select(['outboxes.name', 'outboxes.slug', 'outboxes.data', 'mailrooms.id as mailrooms_id'])
-            ->leftJoin('outbox_stats', 'outbox_stats.id', 'outbox_stats.outbox_id')
-            ->leftJoin('mailrooms', 'mailroom_id', 'mailrooms.id')
+        return QueryBuilder::for(Prospect::class)
+            ->defaultSort('prospects.name')
+            ->select([
+                'prospects.name',
+                'prospects.slug',
+                'prospects.email',
+                'prospects.phone',
+                'prospects.website',
+                'prospects.id as shop_id',
+                'shops.code as shop_code',
+                'shops.slug as shop_slug',
+            ])
+            ->leftJoin('shops', 'shops.id', 'shop_id')
             ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Mailroom') {
-                    $query->where('outboxes.mailroom_id', $parent->id);
+                if (class_basename($parent) == 'Shop') {
+                    $query->where('prospects.shop_id', $parent->id);
                 }
             })
-            ->allowedSorts(['name', 'data'])
+            ->allowedSorts(['name', 'email', 'phone', 'website'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::OUTBOXES->value . 'Page'
+                pageName: TabsAbbreviationEnum::PROSPECTS->value.'Page'
             )
             ->withQueryString();
     }
@@ -59,12 +68,16 @@ class IndexOutboxes extends InertiaAction
     {
         return function (InertiaTable $table) use ($parent) {
             $table
-                ->name(TabsAbbreviationEnum::OUTBOXES->value)
-                ->pageName(TabsAbbreviationEnum::OUTBOXES->value.'Page');
+                ->name(TabsAbbreviationEnum::PROSPECTS->value)
+                ->pageName(TabsAbbreviationEnum::PROSPECTS->value.'Page');
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true);
+
+            $table->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true);
+
+            $table->column(key: 'website', label: __('website'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
     public function authorize(ActionRequest $request): bool
@@ -72,32 +85,32 @@ class IndexOutboxes extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('mail.view')
+                $request->user()->hasPermissionTo('shops.customers.view')
             );
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $outboxes): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $prospects): AnonymousResourceCollection
     {
-        return OutboxResource::collection($outboxes);
+        return ProspectResource::collection($prospects);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $outboxes, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
-            'Mail/Outboxes',
+            'Lead/Prospects',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $parent
                 ),
-                'title'       => __('outboxes '),
+                'title'       => __('prospects'),
                 'pageHead'    => [
-                    'title'   => __('outboxes'),
+                    'title'   => __('prospects'),
                 ],
-                'outboxes' => OutboxResource::collection($outboxes),
+                'prospects' => ProspectResource::collection($prospects),
 
 
             ]
@@ -112,13 +125,14 @@ class IndexOutboxes extends InertiaAction
         return $this->handle(app('currentTenant'));
     }
 
-    public function inMailroom(Mailroom $mailroom, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        return $this->handle($mailroom);
+
+        return $this->handle($shop);
     }
 
-    public function getBreadcrumbs(string $routeName, Mailroom|Tenant $parent): array
+    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -126,21 +140,17 @@ class IndexOutboxes extends InertiaAction
                     'route'           => $routeName,
                     'routeParameters' => $routeParameters,
                     'modelLabel'      => [
-                        'label' => __('Outbox')
+                        'label' => __('prospects')
                     ]
                 ],
             ];
         };
 
         return match ($routeName) {
-            'mail.outboxes.index' =>
+            'prospects.index'            => $headCrumb(),
+            'shops.show.prospects.index' =>
             array_merge(
-                (new MailDashboard())->getBreadcrumbs(),
-                $headCrumb()
-            ),
-            'mail.mailrooms.show.outboxes.index' =>
-            array_merge(
-                (new ShowMailroom())->getBreadcrumbs($parent),
+                (new ShowShop())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])
             ),
             default => []
