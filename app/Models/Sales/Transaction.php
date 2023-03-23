@@ -7,6 +7,8 @@
 
 namespace App\Models\Sales;
 
+use App\Enums\Sales\Transaction\TransactionStateEnum;
+use App\Enums\Sales\Transaction\TransactionStatusEnum;
 use App\Models\Dispatch\DeliveryNoteItem;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,10 +26,15 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $shop_id
  * @property int $customer_id
  * @property int $order_id
- * @property string|null $state
+ * @property TransactionStateEnum $state
+ * @property TransactionStatusEnum $status
  * @property string|null $item_type
  * @property int|null $item_id
- * @property string $quantity
+ * @property string $quantity_ordered
+ * @property string $quantity_bonus
+ * @property string $quantity_dispatched
+ * @property string $quantity_fail
+ * @property string $quantity_cancelled
  * @property string $discounts
  * @property string $net
  * @property int|null $tax_band_id
@@ -40,6 +47,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNoteItem> $deliveryNoteItems
  * @property-read Model|\Eloquent $item
  * @property-read \App\Models\Sales\Order $order
+ * @property-write mixed $quantity
  * @property-read Shop $shop
  * @method static Builder|Transaction newModelQuery()
  * @method static Builder|Transaction newQuery()
@@ -57,7 +65,9 @@ class Transaction extends Model
     protected $table = 'transactions';
 
     protected $casts = [
-        'data' => 'array'
+        'data'  => 'array',
+        'state' => TransactionStateEnum::class,
+        'status'=> TransactionStatusEnum::class
     ];
 
     protected $attributes = [

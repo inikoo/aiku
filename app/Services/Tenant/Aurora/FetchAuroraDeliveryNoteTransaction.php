@@ -7,6 +7,9 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
+use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
 use Illuminate\Support\Facades\DB;
 
@@ -23,22 +26,31 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
 
 
                 $state = match ($deliveryNote->state) {
-                    'submitted',
-                    'in-queue',
-                    'picker-assigned' => 'on-hold',
-                    'packing'         => 'picked',
-                    'finalised'       => 'packed',
-                    default           => $deliveryNote->state
+                    DeliveryNoteStateEnum::SUBMITTED, DeliveryNoteStateEnum::IN_QUEUE, DeliveryNoteStateEnum::PICKER_ASSIGNED => DeliveryNoteItemStateEnum::ON_HOLD,
+                    DeliveryNoteStateEnum::PICKING => DeliveryNoteItemStateEnum::PICKING,
+                    DeliveryNoteStateEnum::PICKED  => DeliveryNoteItemStateEnum::PICKED,
+
+                    DeliveryNoteStateEnum::PACKING => DeliveryNoteItemStateEnum::PACKING,
+
+                    DeliveryNoteStateEnum::PACKED    => DeliveryNoteItemStateEnum::PACKED,
+                    DeliveryNoteStateEnum::FINALISED => DeliveryNoteItemStateEnum::FINALISED,
+                    DeliveryNoteStateEnum::SETTLED   => DeliveryNoteItemStateEnum::SETTLED,
                 };
 
-                $status = 'in-process';
-                if (in_array($deliveryNote->state, [
-                    'packed',
-                    'finalised',
-                    'dispatched',
-                    'cancelled'
-                ])) {
-                    $status = 'done';
+
+                $quantity_required   = $this->auroraModelData->{'Required'};
+                $quantity_dispatched = -$this->auroraModelData->{'Inventory Transaction Quantity'};
+
+                $status = $deliveryNote->status;
+
+                if ($status == DeliveryNoteItemStatusEnum::DISPATCHED) {
+                    if ($quantity_dispatched < $quantity_required) {
+                        $status = DeliveryNoteItemStatusEnum::DISPATCHED_WITH_MISSING;
+                    }
+
+                    if ($quantity_dispatched == 0) {
+                        $status = DeliveryNoteItemStatusEnum::FAIL;
+                    }
                 }
 
 
@@ -51,14 +63,16 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
 
 
                 $this->parsedData['delivery_note_item'] = [
-                    'transaction_id' => $transactionID,
-                    'state'          => $state,
-                    'status'         => $status,
-                    'required'       => $this->auroraModelData->{'Required'},
-                    'quantity'       => -$this->auroraModelData->{'Inventory Transaction Quantity'},
-                    'stock_id'       => $stock->id,
-                    'source_id'      => $this->auroraModelData->{'Inventory Transaction Key'},
-                    'created_at'     => $this->auroraModelData->{'Date Created'},
+                    'transaction_id'      => $transactionID,
+                    'state'               => $state,
+                    'status'              => $status,
+                    'quantity_required'   => $quantity_required,
+                    'quantity_picked'     => $this->auroraModelData->{'Picked'},
+                    'quantity_packed'     => $this->auroraModelData->{'Packed'},
+                    'quantity_dispatched' => $quantity_dispatched,
+                    'stock_id'            => $stock->id,
+                    'source_id'           => $this->auroraModelData->{'Inventory Transaction Key'},
+                    'created_at'          => $this->auroraModelData->{'Date Created'},
 
                 ];
             } else {

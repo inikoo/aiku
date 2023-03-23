@@ -15,7 +15,6 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreOrder
@@ -38,9 +37,6 @@ class StoreOrder
         $modelData['currency_id'] = $parent->shop->currency_id;
         $modelData['shop_id']     = $parent->shop_id;
 
-        if (!Arr::exists($modelData, 'type')) {
-            $modelData['type'] = $parent->shop->subtype;
-        }
 
         /** @var Order $order */
         $order = $parent->shop->orders()->create($modelData);

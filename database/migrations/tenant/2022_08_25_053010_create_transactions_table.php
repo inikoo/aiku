@@ -5,6 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Enums\Sales\Transaction\TransactionStateEnum;
+use App\Enums\Sales\Transaction\TransactionStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,10 +22,17 @@ return new class () extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->unsignedInteger('order_id')->index();
             $table->foreign('order_id')->references('id')->on('orders');
-            $table->enum('state', ['submitted', 'in-warehouse', 'packed', 'finalised', 'no-dispatched', 'dispatched', 'cancelled'])->default('submitted')->nullable()->index();
+            $table->string('state')->default(TransactionStateEnum::CREATING->value)->index();
+            $table->string('status')->default(TransactionStatusEnum::PROCESSING->value)->index();
 
             $table->nullableMorphs('item');
-            $table->decimal('quantity', 16, 3);
+            $table->decimal('quantity_ordered', 16, 3);
+            $table->decimal('quantity_bonus', 16, 3);
+            $table->decimal('quantity_dispatched', 16, 3)->default(0);
+            $table->decimal('quantity_fail', 16, 3)->default(0);
+            $table->decimal('quantity_cancelled', 16, 3)->default(0);
+
+
             $table->decimal('discounts', 16)->default(0);
             $table->decimal('net', 16)->default(0);
             $table->unsignedSmallInteger('tax_band_id')->nullable()->index();

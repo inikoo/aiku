@@ -7,6 +7,8 @@
 
 namespace App\Models\Dispatch;
 
+use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
+use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -21,8 +23,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $stock_id
  * @property int $transaction_id
  * @property int|null $picking_id
- * @property string $state
- * @property string $status
+ * @property DeliveryNoteItemStateEnum $state
+ * @property DeliveryNoteItemStatusEnum $status
  * @property string $required
  * @property string $quantity
  * @property array $data
@@ -47,7 +49,10 @@ class DeliveryNoteItem extends Model
     protected $table = 'delivery_note_items';
 
     protected $casts = [
-        'data' => 'array',
+        'data'   => 'array',
+        'state'  => DeliveryNoteItemStateEnum::class,
+        'status' => DeliveryNoteItemStatusEnum::class,
+
     ];
 
     protected $attributes = [

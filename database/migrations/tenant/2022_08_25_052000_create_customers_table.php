@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Enums\Sales\Customer\CustomerStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -35,7 +36,7 @@ return new class () extends Migration {
             $table->enum('status', ['pending-approval', 'approved', 'rejected', 'banned'])->index();
 
 
-            $table->string('state')->index()->nullable();
+            $table->string('state')->index()->default(CustomerStateEnum::IN_PROCESS->value);
 
             $customerTradeStates = ['none', 'one', 'many'];
             $table->enum('trade_state', $customerTradeStates)->index()->nullable()->default('none')->comment('number of invoices');

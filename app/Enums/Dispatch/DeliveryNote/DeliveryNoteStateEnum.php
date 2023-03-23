@@ -21,6 +21,5 @@ enum DeliveryNoteStateEnum: string
     case PACKING         = 'packing';
     case PACKED          = 'packed';
     case FINALISED       = 'finalised';
-    case DISPATCHED      = 'dispatched';
-    case CANCELLED       = 'cancelled';
+    case SETTLED         = 'settled';
 }

@@ -7,6 +7,8 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
 
@@ -29,27 +31,21 @@ class FetchAuroraDeliveryNote extends FetchAurora
         }
 
 
-        /*
-        'submitted',
-                    'picker-assigned',
-                    'picking',
-                    'picked',
-                    'packing',
-                    'packed',
-                    'finalised',
-                    'dispatched',*/
-        //enum('Ready to be Picked','Picker Assigned','Picking','Picked','Packing','Packed','Packed Done','Approved','Dispatched','Cancelled','Cancelled to Restock')
         $state = match ($this->auroraModelData->{'Delivery Note State'}) {
-            'Ready to be Picked' => 'submitted',
-            'Picker Assigned'    => 'in-queue',
-            'Picking'            => 'picking',
-            'Picked'             => 'picked',
-            'Packing'            => 'packing',
-            'Packed'             => 'packed',
-            'Packed Done', 'Approved' => 'finalised',
-            'Dispatched' => 'dispatched',
-            'Cancelled', 'Cancelled to Restock' => "cancelled",
-            default => "submitted",
+            'Picker Assigned' => DeliveryNoteStateEnum::IN_QUEUE,
+            'Picking'         => DeliveryNoteStateEnum::PICKING,
+            'Picked'          => DeliveryNoteStateEnum::PICKED,
+            'Packing'         => DeliveryNoteStateEnum::PACKING,
+            'Packed'          => DeliveryNoteStateEnum::PACKED,
+            'Packed Done', 'Approved' => DeliveryNoteStateEnum::FINALISED,
+            'Dispatched', 'Cancelled', 'Cancelled to Restock' => DeliveryNoteStateEnum::SETTLED,
+            default => DeliveryNoteStateEnum::SUBMITTED,
+        };
+
+        $status = match ($this->auroraModelData->{'Delivery Note State'}) {
+            'Dispatched' => DeliveryNoteStatusEnum::DISPATCHED,
+            'Cancelled', 'Cancelled to Restock' => DeliveryNoteStatusEnum::CANCELLED,
+            default => DeliveryNoteStatusEnum::HANDLING,
         };
 
         $cancelled_at = null;
@@ -59,6 +55,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
                 $cancelled_at = $this->auroraModelData->{'Delivery Note Date'};
             }
         }
+
 
         /*
         $date = match ($state) {
@@ -97,6 +94,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
             "number"        => $this->auroraModelData->{'Delivery Note ID'},
             'date'          => $this->auroraModelData->{'Delivery Note Date Created'},
             "state"         => $state,
+            "status"        => $status,
             "source_id"     => $this->auroraModelData->{'Delivery Note Key'},
             "created_at"    => $this->auroraModelData->{'Delivery Note Date Created'},
             'picking_at'    => $this->auroraModelData->{'Delivery Note Date Start Picking'},
@@ -114,7 +112,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
         ];
 
         $deliveryAddressData                  = $this->parseAddress(
-            prefix:        "Delivery Note",
+            prefix: "Delivery Note",
             auAddressData: $this->auroraModelData,
         );
         $this->parsedData["delivery_address"] = new Address(

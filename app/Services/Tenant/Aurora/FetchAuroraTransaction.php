@@ -7,6 +7,8 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Sales\Transaction\TransactionStateEnum;
+use App\Enums\Sales\Transaction\TransactionStatusEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraTransaction extends FetchAurora
@@ -25,33 +27,49 @@ class FetchAuroraTransaction extends FetchAurora
             $state = null;
             if (class_basename($historicItem) == 'HistoricProduct') {
                 $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                    'Submitted by Customer', 'In Process' => 'submitted',
-                    'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => 'in-warehouse',
-                    'Ready to Ship' => 'finalised',
-                    'Dispatched'    => 'dispatched',
-                    'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other' => 'no-dispatched',
-                    'Cancelled', 'Suspended', 'Cancelled by Customer' => 'cancelled',
+                    'In Process'            => TransactionStateEnum::CREATING,
+                    'Submitted by Customer' => TransactionStateEnum::SUBMITTED,
+                    'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => TransactionStateEnum::HANDLING,
+                    'Ready to Ship' => TransactionStateEnum::FINALISED,
+                    'Dispatched', 'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::SETTLED,
                     'Unknown' => null
                 };
             } elseif (class_basename($historicItem) == 'HistoricService') {
                 $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                    'Dispatched' => 'dispatched',
-                    'Cancelled', 'Suspended', 'Cancelled by Customer' => 'cancelled',
+                    'In Process' => TransactionStateEnum::CREATING,
+                    'Dispatched', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::SETTLED,
                     'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Unknown' => null,
-                    default => 'submitted'
+                    default => TransactionStateEnum::SUBMITTED,
                 };
+            }
+
+            $status = match ($this->auroraModelData->{'Current Dispatching State'}) {
+                'Dispatched' => TransactionStatusEnum::DISPATCHED,
+                'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStatusEnum::CANCELLED,
+                'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Unknown' => TransactionStatusEnum::FAIL,
+                default => TransactionStatusEnum::PROCESSING,
+            };
+
+            if ($status == TransactionStatusEnum::DISPATCHED and $this->auroraModelData->{'No Shipped Due Out of Stock'} > 0) {
+                $status = TransactionStatusEnum::DISPATCHED_WITH_MISSING;
             }
 
 
             $this->parsedData['transaction'] = [
-                'item_type'   => class_basename($historicItem),
-                'item_id'     => $historicItem->id,
-                'tax_band_id' => $taxBand->id ?? null,
-                'state'       => $state,
-                'quantity'    => $this->auroraModelData->{'Order Quantity'},
-                'discounts'   => $this->auroraModelData->{'Order Transaction Total Discount Amount'},
-                'net'         => $this->auroraModelData->{'Order Transaction Amount'},
-                'source_id'   => $this->auroraModelData->{'Order Transaction Fact Key'},
+                'item_type'           => class_basename($historicItem),
+                'item_id'             => $historicItem->id,
+                'tax_band_id'         => $taxBand->id ?? null,
+                'state'               => $state,
+                'status'              => $status,
+                'quantity_ordered'    => $this->auroraModelData->{'Order Quantity'},
+                'quantity_bonus'      => $this->auroraModelData->{'Order Bonus Quantity'},
+                'quantity_dispatched' => $this->auroraModelData->{'Delivery Note Quantity'},
+                'quantity_fail'       => $this->auroraModelData->{'No Shipped Due Out of Stock'},
+
+
+                'discounts' => $this->auroraModelData->{'Order Transaction Total Discount Amount'},
+                'net'       => $this->auroraModelData->{'Order Transaction Amount'},
+                'source_id' => $this->auroraModelData->{'Order Transaction Fact Key'},
 
             ];
         } else {

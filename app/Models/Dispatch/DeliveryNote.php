@@ -8,6 +8,8 @@
 namespace App\Models\Dispatch;
 
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
@@ -32,7 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $shop_id
  * @property int $customer_id
  * @property string $number
- * @property string $type
+ * @property DeliveryNoteTypeEnum $type
  * @property DeliveryNoteStateEnum $state
  * @property bool|null $can_dispatch
  * @property bool|null $restocking
@@ -59,6 +61,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property DeliveryNoteStatusEnum $status
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
@@ -84,8 +87,11 @@ class DeliveryNote extends Model
     use HasUniversalSearch;
 
     protected $casts = [
-        'data'               => 'array',
-        'state'              => DeliveryNoteStateEnum::class,
+        'data'   => 'array',
+        'state'  => DeliveryNoteStateEnum::class,
+        'type'   => DeliveryNoteTypeEnum::class,
+        'status' => DeliveryNoteStatusEnum::class,
+
         'date'               => 'datetime',
         'order_submitted_at' => 'datetime',
         'assigned_at'        => 'datetime',

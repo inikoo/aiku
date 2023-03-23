@@ -8,6 +8,8 @@
 namespace App\Services\Tenant\Aurora;
 
 use App\Actions\SourceFetch\Aurora\FetchCustomerClients;
+use App\Enums\Sales\Order\OrderStateEnum;
+use App\Enums\Sales\Order\OrderStatusEnum;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
 
@@ -49,11 +51,17 @@ class FetchAuroraOrder extends FetchAurora
         }
 
         $state = match ($this->auroraModelData->{'Order State'}) {
-            "InWarehouse", "Packed" => "in-warehouse",
-            "PackedDone" => "packed",
-            "Approved"   => "finalised",
-            "Dispatched" => "dispatched",
-            default      => "submitted",
+            "InWarehouse", "Packed" => OrderStateEnum::HANDLING,
+            "PackedDone" => OrderStateEnum::PACKED,
+            "Approved"   => OrderStateEnum::FINALISED,
+            "Dispatched" => OrderStateEnum::SETTLED,
+            default      => OrderStateEnum::SUBMITTED,
+        };
+
+        $status = match ($this->auroraModelData->{'Order State'}) {
+            "Cancelled"  => OrderStatusEnum::CANCELLED,
+            "Dispatched" => OrderStatusEnum::DISPATCHED,
+            default      => OrderStatusEnum::PROCESSING,
         };
 
 
@@ -72,26 +80,24 @@ class FetchAuroraOrder extends FetchAurora
                 $this->auroraModelData->{'Order Invoiced Date'}   != "" or
                 $this->auroraModelData->{'Order Dispatched Date'} != ""
             ) {
-                $stateWhenCancelled = "finalised";
+                $stateWhenCancelled = OrderStateEnum::FINALISED;
             } elseif (
                 $this->auroraModelData->{'Order Packed Date'}      != "" or
                 $this->auroraModelData->{'Order Packed Done Date'} != ""
             ) {
-                $stateWhenCancelled = "packed";
+                $stateWhenCancelled = OrderStateEnum::PACKED;
             } elseif (
                 $this->auroraModelData->{'Order Send to Warehouse Date'} != ""
             ) {
-                $stateWhenCancelled = "in-warehouse";
+                $stateWhenCancelled =OrderStateEnum::HANDLING;
             } else {
-                $stateWhenCancelled = "submitted";
+                $stateWhenCancelled = OrderStateEnum::SUBMITTED;
             }
 
             $data['cancelled'] = [
                 'state' => $stateWhenCancelled
             ];
         }
-
-
 
 
         $this->parsedData["order"] = [
@@ -106,6 +112,7 @@ class FetchAuroraOrder extends FetchAurora
             "number"          => $this->auroraModelData->{'Order Public ID'},
             'customer_number' => $this->auroraModelData->{'Order Customer Purchase Order ID'},
             "state"           => $state,
+            "status"          => $status,
             "source_id"       => $this->auroraModelData->{'Order Key'},
             "exchange"        => $this->auroraModelData->{'Order Currency Exchange'},
             "created_at"      => $this->auroraModelData->{'Order Created Date'},
@@ -114,7 +121,7 @@ class FetchAuroraOrder extends FetchAurora
         ];
 
         $deliveryAddressData                  = $this->parseAddress(
-            prefix:        "Order Delivery",
+            prefix: "Order Delivery",
             auAddressData: $this->auroraModelData,
         );
         $this->parsedData["delivery_address"] = new Address(
@@ -122,7 +129,7 @@ class FetchAuroraOrder extends FetchAurora
         );
 
         $billingAddressData                  = $this->parseAddress(
-            prefix:        "Order Invoice",
+            prefix: "Order Invoice",
             auAddressData: $this->auroraModelData,
         );
         $this->parsedData["billing_address"] = new Address($billingAddressData);

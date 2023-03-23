@@ -5,6 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
+use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -27,22 +29,14 @@ return new class () extends Migration {
             $table->unsignedInteger('picking_id')->nullable()->index();
             $table->foreign('picking_id')->references('id')->on('pickings');
 
-            $table->enum(
-                'state',
-                [
-                    'on-hold',
-                    'picking',
-                    'picked',
-                    'packed',
-                    'dispatched',
-                    'fail',
-                    'cancelled'
-                ]
-            )->index();
-            $table->enum('status', ['in-process','done','done-with-missing','fail']);
+            $table->string('state')->default(DeliveryNoteItemStateEnum::ON_HOLD->value)->index();
+            $table->string('status')->default(DeliveryNoteItemStatusEnum::HANDLING->value)->index();
 
-            $table->decimal('required', 16, 3);
-            $table->decimal('quantity', 16, 3)->default(0);
+            $table->decimal('quantity_required', 16, 3)->default(0);
+            $table->decimal('quantity_picked', 16, 3)->nullable();
+            $table->decimal('quantity_packed', 16, 3)->nullable();
+            $table->decimal('quantity_dispatched', 16, 3)->nullable();
+
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();

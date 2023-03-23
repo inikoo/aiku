@@ -8,6 +8,7 @@
 namespace App\Models\Sales;
 
 use App\Enums\Sales\Order\OrderStateEnum;
+use App\Enums\Sales\Order\OrderStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasOrder;
@@ -31,8 +32,8 @@ use Spatie\Sluggable\HasSlug;
  * @property int|null $customer_client_id
  * @property string|null $number
  * @property string|null $customer_number Customers own order number
- * @property string|null $type
  * @property OrderStateEnum $state
+ * @property OrderStatusEnum $status
  * @property string $date
  * @property string|null $submitted_at
  * @property string|null $in_warehouse_at
@@ -81,8 +82,9 @@ class Order extends Model
     use HasUniversalSearch;
 
     protected $casts = [
-        'data'  => 'array',
-        'state' => OrderStateEnum::class
+        'data'   => 'array',
+        'state'  => OrderStateEnum::class,
+        'status' => OrderStatusEnum::class
     ];
 
     protected $attributes = [

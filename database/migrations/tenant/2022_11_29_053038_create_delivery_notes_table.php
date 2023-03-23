@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,9 +21,10 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('number')->index();
-            $table->enum('type', ['order', 'replacement'])->default('order')->index();
+            $table->string('type')->default(DeliveryNoteTypeEnum::ORDER->value)->index();
 
             $table->string('state')->index();
+            $table->string('status')->index();
 
             $table->boolean('can_dispatch')->nullable();
             $table->boolean('restocking')->nullable();

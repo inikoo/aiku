@@ -1,5 +1,8 @@
 
 <?php
+
+use App\Enums\Sales\Order\OrderStateEnum;
+use App\Enums\Sales\Order\OrderStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,10 +26,9 @@ return new class () extends Migration {
             $table->string('number')->nullable()->index();
             $table->string('customer_number')->index()->nullable()->comment('Customers own order number');
 
-            $shopSubtypes = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
 
-            $table->enum('type', $shopSubtypes)->index()->nullable();
-            $table->string('state')->default('submitted')->index();
+            $table->string('state')->default(OrderStateEnum::CREATING->value)->index();
+            $table->string('status')->default(OrderStatusEnum::PROCESSING->value)->index();
 
 
             $table->dateTimeTz('date');
