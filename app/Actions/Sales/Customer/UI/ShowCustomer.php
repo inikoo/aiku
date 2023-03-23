@@ -8,7 +8,10 @@
 namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Sales\Order\IndexOrders;
+use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Inertia\Inertia;
@@ -16,6 +19,9 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
+/**
+ * @property Customer $customer
+ */
 class ShowCustomer extends InertiaAction
 {
     use HasUICustomer;
@@ -36,7 +42,7 @@ class ShowCustomer extends InertiaAction
 
     public function asController(Customer $customer, ActionRequest $request): Customer
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
 
         return $this->handle($customer);
     }
@@ -135,9 +141,18 @@ class ShowCustomer extends InertiaAction
                     ] : false,
 
                 ],
-                'customer'    => new CustomerResource($customer)
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => CustomerTabsEnum::navigation()
+
+                ],
+
+                CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
+                    fn () => OrderResource::collection(IndexOrders::run($this->customer))
+                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($this->customer))),
+
             ]
-        );
+        )->table(IndexOrders::make()->tableStructure($customer));
     }
 
 

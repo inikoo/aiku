@@ -25,7 +25,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexOrders extends InertiaAction
 {
-    public function handle(Shop|Tenant $parent): LengthAwarePaginator
+    // Shop|Tenant removed on handle()
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -120,6 +121,7 @@ class IndexOrders extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->routeName = $request->route()->getName();
+        $this->initialisation($request);
 
         return $this->handle(app('currentTenant'));
     }

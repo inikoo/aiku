@@ -4,17 +4,44 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
-import { Head , useForm} from '@inertiajs/vue3';
+<script setup lang="ts">
+import { Head } from '@inertiajs/vue3';
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faGlobe } from "@/../private/pro-light-svg-icons";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import TableOrders from "@/Pages/Tables/TableOrders.vue";
+import {useTabChange} from "@/Composables/tab-change";
+import {computed, defineAsyncComponent, ref} from "vue";
+import Tabs from "@/Components/Navigation/Tabs.vue";
 
 library.add(faGlobe);
 
-const props = defineProps(["title", "pageHead", "customer"]);
+const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
-import { ref } from "vue";
+const props = defineProps<{
+    title: string,
+    pageHead: object,
+    tabs: {
+        current: string;
+        navigation: object;
+    },
+}>()
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        orders: TableOrders,
+        details: ModelDetails,
+        history: ModelChangelog
+    };
+    return components[currentTab.value];
+
+});
+
 import {
     Dialog,
     DialogPanel,
@@ -23,16 +50,17 @@ import {
     TransitionRoot,
 } from "@headlessui/vue";
 
+
 const isOpen = ref(false);
 
 function setIsOpen(value) {
     isOpen.value = value;
 }
 
-const webUserForm = useForm({
+/*const webUserForm = useForm({
     username: props["customer"].email,
     password: null,
-});
+});*/
 </script>
 
 <template layout="App">
@@ -112,4 +140,6 @@ const webUserForm = useForm({
             </div>
         </Dialog>
     </TransitionRoot>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <component :is="component" :data="props[currentTab]"></component>
 </template>

@@ -16,7 +16,6 @@ enum CustomerTabsEnum: string
     use HasTabs;
 
     case CHANGELOG           = 'changelog';
-
     case DATA                = 'data';
     case PORTFOLIO           = 'portfolio';
     case PRODUCTS            = 'products';
@@ -46,11 +45,11 @@ enum CustomerTabsEnum: string
                 'icon'  => 'fal fa-store-alt',
             ],
             CustomerTabsEnum::PRODUCTS => [
-                'title' => __('warehouse areas'),
+                'title' => __('products'),
                 'icon'  => 'fal fa-cube',
             ],
             CustomerTabsEnum::ORDERS     => [
-                'title' => __('locations'),
+                'title' => __('orders'),
                 'icon'  => 'fal fa-shopping-cart',
             ],CustomerTabsEnum::SALES     => [
                 'title' => __('sales'),
