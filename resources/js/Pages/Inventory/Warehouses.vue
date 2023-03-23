@@ -12,7 +12,7 @@ import TableWarehouses from "@/Pages/Tables/TableWarehouses.vue";
 
 const props = defineProps<{
   pageHead: object
-  tittle: string
+  title: string
   data: object
 }>()
 </script>

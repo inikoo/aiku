@@ -11,7 +11,7 @@ import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
 
 const props = defineProps <{
     pageHead: object
-    tittle: string
+    title: string
     data: object
 }>()
 

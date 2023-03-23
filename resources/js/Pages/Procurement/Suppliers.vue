@@ -11,7 +11,7 @@ import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
 
 const props = defineProps <{
     pageHead: object
-    tittle: string
+    title: string
     data: object
 }>()
 

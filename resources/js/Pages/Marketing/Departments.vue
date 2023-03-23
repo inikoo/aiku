@@ -11,7 +11,7 @@ import TableDepartments from "@/Pages/Tables/TableDepartments.vue";
 
 const props = defineProps <{
   pageHead: object
-  tittle: string
+  title: string
   data: object
 }>()
 

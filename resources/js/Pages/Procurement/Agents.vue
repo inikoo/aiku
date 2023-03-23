@@ -11,7 +11,7 @@ import TableAgents from "@/Pages/Tables/TableAgents.vue";
 
 const props = defineProps <{
     pageHead: object
-    tittle: string
+    title: string
     data:object
 }>()
 </script>

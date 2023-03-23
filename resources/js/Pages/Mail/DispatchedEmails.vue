@@ -11,7 +11,7 @@ import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
 
 const props = defineProps<{
     data: object
-    tittle: string
+    title: string
     pageHead: object
 }>()
 

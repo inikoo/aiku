@@ -12,7 +12,7 @@ import TableInvoices from "@/Pages/Tables/TableInvoices.vue";
 const props = defineProps<{
   pageHead: object
   data: object
-  tittle: string
+  title: string
 }>()
 
 

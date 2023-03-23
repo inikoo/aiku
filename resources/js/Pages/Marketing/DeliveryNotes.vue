@@ -12,7 +12,7 @@ import TableDeliveryNotes from "@/Pages/Tables/TableDeliveryNotes.vue";
 const props = defineProps<{
   pageHead: object
   data: object
-  tittle: string
+  title: string
 }>()
 
 </script>
