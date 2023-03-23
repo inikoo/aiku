@@ -62,6 +62,14 @@ class ShowShop
                                 'number' => $shop->stats->number_customers
                             ]
                         ],
+                        [
+                            'name'  => __('prospect'),
+                            'icon'  => ['fal', 'fa-user'],
+                            'href'  => ['shops.show.prospects.index', $shop->slug],
+                            'index' => [
+                                'number' => $shop->stats->number_customers
+                            ]
+                        ],
                     ],
                     [
                         [

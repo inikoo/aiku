@@ -41,6 +41,7 @@ enum TabsAbbreviationEnum: string
     case IMAGES                                 = 'img';
     case SYSTEM_USERS                           = 'syuser';
 
+    case PROSPECTS                              = 'pro';
     case EMPLOYEES                              = 'emp';
     case ITEMS                                  = 'itms';
     case CUSTOMER_NOTES_HISTORY                 = 'cnh';
