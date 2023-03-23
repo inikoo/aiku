@@ -78,6 +78,11 @@ class StockFamily extends Model
             ->saveSlugsTo('slug');
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function stocks(): HasMany
     {
         return $this->hasMany(Stock::class);
