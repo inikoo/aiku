@@ -9,17 +9,18 @@ import { Head } from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faIdCard,faUser} from '@/../private/pro-light-svg-icons';
 import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
+import { router } from '@inertiajs/vue3'
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 library.add(faIdCard,faUser,faCheckCircle)
 import { trans } from 'laravel-vue-i18n';
-import {Inertia} from '@inertiajs/inertia';
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 const props=defineProps(["title","pageHead","employee"])
 
 const createEmployeeUser = () =>{
-    Inertia.post(route('hr.employees.show.user.store',props['employee'].data.id), {})
+    router.post(route('hr.employees.show.user.store',props['employee'].data.id), {})
 }
 
 
@@ -33,7 +34,8 @@ const createEmployeeUser = () =>{
 
         <div v-if="!employee.data.user || ( $page.props.flash.notification && $page.props.flash.notification.type==='newUser')"   class="m-4 bg-white shadow sm:rounded-lg max-w-2xl">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">{{ trans('System user')}}  <span v-if="$page.props.flash.notification" class="text-green-600 ml-2 text-sm"><font-awesome-icon aria-hidden="true" icon="fa-solid fa-check-circle" size="lg" /> {{$page.props.flash.notification.message}}</span></h3>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">{{ trans('System user')}}  <span v-if="$page.props.flash.notification" class="text-green-600 ml-2 text-sm">
+                    <FontAwesomeIcon aria-hidden="true" icon="fa-solid fa-check-circle" size="lg" /> {{$page.props.flash.notification.message}}</span></h3>
                 <div v-if="!employee.data.user"  class="mt-2 sm:flex sm:items-start sm:justify-between">
                     <div class="max-w-xl text-sm text-gray-500">
                         <p class="text-red-500">{{ trans('This employee is not an user') }}.</p>
