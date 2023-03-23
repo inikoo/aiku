@@ -5,6 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
+use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +16,7 @@ return new class () extends Migration {
     {
         Schema::create('supplier_products', function (Blueprint $table) {
             $table->increments('id');
-            $table->enum('composition', ['unit', 'multiple', 'mix'])->default('unit');
+            $table->string('trade_unit_composition')->default(SupplierProductTradeUnitCompositionEnum::MATCH->value)->nullable();
 
             $table->string('slug')->nullable()->index();
 
@@ -27,10 +29,10 @@ return new class () extends Migration {
             $table->foreign('agent_id')->references('id')->on('agents');
 
 
-            $table->enum('state', ['creating', 'active', 'no-available', 'discontinuing', 'discontinued'])->nullable()->index();
+            $table->string('state')->nullable()->index();
             $table->boolean('status')->nullable()->index();
 
-            $table->enum('stock_quantity_status', ['surplus', 'optimal', 'low', 'critical', 'out-of-stock', 'no-applicable'])->default('no-applicable')->nullable()->index();
+            $table->string('stock_quantity_status')->default(SupplierProductQuantityStatusEnum::NO_APPLICABLE->value)->nullable()->index();
 
 
             $table->string('code')->index();

@@ -7,8 +7,9 @@
 
 namespace App\Models\Procurement;
 
-use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
+use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
+use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
+use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -67,10 +68,13 @@ class SupplierProduct extends Model
     use HasUniversalSearch;
 
     protected $casts = [
-        'shared_data' => 'array',
-        'tenant_data' => 'array',
-        'settings'    => 'array',
-        'status'      => 'boolean',
+        'shared_data'            => 'array',
+        'tenant_data'            => 'array',
+        'settings'               => 'array',
+        'status'                 => 'boolean',
+        'state'                  => SupplierProductStateEnum::class,
+        'quantity_status'        => SupplierProductQuantityStatusEnum::class,
+        'trade_unit_composition' => SupplierProductTradeUnitCompositionEnum::class,
     ];
 
     protected $attributes = [
@@ -87,17 +91,6 @@ class SupplierProduct extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug');
-    }
-
-    protected static function booted()
-    {
-        static::created(
-            function (SupplierProduct $supplierProduct) {
-                /** @noinspection PhpUndefinedMethodInspection */
-                SupplierHydrateSupplierProducts::dispatch($supplierProduct->supplier()->withTrashed()->first());
-                AgentHydrateSuppliers::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent);
-            }
-        );
     }
 
     public function historicRecords(): HasMany

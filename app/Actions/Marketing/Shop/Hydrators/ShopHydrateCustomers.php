@@ -32,9 +32,9 @@ class ShopHydrateCustomers implements ShouldBeUnique
             ->pluck('total', 'state')->all();
 
 
-        foreach (CustomerStateEnum::values() as $customerState) {
-            $stats['number_customers_state_'.str_replace('-', '_', $customerState)] =
-                Arr::get($stateCounts, $customerState, 0);
+        foreach (CustomerStateEnum::cases() as $customerState) {
+            $stats['number_customers_state_'.$customerState->snake()] =
+                Arr::get($stateCounts, $customerState->value, 0);
         }
 
         $shop->stats->update($stats);

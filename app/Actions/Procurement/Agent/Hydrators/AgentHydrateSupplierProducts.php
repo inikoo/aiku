@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Agent\Hydrators;
 
+use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\SupplierProduct;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -20,16 +21,25 @@ class AgentHydrateSupplierProducts implements ShouldBeUnique
 
     public function handle(Agent $agent): void
     {
-        $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
+        $stats         = [
+            'number_products' => $agent->products->count(),
+        ];
+
         $stateCounts   =SupplierProduct::where('agent_id', $agent->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
-        $stats         = [
-            'number_products' => $agent->products->count(),
-        ];
-        foreach ($productStates as $productState) {
-            $stats['number_products_state_'.str_replace('-', '_', $productState)] = Arr::get($stateCounts, $productState, 0);
+        foreach (SupplierProductStateEnum::cases() as $productState) {
+            $stats['number_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
+        }
+
+        $stockQuantityStatusCounts = SupplierProduct::where('agent_id', $agent->id)
+            ->selectRaw('stock_quantity_status, count(*) as total')
+            ->groupBy('stock_quantity_status')
+            ->pluck('total', 'stock_quantity_status')->all();
+
+        foreach (SupplierProductStateEnum::cases() as $stockQuantityStatus) {
+            $stats['number_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
         }
         $agent->stats->update($stats);
     }
