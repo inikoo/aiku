@@ -58,6 +58,8 @@ class FetchAuroraOrder extends FetchAurora
             default      => OrderStateEnum::SUBMITTED,
         };
 
+
+
         $status = match ($this->auroraModelData->{'Order State'}) {
             "Cancelled"  => OrderStatusEnum::CANCELLED,
             "Dispatched" => OrderStatusEnum::DISPATCHED,

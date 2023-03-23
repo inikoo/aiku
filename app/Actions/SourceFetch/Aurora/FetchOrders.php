@@ -11,6 +11,7 @@ use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Sales\Order\StoreOrder;
 use App\Actions\Sales\Order\UpdateOrder;
+use App\Enums\Sales\Transaction\TransactionTypeEnum;
 use App\Models\Sales\Order;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -67,11 +68,12 @@ class FetchOrders extends FetchAction
 
     private function fetchTransactions($tenantSource, $order): void
     {
-        $transactionsToDelete = $order->transactions()->pluck('source_id', 'id')->all();
+        $transactionsToDelete = $order->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
         foreach (
             DB::connection('aurora')
                 ->table('Order Transaction Fact')
                 ->select('Order Transaction Fact Key')
+                ->where('Order Transaction Type', 'Order')
                 ->where('Order Key', $order->source_id)
                 ->get() as $auroraData
         ) {

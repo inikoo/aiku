@@ -9,6 +9,7 @@ namespace App\Services\Tenant\Aurora;
 
 use App\Enums\Sales\Transaction\TransactionStateEnum;
 use App\Enums\Sales\Transaction\TransactionStatusEnum;
+use App\Enums\Sales\Transaction\TransactionTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraTransaction extends FetchAurora
@@ -43,6 +44,7 @@ class FetchAuroraTransaction extends FetchAurora
                 };
             }
 
+
             $status = match ($this->auroraModelData->{'Current Dispatching State'}) {
                 'Dispatched' => TransactionStatusEnum::DISPATCHED,
                 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStatusEnum::CANCELLED,
@@ -56,6 +58,7 @@ class FetchAuroraTransaction extends FetchAurora
 
 
             $this->parsedData['transaction'] = [
+                'type'                => TransactionTypeEnum::ORDER,
                 'item_type'           => class_basename($historicItem),
                 'item_id'             => $historicItem->id,
                 'tax_band_id'         => $taxBand->id ?? null,

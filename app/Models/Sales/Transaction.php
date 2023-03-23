@@ -9,6 +9,7 @@ namespace App\Models\Sales;
 
 use App\Enums\Sales\Transaction\TransactionStateEnum;
 use App\Enums\Sales\Transaction\TransactionStatusEnum;
+use App\Enums\Sales\Transaction\TransactionTypeEnum;
 use App\Models\Dispatch\DeliveryNoteItem;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
@@ -65,9 +66,11 @@ class Transaction extends Model
     protected $table = 'transactions';
 
     protected $casts = [
-        'data'  => 'array',
-        'state' => TransactionStateEnum::class,
-        'status'=> TransactionStatusEnum::class
+        'data'   => 'array',
+        'state'  => TransactionStateEnum::class,
+        'status' => TransactionStatusEnum::class,
+        'type'   => TransactionTypeEnum::class,
+
     ];
 
     protected $attributes = [

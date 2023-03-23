@@ -22,6 +22,9 @@ return new class () extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->unsignedInteger('order_id')->index();
             $table->foreign('order_id')->references('id')->on('orders');
+            $table->unsignedInteger('invoice_id')->nullable()->index();
+            $table->foreign('invoice_id')->references('id')->on('invoices');
+            $table->string('type');
             $table->string('state')->default(TransactionStateEnum::CREATING->value)->index();
             $table->string('status')->default(TransactionStatusEnum::PROCESSING->value)->index();
 

@@ -17,10 +17,12 @@ class StoreInvoiceTransaction
 
     public function handle(Invoice $invoice, array $modelData): InvoiceTransaction
     {
-        $modelData['shop_id']         = $invoice->shop_id;
-        $modelData['customer_id']     = $invoice->customer_id;
+        $modelData['shop_id']     = $invoice->shop_id;
+        $modelData['customer_id'] = $invoice->customer_id;
+        $modelData['order_id']    = $invoice->order_id;
         /** @var InvoiceTransaction $invoiceTransaction */
-        $invoiceTransaction= $invoice->invoiceTransactions()->create($modelData);
+        $invoiceTransaction = $invoice->invoiceTransactions()->create($modelData);
+
         return $invoiceTransaction;
     }
 }
