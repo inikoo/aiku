@@ -25,7 +25,8 @@ const props = defineProps<{
     tabs: {
         current: string;
         navigation: object;
-    },
+    }
+    orders: object
 }>()
 
 let currentTab = ref(props.tabs.current);
