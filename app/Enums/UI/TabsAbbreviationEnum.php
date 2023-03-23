@@ -40,6 +40,8 @@ enum TabsAbbreviationEnum: string
     case DELIVERIES                             = 'd';
     case IMAGES                                 = 'img';
     case SYSTEM_USERS                           = 'syuser';
+
+    case EMPLOYEES                              = 'emp';
     case ITEMS                                  = 'itms';
     case CUSTOMER_NOTES_HISTORY                 = 'cnh';
     case SENT_EMAILS                            = 'se';

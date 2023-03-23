@@ -8,9 +8,11 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -36,7 +38,7 @@ class IndexEmployees extends InertiaAction
                     ->orWhere('employees.slug', 'LIKE', "%$value%");
             });
         });
-
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::EMPLOYEES->value);
 
         return QueryBuilder::for(Employee::class)
             ->defaultSort('employees.slug')
@@ -44,8 +46,27 @@ class IndexEmployees extends InertiaAction
             ->with('jobPositions')
             ->allowedSorts(['slug', 'worker_number', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage:$this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
+            )
             ->withQueryString();
+    }
+
+    public function tableStructure($parent): Closure
+    {
+        return function (InertiaTable $table) use ($parent) {
+            $table
+                ->name(TabsAbbreviationEnum::EMPLOYEES->value)
+                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page');
+            $table
+                ->withGlobalSearch()
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'actions', label: __('actions'))
+                ->defaultSort('slug');
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -60,21 +81,22 @@ class IndexEmployees extends InertiaAction
     }
 
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $employees): AnonymousResourceCollection
     {
-        return EmployeeResource::collection($this->handle());
+        return EmployeeResource::collection($employees);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees)
+    public function htmlResponse(LengthAwarePaginator $employees, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'HumanResources/Employees',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('employees'),
                 'pageHead'    => [
-                    'title' => __('employees'),
+                    'title'   => __('employees'),
                     'create'  => $this->canEdit ? [
                         'route' => [
                             'name'       => 'hr.employees.create',
@@ -87,15 +109,7 @@ class IndexEmployees extends InertiaAction
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'actions', label: __('actions'))
-                ->defaultSort('slug');
-        });
+        )->table($this->tableStructure($parent));
     }
 
 
@@ -105,6 +119,4 @@ class IndexEmployees extends InertiaAction
 
         return $this->handle();
     }
-
-
 }
