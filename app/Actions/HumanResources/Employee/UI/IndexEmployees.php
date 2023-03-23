@@ -105,7 +105,7 @@ class IndexEmployees extends InertiaAction
                         'label'=> __('employee')
                     ] : false,
                 ],
-                'employees'   => EmployeeInertiaResource::collection($employees),
+                'data'   => EmployeeInertiaResource::collection($employees),
 
 
             ]

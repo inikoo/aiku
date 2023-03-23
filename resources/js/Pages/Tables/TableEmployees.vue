@@ -20,11 +20,8 @@ function employeeRoute(employee: Employee) {
         case 'hr.employees.index':
             return route(
                 'hr.employees.show',
-                [employee.name, employee.email]);
-        default:
-            return route(
-                'employees.show',
                 [employee.slug]);
+
     }
 }
 
@@ -35,7 +32,7 @@ function employeeRoute(employee: Employee) {
     <Table :resource="data" :name="'emp'" class="mt-5">
         <template #cell(slug)="{ item: employee }">
             <Link :href="employeeRoute(employee)">
-                {{ employee.slug }}
+                {{ employee['slug'] }}
             </Link>
         </template>
         <template #cell(job_positions)="{ item: employee }">
