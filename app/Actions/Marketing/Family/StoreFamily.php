@@ -7,7 +7,7 @@
 
 namespace App\Actions\Marketing\Family;
 
-use App\Actions\Marketing\Department\HydrateDepartment;
+use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateFamilies;
 use App\Actions\Marketing\Family\Hydrators\FamilyHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
 use App\Models\Central\Tenant;
@@ -43,7 +43,7 @@ class StoreFamily
         }
 
         if ($family->department_id) {
-            HydrateDepartment::make()->familiesStats($family->department);
+            DepartmentHydrateFamilies::dispatch($family->department);
         }
         ShopHydrateFamilies::dispatch($family->shop);
         FamilyHydrateUniversalSearch::dispatch($family);

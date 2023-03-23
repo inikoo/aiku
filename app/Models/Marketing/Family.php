@@ -7,7 +7,7 @@
 
 namespace App\Models\Marketing;
 
-use App\Actions\Marketing\Department\HydrateDepartment;
+use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateFamilies;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
 use App\Enums\Marketing\Family\FamilyStateEnum;
 use App\Models\Sales\SalesStats;
@@ -83,7 +83,7 @@ class Family extends Model
         static::updated(function (Family $family) {
             if ($family->wasChanged('state')) {
                 if ($family->department_id) {
-                    HydrateDepartment::make()->familiesStats($family->department);
+                    DepartmentHydrateFamilies::dispatch($family->department);
                 }
                 ShopHydrateFamilies::dispatch($family->shop);
             }
