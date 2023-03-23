@@ -19,13 +19,12 @@ class FetchAuroraSupplierProduct extends FetchAurora
         $sharedData = [];
         $settings   = [];
 
-        $status = 1;
-        if ($this->auroraModelData->{'Supplier Part Status'} == 'Discontinued') {
-            $status = 0;
+        $status = true;
+        if ($this->auroraModelData->{'Supplier Part Status'} == 'NoAvailable') {
+            $status = false;
         }
         $state = match ($this->auroraModelData->{'Supplier Part Status'}) {
-            'NoAvailable'  => 'no-available',
-            'Discontinued' => 'discontinued',
+            'Discontinued', 'NoAvailable' => 'discontinued',
             default        => 'active',
         };
 
