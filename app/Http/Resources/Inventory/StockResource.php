@@ -14,17 +14,21 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property number $quantity
  * @property string $slug
  * @property string $description
+ * @property string $family_slug
+ * @property string $family_code
  */
 class StockResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
-            'slug'          => $this->slug,
-            'code'          => $this->code,
-            'description'   => $this->description,
-            'quantity'      => $this->quantity,
-            'locations'     => LocationResource::collection($this->whenLoaded('locations')),
+            'slug'        => $this->slug,
+            'code'        => $this->code,
+            'description' => $this->description,
+            'quantity'    => $this->quantity,
+            'family_slug' => $this->family_slug,
+            'family_code' => $this->family_code,
+            'locations'   => LocationResource::collection($this->whenLoaded('locations')),
         ];
     }
 }

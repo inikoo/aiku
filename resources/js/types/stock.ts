@@ -22,4 +22,7 @@ export interface Stock {
     units_per_pack: number
     units_per_carton: number
 
+    family_slug: string
+    family_code: string
+
 }

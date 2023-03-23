@@ -40,19 +40,22 @@ class IndexStocks extends InertiaAction
         return QueryBuilder::for(Stock::class)
             ->defaultSort('stocks.code')
             ->select([
-                'code',
+                'stock_families.slug as family_slug',
+                'stock_families.code as family_code',
+                'stocks.code',
                 'stocks.slug',
-                'description',
+                'stocks.description',
                 'stock_value',
                 'number_locations',
                 'quantity'])
             ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id')
+            ->leftJoin('stock_families', 'stock_families.id', 'stocks.stock_family_id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'StockFamily') {
                     $query->where('stocks.stock_family_id', $parent->id);
                 }
             })
-            ->allowedSorts(['code', 'description', 'number_locations', 'number_locations','quantity'])
+            ->allowedSorts(['code', 'family_code','description', 'number_locations', 'number_locations','quantity'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -68,10 +71,10 @@ class IndexStocks extends InertiaAction
                 ->name(TabsAbbreviationEnum::STOCK_MOVEMENTS->value)
                 ->pageName(TabsAbbreviationEnum::STOCK_MOVEMENTS->value.'Page');
 
-            $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
 
 
-            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -88,7 +91,6 @@ class IndexStocks extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$request->validate();
         $this->routeName = $request->route()->getName();
         return $this->handle(app('currentTenant'));
     }
@@ -124,7 +126,7 @@ class IndexStocks extends InertiaAction
                         'label'=> __('stock')
                     ] : false,
                 ],
-                'stocks'  => StockResource::collection($stocks),
+                'data'  => StockResource::collection($stocks),
 
 
             ]

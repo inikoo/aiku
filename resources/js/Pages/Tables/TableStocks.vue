@@ -13,16 +13,16 @@ const props = defineProps<{
 }>()
 
 
-function orderRoute(stock: Stock) {
+function stockRoute(stock: Stock) {
     switch (route().current()) {
         case 'inventory.stocks.index':
             return route(
                 'inventory.stocks.show',
-                [stock.stocks.slug, stock.id]);
+                [stock.slug]);
         default:
             return route(
-                'orders.show',
-                [stock.id]);
+                'inventory.stocks.show',
+                [stock.slug]);
     }
 }
 
@@ -30,12 +30,12 @@ function stockFamilyRoute(stock: Stock) {
     switch (route().current()) {
         case 'inventory.stocks.index':
             return route(
-                'inventory.show',
-                [stock.stocks.slug]);
+                'inventory.stock-families.show',
+                [stock.family_slug]);
         default:
             return route(
-                'inventory.show',
-                [stock.stocks.slug]);
+                'inventory.stock-families.show',
+                [stock.family_slug]);
     }
 }
 
@@ -47,13 +47,13 @@ function stockFamilyRoute(stock: Stock) {
 <template>
     <Table :resource="data" :name="'sm'" class="mt-5">
         <template #cell(code)="{ item: stock }">
-            <Link :href="orderRoute(stock)">
-                {{ stock['number'] }}
+            <Link :href="stockRoute(stock)">
+                {{ stock['code'] }}
             </Link>
         </template>
-        <template #cell(stockFamily)="{ item: stock }">
-            <Link :href="stockFamilyRoute(stock)">
-                {{ stock['shop'] }}
+        <template #cell(family_code)="{ item: stock }">
+            <Link v-if="stock.family_slug"  :href="stockFamilyRoute(stock)">
+                {{ stock['family_code'] }}
             </Link>
         </template>
     </Table>
