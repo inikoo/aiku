@@ -8,6 +8,7 @@
 namespace App\Services\Tenant\Aurora;
 
 use App\Actions\SourceFetch\Aurora\FetchStockFamilies;
+use App\Enums\Inventory\Stock\StockStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraStock extends FetchAurora
@@ -28,10 +29,10 @@ class FetchAuroraStock extends FetchAurora
                     :
                     null,
             'state'           => match ($this->auroraModelData->{'Part Status'}) {
-                'In Use'        => 'active',
-                'Discontinuing' => 'discontinuing',
-                'In Process'    => 'in-process',
-                'Not In Use'    => 'discontinued'
+                'In Use'        => StockStateEnum::ACTIVE,
+                'Discontinuing' => StockStateEnum::DISCONTINUING,
+                'In Process'    => StockStateEnum::IN_PROCESS,
+                'Not In Use'    => StockStateEnum::DISCONTINUED,
             }
         ];
     }

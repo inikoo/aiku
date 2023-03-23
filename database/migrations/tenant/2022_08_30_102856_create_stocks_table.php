@@ -5,6 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,14 +18,18 @@ return new class () extends Migration {
             $table->increments('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
-            $table->morphs('owner');
+            $table->string('owner_type')->comment('Tenant|Customer');
+            $table->unsignedInteger('owner_id');
+            $table->index([
+                'owner_type',
+                'owner_id'
+            ]);
             $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
-            $table->enum('composition', ['unit', 'multiple', 'mix'])->default('unit');
-            $stockStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
 
-            $table->enum('state', $stockStates)->nullable()->index();
-            $table->enum('quantity_status', ['surplus', 'optimal', 'low', 'critical', 'out-of-stock', 'error'])->nullable()->index();
+            $table->string('trade_unit_composition')->default(StockTradeUnitCompositionEnum::MATCH->value)->nullable();
+            $table->string('state')->default(StockStateEnum::IN_PROCESS->value)->index();
+            $table->string('quantity_status')->nullable()->index();
             $table->boolean('sellable')->default(1)->index();
             $table->boolean('raw_material')->default(0)->index();
 

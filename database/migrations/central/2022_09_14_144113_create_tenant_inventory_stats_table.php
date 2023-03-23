@@ -5,6 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
+use App\Enums\Inventory\Stock\StockStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -35,13 +37,11 @@ return new class () extends Migration {
             }
 
             $table->unsignedBigInteger('number_stocks')->default(0);
-            $stockStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
-            foreach ($stockStates as $stockState) {
-                $table->unsignedBigInteger('number_stocks_state_'.str_replace('-', '_', $stockState))->default(0);
+            foreach (StockStateEnum::cases() as $stockState) {
+                $table->unsignedBigInteger('number_stocks_state_'.$stockState->snake())->default(0);
             }
-            $stockQuantityStatuses = ['surplus', 'optimal', 'low', 'critical', 'out-of-stock', 'error'];
-            foreach ($stockQuantityStatuses as $stockQuantityStatus) {
-                $table->unsignedBigInteger('number_stocks_quantity_status_'.str_replace('-', '_', $stockQuantityStatus))->default(0);
+            foreach (StockQuantityStatusEnum::cases() as $stockQuantityStatus) {
+                $table->unsignedBigInteger('number_stocks_quantity_status_'.$stockQuantityStatus->snake())->default(0);
             }
 
 
