@@ -8,7 +8,7 @@
 use App\Enums\Sales\Customer\CustomerStateEnum;
 use App\Enums\Sales\Customer\CustomerTradeStateEnum;
 use App\Enums\Sales\Order\OrderStateEnum;
-use App\Models\Traits\Stubs\HasDateIntervalsStats;
+use App\Stubs\Migrations\HasDateIntervalsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

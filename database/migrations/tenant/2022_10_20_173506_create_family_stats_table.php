@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Marketing\Product\ProductStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,9 +19,9 @@ return new class () extends Migration {
             $table->foreign('family_id')->references('id')->on('families');
             $table->unsignedInteger('number_products')->default(0);
 
-            $productStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
-            foreach ($productStates as $productState) {
-                $table->unsignedInteger('number_products_state_'.str_replace('-', '_', $productState))->default(0);
+
+            foreach (ProductStateEnum::cases() as $productState) {
+                $table->unsignedInteger('number_products_state_'.$productState->snake())->default(0);
             }
 
             $table->timestampsTz();

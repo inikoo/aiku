@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 12 Mar 2023 03:04:56 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 24 Mar 2023 04:45:48 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Traits\Stubs;
+namespace App\Stubs\Migrations;
 
 use App\Enums\Mailroom\DispatchedEmail\DispatchedEmailStateEnum;
 use Illuminate\Database\Schema\Blueprint;
