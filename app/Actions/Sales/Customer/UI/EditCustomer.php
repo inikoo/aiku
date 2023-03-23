@@ -25,6 +25,7 @@ class EditCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('shops.customers.edit');
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
 
