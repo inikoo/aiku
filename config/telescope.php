@@ -134,7 +134,7 @@ return [
         'fetch:payments',
         'fetch:web-users',
         'fetch:orders',
-       // 'fetch:delivery-notes',
+        'fetch:delivery-notes',
         'fetch:invoices',
         'fetch:deleted-invoices',
 
