@@ -4,39 +4,23 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
-import { Head, Link } from "@inertiajs/vue3";
+<script setup lang="ts">
+import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
-import Table from "@/Components/Table/Table.vue";
+import TableOutboxes from "@/Pages/Tables/TableOutboxes.vue";
 
-defineProps(["outboxes", "title", "pageHead"]);
+const props = defineProps<{
+    data: object
+    title: string
+    pageHead: object
+}>()
 
-const itemRoute = route().current().replace(/index$/i, "show");
-
-function routeParameters(outbox) {
-    switch (route().current()) {
-        case "mail.mailrooms.show.outboxes.index":
-            return [outbox["mailrooms_slug"], outbox.slug];
-
-        default:
-            return [outbox.slug];
-    }
-}
 
 </script>
 
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="outboxes" class="mt-5">
-
-
-        <template #cell(name)="{ item: outbox }">
-            <Link :href="route(itemRoute,routeParameters(outbox))">
-                {{ outbox["name"] }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableOutboxes :data="data" />
 </template>
 
