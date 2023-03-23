@@ -7,6 +7,7 @@
 
 use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -31,9 +32,8 @@ return new class () extends Migration {
 
             $table->unsignedBigInteger('number_stock_families')->default(0);
 
-            $stockFamilyStates = ['in-process', 'active', 'discontinuing', 'discontinued'];
-            foreach ($stockFamilyStates as $stockFamilyState) {
-                $table->unsignedBigInteger('number_stock_families_state_'.str_replace('-', '_', $stockFamilyState))->default(0);
+            foreach (StockFamilyStateEnum::cases() as $stockFamilyState) {
+                $table->unsignedBigInteger('number_stock_families_state_'.$stockFamilyState->snake())->default(0);
             }
 
             $table->unsignedBigInteger('number_stocks')->default(0);
