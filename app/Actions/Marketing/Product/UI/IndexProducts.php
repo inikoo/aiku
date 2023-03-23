@@ -111,7 +111,7 @@ class IndexProducts extends InertiaAction
                         'label'=> __('product')
                     ] : false,
                 ],
-                'products' => ProductResource::collection($products),
+                'data' => ProductResource::collection($products),
 
 
             ]

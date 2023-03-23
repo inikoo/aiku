@@ -19,7 +19,7 @@ function productRoute(product: Product) {
         case 'shops.show.products.index':
             return route(
                 'shops.show.products.show',
-                [product.slug, product.slug]);
+                [product.shop_slug, product.slug]);
         default:
             return route(
                 'products.show',
@@ -32,8 +32,8 @@ function productRoute(product: Product) {
 <template>
     <Table :resource="data" :name="'prod'" class="mt-5">
         <template #cell(code)="{ item: product }">
-            <Link :href="route(productRoute(product))">
-                {{ product.code }}
+            <Link :href="productRoute(product)">
+                {{ product['code'] }}
             </Link>
         </template>
     </Table>

@@ -7,7 +7,7 @@
 export interface Product {
     slug:string,
     owner_type: string,
-    shop_id: string,
+    shop_slug:string
     state: string
     code: string
     name: string

@@ -12,7 +12,7 @@ import TableProducts from "@/Pages/Tables/TableProducts.vue";
 const props = defineProps <{
     pageHead: object
     data: object
-    tittle: string
+    title: string
 }>()
 
 </script>
