@@ -6,7 +6,7 @@
 
 export interface Order {
 
-    id:string,
+    slug:string,
     number:number,
     customer_number: string,
     type: string,

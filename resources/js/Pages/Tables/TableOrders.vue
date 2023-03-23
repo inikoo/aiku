@@ -19,20 +19,16 @@ function orderRoute(order: Order) {
         case 'shops.show.orders.index':
             return route(
                 'shops.show.orders.show',
-                [order.shop_slug, order.id]);
+                [order.shop_slug, order.slug]);
         default:
             return route(
                 'orders.show',
-                [order.id]);
+                [order.slug]);
     }
 }
 
 function shopRoute(order: Order) {
     switch (route().current()) {
-        case 'shops.show.orders.index':
-            return route(
-                'shops.show',
-                [order.shop_slug]);
         default:
             return route(
                 'shops.show',

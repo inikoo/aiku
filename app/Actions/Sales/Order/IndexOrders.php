@@ -109,7 +109,7 @@ class IndexOrders extends InertiaAction
                 'pageHead'    => [
                     'title' => __('orders'),
                 ],
-                'orders' => OrderResource::collection($orders),
+                'data' => OrderResource::collection($orders),
 
 
             ]
