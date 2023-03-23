@@ -108,7 +108,7 @@ class IndexInvoices extends InertiaAction
                 'pageHead'    => [
                     'title' => __('invoices'),
                 ],
-                'invoices' => InvoiceResource::collection($invoices),
+                'data' => InvoiceResource::collection($invoices),
 
 
             ]

@@ -15,6 +15,7 @@ use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\IndexPaymentServiceProviders;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\Sales\Invoice\IndexInvoices;
+use App\Actions\Sales\Invoice\ShowInvoice;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -48,4 +49,5 @@ Route::get('/payments/create', CreatePayment::class)->name('payments.create');
 Route::get('/payments/{payment}', ShowPayment::class)->name('payments.show');
 Route::get('/payments/{payment}/edit', EditPayment::class)->name('payments.edit');
 
-Route::get('/invoices', IndexInvoices::class)->name('show.invoices.index');
+Route::get('/invoices', IndexInvoices::class)->name('invoices.index');
+Route::get('/invoices/{invoice}', ShowInvoice::class)->name('invoices.show');

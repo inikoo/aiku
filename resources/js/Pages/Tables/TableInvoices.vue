@@ -22,7 +22,7 @@ function invoiceRoute(invoice: Invoice) {
                 [invoice.slug, invoice.slug]);
         default:
             return route(
-                'invoices.show',
+                'accounting.invoices.show',
                 [invoice.slug]);
     }
 }
@@ -32,8 +32,8 @@ function invoiceRoute(invoice: Invoice) {
 <template>
     <Table :resource="data" :name="'inv'" class="mt-5">
         <template #cell(number)="{ item: invoice }">
-            <Link :href="route(invoiceRoute(invoice))">
-                {{ invoice["name"]}}
+            <Link :href="invoiceRoute(invoice)">
+                {{ invoice["number"]}}
             </Link>
         </template>
 

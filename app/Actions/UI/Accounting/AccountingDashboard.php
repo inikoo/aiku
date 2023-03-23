@@ -87,7 +87,7 @@ class AccountingDashboard
                         [
                             'name'  => __('invoices'),
                             'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                            'href'  => ['accounting.show.invoices.index'],
+                            'href'  => ['accounting.invoices.index'],
                             'index' => [
                                 'number' => $this->tenant->inventoryStats->number_stocks
                             ]
