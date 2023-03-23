@@ -50,9 +50,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $tax_number_status
  * @property array $tax_number_data
  * @property array $location
- * @property string $status
+ * @property CustomerStatusEnum $status
  * @property CustomerStateEnum $state
- * @property string|null $trade_state number of invoices
+ * @property CustomerTradeStateEnum $trade_state number of invoices
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

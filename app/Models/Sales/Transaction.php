@@ -27,6 +27,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $shop_id
  * @property int $customer_id
  * @property int $order_id
+ * @property int|null $invoice_id
+ * @property TransactionTypeEnum $type
  * @property TransactionStateEnum $state
  * @property TransactionStatusEnum $status
  * @property string|null $item_type

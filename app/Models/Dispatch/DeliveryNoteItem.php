@@ -25,8 +25,10 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int|null $picking_id
  * @property DeliveryNoteItemStateEnum $state
  * @property DeliveryNoteItemStatusEnum $status
- * @property string $required
- * @property string $quantity
+ * @property string $quantity_required
+ * @property string|null $quantity_picked
+ * @property string|null $quantity_packed
+ * @property string|null $quantity_dispatched
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

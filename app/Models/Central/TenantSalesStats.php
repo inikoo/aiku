@@ -27,14 +27,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $number_customers_trade_state_one
  * @property int $number_customers_trade_state_many
  * @property int $number_orders
- * @property int $number_orders_state_in_basket
- * @property int $number_orders_state_in_process
- * @property int $number_orders_state_in_warehouse
+ * @property int $number_orders_state_creating
+ * @property int $number_orders_state_submitted
+ * @property int $number_orders_state_handling
  * @property int $number_orders_state_packed
  * @property int $number_orders_state_finalised
- * @property int $number_orders_state_dispatched
- * @property int $number_orders_state_returned
- * @property int $number_orders_state_cancelled
+ * @property int $number_orders_state_settled
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund

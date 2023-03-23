@@ -30,12 +30,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property string $code
- * @property string $owner_type
+ * @property string $owner_type Tenant|Customer
  * @property int $owner_id
  * @property int|null $stock_family_id
- * @property string $composition
- * @property string|null $state
- * @property string|null $quantity_status
+ * @property StockTradeUnitCompositionEnum|null $trade_unit_composition
+ * @property StockStateEnum $state
+ * @property StockQuantityStatusEnum|null $quantity_status
  * @property bool $sellable
  * @property bool $raw_material
  * @property string|null $barcode

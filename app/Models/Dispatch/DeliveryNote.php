@@ -36,6 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $number
  * @property DeliveryNoteTypeEnum $type
  * @property DeliveryNoteStateEnum $state
+ * @property DeliveryNoteStatusEnum $status
  * @property bool|null $can_dispatch
  * @property bool|null $restocking
  * @property string|null $email
@@ -61,7 +62,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property DeliveryNoteStatusEnum $status
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
