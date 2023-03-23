@@ -16,8 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
-            $stockFamilyStates=['in-process', 'active','discontinuing', 'discontinued'];
-            $table->enum('state', $stockFamilyStates)->nullable()->index();
+            $table->string('state')->index();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
             $table->jsonb('data');

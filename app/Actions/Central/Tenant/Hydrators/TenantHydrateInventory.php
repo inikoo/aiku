@@ -9,6 +9,7 @@ namespace App\Actions\Central\Tenant\Hydrators;
 
 use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
@@ -28,14 +29,13 @@ class TenantHydrateInventory implements ShouldBeUnique
             'number_stock_families' => StockFamily::count(),
         ];
 
-        $stockFamilyStates     = ['in-process', 'active', 'discontinuing', 'discontinued'];
         $stockFamilyStateCount = StockFamily::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
 
-        foreach ($stockFamilyStates as $stockFamilyState) {
-            $stats['number_stock_families_state_'.str_replace('-', '_', $stockFamilyState)] = Arr::get($stockFamilyStateCount, $stockFamilyState, 0);
+        foreach (StockFamilyStateEnum::cases() as $stockFamilyState) {
+            $stats['number_stock_families_state_'.$stockFamilyState->snake()] = Arr::get($stockFamilyStateCount, $stockFamilyState->value, 0);
         }
 
 

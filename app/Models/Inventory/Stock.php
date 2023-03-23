@@ -7,6 +7,9 @@
 
 namespace App\Models\Inventory;
 
+use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
+use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
 use App\Models\Marketing\TradeUnit;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
@@ -76,11 +79,14 @@ class Stock extends Model
     use HasUniversalSearch;
 
     protected $casts = [
-        'data'             => 'array',
-        'settings'         => 'array',
-        'activated_at'     => 'datetime',
-        'discontinuing_at' => 'datetime',
-        'discontinued_at'  => 'datetime',
+        'data'                   => 'array',
+        'settings'               => 'array',
+        'activated_at'           => 'datetime',
+        'discontinuing_at'       => 'datetime',
+        'discontinued_at'        => 'datetime',
+        'state'                  => StockStateEnum::class,
+        'quantity_status'        => StockQuantityStatusEnum::class,
+        'trade_unit_composition' => StockTradeUnitCompositionEnum::class,
     ];
 
     protected $attributes = [
