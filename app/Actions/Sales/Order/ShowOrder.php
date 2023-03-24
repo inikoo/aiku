@@ -7,9 +7,16 @@
 
 namespace App\Actions\Sales\Order;
 
+use App\Actions\Accounting\Payment\UI\IndexPayments;
+use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\IndexShops;
+use App\Actions\Sales\Invoice\IndexInvoices;
 use App\Actions\UI\WithInertia;
+use App\Enums\UI\OrderTabsEnum;
+use App\Http\Resources\Accounting\PaymentResource;
+use App\Http\Resources\Delivery\DeliveryNoteResource;
+use App\Http\Resources\Sales\InvoiceResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Order;
@@ -20,6 +27,9 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/**
+ * @property Order $order
+ */
 class ShowOrder extends InertiaAction
 {
     use AsAction;
@@ -64,9 +74,28 @@ class ShowOrder extends InertiaAction
 
 
                 ],
-                'order' => new OrderResource($order),
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => OrderTabsEnum::navigation()
+
+                ],
+
+                OrderTabsEnum::PAYMENTS->value => $this->tab == OrderTabsEnum::PAYMENTS->value ?
+                    fn () => PaymentResource::collection(IndexPayments::run($this->order))
+                    : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($this->order))),
+
+                OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
+                    fn () => InvoiceResource::collection(IndexInvoices::run($this->order))
+                    : Inertia::lazy(fn () => InvoiceResource::collection(IndexInvoices::run($this->order))),
+
+                OrderTabsEnum::DELIVERY_NOTES->value => $this->tab == OrderTabsEnum::DELIVERY_NOTES->value ?
+                    fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($this->order))
+                    : Inertia::lazy(fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($this->order))),
+
             ]
-        );
+        )->table(IndexPayments::make()->tableStructure())
+            ->table(IndexInvoices::make()->tableStructure($order))
+            ->table(IndexDeliveryNotes::make()->tableStructure($order));
     }
 
     public function prepareForValidation(ActionRequest $request): void

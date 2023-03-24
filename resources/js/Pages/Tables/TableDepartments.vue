@@ -31,9 +31,9 @@ function departmentRoute(department: Department) {
 
 <template>
     <Table :resource="data" :name="'dep'" class="mt-5">
-        <template #cell(code)="{ item: department }">
+        <template #cell(name)="{ item: department }">
             <Link :href="route(departmentRoute(department))">
-                {{ department.code }}
+                {{ department['name'] }}
             </Link>
         </template>
 

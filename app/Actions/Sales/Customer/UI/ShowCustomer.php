@@ -8,9 +8,11 @@
 namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Sales\Order\IndexOrders;
 use App\Enums\UI\CustomerTabsEnum;
+use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
@@ -157,9 +159,14 @@ class ShowCustomer extends InertiaAction
                     fn () => ProductResource::collection(IndexProducts::run($this->customer))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->customer))),
 
+                CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
+                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($this->customer))
+                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($this->customer))),
+
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
-         ->table(IndexProducts::make()->tableStructure($customer));
+         ->table(IndexProducts::make()->tableStructure($customer))
+         ->table(IndexDispatchedEmails::make()->tableStructure($customer));
     }
 
 

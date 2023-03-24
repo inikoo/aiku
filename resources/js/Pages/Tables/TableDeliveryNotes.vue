@@ -19,7 +19,7 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
         case 'shops.show.delivery-notes.index':
             return route(
                 'shops.show.delivery-notes.show',
-                [deliveryNote.slug, deliveryNote.slug]);
+                [deliveryNote.shop_id, deliveryNote.slug]);
         default:
             return route(
                 'delivery-notes.show',
