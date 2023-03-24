@@ -136,7 +136,7 @@ class CreateDropshippingOrderFromIris extends fromIris
         DB::connection('aurora');
         DB::purge('aurora');
 
-        $id = DB::connection('aurora')->table('pika_api_orders')->insertGetId(
+        $id = DB::connection('aurora')->table('aiku_api_orders')->insertGetId(
             [
                 'data'       => json_encode($auroraOrderData),
                 'created_at' => Carbon::now()
@@ -144,7 +144,7 @@ class CreateDropshippingOrderFromIris extends fromIris
         );
 
 
-        $response = Http::get(Arr::get(app('currentTenant'), 'source.url').'/pika/process_pika_order.php', [
+        $response = Http::get(Arr::get(app('currentTenant'), 'source.url').'/aiku/process_aiku_order.php', [
             'id'          => $id,
             'environment' => App::environment()
         ]);
@@ -166,13 +166,13 @@ class CreateDropshippingOrderFromIris extends fromIris
             throw new Exception('Aurora server error msg:'.Arr::get($auroraResponse, 'msg'));
         } else {
             $exceptionData = [
-                Arr::get(app('currentTenant'), 'source.url').'/pika/process_pika_order.php',
+                Arr::get(app('currentTenant'), 'source.url').'/aiku/process_aiku_order.php',
                 [
                     'id'          => $id,
                     'environment' => App::environment()
                 ]
             ];
-            throw new Exception('Aurora server error: '.Arr::get(app('currentTenant'), 'source.url').'/pika/process_pika_order.php');
+            throw new Exception('Aurora server error: '.Arr::get(app('currentTenant'), 'source.url').'/aiku/process_aiku_order.php');
         }
     }
 

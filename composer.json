@@ -1,7 +1,7 @@
 {
-    "name": "inikoo/pika",
+    "name": "inikoo/aiku",
     "type": "project",
-    "description": "Pika.",
+    "description": "aiku.",
     "keywords": ["aiku", "warehouse"],
     "license": "MIT",
     "require": {

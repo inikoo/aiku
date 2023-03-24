@@ -1,4 +1,4 @@
-[![CodeFactor](https://www.codefactor.io/repository/github/inikoo/pika/badge)](https://www.codefactor.io/repository/github/inikoo/pika)
+[![CodeFactor](https://www.codefactor.io/repository/github/inikoo/aiku/badge)](https://www.codefactor.io/repository/github/inikoo/aiku)
 
 Open source ERP web application
 

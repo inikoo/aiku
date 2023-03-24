@@ -29,7 +29,7 @@ class SetIrisDomain
 
         $parameters = [
             'central_domain_id' => $centralDomain->id,
-            'pika_token'        => $token->plainTextToken,
+            'aiku_token'        => $token->plainTextToken,
             'soft'              => true,
         ];
 

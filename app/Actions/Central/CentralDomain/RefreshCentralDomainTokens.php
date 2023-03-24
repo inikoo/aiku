@@ -32,7 +32,7 @@ class RefreshCentralDomainTokens
             ->patch(
                 config('iris.url').'/api/domains/'.$centralDomain->slug,
                 [
-                    'pika_token' => $token->plainTextToken
+                    'aiku_token' => $token->plainTextToken
                 ]
             );
 

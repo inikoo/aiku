@@ -1,1 +1,1 @@
-pg_restore  -U raul -c -d pika_test < "$1"
+pg_restore  -U raul -c -d aiku_test < "$1"

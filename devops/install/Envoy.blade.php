@@ -126,8 +126,8 @@ cd {{ $new_release_dir }}
 
 @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
         echo "Dropping tenant databases {{ $tenant }}"
-        echo "psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'"
-        psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
+        echo "psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS aiku_{{ $tenant }} CASCADE;'"
+        psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS aiku_{{ $tenant }} CASCADE;'
 @endforeach
 {{$php}} artisan optimize:clear
 {{$php}} artisan key:generate --force

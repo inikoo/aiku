@@ -34,7 +34,7 @@ class StoreTenant
         $tenant->refresh();
 
 
-        DB::statement("CREATE SCHEMA pika_$tenant->slug");
+        DB::statement("CREATE SCHEMA aiku_$tenant->slug");
         $tenant->execute(
             function (Tenant $tenant) {
                 Artisan::call('tenants:artisan "migrate:fresh --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->slug);

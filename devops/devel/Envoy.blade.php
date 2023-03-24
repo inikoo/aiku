@@ -71,7 +71,7 @@
     cd ../../
     @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
         echo "Tenant {{ $tenantData->db }}"
-        psql -d {{ $_ENV['DB_DATABASE'] }} -qc 'drop SCHEMA IF EXISTS pika_{{ $tenant }} CASCADE;'
+        psql -d {{ $_ENV['DB_DATABASE'] }} -qc 'drop SCHEMA IF EXISTS aiku_{{ $tenant }} CASCADE;'
     @endforeach
     php artisan migrate:refresh --path=database/migrations/central  --database=central
     php artisan db:seed
@@ -100,7 +100,7 @@ echo "tenant-guest-admin" > step
 @if ($_ENV['APP_ENV'] === 'local')
     cd ../../
 @endif
-php artisan create:guest-user pika 'Developer' -a -r super-admin
+php artisan create:guest-user aiku 'Developer' -a -r super-admin
 @endtask
 
 

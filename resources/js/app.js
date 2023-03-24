@@ -15,7 +15,7 @@ import {resolvePageComponent} from 'laravel-vite-plugin/inertia-helpers';
 import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
 import {i18nVue, loadLanguageAsync} from 'laravel-vue-i18n';
 
-const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'pika';
+const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'aiku';
 import {createPinia} from 'pinia';
 import {library} from '@fortawesome/fontawesome-svg-core';
 

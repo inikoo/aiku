@@ -85,7 +85,7 @@ class Tenant extends SpatieTenant
 
     public function getDatabaseName(): string
     {
-        return 'pika_'.$this->slug;
+        return 'aiku_'.$this->slug;
     }
 
     public function stats(): HasOne
