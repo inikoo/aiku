@@ -9,6 +9,7 @@ namespace App\Actions\Web\WebUser;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
+use App\Enums\Web\WebUser\WebUserTypeEnum;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
@@ -21,7 +22,7 @@ class CreateWebUser extends InertiaAction
 {
     private Customer|Website|Tenant $parent;
 
-    private ?Shop $shop=null;
+    private ?Shop $shop = null;
 
 
     public function authorize(ActionRequest $request): bool
@@ -48,10 +49,10 @@ class CreateWebUser extends InertiaAction
                 'fields' => [
                     'type'     => [
                         'options' => [
-                            'web' => [
+                            WebUserTypeEnum::WEB->value => [
                                 'label' => __('Customer')
                             ],
-                            'api' => [
+                            WebUserTypeEnum::API->value => [
                                 'label' => __('API user')
                             ]
                         ]
@@ -63,7 +64,7 @@ class CreateWebUser extends InertiaAction
                         'label' => __('password')
                     ]
                 ],
-                'parent'=> $this->parent
+                'parent' => $this->parent
             ]
         );
     }
@@ -78,14 +79,14 @@ class CreateWebUser extends InertiaAction
     public function inShopInCustomer(Shop $shop, Customer $customer)
     {
         $this->parent = $customer;
-        $this->shop   =$shop;
+        $this->shop   = $shop;
         $this->validateAttributes();
     }
 
     public function inCustomer(Customer $customer)
     {
         $this->parent = $customer;
-        $this->shop   =$customer->shop;
+        $this->shop   = $customer->shop;
         $this->validateAttributes();
     }
 

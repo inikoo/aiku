@@ -8,6 +8,8 @@
 namespace App\Models\Web;
 
 use App\Actions\Sales\Customer\HydrateCustomer;
+use App\Enums\Web\WebUser\WebUserLoginVersionEnum;
+use App\Enums\Web\WebUser\WebUserTypeEnum;
 use App\Models\Sales\Customer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,8 +69,10 @@ class WebUser extends Authenticatable
 
     protected $casts = [
 
-        'data'     => 'array',
-        'settings' => 'array',
+        'data'          => 'array',
+        'settings'      => 'array',
+        'state'         => WebUserTypeEnum::class,
+        'login_version' => WebUserLoginVersionEnum::class,
     ];
 
 

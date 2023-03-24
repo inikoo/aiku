@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Web\WebUser\WebUserLoginVersionEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class () extends Migration {
         Schema::create('web_users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug')->unique();
-            $table->enum('type', ['web', 'api'])->index();
+            $table->string('type')->index();
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
 
@@ -38,7 +39,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->unique(['website_id', 'email']);
             $table->unique(['website_id', 'username']);
-            $table->enum('web_login_version', ['current', 'au'])->index()->default('current');
+            $table->string('login_version')->index()->default(WebUserLoginVersionEnum::AIKU->value);
             $table->unsignedInteger('source_id')->nullable()->unique();
         });
     }

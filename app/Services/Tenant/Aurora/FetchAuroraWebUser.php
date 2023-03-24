@@ -7,6 +7,8 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Web\WebUser\WebUserLoginVersionEnum;
+use App\Enums\Web\WebUser\WebUserTypeEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -21,34 +23,30 @@ class FetchAuroraWebUser extends FetchAurora
         $password = wordwrap(Str::random(), 4, '-', true);
 
         if ($hasPassword) {
-            $data              = [
+            $data         = [
                 'au_auth' => [
                     'password'     => $this->auroraModelData->{'Website User Password'},
                     'tmp_password' => $password
                 ]
             ];
-            $web_login_version = 'au';
+            $loginVersion = WebUserLoginVersionEnum::AURORA;
         } else {
-            $web_login_version = 'current';
+            $loginVersion = WebUserLoginVersionEnum::AIKU;
         }
 
 
         $this->parsedData['customer'] = $this->parseCustomer($this->auroraModelData->{'Website User Customer Key'});
         $this->parsedData['webUser']  =
             [
-                'status'            => $this->auroraModelData->{'Website User Active'} == 'Yes',
-                'type'              => 'web',
-                'web_login_version' => $web_login_version,
-
-                'source_id' => $this->auroraModelData->{'Website User Key'},
-
-                'password' => $password,
-                'data'     => $data,
-                'username' => $this->auroraModelData->{'Website User Handle'},
-                'email'    => $this->auroraModelData->{'Website User Handle'},
-
-
-                'created_at' => $this->parseDate($this->auroraModelData->{'Website User Created'})
+                'status'        => $this->auroraModelData->{'Website User Active'} == 'Yes',
+                'type'          => WebUserTypeEnum::WEB,
+                'login_version' => $loginVersion,
+                'source_id'     => $this->auroraModelData->{'Website User Key'},
+                'password'      => $password,
+                'data'          => $data,
+                'username'      => $this->auroraModelData->{'Website User Handle'},
+                'email'         => $this->auroraModelData->{'Website User Handle'},
+                'created_at'    => $this->parseDate($this->auroraModelData->{'Website User Created'})
             ];
     }
 
