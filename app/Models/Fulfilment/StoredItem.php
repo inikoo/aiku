@@ -14,7 +14,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $slug
  * @property string $code
  * @property bool $status false for returned goods
- * @property string $state
+ * @property StoredItemStateEnum $state
  * @property int $customer_id
  * @property int $location_id
  * @property string $notes
@@ -24,6 +24,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $received_at
  * @property string|null $stored_at
  * @property string|null $returned_at
+ * @property array $data
  * @property string|null $deleted_at
  * @property int|null $source_id
  * @method static Builder|StoredItem newModelQuery()

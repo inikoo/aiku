@@ -28,7 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property int $warehouse_id
  * @property int|null $warehouse_area_id
- * @property string $state
+ * @property LocationStatusEnum $status
  * @property string $code
  * @property bool $is_empty
  * @property array $data

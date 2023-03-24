@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Enums\Marketing\Product\ProductStateEnum;
+use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
 use App\Models\Sales\SalesStats;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,7 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $family_id
  * @property ProductStateEnum|null $state
  * @property bool|null $status
- * @property string $composition
+ * @property ProductTradeUnitCompositionEnum $trade_unit_composition
  * @property string $code
  * @property string|null $name
  * @property string|null $description
@@ -75,10 +76,11 @@ class Product extends Model
 
 
     protected $casts = [
-        'data'     => 'array',
-        'settings' => 'array',
-        'status'   => 'boolean',
-        'state'    => ProductStateEnum::class
+        'data'                   => 'array',
+        'settings'               => 'array',
+        'status'                 => 'boolean',
+        'state'                  => ProductStateEnum::class,
+        'trade_unit_composition' => ProductTradeUnitCompositionEnum::class
     ];
 
     protected $attributes = [
