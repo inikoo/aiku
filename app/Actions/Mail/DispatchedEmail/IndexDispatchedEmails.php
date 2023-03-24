@@ -28,7 +28,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDispatchedEmails extends InertiaAction
 {
-    public function handle(Mailshot|Outbox|Mailroom|Tenant $parent): LengthAwarePaginator
+    private Mailshot|Outbox|Mailroom|Tenant $parent;
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
