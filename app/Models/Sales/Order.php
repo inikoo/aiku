@@ -112,4 +112,9 @@ class Order extends Model
     {
         return $this->hasOne(OrderStats::class);
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 }

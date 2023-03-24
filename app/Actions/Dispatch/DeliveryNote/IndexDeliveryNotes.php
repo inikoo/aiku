@@ -25,7 +25,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDeliveryNotes extends InertiaAction
 {
-    public function handle(Shop|Tenant $parent): LengthAwarePaginator
+    private Shop|Tenant $parent;
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -127,15 +128,15 @@ class IndexDeliveryNotes extends InertiaAction
                     'route'           => $routeName,
                     'routeParameters' => $routeParameters,
                     'modelLabel'      => [
-                        'label' => __('delivery_notes')
+                        'label' => __('delivery-notes')
                     ]
                 ],
             ];
         };
 
         return match ($routeName) {
-            'delivery_notes.index'            => $headCrumb(),
-            'shops.show.delivery_notes.index' =>
+            'delivery-notes.index'            => $headCrumb(),
+            'shops.show.delivery-notes.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])

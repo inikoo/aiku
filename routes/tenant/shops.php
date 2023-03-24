@@ -88,7 +88,7 @@ Route::get('/{shop}/invoices/{invoice}', [ShowInvoice::class, 'inShop'])->name('
 
 Route::get('/{shop}/delivery-notes', [IndexDeliveryNotes::class, 'inShop'])->name('show.delivery-notes.index');
 
-Route::get('/{shop}/delivery-notes/{delivery}', [ShowDeliveryNote::class, 'inShop'])->name('show.delivery-notes.show');
+Route::get('/{shop}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inShop'])->name('show.delivery-notes.show');
 
 Route::get('/{shop}/websites', [IndexWebsites::class, 'inShop'])->name('show.websites.index');
 Route::get('/{shop}/websites/{website}', [ShowWebsite::class, 'inShop'])->name('show.websites.show');

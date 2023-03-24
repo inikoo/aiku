@@ -10,7 +10,7 @@ namespace App\Enums\UI;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum InvoiceTabsEnum: string
+enum OrderTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -33,55 +33,54 @@ enum InvoiceTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            InvoiceTabsEnum::ITEMS => [
+            OrderTabsEnum::ITEMS => [
                 'title' => __('items'),
                 'icon'  => 'fal fa-bars',
-            ],InvoiceTabsEnum::ALL_PRODUCTS => [
+            ],OrderTabsEnum::ALL_PRODUCTS => [
                 'title' => __('all products'),
                 'icon'  => 'fal fa-th-list',
             ],
-            InvoiceTabsEnum::CUSTOMER_NOTES_HISTORY => [
+            OrderTabsEnum::CUSTOMER_NOTES_HISTORY => [
                 'title' => __('Customer notes/history'),
                 'icon'  => 'fal fa-user-tag',
             ],
-            InvoiceTabsEnum::PAYMENTS => [
+            OrderTabsEnum::PAYMENTS => [
                 'title' => __('payments'),
                 'icon'  => 'fal fa-dollar-sign',
             ],
-            InvoiceTabsEnum::DATA => [
+            OrderTabsEnum::DATA => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-envelope',
                 'type'  => 'icon-only'
             ],
-            InvoiceTabsEnum::SENT_EMAILS => [
+            OrderTabsEnum::SENT_EMAILS => [
                 'title' => __('sent emails'),
                 'icon'  => 'fal fa-envelope',
                 'type'  => 'icon-only'
 
             ],
-            InvoiceTabsEnum::DISCOUNTS => [
+            OrderTabsEnum::DISCOUNTS => [
                 'title' => __('discounts'),
                 'icon'  => 'fal fa-tag',
                 'type'  => 'icon-only'
 
             ],
-
-            InvoiceTabsEnum::INVOICES => [
+            OrderTabsEnum::INVOICES => [
                 'title' => __('invoices'),
                 'icon'  => 'fal fa-file-invoice-dollar',
                 'type'  => 'icon-only'
 
             ],
-            InvoiceTabsEnum::DELIVERY_NOTES => [
+            OrderTabsEnum::DELIVERY_NOTES => [
                 'title' => __('delivery notes'),
                 'icon'  => 'fal fa-paperclip',
                 'type'  => 'icon-only'
             ],
-            InvoiceTabsEnum::ATTACHMENTS => [
+            OrderTabsEnum::ATTACHMENTS => [
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
                 'type'  => 'icon-only',
-            ],InvoiceTabsEnum::CHANGELOG => [
+            ],OrderTabsEnum::CHANGELOG => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-road',
                 'type'  => 'icon-only',

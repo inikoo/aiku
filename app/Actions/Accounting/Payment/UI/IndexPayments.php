@@ -7,7 +7,6 @@
 
 namespace App\Actions\Accounting\Payment\UI;
 
-
 use App\Actions\InertiaAction;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Accounting\PaymentResource;
@@ -30,7 +29,8 @@ class IndexPayments extends InertiaAction
     use HasUIPayments;
 
 
-    public function handle(Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent): LengthAwarePaginator
+    private Shop|Tenant|PaymentServiceProvider|PaymentAccount  $parent;
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -167,12 +167,12 @@ class IndexPayments extends InertiaAction
                                 match ($this->routeName) {
                                     'accounting.payment-accounts.show.payments.index' =>
                                     [
-                                        'name' => 'accounting.payment-accounts.show.payments.create',
+                                        'name'       => 'accounting.payment-accounts.show.payments.create',
                                         'parameters' => array_values($this->originalParameters)
                                     ],
                                     'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
                                     [
-                                        'name' => 'accounting.payment-service-providers.show.payment-accounts.show.payments.create',
+                                        'name'       => 'accounting.payment-service-providers.show.payment-accounts.show.payments.create',
                                         'parameters' => array_values($this->originalParameters)
                                     ]
                                 }
@@ -188,5 +188,4 @@ class IndexPayments extends InertiaAction
             ]
         )->table($this->tableStructure());
     }
-
 }
