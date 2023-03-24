@@ -9,6 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\Inventory\WarehouseArea\HydrateWarehouseArea;
+use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -58,7 +59,8 @@ class Location extends Model
 
     protected $casts = [
         'data'       => 'array',
-        'audited_at' => 'datetime'
+        'audited_at' => 'datetime',
+        'status'     => LocationStatusEnum::class
     ];
 
     protected $attributes = [
