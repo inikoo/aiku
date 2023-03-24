@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchStocks extends FetchAction
 {
-    public string $commandSignature = 'fetch:stocks {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:stocks {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Stock
     {
@@ -25,21 +25,21 @@ class FetchStocks extends FetchAction
             if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])
                 ->first()) {
                 $stock = UpdateStock::run(
-                    stock:     $stock,
+                    stock: $stock,
                     modelData: $stockData['stock'],
                 );
             } else {
                 $stock = StoreStock::run(
-                    owner:     $tenantSource->tenant,
+                    owner: $tenantSource->tenant,
                     modelData: $stockData['stock']
                 );
             }
             $tradeUnit = FetchTradeUnits::run($tenantSource, $stock->source_id);
             $stock->tradeUnits()->sync([
-                                           $tradeUnit->id => [
-                                               'quantity' => $stockData['stock']['units_per_pack']
-                                           ]
-                                       ]);
+                $tradeUnit->id => [
+                    'quantity' => $stockData['stock']['units_per_pack']
+                ]
+            ]);
 
             $locationsData = $tenantSource->fetchStockLocations($tenantSourceId);
 
@@ -59,18 +59,29 @@ class FetchStocks extends FetchAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Part Dimension')
             ->select('Part SKU as source_id')
-            ->orderBy('source_id')
             ->when(app()->environment('testing'), function ($query) {
                 return $query->limit(20);
             });
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+        $query->orderBy('source_id');
+
+        return $query;
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Part Dimension')
-            ->count();
+        $query = DB::connection('aurora')->table('Part Dimension');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
     }
 }

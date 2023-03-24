@@ -17,14 +17,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property int $supplier_id
- * @property int $number_products
- * @property int $number_products_state_in_process
+ * @property int $number_products all excluding discontinued
+ * @property int $number_products_state_creating
  * @property int $number_products_state_active
- * @property int $number_products_state_no_available
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
- * @property int $number_products_stock_quantity_status_surplus
- * @property int $number_products_stock_quantity_status_optimal
+ * @property int $number_products_stock_quantity_status_excess
+ * @property int $number_products_stock_quantity_status_ideal
  * @property int $number_products_stock_quantity_status_low
  * @property int $number_products_stock_quantity_status_critical
  * @property int $number_products_stock_quantity_status_out_of_stock

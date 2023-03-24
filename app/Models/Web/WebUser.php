@@ -40,8 +40,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string $web_login_version
+ * @property WebUserLoginVersionEnum $login_version
  * @property int|null $source_id
+ * @property WebUserTypeEnum $state
  * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @method static Builder|WebUser newModelQuery()
