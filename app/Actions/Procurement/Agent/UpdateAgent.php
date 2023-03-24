@@ -9,9 +9,7 @@ namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
-use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Procurement\AgentResource;
-use App\Models\Inventory\Warehouse;
 use App\Models\Procurement\Agent;
 use Lorisleiva\Actions\ActionRequest;
 

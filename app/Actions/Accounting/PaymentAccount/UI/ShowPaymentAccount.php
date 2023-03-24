@@ -50,7 +50,6 @@ class ShowPaymentAccount extends InertiaAction
 
     public function htmlResponse(PaymentAccount $paymentAccount): Response
     {
-
         return Inertia::render(
             'Accounting/PaymentAccount',
             [
@@ -102,6 +101,4 @@ class ShowPaymentAccount extends InertiaAction
     {
         return new PaymentAccountResource($paymentAccount);
     }
-
-
 }

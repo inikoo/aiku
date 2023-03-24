@@ -8,8 +8,6 @@
 namespace App\Actions\Inventory\StockFamily\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Inventory\InventoryDashboard;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\StockFamilyResource;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\StockFamily;
@@ -17,11 +15,9 @@ use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowStockFamily extends InertiaAction
 {
-
     use HasUIStockFamily;
 
     private StockFamily $stockFamily;
@@ -83,6 +79,4 @@ class ShowStockFamily extends InertiaAction
     {
         return new StockResource($this->stockFamily);
     }
-
-
 }

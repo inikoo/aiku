@@ -7,9 +7,7 @@
 
 namespace App\Actions\Procurement\Agent\UI;
 
-use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Models\Inventory\Warehouse;
 use App\Models\Procurement\Agent;
 
 trait HasUIAgent

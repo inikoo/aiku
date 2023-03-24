@@ -8,15 +8,12 @@
 namespace App\Actions\Inventory\StockFamily\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Inventory\InventoryDashboard;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Inventory\StockFamilyResource;
 use App\Models\Inventory\StockFamily;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -47,7 +44,6 @@ class IndexStockFamilies extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-
         $this->canEdit = $request->user()->can('inventory.stocks.edit');
 
         return
@@ -79,7 +75,7 @@ class IndexStockFamilies extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'pageHead'    => [
-                    'title' => __('families'),
+                    'title'   => __('families'),
                     'create'  => $this->canEdit && $this->routeName=='inventory.stock-families.index' ? [
                         'route' => [
                             'name'       => 'inventory.stock-families.create',
@@ -101,7 +97,4 @@ class IndexStockFamilies extends InertiaAction
                 ->defaultSort('code');
         });
     }
-
-
-
 }

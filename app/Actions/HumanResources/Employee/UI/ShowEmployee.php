@@ -38,8 +38,6 @@ class ShowEmployee extends InertiaAction
 
     public function htmlResponse(Employee $employee): Response
     {
-
-
         return Inertia::render(
             'HumanResources/Employee',
             [
@@ -80,9 +78,7 @@ class ShowEmployee extends InertiaAction
 
 
    public function jsonResponse(Employee $employee): EmployeeResource
-    {
-        return new EmployeeResource($employee);
-    }
-
-
+   {
+       return new EmployeeResource($employee);
+   }
 }

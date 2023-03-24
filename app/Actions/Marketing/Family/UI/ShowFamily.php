@@ -8,17 +8,13 @@
 namespace App\Actions\Marketing\Family\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\IndexShops;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Marketing\FamilyResource;
 use App\Models\Marketing\Family;
 use App\Models\Marketing\Shop;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowFamily extends InertiaAction
 {
@@ -85,7 +81,4 @@ class ShowFamily extends InertiaAction
     {
         return new FamilyResource($family);
     }
-
-
-
 }

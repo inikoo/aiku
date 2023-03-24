@@ -8,7 +8,6 @@
 namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\Warehouse\UI\HasUIWarehouses;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

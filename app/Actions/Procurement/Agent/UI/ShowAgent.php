@@ -8,7 +8,6 @@
 namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
@@ -93,7 +92,4 @@ class ShowAgent extends InertiaAction
     {
         return new AgentResource($this->agent);
     }
-
-
-
 }
