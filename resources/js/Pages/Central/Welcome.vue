@@ -13,7 +13,7 @@ import { Head } from '@inertiajs/vue3';
     <div class="mx-auto max-w-7xl w-full pt-16 pb-20 text-center lg:py-48 lg:text-left">
         <div class="px-4 lg:w-1/2 sm:px-8 xl:pr-16">
             <div class="block mb-5">
-                <img class="h-16  inline" src="/art/logo-name.png" alt="Pika" />
+                <img class="h-16  inline" src="/art/new-logo-name.png" alt="Pika" />
             </div>
 
             <h2 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
