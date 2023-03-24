@@ -1,15 +1,17 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 19 Oct 2022 18:27:31 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 25 Mar 2023 01:37:07 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Sales;
+namespace App\Models\Accounting;
 
 use App\Actions\Marketing\Shop\HydrateShop;
 use App\Actions\Sales\Customer\HydrateCustomer;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
+use App\Models\Sales\Order;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,7 +26,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Sales\Invoice
+ * App\Models\Accounting\Invoice
  *
  * @property int $id
  * @property string $slug
@@ -46,11 +48,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\Sales\Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\InvoiceTransaction> $invoiceTransactions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $order
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
  * @property-read Shop $shop
- * @property-read \App\Models\Sales\InvoiceStats|null $stats
+ * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Invoice newModelQuery()
  * @method static Builder|Invoice newQuery()

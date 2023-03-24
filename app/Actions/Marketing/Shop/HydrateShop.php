@@ -17,10 +17,10 @@ use App\Actions\Marketing\Shop\Hydrators\ShopHydratePayments;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Enums\Marketing\Department\DepartmentStateEnum;
 use App\Enums\Sales\Order\OrderStateEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Marketing\Department;
-use App\Models\Sales\Invoice;
-use App\Models\Sales\Order;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Order;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 

@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 Feb 2023 13:48:31 Malaysia Time, Ubud Bali
+ * Created: Sat, 25 Mar 2023 01:37:38 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\Invoice;
+namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\WithActionUpdate;
-use App\Models\Sales\Invoice;
+use App\Models\Accounting\Invoice;
 
 class DeleteInvoice
 {

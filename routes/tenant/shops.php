@@ -5,6 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\Invoice\IndexInvoices;
+use App\Actions\Accounting\Invoice\ShowInvoice;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
 use App\Actions\Leads\Prospect\IndexProspects;
@@ -28,8 +30,6 @@ use App\Actions\Sales\Customer\UI\CreateCustomer;
 use App\Actions\Sales\Customer\UI\EditCustomer;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Actions\Sales\Customer\UI\ShowCustomer;
-use App\Actions\Sales\Invoice\IndexInvoices;
-use App\Actions\Sales\Invoice\ShowInvoice;
 use App\Actions\Sales\Order\IndexOrders;
 use App\Actions\Sales\Order\ShowOrder;
 use App\Actions\Web\Website\IndexWebsites;

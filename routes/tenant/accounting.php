@@ -5,6 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\Invoice\IndexInvoices;
+use App\Actions\Accounting\Invoice\ShowInvoice;
 use App\Actions\Accounting\Payment\UI\CreatePayment;
 use App\Actions\Accounting\Payment\UI\EditPayment;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
@@ -14,8 +16,6 @@ use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\IndexPaymentServiceProviders;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
-use App\Actions\Sales\Invoice\IndexInvoices;
-use App\Actions\Sales\Invoice\ShowInvoice;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use Illuminate\Support\Facades\Route;
 

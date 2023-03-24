@@ -7,16 +7,16 @@
 
 namespace App\Actions\Sales\Order;
 
+use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\IndexShops;
-use App\Actions\Sales\Invoice\IndexInvoices;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\OrderTabsEnum;
+use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
-use App\Http\Resources\Sales\InvoiceResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Order;

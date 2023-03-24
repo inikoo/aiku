@@ -1,14 +1,14 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 19 Oct 2022 20:01:47 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 25 Mar 2023 01:37:38 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\InvoiceTransaction;
+namespace App\Actions\Accounting\InvoiceTransaction;
 
-use App\Models\Sales\Invoice;
-use App\Models\Sales\InvoiceTransaction;
+use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceTransaction;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreInvoiceTransaction

@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Sales\InvoiceTransaction\StoreInvoiceTransaction;
-use App\Models\Sales\Invoice;
-use App\Models\Sales\InvoiceTransaction;
+use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
+use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;

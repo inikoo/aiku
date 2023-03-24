@@ -7,8 +7,8 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Sales\Invoice\DeleteInvoice;
-use App\Models\Sales\Invoice;
+use App\Actions\Accounting\Invoice\DeleteInvoice;
+use App\Models\Accounting\Invoice;
 use App\Services\Tenant\SourceTenantService;
 use Lorisleiva\Actions\Concerns\AsAction;
 

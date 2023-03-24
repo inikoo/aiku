@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Sales\Invoice\StoreInvoice;
-use App\Actions\Sales\Invoice\UpdateInvoice;
-use App\Models\Sales\Invoice;
+use App\Actions\Accounting\Invoice\StoreInvoice;
+use App\Actions\Accounting\Invoice\UpdateInvoice;
+use App\Models\Accounting\Invoice;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

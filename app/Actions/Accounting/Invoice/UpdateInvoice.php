@@ -1,15 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 Feb 2023 13:13:31 Malaysia Time, Ubud, Indonesia
+ * Created: Sat, 25 Mar 2023 01:37:38 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\Invoice;
+namespace App\Actions\Accounting\Invoice;
 
-use App\Actions\Sales\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
+use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
-use App\Models\Sales\Invoice;
+use App\Models\Accounting\Invoice;
 use Illuminate\Support\Arr;
 
 class UpdateInvoice

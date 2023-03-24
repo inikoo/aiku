@@ -1,17 +1,17 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 19 Oct 2022 19:39:45 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 25 Mar 2023 01:37:38 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\Invoice;
+namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
-use App\Actions\Sales\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
+use App\Models\Accounting\Invoice;
 use App\Models\Helpers\Address;
-use App\Models\Sales\Invoice;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -29,7 +29,7 @@ class StoreInvoice
         $modelData['customer_id'] = $order->customer_id;
 
 
-        /** @var Invoice $invoice */
+        /** @var \App\Models\Accounting\Invoice $invoice */
         $invoice        = $order->invoices()->create($modelData);
         $invoice->stats()->create();
 

@@ -1,18 +1,18 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 17:04:31 Central European Summer, Benalmádena, Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 25 Mar 2023 01:37:38 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sales\Invoice;
+namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\Sales\InvoiceResource;
+use App\Http\Resources\Accounting\InvoiceResource;
+use App\Models\Accounting\Invoice;
 use App\Models\Marketing\Shop;
-use App\Models\Sales\Invoice;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;

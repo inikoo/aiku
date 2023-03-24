@@ -11,8 +11,8 @@ namespace App\Actions\Sales\Customer;
 use App\Actions\HydrateModel;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Enums\Sales\Customer\CustomerTradeStateEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Sales\Customer;
-use App\Models\Sales\Invoice;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
