@@ -35,7 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $shop_id
  * @property int $customer_id
  * @property int $order_id
- * @property string $type
+ * @property InvoiceTypeEnum $type
  * @property int $currency_id
  * @property string $exchange
  * @property string $net
@@ -48,10 +48,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
- * @property-read \App\Models\Sales\Customer $customer
+ * @property-read Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $order
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $order
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch

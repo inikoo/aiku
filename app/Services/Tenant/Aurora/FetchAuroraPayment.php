@@ -7,6 +7,8 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Accounting\Payment\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -26,22 +28,22 @@ class FetchAuroraPayment extends FetchAurora
         $this->parsedData['customer']       = $this->parseCustomer($this->auroraModelData->{'Payment Customer Key'});
 
 
-        //enum('Pending','Approving','Completed','Cancelled','Error','Declined')
 
         $state  = Str::lower($this->auroraModelData->{'Payment Transaction Status'});
-        $status = 'in-process';
+        $status = PaymentStatusEnum::IN_PROCESS;
         switch ($this->auroraModelData->{'Payment Transaction Status'}) {
             case 'Pending':
-                $state = 'in-process';
+                $state = PaymentStateEnum::IN_PROCESS;
                 break;
             case 'Completed':
-                $status = 'success';
+                $status = PaymentStatusEnum::SUCCESS;
+
                 break;
 
             case 'Cancelled':
             case 'Error':
             case 'Declined':
-                $status = 'fail';
+                $status = PaymentStatusEnum::FAIL;
         }
 
 

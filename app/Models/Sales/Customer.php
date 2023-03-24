@@ -62,7 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CustomerClient> $clients
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products

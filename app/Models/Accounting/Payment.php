@@ -11,6 +11,10 @@ use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayment
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydratePayments;
+use App\Enums\Accounting\Payment\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentStatusEnum;
+use App\Enums\Accounting\Payment\PaymentSubsequentStatusEnum;
+use App\Enums\Accounting\Payment\PaymentTypeEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,11 +32,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $shop_id
  * @property int $payment_account_id
  * @property int $customer_id
+ * @property PaymentTypeEnum $type
  * @property string $reference
  * @property string $slug
- * @property string $status
- * @property string $state
- * @property string|null $subsequent_status
+ * @property PaymentStatusEnum $status
+ * @property PaymentStateEnum $state
+ * @property PaymentSubsequentStatusEnum|null $subsequent_status
  * @property string $amount
  * @property int $currency_id
  * @property string $dc_amount
@@ -43,7 +48,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string $type
  * @property bool $with_refund
  * @property int|null $source_id
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
@@ -65,7 +69,11 @@ class Payment extends Model
     use HasUniversalSearch;
 
     protected $casts = [
-        'data' => 'array',
+        'data'              => 'array',
+        'state'             => PaymentStateEnum::class,
+        'status'            => PaymentStatusEnum::class,
+        'subsequent_status' => PaymentSubsequentStatusEnum::class,
+        'type'              => PaymentTypeEnum::class
     ];
 
     protected $attributes = [
@@ -83,7 +91,7 @@ class Payment extends Model
     {
         static::creating(
             function (Payment $payment) {
-                $payment->type = $payment->amount >= 0 ? 'payment' : 'refund';
+                $payment->type = $payment->amount >= 0 ? PaymentTypeEnum::PAYMENT : PaymentTypeEnum::REFUND;
             }
         );
 

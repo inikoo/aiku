@@ -38,7 +38,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int|null $source_id
  * @property int|null $source_alt_id
  * @property-read Model|\Eloquent $item
- * @property-read \App\Models\Sales\Transaction|null $transaction
+ * @property-read Transaction|null $transaction
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()
  * @method static Builder|InvoiceTransaction onlyTrashed()
