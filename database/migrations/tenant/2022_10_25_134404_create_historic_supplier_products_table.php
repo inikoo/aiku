@@ -24,8 +24,8 @@ return new class () extends Migration {
             $table->unsignedDecimal('cost', 18, 4)->comment('unit cost');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
-            $table->unsignedSmallInteger('units_per_pack')->nullable();
-            $table->unsignedSmallInteger('units_per_carton')->nullable();
+            $table->unsignedInteger('units_per_pack')->nullable();
+            $table->unsignedInteger('units_per_carton')->nullable();
             $table->unsignedDecimal('cbm', 18, 4)->nullable();
 
             $table->unsignedSmallInteger('currency_id')->nullable();

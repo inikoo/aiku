@@ -20,7 +20,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchOrders extends FetchAction
 {
-    public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=}  {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
     {
@@ -110,7 +110,6 @@ class FetchOrders extends FetchAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
-
         return $query->count();
     }
 }
