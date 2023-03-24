@@ -8,8 +8,10 @@
 namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Sales\Order\IndexOrders;
 use App\Enums\UI\CustomerTabsEnum;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Shop;
@@ -151,8 +153,13 @@ class ShowCustomer extends InertiaAction
                     fn () => OrderResource::collection(IndexOrders::run($this->customer))
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($this->customer))),
 
+                CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(IndexProducts::run($this->customer))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->customer))),
+
             ]
-        )->table(IndexOrders::make()->tableStructure($customer));
+        )->table(IndexOrders::make()->tableStructure($customer))
+         ->table(IndexProducts::make()->tableStructure($customer));
     }
 
 

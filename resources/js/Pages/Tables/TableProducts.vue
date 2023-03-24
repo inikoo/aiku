@@ -27,6 +27,8 @@ function productRoute(product: Product) {
     }
 }
 
+
+
 </script>
 
 <template>

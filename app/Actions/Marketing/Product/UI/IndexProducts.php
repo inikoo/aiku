@@ -27,8 +27,8 @@ class IndexProducts extends InertiaAction
 {
     use HasUIProducts;
 
-
-    public function handle(Shop|Tenant|Department $parent): LengthAwarePaginator
+    private Shop|Tenant $parent;
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -40,7 +40,14 @@ class IndexProducts extends InertiaAction
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PRODUCTS->value);
         return QueryBuilder::for(Product::class)
             ->defaultSort('products.code')
-            ->select(['products.code', 'products.name', 'products.state', 'products.created_at', 'products.updated_at', 'products.slug', 'shops.slug as shop_slug'])
+            ->select([
+                'products.code',
+                'products.name',
+                'products.state',
+                'products.created_at',
+                'products.updated_at',
+                'products.slug',
+                'shops.slug as shop_slug'])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id')
             ->leftJoin('shops', 'products.shop_id', 'shops.id')
             ->when($parent, function ($query) use ($parent) {

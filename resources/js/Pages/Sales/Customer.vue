@@ -14,6 +14,7 @@ import TableOrders from "@/Pages/Tables/TableOrders.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
+import TableProducts from "@/Pages/Tables/TableProducts.vue";
 
 library.add(faGlobe);
 
@@ -27,6 +28,7 @@ const props = defineProps<{
         navigation: object;
     }
     orders: object
+    products: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -35,6 +37,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        products: TableProducts,
         orders: TableOrders,
         details: ModelDetails,
         history: ModelChangelog
