@@ -28,7 +28,8 @@ class IndexMailshots extends InertiaAction
 {
     use HasUIMailshots;
 
-    public function handle(Outbox|Mailroom|Tenant $parent): LengthAwarePaginator
+    private Outbox|Mailroom|Tenant $parent;
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

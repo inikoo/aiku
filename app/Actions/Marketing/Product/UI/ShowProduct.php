@@ -8,7 +8,14 @@
 namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Mail\Mailshot\IndexMailshots;
+use App\Actions\Sales\Customer\UI\IndexCustomers;
+use App\Actions\Sales\Order\IndexOrders;
+use App\Enums\UI\ProductTabsEnum;
+use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\ProductResource;
+use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
@@ -16,6 +23,9 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
+/**
+ * @property Product $product
+ */
 class ShowProduct extends InertiaAction
 {
     use HasUIProduct;
@@ -63,9 +73,26 @@ class ShowProduct extends InertiaAction
 
 
                 ],
-                'product'  => new ProductResource($product),
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => ProductTabsEnum::navigation()
+                ],
+                ProductTabsEnum::ORDERS->value => $this->tab == ProductTabsEnum::ORDERS->value ?
+                    fn () => OrderResource::collection(IndexOrders::run($this->product))
+                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($this->product))),
+
+                ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
+                    fn () => CustomerResource::collection(IndexCustomers::run($this->product))
+                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($this->product))),
+
+                ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
+                    fn () => MailshotResource::collection(IndexMailshots::run($this->product))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->product))),
+
             ]
-        );
+        )->table(IndexOrders::make()->tableStructure($product))
+            ->table(IndexCustomers::make()->tableStructure($product))
+            ->table(IndexMailshots::make()->tableStructure($product));
     }
 
     #[Pure] public function jsonResponse(Product $product): ProductResource
