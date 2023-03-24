@@ -2,6 +2,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -33,4 +34,15 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 class StoredItem extends Model
 {
     use UsesTenantConnection;
+
+    protected $guarded = [];
+
+    protected $casts = [
+        'data'  => 'array',
+        'state' => StoredItemStateEnum::class
+    ];
+
+    protected $attributes = [
+        'data' => '{}',
+    ];
 }

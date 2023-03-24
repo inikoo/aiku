@@ -16,8 +16,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
-            $table->boolean('status')->default('false')->comment('false for returned goods');
-            $table->enum('state', ['booked','received','stored','returned']);
+            $table->boolean('status')->default(false)->comment('false for returned goods');
+            $table->string('state')->index();
 
 
             $table->unsignedInteger('customer_id')->index();
@@ -33,7 +33,7 @@ return new class () extends Migration {
             $table->dateTimeTz('received_at')->nullable();
             $table->dateTimeTz('stored_at')->nullable();
             $table->dateTimeTz('returned_at')->nullable();
-
+            $table->jsonb('data');
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
         });
