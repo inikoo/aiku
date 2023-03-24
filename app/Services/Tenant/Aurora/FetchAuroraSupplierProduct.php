@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraSupplierProduct extends FetchAurora
@@ -24,10 +25,13 @@ class FetchAuroraSupplierProduct extends FetchAurora
             $status = false;
         }
         $state = match ($this->auroraModelData->{'Supplier Part Status'}) {
-            'Discontinued', 'NoAvailable' => 'discontinued',
-            default        => 'active',
+            'Discontinued', 'NoAvailable' =>SupplierProductStateEnum::DISCONTINUED,
+            default        => SupplierProductStateEnum::ACTIVE,
         };
 
+        if ($state==SupplierProductStateEnum::DISCONTINUED) {
+            $status = false;
+        }
 
         if ($this->auroraModelData->{'Supplier Part From'} == '0000-00-00 00:00:00') {
             $created_at = null;

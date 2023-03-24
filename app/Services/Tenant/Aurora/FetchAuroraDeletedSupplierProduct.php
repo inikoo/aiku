@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedSupplierProduct extends FetchAurora
@@ -31,15 +32,21 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
         $sharedData = [];
         $settings   = [];
 
-        $status = 1;
-        if ($auroraDeletedData->{'Supplier Part Status'} == 'Discontinued') {
-            $status = 0;
+        $status = true;
+        if ($auroraDeletedData->{'Supplier Part Status'}=='NoAvailable') {
+            $status = false;
         }
+
+
+
         $state = match ($auroraDeletedData->{'Supplier Part Status'}) {
-            'NoAvailable'  => 'no-available',
-            'Discontinued' => 'discontinued',
-            default        => 'active',
+            'Discontinued', 'NoAvailable' =>SupplierProductStateEnum::DISCONTINUED,
+            default        => SupplierProductStateEnum::ACTIVE,
         };
+
+        if ($state==SupplierProductStateEnum::DISCONTINUED) {
+            $status = false;
+        }
 
 
         if ($auroraDeletedData->{'Supplier Part From'} == '0000-00-00 00:00:00') {
