@@ -7,7 +7,7 @@
 
 namespace App\Actions\Dropshipping\CustomerClient;
 
-use App\Actions\Sales\Customer\HydrateCustomer;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\WithActionUpdate;
 use App\Actions\WithTenantArgument;
 use App\Models\Dropshipping\CustomerClient;
@@ -25,7 +25,7 @@ class DeleteCustomerClient
         $customerClient->delete();
         $customerClient=$this->update($customerClient, $deletedData, ['data']);
         if (!$skipHydrate) {
-            HydrateCustomer::make()->clients($customerClient->customer);
+            CustomerHydrateClients::dispatch($customerClient->customer);
         }
         return $customerClient;
     }

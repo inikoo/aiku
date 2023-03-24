@@ -7,9 +7,10 @@
 
 namespace App\Actions\Marketing\Product;
 
-use App\Actions\Marketing\Family\HydrateFamily;
-use App\Actions\Marketing\Shop\HydrateShop;
+use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\WithActionUpdate;
+use App\Models\Central\Tenant;
 use App\Models\Marketing\Product;
 use Illuminate\Console\Command;
 
@@ -26,9 +27,9 @@ class DeleteProduct
         $product = $this->update($product, $deletedData, ['data']);
         if (!$skipHydrate) {
             if ($product->family_id) {
-                HydrateFamily::make()->productsStats($product->family);
+                FamilyHydrateProducts::dispatch($product->family);
             }
-            HydrateShop::make()->productsStats($product->shop);
+            ShopHydrateProducts::dispatch($product->shop);
         }
 
         return $product;
@@ -37,11 +38,8 @@ class DeleteProduct
 
     public function asCommand(Command $command): int
     {
-        $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();
-        tenancy()->initialize($tenant);
-
+        Tenant::where('slug', $command->argument('tenant'))->first()->makeCurrent();
         $this->handle(Product::findOrFail($command->argument('id')));
-
         return 0;
     }
 }

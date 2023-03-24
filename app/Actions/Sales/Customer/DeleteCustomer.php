@@ -11,7 +11,7 @@ use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
 use App\Actions\Fulfilment\FulfilmentOrder\DeleteFulfilmentOrder;
 use App\Actions\Inventory\Stock\DeleteStock;
 use App\Actions\Marketing\Product\DeleteProduct;
-use App\Actions\Marketing\Shop\HydrateShop;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\Sales\Order\DeleteOrder;
 use App\Actions\Web\WebUser\DeleteWebUser;
 use App\Actions\WithActionUpdate;
@@ -107,7 +107,7 @@ class DeleteCustomer
         $customer = $this->update($customer, $deletedData, ['data']);
 
         if (!$skipHydrate) {
-            HydrateShop::make()->customerStats($customer->shop);
+            ShopHydrateCustomers::dispatch($customer->shop);
         }
 
         return $customer;

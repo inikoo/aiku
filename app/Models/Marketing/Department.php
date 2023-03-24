@@ -7,7 +7,7 @@
 
 namespace App\Models\Marketing;
 
-use App\Actions\Marketing\Shop\HydrateShop;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Marketing\Department\DepartmentStateEnum;
 use App\Models\Sales\SalesStats;
 use App\Models\Traits\HasUniversalSearch;
@@ -78,19 +78,9 @@ class Department extends Model
 
     protected static function booted()
     {
-        static::created(
-            function (Department $department) {
-                HydrateShop::make()->departmentsStats($department->shop);
-            }
-        );
-        static::deleted(
-            function (Department $department) {
-                HydrateShop::make()->departmentsStats($department->shop);
-            }
-        );
         static::updated(function (Department $department) {
             if ($department->wasChanged('state')) {
-                HydrateShop::make()->departmentsStats($department->shop);
+                ShopHydrateDepartments::dispatch($department->shop);
             }
         });
     }

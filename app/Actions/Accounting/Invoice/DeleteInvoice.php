@@ -7,6 +7,7 @@
 
 namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\WithActionUpdate;
 use App\Models\Accounting\Invoice;
 
@@ -20,6 +21,7 @@ class DeleteInvoice
     ): Invoice {
         $invoice->invoiceTransactions()->delete();
         $invoice->delete();
+        CustomerHydrateInvoices::dispatch($invoice->customer);
 
         return $this->update($invoice, $modelData, ['data']);
     }

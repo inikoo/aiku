@@ -9,6 +9,7 @@
 namespace App\Actions\Sales\Order;
 
 use App\Actions\WithActionUpdate;
+use App\Models\Central\Tenant;
 use App\Models\Sales\Order;
 use Illuminate\Console\Command;
 
@@ -18,7 +19,7 @@ class DeleteOrder
 
     public string $commandSignature = 'cancel:order {tenant} {id}';
 
-    public function handle(Order $order, array $deletedData = [], bool $skipHydrate = false): Order
+    public function handle(Order $order, array $deletedData = []): Order
     {
         $order->delete();
 
@@ -31,9 +32,7 @@ class DeleteOrder
 
     public function asCommand(Command $command): int
     {
-        $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();
-        tenancy()->initialize($tenant);
-
+        Tenant::where('slug', $command->argument('tenant'))->first()->makeCurrent();
         $this->handle(Order::findOrFail($command->argument('id')));
 
         return 0;

@@ -7,7 +7,7 @@
 
 namespace App\Models\Dropshipping;
 
-use App\Actions\Sales\Customer\HydrateCustomer;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
@@ -78,7 +78,7 @@ class CustomerClient extends Model
             ->generateSlugsFrom(function () {
                 $slug = $this->reference;
 
-                if ($slug=='') {
+                if ($slug == '') {
                     $slug = $this->customer->reference;
                 }
 
@@ -91,22 +91,16 @@ class CustomerClient extends Model
     {
         static::creating(
             function (CustomerClient $customerClient) {
-                $customerClient->name=$customerClient->company_name=='' ? $customerClient->contact_name : $customerClient->company_name;
-            }
-        );
-
-        static::created(
-            function (CustomerClient $customerClient) {
-                HydrateCustomer::make()->clients($customerClient->customer);
+                $customerClient->name = $customerClient->company_name == '' ? $customerClient->contact_name : $customerClient->company_name;
             }
         );
 
         static::updated(function (CustomerClient $customerClient) {
             if ($customerClient->wasChanged('status')) {
-                HydrateCustomer::make()->clients($customerClient->customer);
+                CustomerHydrateClients::dispatch($customerClient->customer);
             }
-            if ($customerClient->wasChanged(['company_name','contact_name'])) {
-                $customerClient->name=$customerClient->company_name=='' ? $customerClient->contact_name : $customerClient->company_name;
+            if ($customerClient->wasChanged(['company_name', 'contact_name'])) {
+                $customerClient->name = $customerClient->company_name == '' ? $customerClient->contact_name : $customerClient->company_name;
             }
         });
     }

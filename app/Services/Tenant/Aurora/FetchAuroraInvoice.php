@@ -28,9 +28,8 @@ class FetchAuroraInvoice extends FetchAurora
             'exchange'   => $this->auroraModelData->{'Invoice Currency Exchange'},
             'net'        => $this->auroraModelData->{'Invoice Total Net Amount'},
             'total'      => $this->auroraModelData->{'Invoice Total Amount'},
-
-            'source_id' => $this->auroraModelData->{'Invoice Key'},
-            'data'      => $data
+            'source_id'  => $this->auroraModelData->{'Invoice Key'},
+            'data'       => $data
 
         ];
 

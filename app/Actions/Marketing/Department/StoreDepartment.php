@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Department;
 
 use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateUniversalSearch;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
@@ -35,6 +36,7 @@ class StoreDepartment
         }
 
         DepartmentHydrateUniversalSearch::dispatch($department);
+        ShopHydrateDepartments::dispatch($department->shop);
 
         return $department;
     }

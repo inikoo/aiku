@@ -9,11 +9,11 @@
 namespace App\Actions\Sales\Customer;
 
 use App\Actions\HydrateModel;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
-use App\Enums\Sales\Customer\CustomerTradeStateEnum;
-use App\Models\Accounting\Invoice;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Models\Sales\Customer;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class HydrateCustomer extends HydrateModel
@@ -23,58 +23,10 @@ class HydrateCustomer extends HydrateModel
 
     public function handle(Customer $customer): void
     {
-        $this->invoices($customer);
-        $this->webUsers($customer);
-        $this->clients($customer);
+        CustomerHydrateInvoices::run($customer);
+        CustomerHydrateWebUsers::run($customer);
+        CustomerHydrateClients::run($customer);
         CustomerHydrateUniversalSearch::run($customer);
-    }
-
-    public function webUsers(Customer $customer): void
-    {
-        $stats = [
-            'number_web_users'        => $customer->webUsers->count(),
-            'number_active_web_users' => $customer->webUsers->where('status', true)->count(),
-        ];
-        $customer->stats->update($stats);
-    }
-
-    public function invoices(Customer $customer): void
-    {
-        $numberInvoices = $customer->invoices->count();
-        $stats          = [
-            'number_invoices' => $numberInvoices,
-        ];
-
-        $customer->trade_state = match ($numberInvoices) {
-            0       => CustomerTradeStateEnum::NONE,
-            1       => CustomerTradeStateEnum::ONE,
-            default => CustomerTradeStateEnum::MANY
-        };
-        $customer->save();
-
-        $invoiceTypes      = ['invoice', 'refund'];
-        $invoiceTypeCounts = Invoice::where('customer_id', $customer->id)
-            ->selectRaw('type, count(*) as total')
-            ->groupBy('type')
-            ->pluck('total', 'type')->all();
-
-
-        foreach ($invoiceTypes as $invoiceType) {
-            $stats['number_invoices_type_'.$invoiceType] = Arr::get($invoiceTypeCounts, $invoiceType, 0);
-        }
-
-
-        $customer->stats->update($stats);
-    }
-
-
-    public function clients(Customer $customer): void
-    {
-        $stats = [
-            'number_clients'        => $customer->clients->count(),
-            'number_active_clients' => $customer->clients->where('status', true)->count(),
-        ];
-        $customer->stats->update($stats);
     }
 
     protected function getModel(int $id): Customer

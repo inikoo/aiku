@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\WebUser;
 
-use App\Actions\Sales\Customer\HydrateCustomer;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\WithActionUpdate;
 use App\Actions\WithTenantArgument;
 use App\Models\Web\WebUser;
@@ -26,7 +26,7 @@ class DeleteWebUser
         $webUser=$this->update($webUser, $deletedData, ['data']);
 
         if (!$skipHydrate) {
-            HydrateCustomer::make()->webUsers($webUser->customer);
+            CustomerHydrateWebUsers::dispatch($webUser->customer);
         }
         return $webUser;
     }

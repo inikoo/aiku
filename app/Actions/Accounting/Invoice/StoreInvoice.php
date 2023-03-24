@@ -10,6 +10,8 @@ namespace App\Actions\Accounting\Invoice;
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateInvoices;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Models\Accounting\Invoice;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Order;
@@ -30,12 +32,14 @@ class StoreInvoice
 
 
         /** @var \App\Models\Accounting\Invoice $invoice */
-        $invoice        = $order->invoices()->create($modelData);
+        $invoice = $order->invoices()->create($modelData);
         $invoice->stats()->create();
 
         $billingAddress = StoreHistoricAddress::run($billingAddress);
         AttachHistoricAddressToModel::run($invoice, $billingAddress, ['scope' => 'billing']);
 
+        CustomerHydrateInvoices::dispatch($invoice->customer);
+        ShopHydrateInvoices::dispatch($invoice->shop);
         InvoiceHydrateUniversalSearch::dispatch($invoice);
 
 

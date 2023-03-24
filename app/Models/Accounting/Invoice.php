@@ -7,8 +7,9 @@
 
 namespace App\Models\Accounting;
 
-use App\Actions\Marketing\Shop\HydrateShop;
-use App\Actions\Sales\Customer\HydrateCustomer;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateInvoices;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
@@ -71,6 +72,7 @@ class Invoice extends Model
     use HasUniversalSearch;
 
     protected $casts = [
+        'type'    => InvoiceTypeEnum::class,
         'data'    => 'array',
         'paid_at' => 'array'
     ];
@@ -88,16 +90,10 @@ class Invoice extends Model
 
     protected static function booted()
     {
-        static::created(
-            function (Invoice $invoice) {
-                HydrateCustomer::make()->invoices($invoice->customer);
-                HydrateShop::make()->invoices($invoice->shop);
-            }
-        );
         static::deleted(
             function (Invoice $invoice) {
-                HydrateCustomer::make()->invoices($invoice->customer);
-                HydrateShop::make()->invoices($invoice->shop);
+                CustomerHydrateInvoices::dispatch($invoice->customer);
+                ShopHydrateInvoices::dispatch($invoice->shop);
             }
         );
     }

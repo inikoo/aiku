@@ -9,6 +9,7 @@ namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,6 +28,7 @@ class StoreCustomerClient
 
         StoreAddressAttachToModel::run($customerClient, $addressesData, ['scope' => 'delivery']);
         CustomerClientHydrateUniversalSearch::dispatch($customerClient);
+        CustomerHydrateClients::dispatch($customer);
 
         return $customerClient;
     }

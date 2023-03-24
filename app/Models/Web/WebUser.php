@@ -7,7 +7,7 @@
 
 namespace App\Models\Web;
 
-use App\Actions\Sales\Customer\HydrateCustomer;
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Enums\Web\WebUser\WebUserLoginVersionEnum;
 use App\Enums\Web\WebUser\WebUserTypeEnum;
 use App\Models\Sales\Customer;
@@ -98,16 +98,9 @@ class WebUser extends Authenticatable
 
     protected static function booted()
     {
-        static::created(
-            function (WebUser $webUser) {
-                HydrateCustomer::make()->webUsers($webUser->customer);
-            }
-        );
-
-
         static::updated(function (WebUser $webUser) {
             if ($webUser->wasChanged('status')) {
-                HydrateCustomer::make()->webUsers($webUser->customer);
+                CustomerHydrateWebUsers::dispatch($webUser->customer);
             }
         });
     }

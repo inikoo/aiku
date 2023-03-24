@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\FulfilmentOrder;
 
 use App\Actions\WithActionUpdate;
+use App\Models\Central\Tenant;
 use App\Models\Fulfilment\FulfilmentOrder;
 use Illuminate\Console\Command;
 
@@ -17,7 +18,7 @@ class DeleteFulfilmentOrder
 
     public string $commandSignature = 'cancel:fulfilment-order {tenant} {id}';
 
-    public function handle(FulfilmentOrder $fulfilmentOrder, array $deletedData = [], bool $skipHydrate = false): FulfilmentOrder
+    public function handle(FulfilmentOrder $fulfilmentOrder, array $deletedData = []): FulfilmentOrder
     {
         $fulfilmentOrder->delete();
 
@@ -30,9 +31,7 @@ class DeleteFulfilmentOrder
 
     public function asCommand(Command $command): int
     {
-        $tenant = tenancy()->query()->where('code', $command->argument('tenant'))->first();
-        tenancy()->initialize($tenant);
-
+        Tenant::where('slug', $command->argument('tenant'))->first()->makeCurrent();
         $this->handle(FulfilmentOrder::findOrFail($command->argument('id')));
 
         return 0;

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Web\WebUser;
 
+use App\Actions\Sales\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Models\Sales\Customer;
 
 use App\Models\Web\WebUser;
@@ -23,7 +24,7 @@ class StoreWebUser
             abort(422, 'Website not set up');
         }
 
-        $modelData['password']=Hash::make($modelData['password']);
+        $modelData['password'] = Hash::make($modelData['password']);
         /** @var WebUser $webUser */
         $webUser = $customer->webUsers()->create(
             array_merge(
@@ -33,6 +34,7 @@ class StoreWebUser
                 ]
             )
         );
+        CustomerHydrateWebUsers::dispatch($customer);
 
         return $webUser;
     }
