@@ -9,6 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Actions\Inventory\Location\HydrateLocation;
 use App\Actions\Inventory\Stock\HydrateStock;
+use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -21,7 +22,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $stock_id
  * @property int $location_id
  * @property string $quantity
- * @property string $type
+ * @property LocationStockTypeEnum $type
  * @property int|null $picking_priority
  * @property string|null $notes
  * @property array $data
@@ -44,7 +45,8 @@ class LocationStock extends Pivot
 
     protected $casts = [
         'data'     => 'array',
-        'settings' => 'array'
+        'settings' => 'array',
+        'type'     => LocationStockTypeEnum::class
     ];
 
     protected $attributes = [

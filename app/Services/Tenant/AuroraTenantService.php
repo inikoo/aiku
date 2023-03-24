@@ -49,7 +49,7 @@ use App\Services\Tenant\Aurora\FetchAuroraShipper;
 use App\Services\Tenant\Aurora\FetchAuroraShop;
 use App\Services\Tenant\Aurora\FetchAuroraStock;
 use App\Services\Tenant\Aurora\FetchAuroraStockFamily;
-use App\Services\Tenant\Aurora\FetchAuroraStockLocations;
+use App\Services\Tenant\Aurora\FetchAuroraLocationStocks;
 use App\Services\Tenant\Aurora\FetchAuroraSupplier;
 use App\Services\Tenant\Aurora\FetchAuroraSupplierProduct;
 use App\Services\Tenant\Aurora\FetchAuroraTradeUnit;
@@ -243,9 +243,9 @@ use Illuminate\Support\Facades\DB;
         return (new FetchAuroraTradeUnit($this))->fetch($id);
     }
 
-    public function fetchStockLocations($id): ?array
+    public function fetchLocationStocks($id): ?array
     {
-        return (new FetchAuroraStockLocations($this))->fetch($id);
+        return (new FetchAuroraLocationStocks($this))->fetch($id);
     }
 
     public function fetchAgent($id): ?array

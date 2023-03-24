@@ -14,12 +14,12 @@ return new class () extends Migration {
     {
         Schema::create('location_stock', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('stock_id');
+            $table->unsignedInteger('stock_id')->index();
             $table->foreign('stock_id')->references('id')->on('stocks');
-            $table->unsignedInteger('location_id');
+            $table->unsignedInteger('location_id')->index();
             $table->foreign('location_id')->references('id')->on('locations');
             $table->decimal('quantity', 16, 3);
-            $table->enum('type', ['picking','storing']);
+            $table->string('type')->index();
             $table->smallInteger('picking_priority')->nullable()->index();
             $table->string('notes')->nullable();
             $table->jsonb('data');

@@ -85,7 +85,7 @@ interface SourceTenantService
 
     public function fetchTradeUnit($id);
 
-    public function fetchStockLocations($id);
+    public function fetchLocationStocks($id);
 
     public function fetchAgent($id);
 

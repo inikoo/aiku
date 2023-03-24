@@ -41,7 +41,7 @@ class FetchStocks extends FetchAction
                 ]
             ]);
 
-            $locationsData = $tenantSource->fetchStockLocations($tenantSourceId);
+            $locationsData = $tenantSource->fetchLocationStocks($tenantSourceId);
 
             $stock->locations()->sync($locationsData['stock_locations']);
 

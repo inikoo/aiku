@@ -7,9 +7,10 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraStockLocations extends FetchAurora
+class FetchAuroraLocationStocks extends FetchAurora
 {
     protected function parseModel(): void
     {
@@ -28,9 +29,9 @@ class FetchAuroraStockLocations extends FetchAurora
             }
 
             $pickingPriority = null;
-            $type            = 'storing';
+            $type            = LocationStockTypeEnum::STORING;
             if ($modelData->{'Can Pick'}) {
-                $type            = 'picking';
+                $type            = LocationStockTypeEnum::PICKING;
                 $pickingPriority = is_null($pickingPriority) ? 0 : $pickingPriority + 1;
             }
 
