@@ -14,8 +14,8 @@ return new class () extends Migration {
     {
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->increments('id');
-            $table->enum('type', ['purchase','fulfilment-delivery', 'dispatch-return', 'return-picked', 'fulfilment-return','picked', 'location-transfer', 'found' ,'consumption','write-off'])->index();
-            $table->enum('flow', ['in','out'])->index();
+            $table->string('type')->index();
+            $table->string('flow')->index();
             $table->morphs('stockable');
             $table->unsignedInteger('location_id')->nullable()->index();
             $table->foreign('location_id')->references('id')->on('locations');

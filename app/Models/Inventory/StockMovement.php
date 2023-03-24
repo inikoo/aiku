@@ -7,6 +7,8 @@
 
 namespace App\Models\Inventory;
 
+use App\Enums\Inventory\StockMovement\StockMovementFlowEnum;
+use App\Enums\Inventory\StockMovement\StockMovementTypeEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -16,8 +18,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * App\Models\Inventory\StockMovement
  *
  * @property int $id
- * @property string $type
- * @property string $flow
+ * @property StockMovementTypeEnum $type
+ * @property StockMovementFlowEnum $flow
  * @property string $stockable_type
  * @property int $stockable_id
  * @property int|null $location_id
@@ -40,7 +42,9 @@ class StockMovement extends Model
     use UsesTenantConnection;
 
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
+        'type' => StockMovementTypeEnum::class,
+        'flow' => StockMovementFlowEnum::class
     ];
 
     protected $attributes = [
