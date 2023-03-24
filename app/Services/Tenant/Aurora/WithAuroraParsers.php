@@ -68,7 +68,7 @@ trait WithAuroraParsers
     protected function parseDate($value): ?string
     {
         return ($value                                                                     != '' && $value != '0000-00-00 00:00:00'
-                                                                                && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+                                                                                                 && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
     protected function parseLanguageID($locale): int|null
@@ -235,7 +235,7 @@ trait WithAuroraParsers
         if (!$source_id) {
             return null;
         }
-        $customer = Customer::where('source_id', $source_id)->first();
+        $customer = Customer::withTrashed()->where('source_id', $source_id)->first();
         if (!$customer) {
             $customer = FetchCustomers::run($this->tenantSource, $source_id);
             if (!$customer) {
@@ -248,7 +248,7 @@ trait WithAuroraParsers
 
     public function parseSupplier($source_id): ?Supplier
     {
-        $supplier = Supplier::where('source_id', $source_id)->first();
+        $supplier = Supplier::withTrashed()->where('source_id', $source_id)->first();
         if (!$supplier) {
             $supplier = FetchSuppliers::run($this->tenantSource, $source_id);
             if (!$supplier) {
