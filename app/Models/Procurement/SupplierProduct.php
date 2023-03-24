@@ -25,12 +25,12 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\SupplierProduct
  *
  * @property int $id
- * @property string $composition
+ * @property SupplierProductTradeUnitCompositionEnum|null $trade_unit_composition
  * @property string|null $slug
  * @property int|null $current_historic_supplier_product_id
  * @property int|null $supplier_id
  * @property int|null $agent_id
- * @property string|null $state
+ * @property SupplierProductStateEnum|null $state
  * @property bool|null $status
  * @property string|null $stock_quantity_status
  * @property string $code
@@ -47,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $central_supplier_product_id
  * @property int|null $source_id
+ * @property SupplierProductQuantityStatusEnum $quantity_status
  * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\HistoricSupplierProduct> $historicRecords
  * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
