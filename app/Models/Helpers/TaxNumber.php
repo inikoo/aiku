@@ -14,15 +14,6 @@ namespace App\Models\Helpers;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Enums\Helpers\TaxNumber\TaxNumberTypeEnum;
 use App\Models\Assets\Country;
-<<<<<<< HEAD
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
-
-class TaxNumber extends Model
-{
-    use UsesTenantConnection;
-=======
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -64,7 +55,6 @@ class TaxNumber extends Model
 {
     use UsesTenantConnection;
     use SoftDeletes;
->>>>>>> pka-165
 
     protected $casts = [
         'data'       => 'array',
@@ -83,23 +73,13 @@ class TaxNumber extends Model
     {
         static::creating(
             function (TaxNumber $taxNumber) {
-<<<<<<< HEAD
-                if ($taxNumber->country) {
-                    $taxNumber->country_code = $taxNumber->country->code;
+                if ($taxNumber->country_id) {
+                    $country                 =Country::find($taxNumber->country_id);
+                    $taxNumber->country_code = $country->code;
                 }
             }
         );
-    }
 
-    public function country(): HasOne
-    {
-        return $this->hasOne(Country::class);
-=======
-                $country                 =Country::find($taxNumber->country_id);
-                $taxNumber->country_code = $country?->code;
-                $taxNumber->type         = $taxNumber->getType($country);
-            }
-        );
 
         static::created(
             function (TaxNumber $taxNumber) {
@@ -110,8 +90,9 @@ class TaxNumber extends Model
 
         static::updated(function (TaxNumber $taxNumber) {
             if ($taxNumber->wasChanged('country_id')) {
-                $taxNumber->country_code = $taxNumber->country?->code;
-                $taxNumber->type         = $taxNumber->getType($taxNumber->country);
+                $country                 =Country::find($taxNumber->country_id);
+                $taxNumber->country_code = $country->code;
+                $taxNumber->type         = TaxNumber::getType($country);
             }
         });
     }
@@ -168,6 +149,5 @@ class TaxNumber extends Model
                 )
             )
         );
->>>>>>> pka-165
     }
 }
