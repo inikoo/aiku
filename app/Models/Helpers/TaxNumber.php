@@ -1,11 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
-<<<<<<< HEAD
- * Created: Sat, 25 Mar 2023 12:28:40 Malaysia Time, Kuala Lumpur, Malaysia
-=======
  * Created: Sat, 25 Mar 2023 20:37:54 Malaysia Time, Kuala Lumpur, Malaysia
->>>>>>> pka-165
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -73,13 +69,11 @@ class TaxNumber extends Model
     {
         static::creating(
             function (TaxNumber $taxNumber) {
-                if ($taxNumber->country_id) {
-                    $country                 =Country::find($taxNumber->country_id);
-                    $taxNumber->country_code = $country->code;
-                }
+                $country                 =Country::find($taxNumber->country_id);
+                $taxNumber->country_code = $country?->code;
+                $taxNumber->type         = $taxNumber->getType($country);
             }
         );
-
 
         static::created(
             function (TaxNumber $taxNumber) {
@@ -90,9 +84,8 @@ class TaxNumber extends Model
 
         static::updated(function (TaxNumber $taxNumber) {
             if ($taxNumber->wasChanged('country_id')) {
-                $country                 =Country::find($taxNumber->country_id);
-                $taxNumber->country_code = $country->code;
-                $taxNumber->type         = TaxNumber::getType($country);
+                $taxNumber->country_code = $taxNumber->country?->code;
+                $taxNumber->type         = $taxNumber->getType($taxNumber->country);
             }
         });
     }
