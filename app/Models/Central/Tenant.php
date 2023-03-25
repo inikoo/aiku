@@ -26,6 +26,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Central\Tenant
  *
  * @property int $id
+ * @property string $ulid
  * @property string $slug
  * @property string $code
  * @property string $name

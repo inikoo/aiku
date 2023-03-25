@@ -137,9 +137,7 @@ return [
         'fetch:delivery-notes',
         'fetch:invoices',
         'fetch:deleted-invoices',
-
         'fetch:models',
-
         'fetch:reset'
     ],
 

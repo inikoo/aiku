@@ -14,6 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('tenants', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->ulid('ulid')->index();
             $table->string('slug')->unique();
             $table->string('code');
             $table->string('name');

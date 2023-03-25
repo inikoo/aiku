@@ -13,6 +13,7 @@ use App\Enums\Mailroom\Mailroom\MailroomCodeEnum;
 use App\Models\Central\Tenant;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreTenant
@@ -21,7 +22,8 @@ class StoreTenant
 
     public function handle(array $modelData): Tenant
     {
-        $tenant = Tenant::create($modelData);
+        $modelData['ulid']=Str::ulid();
+        $tenant           = Tenant::create($modelData);
 
         $tenant->stats()->create();
         $tenant->procurementStats()->create();
