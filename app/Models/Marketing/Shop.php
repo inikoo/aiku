@@ -16,6 +16,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\TaxNumber;
 use App\Models\Leads\Prospect;
 use App\Models\Mail\Outbox;
 use App\Models\Sales\Customer;
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
@@ -45,8 +47,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $email
  * @property string|null $phone
  * @property string|null $url
- * @property string|null $tax_number
- * @property string|null $tax_number_status
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property int|null $address_id
@@ -80,6 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Prospect> $prospects
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Service> $services
  * @property-read \App\Models\Marketing\ShopStats|null $stats
+ * @property-read TaxNumber|null $taxNumber
  * @property-read Website|null $website
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
@@ -227,5 +228,10 @@ class Shop extends Model
     public function outboxes(): HasMany
     {
         return $this->hasMany(Outbox::class);
+    }
+
+    public function taxNumber(): MorphOne
+    {
+        return $this->morphOne(TaxNumber::class, 'owner');
     }
 }

@@ -59,4 +59,14 @@ class Country extends Model
     {
         return $this->belongsToMany(Timezone::class);
     }
+
+    public static function getCountryCodesInEU(): array
+    {
+        return ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GR', 'HU', 'HR', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
+    }
+
+    public static function isInEU(string $code): bool
+    {
+        return in_array($code, Country::getCountryCodesInEU(), true);
+    }
 }

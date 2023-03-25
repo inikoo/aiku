@@ -2,7 +2,10 @@
     "name": "inikoo/aiku",
     "type": "project",
     "description": "aiku.",
-    "keywords": ["aiku", "warehouse"],
+    "keywords": [
+        "aiku",
+        "warehouse"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
@@ -48,7 +51,8 @@
         "spatie/temporary-directory": "^2.1",
         "tightenco/ziggy": "^1.0",
         "vemcogroup/laravel-translation": "^3.0",
-        "vlucas/phpdotenv": "^5.4"
+        "vlucas/phpdotenv": "^5.4",
+        "ext-soap": "*"
     },
     "require-dev": {
         "amphibee/laravel-pint-pre-commit": "^1.5",

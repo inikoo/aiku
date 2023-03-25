@@ -27,7 +27,7 @@ class UpdateCustomer
             $modelData['name'] = $company_name ?: $contact_name;
         }
 
-        $customer = $this->update($customer, $modelData, ['data', 'tax_number_data']);
+        $customer = $this->update($customer, $modelData, ['data']);
 
 
         CustomerHydrateUniversalSearch::dispatch($customer);

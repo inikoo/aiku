@@ -22,8 +22,6 @@ return new class () extends Migration {
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('url', 256)->nullable();
-            $table->string('tax_number')->nullable()->index();
-            $table->enum('tax_number_status', ['valid', 'invalid', 'na', 'unknown'])->nullable()->default('na');
             $table->string('identity_document_type')->nullable();
             $table->string('identity_document_number')->nullable();
             $table->unsignedInteger('address_id')->nullable()->index();

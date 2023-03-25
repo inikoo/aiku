@@ -1,0 +1,26 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 25 Mar 2023 17:48:12 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Helpers\TaxNumber;
+
+use App\Models\Helpers\TaxNumber;
+use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+class StoreTaxNumber
+{
+    use AsAction;
+
+    public function handle(Shop|Customer $owner, array $modelData = []): TaxNumber
+    {
+        /** @var TaxNumber $taxNumber */
+        $taxNumber = $owner->taxNumber()->create($modelData);
+
+        return $taxNumber;
+    }
+}

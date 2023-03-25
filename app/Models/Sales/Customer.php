@@ -16,6 +16,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\TaxNumber;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
@@ -47,9 +49,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property string|null $identity_document_number
  * @property string|null $website
- * @property string|null $tax_number
- * @property string|null $tax_number_status
- * @property array $tax_number_data
  * @property array $location
  * @property CustomerStatusEnum $status
  * @property CustomerStateEnum $state
@@ -69,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop|null $shop
  * @property-read \App\Models\Sales\CustomerStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @property-read TaxNumber|null $taxNumber
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
  * @method static Builder|Customer newModelQuery()
@@ -89,7 +89,6 @@ class Customer extends Model
 
     protected $casts = [
         'data'            => 'array',
-        'tax_number_data' => 'array',
         'location'        => 'array',
         'state'           => CustomerStateEnum::class,
         'status'          => CustomerStatusEnum::class,
@@ -100,8 +99,6 @@ class Customer extends Model
     protected $attributes = [
         'data'            => '{}',
         'location'        => '{}',
-        'tax_number_data' => '{}',
-
     ];
 
     protected $guarded = [];
@@ -183,5 +180,10 @@ class Customer extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function taxNumber(): MorphOne
+    {
+        return $this->morphOne(TaxNumber::class, 'owner');
     }
 }

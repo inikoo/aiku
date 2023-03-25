@@ -29,6 +29,7 @@ class FetchAuroraCustomer extends FetchAurora
             $state = CustomerStateEnum::LOST;
         }
 
+
         $this->parsedData['customer'] =
             [
                 'reference'                => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
@@ -40,14 +41,6 @@ class FetchAuroraCustomer extends FetchAurora
                 'phone'                    => $this->auroraModelData->{'Customer Main Plain Mobile'},
                 'identity_document_number' => Str::limit($this->auroraModelData->{'Customer Registration Number'}),
                 'website'                  => $this->auroraModelData->{'Customer Website'},
-                'tax_number'               => $this->auroraModelData->{'Customer Tax Number'},
-                'tax_number_status'        => $this->auroraModelData->{'Customer Tax Number'} == ''
-                    ? 'na'
-                    : match ($this->auroraModelData->{'Customer Tax Number Valid'}) {
-                        'Yes'   => 'valid',
-                        'No'    => 'invalid',
-                        default => 'unknown'
-                    },
                 'source_id'                => $this->auroraModelData->{'Customer Key'},
                 'created_at'               => $this->auroraModelData->{'Customer First Contacted Date'}
             ];
@@ -59,6 +52,13 @@ class FetchAuroraCustomer extends FetchAurora
         $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $this->auroraModelData);
 
         $this->parsedData['contact_address'] = $billingAddress;
+
+
+        $this->parsedData['tax_number'] = $this->parseTaxNumber(
+            number: $this->auroraModelData->{'Customer Tax Number'},
+            countryID: $billingAddress['country_id'],
+            rawData: (array)$this->auroraModelData
+        );
 
 
         if ($billingAddress != $deliveryAddress) {

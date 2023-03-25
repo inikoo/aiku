@@ -33,6 +33,7 @@ use App\Actions\SourceFetch\Aurora\FetchShippers;
 use App\Actions\SourceFetch\Aurora\FetchShops;
 use App\Actions\SourceFetch\Aurora\FetchStocks;
 use App\Actions\SourceFetch\Aurora\FetchSuppliers;
+use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
@@ -60,6 +61,7 @@ use App\Models\Sales\Transaction;
 use App\Models\SysAdmin\Guest;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -67,8 +69,71 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                       != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                   && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value != '' && $value != '0000-00-00 00:00:00'
+                             && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+    }
+
+
+    protected function parseTaxNumber(?string $number, ?int $countryID, array $rawData = []): ?array
+    {
+        if (!$number) {
+            return null;
+        }
+
+        $country = Country::find($countryID);
+
+        if ($country and (Country::isInEU($country->code) or $country->code == 'GB')) {
+            if (Str::startsWith(strtolower($number), strtolower($country->code))) {
+                $number = substr($number, 2);
+            }
+        }
+
+        $data = [];
+
+        if (Arr::get($rawData, 'Customer Tax Number Validation Source') == 'Online') {
+            $data = [
+                'data'   => [],
+                'valid'  => Arr::get($rawData, 'Customer Tax Number Valid') == 'Yes',
+                'status' => match (Arr::get($rawData, 'Customer Tax Number Valid')) {
+                    'Yes'   => TaxNumberStatusEnum::VALID,
+                    'No'    => TaxNumberStatusEnum::INVALID,
+                    default => TaxNumberStatusEnum::UNKNOWN
+                }
+
+            ];
+
+            $message = Arr::get($rawData, 'Customer Tax Number Validation Message');
+            $message = preg_replace('/VIES$/', '', $message);
+
+            if ($data['status'] != TaxNumberStatusEnum::VALID and $message != '') {
+                $data['data']['exception']['message'] = $message;
+            }
+
+            $data['checked_at'] = Arr::get($rawData, 'Customer Tax Number Validation Date');
+            if ($data['status'] == TaxNumberStatusEnum::INVALID) {
+                $data['invalid_checked_at'] = Arr::get($rawData, 'Customer Tax Number Validation Date');
+            }
+
+
+            if (Arr::get($rawData, 'Customer Tax Number Valid') == 'API_Down'
+                or preg_match('/failed to load|server is busy/i', $message)
+            ) {
+                $data['external_service_failed_at'] = Arr::get($rawData, 'Customer Tax Number Validation Date');
+            }
+
+            $data['data']['name']    = Arr::get($rawData, 'Customer Tax Number Registered Name');
+            $data['data']['address'] = Arr::get($rawData, 'Customer Tax Number Registered Address');
+        }
+
+
+
+        return array_merge(
+            $data,
+            [
+                'number'     => $number,
+                'country_id' => $country?->id,
+            ]
+        );
     }
 
     protected function parseLanguageID($locale): int|null
@@ -407,6 +472,7 @@ trait WithAuroraParsers
         if (!$dispatchedEmail) {
             $dispatchedEmail = FetchDispatchedEmails::run($this->tenantSource, $source_id);
         }
+
         return $dispatchedEmail;
     }
 }
