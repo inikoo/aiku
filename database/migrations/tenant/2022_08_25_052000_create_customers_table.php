@@ -16,10 +16,8 @@ return new class () extends Migration {
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->increments('id');
-
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-
             $table->string('slug')->unique();
             $table->string('reference')->unique()->comment('customer public id');
             $table->string('name', 256)->nullable()->fulltext();
@@ -29,26 +27,14 @@ return new class () extends Migration {
             $table->string('phone')->nullable();
             $table->string('identity_document_number')->nullable();
             $table->string('website', 256)->nullable();
-            $table->string('tax_number')->nullable()->index();
-            $table->enum('tax_number_status', ['valid', 'invalid', 'na', 'unknown'])->nullable()->default('na');
-            $table->jsonb('tax_number_data');
             $table->jsonb('location');
-
             $table->string('status')->index();
-
-
             $table->string('state')->index()->default(CustomerStateEnum::IN_PROCESS->value);
-
             $table->string('trade_state')->index()->default(CustomerTradeStateEnum::NONE->value)->comment('number of invoices');
-
-
-
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-
             $table->unsignedInteger('source_id')->nullable()->unique();
-
             $table->index([DB::raw('name(64)')]);
         });
     }

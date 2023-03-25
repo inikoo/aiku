@@ -12,11 +12,15 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
+use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
+use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use App\Models\Sales\Customer;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -50,10 +54,49 @@ class FetchCustomers extends FetchAction
                     $customer->addresses()->detach($deliveryAddress->id);
                     $deliveryAddress->delete();
                 }
+
+                if ($customerData['tax_number']) {
+                    if (!$customer->taxNumber) {
+                        if (!Arr::get($customerData, 'tax_number.data.name')) {
+                            Arr::forget($customerData, 'tax_number.data.name');
+                        }
+
+                        if (!Arr::get($customerData, 'tax_number.data.address')) {
+                            Arr::forget($customerData, 'tax_number.data.address');
+                        }
+                        StoreTaxNumber::run(
+                            owner: $customer,
+                            modelData: $customerData['tax_number']
+                        );
+                    } else {
+                        UpdateTaxNumber::run($customer->taxNumber, $customerData['tax_number']);
+                    }
+                } else {
+                    if ($customer->taxNumber) {
+                        DeleteTaxNumber::run($customer->taxNumber);
+                    }
+                }
             } else {
                 $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['contact_address']);
                 if (!empty($customerData['delivery_address'])) {
                     StoreAddressAttachToModel::run($customer, $customerData['delivery_address'], ['scope' => 'delivery']);
+                }
+
+
+
+                if ($customerData['tax_number']) {
+                    if (!Arr::get($customerData, 'tax_number.data.name')) {
+                        Arr::forget($customerData, 'tax_number.data.name');
+                    }
+
+                    if (!Arr::get($customerData, 'tax_number.data.address')) {
+                        Arr::forget($customerData, 'tax_number.data.address');
+                    }
+
+                    StoreTaxNumber::run(
+                        owner: $customer,
+                        modelData: $customerData['tax_number']
+                    );
                 }
             }
 

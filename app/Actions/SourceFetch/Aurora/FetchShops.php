@@ -9,6 +9,9 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
+use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
+use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
 use App\Models\Marketing\Shop;
@@ -32,6 +35,23 @@ class FetchShops extends FetchAction
                     modelData: $shopData['shop']
                 );
 
+
+                if ($shopData['tax_number']) {
+                    if (!$shop->taxNumber) {
+                        StoreTaxNumber::run(
+                            owner: $shop,
+                            modelData: $shopData['tax_number']
+                        );
+                    } else {
+                        UpdateTaxNumber::run($shop->taxNumber, $shopData['tax_number']);
+                    }
+                } else {
+                    if ($shop->taxNumber) {
+                        DeleteTaxNumber::run($shop->taxNumber);
+                    }
+                }
+
+
                 if (!empty($shopData['collectionAddress'])) {
                     if ($collectionAddress = $shop->getAddress('collection')) {
                         UpdateAddress::run($collectionAddress, $shopData['collectionAddress']);
@@ -45,6 +65,12 @@ class FetchShops extends FetchAction
                     modelData: $shopData['shop']
                 );
 
+                if ($shopData['tax_number']) {
+                    StoreTaxNumber::run(
+                        owner: $shop,
+                        modelData: $shopData['tax_number']
+                    );
+                }
 
                 $accountData = DB::connection('aurora')->table('Payment Account Dimension')
                     ->select('Payment Account Key')

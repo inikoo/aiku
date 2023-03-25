@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Marketing\Shop\ShopTypeEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -22,24 +23,34 @@ class FetchAuroraShop extends FetchAurora
         }
 
 
+        $auroraSettings = json_decode($this->auroraModelData->{'Store Settings'}, true);
+
+
+
+
+        $this->parsedData['tax_number'] = $this->parseTaxNumber(
+            number: $this->auroraModelData->{'Store VAT Number'},
+            countryID: $this->parseCountryID($auroraSettings['tax_country_code'])
+        );
+
+
         $this->parsedData['shop'] = [
 
-            'type'                     =>
+            'type'         =>
                 match ($this->auroraModelData->{'Store Type'}) {
-                    'Dropshipping', 'Fulfilment' => 'fulfilment-house',
-                    default => 'shop'
+                    'Dropshipping', 'Fulfilment' => ShopTypeEnum::FULFILMENT_HOUSE,
+                    default => ShopTypeEnum::SHOP
                 },
-            'subtype'                  => strtolower($this->auroraModelData->{'Store Type'}),
-            'code'                     => $this->auroraModelData->{'Store Code'},
-            'name'                     => $this->auroraModelData->{'Store Name'},
-            'url'                      => $this->auroraModelData->{'Store URL'},
-            'company_name'             => $this->auroraModelData->{'Store Company Name'},
-            'contact_name'             => $this->auroraModelData->{'Store Contact Name'},
-            'email'                    => $this->auroraModelData->{'Store Email'},
-            'phone'                    => $this->auroraModelData->{'Store Telephone'},
-            'tax_number'               => $this->auroraModelData->{'Store VAT Number'},
+            'subtype'      => strtolower($this->auroraModelData->{'Store Type'}),
+            'code'         => $this->auroraModelData->{'Store Code'},
+            'name'         => $this->auroraModelData->{'Store Name'},
+            'url'          => $this->auroraModelData->{'Store URL'},
+            'company_name' => $this->auroraModelData->{'Store Company Name'},
+            'contact_name' => $this->auroraModelData->{'Store Contact Name'},
+            'email'        => $this->auroraModelData->{'Store Email'},
+            'phone'        => $this->auroraModelData->{'Store Telephone'},
+
             'identity_document_number' => $this->auroraModelData->{'Store Company Number'},
-            'tax_number_status'        => 'valid',
 
 
             'language_id' => $this->parseLanguageID($this->auroraModelData->{'Store Locale'}),
