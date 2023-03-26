@@ -28,7 +28,7 @@ return new class () extends Migration {
                 $table->foreign('country_id')->references('id')->on('central.countries');
                 $table->string('checksum')->index()->nullable();
                 $table->boolean('historic')->index()->default(false);
-                $table->unsignedSmallInteger('usage')->default(0);
+                $table->unsignedInteger('usage')->default(0);
                 $table->timestampsTz();
             }
         );
