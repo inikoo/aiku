@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mailroom\Mailroom;
+namespace App\Actions\Mail\Mailroom;
 
 use App\Actions\WithActionUpdate;
 use App\Models\Mail\Mailroom;

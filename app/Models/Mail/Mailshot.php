@@ -7,7 +7,7 @@
 
 namespace App\Models\Mail;
 
-use App\Enums\Mailroom\Mailshot\MailshotStateEnum;
+use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +19,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Mailroom\Mailshot
+ * App\Models\Mail\Mailshot
  *
  * @property int $id
  * @property int|null $shop_id

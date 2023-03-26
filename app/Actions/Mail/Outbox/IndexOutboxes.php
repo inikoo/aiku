@@ -42,7 +42,7 @@ class IndexOutboxes extends InertiaAction
             ->leftJoin('outbox_stats', 'outbox_stats.id', 'outbox_stats.outbox_id')
             ->leftJoin('mailrooms', 'mailroom_id', 'mailrooms.id')
             ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Mailroom') {
+                if (class_basename($parent) == 'Mail') {
                     $query->where('outboxes.mailroom_id', $parent->id);
                 }
             })

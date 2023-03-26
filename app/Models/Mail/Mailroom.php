@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Mailroom\Mailroom
+ * App\Models\Mail\Mail
  *
  * @property int $id
  * @property string $code

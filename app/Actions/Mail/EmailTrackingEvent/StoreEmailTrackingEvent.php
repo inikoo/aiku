@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mailroom\EmailTrackingEvent;
+namespace App\Actions\Mail\EmailTrackingEvent;
 
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\EmailTrackingEvent;

@@ -5,9 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mailroom\DispatchedEmail;
+namespace App\Actions\Mail\DispatchedEmail;
 
-use App\Actions\Mailroom\EmailAddress\GetEmailAddress;
+use App\Actions\Mail\EmailAddress\GetEmailAddress;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;

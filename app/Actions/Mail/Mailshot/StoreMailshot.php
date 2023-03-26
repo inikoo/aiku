@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mailroom\Mailshot;
+namespace App\Actions\Mail\Mailshot;
 
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;

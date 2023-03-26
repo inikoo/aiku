@@ -13,7 +13,7 @@ use App\Actions\Inventory\Stock\UpdateStock;
 use App\Actions\Inventory\StockFamily\UpdateStockFamily;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
-use App\Actions\Mailroom\Outbox\UpdateOutbox;
+use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Actions\Marketing\Department\UpdateDepartment;
 use App\Actions\Marketing\Family\UpdateFamily;
 use App\Actions\Marketing\Product\UpdateProduct;

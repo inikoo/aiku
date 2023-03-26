@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Mailroom\Outbox\UpdateOutbox;
+use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Models\Mail\Outbox;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;

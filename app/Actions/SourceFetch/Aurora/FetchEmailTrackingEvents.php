@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Mailroom\EmailTrackingEvent\StoreEmailTrackingEvent;
+use App\Actions\Mail\EmailTrackingEvent\StoreEmailTrackingEvent;
 use App\Models\Mail\EmailTrackingEvent;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;

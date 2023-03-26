@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Mailroom\MailroomStats
+ * App\Models\Mail\MailroomStats
  *
  * @property int $id
  * @property int|null $mailroom_id

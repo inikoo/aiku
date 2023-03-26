@@ -7,12 +7,12 @@
 
 namespace App\Models\Mail;
 
-use App\Enums\Mailroom\EmailTrackingEvent\EmailTrackingEventTypeEnum;
+use App\Enums\Mail\EmailTrackingEvent\EmailTrackingEventTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Mailroom\EmailTrackingEvent
+ * App\Models\Mail\EmailTrackingEvent
  *
  * @property int $id
  * @property string|null $notification_id

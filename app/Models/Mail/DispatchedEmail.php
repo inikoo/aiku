@@ -7,14 +7,14 @@
 
 namespace App\Models\Mail;
 
-use App\Enums\Mailroom\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Mailroom\EmailDispatch
+ * App\Models\Mail\EmailDispatch
  *
  * @property int $id
  * @property int|null $outbox_id

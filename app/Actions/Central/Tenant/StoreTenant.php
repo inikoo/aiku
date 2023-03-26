@@ -8,8 +8,8 @@
 namespace App\Actions\Central\Tenant;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
-use App\Actions\Mailroom\Mailroom\StoreMailroom;
-use App\Enums\Mailroom\Mailroom\MailroomCodeEnum;
+use App\Actions\Mail\Mailroom\StoreMailroom;
+use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Central\Tenant;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;

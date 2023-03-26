@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Mailroom\DispatchedEmail;
+namespace App\Enums\Mail\DispatchedEmail;
 
 use App\Enums\EnumHelperTrait;
 

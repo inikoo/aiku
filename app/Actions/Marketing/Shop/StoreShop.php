@@ -8,8 +8,8 @@
 namespace App\Actions\Marketing\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
-use App\Actions\Mailroom\Outbox\StoreOutbox;
-use App\Enums\Mailroom\Outbox\OutboxTypeEnum;
+use App\Actions\Mail\Outbox\StoreOutbox;
+use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Central\Tenant;
 use App\Models\Mail\Mailroom;
 use App\Models\Marketing\Shop;

@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mailroom\Outbox;
+namespace App\Actions\Mail\Outbox;
 
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;

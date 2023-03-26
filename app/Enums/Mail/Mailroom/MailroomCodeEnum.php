@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Mailroom\Mailroom;
+namespace App\Enums\Mail\Mailroom;
 
 use App\Enums\EnumHelperTrait;
 

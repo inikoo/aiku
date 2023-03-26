@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Mailroom\Outbox;
+namespace App\Actions\Mail\Outbox;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Mail\OutboxResource;

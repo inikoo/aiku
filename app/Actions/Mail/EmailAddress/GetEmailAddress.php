@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mailroom\EmailAddress;
+namespace App\Actions\Mail\EmailAddress;
 
 use App\Models\Mail\EmailAddress;
 

@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Mailroom\Outbox;
+namespace App\Enums\Mail\Outbox;
 
 use App\Enums\EnumHelperTrait;
 use Illuminate\Support\Str;

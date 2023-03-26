@@ -19,7 +19,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Mailroom\Outbox
+ * App\Models\Mail\Outbox
  *
  * @property int $id
  * @property int|null $mailroom_id

@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Mailroom\EmailTrackingEvent;
+namespace App\Enums\Mail\EmailTrackingEvent;
 
 use App\Enums\EnumHelperTrait;
 

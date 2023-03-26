@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mailroom\DispatchedEmail;
+namespace App\Actions\Mail\DispatchedEmail;
 
 use App\Actions\WithActionUpdate;
 use App\Models\Mail\DispatchedEmail;
