@@ -27,12 +27,10 @@ class FetchAuroraDeletedCustomer extends FetchAurora
         $state  = 'active';
 
 
-        $taxNumber          = $auroraDeletedData->{'Customer Tax Number'}          ?? null;
         $registrationNumber = $auroraDeletedData->{'Customer Registration Number'} ?? null;
         if ($registrationNumber) {
             $registrationNumber = Str::limit($registrationNumber);
         }
-        $taxNumberValid = $auroraDeletedData->{'Customer Tax Number Valid'} ?? 'unknown';
 
         $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Customer Store Key'});
 
@@ -60,16 +58,8 @@ class FetchAuroraDeletedCustomer extends FetchAurora
                 'email'                    => $this->auroraModelData->{'Customer Deleted Email'} ?? null,
                 'phone'                    => $auroraDeletedData->{'Customer Main Plain Mobile'} ?? null,
                 'identity_document_number' => $registrationNumber,
-                'website'                  => $auroraDeletedData->{'Customer Website'} ?? null,
-                'tax_number'               => $taxNumber,
-                'tax_number_status'        => $taxNumber
-                    ? 'na'
-                    : match ($taxNumberValid) {
-                        'Yes'   => 'valid',
-                        'No'    => 'invalid',
-                        default => 'unknown'
-                    },
-                'created_at'               => $auroraDeletedData->{'Customer First Contacted Date'}??$this->auroraModelData->{'Customer Deleted Date'},
+                'website'                  => $auroraDeletedData->{'Customer Website'}              ?? null,
+                'created_at'               => $auroraDeletedData->{'Customer First Contacted Date'} ?? $this->auroraModelData->{'Customer Deleted Date'},
                 'deleted_at'               => $this->auroraModelData->{'Customer Deleted Date'},
                 'source_id'                => $this->auroraModelData->{'Customer Key'},
                 'data'                     => $data
@@ -81,27 +71,34 @@ class FetchAuroraDeletedCustomer extends FetchAurora
 
         $this->parsedData['contact_address'] = $billingAddress;
 
+        $this->parsedData['tax_number'] = $this->parseTaxNumber(
+            number: $auroraDeletedData->{'Customer Tax Number'}??null,
+            countryID: $billingAddress['country_id'],
+            rawData: (array)$auroraDeletedData
+        );
+
 
         if ($billingAddress != $deliveryAddress) {
             $this->parsedData['delivery_address'] = $deliveryAddress;
         }
     }
 
-
+    /*
     protected function fixAddress($prefix, $data)
     {
         if ($data->{"$prefix Address Country 2 Alpha Code"} == 'XX' and $data->{"$prefix Address Postal Code"} == '35550') {
             $data->{"$prefix Address Country 2 Alpha Code"} = 'ES';
         } elseif ($data->{"$prefix Address Country 2 Alpha Code"} == 'XX' and
-            $data->{"$prefix Address Postal Code"}                == ''   and
-            $data->{"$prefix Address Postal Town"}                == ''   and
-            $data->{"$prefix Address Postal Address Line 1"}      == '') {
+            $data->{"$prefix Address Postal Code"} == '' and
+            $data->{"$prefix Address Postal Town"} == '' and
+            $data->{"$prefix Address Postal Address Line 1"} == '') {
             $data->{"$prefix Address Country 2 Alpha Code"} = config('app.country');
         }
 
 
         return $data;
     }
+    */
 
     protected function fetchData($id): object|null
     {
