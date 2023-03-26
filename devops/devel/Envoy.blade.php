@@ -48,6 +48,8 @@
     dump-database
     tenant-fetch-invoices
     dump-database
+    tenant-fetch-emails
+    dump-database
 @endstory
 
 @task('clean-storage')
@@ -175,12 +177,18 @@ php artisan create:guest-user aiku 'Developer' -a -r super-admin
 @task('tenant-fetch-customers')
     echo "tenant-fetch-customers" > step
     cd ../../
-    echo "shop customers"
+    echo "customers"
     php artisan fetch:customers {{$instance}} -q
     php artisan fetch:deleted-customers {{$instance}} -q
     php artisan fetch:web-users {{$instance}} -q
     php artisan fetch:prospects {{$instance}} -q
     php artisan fetch:mailshots {{$instance}} -q
+@endtask
+
+@task('tenant-fetch-emails')
+    echo "tenant-fetch-emails" > step
+    cd ../../
+    echo "emails"
     php artisan fetch:dispatched-emails {{$instance}} -q
     php artisan fetch:email-tracking-events {{$instance}} -q
 
