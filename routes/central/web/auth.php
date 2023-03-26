@@ -13,7 +13,6 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\FacebookAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -38,12 +37,6 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
                 ->name('password.update');
-
-
-    Route::get('auth/facebook', [FacebookAuthController::class, 'facebookRedirect'])->name('facebook.store');
-    ;
-    Route::get('auth/facebook/callback', [FacebookAuthController::class, 'loginWithFacebook'])->name('facebook.callback');
-    ;
 });
 
 Route::middleware('auth')->group(function () {
