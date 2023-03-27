@@ -117,7 +117,7 @@ class IndexSuppliers extends InertiaAction
                         'label'=> __('supplier')
                     ] : false,
                 ],
-                'suppliers'   => SupplierResource::collection($suppliers),
+                'data'   => SupplierResource::collection($suppliers),
 
 
             ]

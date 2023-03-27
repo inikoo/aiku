@@ -19,7 +19,7 @@ function supplierRoute(supplier: Supplier) {
         case 'procurement.suppliers.index':
             return route(
                 'procurement.suppliers.show',
-                [supplier.name, supplier.email]);
+                [supplier.slug]);
         default:
             return route(
                 'suppliers.show',
@@ -32,8 +32,8 @@ function supplierRoute(supplier: Supplier) {
 <template>
     <Table :resource="data" :name="'as'" class="mt-5">
         <template #cell(code)="{ item: supplier }">
-            <Link :href="route(supplierRoute(supplier))">
-                {{ supplier['name'] }}
+            <Link :href="supplierRoute(supplier)">
+                {{ supplier['code'] }}
             </Link>
         </template>
     </Table>
