@@ -19,10 +19,6 @@ function agentRoute(agent: Agent) {
         case 'procurement.agents.index':
             return route(
                 'procurement.agents.show',
-                [agent.name, agent.email]);
-        default:
-            return route(
-                'agents.show',
                 [agent.slug]);
     }
 }
@@ -33,7 +29,7 @@ function agentRoute(agent: Agent) {
     <Table :resource="data" :name="'ap'" class="mt-5">
         <template #cell(code)="{ item: agent }">
             <Link :href="agentRoute(agent)">
-                {{ agent.code }}
+                {{ agent.slug }}
             </Link>
         </template>
     </Table>

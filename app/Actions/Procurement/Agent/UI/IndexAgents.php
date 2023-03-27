@@ -106,7 +106,7 @@ class IndexAgents extends InertiaAction
                         'label'=> __('agent')
                     ] : false,
                 ],
-                'agents'      => AgentResource::collection($agents),
+                'data'      => AgentResource::collection($agents),
             ]
         )->table($this->tableStructure($parent));
     }
