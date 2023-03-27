@@ -19,7 +19,7 @@ function familyRoute(family: Family) {
         case 'shops.show.families.index':
             return route(
                 'shops.show.families.show',
-                [family.slug, family.slug]);
+                [family.shop_slug, family.slug]);
         default:
             return route(
                 'families.show',

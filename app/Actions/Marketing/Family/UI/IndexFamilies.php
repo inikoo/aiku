@@ -40,9 +40,20 @@ class IndexFamilies extends InertiaAction
 
         return QueryBuilder::for(Family::class)
             ->defaultSort('families.code')
-            ->select(['families.code', 'families.name', 'families.state', 'families.created_at', 'families.updated_at', 'families.slug', 'shops.slug as shop_slug'])
+            ->select([
+                'families.slug',
+                'shops.slug as shop_slug',
+                'departments.slug as departments_slug',
+                'families.state',
+                'families.code',
+                'families.name',
+                'families.description',
+                'families.created_at',
+                'families.updated_at',
+            ])
             ->leftJoin('family_stats', 'families.id', 'family_stats.family_id')
             ->leftJoin('shops', 'families.shop_id', 'shops.id')
+            ->leftJoin('departments', 'families.department_id', 'departments.id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('families.shop_id', $parent->id);
