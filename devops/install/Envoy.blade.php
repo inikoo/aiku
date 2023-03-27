@@ -131,7 +131,7 @@ cd {{ $new_release_dir }}
 @endforeach
 {{$php}} artisan optimize:clear
 {{$php}} artisan key:generate --force
-{{$php}} artisan migrate:refresh --force
+{{$php}} artisan migrate:refresh --path=database/migrations/central  --database=central --force
 {{$php}} artisan db:seed --force
 {{$php}} artisan create:first-deployment
 {{$php}} artisan create:admin-user {{ $adminCode }} '{{ $adminName }}' {{ $adminEmail }} -a
@@ -153,6 +153,8 @@ echo "Queue restarted"
 # Only use when no closure used in routes
 {{ $php }} artisan optimize
 {{ $php }} artisan route:cache
+{{ $php }} artisan route:cache
+{{ $php }} artisan horizon:terminate
 
 rm -rf node_modules
 
@@ -175,7 +177,7 @@ echo "* Create aurora tenants"
     @endforeach
 @endif
 
-php artisan tenants:artisan 'scout:flush App\Models\Search\UniversalSearch'
+{{ $php }} artisan tenants:artisan 'scout:flush App\Models\Search\UniversalSearch'
 
 
 {{ $php }} artisan create:guest-user {{ $adminCode }} '{{ $adminName }}' -a -r super-admin

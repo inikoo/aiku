@@ -110,8 +110,9 @@ ln -sf {{ $base_path }}/assets/private/ {{ $new_release_dir }}/resources
 npm run build
 
 cd {{ $new_release_dir }}
-{{$php}} artisan migrate --force
-{{$php}} artisan tenants:migrate --force
+{{$php}} artisan migrate --path=database/migrations/central  --database=central --force
+{{$php}} artisan tenants:artisan migrate  --force
+
 
 echo "***********************************************************************"
 echo '* Clearing cache and optimising *'
