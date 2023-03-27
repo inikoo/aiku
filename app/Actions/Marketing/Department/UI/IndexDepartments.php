@@ -107,7 +107,7 @@ class IndexDepartments extends InertiaAction
                         'label'=> __('department')
                     ] : false,
                 ],
-                'departments' => DepartmentResource::collection($departments),
+                'data' => DepartmentResource::collection($departments),
 
 
             ]

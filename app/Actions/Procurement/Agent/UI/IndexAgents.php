@@ -10,7 +10,6 @@ namespace App\Actions\Procurement\Agent\UI;
 use App\Actions\InertiaAction;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\AgentResource;
-use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -33,7 +32,7 @@ class IndexAgents extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS_PARTS->value);
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS->value);
 
         return QueryBuilder::for(Agent::class)
             ->defaultSort('agents.code')
@@ -43,7 +42,7 @@ class IndexAgents extends InertiaAction
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::AGENTS_PARTS->value.'Page'
+                pageName: TabsAbbreviationEnum::AGENTS->value.'Page'
             )
             ->withQueryString();
     }
@@ -52,8 +51,8 @@ class IndexAgents extends InertiaAction
     {
         return function (InertiaTable $table) use ($parent) {
             $table
-                ->name(TabsAbbreviationEnum::AGENTS_PARTS->value)
-                ->pageName(TabsAbbreviationEnum::AGENTS_PARTS->value.'Page');
+                ->name(TabsAbbreviationEnum::AGENTS->value)
+                ->pageName(TabsAbbreviationEnum::AGENTS->value.'Page');
             $table
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -73,7 +72,7 @@ class IndexAgents extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$request->validate();
+        $this->routeName = $request->route()->getName();
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }
@@ -81,7 +80,7 @@ class IndexAgents extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $agents): AnonymousResourceCollection
     {
-        return SupplierResource::collection($agents);
+        return AgentResource::collection($agents);
     }
 
 

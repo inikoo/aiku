@@ -8,7 +8,12 @@
 namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
+use App\Enums\UI\AgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
+use App\Http\Resources\Procurement\SupplierProductResource;
+use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -82,9 +87,21 @@ class ShowAgent extends InertiaAction
                     ]
 
                 ],
-                'agent'   => $this->agent
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => AgentTabsEnum::navigation()
+                ],
+                AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
+                    fn () => SupplierResource::collection(IndexSuppliers::run($this->agent))
+                    : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run($this->agent))),
+
+                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->agent))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->agent))),
+
             ]
-        );
+        )->table(IndexSuppliers::make()->tableStructure($this->agent))
+            ->table(IndexSupplierProducts::make()->tableStructure($this->agent));
     }
 
 

@@ -11,7 +11,6 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierProductResource;
-use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\SupplierProduct;
 use Closure;
@@ -25,7 +24,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSupplierProducts extends InertiaAction
 {
-    public function handle(Agent|Tenant $parent): LengthAwarePaginator
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

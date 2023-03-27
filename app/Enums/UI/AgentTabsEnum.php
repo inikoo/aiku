@@ -16,8 +16,8 @@ enum AgentTabsEnum: string
     use HasTabs;
 
     case DATA                = 'data';
-    case AGENTS_SUPPLIERS    = 'agents_suppliers';
-    case AGENTS_PARTS        = 'agents_parts';
+    case  SUPPLIERS          = 'suppliers';
+    case SUPPLIER_PRODUCTS   = 'supplier_products';
     case PURCHASE_ORDERS     = 'purchase_orders';
     case DELIVERIES          = 'deliveries';
     case IMAGES              = 'images';
@@ -35,28 +35,28 @@ enum AgentTabsEnum: string
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            AgentTabsEnum::AGENTS_SUPPLIERS             => [
-                'title' => __('portfolio'),
+            AgentTabsEnum::SUPPLIERS  => [
+                'title' => __('suppliers'),
                 'icon'  => 'fal fa-store-alt',
             ],
-            AgentTabsEnum::AGENTS_PARTS => [
-                'title' => __('warehouse areas'),
+            AgentTabsEnum::SUPPLIER_PRODUCTS => [
+                'title' => __('supplier products'),
                 'icon'  => 'fal fa-cube',
             ],
             AgentTabsEnum::PURCHASE_ORDERS     => [
-                'title' => __('locations'),
+                'title' => __('purchase orders'),
                 'icon'  => 'fal fa-shopping-cart',
             ],AgentTabsEnum::DELIVERIES     => [
-                'title' => __('sales'),
+                'title' => __('deliveries'),
                 'icon'  => 'fal fa-money-bill',
             ],AgentTabsEnum::IMAGES     => [
-                'title' => __('insights'),
+                'title' => __('images'),
                 'icon'  => 'fal fa-graduation-cap',
             ],AgentTabsEnum::SYSTEM_USERS     => [
-                'title' => __('discounts'),
+                'title' => __('system user'),
                 'icon'  => 'fal fa-tags',
             ],AgentTabsEnum::CHANGELOG     => [
-                'title' => __('credit blockchains'),
+                'title' => __('changelog'),
                 'icon'  => 'fal fa-code-commit',
             ]
         };

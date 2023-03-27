@@ -26,7 +26,8 @@ class EditFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("shops.products.edit");
+        $this->canEdit = $request->user()->can('shops.products.edit');
+        return $request->user()->hasPermissionTo("shops.products.view");
     }
 
     public function asController(Family $family, ActionRequest $request): Family

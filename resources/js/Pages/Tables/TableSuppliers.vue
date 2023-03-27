@@ -30,7 +30,7 @@ function supplierRoute(supplier: Supplier) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'as'" class="mt-5">
+    <Table :resource="data" :name="'su'" class="mt-5">
         <template #cell(code)="{ item: supplier }">
             <Link :href="supplierRoute(supplier)">
                 {{ supplier['code'] }}

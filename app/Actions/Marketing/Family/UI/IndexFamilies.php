@@ -110,7 +110,7 @@ class IndexFamilies extends InertiaAction
                         'label'=> __('family')
                     ] : false,
                 ],
-                'families' => FamilyResource::collection($families),
+                'data' => FamilyResource::collection($families),
 
 
             ]
