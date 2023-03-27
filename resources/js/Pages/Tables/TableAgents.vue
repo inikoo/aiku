@@ -26,7 +26,7 @@ function agentRoute(agent: Agent) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'ap'" class="mt-5">
+    <Table :resource="data" :name="'ag'" class="mt-5">
         <template #cell(code)="{ item: agent }">
             <Link :href="agentRoute(agent)">
                 {{ agent.slug }}

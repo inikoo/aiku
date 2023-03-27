@@ -39,6 +39,8 @@ enum TabsAbbreviationEnum: string
     case PURCHASE_ORDERS                        = 'puord';
     case DELIVERIES                             = 'd';
     case IMAGES                                 = 'img';
+
+    case AGENTS                                 = 'ag';
     case SYSTEM_USERS                           = 'syuser';
 
     case PROSPECTS                              = 'pro';
@@ -52,8 +54,7 @@ enum TabsAbbreviationEnum: string
     case UNITS                                  = 'u';
     case TARIFF_CODES_ORIGIN                    = 'tco';
     case PROPERTIES_OPERATIONS                  = 'propt';
-    case AGENTS_SUPPLIERS                       = 'as';
-    case AGENTS_PARTS                           = 'ap';
+    case SUPPLIERS                              = 'su';
     case STOCK_HISTORY                          = 'sh';
     case PARTS                                  = 'parts';
     case DISCONTINUED_PARTS                     = 'dp';

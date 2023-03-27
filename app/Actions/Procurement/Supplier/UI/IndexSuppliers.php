@@ -26,8 +26,8 @@ class IndexSuppliers extends InertiaAction
 {
     use HasUISuppliers;
 
-
-    public function handle(Agent|Tenant $parent): LengthAwarePaginator
+    private Agent|Tenant $parent;
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -36,7 +36,7 @@ class IndexSuppliers extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS_SUPPLIERS->value);
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIERS->value);
 
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
@@ -52,7 +52,7 @@ class IndexSuppliers extends InertiaAction
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::AGENTS_SUPPLIERS->value.'Page'
+                pageName: TabsAbbreviationEnum::SUPPLIERS->value.'Page'
             )
             ->withQueryString();
     }
@@ -61,8 +61,8 @@ class IndexSuppliers extends InertiaAction
     {
         return function (InertiaTable $table) use ($parent) {
             $table
-                ->name(TabsAbbreviationEnum::AGENTS_SUPPLIERS->value)
-                ->pageName(TabsAbbreviationEnum::AGENTS_SUPPLIERS->value.'Page');
+                ->name(TabsAbbreviationEnum::SUPPLIERS->value)
+                ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page');
             $table
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -82,14 +82,14 @@ class IndexSuppliers extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
+        $this->routeName = $request->route()->getName();
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }
 
-    public function InAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
+    public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
+        $this->initialisation($request);
         return $this->handle($agent);
     }
 
