@@ -35,7 +35,7 @@ function familyRoute(family: Family) {
 
         <template #cell(code)="{ item: family }">
             <Link :href="familyRoute(family)">
-                {{ family.code }}
+                {{ family['code'] }}
             </Link>
         </template>
 
