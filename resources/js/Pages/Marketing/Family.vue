@@ -18,7 +18,7 @@ import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableCustomers from "@/Pages/Tables/TableCustomers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-
+import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
 
 library.add(faFolder, faCube);
 
@@ -32,6 +32,7 @@ const props = defineProps<{
         navigation: object;
     }
     customers: object;
+    mailshots: object;
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -40,6 +41,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        mailshots: TableMailshots,
         customers: TableCustomers,
         details: ModelDetails,
         history: ModelChangelog,

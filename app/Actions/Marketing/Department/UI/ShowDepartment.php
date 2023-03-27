@@ -8,13 +8,22 @@
 namespace App\Actions\Marketing\Department\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Mail\Mailshot\IndexMailshots;
+use App\Actions\Sales\Customer\UI\IndexCustomers;
+use App\Enums\UI\DepartmentTabsEnum;
+use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\DepartmentResource;
+use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
+
+/**
+ * @property Department $department
+ */
 
 class ShowDepartment extends InertiaAction
 {
@@ -64,9 +73,20 @@ class ShowDepartment extends InertiaAction
                         ]
                     ] : false,
                 ],
-                'department' => new DepartmentResource($department),
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => DepartmentTabsEnum::navigation()
+                ],
+                DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
+                    fn () => CustomerResource::collection(IndexCustomers::run($this->department))
+                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($this->department))),
+                DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
+                    fn () => MailshotResource::collection(IndexMailshots::run($this->department))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->department))),
+
             ]
-        );
+        )->table(IndexCustomers::make()->tableStructure($department))
+            ->table(IndexMailshots::make()->tableStructure($department));
     }
 
     public function prepareForValidation(ActionRequest $request): void
