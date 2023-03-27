@@ -8,6 +8,9 @@
 namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
+use App\Enums\UI\SupplierTabsEnum;
+use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Supplier;
 use Inertia\Inertia;
@@ -15,6 +18,9 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
+/**
+ * @property Supplier $supplier
+ */
 class ShowSupplier extends InertiaAction
 {
     use HasUISupplier;
@@ -34,7 +40,6 @@ class ShowSupplier extends InertiaAction
     public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
         $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($supplier);
     }
@@ -56,9 +61,16 @@ class ShowSupplier extends InertiaAction
                     ] : false,
 
                 ],
-                'supplier'    => new SupplierResource($supplier)
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => SupplierTabsEnum::navigation()
+                ],
+                SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->supplier))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->supplier))),
+
             ]
-        );
+        )->table(IndexSupplierProducts::make()->tableStructure($supplier));
     }
 
 
