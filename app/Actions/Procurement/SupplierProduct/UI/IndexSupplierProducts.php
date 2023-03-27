@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 28 Feb 2023 10:07:36 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 27 Mar 2023 15:54:59 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\SupplierProduct;
+namespace App\Actions\Procurement\SupplierProduct\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
@@ -108,7 +108,7 @@ class IndexSupplierProducts extends InertiaAction
                 'pageHead'    => [
                     'title' => __('supplier products'),
                 ],
-                'supplier_products'   => SupplierProductResource::collection($supplier_products),
+                'data'   => SupplierProductResource::collection($supplier_products),
 
 
             ]
