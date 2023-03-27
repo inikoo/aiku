@@ -8,13 +8,20 @@
 namespace App\Actions\Marketing\Family\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Sales\Customer\UI\IndexCustomers;
+use App\Enums\UI\FamilyTabsEnum;
 use App\Http\Resources\Marketing\FamilyResource;
+use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Marketing\Family;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
+
+/**
+ * @property Family $family
+ */
 
 class ShowFamily extends InertiaAction
 {
@@ -64,9 +71,18 @@ class ShowFamily extends InertiaAction
                         ]
                     ] : false,
                 ],
-                'family'   => new FamilyResource($family),
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => FamilyTabsEnum::navigation()
+                ],
+                FamilyTabsEnum::CUSTOMERS->value => $this->tab == FamilyTabsEnum::CUSTOMERS->value ?
+                    fn () => CustomerResource::collection(IndexCustomers::run($this->family))
+                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($this->family))),
+
+
+
             ]
-        );
+        )->table(IndexCustomers::make()->tableStructure($family));
     }
 
     public function prepareForValidation(ActionRequest $request): void

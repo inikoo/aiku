@@ -19,7 +19,7 @@ function departmentRoute(department: Department) {
         case 'shops.show.departments.index':
             return route(
                 'shops.show.departments.show',
-                [department.slug, department.slug]);
+                [department.shop_slug, department.slug]);
         default:
             return route(
                 'departments.show',
@@ -31,9 +31,9 @@ function departmentRoute(department: Department) {
 
 <template>
     <Table :resource="data" :name="'dep'" class="mt-5">
-        <template #cell(name)="{ item: department }">
+        <template #cell(code)="{ item: department }">
             <Link :href="departmentRoute(department)">
-                {{ department['name'] }}
+                {{ department['code'] }}
             </Link>
         </template>
 

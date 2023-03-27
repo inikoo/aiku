@@ -6,12 +6,12 @@
 
 export interface Family {
     slug:string,
-    shop_id: string,
+    shop_slug: string,
+    department_slug: string
     state: string
     code: string
     name: string
     description: string
     created_at: string
     updated_at: string
-    department_id: string
 }
