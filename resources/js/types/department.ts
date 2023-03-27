@@ -6,12 +6,13 @@
 
 export interface Department {
     slug:string,
-    shop_id: string,
-    state: string
+    shop_slug: string,
+    department_slug: string
     code: string
     name: string
+
+    state: string
     description: string
     created_at: string
     updated_at: string
-    department_id: string
 }

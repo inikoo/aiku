@@ -31,15 +31,25 @@ class IndexDepartments extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('departments.name', '~*', "\y$value\y")
-                    ->orWhere('departments.code', '=', $value);
+                $query->where('departments.code', '~*', "\y$value\y")
+                    ->orWhere('departments.name', '=', $value);
             });
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DEPARTMENTS->value);
 
         return QueryBuilder::for(Department::class)
             ->defaultSort('departments.code')
-            ->select(['departments.code', 'departments.name', 'departments.state', 'departments.created_at', 'departments.updated_at', 'departments.slug', 'shops.slug as shop_slug'])
+            ->select([
+                'departments.slug',
+                'shops.slug as shop_slug',
+                'departments.slug as departments_slug',
+                'departments.code',
+                'departments.name',
+                'departments.state',
+                'departments.description',
+                'departments.created_at',
+                'departments.updated_at',
+            ])
             ->leftJoin('department_stats', 'departments.id', 'department_stats.department_id')
             ->leftJoin('shops', 'departments.shop_id', 'shops.id')
             ->when($parent, function ($query) use ($parent) {
