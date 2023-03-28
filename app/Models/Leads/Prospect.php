@@ -8,6 +8,7 @@
 namespace App\Models\Leads;
 
 use App\Actions\Helpers\ReadableRandomStringGenerator;
+use App\Actions\Utils\Abbreviate;
 use App\Enums\Leads\Prospect\ProspectStateEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
@@ -99,7 +100,7 @@ class Prospect extends Model
             ->generateSlugsFrom(function () {
                 $name=$this->company_name == '' ? $this->contact_name : $this->company_name;
                 if ($name!='') {
-                    return abbreviate($name);
+                    return Abbreviate::run($name);
                 }
                 return ReadableRandomStringGenerator::run();
             })

@@ -58,10 +58,10 @@ function locationsRoute(warehouseArea: WarehouseArea) {
             </Link>
         </template>
 
-     <template #cell(number_locations)="{ item: warehouseArea }">
-         <Link :href="locationsRoute(warehouseArea)">
-             {{ warehouseArea['number_locations'] }}
-         </Link>
-     </template>
+        <template #cell(number_locations)="{ item: warehouseArea }">
+            <Link :href="locationsRoute(warehouseArea)">
+                {{ warehouseArea['number_locations'] }}
+            </Link>
+        </template>
     </Table>
 </template>

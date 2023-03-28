@@ -8,7 +8,9 @@
 namespace App\Models\Inventory;
 
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
+use App\Actions\Utils\Abbreviate;
 use App\Models\Traits\HasUniversalSearch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,12 +36,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\WarehouseAreaStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea query()
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|WarehouseArea withoutTrashed()
+ * @method static Builder|WarehouseArea newModelQuery()
+ * @method static Builder|WarehouseArea newQuery()
+ * @method static Builder|WarehouseArea onlyTrashed()
+ * @method static Builder|WarehouseArea query()
+ * @method static Builder|WarehouseArea withTrashed()
+ * @method static Builder|WarehouseArea withoutTrashed()
  * @mixin \Eloquent
  */
 class WarehouseArea extends Model
@@ -54,10 +56,12 @@ class WarehouseArea extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+            ->generateSlugsFrom(function () {
+                return Abbreviate::run($this->code, digits: true, maximumLength: 4);
+            })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(16);
+            ->slugsShouldBeNoLongerThan(4);
     }
 
 

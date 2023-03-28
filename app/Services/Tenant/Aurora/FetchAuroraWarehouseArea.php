@@ -7,18 +7,22 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraWarehouseArea extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $this->parsedData['warehouse'] = FetchWarehouses::run($this->tenantSource, $this->auroraModelData->{'Warehouse Area Warehouse Key'});
+        $code=$this->auroraModelData->{'Warehouse Area Code'};
+        $code=preg_replace('/\s*warehouse$/i', '', $code);
 
+
+
+        $this->parsedData['warehouse']      = $this->parseWarehouse($this->auroraModelData->{'Warehouse Area Warehouse Key'});
         $this->parsedData['warehouse_area'] = [
             'name'      => $this->auroraModelData->{'Warehouse Area Name'} ?? 'Name not set',
-            'code'      => $this->auroraModelData->{'Warehouse Area Code'},
+            'code'      => Str::kebab($code),
             'source_id' => $this->auroraModelData->{'Warehouse Area Key'},
         ];
     }

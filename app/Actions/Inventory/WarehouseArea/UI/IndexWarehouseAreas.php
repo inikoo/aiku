@@ -39,6 +39,7 @@ class IndexWarehouseAreas extends InertiaAction
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WAREHOUSE_AREAS->value);
 
 
+
         return QueryBuilder::for(WarehouseArea::class)
             ->defaultSort('warehouse_areas.code')
             ->select(
@@ -61,7 +62,7 @@ class IndexWarehouseAreas extends InertiaAction
             ->allowedSorts(['code', 'name', 'number_locations'])
             ->allowedFilters([$globalSearch])
             ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                //  perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::WAREHOUSE_AREAS->value.'Page'
             )
             ->withQueryString();

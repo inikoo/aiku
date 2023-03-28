@@ -25,7 +25,6 @@
         "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^0.6",
         "jackwh/laravel-new-relic": "^1.0",
-        "kbs1/laravel-abbreviations": "^1.0",
         "laravel/framework": "^9",
         "laravel/horizon": "^5",
         "laravel/sanctum": "^2",

@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Actions\Utils\Abbreviate;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWarehouse extends FetchAurora
@@ -15,7 +16,7 @@ class FetchAuroraWarehouse extends FetchAurora
     {
         $this->parsedData["warehouse"] = [
             "name"       => $this->auroraModelData->{'Warehouse Name'},
-            "code"       => $this->auroraModelData->{'Warehouse Code'},
+            "code"       => Abbreviate::run($this->auroraModelData->{'Warehouse Name'}),
             "source_id"  => $this->auroraModelData->{'Warehouse Key'},
             "created_at" =>
                 $this->auroraModelData->{'Warehouse Valid From'} ?? null,

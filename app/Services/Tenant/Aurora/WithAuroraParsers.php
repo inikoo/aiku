@@ -33,6 +33,7 @@ use App\Actions\SourceFetch\Aurora\FetchShippers;
 use App\Actions\SourceFetch\Aurora\FetchShops;
 use App\Actions\SourceFetch\Aurora\FetchStocks;
 use App\Actions\SourceFetch\Aurora\FetchSuppliers;
+use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -44,6 +45,7 @@ use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Stock;
+use App\Models\Inventory\Warehouse;
 use App\Models\Leads\Prospect;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
@@ -69,7 +71,7 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value != '' && $value != '0000-00-00 00:00:00'
+        return ($value                  != '' && $value != '0000-00-00 00:00:00'
                              && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
@@ -474,5 +476,19 @@ trait WithAuroraParsers
         }
 
         return $dispatchedEmail;
+    }
+
+    public function parseWarehouse($source_id): ?Warehouse
+    {
+        if (!$source_id) {
+            return null;
+        }
+
+        $warehouse = Warehouse::withTrashed()->where('source_id', $source_id)->first();
+        if (!$warehouse) {
+            $warehouse = FetchWarehouses::run($this->tenantSource, $source_id);
+        }
+
+        return $warehouse;
     }
 }

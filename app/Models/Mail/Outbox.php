@@ -7,6 +7,7 @@
 
 namespace App\Models\Mail;
 
+use App\Actions\Utils\Abbreviate;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -75,7 +76,7 @@ class Outbox extends Model
                 if ($this->type=='reorder-reminder') {
                     $abbreviation='ror';
                 } else {
-                    $abbreviation= abbreviate($this->type);
+                    $abbreviation= Abbreviate::run($this->type);
                 }
 
                 return $abbreviation.' '.$this->shop->slug;
