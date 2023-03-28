@@ -8,7 +8,14 @@
 import { Head } from '@inertiajs/vue3';
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faGlobe } from "@/../private/pro-light-svg-icons";
+import {
+    faCodeCommit,
+    faGlobe,
+    faGraduationCap,
+    faMoneyBill,
+    faPaperclip, faPaperPlane, faStickyNote,
+    faTags
+} from "@/../private/pro-light-svg-icons";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableOrders from "@/Pages/Tables/TableOrders.vue";
 import {useTabChange} from "@/Composables/tab-change";
@@ -17,7 +24,16 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
 
-library.add(faGlobe);
+library.add(
+    faStickyNote,
+    faGlobe,
+    faMoneyBill,
+    faGraduationCap,
+    faTags,
+    faCodeCommit,
+    faPaperclip,
+    faPaperPlane,
+)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 

@@ -73,7 +73,7 @@ enum OrderTabsEnum: string
             ],
             OrderTabsEnum::DELIVERY_NOTES => [
                 'title' => __('delivery notes'),
-                'icon'  => 'fal fa-paperclip',
+                'icon'  => 'fal fa-truck',
                 'type'  => 'icon-only'
             ],
             OrderTabsEnum::ATTACHMENTS => [
