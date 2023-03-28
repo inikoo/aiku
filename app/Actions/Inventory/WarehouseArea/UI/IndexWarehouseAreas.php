@@ -83,7 +83,7 @@ class IndexWarehouseAreas extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.warehouse-areas.edit');
+        $this->canEdit = $request->user()->can('inventory.warehouses.edit');
 
         return
             (
@@ -116,10 +116,15 @@ class IndexWarehouseAreas extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $warehousesAreas, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Inventory/WarehouseAreas',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), last($request->route()->parameters())),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $parent
+                ),
                 'title'       => __('warehouse areas'),
                 'pageHead'    => [
                     'title'  => __('warehouse areas'),
