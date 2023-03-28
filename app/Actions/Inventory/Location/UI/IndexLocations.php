@@ -148,7 +148,12 @@ class IndexLocations extends InertiaAction
                 'title'       => __('locations'),
                 'pageHead'    => [
                     'title'  => __('locations'),
-                    'create' => $this->canEdit && $this->routeName == 'inventory.locations.index' ? [
+                    'create' => $this->canEdit
+                    && (
+                        $this->routeName == 'inventory.locations.index' or
+                        $this->routeName == 'inventory.warehouses.show.locations.index'
+                    )
+                            ? [
                         'route' => [
                             'name'       => 'inventory.locations.create',
                             'parameters' => array_values($this->originalParameters)
