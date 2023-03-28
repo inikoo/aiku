@@ -7,10 +7,13 @@
 
 namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\UI\WithInertia;
+use App\Enums\UI\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
+use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Marketing\Shop;
 use Illuminate\Http\Request;
@@ -20,6 +23,9 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/**
+ * @property Invoice $invoice
+ */
 class ShowInvoice extends InertiaAction
 {
     use AsAction;
@@ -64,9 +70,20 @@ class ShowInvoice extends InertiaAction
 
 
                 ],
-                'invoice' => new InvoiceResource($invoice),
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => InvoiceTabsEnum::navigation()
+
+                ],
+
+                InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
+                    fn () => PaymentResource::collection(IndexPayments::run($this->invoice))
+                    : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($this->invoice))),
+
+
+
             ]
-        );
+        )->table(IndexPayments::make()->tableStructure());
     }
 
     public function prepareForValidation(ActionRequest $request): void
