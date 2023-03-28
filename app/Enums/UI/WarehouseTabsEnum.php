@@ -14,17 +14,18 @@ enum WarehouseTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
-    case DASHBOARD           = 'dashboard';
-    case WAREHOUSE_AREAS     = 'warehouse_areas';
-    case LOCATIONS           = 'locations';
-    case DATA                = 'data';
-    case CHANGELOG           = 'changelog';
+
+    case DASHBOARD       = 'dashboard';
+    case WAREHOUSE_AREAS = 'warehouse_areas';
+    case LOCATIONS       = 'locations';
+    case DATA            = 'data';
+    case HISTORY         = 'history';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            WarehouseTabsEnum::DASHBOARD             => [
+            WarehouseTabsEnum::DASHBOARD => [
                 'title' => __('stats'),
                 'icon'  => 'fal fa-chart-line',
             ],
@@ -32,16 +33,20 @@ enum WarehouseTabsEnum: string
                 'title' => __('warehouse areas'),
                 'icon'  => 'fal fa-map-signs',
             ],
-            WarehouseTabsEnum::LOCATIONS     => [
+            WarehouseTabsEnum::LOCATIONS => [
                 'title' => __('locations'),
                 'icon'  => 'fal fa-inventory',
             ],
-            WarehouseTabsEnum::DATA     => [
+            WarehouseTabsEnum::DATA => [
+                'align' => 'right',
+                'type'  => 'icon',
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            WarehouseTabsEnum::CHANGELOG     => [
-                'title' => __('changelog'),
+            WarehouseTabsEnum::HISTORY => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('history'),
                 'icon'  => 'fal fa-clock',
             ],
         };
