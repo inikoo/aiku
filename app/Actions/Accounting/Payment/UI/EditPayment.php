@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Payment\UI;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
+use App\Models\Accounting\PaymentServiceProvider;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -64,7 +65,7 @@ class EditPayment extends InertiaAction
                             'fields' => [
                                 'amount' => [
                                     'type'  => 'input',
-                                    'label' => __('code'),
+                                    'label' => __('amount'),
                                     'value' => $payment->amount
                                 ],
                                 'date' => [
@@ -91,5 +92,16 @@ class EditPayment extends InertiaAction
     #[Pure] public function jsonResponse(Payment $payment): PaymentResource
     {
         return new PaymentResource($payment);
+    }
+
+
+
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request);
+        return $this->handle($payment);
     }
 }

@@ -35,7 +35,7 @@ class ShowPayment extends InertiaAction
 
     public function asController(Payment $payment, ActionRequest $request): Payment
     {
-        //$this->routeName = $request->route()->getName();
+        $this->routeName = $request->route()->getName();
         //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($payment);
@@ -70,9 +70,6 @@ class ShowPayment extends InertiaAction
 
     public function htmlResponse(Payment $payment): Response
     {
-        $this->validateAttributes();
-
-
         return Inertia::render(
             'Accounting/Payment',
             [
@@ -89,7 +86,7 @@ class ShowPayment extends InertiaAction
                     ] : false,
 
                 ],
-                'payment' => $payment
+                'data' => $payment
             ]
         );
     }
