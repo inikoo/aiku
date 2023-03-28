@@ -8,21 +8,19 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {StockFamily} from "@/types/stock-family";
+import {useLocaleStore} from '@/Stores/locale.js';
 
 const props = defineProps<{
     data: object
 }>()
 
+const locale = useLocaleStore();
 
 function stockFamilyRoute(stockFamily: StockFamily) {
     switch (route().current()) {
         case 'inventory.stock-families.index':
             return route(
                 'inventory.stock-families.show',
-                [stockFamily.slug, stockFamily.slug]);
-        default:
-            return route(
-                'stock-families.show',
                 [stockFamily.slug]);
     }
 }
@@ -30,7 +28,7 @@ function stockFamilyRoute(stockFamily: StockFamily) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'pf'" :columnsType=columnsType class="mt-5">
+    <Table :resource="data" :name="'sf'" class="mt-5">
         <template #cell(code)="{ item: stockFamily }">
             <Link :href="stockFamilyRoute(stockFamily)">
                 {{ stockFamily['code'] }}

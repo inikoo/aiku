@@ -7,20 +7,14 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import {useLocaleStore} from '@/Stores/locale.js';
 import TableStockFamilies from "@/Pages/Tables/TableStockFamilies.vue";
 
 const props = defineProps<{
     data: object
-    tittle: string
+    title: string
     pageHead: object
 }>()
 
-const locale = useLocaleStore();
-
-const columnsType = {
-    'number_stocks': 'number'
-}
 
 
 </script>

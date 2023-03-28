@@ -24,7 +24,7 @@ class IndexStockFamilies extends InertiaAction
 {
     use HasUIStockFamilies;
 
-    public function handle($parent): LengthAwarePaginator
+    public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -32,7 +32,7 @@ class IndexStockFamilies extends InertiaAction
                     ->orWhere('stock_families.name', 'LIKE', "%$value%");
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PRODUCT_FAMILIES->value);
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::STOCK_FAMILIES->value);
 
         return QueryBuilder::for(StockFamily::class)
             ->defaultSort('stock_families.code')
@@ -48,7 +48,7 @@ class IndexStockFamilies extends InertiaAction
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::PRODUCT_FAMILIES->value.'Page'
+                pageName: TabsAbbreviationEnum::STOCK_FAMILIES->value.'Page'
             )
             ->withQueryString();
     }
@@ -57,8 +57,8 @@ class IndexStockFamilies extends InertiaAction
     {
         return function (InertiaTable $table) use ($parent) {
             $table
-                ->name(TabsAbbreviationEnum::PRODUCT_FAMILIES->value)
-                ->pageName(TabsAbbreviationEnum::PRODUCT_FAMILIES->value.'Page');
+                ->name(TabsAbbreviationEnum::STOCK_FAMILIES->value)
+                ->pageName(TabsAbbreviationEnum::STOCK_FAMILIES->value.'Page');
             $table
                 ->withGlobalSearch()
                 ->column(key: 'code', label: 'code', canBeHidden: false, sortable: true, searchable: true)
@@ -82,8 +82,8 @@ class IndexStockFamilies extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$request->validate();
         $this->initialisation($request);
+
         return $this->handle(app('currentTenant'));
     }
 
@@ -97,21 +97,23 @@ class IndexStockFamilies extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Inventory/StockFamilies',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __("stock's families"),
                 'pageHead'    => [
-                    'title'   => __('families'),
-                    'create'  => $this->canEdit && $this->routeName=='inventory.stock-families.index' ? [
+                    'title'  => __("stock's families"),
+                    'create' => $this->canEdit && $this->routeName == 'inventory.stock-families.index' ? [
                         'route' => [
                             'name'       => 'inventory.stock-families.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('family')
+                        'label' => __("stock's family")
                     ] : false,
                 ],
-                'stockFamilies'  => StockFamilyResource::collection($stocks),
+                'data'        => StockFamilyResource::collection($stocks),
 
 
             ]
