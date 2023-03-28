@@ -134,10 +134,15 @@ class IndexLocations extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $locations, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Inventory/Locations',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), last($request->route()->parameters())),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $parent
+                ),
                 'title'       => __('locations'),
                 'pageHead'    => [
                     'title'  => __('locations'),
