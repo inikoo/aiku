@@ -25,6 +25,5 @@ const props = defineProps(['title', 'pageHead', 'delivery_note']);
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-
 </template>
 

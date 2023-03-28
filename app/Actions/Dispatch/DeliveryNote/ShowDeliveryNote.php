@@ -8,12 +8,12 @@
 namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\IndexShops;
+use App\Actions\Sales\Order\ShowOrder;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
-use Illuminate\Http\Request;
+use App\Models\Sales\Order;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -41,25 +41,32 @@ class ShowDeliveryNote extends InertiaAction
         return $this->handle($deliveryNote);
     }
 
-    public function inShop(Shop $shop, DeliveryNote $deliveryNote, Request $request): DeliveryNote
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Shop $shop, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
-        $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
-
         return $this->handle($deliveryNote);
     }
 
-    public function htmlResponse(DeliveryNote $deliveryNote): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrder(Order $order, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
-        $this->validateAttributes();
+        return $this->handle($deliveryNote);
+    }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrderInShop(Shop $shop, Order $order, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
+    {
+        return $this->handle($deliveryNote);
+    }
 
+    public function htmlResponse(DeliveryNote $deliveryNote, ActionRequest $request): Response
+    {
         return Inertia::render(
             'Marketing/DeliveryNote',
             [
-                'title'       => __('delivery_note'),
-                'breadcrumbs' => $this->getBreadcrumbs($deliveryNote),
-                'pageHead'    => [
+                'title'         => __('delivery_note'),
+                'breadcrumbs'   => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters(), $deliveryNote),
+                'pageHead'      => [
                     'title' => $deliveryNote->number,
 
 
@@ -83,25 +90,55 @@ class ShowDeliveryNote extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(DeliveryNote $deliveryNote): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, DeliveryNote $deliveryNote): array
     {
-        //TODO Pending
-        return array_merge(
-            (new IndexShops())->getBreadcrumbs(),
-            [
-                'shops.show' => [
-                    'route'           => 'shops.show',
-                    'routeParameters' => $deliveryNote->id,
+        $headCrumb = function (array $routeParameters = []) use ($deliveryNote, $routeName) {
+            return [
+                $routeName => [
+                    'route'           => $routeName,
+                    'routeParameters' => $routeParameters,
                     'name'            => $deliveryNote->number,
-                    'index'           => [
-                        'route'   => 'shops.index',
-                        'overlay' => __('Delivery Notes list')
-                    ],
-                    'modelLabel' => [
-                        'label' => __('deliveryNote')
-                    ],
+                    'index'           =>
+                        match ($routeName) {
+                            'shops.show.orders.show.delivery-notes.show', 'orders.show.delivery-notes.show' => null,
+
+                            default=> [
+                                'route'           => preg_replace('/(show|edit)$/', 'index', $routeName),
+                                'routeParameters' => array_pop($routeParameters),
+                                'overlay'         => __('delivery notes list')
+                            ],
+                        },
+
+
+                    'modelLabel'      => [
+                        'label' => __('delivery note')
+                    ]
                 ],
-            ]
-        );
+            ];
+        };
+
+        return match ($routeName) {
+            'shops.show.orders.show.delivery-notes.show' =>
+            array_merge(
+                ShowOrder::make()->getBreadcrumbs(
+                    'shops.show.orders.show',
+                    [
+                        'shop' => $routeParameters['shop'],
+                        'order'=> $routeParameters['order']
+                    ]
+                ),
+                $headCrumb([$routeParameters['shop']->slug, $routeParameters['order']->slug,$routeParameters['deliveryNote']->slug])
+            ),
+            'orders.show.delivery-notes.show' =>
+            array_merge(
+                ShowOrder::make()->getBreadcrumbs(
+                    'shops.show',
+                    [
+                        'order'=> $routeParameters['order']
+                    ],
+                ),
+                $headCrumb([$routeParameters['order']->slug,$routeParameters['deliveryNote']->slug])
+            ),
+        };
     }
 }

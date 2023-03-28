@@ -16,8 +16,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditCustomer extends InertiaAction
 {
-    use HasUICustomer;
-
     public function handle(Customer $customer): Customer
     {
         return $customer;
@@ -32,14 +30,13 @@ class EditCustomer extends InertiaAction
     public function asController(Customer $customer, ActionRequest $request): Customer
     {
         $this->initialisation($request);
-
         return $this->handle($customer);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Customer $customer, ActionRequest $request): Customer
     {
         $this->initialisation($request);
-
         return $this->handle($customer);
     }
 
@@ -49,7 +46,7 @@ class EditCustomer extends InertiaAction
             'EditModel',
             [
                 'title'       => __('customer'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $customer),
+                'breadcrumbs' => ShowCustomer::make()->getBreadcrumbs($this->routeName, $customer),
                 'pageHead'    => [
                     'title'    => $customer->name,
                     'exitEdit' => [

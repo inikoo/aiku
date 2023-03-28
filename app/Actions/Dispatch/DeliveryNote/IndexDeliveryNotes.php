@@ -17,6 +17,7 @@ use App\Models\Marketing\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
@@ -25,7 +26,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDeliveryNotes extends InertiaAction
 {
-    private Shop|Tenant $parent;
     public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -44,6 +44,15 @@ class IndexDeliveryNotes extends InertiaAction
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('delivery_notes.shop_id', $parent->id);
+                } elseif (class_basename($parent) == 'Order') {
+                    $query->leftJoin(
+                        'delivery_noteables',
+                        function ($leftJoin) {
+                            $leftJoin->on('delivery_noteables.delivery_note_id', 'delivery_notes.id');
+                            $leftJoin->on(DB::raw('delivery_noteables.delivery_noteable_type'), DB::raw("'Order'"));
+                        }
+                    );
+                    $query->where('delivery_noteables.delivery_noteable_id', $parent->id);
                 }
             })
             ->allowedSorts(['number', 'date'])
@@ -114,7 +123,7 @@ class IndexDeliveryNotes extends InertiaAction
         return $this->handle(app('currentTenant'));
     }
 
-    public function InShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($shop);

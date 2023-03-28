@@ -16,6 +16,14 @@ const props = defineProps<{
 
 function deliveryNoteRoute(deliveryNote: DeliveryNote) {
     switch (route().current()) {
+        case 'shops.show.orders.show':
+            return route(
+                'shops.show.orders.show.delivery-notes.show',
+                [route().params['shop'],route().params['order'],deliveryNote.slug]);
+        case 'orders.show':
+            return route(
+                'orders.show,delivery-notes.show',
+                [route().params['order'],deliveryNote.slug]);
         case 'shops.show.delivery-notes.index':
             return route(
                 'shops.show.delivery-notes.show',
@@ -32,7 +40,7 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
 <template>
     <Table :resource="data" :name="'dn'" class="mt-5">
         <template #cell(number)="{ item: deliveryNote }">
-            <Link :href="route(deliveryNoteRoute(deliveryNote))">
+            <Link :href="deliveryNoteRoute(deliveryNote)">
                 {{ deliveryNote['number'] }}
             </Link>
         </template>

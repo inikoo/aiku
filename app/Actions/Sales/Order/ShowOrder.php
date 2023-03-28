@@ -11,7 +11,8 @@ use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\IndexShops;
+use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
@@ -20,10 +21,8 @@ use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Order;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -46,20 +45,22 @@ class ShowOrder extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
-    public function asController(Order $order): Order
+    public function asController(Order $order, ActionRequest $request): Order
     {
-        return $this->handle($order);
-    }
-
-    public function inShop(Shop $shop, Order $order, Request $request): Order
-    {
-        $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
+        $this->initialisation($request)->withTab(OrderTabsEnum::values());
 
         return $this->handle($order);
     }
 
-    public function htmlResponse(Order $order): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Shop $shop, Order $order, ActionRequest $request): Order
+    {
+        $this->initialisation($request)->withTab(OrderTabsEnum::values());
+
+        return $this->handle($order);
+    }
+
+    public function htmlResponse(Order $order, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -68,13 +69,16 @@ class ShowOrder extends InertiaAction
             'Marketing/Order',
             [
                 'title'       => __('order'),
-                'breadcrumbs' => $this->getBreadcrumbs($order),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters(),
+                ),
                 'pageHead'    => [
                     'title' => $order->number,
 
 
                 ],
-                'tabs' => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => OrderTabsEnum::navigation()
 
@@ -106,31 +110,54 @@ class ShowOrder extends InertiaAction
         $this->set('canViewUsers', $request->user()->can('users.view'));
     }
 
-    #[Pure] public function jsonResponse(Order $order): OrderResource
+    public function jsonResponse(Order $order): OrderResource
     {
         return new OrderResource($order);
     }
 
 
-    public function getBreadcrumbs(Order $order): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        //TODO Pending
-        return array_merge(
-            (new IndexShops())->getBreadcrumbs(),
-            [
-                'shops.show' => [
-                    'route'           => 'shops.show',
-                    'routeParameters' => $order->id,
+        $order     =$routeParameters['order'];
+        $headCrumb = function (array $routeParameters = []) use ($order, $routeName) {
+            return [
+                $routeName => [
+                    'route'           => $routeName,
+                    'routeParameters' => $routeParameters,
                     'name'            => $order->number,
-                    'index'           => [
-                        'route'   => 'shops.index',
-                        'overlay' => __('Orders list')
-                    ],
+                    'index'           =>
+                        match ($routeName) {
+                            'shops.show.customers.show.orders.show', 'customers.show.orders.show' => null,
+
+                            default => [
+                                'route'           => preg_replace('/(show|edit)$/', 'index', $routeName),
+                                'routeParameters' => array_pop($routeParameters),
+                                'overlay'         => __('order list')
+                            ],
+                        },
+
+
                     'modelLabel' => [
                         'label' => __('order')
-                    ],
+                    ]
                 ],
-            ]
-        );
+            ];
+        };
+
+        return match ($routeName) {
+            'shops.show.customers.show.orders.show' => array_merge(
+                ShowCustomer::make()->getBreadcrumbs('shops.show.customers.show', $routeParameters['customer']),
+                $headCrumb([$routeParameters['shop']->slug, $routeParameters['customer']->slug, $routeParameters['order']->slug])
+            ),
+            'customers.show.orders.show' => array_merge(
+                ShowCustomer::make()->getBreadcrumbs('customers.show', $routeParameters['customer']),
+                $headCrumb([$routeParameters['customer']->slug, $routeParameters['order']->slug])
+            ),
+            'shops.show.orders.show' => array_merge(
+                ShowShop::make()->getBreadcrumbs($routeParameters['shop']),
+                $headCrumb([$routeParameters['shop']->slug, $order->slug])
+            ),
+            'orders.show' => $headCrumb([$routeParameters['order']->slug])
+        };
     }
 }

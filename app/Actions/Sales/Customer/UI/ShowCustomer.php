@@ -10,6 +10,7 @@ namespace App\Actions\Sales\Customer\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Marketing\Product\UI\IndexProducts;
+use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Order\IndexOrders;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
@@ -20,7 +21,6 @@ use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
@@ -28,9 +28,6 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowCustomer extends InertiaAction
 {
-    use HasUICustomer;
-
-
     public function handle(Customer $customer): Customer
     {
         return $customer;
@@ -170,8 +167,43 @@ class ShowCustomer extends InertiaAction
     }
 
 
-    #[Pure] public function jsonResponse(Customer $customer): CustomerResource
+    public function jsonResponse(Customer $customer): CustomerResource
     {
         return new CustomerResource($customer);
+    }
+
+    public function getBreadcrumbs(string $routeName, Customer $customer): array
+    {
+        $headCrumb = function (array $routeParameters = []) use ($customer, $routeName) {
+            $indexRouteParameters = $routeParameters;
+            array_pop($indexRouteParameters);
+
+            return [
+                $routeName => [
+                    'route'           => $routeName,
+                    'routeParameters' => $routeParameters,
+                    'name'            => $customer->reference,
+                    'index'           => [
+                        'route'           => preg_replace('/(show|edit)$/', 'index', $routeName),
+                        'routeParameters' => $indexRouteParameters,
+                        'overlay'         => __('customers list')
+                    ],
+                    'modelLabel'      => [
+                        'label' => __('customer')
+                    ]
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'customers.show', 'customers.edit' => $headCrumb([$customer->shop->slug]),
+            'shops.show.customers.show',
+            'shops.show.customers.edit'
+            => array_merge(
+                (new ShowShop())->getBreadcrumbs($customer->shop),
+                $headCrumb([$customer->shop->slug, $customer->slug])
+            ),
+            default => []
+        };
     }
 }

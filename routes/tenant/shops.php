@@ -81,6 +81,8 @@ Route::get('/{shop}/products/{product}/edit', [EditProduct::class, 'inShop'])->n
 Route::get('/{shop}/orders', [IndexOrders::class, 'inShop'])->name('show.orders.index');
 
 Route::get('/{shop}/orders/{order}', [ShowOrder::class, 'inShop'])->name('show.orders.show');
+Route::get('/{shop}/orders/{order}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inOrderInShop'])->name('show.orders.show.delivery-notes.show');
+
 
 Route::get('/{shop}/invoices', [IndexInvoices::class, 'inShop'])->name('show.invoices.index');
 

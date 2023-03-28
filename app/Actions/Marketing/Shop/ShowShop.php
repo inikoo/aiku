@@ -12,7 +12,6 @@ use App\Http\Resources\Marketing\ShopResource;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -51,8 +50,8 @@ class ShowShop
 
 
                 ],
-                'shop'     => new ShopResource($shop),
-                'treeMaps' => [
+                'shop'        => new ShopResource($shop),
+                'treeMaps'    => [
                     [
                         [
                             'name'  => __('customers'),
@@ -136,7 +135,7 @@ class ShowShop
         $this->set('canViewUsers', $request->user()->can('users.view'));
     }
 
-    #[Pure] public function jsonResponse(Shop $shop): ShopResource
+    public function jsonResponse(Shop $shop): ShopResource
     {
         return new ShopResource($shop);
     }
@@ -145,7 +144,6 @@ class ShowShop
     public function getBreadcrumbs(Shop $shop): array
     {
         return array_merge(
-            (new IndexShops())->getBreadcrumbs(),
             [
                 'shops.show' => [
                     'route'           => 'shops.show',
@@ -155,7 +153,7 @@ class ShowShop
                         'route'   => 'shops.index',
                         'overlay' => __('Shops list')
                     ],
-                    'modelLabel' => [
+                    'modelLabel'      => [
                         'label' => __('shop')
                     ],
                 ],
