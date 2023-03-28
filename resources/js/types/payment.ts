@@ -10,6 +10,7 @@ export interface Payment {
     payment_accounts_slug: string
     status: string
     date: string
-    reference: string
+    reference: string,
+
 
 }

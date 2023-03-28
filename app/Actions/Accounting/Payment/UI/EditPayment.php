@@ -11,14 +11,14 @@ use App\Actions\InertiaAction;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Marketing\Shop;
+use App\Models\Sales\Order;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditPayment extends InertiaAction
 {
-    use HasUIPayment;
     public function handle(Payment $payment): Payment
     {
         return $payment;
@@ -33,19 +33,37 @@ class EditPayment extends InertiaAction
     public function asController(Payment $payment, ActionRequest $request): Payment
     {
         $this->initialisation($request);
-
         return $this->handle($payment);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->initialisation($request);
+        return $this->handle($payment);
+    }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrderInShop(Shop $shop, Order $order, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->initialisation($request);
+        return $this->handle($payment);
+    }
 
-    public function htmlResponse(Payment $payment): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrder(Order $order, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->initialisation($request);
+        return $this->handle($payment);
+    }
+
+    public function htmlResponse(Payment $payment, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('payment'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $payment),
+                'breadcrumbs' => ShowPayment::make()->getBreadcrumbs($request->route()->getName(), $request->route()->parameters),
                 'pageHead'    => [
                     'title'     => $payment->reference,
                     'exitEdit'  => [
@@ -89,19 +107,8 @@ class EditPayment extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Payment $payment): PaymentResource
+    public function jsonResponse(Payment $payment): PaymentResource
     {
         return new PaymentResource($payment);
-    }
-
-
-
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, Payment $payment, ActionRequest $request): Payment
-    {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request);
-        return $this->handle($payment);
     }
 }

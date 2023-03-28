@@ -10,6 +10,7 @@ namespace App\Models\Sales;
 use App\Enums\Sales\Order\OrderStateEnum;
 use App\Enums\Sales\Order\OrderStatusEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\Payment;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasOrder;
@@ -94,6 +95,11 @@ class Order extends Model
 
     protected $guarded = [];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
@@ -101,7 +107,12 @@ class Order extends Model
 
     public function deliveryNotes(): MorphToMany
     {
-        return $this->morphToMany(DeliveryNote::class, 'delivery_noteable');
+        return $this->morphToMany(DeliveryNote::class, 'delivery_noteable')->withTimestamps();
+    }
+
+    public function payments(): MorphToMany
+    {
+        return $this->morphToMany(Payment::class, 'paymentable')->withTimestamps()->withPivot(['amount','share']);
     }
 
     public function invoices(): HasMany
@@ -112,10 +123,5 @@ class Order extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(OrderStats::class);
-    }
-
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
     }
 }

@@ -118,12 +118,14 @@ class ShowOrder extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $order     =$routeParameters['order'];
-        $headCrumb = function (array $routeParameters = []) use ($order, $routeName) {
+        $order = $routeParameters['order'];
+
+
+        $headCrumb = function (array $parameters = []) use ($order, $routeName) {
             return [
                 $routeName => [
                     'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
+                    'routeParameters' => $parameters,
                     'name'            => $order->number,
                     'index'           =>
                         match ($routeName) {
@@ -131,7 +133,12 @@ class ShowOrder extends InertiaAction
 
                             default => [
                                 'route'           => preg_replace('/(show|edit)$/', 'index', $routeName),
-                                'routeParameters' => array_pop($routeParameters),
+                                'routeParameters' => function () use ($parameters) {
+                                    $indexParameters = $parameters;
+                                    array_pop($indexParameters);
+
+                                    return $indexParameters;
+                                },
                                 'overlay'         => __('order list')
                             ],
                         },
@@ -155,7 +162,7 @@ class ShowOrder extends InertiaAction
             ),
             'shops.show.orders.show' => array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters['shop']),
-                $headCrumb([$routeParameters['shop']->slug, $order->slug])
+                $headCrumb([$routeParameters['shop']->slug, $routeParameters['order']->slug])
             ),
             'orders.show' => $headCrumb([$routeParameters['order']->slug])
         };

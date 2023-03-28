@@ -7,6 +7,8 @@
 
 use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Invoice\ShowInvoice;
+use App\Actions\Accounting\Payment\UI\EditPayment;
+use App\Actions\Accounting\Payment\UI\ShowPayment;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
 use App\Actions\Leads\Prospect\IndexProspects;
@@ -82,6 +84,8 @@ Route::get('/{shop}/orders', [IndexOrders::class, 'inShop'])->name('show.orders.
 
 Route::get('/{shop}/orders/{order}', [ShowOrder::class, 'inShop'])->name('show.orders.show');
 Route::get('/{shop}/orders/{order}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inOrderInShop'])->name('show.orders.show.delivery-notes.show');
+Route::get('/{shop}/orders/{order}/payments/{payment}', [ShowPayment::class, 'inOrderInShop'])->name('show.orders.show.payments.show');
+Route::get('/{shop}/orders/{order}/payments/{payment}/edit', [EditPayment::class, 'inOrderInShop'])->name('show.orders.show.payments.edit');
 
 
 Route::get('/{shop}/invoices', [IndexInvoices::class, 'inShop'])->name('show.invoices.index');

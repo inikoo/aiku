@@ -15,25 +15,19 @@ enum PaymentTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case DATA                         = 'data';
-    case COMMUNICATIONS_HISTORY_NOTES = 'communications_history_notes';
-    case CHANGELOG                    = 'changelog';
+    case DATA          = 'data';
+    case HISTORY_NOTES = 'history_notes';
 
     public function blueprint(): array
     {
         return match ($this) {
-            PaymentTabsEnum::DATA             => [
+            PaymentTabsEnum::DATA => [
                 'title' => __('data'),
-                'icon'  => 'fal fa-chart-line',
-            ],
-
-            PaymentTabsEnum::COMMUNICATIONS_HISTORY_NOTES     => [
-                'title' => __('history, notes'),
                 'icon'  => 'fal fa-database',
             ],
 
-            PaymentTabsEnum::CHANGELOG     => [
-                'title' => __('changelog'),
+            PaymentTabsEnum::HISTORY_NOTES => [
+                'title' => __('history, notes'),
                 'icon'  => 'fal fa-clock',
             ],
         };

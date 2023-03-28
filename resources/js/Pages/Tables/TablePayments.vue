@@ -15,8 +15,17 @@ const props = defineProps<{
 
 
 function paymentsRoute(payment: Payment) {
+    console.log(route().current());
     switch (route().current()) {
 
+        case 'shops.show.orders.show':
+            return route(
+                'shops.show.orders.show.payments.show',
+                [route().params['shop'],route().params['order'],payment.slug]);
+        case 'orders.show':
+            return route(
+                'orders.show.payments.show',
+                [route().params['order'],payment.slug]);
         case 'accounting.payment-service-providers.show.payment-accounts.show.payments.index':
             return route(
                 'accounting.payment-service-providers.show.payment-accounts.show.payments.show',

@@ -26,7 +26,7 @@ class FetchPayments extends FetchAction
             if ($payment = Payment::where('source_id', $paymentData['payment']['source_id'])
                 ->first()) {
                 $payment = UpdatePayment::run(
-                    payment:   $payment,
+                    payment: $payment,
                     modelData: $paymentData['payment']
                 );
                 $this->markAuroraModel($payment);
@@ -34,7 +34,7 @@ class FetchPayments extends FetchAction
                 if ($paymentData['customer']) {
                     $payment = StorePayment::run(
                         parent: $paymentData['customer'],
-                        modelData:      $paymentData['payment']
+                        modelData: $paymentData['payment']
                     );
 
                     $this->markAuroraModel($payment);

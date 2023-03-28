@@ -7,15 +7,20 @@
 
 namespace App\Actions\Accounting\Payment\UI;
 
+use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
+use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
+use App\Actions\Sales\Order\ShowOrder;
+use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Enums\UI\PaymentTabsEnum;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Marketing\Shop;
+use App\Models\Sales\Order;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
@@ -23,11 +28,11 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowPayment extends InertiaAction
 {
-    use HasUIPayment;
     public function handle(Payment $payment): Payment
     {
         return $payment;
     }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('accounting.edit');
@@ -36,46 +41,52 @@ class ShowPayment extends InertiaAction
 
     public function asController(Payment $payment, ActionRequest $request): Payment
     {
-        $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
         return $this->handle($payment);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentAccount(PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
     {
-        $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
         return $this->handle($payment);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
     {
-        $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
         return $this->handle($payment);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, Payment $payment, ActionRequest $request): Payment
     {
-        $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
         return $this->handle($payment);
     }
 
-    public function htmlResponse(Payment $payment): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrderInShop(Shop $shop, Order $order, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
+        return $this->handle($payment);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrder(Order $order, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
+        return $this->handle($payment);
+    }
+
+    public function htmlResponse(Payment $payment, ActionRequest $request): Response
     {
         return Inertia::render(
             'Accounting/Payment',
             [
                 'title'       => __($payment->id),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $payment),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters),
                 'pageHead'    => [
                     'icon'  => 'fal fa-coins',
                     'title' => $payment->slug,
@@ -87,7 +98,7 @@ class ShowPayment extends InertiaAction
                     ] : false,
 
                 ],
-                'tabs'=> [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => PaymentTabsEnum::navigation()
                 ],
@@ -96,8 +107,101 @@ class ShowPayment extends InertiaAction
     }
 
 
-    #[Pure] public function jsonResponse(Payment $payment): PaymentResource
+    public function jsonResponse(Payment $payment): PaymentResource
     {
         return new PaymentResource($payment);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        $payment   =$routeParameters['payment'];
+        $headCrumb = function (array $parameters = []) use ($routeName, $payment) {
+            return [
+                $routeName => [
+                    'route'           => $routeName,
+                    'routeParameters' => $parameters,
+                    'name'            => $payment->slug,
+                    'index'           =>
+                        match ($routeName) {
+                            'shops.show.orders.show.payments.show', 'orders.show,payments.show' => null,
+                            default => [
+                                'route'           => preg_replace('/show$/', 'index', $routeName),
+                                'routeParameters' => function () use ($parameters) {
+                                    $indexParameters = $parameters;
+                                    array_pop($indexParameters);
+
+                                    return $indexParameters;
+                                },
+                                'overlay'         => __('payments list')
+                            ]
+                        },
+
+
+                    'modelLabel' => [
+                        'label' => __('payment')
+                    ]
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'shops.show.orders.show.payments.show' => array_merge(
+                (new ShowOrder())->getBreadcrumbs(
+                    'shops.show.orders.show',
+                    [
+                        'shop'  => $routeParameters['shop'],
+                        'order' => $routeParameters['order']
+                    ]
+                ),
+                $headCrumb(
+                    [
+                        $routeParameters['shop']->slug,
+                        $routeParameters['order']->slug,
+                        $routeParameters['payment']->slug
+                    ]
+                )
+            ),
+            'orders.show,payments.show' => array_merge(
+                (new ShowOrder())->getBreadcrumbs(
+                    'orders.show',
+                    [
+                        'order' => $routeParameters['order']
+                    ]
+                ),
+                $headCrumb(
+                    [
+                        $routeParameters['order']->slug,
+                        $routeParameters['payment']->slug
+                    ]
+                )
+            ),
+            'accounting.payments.show' => array_merge(
+                (new AccountingDashboard())->getBreadcrumbs(),
+                $headCrumb([$routeParameters['payment']->slug])
+            ),
+            'accounting.payment-service-provider.show.payments.show' => array_merge(
+                (new ShowPaymentServiceProvider())
+                    ->getBreadcrumbs($routeParameters['payment']->paymentAccount->paymentServiceProvider),
+                $headCrumb([$routeParameters['payment']->paymentAccount->paymentServiceProvider->slug, $routeParameters['payment']->slug])
+            ),
+            'accounting.payment-accounts.show.payments.show' => array_merge(
+                (new ShowPaymentAccount())
+                    ->getBreadcrumbs('accounting.payment-accounts.show', $routeParameters['payment']->paymentAccount),
+                $headCrumb([$routeParameters['payment']->paymentAccount->slug, $routeParameters['payment']->slug])
+            ),
+            'accounting.payment-service-provider.show.payment-accounts.show.payments.show' => array_merge(
+                (new ShowPaymentAccount())
+                    ->getBreadcrumbs('accounting.payment-service-provider.show.payment-accounts.show', $routeParameters['payment']->paymentAccount),
+                $headCrumb(
+                    [
+                        $routeParameters['payment']->paymentAccount->paymentServiceProvider->slug,
+                        $routeParameters['payment']->paymentAccount->slug,
+                        $routeParameters['payment']->slug
+                    ]
+                )
+            ),
+
+            default => []
+        };
     }
 }

@@ -25,6 +25,7 @@ use App\Actions\SourceFetch\Aurora\FetchMailshots;
 use App\Actions\SourceFetch\Aurora\FetchOrders;
 use App\Actions\SourceFetch\Aurora\FetchOutboxes;
 use App\Actions\SourceFetch\Aurora\FetchPaymentAccounts;
+use App\Actions\SourceFetch\Aurora\FetchPayments;
 use App\Actions\SourceFetch\Aurora\FetchPaymentServiceProviders;
 use App\Actions\SourceFetch\Aurora\FetchProducts;
 use App\Actions\SourceFetch\Aurora\FetchProspects;
@@ -35,6 +36,7 @@ use App\Actions\SourceFetch\Aurora\FetchStocks;
 use App\Actions\SourceFetch\Aurora\FetchSuppliers;
 use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
+use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
@@ -71,8 +73,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                  != '' && $value != '0000-00-00 00:00:00'
-                             && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                                   != '' && $value != '0000-00-00 00:00:00'
+                                              && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 
@@ -490,5 +492,15 @@ trait WithAuroraParsers
         }
 
         return $warehouse;
+    }
+
+    public function parsePayment($source_id): Payment
+    {
+        $payment = Payment::withTrashed()->where('source_id', $source_id)->first();
+        if (!$payment) {
+            $payment = FetchPayments::run($this->tenantSource, $source_id);
+        }
+
+        return $payment;
     }
 }

@@ -147,7 +147,7 @@ class ShowShop
             [
                 'shops.show' => [
                     'route'           => 'shops.show',
-                    'routeParameters' => $shop->id,
+                    'routeParameters' => $shop->slug,
                     'name'            => $shop->code,
                     'index'           => [
                         'route'   => 'shops.index',

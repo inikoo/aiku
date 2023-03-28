@@ -10,8 +10,10 @@ return new class () extends Migration {
         Schema::create('delivery_noteables', function (Blueprint $table) {
             $table->unsignedInteger('delivery_note_id');
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
-            $table->morphs('delivery_noteable');
+            $table->string('delivery_noteable_type');
+            $table->unsignedInteger('delivery_noteable_id');
             $table->timestampsTz();
+            $table->unique(['delivery_noteable_type','delivery_noteable_id']);
         });
     }
 

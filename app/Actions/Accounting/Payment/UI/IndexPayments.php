@@ -13,11 +13,11 @@ use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
@@ -29,7 +29,6 @@ class IndexPayments extends InertiaAction
     use HasUIPayments;
 
 
-    private Shop|Tenant|PaymentServiceProvider|PaymentAccount  $parent;
     public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -58,12 +57,19 @@ class IndexPayments extends InertiaAction
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'PaymentServiceProvider') {
                     $query->where('payment_accounts.payment_service_provider_id', $parent->id);
-                }
-                if (class_basename($parent) == 'PaymentAccount') {
+                } elseif (class_basename($parent) == 'PaymentAccount') {
                     $query->where('payments.payment_account_id', $parent->id);
-                }
-                if (class_basename($parent) == 'Shop') {
+                } elseif (class_basename($parent) == 'Shop') {
                     $query->where('payments.shop_id', $parent->id);
+                } elseif (class_basename($parent) == 'Order') {
+                    $query->leftJoin(
+                        'paymentables',
+                        function ($leftJoin) {
+                            $leftJoin->on('paymentables.payment_id', 'payments.id');
+                            $leftJoin->on(DB::raw('paymentables.paymentable_type'), DB::raw("'Order'"));
+                        }
+                    );
+                    $query->where('paymentables.paymentable_id', $parent->id);
                 }
             })
             ->allowedSorts(['payments.reference', 'payments.status', 'payments.date'])
@@ -88,7 +94,6 @@ class IndexPayments extends InertiaAction
 
             $table->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };

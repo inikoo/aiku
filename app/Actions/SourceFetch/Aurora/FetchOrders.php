@@ -12,6 +12,7 @@ use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Sales\Order\StoreOrder;
 use App\Actions\Sales\Order\UpdateOrder;
 use App\Enums\Sales\Transaction\TransactionTypeEnum;
+use App\Models\Accounting\Payment;
 use App\Models\Sales\Order;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -27,7 +28,7 @@ class FetchOrders extends FetchAction
         if ($orderData = $tenantSource->fetchOrder($tenantSourceId)) {
             if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
                     ->first()) {
-                UpdateOrder::run($order, $orderData['order']);
+                $order=UpdateOrder::run($order, $orderData['order']);
 
                 $currentBillingAddress = $order->getAddress('billing');
 
@@ -44,6 +45,7 @@ class FetchOrders extends FetchAction
 
 
                 $this->fetchTransactions($tenantSource, $order);
+                $this->fetchPayments($tenantSource, $order);
                 $this->updateAurora($order);
 
 
@@ -52,8 +54,9 @@ class FetchOrders extends FetchAction
                 if ($orderData['parent']) {
                     $order = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
                     $this->fetchTransactions($tenantSource, $order);
-
                     $this->updateAurora($order);
+                    $this->fetchPayments($tenantSource, $order);
+
 
                     return $order;
                 }
@@ -65,6 +68,46 @@ class FetchOrders extends FetchAction
 
         return null;
     }
+
+    private function fetchPayments($tenantSource, Order $order): void
+    {
+        $paymentsToDelete = $order->payments()->pluck('source_id')->all();
+        foreach (
+            DB::connection('aurora')
+                ->table('Order Payment Bridge')
+                ->select('Payment Key')
+                ->where('Order Key', $order->source_id)
+                ->get() as $auroraData
+        ) {
+            $payment = $this->parsePayment($tenantSource, $auroraData->{'Payment Key'});
+
+
+            if (!in_array($payment->id, $paymentsToDelete)) {
+                $order->payments()->attach(
+                    $payment->id,
+                    [
+                        'amount'=> $payment->amount,
+                        'share' => 1
+                    ]
+                );
+            }
+
+            $paymentsToDelete = array_diff($paymentsToDelete, [$auroraData->{'Payment Key'}]);
+        }
+
+        $order->payments()->whereIn('id', $paymentsToDelete)->delete();
+    }
+
+
+    public function parsePayment($tenantSource, $source_id): Payment
+    {
+        $payment = Payment::withTrashed()->where('source_id', $source_id)->first();
+        if (!$payment) {
+            $payment = FetchPayments::run($tenantSource, $source_id);
+        }
+        return $payment;
+    }
+
 
     private function fetchTransactions($tenantSource, $order): void
     {
@@ -110,6 +153,7 @@ class FetchOrders extends FetchAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
+
         return $query->count();
     }
 }
