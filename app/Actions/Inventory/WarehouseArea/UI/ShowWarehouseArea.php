@@ -8,6 +8,8 @@
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -89,9 +91,18 @@ class ShowWarehouseArea extends InertiaAction
                     ]
 
                 ],
-                'warehouseArea' => $this->warehouseArea
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => WarehouseAreaTabsEnum::navigation()
+                ],
+                WarehouseAreaTabsEnum::LOCATIONS->value => $this->tab == WarehouseAreaTabsEnum::LOCATIONS->value ?
+                    fn () => LocationResource::collection(IndexLocations::run($this->warehouseArea))
+                    : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($this->warehouseArea))),
+
+
+
             ]
-        );
+        )->table(IndexLocations::make()->tableStructure());
     }
 
 
