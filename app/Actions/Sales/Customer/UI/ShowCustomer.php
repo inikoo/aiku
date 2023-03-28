@@ -48,9 +48,10 @@ class ShowCustomer extends InertiaAction
         return $this->handle($customer);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Customer $customer, ActionRequest $request): Customer
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
 
         return $this->handle($customer);
     }
@@ -149,16 +150,16 @@ class ShowCustomer extends InertiaAction
                 ],
 
                 CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
-                    fn () => OrderResource::collection(IndexOrders::run($this->customer))
-                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($this->customer))),
+                    fn () => OrderResource::collection(IndexOrders::run($customer))
+                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($customer))),
 
                 CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($this->customer))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->customer))),
+                    fn () => ProductResource::collection(IndexProducts::run($customer))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($customer))),
 
                 CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
-                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($this->customer))
-                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($this->customer))),
+                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
+                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))),
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))

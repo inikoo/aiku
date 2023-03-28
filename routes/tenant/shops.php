@@ -49,6 +49,7 @@ Route::get('/{shop}/prospects', [IndexProspects::class, 'inShop'])->name('show.p
 Route::get('/{shop}/customers/create', CreateCustomer::class)->name('show.customers.create');
 Route::get('/{shop}/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('show.customers.show');
 Route::get('/{shop}/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('show.customers.edit');
+Route::get('/{shop}/customers/{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('show.customers.show.orders.show');
 
 
 Route::get('/{shop}/customers/{customer}/web-users', [IndexWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.index');

@@ -20,6 +20,7 @@ use App\Http\Resources\Accounting\PaymentResource;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -48,7 +49,6 @@ class ShowOrder extends InertiaAction
     public function asController(Order $order, ActionRequest $request): Order
     {
         $this->initialisation($request)->withTab(OrderTabsEnum::values());
-
         return $this->handle($order);
     }
 
@@ -56,7 +56,20 @@ class ShowOrder extends InertiaAction
     public function inShop(Shop $shop, Order $order, ActionRequest $request): Order
     {
         $this->initialisation($request)->withTab(OrderTabsEnum::values());
+        return $this->handle($order);
+    }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inCustomer(Customer $customer, Order $order, ActionRequest $request): Order
+    {
+        $this->initialisation($request)->withTab(OrderTabsEnum::values());
+        return $this->handle($order);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inCustomerInShop(Shop $shop, Customer $customer, Order $order, ActionRequest $request): Order
+    {
+        $this->initialisation($request)->withTab(OrderTabsEnum::values());
         return $this->handle($order);
     }
 

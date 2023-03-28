@@ -13,6 +13,7 @@ use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -26,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexOrders extends InertiaAction
 {
     // Shop|Tenant removed on handle()
-    public function handle($parent): LengthAwarePaginator
+    public function handle(Tenant|Shop|Customer $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -35,6 +36,7 @@ class IndexOrders extends InertiaAction
             });
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::ORDERS->value);
+
 
 
         return QueryBuilder::for(Order::class)
@@ -46,12 +48,15 @@ class IndexOrders extends InertiaAction
                 'orders.created_at',
                 'orders.updated_at',
                 'orders.slug',
-                'shops.slug as shop_slug'])
+                'shops.slug as shop_slug'
+            ])
             ->leftJoin('order_stats', 'orders.id', 'order_stats.order_id')
             ->leftJoin('shops', 'orders.shop_id', 'shops.id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('orders.shop_id', $parent->id);
+                } elseif (class_basename($parent) == 'Customer') {
+                    $query->where('orders.customer_id', $parent->id);
                 }
             })
             ->allowedSorts(['number', 'date'])
@@ -110,7 +115,7 @@ class IndexOrders extends InertiaAction
                 'pageHead'    => [
                     'title' => __('orders'),
                 ],
-                'data' => OrderResource::collection($orders),
+                'data'        => OrderResource::collection($orders),
 
 
             ]
@@ -123,14 +128,16 @@ class IndexOrders extends InertiaAction
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
 
-        return $this->handle(app('currentTenant'));
+        return $this->handle(parent: app('currentTenant'));
     }
 
-    public function InShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        return $this->handle($shop);
+
+        return $this->handle(parent: $shop);
     }
+
 
     public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
     {
