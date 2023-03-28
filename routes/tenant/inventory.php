@@ -62,6 +62,7 @@ Route::scopeBindings()->group(function () {
 
     Route::get('/warehouses/{warehouse}/locations', [IndexLocations::class, 'inWarehouse'])->name('warehouses.show.locations.index');
     Route::get('/warehouses/{warehouse}/locations/{location}', [ShowLocation::class, 'inWarehouse'])->name('warehouses.show.locations.show');
+    Route::get('/warehouses/{warehouse}/locations/{location}/edit', [EditLocation::class, 'inWarehouse'])->name('warehouses.show.locations.edit');
 });
 
 Route::get('/families', IndexStockFamilies::class)->name('stock-families.index');
