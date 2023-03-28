@@ -8,6 +8,7 @@
 namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\PaymentTabsEnum;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -86,7 +87,10 @@ class ShowPayment extends InertiaAction
                     ] : false,
 
                 ],
-                'data' => $payment
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => PaymentTabsEnum::navigation()
+                ],
             ]
         );
     }
