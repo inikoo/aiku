@@ -10,7 +10,7 @@ namespace App\Enums\UI;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum InventoryTabsEnum: string
+enum StockTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -34,50 +34,50 @@ enum InventoryTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            InventoryTabsEnum::DATA => [
+            StockTabsEnum::DATA => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            InventoryTabsEnum::SALES => [
+            StockTabsEnum::SALES => [
                 'title' => __('sales'),
                 'icon'  => 'fal fa-dollar-sign',
             ],
-            InventoryTabsEnum::STOCK_HISTORY => [
+            StockTabsEnum::STOCK_HISTORY => [
                 'title' => __('stock history'),
                 'icon'  => 'fal fa-scanner',
             ],
-            InventoryTabsEnum::ISSUES => [
+            StockTabsEnum::ISSUES => [
                 'title' => __('issue'),
                 'icon'  => 'fal fa-poop',
             ],
-            InventoryTabsEnum::PURCHASE_ORDERS => [
+            StockTabsEnum::PURCHASE_ORDERS => [
                 'title' => __('purchase orders'),
                 'icon'  => 'fal fa-clipboard',
             ],
-            InventoryTabsEnum::SUPPLIERS_PRODUCTS => [
+            StockTabsEnum::SUPPLIERS_PRODUCTS => [
                 'title' => __('supplier product'),
                 'icon'  => 'fal fa-hand-receiving',
             ],
-            InventoryTabsEnum::PRODUCTS => [
+            StockTabsEnum::PRODUCTS => [
                 'title' => __('products'),
                 'icon'  => 'fal fa-cube',
             ],
-            InventoryTabsEnum::LOCATIONS => [
+            StockTabsEnum::LOCATIONS => [
                 'title' => __('locations'),
                 'icon'  => 'fal fa-inventory',
                 'type'  => 'icon-only',
             ],
-            InventoryTabsEnum::ATTACHMENTS => [
+            StockTabsEnum::ATTACHMENTS => [
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
                 'type'  => 'icon-only',
             ],
-            InventoryTabsEnum::IMAGES => [
+            StockTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon-only',
             ],
-            InventoryTabsEnum::CHANGELOG => [
+            StockTabsEnum::CHANGELOG => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-road',
                 'type'  => 'icon-only',

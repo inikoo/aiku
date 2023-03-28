@@ -8,7 +8,14 @@
 namespace App\Actions\Inventory\Stock\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Actions\Marketing\Product\UI\IndexProducts;
+use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
+use App\Enums\UI\StockTabsEnum;
+use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\StockResource;
+use App\Http\Resources\Marketing\ProductResource;
+use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Inventory\Stock;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -59,9 +66,29 @@ class ShowStock extends InertiaAction
                         ]
                     ] : false,
                 ],
-                'stock'   => new StockResource($this->stock),
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => StockTabsEnum::navigation()
+
+                ],
+
+                StockTabsEnum::SUPPLIERS_PRODUCTS->value => $this->tab == StockTabsEnum::SUPPLIERS_PRODUCTS->value ?
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->stock))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->stock))),
+
+                StockTabsEnum::PRODUCTS->value => $this->tab == StockTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(IndexProducts::run($this->stock))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->stock))),
+
+                StockTabsEnum::LOCATIONS->value => $this->tab == StockTabsEnum::LOCATIONS->value ?
+                    fn () => LocationResource::collection(IndexLocations::run($this->stock))
+                    : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($this->stock))),
+
+
             ]
-        );
+        )->table(IndexSupplierProducts::make()->tableStructure($this->stock))
+            ->table(IndexProducts::make()->tableStructure($this->stock))
+            ->table(IndexLocations::make()->tableStructure());
     }
 
 
