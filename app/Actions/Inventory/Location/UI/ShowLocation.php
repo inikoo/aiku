@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\LocationTabsEnum;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -81,7 +82,11 @@ class ShowLocation extends InertiaAction
                     ] : false,
 
                 ],
-                'location'    => $this->location
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => LocationTabsEnum::navigation()
+
+                ],
             ]
         );
     }
