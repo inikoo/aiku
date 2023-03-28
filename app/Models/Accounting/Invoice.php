@@ -142,4 +142,9 @@ class Invoice extends Model
     {
         return $this->hasOne(InvoiceStats::class);
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 }
