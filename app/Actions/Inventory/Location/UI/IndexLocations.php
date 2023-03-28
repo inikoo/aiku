@@ -27,7 +27,9 @@ class IndexLocations extends InertiaAction
 {
     use HasUILocations;
 
-    public function handle(WarehouseArea|Warehouse|Tenant $parent): LengthAwarePaginator
+    private WarehouseArea|Warehouse|Tenant  $parent;
+
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

@@ -8,14 +8,23 @@
 namespace App\Actions\Inventory\StockFamily\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Inventory\StockFamilyResource;
+use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Actions\Marketing\Family\UI\IndexFamilies;
+use App\Actions\Marketing\Product\UI\IndexProducts;
+use App\Enums\UI\StockFamilyTabsEnum;
+use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\StockResource;
+use App\Http\Resources\Marketing\FamilyResource;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Inventory\StockFamily;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
+/**
+ * @property StockFamily $stockFamily
+ */
 class ShowStockFamily extends InertiaAction
 {
     use HasUIStockFamily;
@@ -68,10 +77,30 @@ class ShowStockFamily extends InertiaAction
                         ],
                     ]
                 ],
-                'stockFamily' => new StockFamilyResource($this->stockFamily),
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => StockFamilyTabsEnum::navigation()
+
+                ],
+
+                StockFamilyTabsEnum::PRODUCTS->value => $this->tab == StockFamilyTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(IndexProducts::run($this->stockFamily))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->stockFamily))),
+
+                StockFamilyTabsEnum::LOCATIONS->value => $this->tab == StockFamilyTabsEnum::LOCATIONS->value ?
+                    fn () => LocationResource::collection(IndexLocations::run($this->stockFamily))
+                    : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($this->stockFamily))),
+
+                StockFamilyTabsEnum::PRODUCT_FAMILIES->value => $this->tab == StockFamilyTabsEnum::PRODUCT_FAMILIES->value ?
+                    fn () => FamilyResource::collection(IndexFamilies::run($this->stockFamily))
+                    : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($this->stockFamily))),
+
+
 
             ]
-        );
+        )->table(IndexProducts::make()->tableStructure($this->stockFamily))
+            ->table(IndexLocations::make()->tableStructure())
+            ->table(IndexFamilies::make()->tableStructure($this->stockFamily));
     }
 
 

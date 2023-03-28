@@ -11,14 +11,50 @@ import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {useLocaleStore} from '@/Stores/locale.js';
 
-defineProps(["title","pageHead","stockFamily"])
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faInventory,faBox} from '@/../private/pro-light-svg-icons';
+import { computed, defineAsyncComponent, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
+import TableProducts from "@/Pages/Tables/TableProducts.vue";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import TableLocations from "@/Pages/Tables/TableLocations.vue";
+import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
+
 library.add(faInventory,faBox);
 
 const locale = useLocaleStore();
 
+const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+
+const props = defineProps<{
+    title: string,
+    pageHead: object,
+    tabs: {
+        current: string;
+        navigation: object;
+    }
+    products: object
+    locations: object
+    families: object
+}>()
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        families: TableFamilies,
+        products: TableProducts,
+        locations: TableLocations,
+        details: ModelDetails,
+        history: ModelChangelog,
+    };
+    return components[currentTab.value];
+
+});
 
 </script>
 
@@ -26,8 +62,6 @@ const locale = useLocaleStore();
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-
-
-
-
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <component :is="component" :data="props[currentTab]"></component>
 </template>

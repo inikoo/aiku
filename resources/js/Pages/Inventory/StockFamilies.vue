@@ -5,14 +5,18 @@
   -->
 
 <script setup lang="ts">
-import {Head, Link} from '@inertiajs/vue3';
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
 import {useLocaleStore} from '@/Stores/locale.js';
+import TableStockFamilies from "@/Pages/Tables/TableStockFamilies.vue";
 
-const props = defineProps(['stockFamilies', 'title', 'pageHead']);
+const props = defineProps<{
+    data: object
+    tittle: string
+    pageHead: object
+}>()
+
 const locale = useLocaleStore();
-
 
 const columnsType = {
     'number_stocks': 'number'
@@ -24,16 +28,6 @@ const columnsType = {
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="stockFamilies" :columnsType=columnsType class="mt-5">
-        <template #cell(code)="{ item: stockFamily }">
-            <Link :href="route('inventory.stock-families.show',stockFamily.slug)">
-                {{ stockFamily.code }}
-            </Link>
-        </template>
-        <template #cell(number_stocks)="{ item: stockFamily }">
-            {{ locale.number(stockFamily['number_stocks']) }}
-        </template>
-
-    </Table>
+    <TableStockFamilies :data="data" />
 </template>
 

@@ -28,7 +28,9 @@ class IndexFamilies extends InertiaAction
     use HasUIFamilies;
 
 
-    public function handle(Shop|Tenant|Department $parent): LengthAwarePaginator
+    private Shop|Tenant|Department $parent;
+
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

@@ -10,7 +10,7 @@ namespace App\Enums\UI;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum PartFamilyTabsEnum: string
+enum StockFamilyTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -22,7 +22,7 @@ enum PartFamilyTabsEnum: string
 
     case PARTS              = 'parts';
     case DISCONTINUED_PARTS = 'discontinued_parts';
-    case PARTS_LOCATIONS    = 'parts_locations';
+    case LOCATIONS          = 'locations';
     case PRODUCT_FAMILIES   = 'product_families';
     case PRODUCTS           = 'products';
 
@@ -33,35 +33,35 @@ enum PartFamilyTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            PartFamilyTabsEnum::DATA => [
+            StockFamilyTabsEnum::DATA => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            PartFamilyTabsEnum::SALES => [
+            StockFamilyTabsEnum::SALES => [
                 'title' => __('sales'),
                 'icon'  => 'fal fa-dollar-sign',
             ],
-            PartFamilyTabsEnum::ISSUES => [
+            StockFamilyTabsEnum::ISSUES => [
                 'title' => __('issues'),
                 'icon'  => 'fal fa-poop',
             ],
-            PartFamilyTabsEnum::PARTS => [
+            StockFamilyTabsEnum::PARTS => [
                 'title' => __('parts'),
-            ],PartFamilyTabsEnum::DISCONTINUED_PARTS => [
+            ],StockFamilyTabsEnum::DISCONTINUED_PARTS => [
                 'title' => __('discontinued parts'),
-            ],PartFamilyTabsEnum::PARTS_LOCATIONS => [
-                'title' => __('parts locations'),
-            ],PartFamilyTabsEnum::PRODUCT_FAMILIES => [
+            ],StockFamilyTabsEnum::LOCATIONS => [
+                'title' => __('locations'),
+            ],StockFamilyTabsEnum::PRODUCT_FAMILIES => [
                 'title' => __('product families'),
                 'icon'  => 'fal fa-cubes',
-            ],PartFamilyTabsEnum::PRODUCTS => [
+            ],StockFamilyTabsEnum::PRODUCTS => [
                 'title' => __('products'),
                 'icon'  => 'fal fa-cube',
-            ],PartFamilyTabsEnum::CHANGELOG => [
+            ],StockFamilyTabsEnum::CHANGELOG => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-road',
                 'type'  => 'icon-only',
-            ],PartFamilyTabsEnum::IMAGES => [
+            ],StockFamilyTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon-only',

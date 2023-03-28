@@ -8,8 +8,10 @@
 namespace App\Actions\Inventory\StockFamily\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Inventory\StockFamilyResource;
 use App\Models\Inventory\StockFamily;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -22,7 +24,7 @@ class IndexStockFamilies extends InertiaAction
 {
     use HasUIStockFamilies;
 
-    public function handle(): LengthAwarePaginator
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -30,16 +32,40 @@ class IndexStockFamilies extends InertiaAction
                     ->orWhere('stock_families.name', 'LIKE', "%$value%");
             });
         });
-
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PRODUCT_FAMILIES->value);
 
         return QueryBuilder::for(StockFamily::class)
             ->defaultSort('stock_families.code')
-            ->select(['slug','code', 'stock_families.id as id', 'name', 'number_stocks'])
+            ->select([
+                'slug',
+                'code',
+                'stock_families.id as id',
+                'name',
+                'number_stocks'
+            ])
             ->leftJoin('stock_family_stats', 'stock_family_stats.stock_family_id', 'stock_families.id')
             ->allowedSorts(['code', 'name', 'number_stocks'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::PRODUCT_FAMILIES->value.'Page'
+            )
             ->withQueryString();
+    }
+
+    public function tableStructure($parent): Closure
+    {
+        return function (InertiaTable $table) use ($parent) {
+            $table
+                ->name(TabsAbbreviationEnum::PRODUCT_FAMILIES->value)
+                ->pageName(TabsAbbreviationEnum::PRODUCT_FAMILIES->value.'Page');
+            $table
+                ->withGlobalSearch()
+                ->column(key: 'code', label: 'code', canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_stocks', label: 'SKUs', canBeHidden: false, sortable: true)
+                ->defaultSort('code');
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -58,18 +84,19 @@ class IndexStockFamilies extends InertiaAction
     {
         //$request->validate();
         $this->initialisation($request);
-        return $this->handle();
+        return $this->handle(app('currentTenant'));
     }
 
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $stocks): AnonymousResourceCollection
     {
-        return StockFamilyResource::collection($this->handle());
+        return StockFamilyResource::collection($stocks);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $stocks)
+    public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'Inventory/StockFamilies',
             [
@@ -88,13 +115,6 @@ class IndexStockFamilies extends InertiaAction
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'code', label: 'code', canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_stocks', label: 'SKUs', canBeHidden: false, sortable: true)
-                ->defaultSort('code');
-        });
+        )->table($this->tableStructure($parent));
     }
 }

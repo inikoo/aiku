@@ -10,21 +10,28 @@ namespace App\Http\Resources\Inventory;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property string $code
  * @property string $slug
- * @property number $number_stocks
- * @property int $id
+ * @property string $code
+ * @property number $state
  * @property string $name
+ * @property string $description
+ * @property string $number_stocks
+ * @property mixed $created_at
+ * @property mixed $updated_at
+ *
  */
 class StockFamilyResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
-            'slug'          => $this->slug,
-            'code'          => $this->code,
-            'name'          => $this->name,
-            'number_stocks' => $this->number_stocks,
+            'slug'            => $this->slug,
+            'code'            => $this->code,
+            'state'           => $this->state,
+            'name'            => $this->name,
+            'number_stocks'   => $this->number_stocks,
+            'created_at'      => $this->created_at,
+            'updated_at'      => $this->updated_at,
         ];
     }
 }
