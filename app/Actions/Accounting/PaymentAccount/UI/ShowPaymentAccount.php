@@ -7,8 +7,11 @@
 
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
+use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\InertiaAction;
+use App\Enums\UI\PaymentAccountTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountResource;
+use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use Inertia\Inertia;
@@ -91,9 +94,20 @@ class ShowPaymentAccount extends InertiaAction
                     ],
 
                 ],
-                'payment_account' => $paymentAccount
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => PaymentAccountTabsEnum::navigation()
+
+                ],
+
+                PaymentAccountTabsEnum::PAYMENTS->value => $this->tab == PaymentAccountTabsEnum::PAYMENTS->value ?
+                    fn () => PaymentResource::collection(IndexPayments::run($this->paymentAccount))
+                    : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($this->paymentAccount))),
+
+
+
             ]
-        );
+        )->table(IndexPayments::make()->tableStructure());
     }
 
 

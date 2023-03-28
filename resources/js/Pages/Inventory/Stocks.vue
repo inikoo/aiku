@@ -17,12 +17,9 @@ const props = defineProps<{
 
 const locale = useLocaleStore();
 
-
 const columnsType={
     'quantity':'number'
 }
-
-
 
 </script>
 
