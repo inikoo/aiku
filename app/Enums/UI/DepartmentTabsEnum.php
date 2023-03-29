@@ -18,27 +18,32 @@ enum DepartmentTabsEnum: string
 
 
 
-    case DATA                = 'data';
     case SUBCATEGORIES       = 'subcategories';
     case SALES               = 'sales';
     case CUSTOMERS           = 'customers';
     case OFFERS              = 'offers';
     case MAILSHOTS           = 'mailshots';
     case RELATED_CATEGORIES  = 'related_categories';
+
+    case HISTORY             = 'history';
+
+    case DATA                = 'data';
     case IMAGES              = 'images';
 
-    case CHANGELOG           = 'changelog';
 
 
     public function blueprint(): array
     {
         return match ($this) {
             DepartmentTabsEnum::DATA => [
-                'title' => __('items'),
+                'title' => __('database'),
                 'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             DepartmentTabsEnum::SUBCATEGORIES => [
-                'title' => __('payments'),
+                'title' => __('subcategories'),
+                'icon'  => 'fa-diagram-next',
             ],
             DepartmentTabsEnum::SALES => [
                 'title' => __('sales'),
@@ -59,11 +64,13 @@ enum DepartmentTabsEnum: string
             ],DepartmentTabsEnum::IMAGES=> [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon-only',
-            ],DepartmentTabsEnum::CHANGELOG => [
-                'title' => __('changelog'),
-                'icon'  => 'fal fa-road',
-                'type'  => 'icon-only',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],DepartmentTabsEnum::HISTORY => [
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
         };
     }
