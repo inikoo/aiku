@@ -8,8 +8,9 @@
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
-    faCube,
-    faFolder,
+    faBars,
+    faDollarSign, faEnvelope, faFileInvoiceDollar,
+    faPaperclip, faRoad, faTag, faThList, faTruck, faUserTag
 } from "@/../private/pro-light-svg-icons";
 import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import TableInvoices from "@/Pages/Tables/TableInvoices.vue";
@@ -22,7 +23,18 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 import DashboardNavigation from "@/Components/Navigation/DashboardNavigation.vue";
 
 
-library.add(faFolder, faCube);
+library.add(
+    faBars,
+    faThList,
+    faUserTag,
+    faDollarSign,
+    faEnvelope,
+    faTag,
+    faFileInvoiceDollar,
+    faTruck,
+    faPaperclip,
+    faRoad,
+);
 
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))

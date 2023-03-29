@@ -7,13 +7,16 @@
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInventory} from '@/../private/pro-light-svg-icons';
+import { faExchange, faInventory } from "@/../private/pro-light-svg-icons";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 
-library.add(faInventory);
+library.add(
+    faInventory,
+    faExchange,
+);
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
