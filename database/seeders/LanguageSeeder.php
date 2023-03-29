@@ -10,31 +10,31 @@ namespace Database\Seeders;
 
 use App\Models\Assets\Language;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 class LanguageSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        $ch = curl_init();
+        $validLanguages=['en','es','sk','zh-CN'];
 
+
+        /*
+        $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "https://api.poeditor.com/v2/languages/available");
         curl_setopt($ch, CURLOPT_POSTFIELDS, [
             'api_token' => config('app.po_editor_api_key'),
         ]);
-
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $response = json_decode(curl_exec($ch));
         curl_close($ch);
+        $languages=$response->result->languages;
+        Storage::disk('datasets')->put('datasets/languages.json', json_encode($languages));
+        */
+        $languages = json_decode(Storage::disk('datasets')->get('languages.json'));
 
 
-        $validLanguages=['en','es','sk','zh-CN'];
-
-        foreach ($response->result->languages as $language) {
+        foreach ($languages as $language) {
             Language::upsert(
                 [
                                      [
