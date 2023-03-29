@@ -15,11 +15,11 @@ import {
     MenuItem,
     MenuItems,
 } from '@headlessui/vue';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
 import {trans} from 'laravel-vue-i18n';
-import {Link} from "@inertiajs/vue3";
+import {Link} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faHome,
@@ -37,8 +37,8 @@ import {
     faParachuteBox,
     faDollyEmpty,
     faShoppingCart,
-    faAbacus, faChevronDown, faCube, faGlobe
-} from "@/../private/pro-light-svg-icons";
+    faAbacus, faChevronDown, faCube, faGlobe,
+} from '@/../private/pro-light-svg-icons';
 
 library.add(
     faHome,
@@ -60,10 +60,10 @@ library.add(
     faChevronDown,
 
     faCube,
-    faGlobe
+    faGlobe,
 );
 
-const initialiseApp = inject("initialiseApp");
+const initialiseApp = inject('initialiseApp');
 const layout = initialiseApp();
 
 const sidebarOpen = ref(false);
@@ -75,8 +75,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue';
 import SearchBar from '@/Components/SearchBar.vue';
 import {usePage} from '@inertiajs/vue3';
 
-const showSearchDialog = ref(false)
-
+const showSearchDialog = ref(false);
 
 const user = ref(usePage().props.auth.user);
 
@@ -97,18 +96,14 @@ const user = ref(usePage().props.auth.user);
                             <div class="hidden md:block pt-0 mr-6 text-center text-sm font-bold w-64">
                                 {{ layout.tenant.name }}
                             </div>
-
-
                             <AppShopNavigation :shops="layout.shops"/>
-
-
                         </div>
 
                         <div class="flex items-center">
 
                             <button v-on:click="showSearchDialog = !showSearchDialog"
                                     class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                                <span class="sr-only">{{ trans("Search") }}</span>
+                                <span class="sr-only">{{ trans('Search') }}</span>
                                 <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg">
                                 </font-awesome-icon>
                                 <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false">
@@ -125,30 +120,37 @@ const user = ref(usePage().props.auth.user);
                                 <div>
                                     <MenuButton
                                         class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                                        <span class="sr-only">{{ trans("Open user menu") }}</span>
+                                        <span class="sr-only">{{ trans('Open user menu') }}</span>
                                         <img v-if="user.data.avatar" class="h-8 w-8 rounded-full"
                                              :src="route('media.central.show',user.data.avatar)"
-                                             alt="" />
+                                             alt=""/>
 
                                     </MenuButton>
                                 </div>
-                                <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                                    <MenuItems  class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
+                                <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                                            leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                                    <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                                         <div class="py-1">
                                             <MenuItem v-slot="{ active }">
-                                                <Link as="ul" type="button" :href="route('profile.show')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">{{ trans('View profile')}}  </Link>
+                                                <Link as="ul" type="button" :href="route('profile.show')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
+                                                    {{ trans('View profile') }}
+                                                </Link>
                                             </MenuItem>
 
                                         </div>
 
                                         <div class="py-1">
                                             <MenuItem v-slot="{ active }">
-                                                <Link as="ul" type="button" :href="route('dashboard.tv')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">DashTV</Link>
+                                                <Link as="ul" type="button" :href="route('dashboard.tv')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
+                                                    DashTV
+                                                </Link>
                                             </MenuItem>
                                         </div>
                                         <div class="py-1">
                                             <MenuItem v-slot="{ active }">
-                                                <Link as="ul" type="button" method="post"  :href="route('logout')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">Logout</Link>
+                                                <Link as="ul" type="button" method="post" :href="route('logout')"
+                                                      :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">Logout
+                                                </Link>
                                             </MenuItem>
                                         </div>
                                     </MenuItems>
@@ -164,7 +166,7 @@ const user = ref(usePage().props.auth.user);
                             class="border-l border-gray-400 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-500 lg:hidden"
                             @click="sidebarOpen = true">
                         <span class="sr-only">Open sidebar</span>
-                        <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bars  " size="lg" />
+                        <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bars  " size="lg"/>
 
                     </button>
 
@@ -184,7 +186,7 @@ const user = ref(usePage().props.auth.user);
                 <div class="border-t border-gray-700 pt-4 pb-3">
                     <div class="flex items-center px-5">
                         <div class="flex-shrink-0">
-                            <img class="h-10 w-10 rounded-full" :src="user.imageUrl" alt="" />
+                            <img class="h-10 w-10 rounded-full" :src="user.imageUrl" alt=""/>
                         </div>
                         <div class="ml-3">
 
@@ -194,8 +196,9 @@ const user = ref(usePage().props.auth.user);
 
                         <Button type="button"
                                 class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                            <span class="sr-only">{{ trans("View notifications") }}</span>
-                            <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" /></Button>
+                            <span class="sr-only">{{ trans('View notifications') }}</span>
+                            <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
+                        </Button>
                         <Button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                             <span class="sr-only">{{ trans('View notifications') }}</span>
                             <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
@@ -215,12 +218,12 @@ const user = ref(usePage().props.auth.user);
 
         <div
             class="mt-10 hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-gray-200 lg:bg-gray-100 lg:pt-0 lg:pb-4">
-            <AppLeftSideBar />
+            <AppLeftSideBar/>
         </div>
         <div class="flex flex-col lg:pl-64">
             <main>
-                <Breadcrumbs :breadcrumbs="$page.props.breadcrumbs??[]" />
-                <slot />
+                <Breadcrumbs :breadcrumbs="$page.props.breadcrumbs??[]"/>
+                <slot/>
             </main>
         </div>
 
