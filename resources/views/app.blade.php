@@ -6,6 +6,7 @@
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="icon"  href="/Images/Favicon.png" />
     @routes
     @vite('resources/js/app.js')
     @inertiaHead
