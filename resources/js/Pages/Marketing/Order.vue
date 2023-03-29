@@ -10,7 +10,7 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faBars,
     faDollarSign, faEnvelope, faFileInvoiceDollar,
-    faPaperclip, faRoad, faTag, faThList, faTruck, faUserTag
+    faPaperclip, faRoad, faStickyNote, faTag, faThList, faTruck, faUserTag
 } from "@/../private/pro-light-svg-icons";
 import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import TableInvoices from "@/Pages/Tables/TableInvoices.vue";
@@ -34,6 +34,7 @@ library.add(
     faTruck,
     faPaperclip,
     faRoad,
+    faStickyNote,
 );
 
 

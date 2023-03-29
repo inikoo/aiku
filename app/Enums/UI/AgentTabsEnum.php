@@ -15,15 +15,17 @@ enum AgentTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case DATA                = 'data';
     case  SUPPLIERS          = 'suppliers';
     case SUPPLIER_PRODUCTS   = 'supplier_products';
     case PURCHASE_ORDERS     = 'purchase_orders';
     case DELIVERIES          = 'deliveries';
-    case IMAGES              = 'images';
     case SYSTEM_USERS        = 'system_users';
 
-    case CHANGELOG           = 'changelog';
+    case HISTORY             = 'history';
+
+    case DATA                = 'data';
+    case IMAGES              = 'images';
+
 
 
 
@@ -34,6 +36,8 @@ enum AgentTabsEnum: string
             AgentTabsEnum::DATA     => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             AgentTabsEnum::SUPPLIERS  => [
                 'title' => __('suppliers'),
@@ -48,16 +52,20 @@ enum AgentTabsEnum: string
                 'icon'  => 'fal fa-shopping-cart',
             ],AgentTabsEnum::DELIVERIES     => [
                 'title' => __('deliveries'),
-                'icon'  => 'fal fa-money-bill',
+                'icon'  => 'fal fa-truck',
             ],AgentTabsEnum::IMAGES     => [
                 'title' => __('images'),
-                'icon'  => 'fal fa-graduation-cap',
+                'icon'  => 'fal fa-camera-retro',
+                'type'  => 'icon',
+                'align' => 'right',
             ],AgentTabsEnum::SYSTEM_USERS     => [
                 'title' => __('system user'),
-                'icon'  => 'fal fa-tags',
-            ],AgentTabsEnum::CHANGELOG     => [
-                'title' => __('changelog'),
-                'icon'  => 'fal fa-code-commit',
+                'icon'  => 'fal fa-terminal',
+            ],AgentTabsEnum::HISTORY     => [
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ]
         };
     }

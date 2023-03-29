@@ -16,7 +16,6 @@ enum StockTabsEnum: string
     use HasTabs;
 
 
-    case DATA               = 'data';
     case SALES              = 'sales';
     case STOCK_HISTORY      = 'stock_history';
 
@@ -25,16 +24,23 @@ enum StockTabsEnum: string
     case SUPPLIERS_PRODUCTS  = 'supplier_products';
     case PRODUCTS            = 'product';
     case LOCATIONS           = 'locations';
-    case ATTACHMENTS         = 'attachments';
     case IMAGES              = 'images';
 
-    case CHANGELOG          = 'changelog';
+    case HISTORY             = 'history';
+
+    case DATA                = 'data';
+
+    case ATTACHMENTS         = 'attachments';
+
+
 
 
     public function blueprint(): array
     {
         return match ($this) {
             StockTabsEnum::DATA => [
+                'type'  => 'icon',
+                'align' => 'right',
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
@@ -68,19 +74,21 @@ enum StockTabsEnum: string
                 'type'  => 'icon-only',
             ],
             StockTabsEnum::ATTACHMENTS => [
+                'align' => 'right',
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon-only',
+                'type'  => 'icon',
             ],
             StockTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon-only',
             ],
-            StockTabsEnum::CHANGELOG => [
-                'title' => __('changelog'),
-                'icon'  => 'fal fa-road',
-                'type'  => 'icon-only',
+            StockTabsEnum::HISTORY => [
+                'align' => 'right',
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
             ],
         };
     }

@@ -10,13 +10,19 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInventory,faWarehouse,faMapSigns} from '@/../private/pro-light-svg-icons';
+import { faInventory, faWarehouse, faMapSigns, faChartLine, faClock } from "@/../private/pro-light-svg-icons";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableLocations from "@/Pages/Tables/TableLocations.vue";
-library.add(faInventory,faWarehouse,faMapSigns);
+library.add(
+    faInventory,
+    faWarehouse,
+    faMapSigns,
+    faChartLine,
+    faClock,
+);
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 

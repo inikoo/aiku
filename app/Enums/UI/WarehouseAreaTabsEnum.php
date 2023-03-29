@@ -16,8 +16,9 @@ enum WarehouseAreaTabsEnum: string
     use HasTabs;
     case LOCATIONS           = 'locations';
     case STATS               = 'stats';
+    case HISTORY             = 'history';
+    case DATA                = 'data';
 
-    case CHANGELOG           = 'changelog';
 
 
     public function blueprint(): array
@@ -31,9 +32,17 @@ enum WarehouseAreaTabsEnum: string
                 'title' => __('stats'),
                 'icon'  => 'fal fa-map-signs',
             ],
-            WarehouseAreaTabsEnum::CHANGELOG     => [
+            WarehouseAreaTabsEnum::DATA => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('data'),
+                'icon'  => 'fal fa-database',
+            ],
+            WarehouseAreaTabsEnum::HISTORY     => [
+                'align' => 'right',
+                'type'  => 'icon',
                 'title' => __('changelog'),
-                'icon'  => 'fal fa-inventory',
+                'icon'  => 'fal fa-clock',
             ],
         };
     }

@@ -15,8 +15,7 @@ enum CustomerTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case CHANGELOG           = 'changelog';
-    case DATA                = 'data';
+    case HISTORY_NOTES       = 'history_notes';
     case PORTFOLIO           = 'portfolio';
     case PRODUCTS            = 'products';
     case ORDERS              = 'orders';
@@ -24,6 +23,8 @@ enum CustomerTabsEnum: string
     case INSIGHTS            = 'insights';
     case DISCOUNTS           = 'discounts';
     case CREDITS             = 'credits';
+
+    case DATA                = 'data';
     case ATTACHMENTS         = 'attachments';
     case DISPATCHED_EMAILS   = 'dispatched_emails';
 
@@ -32,11 +33,13 @@ enum CustomerTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            CustomerTabsEnum::CHANGELOG     => [
+            CustomerTabsEnum::HISTORY_NOTES     => [
                 'title' => __('history , notes'),
                 'icon'  => 'fal fa-sticky-note',
             ],
             CustomerTabsEnum::DATA     => [
+                'align' => 'right',
+                'type'  => 'icon',
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
@@ -64,13 +67,15 @@ enum CustomerTabsEnum: string
                 'title' => __('credit blockchains'),
                 'icon'  => 'fal fa-code-commit',
             ],CustomerTabsEnum::ATTACHMENTS     => [
+                'align' => 'right',
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon-only'
-            ],CustomerTabsEnum::DISPATCHED_EMAILS     => [
+                'type'  => 'icon'
+            ],CustomerTabsEnum::DISPATCHED_EMAILS  => [
+                'align' => 'right',
                 'title' => __('dispatched emails'),
                 'icon'  => 'fal fa-paper-plane',
-                'type'  => 'icon-only',
+                'type'  => 'icon',
             ],
         };
     }

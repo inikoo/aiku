@@ -11,7 +11,15 @@ import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {useLocaleStore} from '@/Stores/locale.js';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInventory,faBox} from '@/../private/pro-light-svg-icons';
+import {
+    faInventory,
+    faBox,
+    faClock,
+    faCameraRetro,
+    faPaperclip,
+    faCube,
+    faHandReceiving, faClipboard, faPoop, faScanner, faDollarSign
+} from "@/../private/pro-light-svg-icons";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
@@ -20,7 +28,20 @@ import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableLocations from "@/Pages/Tables/TableLocations.vue";
 
-library.add(faInventory,faBox);
+library.add(
+    faInventory,
+    faBox,
+    faClock,
+    faCameraRetro,
+    faPaperclip,
+    faCube,
+    faHandReceiving,
+    faClipboard,
+    faPoop,
+    faScanner,
+    faDollarSign,
+
+);
 
 const locale = useLocaleStore();
 

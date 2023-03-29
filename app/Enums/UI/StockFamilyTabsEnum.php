@@ -16,7 +16,6 @@ enum StockFamilyTabsEnum: string
     use HasTabs;
 
 
-    case DATA               = 'data';
     case SALES              = 'sales';
     case ISSUES             = 'issues';
 
@@ -26,14 +25,20 @@ enum StockFamilyTabsEnum: string
     case PRODUCT_FAMILIES   = 'product_families';
     case PRODUCTS           = 'products';
 
-    case CHANGELOG          = 'changelog';
+    case HISTORY            = 'history';
+    case DATA               = 'data';
     case IMAGES             = 'images';
+
+
+
 
 
     public function blueprint(): array
     {
         return match ($this) {
             StockFamilyTabsEnum::DATA => [
+                'type'  => 'icon',
+                'align' => 'right',
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
@@ -47,24 +52,29 @@ enum StockFamilyTabsEnum: string
             ],
             StockFamilyTabsEnum::PARTS => [
                 'title' => __('parts'),
+                'icon'  => 'fal fa-box',
             ],StockFamilyTabsEnum::DISCONTINUED_PARTS => [
                 'title' => __('discontinued parts'),
+                'icon'  => 'fa-thing fa-x ',
             ],StockFamilyTabsEnum::LOCATIONS => [
                 'title' => __('locations'),
+                'icon'  => 'fal fa-inventory'
             ],StockFamilyTabsEnum::PRODUCT_FAMILIES => [
                 'title' => __('product families'),
                 'icon'  => 'fal fa-cubes',
             ],StockFamilyTabsEnum::PRODUCTS => [
                 'title' => __('products'),
                 'icon'  => 'fal fa-cube',
-            ],StockFamilyTabsEnum::CHANGELOG => [
+            ],StockFamilyTabsEnum::HISTORY => [
+                'align' => 'right',
                 'title' => __('changelog'),
-                'icon'  => 'fal fa-road',
-                'type'  => 'icon-only',
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
             ],StockFamilyTabsEnum::IMAGES => [
+                'align' => 'right',
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon-only',
+                'type'  => 'icon',
             ],
         };
     }

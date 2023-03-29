@@ -18,8 +18,9 @@ enum WarehouseTabsEnum: string
     case DASHBOARD       = 'dashboard';
     case WAREHOUSE_AREAS = 'warehouse_areas';
     case LOCATIONS       = 'locations';
-    case DATA            = 'data';
     case HISTORY         = 'history';
+    case DATA            = 'data';
+
 
 
     public function blueprint(): array

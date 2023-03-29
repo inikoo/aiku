@@ -17,8 +17,9 @@ enum PaymentAccountTabsEnum: string
 
     case STATS            = 'stats';
     case PAYMENTS         = 'payments';
+    case HISTORY          = 'history';
     case DATA             = 'data';
-    case CHANGELOG        = 'changelog';
+
 
     public function blueprint(): array
     {
@@ -34,10 +35,14 @@ enum PaymentAccountTabsEnum: string
             PaymentAccountTabsEnum::DATA     => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
-            PaymentAccountTabsEnum::CHANGELOG     => [
-                'title' => __('changelog'),
+            PaymentAccountTabsEnum::HISTORY     => [
+                'title' => __('history'),
                 'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
         };
     }

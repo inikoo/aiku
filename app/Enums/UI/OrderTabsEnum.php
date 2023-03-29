@@ -15,24 +15,33 @@ enum OrderTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-
+    case HISTORY_NOTES               = 'history_notes';
     case ITEMS                       = 'items';
     case ALL_PRODUCTS                = 'all_products';
-    case CUSTOMER_NOTES_HISTORY      = 'customer_notes_history';
     case PAYMENTS                    = 'payments';
-    case DATA                        = 'data';
-    case SENT_EMAILS                 = 'sent_emails';
     case DISCOUNTS                   = 'discounts';
     case INVOICES                    = 'invoices';
     case DELIVERY_NOTES              = 'delivery_notes';
+
+    case HISTORY                     = 'history';
+
+    case DATA                        = 'data';
     case ATTACHMENTS                 = 'attachments';
 
-    case CHANGELOG                  = 'changelog';
+    case SENT_EMAILS                 = 'sent_emails';
+
+
+
+
 
 
     public function blueprint(): array
     {
         return match ($this) {
+            OrderTabsEnum::HISTORY_NOTES => [
+                'title' => __('History, Notes'),
+                'icon'  => 'fal fa-sticky-note',
+            ],
             OrderTabsEnum::ITEMS => [
                 'title' => __('items'),
                 'icon'  => 'fal fa-bars',
@@ -40,23 +49,21 @@ enum OrderTabsEnum: string
                 'title' => __('all products'),
                 'icon'  => 'fal fa-th-list',
             ],
-            OrderTabsEnum::CUSTOMER_NOTES_HISTORY => [
-                'title' => __('Customer notes/history'),
-                'icon'  => 'fal fa-user-tag',
-            ],
             OrderTabsEnum::PAYMENTS => [
                 'title' => __('payments'),
                 'icon'  => 'fal fa-dollar-sign',
             ],
             OrderTabsEnum::DATA => [
                 'title' => __('data'),
-                'icon'  => 'fal fa-envelope',
-                'type'  => 'icon-only'
+                'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             OrderTabsEnum::SENT_EMAILS => [
                 'title' => __('sent emails'),
                 'icon'  => 'fal fa-envelope',
-                'type'  => 'icon-only'
+                'type'  => 'icon',
+                'align' => 'right',
 
             ],
             OrderTabsEnum::DISCOUNTS => [
@@ -79,11 +86,13 @@ enum OrderTabsEnum: string
             OrderTabsEnum::ATTACHMENTS => [
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon-only',
-            ],OrderTabsEnum::CHANGELOG => [
-                'title' => __('changelog'),
-                'icon'  => 'fal fa-road',
-                'type'  => 'icon-only',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],OrderTabsEnum::HISTORY => [
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
         };
     }

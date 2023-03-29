@@ -8,8 +8,10 @@
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
+    faBox,
+    faBullhorn, faCameraRetro,
     faCube,
-    faFolder,
+    faFolder, faMoneyBillWave, faProjectDiagram, faRoad, faShoppingCart, faStream, faUsers
 } from "@/../private/pro-light-svg-icons";
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import ModelDetails from "@/Pages/ModelDetails.vue";
@@ -20,7 +22,19 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
 import TableCustomers from "@/Pages/Tables/TableCustomers.vue";
 
-library.add(faFolder, faCube);
+library.add(
+    faFolder,
+    faCube,
+    faStream,
+    faMoneyBillWave,
+    faShoppingCart,
+    faUsers,
+    faBullhorn,
+    faProjectDiagram,
+    faBox,
+    faCameraRetro,
+    faRoad
+);
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 

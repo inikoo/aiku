@@ -16,7 +16,6 @@ enum ProductTabsEnum: string
     use HasTabs;
 
 
-    case DATA                   = 'data';
     case VARIATIONS             = 'variations';
     case WEBPAGES               = 'webpages';
     case SALES                  = 'sales';
@@ -25,9 +24,12 @@ enum ProductTabsEnum: string
     case MAILSHOTS              = 'mailshots';
     case RELATED_PRODUCTS       = 'related_products';
     case PARTS                  = 'parts';
+
+    case HISTORY                = 'history';
+
+    case DATA                   = 'data';
     case IMAGES                 = 'images';
 
-    case CHANGELOG              = 'changelog';
 
 
     public function blueprint(): array
@@ -36,6 +38,8 @@ enum ProductTabsEnum: string
             ProductTabsEnum::DATA => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
             ],ProductTabsEnum::VARIATIONS => [
                 'title' => __('variations'),
                 'icon'  => 'fal fa-stream',
@@ -76,11 +80,13 @@ enum ProductTabsEnum: string
             ProductTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon-only',
-            ],ProductTabsEnum::CHANGELOG => [
-                'title' => __('changelog'),
-                'icon'  => 'fal fa-road',
-                'type'  => 'icon-only',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],ProductTabsEnum::HISTORY => [
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
         };
     }

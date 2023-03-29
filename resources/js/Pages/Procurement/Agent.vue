@@ -26,9 +26,23 @@ const props = defineProps<{
     supplier_products: object,
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInventory,faWarehouse,faMapSigns} from '@/../private/pro-light-svg-icons';
+import {
+    faInventory,
+    faWarehouse,
+    faMapSigns,
+    faTruck,
+    faTerminal,
+    faCameraRetro
+} from "@/../private/pro-light-svg-icons";
 
-library.add(faInventory,faWarehouse,faMapSigns);
+library.add(
+    faInventory,
+    faWarehouse,
+    faMapSigns,
+    faTruck,
+    faTerminal,
+    faCameraRetro
+);
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);

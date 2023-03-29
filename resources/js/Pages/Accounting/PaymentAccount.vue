@@ -8,6 +8,7 @@
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
+    faChartLine,
     faCreditCard,
     faCube,
     faFolder
@@ -21,7 +22,7 @@ import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 
-library.add(faFolder, faCube, faCreditCard);
+library.add(faFolder, faCube, faCreditCard, faChartLine);
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 

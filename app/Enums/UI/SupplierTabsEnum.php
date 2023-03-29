@@ -16,17 +16,21 @@ enum SupplierTabsEnum: string
     use HasTabs;
 
 
-    case DATA               = 'data';
     case PURCHASES_SALES    = 'purchase_sales';
     case SUPPLIER_PRODUCTS  = 'supplier_products';
     case ISSUES             = 'issues';
     case PURCHASE_ORDERS    = 'purchase_orders';
     case DELIVERIES         = 'deliveries';
-    case IMAGES             = 'images';
-    case ATTACHMENTS        = 'attachments';
+    case HISTORY            = 'history';
+
+    case DATA               = 'data';
+
     case SYSTEM_USERS       = 'system_users';
 
-    case CHANGELOG          = 'changelog';
+    case ATTACHMENTS        = 'attachments';
+    case IMAGES             = 'images';
+
+
 
 
     public function blueprint(): array
@@ -35,6 +39,8 @@ enum SupplierTabsEnum: string
             SupplierTabsEnum::DATA => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             SupplierTabsEnum::PURCHASES_SALES => [
                 'title' => __('purchases/sales'),
@@ -59,21 +65,26 @@ enum SupplierTabsEnum: string
 
             SupplierTabsEnum::IMAGES => [
                 'title' => __('images'),
-                'icon'  => 'fal fa-camera-alt',
+                'icon'  => 'fal fa-camera-retro',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             SupplierTabsEnum::ATTACHMENTS => [
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon-only'
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             SupplierTabsEnum::SYSTEM_USERS => [
                 'title' => __('system/users'),
                 'icon'  => 'fal fa-paper-plane',
-                'type'  => 'icon-only',
-            ],SupplierTabsEnum::CHANGELOG => [
+                'type'  => 'icon',
+                'align' => 'right',
+            ],SupplierTabsEnum::HISTORY => [
                 'title' => __('changelog'),
-                'icon'  => 'fal fa-road',
-                'type'  => 'icon-only',
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right'
             ],
         };
     }

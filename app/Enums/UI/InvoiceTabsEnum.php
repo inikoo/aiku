@@ -18,7 +18,9 @@ enum InvoiceTabsEnum: string
     case ITEMS                  = 'items';
     case PAYMENTS               = 'payments';
     case PROPERTIES_OPERATION   = 'properties_operation';
-    case CHANGELOG              = 'changelog';
+    case HISTORY                = 'history';
+    case DATA                   = 'data';
+
 
     public function blueprint(): array
     {
@@ -33,11 +35,19 @@ enum InvoiceTabsEnum: string
             ],
             InvoiceTabsEnum::PROPERTIES_OPERATION     => [
                 'title' => __('properties/operation'),
-                'icon'  => 'fal fa-database',
+                'icon'  => 'fal fa-percent',
             ],
-            InvoiceTabsEnum::CHANGELOG     => [
-                'title' => __('changelog'),
+            InvoiceTabsEnum::DATA     => [
+                'title' => __('data'),
+                'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            InvoiceTabsEnum::HISTORY     => [
+                'title' => __('history'),
                 'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
         };
     }
