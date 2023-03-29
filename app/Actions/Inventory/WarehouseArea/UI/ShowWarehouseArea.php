@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
+use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
@@ -24,60 +25,54 @@ class ShowWarehouseArea extends InertiaAction
 {
     use HasUIWarehouseArea;
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->routeName    = $request->route()->getName();
-    }
-
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.warehouse-areas.edit');
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
-    public function inTenant(WarehouseArea $warehouseArea, ActionRequest $request): void
+    public function inTenant(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
-        $this->warehouseArea = $warehouseArea;
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+        return $warehouseArea;
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): void
+    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
-        $this->warehouseArea = $warehouseArea;
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+        return $warehouseArea;
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(WarehouseArea $warehouseArea, ActionRequest $request): Response
     {
         return Inertia::render(
             'Inventory/WarehouseArea',
             [
                 'title'         => __('warehouse area'),
-                'breadcrumbs'   => $this->getBreadcrumbs($this->routeName, $this->warehouseArea),
+                'breadcrumbs'   => $this->getBreadcrumbs($this->routeName, $warehouseArea),
                 'pageHead'      => [
                     'icon'  => 'fal fa-map-signs',
-                    'title' => $this->warehouseArea->name,
+                    'title' => $warehouseArea->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
                     'meta'  => [
                         [
-                            'name'     => trans_choice('location|locations', $this->warehouseArea->stats->number_locations),
-                            'number'   => $this->warehouseArea->stats->number_locations,
+                            'name'     => trans_choice('location|locations', $warehouseArea->stats->number_locations),
+                            'number'   => $warehouseArea->stats->number_locations,
                             'href'     =>
                                 match ($this->routeName) {
                                     'inventory.warehouses.show.warehouse-areas.show' => [
                                         'inventory.warehouses.show.warehouse-areas.show.locations.index',
-                                        [$this->warehouseArea->warehouse->slug, $this->warehouseArea->slug]
+                                        [$warehouseArea->warehouse->slug, $warehouseArea->slug]
                                     ],
                                     default => [
                                         'inventory.warehouse-areas.show.locations.index',
-                                        $this->warehouseArea->slug
+                                        $warehouseArea->slug
                                     ]
                                 }
 
@@ -96,8 +91,8 @@ class ShowWarehouseArea extends InertiaAction
                     'navigation' => WarehouseAreaTabsEnum::navigation()
                 ],
                 WarehouseAreaTabsEnum::LOCATIONS->value => $this->tab == WarehouseAreaTabsEnum::LOCATIONS->value ?
-                    fn () => LocationResource::collection(IndexLocations::run($this->warehouseArea))
-                    : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($this->warehouseArea))),
+                    fn () => LocationResource::collection(IndexLocations::run($warehouseArea))
+                    : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($warehouseArea))),
 
 
 
@@ -106,8 +101,8 @@ class ShowWarehouseArea extends InertiaAction
     }
 
 
-    public function jsonResponse(): LocationResource
+    public function jsonResponse(WarehouseArea $warehouseArea): WarehouseAreaResource
     {
-        return new LocationResource($this->warehouseArea);
+        return new WarehouseAreaResource($warehouseArea);
     }
 }
