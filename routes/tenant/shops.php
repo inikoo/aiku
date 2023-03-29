@@ -109,3 +109,8 @@ Route::get('/{shop}/outboxes/{outbox}', [ShowOutbox::class, 'inShop'])->name('sh
 Route::get('/{shop}/outboxes/{outbox}/marketing', [ShowOutbox::class, 'inShop'])->name('show.outboxes.marketing.show');
 Route::get('/{shop}/outboxes/{outbox}/user-notification', [ShowOutbox::class, 'inShop'])->name('show.outboxes.user-notification.show');
 Route::get('/{shop}/outboxes/{outbox}/customer-notification', [ShowOutbox::class, 'inShop'])->name('show.outboxes.customer-notification.show');
+
+
+Route::prefix("{shop}/catalogue")
+    ->name("show.catalogue.")
+    ->group(__DIR__."/catalogue.php");

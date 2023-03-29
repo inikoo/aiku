@@ -6,6 +6,6 @@
  */
 
 
-use App\Actions\UI\Showroom\ShowroomDashboard;
+use App\Actions\UI\Catalogue\CatalogueHub;
 
-Route::get('/', ShowroomDashboard::class)->name('dashboard');
+Route::get('/', CatalogueHub::class)->name('dashboard');

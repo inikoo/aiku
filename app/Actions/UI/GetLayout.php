@@ -34,9 +34,10 @@ class GetLayout
                 'route' => 'dashboard.show'
             ];
 
-
-        if ($user->can('showroom.view')) {
-            $navigation['showroom'] = [
+        /*
+         * TODO add shop dependent links here
+        if ($user->can('shops.products.view')) {
+            $navigation['catalogue'] = [
                 'name'  => 'Showroom',
                 'icon'  => ['fal', 'fa-store-alt'],
                 'route' => 'showroom.dashboard'
@@ -60,6 +61,8 @@ class GetLayout
                 'route' => 'osm.hub'
             ];
         }
+
+        */
 
         if ($user->can('dispatch')) {
             $navigation['dispatch'] = [

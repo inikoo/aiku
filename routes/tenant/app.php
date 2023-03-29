@@ -88,6 +88,9 @@ Route::middleware([
         Route::prefix("media")
             ->name("media.")
             ->group(__DIR__."/media.php");
+        Route::prefix("catalogue")
+            ->name("catalogue.")
+            ->group(__DIR__."/catalogue.php");
     });
 
     require __DIR__."/auth.php";

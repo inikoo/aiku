@@ -36,7 +36,7 @@ const handleShopChange = (shop) => {
         if (route().has(newRoute)) {
             router.get(route(newRoute, parameters));
         } else {
-            router.patch(route('sessions.current-shop.update',[shop.slug]));
+            router.patch(route('sessions.current-shop.update', [shop.slug]));
         }
     }
 
@@ -67,12 +67,12 @@ const handleShopsChange = () => {
         :shops="shops"/>
 
     <div class="ml-5 space-x-4">
-        <Link :title="trans('products')"
-              :href="isShopSet? route( 'shops.show.products.index',currentSlug):route('products.index')">
+        <Link :title="trans('Catalogue')"
+              :href="isShopSet? route( 'shops.show.catalogue.hub',currentSlug) : route('catalogue.hub')">
             <font-awesome-icon aria-hidden="true" icon="fal fa-cube"/>
         </Link>
         <Link :title="trans('websites')"
-              :href="isShopSet?route('shops.show.websites.index', currentSlug):route('websites.index')">
+              :href="isShopSet?route('shops.show.websites.index', currentSlug) : route('websites.index')">
             <font-awesome-icon aria-hidden="true" icon="fal fa-globe"/>
         </Link>
         <Link :title="trans('customers')"
