@@ -19,6 +19,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
 import {trans} from 'laravel-vue-i18n';
+import {Link} from "@inertiajs/vue3";
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faHome,
@@ -131,22 +132,29 @@ const user = ref(usePage().props.auth.user);
 
                                     </MenuButton>
                                 </div>
-                                <transition enter-active-class="transition ease-out duration-100"
-                                            enter-from-class="transform opacity-0 scale-95"
-                                            enter-to-class="transform opacity-100 scale-100"
-                                            leave-active-class="transition ease-in duration-75"
-                                            leave-from-class="transform opacity-100 scale-100"
-                                            leave-to-class="transform opacity-0 scale-95">
-                                    <MenuItems
-                                        class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                        <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
-                                            <a :href="item.href"
-                                               :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">{{ item.name
-                                                }}</a>
-                                        </MenuItem>
+                                <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                                    <MenuItems  class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
+                                        <div class="py-1">
+                                            <MenuItem v-slot="{ active }">
+                                                <Link as="ul" type="button" :href="route('profile.show')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">{{ trans('View profile')}}  </Link>
+                                            </MenuItem>
+
+                                        </div>
+
+                                        <div class="py-1">
+                                            <MenuItem v-slot="{ active }">
+                                                <Link as="ul" type="button" :href="route('dashboard.tv')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">DashTV</Link>
+                                            </MenuItem>
+                                        </div>
+                                        <div class="py-1">
+                                            <MenuItem v-slot="{ active }">
+                                                <Link as="ul" type="button" method="post"  :href="route('logout')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">Logout</Link>
+                                            </MenuItem>
+                                        </div>
                                     </MenuItems>
                                 </transition>
                             </Menu>
+
 
                         </div>
                     </div>
