@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Sales\Customer\UI\CreateCustomer;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Actions\Sales\Order\ShowOrder;
@@ -15,6 +16,7 @@ use App\Actions\Web\WebUser\ShowWebUser;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexCustomers::class)->name('index');
+Route::get('/create', CreateCustomer::class)->name('create');
 Route::get('/{customer}', ShowCustomer::class)->name('show');
 Route::get('/{customer}/edit', [ShowCustomer::class, 'inShop'])->name('edit');
 Route::get('/{customer}/orders/{order}', [ShowOrder::class,'inCustomer'])->name('show.orders.show');

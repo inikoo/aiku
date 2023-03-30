@@ -134,13 +134,31 @@ class IndexCustomers extends InertiaAction
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title'  => __('customers'),
-                    'create' => $this->canEdit && $this->routeName == 'shops.show.customers.index' ? [
-                        'route' => [
-                            'name'       => 'shops.show.customers.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('customer')
-                    ] : false,
+                    'create' => $this->canEdit
+                    && (
+                        $this->routeName == 'shops.show.customers.index' or
+                        $this->routeName == 'customers.index'
+                    )
+
+                        ? [
+                            'route' =>
+                                match ($this->routeName) {
+                                    'shops.show.customers.index' =>
+                                    [
+                                        'name'       => 'shops.show.customers.create',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ],
+                                    'customers.index' =>
+                                    [
+                                        'name'       => 'customers.create',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ]
+                                }
+
+
+                            ,
+                            'label' => __('customers')
+                        ] : false,
 
                 ],
                 'data'        => CustomerResource::collection($customers),

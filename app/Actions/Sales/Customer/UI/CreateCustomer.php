@@ -31,11 +31,13 @@ class CreateCustomer extends InertiaAction
                     'title'        => __('new customer'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'shops.show.customers.index',
+                            'name' => match ($this->routeName) {
+                                'shops.show.customers.create' => 'customers.index',
+                                default                       => preg_replace('/create$/', 'index', $this->routeName)
+                            },
                             'parameters' => array_values($this->originalParameters)
-                        ],
+                        ]
                     ]
-
                 ],
 
 
