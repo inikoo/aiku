@@ -8,6 +8,7 @@
 namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\PaymentTabsEnum;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditPayment extends InertiaAction
 {
+    use HasUIPayment;
     public function handle(Payment $payment): Payment
     {
         return $payment;
@@ -39,21 +41,21 @@ class EditPayment extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, Payment $payment, ActionRequest $request): Payment
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
         return $this->handle($payment);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inOrderInShop(Shop $shop, Order $order, Payment $payment, ActionRequest $request): Payment
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
         return $this->handle($payment);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inOrder(Order $order, Payment $payment, ActionRequest $request): Payment
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
         return $this->handle($payment);
     }
 
