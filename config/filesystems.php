@@ -34,6 +34,12 @@ return [
             'root'   => storage_path('app/central'),
             'throw'  => false,
         ],
+        'datasets' => [
+            'driver' => 'local',
+            'root'   => database_path('seeders/datasets'),
+            'throw'  => false,
+        ],
+
 
         'public' => [
             'driver'     => 'local',
