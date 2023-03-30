@@ -31,9 +31,12 @@ class CreateProduct extends InertiaAction
                     'title'        => __('new product'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'shops.show.products.index',
+                            'name' => match ($this->routeName) {
+                                'shops.show.products.create' => 'products.index',
+                                default                      => preg_replace('/create$/', 'index', $this->routeName)
+                            },
                             'parameters' => array_values($this->originalParameters)
-                        ],
+                        ]
                     ]
 
                 ],

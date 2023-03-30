@@ -110,13 +110,31 @@ class IndexProducts extends InertiaAction
                 'title'       => __('products'),
                 'pageHead'    => [
                     'title'   => __('products'),
-                    'create'  => $this->canEdit && $this->routeName=='shops.show.products.index' ? [
-                        'route' => [
-                            'name'       => 'shops.show.products.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label'=> __('product')
-                    ] : false,
+                    'create'  => $this->canEdit
+                    && (
+                        $this->routeName == 'shops.show.products.index' or
+                        $this->routeName == 'products.index'
+                    )
+
+                        ? [
+                            'route' =>
+                                match ($this->routeName) {
+                                    'shops.show.products.index' =>
+                                    [
+                                        'name'       => 'shops.show.products.create',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ],
+                                    'products.index' =>
+                                    [
+                                        'name'       => 'products.create',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ]
+                                }
+
+
+                            ,
+                            'label' => __('products')
+                        ] : false,
                 ],
                 'data' => ProductResource::collection($products),
 
