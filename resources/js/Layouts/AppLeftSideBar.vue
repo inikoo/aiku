@@ -61,7 +61,7 @@ const currentModule = (route) => route.substring(0, route.indexOf('.'));
         <div class="mt-10 hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-gray-200 lg:bg-gray-100 lg:pt-0 lg:pb-4">
             <div class="flex flex-grow flex-col overflow-y-auto border-r border-gray-200 bg-white pb-4">
                 <div class="flex flex-shrink-0 items-center space-y-3 px-7 ">
-                    <img class=" m-auto h-8  mt-2" src="/art/logo-color-trimmed.png" alt="Aiku"/>
+                    <img class=" m-auto h-8  mt-2 mb-1" src="/art/logo-color-trimmed.png" alt="Aiku"/>
                 </div>
                 <div class="flex flex-grow flex-col">
                     <nav class="flex-1 space-y-1 bg-white" aria-label="Sidebar">
