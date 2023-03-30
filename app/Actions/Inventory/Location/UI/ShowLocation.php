@@ -49,7 +49,6 @@ class ShowLocation extends InertiaAction
     public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): void
     {
         $this->location = $location;
-        //$this->validateAttributes();
         $this->initialisation($request);
     }
 
@@ -57,7 +56,6 @@ class ShowLocation extends InertiaAction
     public function InWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): void
     {
         $this->location = $location;
-        //$this->validateAttributes();
         $this->initialisation($request);
     }
 

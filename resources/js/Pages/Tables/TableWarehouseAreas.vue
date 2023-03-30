@@ -14,8 +14,8 @@ import {WarehouseArea} from "@/types/warehouse-area";
 
 
 function warehouseAreaRoute(warehouseArea: WarehouseArea) {
-    switch (route().current()) {
 
+    switch (route().current()) {
         case 'inventory.warehouses.show':
         case 'inventory.warehouses.show.warehouse-areas.index':
             return route(

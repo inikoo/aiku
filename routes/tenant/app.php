@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::middleware([
     "app",
@@ -89,5 +90,10 @@ Route::middleware([
             ->name("media.")
             ->group(__DIR__."/media.php");
     });
+
+    Route::get('/{catchall}', function () {
+        return Inertia::render('Error404');
+    })->where('catchall', '.*');
+
     require __DIR__."/auth.php";
 });

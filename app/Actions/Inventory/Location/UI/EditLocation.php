@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Location\UI;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -37,6 +38,13 @@ class EditLocation extends InertiaAction
     }
 
     public function inTenant(Location $location, ActionRequest $request): Location
+    {
+        $this->initialisation($request);
+
+        return $this->handle($location);
+    }
+
+    public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
 
