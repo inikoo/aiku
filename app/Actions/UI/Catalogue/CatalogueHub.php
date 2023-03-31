@@ -8,7 +8,14 @@
 namespace App\Actions\UI\Catalogue;
 
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Department\UI\IndexDepartments;
+use App\Actions\Marketing\Family\UI\IndexFamilies;
+use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Marketing\Shop\ShowShop;
+use App\Enums\UI\CatalogueTabsEnum;
+use App\Http\Resources\Marketing\DepartmentResource;
+use App\Http\Resources\Marketing\FamilyResource;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,19 +31,25 @@ class CatalogueHub extends InertiaAction
 
     public function asController(ActionRequest $request): ActionRequest
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(CatalogueTabsEnum::values());
         return $request;
     }
 
     public function inShop(Shop $shop, ActionRequest $request): ActionRequest
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(CatalogueTabsEnum::values());
         return $request;
     }
 
 
     public function htmlResponse(ActionRequest $request): Response
     {
+        $parent = match ($request->route()->getName()) {
+            'shops.show.catalogue.hub' => $request->route()->parameters()['shop'],
+            default                    => app('currentTenant')
+        };
+
+
         return Inertia::render(
             'CRM/CRMDashboard',
             [
@@ -46,9 +59,25 @@ class CatalogueHub extends InertiaAction
                     'title' => __('catalogue'),
                 ],
 
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => CatalogueTabsEnum::navigation()
+                ],
+                CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value ?
+                    fn () => DepartmentResource::collection(IndexDepartments::run($parent))
+                    : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($parent))),
 
+                CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
+                    fn () => FamilyResource::collection(IndexFamilies::run($parent))
+                    : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($parent))),
+
+                CatalogueTabsEnum::PRODUCTS->value => $this->tab == CatalogueTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(IndexProducts::run($parent))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($parent))),
             ]
-        );
+        )->table(IndexDepartments::make()->tableStructure($parent))
+            ->table(IndexFamilies::make()->tableStructure($parent))
+            ->table(IndexProducts::make()->tableStructure($parent));
     }
 
 

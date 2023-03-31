@@ -26,20 +26,18 @@ enum CatalogueTabsEnum: string
     {
         return match ($this) {
             CatalogueTabsEnum::DASHBOARD => [
-                'title' => __('stats'),
+                'title' => __('dashboard'),
                 'icon'  => 'fal fa-chart-line',
             ],
             CatalogueTabsEnum::DEPARTMENTS => [
-                'title' => __('warehouse areas'),
-                'icon'  => 'fal fa-map-signs',
+                'title' => __('departments'),
+                'icon'  => 'fal fa-boxes',
             ],
             CatalogueTabsEnum::FAMILIES => [
-                'title' => __('locations'),
-                'icon'  => 'fal fa-inventory',
+                'title' => __('families'),
+                'icon'  => 'fal fa-cubes',
             ],
             CatalogueTabsEnum::PRODUCTS => [
-                'align' => 'right',
-                'type'  => 'icon',
                 'title' => __('products'),
                 'icon'  => 'fal fa-cube',
             ],

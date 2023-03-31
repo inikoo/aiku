@@ -38,7 +38,7 @@ class IndexFamilies extends InertiaAction
                     ->orWhere('families.code', '=', $value);
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::FAMILY->value);
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::FAMILIES->value);
 
         return QueryBuilder::for(Family::class)
             ->defaultSort('families.code')
@@ -67,7 +67,7 @@ class IndexFamilies extends InertiaAction
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::FAMILY->value.'Page'
+                pageName: TabsAbbreviationEnum::FAMILIES->value.'Page'
             )
             ->withQueryString();
     }
@@ -76,8 +76,8 @@ class IndexFamilies extends InertiaAction
     {
         return function (InertiaTable $table) use ($parent) {
             $table
-                ->name(TabsAbbreviationEnum::FAMILY->value)
-                ->pageName(TabsAbbreviationEnum::FAMILY->value.'Page');
+                ->name(TabsAbbreviationEnum::FAMILIES->value)
+                ->pageName(TabsAbbreviationEnum::FAMILIES->value.'Page');
 
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
 

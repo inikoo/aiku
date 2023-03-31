@@ -24,10 +24,10 @@ enum TabsAbbreviationEnum: string
     case ATTACHMENTS       = 'attach';
     case DISPATCHED_EMAILS = 'de';
     case DATA              = 'data';
+    case DASHBOARD         = 'dash';
     case CHANGELOG         = 'hist';
     case CUSTOMERS         = 'cus';
     case DEPARTMENTS       = 'dep';
-    case FAMILY            = 'fam';
     case PURCHASES_SALES   = 'ps';
     case SUPPLIER_PRODUCTS = 'sp';
 
@@ -60,6 +60,8 @@ enum TabsAbbreviationEnum: string
     case PRODUCT_FAMILIES                   = 'pf';
     case STOCK_MOVEMENTS                    = 'sm';
     case STOCK_FAMILIES                     = 'sf';
+
+    case FAMILIES                           = 'fam';
     case ALL_PRODUCTS                       = 'allp';
     case VOUCHERS                           = 'v';
     case SETTINGS                           = 's';

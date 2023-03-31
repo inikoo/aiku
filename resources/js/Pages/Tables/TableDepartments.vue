@@ -16,13 +16,13 @@ const props = defineProps<{
 
 function departmentRoute(department: Department) {
     switch (route().current()) {
-        case 'shops.show.departments.index':
+        case 'shops.show.catalogue.hub.departments.index':
             return route(
-                'shops.show.departments.show',
-                [department.shop_slug, department.slug]);
+                'shops.show.catalogue.hub.departments.show',
+                [route().params['shop'], department.slug]);
         default:
             return route(
-                'departments.show',
+                'catalogue.hub.departments.show',
                 [department.slug]);
     }
 }
