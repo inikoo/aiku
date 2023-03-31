@@ -10,11 +10,13 @@ namespace App\Actions\Marketing\Department\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Marketing\Family\UI\IndexFamilies;
+use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Http\Resources\Marketing\FamilyResource;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
@@ -88,11 +90,15 @@ class ShowDepartment extends InertiaAction
                 DepartmentTabsEnum::FAMILIES->value => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
                     fn () => FamilyResource::collection(IndexFamilies::run($this->department))
                     : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($this->department))),
+                DepartmentTabsEnum::PRODUCTS->value => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(IndexProducts::run($this->department))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->department))),
 
             ]
         )->table(IndexCustomers::make()->tableStructure($department))
             ->table(IndexMailshots::make()->tableStructure($department))
-            ->table(IndexFamilies::make()->tableStructure($department));
+            ->table(IndexFamilies::make()->tableStructure($department))
+            ->table(IndexProducts::make()->tableStructure($department));
     }
 
     public function prepareForValidation(ActionRequest $request): void
