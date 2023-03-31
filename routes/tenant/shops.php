@@ -14,18 +14,6 @@ use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
 use App\Actions\Leads\Prospect\IndexProspects;
 use App\Actions\Mail\Outbox\IndexOutboxes;
 use App\Actions\Mail\Outbox\ShowOutbox;
-use App\Actions\Marketing\Department\UI\CreateDepartment;
-use App\Actions\Marketing\Department\UI\EditDepartment;
-use App\Actions\Marketing\Department\UI\IndexDepartments;
-use App\Actions\Marketing\Department\UI\ShowDepartment;
-use App\Actions\Marketing\Family\UI\CreateFamily;
-use App\Actions\Marketing\Family\UI\EditFamily;
-use App\Actions\Marketing\Family\UI\IndexFamilies;
-use App\Actions\Marketing\Family\UI\ShowFamily;
-use App\Actions\Marketing\Product\UI\CreateProduct;
-use App\Actions\Marketing\Product\UI\EditProduct;
-use App\Actions\Marketing\Product\UI\IndexProducts;
-use App\Actions\Marketing\Product\UI\ShowProduct;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Customer\UI\CreateCustomer;
@@ -57,29 +45,6 @@ Route::get('/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::cla
 
 
 Route::get('/{shop}/customers/{customer}/web-users/create', [CreateWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.create');
-
-
-Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('show.departments.index');
-Route::get('/{shop}/departments/create', CreateDepartment::class)->name('show.departments.create');
-Route::get('/{shop}/departments/{department}', [ShowDepartment::class, 'inShop'])->name('show.departments.show');
-Route::get('/{shop}/departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('show.departments.edit');
-
-
-Route::get('/{shop}/departments/{department}/families', [IndexFamilies::class, 'inShopInDepartment'])->name('show.departments.show.families.index');
-
-Route::get('/{shop}/departments/{department}/products', [IndexProducts::class, 'inShopInDepartment'])->name('show.departments.show.products.index');
-
-Route::get('/{shop}/families', [IndexFamilies::class, 'inShop'])->name('show.families.index');
-Route::get('/{shop}/families/create', CreateFamily::class)->name('show.families.create');
-Route::get('/{shop}/families/{family}', [ShowFamily::class, 'inShop'])->name('show.families.show');
-Route::get('/{shop}/families/{family}/edit', [EditFamily::class, 'inShop'])->name('show.families.edit');
-
-
-Route::get('/{shop}/products', [IndexProducts::class, 'inShop'])->name('show.products.index');
-Route::get('/{shop}/products/create', CreateProduct::class)->name('show.products.create');
-Route::get('/{shop}/products/{product}', [ShowProduct::class, 'inShop'])->name('show.products.show');
-Route::get('/{shop}/products/{product}/edit', [EditProduct::class, 'inShop'])->name('show.products.edit');
-
 
 Route::get('/{shop}/orders', [IndexOrders::class, 'inShop'])->name('show.orders.index');
 
