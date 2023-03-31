@@ -15,7 +15,6 @@ const props = defineProps<{
 
 
 function paymentsRoute(payment: Payment) {
-    console.log(route().current());
     switch (route().current()) {
 
         case 'shops.show.orders.show':

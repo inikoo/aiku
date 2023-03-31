@@ -15,7 +15,6 @@ const props = defineProps<{
 
 
 function orderRoute(order: Order) {
-    console.log(route().current())
     switch (route().current()) {
         case 'shops.show.customers.show':
             return route(

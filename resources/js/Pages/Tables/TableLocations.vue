@@ -15,7 +15,6 @@ const props = defineProps<{
 
 
 function locationRoute(location: Location) {
-    console.log(route().current())
     switch (route().current()) {
         case 'inventory.warehouse-areas.show':
             return route(
