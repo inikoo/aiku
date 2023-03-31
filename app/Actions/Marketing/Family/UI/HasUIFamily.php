@@ -14,6 +14,8 @@ trait HasUIFamily
 {
     public function getBreadcrumbs(Family $family): array
     {
+        return [];
+        /*
         return array_merge(
             (new IndexShops())->getBreadcrumbs(),
             [
@@ -31,5 +33,6 @@ trait HasUIFamily
                 ],
             ]
         );
+        */
     }
 }

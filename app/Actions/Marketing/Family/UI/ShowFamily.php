@@ -52,14 +52,12 @@ class ShowFamily extends InertiaAction
     public function inShop(Shop $shop, Family $family, ActionRequest $request): Family
     {
         $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
         $this->initialisation($request)->withTab(FamilyTabsEnum::values());
         return $this->handle($family);
     }
     public function inShopInDepartment(Shop $shop, Department $department, Family $family, ActionRequest $request): Family
     {
         $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
         $this->initialisation($request)->withTab(FamilyTabsEnum::values());
         return $this->handle($family);
     }
