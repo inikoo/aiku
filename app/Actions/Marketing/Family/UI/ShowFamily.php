@@ -16,6 +16,7 @@ use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\FamilyResource;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
+use App\Models\Marketing\Department;
 use App\Models\Marketing\Family;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
@@ -44,7 +45,7 @@ class ShowFamily extends InertiaAction
 
     public function asController(Family $family, ActionRequest $request): Family
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(FamilyTabsEnum::values());
         return $this->handle($family);
     }
 
@@ -52,7 +53,14 @@ class ShowFamily extends InertiaAction
     {
         $this->routeName = $request->route()->getName();
         //$this->validateAttributes();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(FamilyTabsEnum::values());
+        return $this->handle($family);
+    }
+    public function inShopInDepartment(Shop $shop, Department $department, Family $family, ActionRequest $request): Family
+    {
+        $this->routeName = $request->route()->getName();
+        //$this->validateAttributes();
+        $this->initialisation($request)->withTab(FamilyTabsEnum::values());
         return $this->handle($family);
     }
 

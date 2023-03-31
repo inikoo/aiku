@@ -35,6 +35,7 @@ Route::get('/departments/{department}/edit', [EditDepartment::class, 'inShop'])-
 
 
 Route::get('/departments/{department}/families', [IndexFamilies::class, 'inShopInDepartment'])->name('hub.departments.show.families.index');
+Route::get('/departments/{department}/families/{show}', [ShowFamily::class, 'inShopInDepartment'])->name('hub.departments.show.families.show');
 
 Route::get('/departments/{department}/products', [IndexProducts::class, 'inShopInDepartment'])->name('hub.departments.show.products.index');
 

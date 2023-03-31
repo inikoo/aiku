@@ -46,15 +46,13 @@ class ShowDepartment extends InertiaAction
 
     public function asController(Department $department, ActionRequest $request): Department
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
         return $this->handle($department);
     }
 
     public function inShop(Shop $shop, Department $department, ActionRequest $request): Department
     {
-        //$this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
         return $this->handle($department);
     }
 

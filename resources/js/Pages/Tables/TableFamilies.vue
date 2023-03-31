@@ -15,11 +15,16 @@ const props = defineProps<{
 
 
 function familyRoute(family: Family) {
+    console.log(route().current())
     switch (route().current()) {
         case 'shops.show.catalogue.hub.families.index':
             return route(
                 'shops.show.catalogue.hub.families.show',
                 [route().params['shop'], family.slug]);
+        case 'shops.show.catalogue.hub.departments.show':
+            return route(
+                'shops.show.catalogue.hub.departments.show.families.show',
+                [route().params['shop'],route().params['department'], family.slug]);
         default:
             return route(
                 'catalogue.hub.families.show',
