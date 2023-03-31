@@ -9,10 +9,12 @@ namespace App\Actions\Marketing\Family\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
+use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Enums\UI\FamilyTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\FamilyResource;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Marketing\Family;
 use App\Models\Marketing\Shop;
@@ -83,12 +85,16 @@ class ShowFamily extends InertiaAction
                 FamilyTabsEnum::MAILSHOTS->value => $this->tab == FamilyTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($this->family))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->family))),
+                FamilyTabsEnum::PRODUCTS->value => $this->tab == FamilyTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(IndexProducts::run($this->family))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->family))),
 
 
 
             ]
         )->table(IndexCustomers::make()->tableStructure($family))
-            ->table(IndexMailshots::make()->tableStructure($family));
+            ->table(IndexMailshots::make()->tableStructure($family))
+            ->table(IndexProducts::make()->tableStructure($family));
     }
 
     public function prepareForValidation(ActionRequest $request): void

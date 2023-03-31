@@ -18,7 +18,7 @@ function productRoute(product: Product) {
     switch (route().current()) {
         case 'shops.show.catalogue.hub.products.index':
             return route(
-                'shops.show.catalogue.hub.products.index',
+                'shops.show.catalogue.hub.products.show',
                 [route().params['shop'], product.slug]);
         default:
             return route(

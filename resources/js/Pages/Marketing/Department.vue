@@ -10,7 +10,7 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faBullhorn,
     faCameraRetro, faClock,
-    faCube,
+    faCube, faCubes,
     faFolder, faMoneyBillWave, faProjectDiagram, faTags, faUser
 } from "@/../private/pro-light-svg-icons";
 
@@ -22,7 +22,7 @@ import TableCustomers from "@/Pages/Tables/TableCustomers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
 import { faDiagramNext } from "@fortawesome/free-solid-svg-icons";
-
+import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
 library.add(
     faFolder,
     faCube,
@@ -34,6 +34,7 @@ library.add(
     faUser,
     faMoneyBillWave,
     faDiagramNext,
+    faCubes,
 );
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
@@ -45,6 +46,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
+    families: object;
     customers: object;
     mailshots: object;
 }>()
@@ -55,6 +57,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        families: TableFamilies,
         mailshots: TableMailshots,
         customers: TableCustomers,
         details: ModelDetails,

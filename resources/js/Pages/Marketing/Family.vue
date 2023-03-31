@@ -22,6 +22,7 @@ import TableCustomers from "@/Pages/Tables/TableCustomers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
 import { faDiagramNext } from "@fortawesome/free-solid-svg-icons";
+import TableProducts from "@/Pages/Tables/TableProducts.vue";
 
 library.add(
     faFolder,
@@ -46,6 +47,7 @@ const props = defineProps<{
     }
     customers: object;
     mailshots: object;
+    products: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -54,6 +56,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        products: TableProducts,
         mailshots: TableMailshots,
         customers: TableCustomers,
         details: ModelDetails,

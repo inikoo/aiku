@@ -18,7 +18,7 @@ function familyRoute(family: Family) {
     switch (route().current()) {
         case 'shops.show.catalogue.hub.families.index':
             return route(
-                'shops.show.catalogue.hub.departments.show',
+                'shops.show.catalogue.hub.families.show',
                 [route().params['shop'], family.slug]);
         default:
             return route(

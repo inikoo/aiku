@@ -18,7 +18,7 @@ enum DepartmentTabsEnum: string
 
 
 
-    case SUBCATEGORIES       = 'subcategories';
+    case FAMILIES            = 'families';
     case SALES               = 'sales';
     case CUSTOMERS           = 'customers';
     case OFFERS              = 'offers';
@@ -41,9 +41,9 @@ enum DepartmentTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            DepartmentTabsEnum::SUBCATEGORIES => [
-                'title' => __('subcategories'),
-                'icon'  => 'fa-diagram-next',
+            DepartmentTabsEnum::FAMILIES => [
+                'title' => __('families'),
+                'icon'  => 'fal fa-cubes',
             ],
             DepartmentTabsEnum::SALES => [
                 'title' => __('sales'),
