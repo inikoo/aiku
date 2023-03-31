@@ -22,7 +22,6 @@ enum ProductTabsEnum: string
     case ORDERS                 = 'orders';
     case CUSTOMERS              = 'customers';
     case MAILSHOTS              = 'mailshots';
-    case RELATED_PRODUCTS       = 'related_products';
     case PARTS                  = 'parts';
 
     case HISTORY                = 'history';
@@ -64,12 +63,6 @@ enum ProductTabsEnum: string
             ProductTabsEnum::MAILSHOTS => [
                 'title' => __('mailshots'),
                 'icon'  => 'fal fa-bullhorn',
-
-            ],
-
-            ProductTabsEnum::RELATED_PRODUCTS => [
-                'title' => __('related products'),
-                'icon'  => 'fal fa-project-diagram',
 
             ],
             ProductTabsEnum::PARTS => [

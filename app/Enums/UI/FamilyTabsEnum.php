@@ -23,7 +23,6 @@ enum FamilyTabsEnum: string
     case CUSTOMERS           = 'customers';
     case OFFERS              = 'offers';
     case MAILSHOTS           = 'mailshots';
-    case RELATED_CATEGORIES  = 'related_categories';
 
     case HISTORY             = 'history';
 
@@ -60,9 +59,6 @@ enum FamilyTabsEnum: string
             ],FamilyTabsEnum::MAILSHOTS => [
                 'title' => __('mailshots'),
                 'icon'  => 'fal fa-bullhorn',
-            ],FamilyTabsEnum::RELATED_CATEGORIES => [
-                'title' => __('related categories'),
-                'icon'  => 'fal fa-project-diagram',
             ],FamilyTabsEnum::IMAGES=> [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',

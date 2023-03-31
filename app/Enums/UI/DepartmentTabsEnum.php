@@ -23,7 +23,6 @@ enum DepartmentTabsEnum: string
     case CUSTOMERS           = 'customers';
     case OFFERS              = 'offers';
     case MAILSHOTS           = 'mailshots';
-    case RELATED_CATEGORIES  = 'related_categories';
 
     case HISTORY             = 'history';
 
@@ -58,10 +57,8 @@ enum DepartmentTabsEnum: string
             ],DepartmentTabsEnum::MAILSHOTS => [
                 'title' => __('mailshots'),
                 'icon'  => 'fal fa-bullhorn',
-            ],DepartmentTabsEnum::RELATED_CATEGORIES => [
-                'title' => __('related categories'),
-                'icon'  => 'fal fa-project-diagram',
-            ],DepartmentTabsEnum::IMAGES=> [
+            ],
+            DepartmentTabsEnum::IMAGES=> [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon',
