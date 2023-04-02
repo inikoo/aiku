@@ -13,7 +13,7 @@ return new class () extends Migration {
             $table->string('delivery_noteable_type');
             $table->unsignedInteger('delivery_noteable_id');
             $table->timestampsTz();
-            $table->unique(['delivery_noteable_type','delivery_noteable_id']);
+            $table->unique(['delivery_noteable_type','delivery_noteable_id','delivery_note_id']);
         });
     }
 
