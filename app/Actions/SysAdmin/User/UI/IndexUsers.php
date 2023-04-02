@@ -12,14 +12,13 @@ use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexUser extends InertiaAction
+class IndexUsers extends InertiaAction
 {
     use HasUIUsers;
 
@@ -34,8 +33,9 @@ class IndexUser extends InertiaAction
 
 
         return QueryBuilder::for(User::class)
+            ->with('parent')
             ->defaultSort('username')
-            ->select(['username', 'users.id', 'parent_type', 'parent_id'])
+            ->select(['username', 'parent_type', 'parent_id'])
             ->allowedSorts(['username', 'email', 'parent_type'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -45,6 +45,7 @@ class IndexUser extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('sysadmin.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -67,19 +68,19 @@ class IndexUser extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('users'),
                 'pageHead'    => [
-                    'title'   => __('users'),
-                    'create'  => $this->canEdit && $this->routeName=='sysadmin.users.index' ? [
+                    'title'  => __('users'),
+                    'create' => $this->canEdit && $this->routeName == 'sysadmin.users.index' ? [
                         'route' => [
                             'name'       => 'sysadmin.users.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('user')
+                        'label' => __('user')
                     ] : false,
                 ],
                 'labels'      => [
                     'usernameNoSet' => __('username no set')
                 ],
-                'users'       => JsonResource::collection($users),
+                'data'        => UserResource::collection($users),
 
 
             ]
@@ -96,8 +97,8 @@ class IndexUser extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$this->fillFromRequest($request);
         $this->initialisation($request);
+
         return $this->handle();
     }
 }

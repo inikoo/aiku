@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {User} from "@/types/user";
+import {trans} from "laravel-vue-i18n";
 
 const props = defineProps<{
     data: object
@@ -19,33 +20,30 @@ function userRoute(user: User) {
         case 'sysadmin.users.index':
             return route(
                 'sysadmin.users.show',
-                [route().params['user'], user.slug]);
+                 [user.username]);
     }
 }
+
+
+console.log(props.data)
 
 </script>
 
 <template>
-    <!--
-    <Table :resource="data" :name="'dep'" class="mt-5">
-        <template #cell(code)="{ item: department }">
-            <Link :href="departmentRoute(department)">
-                {{ department['code'] }}
-            </Link>
-        </template>
 
-    </Table>
-    -->
-    <Table :resource="data" :name="'us'" class="mt-5">
+    <Table :resource="data"  class="mt-5">
         <template #cell(username)="{ item: user }">
             <Link :href="userRoute(user)">
                 <template v-if="user.username">{{ user.username }}</template>
-                <span v-else class="italic">{{ labels['usernameNoSet'] }}</span>
+                <span v-else class="italic">{{trans('Not set')}}</span>
             </Link>
         </template>
+        <template #cell(name)="{ item: user }">
+            {{user['parent']['name']}}
+        </template>
         <template #cell(parent_type)="{ item: user }">
-            <Link v-if="user['parent_type']==='Employee'" :href="route('hr.employees.show',user['parent_id'])">{{trans('Employee')}}</Link>
-            <Link v-else-if="user['parent_type']==='Guest'" :href="route('sysadmin.guests.show',user['parent_id'])">{{trans('Guest')}}</Link>
+            <Link v-if="user['parent_type']==='Employee'" :href="route('hr.employees.show',user['parent']['slug'])">{{trans('Employee')}}</Link>
+            <Link v-else-if="user['parent_type']==='Guest'" :href="route('sysadmin.guests.show',user['parent']['slug'])">{{trans('Guest')}}</Link>
         </template>
     </Table>
 </template>

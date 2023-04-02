@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\SysAdmin;
 
+use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -22,6 +23,19 @@ class UserResource extends JsonResource
         return [
             'id'                 => $user->id,
             'username'           => $user->username,
+            'parent_type'        => $user->parent_type,
+
+
+
+
+            'parent' => $this->when($this->relationLoaded('parent'), function () {
+                return match (class_basename($this->resource->parent)) {
+                    'Employee' => new EmployeeResource($this->resource->parent),
+                    'Guest'    => new GuestResource($this->resource->parent),
+                    default    => [],
+                };
+            }),
+
             'roles'              => $user->getRoleNames(),
             'direct-permissions' => $user->getDirectPermissions(),
             'permissions'        => $user->getAllPermissions()->pluck('name'),

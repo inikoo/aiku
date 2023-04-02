@@ -22,6 +22,7 @@ class GuestResource extends JsonResource
         return [
             'id'         => $guest->id,
             'slug'       => $guest->slug,
+            'name'       => $guest->name,
             'user'       => $guest->user?->only('username', 'status'),
             'created_at' => $guest->created_at,
             'updated_at' => $guest->updated_at,

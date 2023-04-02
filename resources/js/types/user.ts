@@ -5,12 +5,12 @@
  */
 
 export interface User {
-    slug: string
     username: string,
+
+    parent_type: string,
+
     email: string,
     about: string,
-    remember_token: number
-    password: string
     created_at: string
     updated_at: string
 }
