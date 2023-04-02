@@ -66,7 +66,6 @@
 
     php artisan cache:clear
     php artisan horizon:clear
-    php artisan horizon:terminate
 
 @endtask
 

@@ -87,6 +87,12 @@ class ShowProduct extends InertiaAction
                     fn () => MailshotResource::collection(IndexMailshots::run($product))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
 
+                /*
+                ProductTabsEnum::IMAGES->value => $this->tab == ProductTabsEnum::IMAGES->value ?
+                    fn () => ImagesResource::collection(IndexImages::run($product))
+                    : Inertia::lazy(fn () => ImagesResource::collection(IndexImages::run($product))),
+                */
+
             ]
         )->table(IndexOrders::make()->tableStructure($product))
             ->table(IndexCustomers::make()->tableStructure($product))

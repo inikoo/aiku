@@ -8,6 +8,7 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Marketing\Product\StoreProduct;
+use App\Actions\Marketing\Product\SyncProductTradeUnits;
 use App\Actions\Marketing\Product\UpdateProduct;
 use App\Models\Marketing\HistoricProduct;
 use App\Models\Marketing\Product;
@@ -59,7 +60,8 @@ class FetchProducts extends FetchAction
             $tradeUnits = $tenantSource->fetchProductStocks($productData['product']['source_id']);
 
 
-            $product->tradeUnits()->sync($tradeUnits['product_stocks']);
+            SyncProductTradeUnits::run($product, $tradeUnits['product_stocks']);
+
 
 
 
