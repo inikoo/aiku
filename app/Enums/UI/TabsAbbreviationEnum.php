@@ -93,4 +93,7 @@ enum TabsAbbreviationEnum: string
     case ABOUT                              = 'ab';
     case REMEMBER_TOKEN                     = 'rt';
     case PASSWORD                           = 'pw';
+
+    case GUEST                              = 'gue';
+    case USER                               = 'usr';
 }

@@ -7,23 +7,20 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
+use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Actions\UI\WithInertia;
+use App\Enums\UI\GuestTabsEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\SysAdmin\Guest;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowGuest
+class ShowGuest extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
-    public function asController(Guest $guest): Guest
+    public function asController(Guest $guest, ActionRequest $request): Guest
     {
+        $this->initialisation($request)->withTab(GuestTabsEnum::values());
         return $guest;
     }
 
@@ -50,7 +47,10 @@ class ShowGuest
                     'title' => $guest->name,
 
                 ],
-                'guest'       => $guest
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => GuestTabsEnum::navigation()
+                ]
             ]
         );
     }

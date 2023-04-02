@@ -106,8 +106,6 @@ class IndexEmployees extends InertiaAction
                     ] : false,
                 ],
                 'data'   => EmployeeInertiaResource::collection($employees),
-
-
             ]
         )->table($this->tableStructure($parent));
     }
