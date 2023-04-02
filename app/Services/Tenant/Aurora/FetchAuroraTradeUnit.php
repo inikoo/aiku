@@ -11,13 +11,48 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraTradeUnit extends FetchAurora
 {
+    use WithAuroraImages;
+
     protected function parseModel(): void
     {
+        $this->parsedData['images'] = $this->parseImages();
+
         $this->parsedData['trade_unit'] = [
-            'name'                   => $this->auroraModelData->{'Part Recommended Product Unit Name'},
-            'code'                   => $this->auroraModelData->{'Part Reference'},
-            'source_id'              => $this->auroraModelData->{'Part SKU'},
+            'name'      => $this->auroraModelData->{'Part Recommended Product Unit Name'},
+            'code'      => $this->auroraModelData->{'Part Reference'},
+            'source_id' => $this->auroraModelData->{'Part SKU'},
         ];
+    }
+
+    private function parseImages(): array
+    {
+        $images = [];
+
+        $stockImages = $this->getModelImagesCollection(
+            'Part',
+            $this->auroraModelData->{'Part SKU'}
+        )->map(function ($auroraImage) {
+            return $this->fetchImage($auroraImage);
+        })->all();
+
+        $images = array_merge($images, $stockImages);
+
+        foreach (
+            DB::connection('aurora')
+                ->table('Product Part Bridge')
+                ->where('Product Part Part SKU', $this->auroraModelData->{'Part SKU'})->get() as $auroraProductsData
+        ) {
+            $productImages = $this->getModelImagesCollection(
+                'Product',
+                $auroraProductsData->{'Product Part Product ID'}
+            )->map(function ($auroraImage) {
+                return $this->fetchImage($auroraImage);
+            })->all();
+
+            $images = array_merge($images, $productImages);
+        }
+
+        return $images;
     }
 
 

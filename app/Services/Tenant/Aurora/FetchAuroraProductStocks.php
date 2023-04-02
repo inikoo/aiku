@@ -15,11 +15,11 @@ class FetchAuroraProductStocks extends FetchAurora
     {
         $productStocks = [];
         foreach ($this->auroraModelData as $modelData) {
-            $stock = $this->parseStock($modelData->{'Product Part Part SKU'});
+            $stock   = $this->parseStock($modelData->{'Product Part Part SKU'});
             if ($stock) {
                 foreach ($stock->tradeUnits as $tradeUnit) {
                     $productStocks[$tradeUnit->id] = [
-                        'quantity' => $tradeUnit->pivot->quantity,
+                        'quantity' => $modelData->{'Product Part Ratio'} * $tradeUnit->pivot->quantity,
                         'notes'    => $modelData->{'Product Part Note'} ?? null
                     ];
                 }

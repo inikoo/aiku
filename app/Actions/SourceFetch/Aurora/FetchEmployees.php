@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
-use App\Actions\Utils\SetPhoto;
+use App\Actions\Utils\StoreImage;
 use App\Models\HumanResources\Employee;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -43,7 +43,7 @@ class FetchEmployees extends FetchAction
 
             foreach ($employeeData['photo'] ?? [] as $profileImage) {
                 if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
-                    SetPhoto::run($employee, $profileImage['image_path'], $profileImage['filename']);
+                    StoreImage::run($employee, $profileImage['image_path'], $profileImage['filename']);
                 }
             }
 

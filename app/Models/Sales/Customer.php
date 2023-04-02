@@ -21,6 +21,7 @@ use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\WebUser;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -62,6 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CustomerClient> $clients
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
@@ -79,13 +82,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Customer withoutTrashed()
  * @mixin \Eloquent
  */
-class Customer extends Model
+class Customer extends Model implements HasMedia
 {
     use UsesTenantConnection;
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
     use HasUniversalSearch;
+    use HasPhoto;
 
     protected $casts = [
         'data'            => 'array',

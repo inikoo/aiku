@@ -12,6 +12,7 @@ use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
 use App\Models\Sales\SalesStats;
+use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -54,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\Family|null $family
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\HistoricProduct> $historicRecords
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductStats|null $stats
@@ -67,12 +70,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Product withoutTrashed()
  * @mixin \Eloquent
  */
-class Product extends Model
+class Product extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
     use HasUniversalSearch;
+    use HasImages;
+
 
 
     protected $casts = [

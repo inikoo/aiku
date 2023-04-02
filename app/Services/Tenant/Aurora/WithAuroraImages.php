@@ -40,6 +40,7 @@ trait WithAuroraImages
             .$auroraImageData->{'Image File Format'};
 
 
+
         if (file_exists($image_path)) {
             return [
                 'image_path' => $image_path,

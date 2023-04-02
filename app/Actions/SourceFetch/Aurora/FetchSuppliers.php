@@ -11,6 +11,7 @@ use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
+use App\Actions\Utils\StoreImage;
 use App\Models\Procurement\Supplier;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -42,6 +43,13 @@ class FetchSuppliers extends FetchAction
                     modelData:   $supplierData['supplier'],
                     addressData: $supplierData['address']
                 );
+            }
+
+
+            foreach ($employeeData['photo'] ?? [] as $profileImage) {
+                if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
+                    StoreImage::run($supplier, $profileImage['image_path'], $profileImage['filename']);
+                }
             }
 
             return $supplier;

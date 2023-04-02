@@ -10,6 +10,7 @@ namespace App\Models\Procurement;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -47,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $central_agent_id
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Model|\Eloquent $owner
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read \App\Models\Procurement\AgentStats|null $stats
@@ -60,13 +63,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Agent withoutTrashed()
  * @mixin \Eloquent
  */
-class Agent extends Model
+class Agent extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
     use UsesTenantConnection;
     use HasUniversalSearch;
+    use HasPhoto;
 
     protected $casts = [
         'shared_data' => 'array',

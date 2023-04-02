@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraAgent extends FetchAurora
 {
+    use WithAuroraImages;
+
     protected function parseModel(): void
     {
         $phone = $this->auroraModelData->{'Agent Main Plain Mobile'};
@@ -33,8 +35,19 @@ class FetchAuroraAgent extends FetchAurora
 
             ];
 
-
+        $this->parsePhoto();
         $this->parsedData['address'] = $this->parseAddress(prefix: 'Agent Contact', auAddressData: $this->auroraModelData);
+    }
+
+    private function parsePhoto(): void
+    {
+        $profile_images            = $this->getModelImagesCollection(
+            'Agent',
+            $this->auroraModelData->{'Agent Key'}
+        )->map(function ($auroraImage) {
+            return $this->fetchImage($auroraImage);
+        });
+        $this->parsedData['photo'] = $profile_images->toArray();
     }
 
 

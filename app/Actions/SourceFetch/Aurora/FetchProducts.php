@@ -57,7 +57,10 @@ class FetchProducts extends FetchAction
 
 
             $tradeUnits = $tenantSource->fetchProductStocks($productData['product']['source_id']);
+
+
             $product->tradeUnits()->sync($tradeUnits['product_stocks']);
+
 
 
             return $product;

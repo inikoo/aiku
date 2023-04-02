@@ -25,6 +25,7 @@ warehouse-areas
 locations
 deleted-locations
 stock-families
+trade-units
 stocks
 deleted-stocks
 shop-categories

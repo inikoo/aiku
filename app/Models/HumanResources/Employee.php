@@ -13,6 +13,7 @@ use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\User;
+use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +21,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -69,10 +69,10 @@ use Spatie\Sluggable\SlugOptions;
 class Employee extends Model implements HasMedia
 {
     use UsesTenantConnection;
-    use InteractsWithMedia;
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
+    use HasPhoto;
 
     protected $casts = [
         'data'                => 'array',
@@ -118,17 +118,6 @@ class Employee extends Model implements HasMedia
                 }
             }
         });
-    }
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('photo')
-            ->singleFile()
-            ->registerMediaConversions(function () {
-                $this->addMediaConversion('thumb')
-                    ->width(256)
-                    ->height(256);
-            });
     }
 
     public function jobPositions(): BelongsToMany

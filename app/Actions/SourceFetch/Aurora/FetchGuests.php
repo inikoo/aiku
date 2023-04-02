@@ -9,7 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
-use App\Actions\Utils\SetPhoto;
+use App\Actions\Utils\StoreImage;
 use App\Models\SysAdmin\Guest;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -37,7 +37,7 @@ class FetchGuests extends FetchAction
 
             foreach ($guestData['photo'] ?? [] as $profileImage) {
                 if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
-                    SetPhoto::run($guest, $profileImage['image_path'], $profileImage['filename']);
+                    StoreImage::run($guest, $profileImage['image_path'], $profileImage['filename']);
                 }
             }
 

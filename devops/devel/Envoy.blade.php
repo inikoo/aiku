@@ -81,6 +81,7 @@
     php artisan db:seed
 @endtask
 
+
 @task('create-admins')
     echo "create-admins" > step
     cd ../../
@@ -163,6 +164,7 @@ php artisan create:guest-user aiku 'Developer' -a -r super-admin
 
     echo "stocks"
     php artisan fetch:stock-families {{$instance}}  -q
+    php artisan fetch:trade-units {{$instance}}  -q
     php artisan fetch:stocks {{$instance}}  -q
     php artisan fetch:deleted-stocks {{$instance}}  -q
 @endtask

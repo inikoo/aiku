@@ -15,6 +15,8 @@ class FetchAuroraStock extends FetchAurora
 {
     protected function parseModel(): void
     {
+        $this->parsedData['trade_unit']=$this->parseTradeUnit($this->auroraModelData->{'Part SKU'});
+
         $this->parsedData['stock'] = [
             'description'     => $this->auroraModelData->{'Part Recommended Product Unit Name'},
             'stock_family_id' => $this->getStockFamilyId($this->auroraModelData->{'Part SKU'}),

@@ -34,7 +34,7 @@ class FetchStocks extends FetchAction
                     modelData: $stockData['stock']
                 );
             }
-            $tradeUnit = FetchTradeUnits::run($tenantSource, $stock->source_id);
+            $tradeUnit = $stockData['trade_unit'];
             $stock->tradeUnits()->sync([
                 $tradeUnit->id => [
                     'quantity' => $stockData['stock']['units_per_pack']
@@ -77,11 +77,9 @@ class FetchStocks extends FetchAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Part Dimension');
-
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
-
         return $query->count();
     }
 }

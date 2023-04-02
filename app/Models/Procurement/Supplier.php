@@ -10,6 +10,7 @@ namespace App\Models\Procurement;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -50,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read \App\Models\Procurement\Agent|null $agent
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
@@ -61,13 +64,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Supplier withoutTrashed()
  * @mixin \Eloquent
  */
-class Supplier extends Model
+class Supplier extends Model implements HasMedia
 {
     use UsesTenantConnection;
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
     use HasUniversalSearch;
+    use HasPhoto;
 
     protected $casts = [
         'shared_data' => 'array',

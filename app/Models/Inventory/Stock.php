@@ -11,6 +11,7 @@ use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
 use App\Models\Marketing\TradeUnit;
+use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -57,6 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Model|\Eloquent $owner
  * @property-read \App\Models\Inventory\StockStats|null $stats
  * @property-read \App\Models\Inventory\StockFamily|null $stockFamily
@@ -71,12 +74,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Stock withoutTrashed()
  * @mixin \Eloquent
  */
-class Stock extends Model
+class Stock extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
     use HasUniversalSearch;
+    use HasImages;
 
     protected $casts = [
         'data'                   => 'array',

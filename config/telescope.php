@@ -120,6 +120,7 @@ return [
         'fetch:locations',
         'fetch:deleted-locations',
         'fetch:stock-families',
+        'fetch-trade-units',
         'fetch:stocks',
         'fetch:deleted-stocks',
         'fetch:shop-categories',

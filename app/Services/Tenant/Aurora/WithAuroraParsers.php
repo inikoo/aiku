@@ -34,6 +34,7 @@ use App\Actions\SourceFetch\Aurora\FetchShippers;
 use App\Actions\SourceFetch\Aurora\FetchShops;
 use App\Actions\SourceFetch\Aurora\FetchStocks;
 use App\Actions\SourceFetch\Aurora\FetchSuppliers;
+use App\Actions\SourceFetch\Aurora\FetchTradeUnits;
 use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\Payment;
@@ -57,6 +58,7 @@ use App\Models\Marketing\HistoricService;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Service;
 use App\Models\Marketing\Shop;
+use App\Models\Marketing\TradeUnit;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
@@ -74,7 +76,7 @@ trait WithAuroraParsers
     protected function parseDate($value): ?string
     {
         return ($value                                   != '' && $value != '0000-00-00 00:00:00'
-                                              && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+                                                               && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 
@@ -502,5 +504,15 @@ trait WithAuroraParsers
         }
 
         return $payment;
+    }
+
+    public function parseTradeUnit($source_id): TradeUnit
+    {
+        $tradeUnit = TradeUnit::withTrashed()->where('source_id', $source_id)->first();
+        if (!$tradeUnit) {
+            $tradeUnit = FetchTradeUnits::run($this->tenantSource, $source_id);
+        }
+
+        return $tradeUnit;
     }
 }

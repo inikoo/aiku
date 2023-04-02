@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraProduct extends FetchAurora
 {
+    use WithAuroraImages;
+
     protected function parseModel(): void
     {
         if ($this->auroraModelData->{'Product Type'} != 'Product') {

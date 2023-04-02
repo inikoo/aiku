@@ -11,13 +11,15 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraSupplier extends FetchAurora
 {
+    use WithAuroraImages;
+
     protected function parseModel(): void
     {
         $agentData = Db::connection('aurora')->table('Agent Supplier Bridge')
             ->select('Agent Supplier Agent Key')
             ->where('Agent Supplier Supplier Key', $this->auroraModelData->{'Supplier Key'})->first();
 
-        $type                      ='supplier';
+        $type                      = 'supplier';
         $this->parsedData['owner'] = app('currentTenant');
         $agentId                   = null;
 
@@ -27,7 +29,7 @@ class FetchAuroraSupplier extends FetchAurora
                 print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
             }
             $agentId = $this->parsedData['owner']->id;
-            $type    ='sub-supplier';
+            $type    = 'sub-supplier';
         }
 
         $deleted_at = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
@@ -62,6 +64,19 @@ class FetchAuroraSupplier extends FetchAurora
 
             ];
         $this->parsedData['address']  = $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $this->auroraModelData);
+
+        $this->parsePhoto();
+    }
+
+    private function parsePhoto(): void
+    {
+        $profile_images            = $this->getModelImagesCollection(
+            'Supplier',
+            $this->auroraModelData->{'Supplier Key'}
+        )->map(function ($auroraImage) {
+            return $this->fetchImage($auroraImage);
+        });
+        $this->parsedData['photo'] = $profile_images->toArray();
     }
 
 
