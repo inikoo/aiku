@@ -45,9 +45,9 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    orders: object
-    customers: object
-    mailshots: object
+    orders?: object
+    customers?: object
+    mailshots?: object
 }>()
 
 

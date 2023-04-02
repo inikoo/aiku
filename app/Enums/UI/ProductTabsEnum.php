@@ -15,31 +15,30 @@ enum ProductTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
+    case SHOWCASE   = 'showcase';
+    case VARIATIONS = 'variations';
+    case WEBPAGES   = 'webpages';
+    case SALES      = 'sales';
+    case ORDERS     = 'orders';
+    case CUSTOMERS  = 'customers';
+    case MAILSHOTS  = 'mailshots';
 
-    case VARIATIONS             = 'variations';
-    case WEBPAGES               = 'webpages';
-    case SALES                  = 'sales';
-    case ORDERS                 = 'orders';
-    case CUSTOMERS              = 'customers';
-    case MAILSHOTS              = 'mailshots';
-    case PARTS                  = 'parts';
+    case HISTORY = 'history';
 
-    case HISTORY                = 'history';
-
-    case DATA                   = 'data';
-    case IMAGES                 = 'images';
+    case DATA   = 'data';
+    case IMAGES = 'images';
+    case PARTS  = 'parts';
 
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            ProductTabsEnum::DATA => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],ProductTabsEnum::VARIATIONS => [
+            ProductTabsEnum::SHOWCASE => [
+                'title' => __('product'),
+                'icon'  => 'fas fa-info-circle',
+            ],
+            ProductTabsEnum::VARIATIONS => [
                 'title' => __('variations'),
                 'icon'  => 'fal fa-stream',
             ],
@@ -65,22 +64,33 @@ enum ProductTabsEnum: string
                 'icon'  => 'fal fa-bullhorn',
 
             ],
-            ProductTabsEnum::PARTS => [
-                'title' => __('parts'),
-                'icon'  => 'fal fa-box',
-                'type'  => 'icon-only'
-            ],
-            ProductTabsEnum::IMAGES => [
-                'title' => __('images'),
-                'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],ProductTabsEnum::HISTORY => [
+
+
+            ProductTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
+            ProductTabsEnum::DATA => [
+                'title' => __('data'),
+                'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            ProductTabsEnum::PARTS => [
+                'title' => __('parts'),
+                'icon'  => 'fal fa-box',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+
+            ProductTabsEnum::IMAGES => [
+                'title' => __('images'),
+                'icon'  => 'fal fa-camera-retro',
+                'type'  => 'icon',
+                'align' => 'right',
+            ]
         };
     }
 }

@@ -20,6 +20,8 @@ import {createPinia} from 'pinia';
 import {library} from '@fortawesome/fontawesome-svg-core';
 
 import {faSearch, faBell, faAngleUp,faChevronRight,faChevronDown,faTimes, faBars as farBars,faEllipsisV, faIndent as farIndent} from '../private/pro-regular-svg-icons';
+import {faInfoCircle} from '../private/pro-solid-svg-icons';
+
 import {
     faHome,
     faDollyFlatbedAlt,
@@ -51,7 +53,8 @@ library.add(faSearch,
             farIndent,
             faAbacus,
             faDatabase,
-            faClock
+            faClock,
+            faInfoCircle
 );
 
 const initialiseApp = () => {

@@ -23,9 +23,6 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Product $product
- */
 class ShowProduct extends InertiaAction
 {
     use HasUIProduct;
@@ -43,19 +40,20 @@ class ShowProduct extends InertiaAction
 
     public function asController(Product $product, ActionRequest $request): Product
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(ProductTabsEnum::values());
 
         return $this->handle($product);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Product $product, ActionRequest $request): Product
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(ProductTabsEnum::values());
 
         return $this->handle($product);
     }
 
-    public function htmlResponse(Product $product): Response
+    public function htmlResponse(Product $product, ActionRequest $request): Response
     {
         return Inertia::render(
             'Marketing/Product',
@@ -66,8 +64,8 @@ class ShowProduct extends InertiaAction
                     'title' => $product->code,
                     'edit'  => $this->canEdit ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                            'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
 
@@ -78,16 +76,16 @@ class ShowProduct extends InertiaAction
                     'navigation' => ProductTabsEnum::navigation()
                 ],
                 ProductTabsEnum::ORDERS->value => $this->tab == ProductTabsEnum::ORDERS->value ?
-                    fn () => OrderResource::collection(IndexOrders::run($this->product))
-                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($this->product))),
+                    fn () => OrderResource::collection(IndexOrders::run($product))
+                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product))),
 
                 ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(IndexCustomers::run($this->product))
-                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($this->product))),
+                    fn () => CustomerResource::collection(IndexCustomers::run($product))
+                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($product))),
 
                 ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($this->product))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->product))),
+                    fn () => MailshotResource::collection(IndexMailshots::run($product))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
 
             ]
         )->table(IndexOrders::make()->tableStructure($product))
