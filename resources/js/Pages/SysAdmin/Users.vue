@@ -4,31 +4,22 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
-import {Table} from '@protonemedia/inertiajs-tables-laravel-query-builder';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import  PageHeading from '@/Components/Headings/PageHeading.vue'
-defineProps(['users', 'title', 'pageHead', 'labels']);
-import { trans } from 'laravel-vue-i18n';
+import TableUsers from "@/Pages/Tables/TableUsers.vue";
+
+const props = defineProps <{
+    pageHead: object
+    title: string
+    data: object
+}>()
 
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="users" class="mt-5">
-        <template #cell(username)="{ item: user }">
-            <Link :href="route('sysadmin.users.show',user.id)">
-                <template v-if="user.username">{{ user.username }}</template>
-                <span v-else class="italic">{{ labels['usernameNoSet'] }}</span>
-            </Link>
-        </template>
-        <template #cell(parent_type)="{ item: user }">
-            <Link v-if="user['parent_type']==='Employee'" :href="route('hr.employees.show',user['parent_id'])">{{trans('Employee')}}</Link>
-            <Link v-else-if="user['parent_type']==='Guest'" :href="route('sysadmin.guests.show',user['parent_id'])">{{trans('Guest')}}</Link>
-        </template>
-    </Table>
-
-
+    <TableUsers :data="data" />
 </template>
 

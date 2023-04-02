@@ -8,6 +8,7 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use Inertia\Inertia;
@@ -32,7 +33,7 @@ class ShowEmployee extends InertiaAction
 
     public function asController(Employee $employee, ActionRequest $request): Employee
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
         return $this->handle($employee);
     }
 
@@ -70,8 +71,10 @@ class ShowEmployee extends InertiaAction
                         ]
                     ] : false,
                 ],
-                'employee'    => new EmployeeResource($employee)
-            ]
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => EmployeeTabsEnum::navigation()
+                ]            ]
         );
     }
 

@@ -4,21 +4,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-export interface Employee {
+export interface User {
     slug: string
-    name: string,
+    username: string,
     email: string,
-    phone: string,
+    about: string,
+    remember_token: number
+    password: string
     created_at: string
     updated_at: string
-    identity_document_number: number
-    gender: string
-    worker_number: string
-    job_title: string
-
-    emergency_contact: string;
-
-    type: string
-    state: string
-
 }

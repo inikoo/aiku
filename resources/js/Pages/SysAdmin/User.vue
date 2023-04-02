@@ -4,19 +4,58 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
+<script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import { computed, defineAsyncComponent, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import { faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile } from "@/../private/pro-light-svg-icons";
+import { library } from "@fortawesome/fontawesome-svg-core";
 
-defineProps(["title","pageHead","user"])
+library.add(
+    faIdCard,
+    faUser,
+    faClock,
+    faDatabase,
+    faEnvelope,
+    faHexagon,
+    faFile,
 
+)
+
+const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+
+const props = defineProps<{
+    title: string,
+    pageHead: object,
+    tabs: {
+        current: string;
+        navigation: object;
+    }
+
+}>()
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        details: ModelDetails,
+        history: ModelChangelog,
+    };
+    return components[currentTab.value];
+
+});
 </script>
 
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-
-
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <component :is="component" :data="props[currentTab]"></component>
 </template>
 
