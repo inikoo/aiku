@@ -11,6 +11,7 @@ use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
+use App\Models\Media\Media;
 use App\Models\Sales\SalesStats;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
@@ -149,5 +150,12 @@ class Product extends Model implements HasMedia
     public function stats(): HasOne
     {
         return $this->hasOne(ProductStats::class);
+    }
+
+    public function images(): BelongsToMany
+    {
+        return $this->belongsToMany(Media::class, 'media_product')->withTimestamps()
+            ->withPivot(['public','owner_type','owner_id'])
+            ->wherePivot('type', 'image');
     }
 }
