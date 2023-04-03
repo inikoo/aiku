@@ -79,4 +79,18 @@ enum TabsAbbreviationEnum: string
     case HEADER                             = 'hd';
     case MENU                               = 'mn';
     case FOOTER                             = 'ft';
+    case NAME                               = 'n';
+    case EMAIL                              = 'em';
+    case PHONE                              = 'ph';
+    case IDENTITY_DOCUMENT_NUMBER           = 'idn';
+    case WORKER_NUMBER                      = 'wn';
+    case JOB_TITLE                          = 'jt';
+    case EMERGENCY_CONTACT                  = 'ec';
+    case GENDER                             = 'gd';
+    case DATE_OF_BIRTH                      = 'dob';
+
+    case USERNAME                           = 'us';
+    case ABOUT                              = 'ab';
+    case REMEMBER_TOKEN                     = 'rt';
+    case PASSWORD                           = 'pw';
 }

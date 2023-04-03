@@ -33,7 +33,7 @@ class ShowEmployee extends InertiaAction
 
     public function asController(Employee $employee, ActionRequest $request): Employee
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
         return $this->handle($employee);
     }
 

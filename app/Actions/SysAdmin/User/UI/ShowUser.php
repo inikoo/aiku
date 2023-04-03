@@ -8,6 +8,7 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\UserTabsEnum;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Sysadmin\User;
 use Inertia\Inertia;
@@ -56,7 +57,10 @@ class ShowUser extends InertiaAction
                     'capitalize'=> false
 
                 ],
-                'user'        => $user
+                'tabs'=> [
+                    'current'    => $this->tab,
+                    'navigation' => UserTabsEnum::navigation()
+                ]
             ]
         );
     }
