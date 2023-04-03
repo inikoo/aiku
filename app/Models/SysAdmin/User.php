@@ -120,6 +120,6 @@ class User extends Authenticatable
     }
     public function getRouteKeyName(): string
     {
-        return 'slug';
+        return 'username';
     }
 }

@@ -15,50 +15,18 @@ enum UserTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-
-
-
-    case USERNAME               = 'username';
-
-    case EMAIL                  = 'email';
-    case ABOUT                  = 'about';
-    case PASSWORD               = 'password';
+    case SHOWCASE               = 'showcase';
     case HISTORY                = 'history';
     case DATA                   = 'data';
-    case REMEMBER_TOKEN         = 'remember_token';
-
-
-
-
-
-
-
 
     public function blueprint(): array
     {
         return match ($this) {
-            UserTabsEnum::USERNAME => [
-                'title' => __('username'),
-                'icon'  => 'fal fa-user',
+            UserTabsEnum::SHOWCASE => [
+                'title' => __('user'),
+                'icon'  => 'fas fa-info-circle',
             ],
-            UserTabsEnum::EMAIL => [
-                'title' => __('email'),
-                'icon'  => 'fal fa-envelope',
-            ],
-            UserTabsEnum::ABOUT => [
-                'title' => __('about'),
-                'icon'  => 'fal fa-file',
-            ],
-            UserTabsEnum::REMEMBER_TOKEN => [
-                'title' => __('remember token'),
-                'icon'  => 'fal fa-hexagon',
-                'type'  => 'icon',
-                'align' => 'right',
-            ]
-            ,UserTabsEnum::PASSWORD => [
-                'title' => __('password'),
-                'icon'  => 'fal fa-id-card',
-            ],UserTabsEnum::HISTORY => [
+            UserTabsEnum::HISTORY => [
                 'title' => __('date of birth'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',

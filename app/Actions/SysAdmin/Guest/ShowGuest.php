@@ -36,8 +36,6 @@ class ShowGuest extends InertiaAction
 
     public function htmlResponse(Guest $guest): Response
     {
-        $this->validateAttributes();
-
         return Inertia::render(
             'SysAdmin/Guest',
             [

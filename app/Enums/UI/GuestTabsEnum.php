@@ -18,14 +18,10 @@ enum GuestTabsEnum: string
 
 
 
-    case NAME                       = 'name';
+    case SHOWCASE                   = 'showcase';
 
-    case EMAIL                      = 'email';
-    case PHONE                      = 'phone';
-    case IDENTITY_DOCUMENT_NUMBER   = 'identity_document_number';
-    case GENDER                     = 'gender';
-    case DATE_OF_BIRTH              = 'date_of_birth';
     case HISTORY                    = 'history';
+
     case DATA                       = 'data';
 
 
@@ -42,37 +38,15 @@ enum GuestTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            GuestTabsEnum::NAME => [
-                'title' => __('name'),
-                'icon'  => 'fal fa-signature',
-            ],
-            GuestTabsEnum::EMAIL => [
-                'title' => __('email'),
-                'icon'  => 'fal fa-envelope',
-            ],
-            GuestTabsEnum::PHONE => [
-                'title' => __('phone'),
-                'icon'  => 'fal fa-phone',
-            ]
-            ,GuestTabsEnum::IDENTITY_DOCUMENT_NUMBER => [
-                'title' => __('identity document number'),
-                'icon'  => 'fal fa-id-card',
-            ],GuestTabsEnum::DATE_OF_BIRTH => [
-                'title' => __('date of birth'),
-                'icon'  => 'fal fa-birthday-cake',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],GuestTabsEnum::GENDER => [
-                'title' => __('gender'),
-                'icon'  => 'fal fa-venus-mars',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
             GuestTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            GuestTabsEnum::SHOWCASE => [
+                'title' => __('guest'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

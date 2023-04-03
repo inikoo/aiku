@@ -1,22 +1,50 @@
 <!--
   -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Wed, 14 Sept 2022 01:56:59 Malaysia Time, Kuala Lumpur, Malaysia
+  -  Created: Tue, 20 Sept 2022 19:04:29 Malaysia Time, Kuala Lumpur, Malaysia
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
+<script setup lang="ts">
+
 import { Head } from '@inertiajs/vue3';
+import { computed, defineAsyncComponent, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import PageHeading from "@/Components/Headings/PageHeading.vue";
 
-import PageHeading from '@/Components/Headings/PageHeading.vue';
 
+const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
-defineProps(["title","pageHead","guest"])
+const props = defineProps<{
+    title: string,
+    pageHead: object,
+    tabs: {
+        current: string;
+        navigation: object;
+    }
+
+}>()
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        details: ModelDetails,
+        history: ModelChangelog,
+    };
+    return components[currentTab.value];
+
+});
 
 </script>
 
 <template layout="App">
+
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <component :is="component" :data="props[currentTab]"></component>
 </template>
-

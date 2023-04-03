@@ -22,7 +22,7 @@ class ShowUser extends InertiaAction
 
     public function asController(User $user, ActionRequest $request): User
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(UserTabsEnum::values());
         return $user;
     }
 
