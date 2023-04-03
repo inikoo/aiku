@@ -14,6 +14,8 @@ enum WarehouseAreaTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
+
+    case SHOWCASE            = 'showcase';
     case LOCATIONS           = 'locations';
     case STATS               = 'stats';
     case HISTORY             = 'history';
@@ -43,6 +45,10 @@ enum WarehouseAreaTabsEnum: string
                 'type'  => 'icon',
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',
+            ],
+            WarehouseAreaTabsEnum::SHOWCASE => [
+                'title' => __('warehouse area'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

@@ -16,6 +16,7 @@ enum StockTabsEnum: string
     use HasTabs;
 
 
+    case SHOWCASE           = 'showcase';
     case SALES              = 'sales';
     case STOCK_HISTORY      = 'stock_history';
 
@@ -89,6 +90,10 @@ enum StockTabsEnum: string
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
+            ],
+            StockTabsEnum::SHOWCASE => [
+                'title' => __('stock'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

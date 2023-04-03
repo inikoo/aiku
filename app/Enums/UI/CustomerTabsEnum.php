@@ -15,6 +15,8 @@ enum CustomerTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
+    case SHOWCASE            = 'showcase';
+
     case HISTORY_NOTES       = 'history_notes';
     case PORTFOLIO           = 'portfolio';
     case PRODUCTS            = 'products';
@@ -76,6 +78,10 @@ enum CustomerTabsEnum: string
                 'title' => __('dispatched emails'),
                 'icon'  => 'fal fa-paper-plane',
                 'type'  => 'icon',
+            ],
+            CustomerTabsEnum::SHOWCASE => [
+                'title' => __('customer'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

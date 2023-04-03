@@ -17,7 +17,7 @@ enum FamilyTabsEnum: string
 
 
 
-
+    case SHOWCASE            = 'showcase';
     case PRODUCTS            = 'products';
     case SALES               = 'sales';
     case CUSTOMERS           = 'customers';
@@ -69,6 +69,10 @@ enum FamilyTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            FamilyTabsEnum::SHOWCASE => [
+                'title' => __('family'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

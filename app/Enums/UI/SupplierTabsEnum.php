@@ -16,6 +16,7 @@ enum SupplierTabsEnum: string
     use HasTabs;
 
 
+    case SHOWCASE           = 'showcase';
     case PURCHASES_SALES    = 'purchase_sales';
     case SUPPLIER_PRODUCTS  = 'supplier_products';
     case ISSUES             = 'issues';
@@ -85,6 +86,10 @@ enum SupplierTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right'
+            ],
+            SupplierTabsEnum::SHOWCASE => [
+                'title' => __('supplier'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

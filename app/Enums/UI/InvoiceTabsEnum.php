@@ -15,6 +15,7 @@ enum InvoiceTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
+    case SHOWCASE               = 'showcase';
     case ITEMS                  = 'items';
     case PAYMENTS               = 'payments';
     case PROPERTIES_OPERATION   = 'properties_operation';
@@ -48,6 +49,10 @@ enum InvoiceTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            InvoiceTabsEnum::SHOWCASE => [
+                'title' => __('invoice'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

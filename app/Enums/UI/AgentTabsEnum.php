@@ -15,6 +15,7 @@ enum AgentTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
+    case SHOWCASE            = 'showcase';
     case  SUPPLIERS          = 'suppliers';
     case SUPPLIER_PRODUCTS   = 'supplier_products';
     case PURCHASE_ORDERS     = 'purchase_orders';
@@ -66,7 +67,11 @@ enum AgentTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
-            ]
+            ],
+            AgentTabsEnum::SHOWCASE => [
+                'title' => __('agent'),
+                'icon'  => 'fas fa-info-circle',
+            ],
         };
     }
 }

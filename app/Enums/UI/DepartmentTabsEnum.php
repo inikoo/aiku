@@ -17,6 +17,7 @@ enum DepartmentTabsEnum: string
 
 
 
+    case SHOWCASE            = 'showcase';
 
     case FAMILIES            = 'families';
     case PRODUCTS            = 'products';
@@ -77,6 +78,10 @@ enum DepartmentTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            DepartmentTabsEnum::SHOWCASE => [
+                'title' => __('department'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

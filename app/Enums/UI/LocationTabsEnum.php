@@ -16,6 +16,7 @@ enum LocationTabsEnum: string
     use HasTabs;
 
 
+    case SHOWCASE           = 'showcase';
     case PARTS              = 'parts';
     case STOCK_MOVEMENTS    = 'stock_movements';
 
@@ -46,6 +47,10 @@ enum LocationTabsEnum: string
                 'align' => 'right',
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
+            ],
+            LocationTabsEnum::SHOWCASE => [
+                'title' => __('location'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

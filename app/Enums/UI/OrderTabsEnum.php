@@ -15,6 +15,7 @@ enum OrderTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
+    case SHOWCASE                    = 'showcase';
     case HISTORY_NOTES               = 'history_notes';
     case ITEMS                       = 'items';
     case ALL_PRODUCTS                = 'all_products';
@@ -93,6 +94,10 @@ enum OrderTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            OrderTabsEnum::SHOWCASE => [
+                'title' => __('order'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

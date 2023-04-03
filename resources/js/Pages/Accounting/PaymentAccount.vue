@@ -11,7 +11,8 @@ import {
     faChartLine,
     faCreditCard,
     faCube,
-    faFolder
+    faFolder,
+    faInfoCircle
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
@@ -22,7 +23,7 @@ import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 
-library.add(faFolder, faCube, faCreditCard, faChartLine);
+library.add(faFolder, faCube, faCreditCard, faChartLine, faInfoCircle);
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 

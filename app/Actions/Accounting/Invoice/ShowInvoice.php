@@ -11,12 +11,12 @@ use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\UI\WithInertia;
+use App\Enums\UI\CustomerTabsEnum;
 use App\Enums\UI\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Marketing\Shop;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -42,15 +42,17 @@ class ShowInvoice extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
-    public function asController(Invoice $invoice): Invoice
+    public function asController(Invoice $invoice, ActionRequest $request): Invoice
     {
+        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
+
         return $this->handle($invoice);
     }
 
-    public function inShop(Shop $shop, Invoice $invoice, Request $request): Invoice
+    public function inShop(Shop $shop, Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
+        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
 
         return $this->handle($invoice);
     }

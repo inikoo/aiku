@@ -15,6 +15,7 @@ enum PaymentServiceProviderTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
+    case SHOWCASE         = 'showcase';
     case STATS            = 'stats';
     case PAYMENT_ACCOUNTS = 'payment_accounts';
     case PAYMENTS         = 'payments';
@@ -48,6 +49,10 @@ enum PaymentServiceProviderTabsEnum: string
                 'icon'   => 'fal fa-clock',
                 'type'   => 'icon',
                 'align'  => 'right',
+            ],
+            PaymentServiceProviderTabsEnum::SHOWCASE => [
+                'title' => __('payment service provider'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

@@ -16,6 +16,7 @@ enum StockFamilyTabsEnum: string
     use HasTabs;
 
 
+    case SHOWCASE           = 'showcase';
     case SALES              = 'sales';
     case ISSUES             = 'issues';
 
@@ -75,6 +76,10 @@ enum StockFamilyTabsEnum: string
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon',
+            ],
+            StockFamilyTabsEnum::SHOWCASE => [
+                'title' => __('stock family'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }
