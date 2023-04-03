@@ -7,29 +7,23 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
+use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Actions\UI\WithInertia;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\SysAdmin\GuestInertiaResource;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\SysAdmin\Guest;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexGuest
+class IndexGuest extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -40,8 +34,9 @@ class IndexGuest
         });
 
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::GUEST->value);
+
         return QueryBuilder::for(Guest::class)
-            ->defaultSort('slug')
+            ->defaultSort('guests.slug')
             ->select(['id', 'slug', 'name',])
             ->allowedSorts(['slug', 'name'])
             ->allowedFilters([$globalSearch])
@@ -94,17 +89,15 @@ class IndexGuest
                 'pageHead'    => [
                     'title' => __('guests'),
                 ],
-                'guests'       => GuestInertiaResource::collection($guests),
-
-
+                'data'       => GuestInertiaResource::collection($guests),
             ]
         )->table($this->tableStructure($parent));
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
+        $this->initialisation($request);
 
         return $this->handle();
     }

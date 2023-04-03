@@ -34,7 +34,6 @@ function guestRoute(guest: Guest) {
                 {{ guest['slug'] }}
             </Link>
         </template>
-
     </Table>
 </template>
 

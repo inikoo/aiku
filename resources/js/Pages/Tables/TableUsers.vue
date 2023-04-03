@@ -36,11 +36,11 @@ function userRoute(user: User) {
 
     </Table>
     -->
-    <Table :resource="data" :name="'us'" class="mt-5">
+    <Table :resource="data" :name="'usr'" class="mt-5">
         <template #cell(username)="{ item: user }">
             <Link :href="userRoute(user)">
                 <template v-if="user.username">{{ user.username }}</template>
-                <span v-else class="italic">{{ labels['usernameNoSet'] }}</span>
+                <span v-else class="italic">{{ user['usernameNoSet'] }}</span>
             </Link>
         </template>
         <template #cell(parent_type)="{ item: user }">
