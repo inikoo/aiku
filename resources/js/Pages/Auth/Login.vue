@@ -18,7 +18,7 @@ const submit = () => {
 };
 </script>
 
-<template layout="Guest">
+<template layout="GuestLayout">
     <Head title="Login"/>
 
     <form class="space-y-6" @submit.prevent="submit">
