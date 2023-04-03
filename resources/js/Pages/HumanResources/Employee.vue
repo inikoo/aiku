@@ -4,7 +4,7 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
+<script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faIdCard,faUser} from '@/../private/pro-light-svg-icons';
@@ -14,14 +14,40 @@ import { router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 library.add(faIdCard,faUser,faCheckCircle)
-import { trans } from 'laravel-vue-i18n';
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+import { computed, defineAsyncComponent, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import Tabs from "@/Components/Navigation/Tabs.vue";
 
-const props=defineProps(["title","pageHead","employee"])
 
 const createEmployeeUser = () =>{
     router.post(route('hr.employees.show.user.store',props['employee'].data.id), {})
 }
+
+const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+
+const props = defineProps<{
+    title: string,
+    pageHead: object,
+    tabs: {
+        current: string;
+        navigation: object;
+    }
+
+}>()
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        details: ModelDetails,
+        history: ModelChangelog,
+    };
+    return components[currentTab.value];
+
+});
 
 
 
@@ -32,7 +58,8 @@ const createEmployeeUser = () =>{
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
 
-        <div v-if="!employee.data.user || ( $page.props.flash.notification && $page.props.flash.notification.type==='newUser')"   class="m-4 bg-white shadow sm:rounded-lg max-w-2xl">
+    <!--
+    <div v-if="!employee.data.user || ( $page.props.flash.notification && $page.props.flash.notification.type==='newUser')"   class="m-4 bg-white shadow sm:rounded-lg max-w-2xl">
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg font-medium leading-6 text-gray-900">{{ trans('System user')}}  <span v-if="$page.props.flash.notification" class="text-green-600 ml-2 text-sm">
                     <FontAwesomeIcon aria-hidden="true" icon="fa-solid fa-check-circle" size="lg" /> {{$page.props.flash.notification.message}}</span></h3>
@@ -67,9 +94,8 @@ const createEmployeeUser = () =>{
             </div>
 
         </div>
-
-
-
-
+    -->
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <component :is="component" :data="props[currentTab]"></component>
 </template>
 
