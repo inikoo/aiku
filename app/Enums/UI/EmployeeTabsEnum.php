@@ -18,10 +18,35 @@ enum EmployeeTabsEnum: string
     case SHOWCASE                       = 'showcase';
     case HISTORY                        = 'history';
     case DATA                           = 'data';
+    case TODAY_TIMESHEETS               = 'today_timesheets';
+    case TIMESHEETS                     = 'timesheets';
+    case ATTACHMENTS                    = 'attachments';
+    case IMAGES                         = 'images';
+
 
     public function blueprint(): array
     {
         return match ($this) {
+            EmployeeTabsEnum::TODAY_TIMESHEETS => [
+                'title' => __('today timesheets'),
+                'icon'  => 'fal fa-database',
+            ],
+            EmployeeTabsEnum::IMAGES => [
+                'title' => __('images'),
+                'icon'  => 'fal fa-camera-retro',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            EmployeeTabsEnum::ATTACHMENTS => [
+                'title' => __('attachments'),
+                'icon'  => 'fal fa-paperclip',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            EmployeeTabsEnum::TIMESHEETS => [
+                'title' => __('timesheets'),
+                'icon'  => 'fal fa-database',
+            ],
             EmployeeTabsEnum::DATA => [
                 'title' => __('database'),
                 'icon'  => 'fal fa-database',
