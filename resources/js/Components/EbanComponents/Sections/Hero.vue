@@ -8,7 +8,7 @@ defineProps(['data'])
 <template>
 
     <div
-        class="bg-white bg-[url('@/../../public/Images/HomeHeroPlantImage.jpeg')]  w-full h-[50rem] bg-auto bg-repeat-round">
+        class="bg-white bg-[url('@/../../public/art/HomeHeroPlantImage.jpeg')]  w-full h-[50rem] bg-auto bg-repeat-round">
         <header class="">
             <div class="-mt-48">
                 <div class="mx-auto max-w-7xl py-24 text-black sm:px-6 sm:py-32 lg:px-8">
