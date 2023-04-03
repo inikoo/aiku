@@ -28,7 +28,7 @@ function guestRoute(guest: Guest) {
 </script>
 
 <template>
-    <Table :resource="data" :name="gue"  class="mt-5">
+    <Table :resource="data" :name="'gue'"  class="mt-5">
         <template #cell(slug)="{ item: guest }">
             <Link :href="guestRoute(guest)">
                 {{ guest['slug'] }}
