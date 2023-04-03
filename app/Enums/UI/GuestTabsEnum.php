@@ -18,11 +18,13 @@ enum GuestTabsEnum: string
 
 
 
-    case SHOWCASE                   = 'showcase';
-
-    case HISTORY                    = 'history';
-
-    case DATA                       = 'data';
+    case SHOWCASE                       = 'showcase';
+    case HISTORY                        = 'history';
+    case DATA                           = 'data';
+    case TODAY_TIMESHEETS               = 'today_timesheets';
+    case TIMESHEETS                     = 'timesheets';
+    case ATTACHMENTS                    = 'attachments';
+    case IMAGES                         = 'images';
 
 
 
@@ -32,6 +34,26 @@ enum GuestTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
+            GuestTabsEnum::TODAY_TIMESHEETS => [
+                'title' => __('today timesheets'),
+                'icon'  => 'fal fa-database',
+            ],
+            GuestTabsEnum::IMAGES => [
+                'title' => __('images'),
+                'icon'  => 'fal fa-camera-retro',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            GuestTabsEnum::ATTACHMENTS => [
+                'title' => __('attachments'),
+                'icon'  => 'fal fa-paperclip',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            GuestTabsEnum::TIMESHEETS => [
+                'title' => __('timesheets'),
+                'icon'  => 'fal fa-database',
+            ],
             GuestTabsEnum::DATA => [
                 'title' => __('database'),
                 'icon'  => 'fal fa-database',
@@ -45,7 +67,7 @@ enum GuestTabsEnum: string
                 'align' => 'right',
             ],
             GuestTabsEnum::SHOWCASE => [
-                'title' => __('guest'),
+                'title' => __('employee'),
                 'icon'  => 'fas fa-info-circle',
             ],
         };

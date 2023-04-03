@@ -15,27 +15,52 @@ enum UserTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE               = 'showcase';
-    case HISTORY                = 'history';
-    case DATA                   = 'data';
+    case SHOWCASE                       = 'showcase';
+    case HISTORY                        = 'history';
+    case DATA                           = 'data';
+    case TODAY_TIMESHEETS               = 'today_timesheets';
+    case TIMESHEETS                     = 'timesheets';
+    case ATTACHMENTS                    = 'attachments';
+    case IMAGES                         = 'images';
 
     public function blueprint(): array
     {
         return match ($this) {
-            UserTabsEnum::SHOWCASE => [
-                'title' => __('user'),
-                'icon'  => 'fas fa-info-circle',
+            UserTabsEnum::TODAY_TIMESHEETS => [
+                'title' => __('today timesheets'),
+                'icon'  => 'fal fa-database',
             ],
-            UserTabsEnum::HISTORY => [
-                'title' => __('date of birth'),
-                'icon'  => 'fal fa-clock',
+            UserTabsEnum::IMAGES => [
+                'title' => __('images'),
+                'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon',
                 'align' => 'right',
-            ],UserTabsEnum::DATA => [
-                'title' => __('gender'),
+            ],
+            UserTabsEnum::ATTACHMENTS => [
+                'title' => __('attachments'),
+                'icon'  => 'fal fa-paperclip',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            UserTabsEnum::TIMESHEETS => [
+                'title' => __('timesheets'),
+                'icon'  => 'fal fa-database',
+            ],
+            UserTabsEnum::DATA => [
+                'title' => __('database'),
                 'icon'  => 'fal fa-database',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            UserTabsEnum::HISTORY => [
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            UserTabsEnum::SHOWCASE => [
+                'title' => __('employee'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }
