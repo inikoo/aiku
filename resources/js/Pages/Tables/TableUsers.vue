@@ -10,6 +10,7 @@ import Table from '@/Components/Table/Table.vue';
 import {User} from "@/types/user";
 import {trans} from "laravel-vue-i18n";
 
+
 const props = defineProps<{
     data: object
 }>()
@@ -20,17 +21,23 @@ function userRoute(user: User) {
         case 'sysadmin.users.index':
             return route(
                 'sysadmin.users.show',
-                 [user.username]);
+                [user.username]);
     }
 }
-
-
-console.log(props.data)
 
 </script>
 
 <template>
+    <!--
+    <Table :resource="data" :name="'dep'" class="mt-5">
+        <template #cell(code)="{ item: department }">
+            <Link :href="departmentRoute(department)">
+                {{ department['code'] }}
+            </Link>
+        </template>
 
+    </Table>
+    -->
     <Table :resource="data"  class="mt-5">
         <template #cell(username)="{ item: user }">
             <Link :href="userRoute(user)">

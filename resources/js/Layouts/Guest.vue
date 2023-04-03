@@ -13,8 +13,8 @@ import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 
-/*
-const layout = useLayoutStore();
+
+/*const layout = useLayoutStore();
 if (usePage().props.language) {
     loadLanguageAsync(usePage().props.language);
 }
@@ -23,8 +23,8 @@ watchEffect(() => {
     if (usePage().props.tenant) {
         layout.tenant = usePage().props.tenant ?? null;
     }
-});
-*/
+});*/
+
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
 const props = defineProps<{

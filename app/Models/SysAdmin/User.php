@@ -118,4 +118,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserStats::class);
     }
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 }
