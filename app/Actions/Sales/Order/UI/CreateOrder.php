@@ -45,15 +45,20 @@ class CreateOrder extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops.orders.edit');
+        return $request->user()->can('shops.products.edit');
     }
 
 
-    public function asController(Shop $shop, ActionRequest $request): Response
+    public function asController(ActionRequest $request): Response
     {
-        $this->parent = $shop;
         $this->initialisation($request);
-
+        $this->parent = app('currentTenant');
+        return $this->handle();
+    }
+    public function inShop(Shop $shop, ActionRequest $request): Response
+    {
+        $this->initialisation($request);
+        $this->parent = $shop;
         return $this->handle();
     }
 }

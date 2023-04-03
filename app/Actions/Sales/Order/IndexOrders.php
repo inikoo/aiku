@@ -84,12 +84,12 @@ class IndexOrders extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.orders.edit');
+        $this->canEdit = $request->user()->can('shops.products.edit');
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.orders.view')
+                $request->user()->hasPermissionTo('shops.products.view')
             );
     }
 
