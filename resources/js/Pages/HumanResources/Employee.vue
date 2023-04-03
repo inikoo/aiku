@@ -7,13 +7,27 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faIdCard,faUser} from '@/../private/pro-light-svg-icons';
+import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock } from "@/../private/pro-light-svg-icons";
 import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
 import { router } from '@inertiajs/vue3'
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
-library.add(faIdCard,faUser,faCheckCircle)
+library.add(
+    faIdCard,
+    faUser,
+    faCheckCircle,
+    faSignature,
+    faEnvelope,
+    faPhone,
+    faIdCard,
+    faBirthdayCake,
+    faVenusMars,
+    faHashtag,
+    faHeading,
+    faHospitalUser,
+    faClock,
+)
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";

@@ -18,21 +18,21 @@ enum EmployeeTabsEnum: string
 
 
 
-    case DATA                       = 'data';
     case NAME                       = 'name';
 
     case EMAIL                      = 'email';
     case PHONE                      = 'phone';
-    case IDENTITY_DOCUMENT_TYPE     = 'identity_document_type';
     case IDENTITY_DOCUMENT_NUMBER   = 'identity_document_number';
-    case DATE_OF_BIRTH              = 'date_of_birth';
-
-    case GENDER                     = 'gender';
-
     case WORKER_NUMBER              = 'worker_number';
     case JOB_TITLE                  = 'job_title';
     case EMERGENCY_CONTACT          = 'emergency_contact';
     case HISTORY                    = 'history';
+    case DATA                       = 'data';
+    case GENDER                     = 'gender';
+    case DATE_OF_BIRTH              = 'date_of_birth';
+
+
+
 
 
 
@@ -51,40 +51,43 @@ enum EmployeeTabsEnum: string
             ],
             EmployeeTabsEnum::EMAIL => [
                 'title' => __('email'),
-                'icon'  => 'fal fa-cubes',
+                'icon'  => 'fal fa-envelope',
             ],
             EmployeeTabsEnum::PHONE => [
                 'title' => __('phone'),
-                'icon'  => 'fal fa-money-bill-wave',
-            ],
-            EmployeeTabsEnum::IDENTITY_DOCUMENT_TYPE => [
-                'title' => __('identity document type'),
-                'icon'  => 'fal fa-user',
-            ],EmployeeTabsEnum::IDENTITY_DOCUMENT_NUMBER => [
+                'icon'  => 'fal fa-phone',
+            ]
+            ,EmployeeTabsEnum::IDENTITY_DOCUMENT_NUMBER => [
                 'title' => __('identity document number'),
-                'icon'  => 'fal fa-tags',
+                'icon'  => 'fal fa-id-card',
             ],EmployeeTabsEnum::DATE_OF_BIRTH => [
                 'title' => __('date of birth'),
-                'icon'  => 'fal fa-bullhorn',
+                'icon'  => 'fal fa-birthday-cake',
+                'type'  => 'icon',
+                'align' => 'right',
             ],EmployeeTabsEnum::GENDER => [
                 'title' => __('gender'),
-                'icon'  => 'fal fa-project-diagram',
+                'icon'  => 'fal fa-venus-mars',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             EmployeeTabsEnum::WORKER_NUMBER => [
                 'title' => __('worker number'),
-                'icon'  => 'fal fa-project-diagram',
+                'icon'  => 'fal fa-hashtag',
             ],
             EmployeeTabsEnum::JOB_TITLE => [
                 'title' => __('job title'),
-                'icon'  => 'fal fa-project-diagram',
+                'icon'  => 'fal fa-heading',
             ],
             EmployeeTabsEnum::EMERGENCY_CONTACT => [
                 'title' => __('emergency contact'),
-                'icon'  => 'fal fa-project-diagram',
+                'icon'  => 'fal fa-hospital-user',
             ],
             EmployeeTabsEnum::HISTORY => [
                 'title' => __('history'),
-                'icon'  => 'fal fa-project-diagram',
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
         };
     }

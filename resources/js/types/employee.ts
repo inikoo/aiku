@@ -11,7 +11,6 @@ export interface Employee {
     phone: string,
     created_at: string
     updated_at: string
-    identity_document_type: string
     identity_document_number: number
     gender: string
     worker_number: string
