@@ -41,7 +41,7 @@ class ShowStock extends InertiaAction
     public function asController(Stock $stock, ActionRequest $request): void
     {
         $stock->load('locations');
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(StockTabsEnum::values());
         $this->stock    = $stock;
     }
 

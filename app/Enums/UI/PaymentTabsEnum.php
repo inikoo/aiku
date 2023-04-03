@@ -24,11 +24,15 @@ enum PaymentTabsEnum: string
             PaymentTabsEnum::DATA => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
 
             PaymentTabsEnum::HISTORY_NOTES => [
                 'title' => __('history, notes'),
                 'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
         };
     }

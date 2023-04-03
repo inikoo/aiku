@@ -40,7 +40,7 @@ class ShowSupplier extends InertiaAction
     public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
         $this->routeName = $request->route()->getName();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(SupplierTabsEnum::values());
         return $this->handle($supplier);
     }
 

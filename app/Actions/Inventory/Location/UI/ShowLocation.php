@@ -33,30 +33,28 @@ class ShowLocation extends InertiaAction
     public function inTenant(Location $location, ActionRequest $request): void
     {
         $this->location = $location;
-        //$this->validateAttributes();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(LocationTabsEnum::values());
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): void
     {
         $this->location = $location;
-        //$this->validateAttributes();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(LocationTabsEnum::values());
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): void
     {
         $this->location = $location;
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(LocationTabsEnum::values());
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function InWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): void
     {
         $this->location = $location;
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(LocationTabsEnum::values());
     }
 
     public function htmlResponse(): Response

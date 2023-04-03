@@ -39,7 +39,7 @@ class ShowStockFamily extends InertiaAction
 
     public function asController(StockFamily $stockFamily, ActionRequest $request): void
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(StockFamilyTabsEnum::values());
         $this->stockFamily = $stockFamily;
     }
 

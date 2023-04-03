@@ -17,7 +17,6 @@ use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
@@ -35,7 +34,7 @@ class ShowAgent extends InertiaAction
 
     public function asController(Agent $agent, ActionRequest $request): void
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(AgentTabsEnum::values());
         $this->agent    = $agent;
     }
 
@@ -105,8 +104,8 @@ class ShowAgent extends InertiaAction
     }
 
 
-    #[Pure] public function jsonResponse(): AgentResource
-    {
-        return new AgentResource($this->agent);
-    }
+     public function jsonResponse(): AgentResource
+     {
+         return new AgentResource($this->agent);
+     }
 }

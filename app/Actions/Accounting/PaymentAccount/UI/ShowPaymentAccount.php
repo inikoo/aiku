@@ -38,8 +38,7 @@ class ShowPaymentAccount extends InertiaAction
     public function asController(PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
         $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentAccountTabsEnum::values());
         return $this->handle($paymentAccount);
     }
 
@@ -47,7 +46,7 @@ class ShowPaymentAccount extends InertiaAction
     public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
         $this->routeName = $request->route()->getName();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentAccountTabsEnum::values());
         return $this->handle($paymentAccount);
     }
 
