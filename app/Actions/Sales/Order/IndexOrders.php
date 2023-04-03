@@ -8,7 +8,7 @@
 namespace App\Actions\Sales\Order;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Sales\Order\UI\HasUIOrders;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Central\Tenant;
@@ -26,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexOrders extends InertiaAction
 {
-    // Shop|Tenant removed on handle()
+    use HasUIOrders;
     public function handle(Tenant|Shop|Customer $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -84,12 +84,12 @@ class IndexOrders extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.products.edit');
+        $this->canEdit = $request->user()->can('shops.orders.edit');
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.products.view')
+                $request->user()->hasPermissionTo('shops.orders.view')
             );
     }
 
@@ -113,7 +113,14 @@ class IndexOrders extends InertiaAction
                 ),
                 'title'       => __('orders'),
                 'pageHead'    => [
-                    'title' => __('orders'),
+                    'title'   => __('orders'),
+                    'create'  => $this->canEdit && $this->routeName=='shops.show.orders.index' ? [
+                        'route' => [
+                            'name'       => 'shops.show.orders.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('order')
+                    ] : false,
                 ],
                 'data'        => OrderResource::collection($orders),
 
@@ -136,31 +143,5 @@ class IndexOrders extends InertiaAction
         $this->initialisation($request);
 
         return $this->handle(parent: $shop);
-    }
-
-
-    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('orders')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'orders.index'            => $headCrumb(),
-            'shops.show.orders.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
-            ),
-            default => []
-        };
     }
 }

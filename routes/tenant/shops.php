@@ -22,6 +22,7 @@ use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Actions\Sales\Order\IndexOrders;
 use App\Actions\Sales\Order\ShowOrder;
+use App\Actions\Sales\Order\UI\CreateOrder;
 use App\Actions\Web\Website\IndexWebsites;
 use App\Actions\Web\Website\ShowWebsite;
 use App\Actions\Web\WebUser\CreateWebUser;
@@ -31,6 +32,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexShops::class)->name('index');
 Route::get('/{shop}', ShowShop::class)->name('show');
+
 
 Route::get('/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('show.customers.index');
 Route::get('/{shop}/prospects', [IndexProspects::class, 'inShop'])->name('show.prospects.index');
@@ -47,6 +49,7 @@ Route::get('/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::cla
 Route::get('/{shop}/customers/{customer}/web-users/create', [CreateWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.create');
 
 Route::get('/{shop}/orders', [IndexOrders::class, 'inShop'])->name('show.orders.index');
+Route::get('/{shop}/orders/create', [CreateOrder::class, 'inShop'])->name('show.orders.create');
 
 Route::get('/{shop}/orders/{order}', [ShowOrder::class, 'inShop'])->name('show.orders.show');
 Route::get('/{shop}/orders/{order}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inOrderInShop'])->name('show.orders.show.delivery-notes.show');
