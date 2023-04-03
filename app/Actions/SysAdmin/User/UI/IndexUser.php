@@ -8,8 +8,10 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\User;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -32,14 +34,37 @@ class IndexUser extends InertiaAction
             });
         });
 
-
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::USER->value);
         return QueryBuilder::for(User::class)
             ->defaultSort('username')
-            ->select(['username', 'users.id', 'parent_type', 'parent_id'])
+            ->select([
+                'username',
+                'users.id',
+                'parent_type',
+                'parent_id'
+            ])
             ->allowedSorts(['username', 'email', 'parent_type'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::USER->value.'Page'
+            )
             ->withQueryString();
+    }
+
+    public function tableStructure($parent): Closure
+    {
+        return function (InertiaTable $table) use ($parent) {
+            $table
+                ->name(TabsAbbreviationEnum::USER->value)
+                ->pageName(TabsAbbreviationEnum::USER->value.'Page');
+            $table
+                ->withGlobalSearch()
+                ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'parent_type', label: __('type'), canBeHidden: false, sortable: true)
+                ->defaultSort('username');
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -59,8 +84,9 @@ class IndexUser extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $users)
+    public function htmlResponse(LengthAwarePaginator $users, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'SysAdmin/Users',
             [
@@ -83,20 +109,12 @@ class IndexUser extends InertiaAction
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'parent_type', label: __('type'), canBeHidden: false, sortable: true)
-                ->defaultSort('username');
-        });
+        )->table($this->tableStructure($parent));
     }
 
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$this->fillFromRequest($request);
         $this->initialisation($request);
         return $this->handle();
     }
