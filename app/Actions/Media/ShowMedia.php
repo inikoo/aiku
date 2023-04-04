@@ -22,7 +22,8 @@ class ShowMedia
     }
 
 
-    public function htmlResponse(Media $media): BinaryFileResponse
+    public function htmlResponse(Media $media)
+    //: BinaryFileResponse
     {
         $headers = [
             'Content-Type'   => $media->mime_type,

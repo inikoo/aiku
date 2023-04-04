@@ -31,8 +31,7 @@ class StoreImage
         string $image_path,
         string $filename,
         string $collection='photo'
-    ): Employee|Guest|Product|Stock|TradeUnit|Customer|SupplierProduct|Supplier|Agent
-    {
+    ): Employee|Guest|Product|Stock|TradeUnit|Customer|SupplierProduct|Supplier|Agent {
         $checksum = md5_file($image_path);
         if ($subject->getMedia($collection, ['checksum' => $checksum])->count() == 0) {
             $subject->addMedia($image_path)
@@ -40,7 +39,7 @@ class StoreImage
                 ->withCustomProperties(['checksum' => $checksum])
                 ->usingName($filename)
                 ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
-                ->toMediaCollection($collection);
+                ->toMediaCollection($collection, 'tenant');
         }
         return $subject;
     }

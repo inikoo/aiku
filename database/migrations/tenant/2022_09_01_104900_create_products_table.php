@@ -32,7 +32,9 @@ return new class () extends Migration {
             $table->unsignedDecimal('price', 18)->comment('unit price');
             $table->unsignedDecimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
             $table->unsignedInteger('available')->default(0)->nullable();
-            $table->unsignedInteger('image_id')->nullable();
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
+
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();

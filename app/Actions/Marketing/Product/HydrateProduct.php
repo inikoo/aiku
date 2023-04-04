@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Product;
 
 use App\Actions\HydrateModel;
+use App\Actions\Marketing\Product\Hydrators\ProductInitialiseImageID;
 use App\Models\Marketing\Product;
 use Illuminate\Support\Collection;
 
@@ -18,6 +19,7 @@ class HydrateProduct extends HydrateModel
 
     public function handle(Product $product): void
     {
+        ProductInitialiseImageID::run($product);
     }
 
 
@@ -28,6 +30,6 @@ class HydrateProduct extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return Product::withTrashed()->all();
+        return Product::withTrashed()->get();
     }
 }

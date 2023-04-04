@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Enums\Sales\Order\OrderStateEnum;
