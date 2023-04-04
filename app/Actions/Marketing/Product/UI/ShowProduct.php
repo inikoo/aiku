@@ -14,6 +14,7 @@ use App\Actions\Sales\Order\IndexOrders;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\ProductResource;
+use App\Http\Resources\Marketing\ProductShowcaseResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Product;
@@ -75,6 +76,12 @@ class ShowProduct extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => ProductTabsEnum::navigation()
                 ],
+
+
+                ProductTabsEnum::SHOWCASE->value => $this->tab == ProductTabsEnum::SHOWCASE->value ?
+                    fn () => new ProductShowcaseResource($product)
+                    : Inertia::lazy(fn () => new ProductShowcaseResource($product)),
+
                 ProductTabsEnum::ORDERS->value => $this->tab == ProductTabsEnum::ORDERS->value ?
                     fn () => OrderResource::collection(IndexOrders::run($product))
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product))),

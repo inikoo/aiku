@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Product;
 
+use App\Actions\Marketing\Product\Hydrators\ProductInitialiseImageID;
 use App\Models\Marketing\Product;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -33,6 +34,8 @@ class SyncProductTradeUnitImages
          */
 
         $product->images()->syncWithoutDetaching($images);
+
+        ProductInitialiseImageID::run($product);
 
 
         return $product;
