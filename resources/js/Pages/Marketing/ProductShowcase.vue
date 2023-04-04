@@ -6,22 +6,42 @@
 
 <script setup lang="ts">
 
+
+
 const props = defineProps<{
     data: object
-}>()
-const product=props.data.data;
+}>();
+const product = props.data.data;
+
 
 </script>
 
 
 <template>
 
-    <div class="lg:col-span-4 lg:row-end-1">
-        <div class="aspect-h-3 aspect-w-4 overflow-hidden rounded-lg bg-gray-100">
-            <img
-                :src="route('media.show',product.image_id)"
-                alt="product main image" class="object-cover object-center" />
-        </div>
+    <div class="grid grid-cols-3  ">
+        <img
+            :src="route('media.show',product.image_id)"
+            alt="product main image" class="object-cover object-center ml-10"
+        />
+            <div class="grid text-center">
+                <div>
+                    hello
+                </div>
+                <div>
+                    hello
+                </div>
+            </div>
+            <div class="grid text-center" >
+                <div>
+                    hello
+                </div>
+                <div>
+                    hello
+                </div>
+            </div>
     </div>
+
+
 
 </template>
