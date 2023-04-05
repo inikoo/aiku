@@ -23,7 +23,7 @@ const product = props.data.data;
                  class=" sm:max-w-xs  md:max-w-xs lg:h-64 content-center"
             />
         </div>
-        <table >
+        <table class="lg:mr-6  md:m-auto">
             <tr>
                 <td class="px-1 border border-gray-500">All sales since: Thu 30 Mar 2023</td>
             </tr>
@@ -76,7 +76,7 @@ const product = props.data.data;
             </tr>
         </table>
 
-        <table class="table-auto lg:mr-6">
+        <table class="table-auto lg:mr-6 md:m-auto">
             <tbody>
             <tr>
                 <td class="px-1 border-b border-gray-500">Active</td>
