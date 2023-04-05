@@ -87,7 +87,7 @@ const user = ref(usePage().props.auth.user);
         <Disclosure as="nav" class="bg-gray-100" v-slot="{ open }">
             <div class=" px-0">
 
-                <div class="flex h-12 lg:h-10 flex-shrink-0 border-b border-gray-200 bg-white ">
+                <div class="flex h-11 lg:h-10 flex-shrink-0 border-b border-gray-200 bg-white ">
 
                     <div class="flex flex-1 justify-between pl-3 md:pl-0">
 
@@ -216,16 +216,17 @@ const user = ref(usePage().props.auth.user);
             </DisclosurePanel>
         </Disclosure>
 
-        <div
-            class="mt-10 hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-gray-200 lg:bg-gray-100 lg:pt-0 lg:pb-4">
-            <AppLeftSideBar/>
-        </div>
-        <div class="flex flex-col lg:pl-64">
-            <main>
-                <Breadcrumbs :breadcrumbs="$page.props.breadcrumbs??[]"/>
-                <slot/>
-            </main>
-        </div>
+        <AppLeftSideBar/>
+
+
+        <main class="flex flex-col pl-0
+        md:pl-10
+        xl:pl-40
+        2xl:pl-56
+">
+            <Breadcrumbs :breadcrumbs="$page.props.breadcrumbs??[]"/>
+            <slot/>
+        </main>
 
 
     </div>
