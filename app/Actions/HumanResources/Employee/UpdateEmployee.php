@@ -30,18 +30,20 @@ class UpdateEmployee
     {
         return $request->user()->hasPermissionTo("hr.edit");
     }
+
     public function rules(): array
     {
         return [
             'name' => ['sometimes','required'],
+            'date' => ['sometimes','date'],
+
         ];
     }
-
 
     public function asController(Employee $employee, ActionRequest $request): Employee
     {
         $request->validate();
-        return $this->handle($employee, $request->all());
+        return $this->handle($employee, $request->validated());
     }
 
 

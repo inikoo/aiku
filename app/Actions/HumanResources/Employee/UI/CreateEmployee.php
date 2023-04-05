@@ -34,6 +34,35 @@ class CreateEmployee extends InertiaAction
                     ]
 
                 ],
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('personal information'),
+                            'fields' => [
+
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('name'),
+                                    'value' => ''
+                                ],
+                                'date_of_birth' => [
+                                    'type'  => 'date',
+                                    'label' => __('date of birth'),
+                                    'value' => ''
+                                ],
+
+
+                            ]
+                        ]
+
+                    ],
+                    'route'      => [
+                            'name'       => 'models.employee.store',
+
+                    ]
+
+                ],
+
 
 
             ]

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "lib": ["es5","es2015.core","ES2015","dom"],
+        "lib": ["es5","es2015.core","ES2015","dom","es2017"],
         "baseUrl": "./resources",
         "paths": {
             "@/*": ["js/*"]
