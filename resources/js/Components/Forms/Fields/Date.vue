@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
-import {ref} from "vue";
 
 import { faExclamationCircle ,faCheckCircle} from "../../../../private/pro-solid-svg-icons";
 import {library} from '@fortawesome/fontawesome-svg-core';
@@ -23,9 +22,6 @@ const handleChange = (form) => {
 
     }
 }
-
-
-const date = ref();
 
 
 </script>
