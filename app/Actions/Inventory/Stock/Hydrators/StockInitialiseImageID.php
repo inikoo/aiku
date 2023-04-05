@@ -5,32 +5,32 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Product\Hydrators;
+namespace App\Actions\Inventory\Stock\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Models\Marketing\Product;
+use App\Models\Inventory\Stock;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * Fill image_id if id null and products has images (to be run after trade units set up or first image added)
+ * Fill image_id if id null and stocks has images (to be run after trade units set up or first image added)
  */
-class ProductInitialiseImageID implements ShouldBeUnique
+class StockInitialiseImageID implements ShouldBeUnique
 {
     use AsAction;
     use WithTenantJob;
 
-    public function handle(Product $product): void
+    public function handle(Stock $stock): void
     {
-        if ($product->images()->count()) {
-            if ($product->image_id) {
+        if ($stock->images()->count()) {
+            if ($stock->image_id) {
                 return;
             }
 
-            $image = $product->images()->first();
+            $image = $stock->images()->first();
 
             if ($image) {
-                $product->update(
+                $stock->update(
                     [
                         'image_id' => $image->id
                     ]
@@ -39,8 +39,8 @@ class ProductInitialiseImageID implements ShouldBeUnique
         }
     }
 
-    public function getJobUniqueId(Product $product): string
+    public function getJobUniqueId(Stock $stock): string
     {
-        return $product->id;
+        return $stock->id;
     }
 }

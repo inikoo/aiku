@@ -14,6 +14,7 @@ use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Enums\UI\StockTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\StockResource;
+use App\Http\Resources\Inventory\StockShowcaseResource;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Inventory\Stock;
@@ -71,6 +72,9 @@ class ShowStock extends InertiaAction
                     'navigation' => StockTabsEnum::navigation()
 
                 ],
+                StockTabsEnum::SHOWCASE->value => $this->tab == StockTabsEnum::SHOWCASE->value ?
+                    fn () => new StockShowcaseResource($this->stock)
+                    : Inertia::lazy(fn () => new StockShowcaseResource($this->stock)),
 
                 StockTabsEnum::SUPPLIERS_PRODUCTS->value => $this->tab == StockTabsEnum::SUPPLIERS_PRODUCTS->value ?
                     fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->stock))

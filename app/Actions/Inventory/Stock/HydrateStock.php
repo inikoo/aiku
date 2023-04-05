@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\HydrateModel;
+use App\Actions\Inventory\Stock\Hydrators\StockInitialiseImageID;
 use App\Models\Inventory\Stock;
 use Illuminate\Support\Collection;
 
@@ -20,6 +21,7 @@ class HydrateStock extends HydrateModel
     {
         $this->locations($stock);
         $this->quantity($stock);
+        StockInitialiseImageID::run($stock);
     }
 
     public function locations(Stock $stock): void
@@ -48,6 +50,6 @@ class HydrateStock extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return Stock::withTrashed()->all();
+        return Stock::withTrashed()->get();
     }
 }

@@ -8,6 +8,7 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Inventory\Stock\StoreStock;
+use App\Actions\Inventory\Stock\SyncStockTradeUnits;
 use App\Actions\Inventory\Stock\UpdateStock;
 use App\Models\Inventory\Stock;
 use App\Services\Tenant\SourceTenantService;
@@ -35,12 +36,12 @@ class FetchStocks extends FetchAction
                 );
             }
             $tradeUnit = $stockData['trade_unit'];
-            $stock->tradeUnits()->sync([
+
+            SyncStockTradeUnits::run($stock, [
                 $tradeUnit->id => [
                     'quantity' => $stockData['stock']['units_per_pack']
                 ]
             ]);
-
             $locationsData = $tenantSource->fetchLocationStocks($tenantSourceId);
 
             $stock->locations()->sync($locationsData['stock_locations']);
