@@ -20,10 +20,10 @@ const product = props.data.data;
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-3 gap-4 ">
         <div class="m-auto">
             <img :src="route('media.show',product.image_id)" alt="product main image"
-                 class=" sm:max-w-xs  md:max-w-xs lg:h-64 content-center"
+                 class=" sm:max-w-xs  md:max-w lg:h-64 "
             />
         </div>
-        <table class="lg:mr-6  md:m-auto">
+        <table class="lg:mr-6 lg:ml-0 md:ml-28 md:mr-28">
             <tr>
                 <td class="px-1 border border-gray-500">All sales since: Thu 30 Mar 2023</td>
             </tr>
@@ -76,7 +76,7 @@ const product = props.data.data;
             </tr>
         </table>
 
-        <table class="table-auto lg:mr-6 md:m-auto">
+        <table class="table-auto lg:ml-10 lg:mr-6 md:ml-28 md:mr-28">
             <tbody>
             <tr>
                 <td class="px-1 border-b border-gray-500">Active</td>
