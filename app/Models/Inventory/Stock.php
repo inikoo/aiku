@@ -11,6 +11,7 @@ use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
 use App\Models\Marketing\TradeUnit;
+use App\Models\Media\Media;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
@@ -143,5 +144,12 @@ class Stock extends Model implements HasMedia
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function images(): BelongsToMany
+    {
+        return $this->belongsToMany(Media::class, 'media_stock')->withTimestamps()
+            ->withPivot(['public','owner_type','owner_id'])
+            ->wherePivot('type', 'image');
     }
 }

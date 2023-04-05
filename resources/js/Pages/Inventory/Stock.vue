@@ -27,7 +27,7 @@ import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableLocations from "@/Pages/Tables/TableLocations.vue";
-
+import StockShowcase from "@/Pages/Inventory/StockShowcase.vue";
 library.add(
     faInventory,
     faBox,
@@ -54,8 +54,9 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
+    showcase: object;
     supplier_products: object;
-    products: object
+    products: object;
     locations: object;
 }>()
 
@@ -65,6 +66,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        showcase: StockShowcase,
         locations: TableLocations,
         supplier_products: TableSupplierProducts,
         products: TableProducts,

@@ -40,8 +40,8 @@ return new class () extends Migration {
             $table->decimal('quantity', 16, 3)->nullable()->default(0)->comment('stock quantity in units');
             $table->float('available_forecast')->nullable()->comment('days');
             $table->decimal('value', 16)->nullable();
-            $table->unsignedInteger('image_id')->nullable();
-            $table->unsignedInteger('package_image_id')->nullable();
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();
