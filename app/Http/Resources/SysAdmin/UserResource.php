@@ -32,7 +32,6 @@ class UserResource extends JsonResource
                     default    => [],
                 };
             }),
-
             'roles'              => $user->getRoleNames(),
             'direct-permissions' => $user->getDirectPermissions(),
             'permissions'        => $user->getAllPermissions()->pluck('name'),

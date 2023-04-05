@@ -33,6 +33,7 @@
         "@protonemedia/inertiajs-tables-laravel-query-builder": "^2.1.0",
         "@vue-hero-icons/outline": "^1.7.2",
         "@vue-hero-icons/solid": "^1.7.2",
+        "@vuepic/vue-datepicker": "^4.2.1",
         "laravel-vue-i18n": "^2.2.2",
         "lodash-es": "^4.17.21",
         "pinia": "^2.0.20",

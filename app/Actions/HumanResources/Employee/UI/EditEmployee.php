@@ -63,6 +63,11 @@ class EditEmployee extends InertiaAction
                                     'label' => __('name'),
                                     'value' => $employee->name
                                 ],
+                                'date_of_birth' => [
+                                    'type'  => 'date',
+                                    'label' => __('date of birth'),
+                                    'value' => $employee->date_of_birth
+                                ],
 
 
                             ]

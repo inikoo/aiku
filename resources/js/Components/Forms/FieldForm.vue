@@ -4,7 +4,7 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
-<script setup>
+<script setup lang="ts">
 
 import {useForm} from '@inertiajs/vue3';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
@@ -13,6 +13,7 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 library.add(faSave);
 import Input from '@/Components/Forms/Fields/Input.vue';
 import Phone from '@/Components/Forms/Fields/Phone.vue';
+import Date from '@/Components/Forms/Fields/Date.vue';
 
 
 const props = defineProps(['fieldData', 'field', 'args']);
@@ -25,6 +26,7 @@ const getComponent = (componentName) => {
     const components = {
         'input': Input,
         'phone': Phone,
+        'date': Date,
     };
     return components[componentName] ?? null;
 
@@ -57,7 +59,7 @@ if (props['fieldData']['type'] === 'address') {
 }
 
 const form = useForm(formFields);
-form.type='edit';
+form['type']='edit';
 
 </script>
 

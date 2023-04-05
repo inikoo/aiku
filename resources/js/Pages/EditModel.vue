@@ -28,14 +28,10 @@ const props = defineProps(['title', 'pageHead', 'formData']);
                         {{ sectionData['subtitle'] }}
                     </p>
                 </div>
-
-
                 <FieldForm
                     class=" pt-4 sm:pt-5 px-6 "
                     v-for="(fieldData,field ) in sectionData.fields"
                     :field="field" :fieldData="fieldData" :args="formData['args']"/>
-
-
             </div>
 
 
