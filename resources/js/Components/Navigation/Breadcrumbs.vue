@@ -4,13 +4,49 @@
   -  Copyright (c) 2021, Inikoo
   -  Version 4.0
   -->
-<script setup>
+<script setup lang="ts">
 import {computed} from 'vue';
-import {trans} from 'laravel-vue-i18n';
 import {Link} from '@inertiajs/vue3';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-const props = defineProps(['breadcrumbs']);
+
+const props = defineProps<{
+    breadcrumbs: Array<{
+        type:string,
+        simple:{
+            icon?:string,
+            overlay?:string,
+            label?:string,
+            route?:{
+                name:string,
+                parameters?:Array<string>
+            }
+        },
+        indexModel:{
+            index:{
+                icon?:string,
+                label?:string,
+                route?:{
+                    name:string,
+                    parameters?:Array<string>
+                }
+            },
+            model:{
+                icon?:string,
+                label?:string,
+                route?:{
+                    name:string,
+                    parameters?:Array<string>
+                }
+            },
+        }
+        suffix?:string,
+        options?:object
+
+
+
+    }>
+}>()
 
 const displayBreadcrumbs = computed(() => {
     return Object.keys(props['breadcrumbs']).length > 0;
@@ -21,52 +57,39 @@ const displayBreadcrumbs = computed(() => {
 <template>
     <div v-if="displayBreadcrumbs">
         <nav class="hidden sm:flex text-gray-600 bg-white border-b h-8 border-gray-200 " aria-label="Breadcrumb">
-            <ol role="list" class=" w-full mx-auto px-4 flex space-x-4 sm:px-6 lg:px-8">
-                <li class="flex">
-                    <div class="flex items-center">
-                        <Link :href="route('dashboard.show')" class="hover:text-gray-700">
-                            <font-awesome-icon
-                                :icon="['fal', 'tachometer-alt-fast']"
-                                class="flex-shrink-0 h-4 w-4"
-                                aria-hidden="true"
-                            />
-                            <span class="sr-only">{{ trans('dashboard.show') }}</span>
-                        </Link>
-                    </div>
-                </li>
+            <ol role="list" class="w-full mx-auto px-4 flex space-x-4 ">
+
                 <li v-for="(breadcrumb, breadcrumbIdx) in  breadcrumbs" :key="breadcrumbIdx" class="flex">
                     <div class="flex items-center">
-                        <font-awesome-icon class="flex-shrink-0 h-5 w-5 mr-2" icon="fa-regular fa-chevron-right" aria-hidden="true"/>
+                        <font-awesome-icon  v-if="breadcrumbIdx!==0"  class="flex-shrink-0 h-5 w-5 mr-2" icon="fa-regular fa-chevron-right" aria-hidden="true"/>
 
-                        <Link class="mr-2 hover:text-gray-700" v-if="breadcrumb.index" :href="route(breadcrumb.index.route,breadcrumb.index['routeParameters'])">
-                            <font-awesome-icon
+                        <template v-if="breadcrumb.type==='simple'">
 
-                                :icon="breadcrumb.index.icon??['fal', 'bars']"
-                                class="flex-shrink-0 h-4 w-4"
-                                aria-hidden="true"
-                                :title="breadcrumb.index.overlay"
-                            />
-                        </Link>
-
-                        <template v-if="breadcrumb['modelLabel']">
-
-                             <span class="mr-1 text-sm ">
-                                 <span class="font-light capitalize">{{ breadcrumb['modelLabel'].label }}</span>
-                                 <span v-show="breadcrumb['name']" class="font-semibold">→</span>
-                             </span>
+                            <component :is="breadcrumb.simple.route?Link:'span'"  :class="'hover:text-gray-700' || ''"
+                                       :href=" breadcrumb.simple.route?   route(breadcrumb.simple.route.name,breadcrumb.simple.route.parameters) :''" >
+                                <font-awesome-icon  v-if="breadcrumb.simple.icon"  :class="breadcrumb.simple.label?'mr-2':''"  class="flex-shrink-0 h-4 w-4" :icon="breadcrumb.simple.icon" aria-hidden="true"/>
+                                <span class="capitalize">{{breadcrumb.simple.label}}</span>
+                            </component>
 
 
                         </template>
+                        <template v-if="breadcrumb.type==='indexModel'">
 
+                            <Link class="mr-1 hover:text-gray-700"  :href="route(breadcrumb.indexModel.index.route.name,breadcrumb.indexModel.index.route.parameters)">
+                                <font-awesome-icon
+                                    :icon="['fal', 'bars']"
+                                    class="flex-shrink-0 h-4 w-4 mr-2"
+                                    aria-hidden="true"
+                                />
+                                <span class="capitalize">{{breadcrumb.indexModel.index.label}}</span>
+                            </Link>→
+                            <Link class="ml-1  text-indigo-400 hover:text-indigo-500"  :href="route(breadcrumb.indexModel.model.route.name,breadcrumb.indexModel.model.route.parameters)">
+                                <span class="capitalize   ">{{breadcrumb.indexModel.model.label}}</span>
+                            </Link>
 
+                        </template>
+                        <span  :class="breadcrumb.type?'ml-1':''"  v-show="breadcrumb.suffix" class="italic">{{breadcrumb.suffix}}</span>
 
-
-
-                        <Link :href="route(breadcrumb.route,breadcrumb['routeParameters'])"
-                              class="hover:text-gray-700 text-sm font-light capitalize"
-                              :aria-current="(breadcrumbIdx !== Object.keys(breadcrumbs).length - 1) ? 'page' : undefined">
-                            {{ breadcrumb.name }}
-                        </Link>
 
 
                     </div>

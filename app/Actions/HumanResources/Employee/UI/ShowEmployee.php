@@ -8,6 +8,7 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
@@ -17,8 +18,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowEmployee extends InertiaAction
 {
-    use HasUIEmployee;
-
     public function handle(Employee $employee): Employee
     {
         return $employee;
@@ -84,4 +83,33 @@ class ShowEmployee extends InertiaAction
    {
        return new EmployeeResource($employee);
    }
+
+    public function getBreadcrumbs(Employee $employee, $suffix=null): array
+    {
+        return array_merge(
+            (new HumanResourcesDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'      => 'indexModel',
+                    'indexModel'=> [
+                        'index'=> [
+                            'route'=> [
+                                'name'=> 'hr.employees.index',
+                            ],
+                            'label'=> __('employees')
+                        ],
+                        'model'=> [
+                            'route'=> [
+                                'name'      => 'hr.employees.show',
+                                'parameters'=> [$employee->slug]
+                            ],
+                            'label'=> $employee->worker_number,
+                        ],
+                    ],
+                    'suffix'=> $suffix,
+
+                ],
+            ]
+        );
+    }
 }

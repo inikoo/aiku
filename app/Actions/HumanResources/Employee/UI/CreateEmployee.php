@@ -14,9 +14,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateEmployee extends InertiaAction
 {
-    use HasUIEmployees;
-
-
     public function handle(): Response
     {
         return Inertia::render(
@@ -80,5 +77,17 @@ class CreateEmployee extends InertiaAction
         $this->initialisation($request);
 
         return $this->handle();
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            IndexEmployees::make()->getBreadcrumbs(),
+            [
+                [
+                    'suffix'=> __('creating employee')
+                ]
+            ]
+        );
     }
 }

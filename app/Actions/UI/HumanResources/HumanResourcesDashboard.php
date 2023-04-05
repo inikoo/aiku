@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\HumanResources;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -58,11 +59,20 @@ class HumanResourcesDashboard
 
     public function getBreadcrumbs(): array
     {
-        return [
-            'hr.dashboard' => [
-                'route' => 'hr.dashboard',
-                'name'  => __('human resources'),
-            ]
-        ];
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'hr.dashboard'
+                            ],
+                            'label' => __('human resources'),
+                        ]
+                    ]
+                ]
+            );
     }
 }

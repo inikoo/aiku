@@ -8,6 +8,7 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
@@ -21,15 +22,8 @@ use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-/**
- * @property array $breadcrumbs
- * @property bool $canEdit
- * @property string $title
- */
 class IndexEmployees extends InertiaAction
 {
-    use HasUIEmployees;
-
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -47,7 +41,7 @@ class IndexEmployees extends InertiaAction
             ->allowedSorts(['slug', 'worker_number', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate(
-                perPage:$this->perPage ?? config('ui.table.records_per_page'),
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
             )
             ->withQueryString();
@@ -90,22 +84,23 @@ class IndexEmployees extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $employees, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'HumanResources/Employees',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('employees'),
                 'pageHead'    => [
-                    'title'   => __('employees'),
-                    'create'  => $this->canEdit ? [
+                    'title'  => __('employees'),
+                    'create' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'hr.employees.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('employee')
+                        'label' => __('employee')
                     ] : false,
                 ],
-                'data'   => EmployeeInertiaResource::collection($employees),
+                'data'        => EmployeeInertiaResource::collection($employees),
             ]
         )->table($this->tableStructure($parent));
     }
@@ -116,5 +111,27 @@ class IndexEmployees extends InertiaAction
         $this->initialisation($request);
 
         return $this->handle();
+    }
+
+
+    public function getBreadcrumbs($suffix=null): array
+    {
+        return array_merge(
+            (new HumanResourcesDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'hr.employees.index'
+                        ],
+                        'label' => __('employees'),
+                        'icon'  => 'fal fa-bars',
+                    ],
+                    'suffix'=> $suffix
+
+                ]
+            ]
+        );
     }
 }

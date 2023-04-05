@@ -17,6 +17,30 @@ class Dashboard
 
     public function handle(): Response
     {
-        return Inertia::render('Dashboard/Dashboard');
+        return Inertia::render(
+            'Dashboard/Dashboard',
+            [
+            'breadcrumbs' => $this->getBreadcrumbs(__('dashboard')),
+            ]
+        );
+    }
+
+    public function getBreadcrumbs($label=null): array
+    {
+        return [
+            [
+
+                'type'   => 'simple',
+                'simple' => [
+                    'icon'  => 'fal fa-tachometer-alt-fast',
+                    'label' => $label,
+                    'route' => [
+                        'name' => 'dashboard.show'
+                    ]
+                ]
+
+            ],
+
+        ];
     }
 }

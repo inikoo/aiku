@@ -15,8 +15,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditEmployee extends InertiaAction
 {
-    use HasUIEmployee;
-
     public function handle(Employee $employee): Employee
     {
         return $employee;
@@ -86,5 +84,10 @@ class EditEmployee extends InertiaAction
 
             ]
         );
+    }
+
+    public function getBreadcrumbs(Employee $employee): array
+    {
+        return ShowEmployee::make()->getBreadcrumbs(employee:$employee, suffix: '('.__('editing').')');
     }
 }

@@ -8,7 +8,6 @@
 import {Head, useForm} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
-//const props = defineProps(['title', 'pageHead', 'formData']);
 const props = defineProps<{
     title: string,
     pageHead: object,
