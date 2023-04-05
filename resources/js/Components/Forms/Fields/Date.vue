@@ -33,7 +33,8 @@ const date = ref();
 
 <template>
     <DatePicker v-model="form[fieldName]"
-
+                :enable-time-picker="false"
+                :format="'dd MMMM yyyy'"
     />
 
             <div v-if="form.errors[fieldName] || form.recentlySuccessful " class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
