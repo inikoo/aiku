@@ -23,9 +23,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPaymentServiceProviders extends InertiaAction
 {
-    private Shop|Tenant $parent;
-
-    public function handle(): LengthAwarePaginator
+    public function handle(Tenant|Shop $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -55,13 +53,13 @@ class IndexPaymentServiceProviders extends InertiaAction
     }
 
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $paymentServiceProviders): AnonymousResourceCollection
     {
-        return PaymentServiceProviderResource::collection($this->handle());
+        return PaymentServiceProviderResource::collection($paymentServiceProviders);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $payment_service_providers)
+    public function htmlResponse(LengthAwarePaginator $paymentServiceProviders)
     {
         return Inertia::render(
             'Accounting/PaymentServiceProviders',
@@ -71,7 +69,7 @@ class IndexPaymentServiceProviders extends InertiaAction
                 'pageHead'    => [
                     'title' => __('Payment Service Providers'),
                 ],
-                'payment_service_providers' => PaymentServiceProviderResource::collection($payment_service_providers),
+                'payment_service_providers' => PaymentServiceProviderResource::collection($paymentServiceProviders),
 
 
             ]
@@ -91,28 +89,31 @@ class IndexPaymentServiceProviders extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent    = app('currentTenant');
         $this->initialisation($request);
-        return $this->handle();
+        return $this->handle(app('currentTenant'));
     }
 
     public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent    = $shop;
         $this->initialisation($request);
-        return $this->handle();
+        return $this->handle($shop);
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs($suffix=null): array
     {
         return array_merge(
             (new AccountingDashboard())->getBreadcrumbs(),
             [
-                'accounting.payment-service-providers.index' => [
-                    'route'      => 'accounting.payment-service-providers.index',
-                    'modelLabel' => [
-                        'label' => __('Providers')
-                    ],
+                 [
+                     'type'   => 'simple',
+                     'simple' => [
+                         'route' => [
+                             'name' => 'accounting.payment-service-providers.index',
+                         ],
+                         'label' => __('providers'),
+                         'icon'  => 'fal fa-bars',
+                     ],
+                     'suffix'=> $suffix
                 ],
             ]
         );

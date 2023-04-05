@@ -103,22 +103,30 @@ class ShowPaymentServiceProvider extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider): array
+    public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider, $suffix=null): array
     {
         return array_merge(
             (new AccountingDashboard())->getBreadcrumbs(),
             [
-                'accounting.payment-service-providers.show' => [
-                    'route'           => 'accounting.payment-service-providers.show',
-                    'routeParameters' => $paymentServiceProvider->slug,
-                    'name'            => $paymentServiceProvider->code,
-                    'index'           => [
-                        'route'   => 'accounting.payment-service-providers.index',
-                        'overlay' => __('provider list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('provider')
-                    ],
+                 [
+
+                     'type'      => 'indexModel',
+                     'indexModel'=> [
+                         'index'=> [
+                             'route'=> [
+                                 'name'=> 'accounting.payment-service-providers.index',
+                             ],
+                             'label'=> __('providers')
+                         ],
+                         'model'=> [
+                             'route'=> [
+                                 'name'      => 'accounting.payment-service-providers.show',
+                                 'parameters'=> [$paymentServiceProvider->slug]
+                             ],
+                             'label'=> $paymentServiceProvider->code,
+                         ],
+                     ],
+                     'suffix'=> $suffix,
                 ],
             ]
         );

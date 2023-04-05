@@ -7,12 +7,16 @@
 
 namespace App\Actions\Accounting\Payment\UI;
 
+use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
+use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
+use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -26,9 +30,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPayments extends InertiaAction
 {
-    use HasUIPayments;
-
-
     public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -121,12 +122,14 @@ class IndexPayments extends InertiaAction
     public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle($paymentServiceProvider);
     }
 
     public function inPaymentAccount(PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle($paymentAccount);
     }
 
@@ -134,12 +137,14 @@ class IndexPayments extends InertiaAction
     public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle($paymentAccount);
     }
 
     public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle($shop);
     }
 
@@ -154,7 +159,7 @@ class IndexPayments extends InertiaAction
         return Inertia::render(
             'Accounting/Payments',
             [
-                'breadcrumbs'      => $this->getBreadcrumbs(
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters())
                 ),
@@ -187,10 +192,57 @@ class IndexPayments extends InertiaAction
                             'label' => __('payments')
                         ] : false,
                 ],
-                'data'    => PaymentResource::collection($payments),
+                'data'        => PaymentResource::collection($payments),
 
 
             ]
         )->table($this->tableStructure());
+    }
+
+
+    public function getBreadcrumbs(string $routeName, Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent): array
+    {
+        $headCrumb = function (array $routeParameters = []) use ($routeName) {
+            return [
+                 [
+                     'type'   => 'simple',
+                     'simple' => [
+                         'route' => [
+                             'name'       => $routeName,
+                             'parameters' => $routeParameters
+                         ],
+                         'label' => __('payments'),
+                         'icon'  => 'fal fa-bars',
+
+                     ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'accounting.payments.index' =>
+            array_merge(
+                (new AccountingDashboard())->getBreadcrumbs(),
+                $headCrumb()
+            ),
+            'accounting.payment-service-providers.show.payments.index' =>
+            array_merge(
+                (new ShowPaymentServiceProvider())->getBreadcrumbs($parent),
+                $headCrumb([$parent->slug])
+            ),
+            'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
+            array_merge(
+                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-service-providers.show.payment-accounts.show', $parent),
+                $headCrumb([$parent->paymentServiceProvider->slug, $parent->slug])
+            ),
+
+            'accounting.payment-accounts.show.payments.index' =>
+            array_merge(
+                (new ShowPaymentAccount())->getBreadcrumbs('accounting.payment-accounts.show', $parent),
+                $headCrumb([$parent->slug])
+            ),
+
+            default => []
+        };
     }
 }

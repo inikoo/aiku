@@ -7,7 +7,9 @@
 
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
+use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
+use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
@@ -25,9 +27,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPaymentAccounts extends InertiaAction
 {
-    use HasUIPaymentAccounts;
-
-
     public function handle(Shop|Tenant|PaymentServiceProvider $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -120,12 +119,12 @@ class IndexPaymentAccounts extends InertiaAction
         return Inertia::render(
             'Accounting/PaymentAccounts',
             [
-                'breadcrumbs'      => $this->getBreadcrumbs(
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters())
                 ),
-                'title'            => __('Payment Accounts '),
-                'pageHead'         => [
+                'title'       => __('Payment Accounts '),
+                'pageHead'    => [
                     'title'  => __('Payment Accounts'),
                     'create' => $this->canEdit && $this->routeName == 'accounting.payment-accounts.index' ? [
                         'route' => [
@@ -135,10 +134,45 @@ class IndexPaymentAccounts extends InertiaAction
                         'label' => __('payment account')
                     ] : false,
                 ],
-                'data' => PaymentAccountResource::collection($paymentAccounts),
+                'data'        => PaymentAccountResource::collection($paymentAccounts),
 
 
             ]
         )->table($this->tableStructure());
+    }
+
+    public function getBreadcrumbs(string $routeName, Shop|Tenant|PaymentServiceProvider $parent): array
+    {
+        $headCrumb = function (array $routeParameters = []) use ($routeName) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name'       => $routeName,
+                            'parameters' => $routeParameters
+                        ],
+                        'label' => __('accounts'),
+                        'icon'  => 'fal fa-bars',
+
+                    ],
+
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'accounting.payment-accounts.index' =>
+            array_merge(
+                (new AccountingDashboard())->getBreadcrumbs(),
+                $headCrumb()
+            ),
+            'accounting.payment-service-providers.show.payment-accounts.index' =>
+            array_merge(
+                (new ShowPaymentServiceProvider())->getBreadcrumbs($parent),
+                $headCrumb([$parent->slug])
+            ),
+            default => []
+        };
     }
 }

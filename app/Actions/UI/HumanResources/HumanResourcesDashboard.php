@@ -56,7 +56,6 @@ class HumanResourcesDashboard
         );
     }
 
-
     public function getBreadcrumbs(): array
     {
         return

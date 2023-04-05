@@ -17,8 +17,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreatePaymentAccount extends InertiaAction
 {
-    use HasUIPaymentAccounts;
-
     private Shop|Tenant|PaymentServiceProvider $parent;
     public function handle(): Response
     {
@@ -54,5 +52,17 @@ class CreatePaymentAccount extends InertiaAction
         $this->initialisation($request);
         $this->parent = app('currentTenant');
         return $this->handle();
+    }
+
+    public function getBreadcrumbs(string $routeName, Shop|Tenant|PaymentServiceProvider $parent): array
+    {
+        return array_merge(
+            IndexPaymentAccounts::make()->getBreadcrumbs($routeName, $parent),
+            [
+                [
+                    'suffix'=> __('creating payment account')
+                ]
+            ]
+        );
     }
 }

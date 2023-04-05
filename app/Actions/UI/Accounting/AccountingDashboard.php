@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Accounting;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Central\Tenant;
 use App\Models\SysAdmin\User;
@@ -40,7 +41,6 @@ class AccountingDashboard
     public function htmlResponse(): Response
     {
         $this->validateAttributes();
-
 
 
         return Inertia::render(
@@ -101,14 +101,22 @@ class AccountingDashboard
         );
     }
 
-
     public function getBreadcrumbs(): array
     {
-        return [
-            'accounting.dashboard' => [
-                'route' => 'accounting.dashboard',
-                'name'  => __('accounting'),
-            ]
-        ];
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'accounting.dashboard'
+                            ],
+                            'label' => __('accounting'),
+                        ]
+                    ]
+                ]
+            );
     }
 }
