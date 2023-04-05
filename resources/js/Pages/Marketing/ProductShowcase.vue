@@ -79,8 +79,8 @@ const product = props.data.data;
         <table class="table-auto lg:ml-10 lg:mr-6 md:ml-28 md:mr-28">
             <tbody>
             <tr>
-                <td class="px-1 border-b border-gray-500">Active</td>
-                <td class="px-1 border-b border-gray-500">Online</td>
+                <td class="px-1 border-b border-t border-gray-500">Active</td>
+                <td class="px-1 border-b border-t border-gray-500">Online</td>
             </tr>
             <tr>
                 <td class="px-1 border-b border-gray-500">Stock available:</td>
