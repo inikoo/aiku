@@ -25,9 +25,6 @@ class UserResource extends JsonResource
             'username'           => $user->username,
             'parent_type'        => $user->parent_type,
 
-
-
-
             'parent' => $this->when($this->relationLoaded('parent'), function () {
                 return match (class_basename($this->resource->parent)) {
                     'Employee' => new EmployeeResource($this->resource->parent),
