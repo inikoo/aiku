@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Shop;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Models\Marketing\Shop;
@@ -74,7 +75,7 @@ class ShowShop
                         [
                             'name'  => __('departments'),
                             'icon'  => ['fal', 'fa-folder-tree'],
-                            'href'  => ['shops.show.departments.index', $shop->slug],
+                            'href'  => ['shops.show.catalogue.hub.departments.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_departments
                             ]
@@ -82,7 +83,7 @@ class ShowShop
                         [
                             'name'  => __('families'),
                             'icon'  => ['fal', 'fa-folder'],
-                            'href'  => ['shops.show.families.index', $shop->slug],
+                            'href'  => ['shops.show.catalogue.hub.families.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_families
                             ]
@@ -90,7 +91,7 @@ class ShowShop
                         [
                             'name'  => __('products'),
                             'icon'  => ['fal', 'fa-cube'],
-                            'href'  => ['shops.show.products.index', $shop->slug],
+                            'href'  => ['shops.show.catalogue.hub.products.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_products
                             ]
@@ -144,18 +145,19 @@ class ShowShop
     public function getBreadcrumbs(Shop $shop): array
     {
         return array_merge(
+            Dashboard::make()->getBreadcrumbs(),
             [
-                'shops.show' => [
-                    'route'           => 'shops.show',
-                    'routeParameters' => $shop->slug,
-                    'name'            => $shop->code,
-                    'index'           => [
-                        'route'   => 'shops.index',
-                        'overlay' => __('Shops list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('shop')
-                    ],
+                [
+                    'type'  => 'simple',
+                    'simple'=> [
+                        'route'=> [
+                            'name'           => 'shops.show',
+                            'parameters'     => $shop->slug,
+                        ],
+                        'label'=> __('shop')
+                    ]
+
+
                 ],
             ]
         );
