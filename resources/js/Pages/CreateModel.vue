@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import {Head, useForm} from '@inertiajs/vue3';
+
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 const props = defineProps<{

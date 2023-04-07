@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Department\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Models\Central\Tenant;
@@ -24,9 +25,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDepartments extends InertiaAction
 {
-    use HasUIDepartments;
-
-
     public function handle(Shop|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -79,9 +77,11 @@ class IndexDepartments extends InertiaAction
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('shops.departments.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -89,6 +89,19 @@ class IndexDepartments extends InertiaAction
             );
     }
 
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle(app('currentTenant'));
+    }
+
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle($shop);
+    }
 
     public function jsonResponse(LengthAwarePaginator $departments): AnonymousResourceCollection
     {
@@ -99,25 +112,26 @@ class IndexDepartments extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Marketing/Departments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->parameters
                 ),
                 'title'       => __('departments'),
                 'pageHead'    => [
-                    'title'   => __('departments'),
-                    'create'  => $this->canEdit && $this->routeName=='shops.show.departments.index' ? [
+                    'title'  => __('departments'),
+                    'create' => $this->canEdit && $this->routeName == 'shops.show.catalogue.hub.departments.index' ? [
                         'route' => [
-                            'name'       => 'shops.show.departments.create',
+                            'name'       => 'shops.show.catalogue.hub.departments.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('department')
+                        'label' => __('department')
                     ] : false,
                 ],
-                'data' => DepartmentResource::collection($departments),
+                'data'        => DepartmentResource::collection($departments),
 
 
             ]
@@ -125,15 +139,49 @@ class IndexDepartments extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
-        $this->initialisation($request);
-        return $this->handle(app('currentTenant'));
-    }
+        $headCrumb = function (array $routeParameters, ?string $suffix) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('departments'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                    'suffix' => $suffix
+                ]
+            ];
+        };
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-        return $this->handle($shop);
+
+        return match ($routeName) {
+            'shops.show.catalogue.hub.departments.index' =>
+            array_merge(
+                CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', ['shop' => $routeParameters['shop']]),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+
+            'catalogue.hub.departments.index' =>
+            array_merge(
+                CatalogueHub::make()->getBreadcrumbs('catalogue.hub', []),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+
+            default => []
+        };
     }
 }

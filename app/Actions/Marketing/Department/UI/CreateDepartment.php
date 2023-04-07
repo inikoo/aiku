@@ -15,45 +15,72 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateDepartment extends InertiaAction
 {
-    use HasUIDepartments;
-
-    private Shop $parent;
-
-
-    public function handle(): Response
-    {
-        return Inertia::render(
-            'CreateModel',
-            [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title'       => __('new department'),
-                'pageHead'    => [
-                    'title'        => __('new department'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'shops.show.departments.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                    ]
-
-                ],
-
-
-            ]
-        );
-    }
-
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->can('shops.departments.edit');
     }
 
 
-    public function asController(Shop $shop, ActionRequest $request): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function asController(Shop $shop, ActionRequest $request): ActionRequest
     {
-        $this->parent = $shop;
         $this->initialisation($request);
 
-        return $this->handle();
+        return $request;
+    }
+
+
+    public function htmlResponse(ActionRequest $request): Response
+    {
+        return Inertia::render(
+            'CreateModel',
+            [
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'title'       => __('new department'),
+                'pageHead'    => [
+                    'title'        => __('new department'),
+                    'cancelCreate' => [
+                        'route' => [
+                            'name'       => 'shops.show.catalogue.hub.departments.index',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                    ]
+
+                ],
+                'formData'    => [
+                    'blueprint' =>
+                        [
+
+                        ],
+                    'route'     => [
+                        'name' => ''
+                    ]
+                ]
+
+
+            ]
+        );
+    }
+
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return array_merge(
+            IndexDepartments::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating department'),
+                    ]
+                ]
+            ]
+        );
     }
 }

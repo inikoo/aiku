@@ -12,6 +12,7 @@ use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Marketing\Family\UI\IndexFamilies;
 use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
+use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\DepartmentResource;
@@ -22,16 +23,13 @@ use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
  * @property Department $department
  */
-
 class ShowDepartment extends InertiaAction
 {
-    use HasUIDepartment;
     public function handle(Department $department): Department
     {
         return $department;
@@ -47,16 +45,19 @@ class ShowDepartment extends InertiaAction
     public function asController(Department $department, ActionRequest $request): Department
     {
         $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
+
         return $this->handle($department);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Department $department, ActionRequest $request): Department
     {
         $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
+
         return $this->handle($department);
     }
 
-    public function htmlResponse(Department $department): Response
+    public function htmlResponse(Department $department, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -64,10 +65,14 @@ class ShowDepartment extends InertiaAction
         return Inertia::render(
             'Marketing/Department',
             [
-                'title'       => __('department'),
-                'breadcrumbs' => $this->getBreadcrumbs($department),
-                'pageHead'    => [
+                'title'                              => __('department'),
+                'breadcrumbs'                        => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'pageHead'                           => [
                     'title' => $department->name,
+                    'icon'  => 'fal fa-folders',
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
@@ -75,7 +80,7 @@ class ShowDepartment extends InertiaAction
                         ]
                     ] : false,
                 ],
-                'tabs'=> [
+                'tabs'                               => [
                     'current'    => $this->tab,
                     'navigation' => DepartmentTabsEnum::navigation()
                 ],
@@ -85,10 +90,10 @@ class ShowDepartment extends InertiaAction
                 DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($this->department))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->department))),
-                DepartmentTabsEnum::FAMILIES->value => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
+                DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
                     fn () => FamilyResource::collection(IndexFamilies::run($this->department))
                     : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($this->department))),
-                DepartmentTabsEnum::PRODUCTS->value => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
+                DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
                     fn () => ProductResource::collection(IndexProducts::run($this->department))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->department))),
 
@@ -99,16 +104,75 @@ class ShowDepartment extends InertiaAction
             ->table(IndexProducts::make()->tableStructure($department));
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->can('hr.edit'));
-        $this->set('canViewUsers', $request->user()->can('users.view'));
-    }
-
-    #[Pure] public function jsonResponse(Department $department): DepartmentResource
+    public function jsonResponse(Department $department): DepartmentResource
     {
         return new DepartmentResource($department);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    {
+        $headCrumb = function (Department $department, array $routeParameters, $suffix) {
+            return [
+
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('departments')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $department->code,
+                        ],
+                    ],
+                    'suffix'         => $suffix,
+
+                ],
+
+            ];
+        };
+
+
+        return match ($routeName) {
+            'catalogue.hub.departments.show' =>
+            array_merge(
+                CatalogueHub::make()->getBreadcrumbs('catalogue.hub', []),
+                $headCrumb(
+                    $routeParameters['department'],
+                    [
+                        'index' => [
+                            'name'       => 'catalogue.hub.departments.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'catalogue.hub.departments.show',
+                            'parameters' => [$routeParameters['department']->slug]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'shops.show.catalogue.hub.departments.show' =>
+            array_merge(
+                CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', ['shop' => $routeParameters['shop']]),
+                $headCrumb(
+                    $routeParameters['department'],
+                    [
+                        'index' => [
+                            'name'       => 'shops.show.catalogue.hub.departments.index',
+                            'parameters' => [$routeParameters['shop']->slug]
+                        ],
+                        'model' => [
+                            'name'       => 'shops.show.catalogue.hub.departments.show',
+                            'parameters' => [$routeParameters['shop']->slug,$routeParameters['department']->slug]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
 }

@@ -11,7 +11,7 @@ import {
     faBullhorn,
     faCameraRetro, faClock,
     faCube, faCubes,
-    faFolder, faMoneyBillWave, faProjectDiagram, faTags, faUser
+    faFolder, faMoneyBillWave, faProjectDiagram, faTags, faUser,faFolders
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
@@ -36,6 +36,7 @@ library.add(
     faMoneyBillWave,
     faDiagramNext,
     faCubes,
+    faFolders
 );
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
@@ -47,10 +48,10 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    products: object
-    families: object;
-    customers: object;
-    mailshots: object;
+    products?: object
+    families?: object;
+    customers?: object;
+    mailshots?: object;
 }>()
 
 let currentTab = ref(props.tabs.current);

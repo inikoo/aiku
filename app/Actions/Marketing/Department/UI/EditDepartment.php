@@ -13,12 +13,10 @@ use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditDepartment extends InertiaAction
 {
-    use HasUIDepartment;
     public function handle(Department $department): Department
     {
         return $department;
@@ -36,6 +34,7 @@ class EditDepartment extends InertiaAction
         return $this->handle($department);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Department $department, ActionRequest $request): Department
     {
         $this->initialisation($request);
@@ -43,16 +42,19 @@ class EditDepartment extends InertiaAction
         return $this->handle($department);
     }
 
-    public function htmlResponse(Department $department): Response
+    public function htmlResponse(Department $department, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('department'),
-                'breadcrumbs' => $this->getBreadcrumbs($department),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
-                    'title'     => $department->code,
-                    'exitEdit'  => [
+                    'title'    => $department->code,
+                    'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
@@ -81,10 +83,10 @@ class EditDepartment extends InertiaAction
                         ]
 
                     ],
-                    'args' => [
+                    'args'      => [
                         'updateRoute' => [
-                            'name'      => 'models.department.update',
-                            'parameters'=> $department->slug
+                            'name'       => 'models.department.update',
+                            'parameters' => $department->slug
 
                         ],
                     ]
@@ -93,8 +95,17 @@ class EditDepartment extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Department $department): DepartmentResource
+    public function jsonResponse(Department $department): DepartmentResource
     {
         return new DepartmentResource($department);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowDepartment::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }
