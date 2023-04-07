@@ -90,8 +90,8 @@ class ShowEmployee extends InertiaAction
             (new HumanResourcesDashboard())->getBreadcrumbs(),
             [
                 [
-                    'type'      => 'indexModel',
-                    'indexModel'=> [
+                    'type'      => 'model',
+                    'model'     => [
                         'index'=> [
                             'route'=> [
                                 'name'=> 'hr.employees.index',

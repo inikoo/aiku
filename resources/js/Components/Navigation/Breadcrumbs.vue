@@ -22,7 +22,7 @@ const props = defineProps<{
                 parameters?:Array<string>
             }
         },
-        indexModel:{
+        model:{
             index:{
                 icon?:string,
                 label?:string,
@@ -73,18 +73,18 @@ const displayBreadcrumbs = computed(() => {
 
 
                         </template>
-                        <template v-if="breadcrumb.type==='indexModel'">
+                        <template v-if="breadcrumb.type==='model'">
 
-                            <Link class="mr-1 hover:text-gray-700"  :href="route(breadcrumb.indexModel.index.route.name,breadcrumb.indexModel.index.route.parameters)">
+                            <Link class="mr-1 hover:text-gray-700"  :href="route(breadcrumb.model.index.route.name,breadcrumb.model.index.route.parameters)">
                                 <font-awesome-icon
                                     :icon="['fal', 'bars']"
                                     class="flex-shrink-0 h-4 w-4 mr-1"
                                     aria-hidden="true"
                                 />
-                                <span class="capitalize text-sm	">{{breadcrumb.indexModel.index.label}}</span>
+                                <span class="capitalize text-sm	">{{breadcrumb.model.index.label}}</span>
                             </Link>→
-                            <Link class="ml-1  text-indigo-400 hover:text-indigo-500"  :href="route(breadcrumb.indexModel.model.route.name,breadcrumb.indexModel.model.route.parameters)">
-                                <span class="capitalize   ">{{breadcrumb.indexModel.model.label}}</span>
+                            <Link class="ml-1  text-indigo-400 hover:text-indigo-500"  :href="route(breadcrumb.model.model.route.name,breadcrumb.model.model.route.parameters)">
+                                <span class="capitalize   ">{{breadcrumb.model.model.label}}</span>
                             </Link>
 
                         </template>
