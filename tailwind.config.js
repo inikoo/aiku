@@ -14,6 +14,7 @@ module.exports = {
         extend: {
             fontFamily: {
                 sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+                logo: ['Fira Sans',...defaultTheme.fontFamily.sans]
             },
         },
     },

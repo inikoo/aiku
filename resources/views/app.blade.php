@@ -7,6 +7,11 @@
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@800&display=swap" rel="stylesheet">
+
+
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url('favicons/aiku-favicon-16x16.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url('favicons/aiku-favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="48x48" href="{{ url('favicons/aiku-favicon-48x48.png') }}">

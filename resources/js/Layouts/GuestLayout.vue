@@ -29,7 +29,7 @@ watchEffect(() => {
     <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
             <img class="mx-auto h-16 -mb-3 w-auto" src="/art/logo-color-trimmed.png" alt="Aiku" />
-            <h2 class="mt-6 text-center text-3xl text-purple-600">@{{layout.tenant.code}}</h2>
+            <h2 class="font-logo mt-6 text-center text-3xl text-purple-600">@{{layout.tenant.code}} 😉</h2>
 
         </div>
 
