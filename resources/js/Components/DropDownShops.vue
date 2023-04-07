@@ -21,11 +21,10 @@ if(props.shops.current){
 </script>
 
 <template>
-    <Menu as="div" class="relative inline-block text-left ml-8 w-56">
+    <Menu as="div" class="relative inline-block text-left    md:w-56">
         <MenuButton class="inline-flex w-full justify-center gap-x-1.5 bg-white px-3 py-1 text-sm  text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 
 
-            <FontAwesomeIcon aria-hidden="true" icon="fal fa-store-alt" class="mr-3"/>
             {{ currentLabel }}
             <FontAwesomeIcon aria-hidden="true" class="ml-4 opacity-50 hover:opacity-100"
                              icon="fal fa-chevron-down"/>

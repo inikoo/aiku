@@ -61,6 +61,14 @@ const handleShopsChange = () => {
 
 <template>
 
+    <Link
+        :class="'ml-8  xl:ml-0 mr-4'"
+        :title="trans('Shops')"
+          :href="isShopSet? route( 'shops.show.catalogue.hub',currentSlug) : route('catalogue.hub')">
+        <font-awesome-icon aria-hidden="true" icon="fal fa-store-alt"/>
+    </Link>
+
+
     <DropDownShops
         @select:shop="handleShopChange"
         @select:shops="handleShopsChange"
