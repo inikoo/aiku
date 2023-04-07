@@ -70,9 +70,17 @@ const currentModule = (route) => route.substring(0, route.indexOf('.'));
             md:inset-y-0 xl:pt-0 ">
 
         <div class="flex flex-grow flex-col overflow-y-auto border-r border-gray-200 bg-white pb-4">
-            <div class="hidden xl:block  mb-3 ml-6">
-                <img class="h-8  mt-2 mb-1" src="/art/logo-color-trimmed.png" alt="Aiku"/>
+
+            <div class="font-logo hidden xl:block  py-3 text-center 2xl:text-left 2xl:pl-6
+
+
+                            "
+            >
+                {{ layout.tenant.name }}
             </div>
+
+
+
             <div class="flex flex-grow flex-col">
                 <nav class="flex-1 space-y-1 bg-white" aria-label="Sidebar">
 

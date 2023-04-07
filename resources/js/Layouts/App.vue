@@ -93,7 +93,16 @@ const user = ref(usePage().props.auth.user);
 
                         <div class="flex items-center">
 
-                            <div class="hidden md:block pt-0 mr-6 text-center text-sm font-bold w-64">
+                            <div class="hidden md:block  mb-3  ml-3 ">
+                                <img class="h-6  mt-2 mb-1" src="/art/logo-color-trimmed.png" alt="Aiku"/>
+                            </div>
+
+                            <div class="font-logo hidden md:block  ml-2 w-30 mr-2  xl:hidden   whitespace-nowrap	   text-sm
+
+                             xl:40
+                             2xl:w-56
+                            "
+                            >
                                 {{ layout.tenant.name }}
                             </div>
                             <AppShopNavigation :shops="layout.shops"/>
