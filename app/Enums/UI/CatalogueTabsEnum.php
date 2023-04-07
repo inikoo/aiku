@@ -15,7 +15,6 @@ enum CatalogueTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case DASHBOARD        = 'dashboard';
     case DEPARTMENTS      = 'departments';
     case FAMILIES         = 'families';
     case PRODUCTS         = 'products';
@@ -25,17 +24,13 @@ enum CatalogueTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            CatalogueTabsEnum::DASHBOARD => [
-                'title' => __('dashboard'),
-                'icon'  => 'fal fa-chart-line',
-            ],
             CatalogueTabsEnum::DEPARTMENTS => [
                 'title' => __('departments'),
-                'icon'  => 'fal fa-boxes',
+                'icon'  => 'fal fa-folders',
             ],
             CatalogueTabsEnum::FAMILIES => [
                 'title' => __('families'),
-                'icon'  => 'fal fa-cubes',
+                'icon'  => 'fal fa-folder',
             ],
             CatalogueTabsEnum::PRODUCTS => [
                 'title' => __('products'),

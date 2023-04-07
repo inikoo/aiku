@@ -12,7 +12,7 @@ import DropDownShops from '@/Components/DropDownShops.vue';
 import {ref} from 'vue';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {
-    faList
+    faList,faFolderTree
 } from '@/../private/pro-light-svg-icons';
 import {library} from '@fortawesome/fontawesome-svg-core';
 
@@ -25,7 +25,7 @@ if (props.shops.current) {
     currentSlug = ref(props.shops.current.data.slug);
     isShopSet = ref(true);
 }
-library.add(faList);
+library.add(faList,faFolderTree);
 
 const handleShopChange = (shop) => {
 
@@ -85,7 +85,7 @@ const handleShopsChange = () => {
     <div class="ml-5 space-x-4">
         <Link :title="trans('Catalogue')"
               :href="isShopSet? route( 'shops.show.catalogue.hub',currentSlug) : route('catalogue.hub')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-cube"/>
+            <font-awesome-icon aria-hidden="true" icon="fal fa-folder-tree"/>
         </Link>
         <Link :title="trans('websites')"
               :href="isShopSet?route('shops.show.websites.index', currentSlug) : route('websites.index')">

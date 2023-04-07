@@ -12,6 +12,7 @@ use App\Actions\Marketing\Department\UI\IndexDepartments;
 use App\Actions\Marketing\Family\UI\IndexFamilies;
 use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\CatalogueTabsEnum;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Http\Resources\Marketing\FamilyResource;
@@ -32,12 +33,14 @@ class CatalogueHub extends InertiaAction
     public function asController(ActionRequest $request): ActionRequest
     {
         $this->initialisation($request)->withTab(CatalogueTabsEnum::values());
+
         return $request;
     }
 
     public function inShop(Shop $shop, ActionRequest $request): ActionRequest
     {
         $this->initialisation($request)->withTab(CatalogueTabsEnum::values());
+
         return $request;
     }
 
@@ -49,17 +52,23 @@ class CatalogueHub extends InertiaAction
             default                    => app('currentTenant')
         };
 
+        $title = match (class_basename($parent)) {
+            'Shop'  => $parent->code.' '.__('catalogue'),
+            default => __('catalogue all stores')
+        };
+
 
         return Inertia::render(
-            'CRM/CRMDashboard',
+            'Marketing/CatalogueHub',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters()),
-                'title'       => __('catalogue'),
+                'title'       => $title
+                ,
                 'pageHead'    => [
-                    'title' => __('catalogue'),
+                    'title' => $title,
                 ],
 
-                'tabs'=> [
+                'tabs'                                => [
                     'current'    => $this->tab,
                     'navigation' => CatalogueTabsEnum::navigation()
                 ],
@@ -85,20 +94,26 @@ class CatalogueHub extends InertiaAction
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('catalogue')
-                    ]
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name'       => $routeName,
+                            'parameters' => $routeParameters
+                        ],
+                        'label' => __('catalogue'),
+                        'icon'  => 'fal fa-folder-tree'
+                    ],
                 ],
             ];
         };
 
 
-
         return match ($routeName) {
-            'catalogue.hub'            => $headCrumb(),
+            'catalogue.hub' => array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                $headCrumb()
+            ),
             'shops.show.catalogue.hub' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
