@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Shop;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Models\Marketing\Shop;
@@ -99,13 +100,21 @@ class IndexShops
 
     public function getBreadcrumbs(): array
     {
-        return [
-            'shops.index' => [
-                'route'      => 'shops.index',
-                'modelLabel' => [
-                    'label' => __('shops')
-                ],
-            ],
-        ];
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'shops.index'
+                            ],
+                            'label' => __('shops'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            );
     }
 }
