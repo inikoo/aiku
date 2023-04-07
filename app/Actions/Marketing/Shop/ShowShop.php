@@ -144,22 +144,34 @@ class ShowShop
 
     public function getBreadcrumbs(Shop $shop): array
     {
-        return array_merge(
-            Dashboard::make()->getBreadcrumbs(),
-            [
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
                 [
-                    'type'  => 'simple',
-                    'simple'=> [
-                        'route'=> [
-                            'name'           => 'shops.show',
-                            'parameters'     => $shop->slug,
-                        ],
-                        'label'=> __('shop')
+                    [
+                        'type'           => 'modelWithIndex',
+                        'modelWithIndex' => [
+                            'index'=> [
+                                'route' => [
+                                    'name' => 'shops.index'
+                                ],
+                                'label' => __('shops'),
+                                'icon'  => 'fal fa-bars'
+                            ],
+                            'model'=> [
+                                'route' => [
+                                    'name'      => 'shops.show',
+                                    'parameters'=> [$shop->slug]
+                                ],
+                                'label' => $shop->code,
+                                'icon'  => 'fal fa-bars'
+                            ]
+
+
+
+                        ]
                     ]
-
-
-                ],
-            ]
-        );
+                ]
+            );
     }
 }
