@@ -110,8 +110,8 @@ class ShowPaymentServiceProvider extends InertiaAction
             [
                  [
 
-                     'type'      => 'model',
-                     'model'     => [
+                     'type'               => 'modelWithIndex',
+                     'modelWithIndex'     => [
                          'index'=> [
                              'route'=> [
                                  'name'=> 'accounting.payment-service-providers.index',

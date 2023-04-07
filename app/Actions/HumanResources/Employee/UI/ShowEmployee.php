@@ -27,12 +27,14 @@ class ShowEmployee extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('hr.edit');
+
         return $request->user()->hasPermissionTo("hr.view");
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee
     {
         $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
+
         return $this->handle($employee);
     }
 
@@ -70,43 +72,43 @@ class ShowEmployee extends InertiaAction
                         ]
                     ] : false,
                 ],
-                'tabs'=> [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => EmployeeTabsEnum::navigation()
-                ]            ]
+                ]
+            ]
         );
     }
 
 
+    public function jsonResponse(Employee $employee): EmployeeResource
+    {
+        return new EmployeeResource($employee);
+    }
 
-   public function jsonResponse(Employee $employee): EmployeeResource
-   {
-       return new EmployeeResource($employee);
-   }
-
-    public function getBreadcrumbs(Employee $employee, $suffix=null): array
+    public function getBreadcrumbs(Employee $employee, $suffix = null): array
     {
         return array_merge(
             (new HumanResourcesDashboard())->getBreadcrumbs(),
             [
                 [
-                    'type'      => 'model',
-                    'model'     => [
-                        'index'=> [
-                            'route'=> [
-                                'name'=> 'hr.employees.index',
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name' => 'hr.employees.index',
                             ],
-                            'label'=> __('employees')
+                            'label' => __('employees')
                         ],
-                        'model'=> [
-                            'route'=> [
-                                'name'      => 'hr.employees.show',
-                                'parameters'=> [$employee->slug]
+                        'model' => [
+                            'route' => [
+                                'name'       => 'hr.employees.show',
+                                'parameters' => [$employee->slug]
                             ],
-                            'label'=> $employee->worker_number,
+                            'label' => $employee->worker_number,
                         ],
                     ],
-                    'suffix'=> $suffix,
+                    'suffix'         => $suffix,
 
                 ],
             ]
