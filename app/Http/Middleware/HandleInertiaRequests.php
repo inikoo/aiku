@@ -8,7 +8,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\UI\GetCurrentShopSlug;
 use App\Actions\UI\GetLayout;
+use App\Actions\UI\GetShops;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\Marketing\Product;
@@ -49,6 +51,25 @@ class HandleInertiaRequests extends Middleware
 
                 'tenant'   => app('currentTenant') ? app('currentTenant')->only('name', 'code') : null,
                 'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
+
+
+                'layoutCurrentShopSlug'   => function () use ($user) {
+                    if ($user) {
+                        return GetCurrentShopSlug::run($user);
+                    } else {
+                        return null;
+                    }
+                },
+
+
+                'layoutShopsList'   => function () use ($user) {
+                    if ($user) {
+                        return GetShops::run($user);
+                    } else {
+                        return [];
+                    }
+                },
+
                 'layout'   => function () use ($user) {
                     if ($user) {
                         return GetLayout::run($user);

@@ -18,7 +18,6 @@ import {
     Squares2X2Icon,
     XMarkIcon
 } from '@heroicons/vue/24/outline';
-import {inject} from 'vue';
 import Footer from "@/Components/Footer.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 
@@ -55,8 +54,6 @@ const navigationTwo = [
 
 ]
 
-const initialiseApp = inject('initialiseApp');
-const layout = initialiseApp();
 
 const solutions = [
     /*{

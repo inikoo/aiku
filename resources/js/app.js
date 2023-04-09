@@ -5,21 +5,31 @@
  *  Version 4.0
  */
 
-
 import './bootstrap';
 import '../css/app.css';
 
-import {createApp, h, watchEffect} from 'vue';
-import {createInertiaApp, usePage} from '@inertiajs/vue3';
+import {createApp, h} from 'vue';
+import {createInertiaApp} from '@inertiajs/vue3';
 import {resolvePageComponent} from 'laravel-vite-plugin/inertia-helpers';
 import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
-import {i18nVue, loadLanguageAsync} from 'laravel-vue-i18n';
+import {i18nVue} from 'laravel-vue-i18n';
 
-const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'aiku';
+const appName = window.document.getElementsByTagName('title')[0]?.innerText ||
+    'aiku';
 import {createPinia} from 'pinia';
 import {library} from '@fortawesome/fontawesome-svg-core';
 
-import {faSearch, faBell, faAngleUp,faChevronRight,faChevronDown,faTimes, faBars as farBars,faEllipsisV, faIndent as farIndent} from '../private/pro-regular-svg-icons';
+import {
+    faSearch,
+    faBell,
+    faAngleUp,
+    faChevronRight,
+    faChevronDown,
+    faTimes,
+    faBars as farBars,
+    faEllipsisV,
+    faIndent as farIndent,
+} from '../private/pro-regular-svg-icons';
 import {faInfoCircle} from '../private/pro-solid-svg-icons';
 
 import {
@@ -27,11 +37,10 @@ import {
     faDollyFlatbedAlt,
     faConveyorBeltAlt,
     faUsers,
-    faUserHardHat, faBars,faUsersCog,faTachometerAltFast,
+    faUserHardHat, faBars, faUsersCog, faTachometerAltFast,
     faInventory,
-    faAbacus,faDatabase,faClock
+    faAbacus, faDatabase, faClock,
 } from '../private/pro-light-svg-icons';
-import {useLayoutStore} from '@/Stores/layout';
 
 library.add(faSearch,
             faBell,
@@ -54,30 +63,13 @@ library.add(faSearch,
             faAbacus,
             faDatabase,
             faClock,
-            faInfoCircle
+            faInfoCircle,
 );
 
-const initialiseApp = () => {
-    const layout = useLayoutStore();
 
-    if (usePage().props.language) {
-        loadLanguageAsync(usePage().props.language);
-    }
-    watchEffect(() => {
-        if (usePage().props.layout) {
-            layout.navigation = usePage().props.layout.navigation ?? null;
-            layout.actions = usePage().props.layout.actions ?? null;
-            layout.shops = usePage().props.layout.shops ?? null;
-        }
-        if (usePage().props.tenant) {
-            layout.tenant = usePage().props.tenant ?? null;
-        }
-    });
-    return layout;
-};
 
 createInertiaApp({
-                     title: (title) => `${title} - ${appName}`,
+                     title  : (title) => `${title} - ${appName}`,
                      resolve: (name) => resolvePageComponent(
                          `./Pages/${name}.vue`,
                          import.meta.glob('./Pages/**/*.vue')),
@@ -94,9 +86,7 @@ createInertiaApp({
                                      return await languages[`../../lang/${lang}.json`]();
                                  },
                              }).
-                             provide(
-                                 'initialiseApp', initialiseApp,
-                             ).
+
                              mount(el);
                      },
                  });

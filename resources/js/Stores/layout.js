@@ -5,14 +5,23 @@
  */
 
 import {defineStore} from 'pinia';
+import {trans} from 'laravel-vue-i18n';
 
 export const useLayoutStore = defineStore('layout', {
     state: () => (
         {
-            navigation   : [],
-            shops        : [],
-            currentModels: [],
-            tenant       : {},
+            navigation : [],
+            shopsInDropDown: {},
+            shops      : {},
+            currentShopSlug: null,
+            currentShopData: {
+                slug: null,
+                name: trans('All shops'),
+                code: trans('All')
+            }
+
+            ,
+            tenant     : {},
         }
     ),
 
