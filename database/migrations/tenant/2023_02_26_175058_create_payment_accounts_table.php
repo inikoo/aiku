@@ -17,7 +17,8 @@ return new class () extends Migration {
 
             $table->unsignedInteger('payment_service_provider_id')->index();
             $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
-
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->string('code')->index();
             $table->string('slug')->unique();
             $table->string('name')->index();

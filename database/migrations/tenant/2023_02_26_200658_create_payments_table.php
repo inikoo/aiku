@@ -18,7 +18,8 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('payment_account_id')->index();
             $table->foreign('payment_account_id')->references('id')->on('payment_accounts');
-
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('type');

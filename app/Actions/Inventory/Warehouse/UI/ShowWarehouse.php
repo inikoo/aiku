@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Warehouse\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
@@ -24,8 +25,6 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowWarehouse extends InertiaAction
 {
-    use HasUIWarehouse;
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.warehouses.edit');
@@ -110,5 +109,33 @@ class ShowWarehouse extends InertiaAction
     public function jsonResponse(): WarehouseResource
     {
         return new WarehouseResource($this->warehouse);
+    }
+    public function getBreadcrumbs(Warehouse $warehouse, $suffix = null): array
+    {
+        return array_merge(
+            (new InventoryDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name' => 'inventory.warehouses.index',
+                            ],
+                            'label' => __('warehouse')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'inventory.warehouses.show',
+                                'parameters' => [$warehouse->slug]
+                            ],
+                            'label' => $warehouse->code,
+                        ],
+                    ],
+                    'suffix'         => $suffix,
+
+                ],
+            ]
+        );
     }
 }

@@ -8,6 +8,7 @@
 namespace App\Actions\Sales\Order\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Sales\Order\IndexOrders;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,17 +16,15 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateOrder extends InertiaAction
 {
-    use hasUIOrders;
-
-    private Shop $parent;
-
-
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $this->routeName,
+                    $request->route()->parameters
+                ),
                 'title'       => __('new order'),
                 'pageHead'    => [
                     'title'        => __('new order'),
@@ -52,13 +51,29 @@ class CreateOrder extends InertiaAction
     public function asController(ActionRequest $request): Response
     {
         $this->initialisation($request);
-        $this->parent = app('currentTenant');
-        return $this->handle();
+        return $this->handle($request);
     }
     public function inShop(Shop $shop, ActionRequest $request): Response
     {
         $this->initialisation($request);
-        $this->parent = $shop;
-        return $this->handle();
+        return $this->handle($request);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return array_merge(
+            IndexOrders::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating order'),
+                    ]
+                ]
+            ]
+        );
     }
 }

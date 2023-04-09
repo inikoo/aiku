@@ -14,9 +14,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateWarehouse extends InertiaAction
 {
-    use HasUIWarehouses;
-
-
     public function handle(): Response
     {
         return Inertia::render(
@@ -51,5 +48,20 @@ class CreateWarehouse extends InertiaAction
         $this->initialisation($request);
 
         return $this->handle();
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            IndexWarehouses::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating warehouse'),
+                    ]
+                ]
+            ]
+        );
     }
 }

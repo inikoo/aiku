@@ -9,6 +9,8 @@ namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
@@ -18,13 +20,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property WarehouseArea $warehouseArea
- */
 class ShowWarehouseArea extends InertiaAction
 {
-    use HasUIWarehouseArea;
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.warehouse-areas.edit');
@@ -50,7 +47,10 @@ class ShowWarehouseArea extends InertiaAction
             'Inventory/WarehouseArea',
             [
                 'title'         => __('warehouse area'),
-                'breadcrumbs'   => $this->getBreadcrumbs($this->routeName, $warehouseArea),
+                'breadcrumbs'   => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'      => [
                     'icon'  => 'fal fa-map-signs',
                     'title' => $warehouseArea->name,
@@ -104,5 +104,70 @@ class ShowWarehouseArea extends InertiaAction
     public function jsonResponse(WarehouseArea $warehouseArea): WarehouseAreaResource
     {
         return new WarehouseAreaResource($warehouseArea);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    {
+        $headCrumb = function (WarehouseArea $warehouseArea, array $routeParameters, $suffix) {
+            return [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('warehouse areas')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $warehouseArea->code,
+                        ],
+                    ],
+                    'suffix'         => $suffix,
+
+                ],
+            ];
+        };
+        return match ($routeName) {
+            'inventory.warehouse-areas.show' => array_merge(
+                (new InventoryDashboard())->getBreadcrumbs(),
+                $headCrumb(
+                    $routeParameters['warehouseArea'],
+                    [
+                        'index' => [
+                            'name'       => 'inventory.warehouse-areas.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'inventory.warehouse-areas.show',
+                            'parameters' => [
+                                $routeParameters['warehouseArea']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'inventory.warehouses.show.warehouse-areas.show' => array_merge(
+                (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
+                $headCrumb(
+                    $routeParameters['warehouseArea'],
+                    [
+                        'index' => [
+                            'name'       => 'inventory.warehouses.show.warehouse-areas.index',
+                            'parameters' => [$routeParameters['warehouse']->slug]
+                        ],
+                        'model' => [
+                            'name'       => 'inventory.warehouses.show.warehouse-areas.show',
+                            'parameters' => [
+                                $routeParameters['warehouse']->slug,
+                                $routeParameters['warehouseArea']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
 }

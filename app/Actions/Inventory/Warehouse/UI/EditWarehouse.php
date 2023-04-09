@@ -17,7 +17,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditWarehouse extends InertiaAction
 {
-    use HasUIWarehouse;
     public function handle(Warehouse $warehouse): Warehouse
     {
         return $warehouse;
@@ -91,5 +90,10 @@ class EditWarehouse extends InertiaAction
     #[Pure] public function jsonResponse(Warehouse $warehouse): WarehouseResource
     {
         return new WarehouseResource($warehouse);
+    }
+
+    public function getBreadcrumbs(Warehouse $warehouse): array
+    {
+        return ShowWarehouse::make()->getBreadcrumbs(warehouse:$warehouse, suffix: '('.__('editing').')');
     }
 }

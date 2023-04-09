@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Inventory;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Central\Tenant;
 use App\Models\Inventory\Warehouse;
@@ -140,11 +141,20 @@ class InventoryDashboard
 
     public function getBreadcrumbs(): array
     {
-        return [
-            'inventory.dashboard' => [
-                'route' => 'inventory.dashboard',
-                'name'  => __('inventory'),
-            ]
-        ];
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'inventory.dashboard'
+                            ],
+                            'label' => __('inventory'),
+                        ]
+                    ]
+                ]
+            );
     }
 }

@@ -26,7 +26,8 @@ return new class () extends Migration {
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
-
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('central.currencies');
             $table->jsonb('settings');

@@ -7,29 +7,6 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
-use App\Actions\UI\Inventory\InventoryDashboard;
-use App\Models\Inventory\Warehouse;
-
 trait HasUIWarehouse
 {
-    public function getBreadcrumbs(Warehouse $warehouse): array
-    {
-        return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
-            [
-                'inventory.warehouses.show' => [
-                    'route'           => 'inventory.warehouses.show',
-                    'routeParameters' => $warehouse->slug,
-                    'name'            => $warehouse->code,
-                    'index'           => [
-                        'route'   => 'inventory.warehouses.index',
-                        'overlay' => __('warehouses list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('warehouse')
-                    ],
-                ],
-            ]
-        );
-    }
 }
