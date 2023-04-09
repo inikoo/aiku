@@ -65,7 +65,6 @@ class CreateDepartment extends InertiaAction
         );
     }
 
-
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
