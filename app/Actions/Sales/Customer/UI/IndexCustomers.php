@@ -192,7 +192,7 @@ class IndexCustomers extends InertiaAction
             ),
 
 
-            'shops.show.customers.index','shops.show.customers.create' =>
+            'shops.show.customers.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
                 $headCrumb(

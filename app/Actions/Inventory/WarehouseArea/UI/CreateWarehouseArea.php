@@ -15,13 +15,15 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateWarehouseArea extends InertiaAction
 {
-    use HasUIWarehouseAreas;
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __('new warehouse area'),
                 'pageHead'    => [
                     'title'        => __('new warehouse area'),
@@ -47,8 +49,25 @@ class CreateWarehouseArea extends InertiaAction
 
     public function asController(Warehouse $warehouse, ActionRequest $request): Response
     {
-        $this->parent = $warehouse;
         $this->initialisation($request);
-        return $this->handle();
+        return $this->handle($request);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return array_merge(
+            IndexWarehouseAreas::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating warehouse areas'),
+                    ]
+                ]
+            ]
+        );
     }
 }
