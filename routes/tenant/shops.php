@@ -81,4 +81,9 @@ Route::get('/{shop}/outboxes/{outbox}/customer-notification', [ShowOutbox::class
 
 Route::prefix("{shop}/catalogue")
     ->name("show.catalogue.")
-    ->group(__DIR__."/catalogue.php");
+    ->group(
+        function () {
+            $parent='shop';
+            require __DIR__.'/catalogue.php';
+        }
+    );

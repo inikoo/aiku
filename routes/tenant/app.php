@@ -9,10 +9,13 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 
+$catalogueRoutes = function () {
+    require __DIR__.'/catalogue.php';
+};
 Route::middleware([
     "app",
-])->group(function () {
-    Route::middleware(["auth"])->group(function () {
+])->group(function () use ($catalogueRoutes) {
+    Route::middleware(["auth"])->group(function () use ($catalogueRoutes) {
         Route::get('/', function () {
             return redirect('/dashboard');
         });
@@ -88,9 +91,14 @@ Route::middleware([
         Route::prefix("media")
             ->name("media.")
             ->group(__DIR__."/media.php");
+
+
         Route::prefix("catalogue")
             ->name("catalogue.")
-            ->group(__DIR__."/catalogue.php");
+            ->group(function () {
+                $parent='tenant';
+                require __DIR__.'/catalogue.php';
+            });
     });
 
     require __DIR__."/auth.php";
