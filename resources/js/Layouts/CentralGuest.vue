@@ -1,6 +1,5 @@
 <script setup>
 import {Link,} from '@inertiajs/vue3';
-import {inject} from 'vue';
 
 import { Popover, PopoverButton, PopoverGroup, PopoverPanel } from '@headlessui/vue'
 import {
@@ -22,8 +21,7 @@ import GuestFooter from '@/Components/Footer/GuestFooter.vue';
 
 
 
-const initialiseApp = inject('initialiseApp')
-const layout= initialiseApp();
+
 
 
 const features = [

@@ -11,8 +11,6 @@ use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\SysAdmin\User;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetLayout
@@ -26,38 +24,11 @@ class GetLayout
         $shopCount = $tenant->marketingStats->number_shops;
 
 
-        $currentShop         = null;
-        $currentShopSlug     = null;
         $currentShopInstance = null;
 
         if ($shopCount == 1) {
             $currentShopInstance = Shop::first();
-            $currentShop         = new ShopsNavigationResource($currentShopInstance);
-            $currentShopSlug     = $currentShopInstance->slug;
-        } elseif ($shopCount > 1) {
-            $routeName = Route::current()->getName();
-
-            if (Str::startsWith($routeName, 'shops.show')) {
-                $currentShopInstance = Route::current()->parameters()['shop'];
-                $currentShop         = new ShopsNavigationResource($currentShopInstance);
-                $currentShopSlug     = $currentShopInstance->slug;
-            } elseif (!Str::startsWith($routeName, ['customers', 'orders', 'products', 'websites'])) {
-                if (session()->has('currentShop')) {
-                    $currentShopInstance = Shop::where('slug', session('currentShop'))->first();
-                    $currentShop         = new ShopsNavigationResource($currentShopInstance);
-                    $currentShopSlug     = $currentShopInstance->slug;
-                }
-            }
         }
-
-
-        session(['currentShop' => $currentShopSlug]);
-
-        $shops = [
-            'count'   => $shopCount,
-            'current' => $currentShop,
-            'items'   => ShopsNavigationResource::collection(Shop::all())
-        ];
 
 
         $navigation = [];
@@ -68,9 +39,6 @@ class GetLayout
                 'icon'  => ['fal', 'fa-tachometer-alt-fast'],
                 'route' => 'dashboard.show'
             ];
-
-
-
 
 
         if ($user->can('shops.products.view')) {
@@ -88,7 +56,6 @@ class GetLayout
                 ]
             };
         }
-
 
 
         if ($user->can('dispatch')) {
@@ -178,9 +145,10 @@ class GetLayout
 
 
         return [
-            'navigation' => $navigation,
-            'actions'    => $actions,
-            'shops'      => $shops
+            'navigation'      => $navigation,
+            'actions'         => $actions,
+            'shopsInDropDown' => ShopsNavigationResource::collection(Shop::all()),
+
         ];
     }
 }

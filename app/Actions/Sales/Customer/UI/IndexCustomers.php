@@ -8,9 +8,10 @@
 namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\CustomerResource;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Closure;
@@ -24,10 +25,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexCustomers extends InertiaAction
 {
-    use HasUICustomers;
-
-    private Shop|Tenant  $parent;
-
     public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -129,15 +126,14 @@ class IndexCustomers extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->parameters
                 ),
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title'  => __('customers'),
                     'create' => $this->canEdit
                     && (
-                        $this->routeName == 'shops.show.customers.index' or
-                        $this->routeName == 'customers.index'
+                        $this->routeName == 'shops.show.customers.index'
                     )
 
                         ? [
@@ -166,5 +162,50 @@ class IndexCustomers extends InertiaAction
 
             ]
         )->table($this->tableStructure($parent));
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('customers'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'customers.index'            =>
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'=> 'customers.index',
+                        null
+                    ]
+                ),
+            ),
+
+
+            'shops.show.customers.index','shops.show.customers.create' =>
+            array_merge(
+                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                $headCrumb(
+                    [
+                        'name'      => 'shops.show.customers.index',
+                        'parameters'=>
+                        [
+                            $routeParameters['shop']->slug
+                        ]
+                    ]
+                )
+            ),
+            default => []
+        };
     }
 }

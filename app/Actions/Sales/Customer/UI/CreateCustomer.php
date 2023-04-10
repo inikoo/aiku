@@ -15,17 +15,15 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateCustomer extends InertiaAction
 {
-    use HasUICustomers;
-
-    private Shop $parent;
-
-
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __('new customer'),
                 'pageHead'    => [
                     'title'        => __('new customer'),
@@ -39,6 +37,16 @@ class CreateCustomer extends InertiaAction
                         ]
                     ]
                 ],
+                'formData'    => [
+                    'blueprint' =>
+                        [
+
+                        ],
+                    'route'     => [
+                        'name' => ''
+                    ]
+                ]
+
 
 
             ]
@@ -51,11 +59,28 @@ class CreateCustomer extends InertiaAction
     }
 
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Shop $shop, ActionRequest $request): Response
     {
-        $this->parent = $shop;
         $this->initialisation($request);
+        return $this->handle($request);
+    }
 
-        return $this->handle();
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return array_merge(
+            IndexCustomers::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating customer'),
+                    ]
+                ]
+            ]
+        );
     }
 }

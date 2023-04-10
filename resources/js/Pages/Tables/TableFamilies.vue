@@ -15,7 +15,6 @@ const props = defineProps<{
 
 
 function familyRoute(family: Family) {
-    console.log(route().current())
     switch (route().current()) {
         case 'shops.show.catalogue.hub.families.index':
             return route(

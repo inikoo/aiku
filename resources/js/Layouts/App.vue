@@ -8,7 +8,7 @@
 
 
 <script setup>
-import {ref, inject} from 'vue';
+import {ref, watchEffect} from 'vue';
 import {
     Menu,
     MenuButton,
@@ -18,7 +18,7 @@ import {
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
-import {trans} from 'laravel-vue-i18n';
+import {loadLanguageAsync, trans} from 'laravel-vue-i18n';
 import {Link} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -63,7 +63,55 @@ library.add(
     faGlobe,
 );
 
-const initialiseApp = inject('initialiseApp');
+//const initialiseApp = inject('initialiseApp');
+
+
+
+const initialiseApp = () => {
+    const layout = useLayoutStore();
+
+    if (usePage().props.language) {
+        loadLanguageAsync(usePage().props.language);
+    }
+    watchEffect(() => {
+
+        if (usePage().props.layout) {
+            layout.navigation = usePage().props.layout.navigation ?? null;
+            layout.actions = usePage().props.layout.actions ?? null;
+            if (usePage().props.layout.shopsInDropDown) {
+                layout.shopsInDropDown = usePage().props.layout.shopsInDropDown.data ??
+                    {};
+            }
+
+        }
+
+        if (usePage().props.layoutCurrentShopSlug) {
+            layout.currentShopSlug = usePage().props.layoutCurrentShopSlug;
+        } else {
+            if (route().params.hasOwnProperty('shop')) {
+                layout.currentShopSlug = route().params['shop'];
+            }
+        }
+
+        if (usePage().props.layoutShopsList) {
+            layout.shops = usePage().props.layoutShopsList;
+        }
+
+
+
+        layout.currentShopData = layout.shops[layout.currentShopSlug] ?? {
+            slug: null,
+            name: trans('All shops'),
+            code: trans('All'),
+        };
+
+        if (usePage().props.tenant) {
+            layout.tenant = usePage().props.tenant ?? null;
+        }
+    });
+    return layout;
+};
+
 const layout = initialiseApp();
 
 const sidebarOpen = ref(false);
@@ -74,19 +122,21 @@ import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import SearchBar from '@/Components/SearchBar.vue';
 import {usePage} from '@inertiajs/vue3';
+import {useLayoutStore} from '@/Stores/layout';
 
 const showSearchDialog = ref(false);
 
 const user = ref(usePage().props.auth.user);
 
+
+
+
 </script>
 
 <template>
-
     <div class="min-h-full">
         <Disclosure as="nav" class="bg-gray-100" v-slot="{ open }">
             <div class=" px-0">
-
                 <div class="flex h-11 lg:h-10 flex-shrink-0 border-b border-gray-200 bg-white ">
 
                     <div class="flex flex-1 justify-between pl-3 md:pl-0">
@@ -102,11 +152,7 @@ const user = ref(usePage().props.auth.user);
                                     </span>
 
                             </div>
-
-
-                            <AppShopNavigation :shops="layout.shops"/>
-
-
+                            <AppShopNavigation/>
                         </div>
 
 

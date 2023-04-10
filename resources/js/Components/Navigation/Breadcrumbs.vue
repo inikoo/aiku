@@ -91,7 +91,7 @@ const displayBreadcrumbs = computed(() => {
                             <Link class="mr-1 hover:text-gray-700" :href="route(breadcrumb.modelWithIndex.index.route.name,breadcrumb.modelWithIndex.index.route.parameters)">
                                 <font-awesome-icon
                                     :icon="['fal', 'bars']"
-                                    class="flex-shrink-0 h-3 w-3 mr-1"
+                                    class="flex-shrink-0 h-3.5 w-3.5 mr-1"
                                     aria-hidden="true"
                                 />
                                 <span class="capitalize text-xs">{{ breadcrumb.modelWithIndex.index.label }}</span>
