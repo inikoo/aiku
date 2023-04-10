@@ -23,6 +23,8 @@ return new class () extends Migration {
             $table->string('code')->index();
             $table->morphs('owner');
             $table->string('name');
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->string('company_name', 256)->nullable();
             $table->string('contact_name', 256)->nullable()->index();
             $table->string('email')->nullable();
