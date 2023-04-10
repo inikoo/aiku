@@ -9,6 +9,7 @@ namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\InertiaAction;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
+use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,7 +17,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditWarehouseArea extends InertiaAction
 {
-    use HasUIWarehouseArea;
     public function handle(WarehouseArea $warehouseArea): WarehouseArea
     {
         return $warehouseArea;
@@ -35,6 +35,13 @@ class EditWarehouseArea extends InertiaAction
         return $this->handle($warehouseArea);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    {
+        $this->initialisation($request);
+        return $this->handle($warehouseArea);
+    }
+
     public function inTenant(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $this->initialisation($request);
@@ -42,13 +49,16 @@ class EditWarehouseArea extends InertiaAction
         return $this->handle($warehouseArea);
     }
 
-    public function htmlResponse(WarehouseArea $warehouseArea): Response
+    public function htmlResponse(WarehouseArea $warehouseArea, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('warehouse areas'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $warehouseArea),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'title'     => $warehouseArea->code,
                     'exitEdit'  => [
@@ -95,5 +105,14 @@ class EditWarehouseArea extends InertiaAction
     public function jsonResponse(WarehouseArea $warehouseArea): WarehouseAreaResource
     {
         return new WarehouseAreaResource($warehouseArea);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowWarehouseArea::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }

@@ -148,7 +148,9 @@ class ShowDepartment extends InertiaAction
                         ],
                         'model' => [
                             'name'       => 'catalogue.hub.departments.show',
-                            'parameters' => [$routeParameters['department']->slug]
+                            'parameters' => [
+                                $routeParameters['department']->slug
+                            ]
                         ]
                     ],
                     $suffix
@@ -166,7 +168,10 @@ class ShowDepartment extends InertiaAction
                         ],
                         'model' => [
                             'name'       => 'shops.show.catalogue.hub.departments.show',
-                            'parameters' => [$routeParameters['shop']->slug,$routeParameters['department']->slug]
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
+                                $routeParameters['department']->slug
+                            ]
                         ]
                     ],
                     $suffix
