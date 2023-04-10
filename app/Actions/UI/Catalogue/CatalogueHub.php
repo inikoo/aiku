@@ -30,7 +30,7 @@ class CatalogueHub extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): ActionRequest
+    public function inTenant(ActionRequest $request): ActionRequest
     {
         $this->initialisation($request)->withTab(CatalogueTabsEnum::values());
 
