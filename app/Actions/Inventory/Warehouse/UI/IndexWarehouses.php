@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
@@ -26,8 +27,6 @@ use Spatie\QueryBuilder\QueryBuilder;
  */
 class IndexWarehouses extends InertiaAction
 {
-    use HasUIWarehouses;
-
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -120,5 +119,26 @@ class IndexWarehouses extends InertiaAction
 
             ]
         )->table($this->tableStructure($parent));
+    }
+
+    public function getBreadcrumbs($suffix=null): array
+    {
+        return array_merge(
+            (new InventoryDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'inventory.warehouses.index'
+                        ],
+                        'label' => __('warehouses'),
+                        'icon'  => 'fal fa-bars',
+                    ],
+                    'suffix'=> $suffix
+
+                ]
+            ]
+        );
     }
 }
