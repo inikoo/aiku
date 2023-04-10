@@ -18,6 +18,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->string('slug')->unique();
             $table->string('reference')->unique()->comment('customer public id');
             $table->string('name', 256)->nullable()->fulltext();
