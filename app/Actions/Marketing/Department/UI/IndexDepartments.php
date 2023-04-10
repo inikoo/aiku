@@ -99,7 +99,6 @@ class IndexDepartments extends InertiaAction
     public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-
         return $this->handle($shop);
     }
 
