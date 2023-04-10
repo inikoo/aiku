@@ -8,7 +8,8 @@
 namespace App\Actions\Sales\Order;
 
 use App\Actions\InertiaAction;
-use App\Actions\Sales\Order\UI\HasUIOrders;
+use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Central\Tenant;
@@ -26,7 +27,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexOrders extends InertiaAction
 {
-    use HasUIOrders;
     public function handle(Tenant|Shop|Customer $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -109,7 +109,7 @@ class IndexOrders extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->parameters
                 ),
                 'title'       => __('orders'),
                 'pageHead'    => [
@@ -143,5 +143,50 @@ class IndexOrders extends InertiaAction
         $this->initialisation($request);
 
         return $this->handle(parent: $shop);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('orders'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'orders.index'            =>
+
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'=> 'orders.index',
+                        null
+                    ]
+                ),
+            ),
+
+            'shops.show.orders.index' =>
+            array_merge(
+                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                $headCrumb(
+                    [
+                        'name'      => 'shops.show.orders.index',
+                        'parameters'=>
+                            [
+                                $routeParameters['shop']->slug
+                            ]
+                    ]
+                )
+            ),
+            default => []
+        };
     }
 }
