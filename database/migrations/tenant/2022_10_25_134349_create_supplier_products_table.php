@@ -21,7 +21,8 @@ return new class () extends Migration {
             $table->string('slug')->nullable()->index();
 
             $table->unsignedInteger('current_historic_supplier_product_id')->index()->nullable();
-
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->unsignedInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
 
