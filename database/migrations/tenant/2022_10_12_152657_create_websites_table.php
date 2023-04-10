@@ -25,6 +25,8 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->jsonb('webnodes');
             $table->unsignedSmallInteger('current_layout_id')->index()->nullable();
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->timestampsTz();
             $table->timestampTz('launched_at')->nullable();
             $table->timestampTz('closed_at')->nullable();

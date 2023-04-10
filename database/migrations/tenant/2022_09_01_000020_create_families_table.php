@@ -20,7 +20,8 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('department_id')->nullable();
             $table->foreign('department_id')->references('id')->on('departments');
-
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->unsignedSmallInteger('root_department_id')->nullable();
             $table->foreign('root_department_id')->references('id')->on('departments');
 

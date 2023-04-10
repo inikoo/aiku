@@ -28,6 +28,8 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->string('password');
             $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
         });
     }
 
