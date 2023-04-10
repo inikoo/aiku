@@ -93,7 +93,7 @@ const handleClick = (shopSlug) => {
 
             <MenuItems class="absolute w-56  divide-y divide-gray-300  right-0 z-10 mt-1  origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div class="py-1 ">
-                    <MenuItem v-slot="{ active }" v-for="shop in layout.shopsInDropDown" :key="shop.slug" :disabled="shop.slug===currentShop.slug?true:null">
+                    <MenuItem v-slot="{ active }" v-for="shop in layout.shopsInDropDown" :key="shop.slug" >
                         <button
                             @click="handleClick(shop.slug)"
                             :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
