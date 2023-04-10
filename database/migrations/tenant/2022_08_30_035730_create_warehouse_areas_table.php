@@ -16,6 +16,8 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->unsignedSmallInteger('warehouse_id')->index();
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->string('code')->index();
             $table->string('name');
