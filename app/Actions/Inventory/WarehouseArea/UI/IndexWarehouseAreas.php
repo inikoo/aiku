@@ -173,7 +173,9 @@ class IndexWarehouseAreas extends InertiaAction
             'inventory.warehouses.show.warehouse-areas.index' ,
             =>
             array_merge(
-                (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
+                (new ShowWarehouse())->getBreadcrumbs(
+                    $routeParameters['warehouse']
+                ),
                 $headCrumb([
                     'name'      => 'inventory.warehouses.show.warehouse-areas.index',
                     'parameters'=>
