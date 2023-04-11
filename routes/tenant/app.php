@@ -100,6 +100,12 @@ Route::middleware([
                 $parent='tenant';
                 require __DIR__.'/customers.php';
             });
+        Route::prefix("orders")
+            ->name("orders.")
+            ->group(function () {
+                $parent='tenant';
+                require __DIR__.'/orders.php';
+            });
     });
 
     require __DIR__."/auth.php";

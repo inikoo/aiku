@@ -130,7 +130,7 @@ class IndexOrders extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);

@@ -36,7 +36,7 @@ class ShowDeliveryNote extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
-    public function asController(DeliveryNote $deliveryNote): DeliveryNote
+    public function inTenant(DeliveryNote $deliveryNote): DeliveryNote
     {
         return $this->handle($deliveryNote);
     }
