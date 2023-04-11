@@ -33,7 +33,7 @@ class ShowMailshot extends InertiaAction
         return $request->user()->hasPermissionTo("mail.view");
     }
 
-    public function asController(Mailshot $mailshot, ActionRequest $request): Mailshot
+    public function inTenant(Mailshot $mailshot, ActionRequest $request): Mailshot
     {
         //$this->routeName = $request->route()->getName();
         //$this->validateAttributes();
@@ -51,7 +51,7 @@ class ShowMailshot extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroomInOutbox(Mailroom $mailroom, Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
+    public function inMailroomInOutboxInShop(Mailroom $mailroom, Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
         $this->routeName = $request->route()->getName();
         //$this->validateAttributes();

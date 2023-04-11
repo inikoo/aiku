@@ -10,6 +10,7 @@ namespace App\Actions\Mail\Outbox\UI;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Outbox;
+use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,11 +31,18 @@ class EditOutbox extends InertiaAction
         return $request->user()->hasPermissionTo("mail.edit");
     }
 
-    public function asController(Outbox $outbox, ActionRequest $request): Outbox
+    public function inTenant(Outbox $outbox, ActionRequest $request): Outbox
     {
         $this->initialisation($request);
 
         return $this->handle($outbox);
+    }
+
+    public function inShop(Shop $shop, ActionRequest $request): Outbox
+    {
+        $this->initialisation($request);
+
+        return $this->handle($shop);
     }
 
     public function htmlResponse(Outbox $outbox): Response

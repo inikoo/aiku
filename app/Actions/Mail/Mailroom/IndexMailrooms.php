@@ -87,7 +87,13 @@ class IndexMailrooms extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        return $this->handle();
+    }
+
+    public function inShop(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle();

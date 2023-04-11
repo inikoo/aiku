@@ -36,8 +36,8 @@ Route::get('/departments', [IndexDepartments::class, $parent == 'tenant' ? 'inTe
 Route::get('/departments/{department}', [ShowDepartment::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.departments.show');
 Route::get('/departments/{department}/edit', [EditDepartment::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.departments.edit');
 Route::get('/departments/{department}/families', [IndexFamilies::class, $parent == 'tenant' ? 'inDepartment' : 'inShopInDepartment'])->name('hub.departments.show.families.index');
-Route::get('/departments/{department}/families/{show}', [ShowFamily::class, $parent == 'tenant' ? 'inDepartment' : 'inShopInDepartment'])->name('hub.departments.show.families.show');
-Route::get('/departments/{department}/families/{show}/edit', [EditFamily::class, $parent == 'tenant' ? 'inDepartment' : 'inShopInDepartment'])->name('hub.departments.show.families.edit');
+Route::get('/departments/{department}/families/{family}', [ShowFamily::class, $parent == 'tenant' ? 'inDepartment' : 'inShopInDepartment'])->name('hub.departments.show.families.show');
+Route::get('/departments/{department}/families/{family}/edit', [EditFamily::class, $parent == 'tenant' ? 'inDepartment' : 'inShopInDepartment'])->name('hub.departments.show.families.edit');
 Route::get('/departments/{department}/products', [IndexProducts::class, $parent == 'tenant' ? 'inDepartment' : 'inShopInDepartment'])->name('hub.departments.show.products.index');
 Route::get('/families', [IndexFamilies::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.families.index');
 Route::get('/families/{family}', [ShowFamily::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.families.show');

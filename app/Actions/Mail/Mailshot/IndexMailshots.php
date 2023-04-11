@@ -124,14 +124,14 @@ class IndexMailshots extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }
 
-    public function inMailroom(Mailroom $mailroom, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Mailroom $mailroom, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($mailroom);
@@ -144,7 +144,13 @@ class IndexMailshots extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroomInOutbox(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
+    public function inMailroomInShop(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        return $this->handle($outbox);
+    }
+
+    public function inOutboxInShop(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($outbox);

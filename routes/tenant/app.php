@@ -103,6 +103,12 @@ Route::middleware([
                 $parent='tenant';
                 require __DIR__.'/orders.php';
             });
+        Route::prefix("mail")
+            ->name("mail.")
+            ->group(function () {
+                $parent='tenant';
+                require __DIR__.'/mail.php';
+            });
     });
 
     require __DIR__."/auth.php";

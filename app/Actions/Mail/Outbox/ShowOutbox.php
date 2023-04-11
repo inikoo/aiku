@@ -9,10 +9,11 @@ namespace App\Actions\Mail\Outbox;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailroom\ShowMailroom;
-use App\Actions\UI\Mail\MailDashboard;
+use App\Actions\UI\Mail\MailHub;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
+use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -36,7 +37,7 @@ class ShowOutbox extends InertiaAction
         return $request->user()->hasPermissionTo("mail.view");
     }
 
-    public function asController(Outbox $outbox, ActionRequest $request): Outbox
+    public function inTenant(Outbox $outbox, ActionRequest $request): Outbox
     {
         $this->routeName = $request->route()->getName();
         //$this->validateAttributes();
@@ -46,6 +47,22 @@ class ShowOutbox extends InertiaAction
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inMailroom(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): Outbox
+    {
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request);
+        return $this->handle($outbox);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Shop $shop, ActionRequest $request): Outbox
+    {
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request);
+        return $this->handle($shop);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inMailroomInShop(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): Outbox
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
@@ -105,7 +122,7 @@ class ShowOutbox extends InertiaAction
 
         return match ($routeName) {
             'mail.outboxes.show' => array_merge(
-                (new MailDashboard())->getBreadcrumbs(),
+                (new MailHub())->getBreadcrumbs(),
                 $headCrumb([$outbox->slug])
             ),
             'mail.mailrooms.show.outboxes.show' => array_merge(

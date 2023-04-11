@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailroom;
+use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,37 +34,40 @@ class ShowDispatchedEmail extends InertiaAction
         return $request->user()->hasPermissionTo("mail.view");
     }
 
-    public function asController(DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    public function inTenant(DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
-        //$this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
+        $this->initialisation($request);
+        return $this->handle($dispatchedEmail);
+    }
+
+    public function inMailshotInShop(Mailshot $mailshot, ActionRequest $request): DispatchedEmail
+    {
+        $this->initialisation($request);
+        return $this->handle($mailshot);
+    }
+
+
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inMailroomInShop(Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    {
+        $this->routeName = $request->route()->getName();
         $this->initialisation($request);
         return $this->handle($dispatchedEmail);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inOutbox(Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    public function inMailroomInOutboxInMailshotInShop(Mailroom $mailroom, Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
         $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($dispatchedEmail);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroomInOutbox(Mailroom $mailroom, Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    public function inMailroomInMailshotInShop(Mailroom $mailroom, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
         $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
-        $this->initialisation($request);
-        return $this->handle($dispatchedEmail);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroom(Mailroom $mailroom, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
-    {
-        $this->routeName = $request->route()->getName();
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($dispatchedEmail);
     }

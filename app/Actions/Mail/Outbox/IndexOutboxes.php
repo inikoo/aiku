@@ -9,7 +9,7 @@ namespace App\Actions\Mail\Outbox;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailroom\ShowMailroom;
-use App\Actions\UI\Mail\MailDashboard;
+use App\Actions\UI\Mail\MailHub;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Central\Tenant;
@@ -105,7 +105,7 @@ class IndexOutboxes extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function inShop(ActionRequest $request): LengthAwarePaginator
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
@@ -135,7 +135,7 @@ class IndexOutboxes extends InertiaAction
         return match ($routeName) {
             'mail.outboxes.index' =>
             array_merge(
-                (new MailDashboard())->getBreadcrumbs(),
+                (new MailHub())->getBreadcrumbs(),
                 $headCrumb()
             ),
             'mail.mailrooms.show.outboxes.index' =>

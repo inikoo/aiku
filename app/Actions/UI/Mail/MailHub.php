@@ -18,7 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
  * @property Outbox $outbox
  * @property User $user
  */
-class MailDashboard extends InertiaAction
+class MailHub extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -34,7 +34,7 @@ class MailDashboard extends InertiaAction
     public function htmlResponse(): Response
     {
         return Inertia::render(
-            'Mail/MailDashboard',
+            'Mail/MailHub',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('mail'),

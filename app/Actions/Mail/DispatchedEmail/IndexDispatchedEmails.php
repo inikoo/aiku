@@ -9,7 +9,7 @@ namespace App\Actions\Mail\DispatchedEmail;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailroom\ShowMailroom;
-use App\Actions\UI\Mail\MailDashboard;
+use App\Actions\UI\Mail\MailHub;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Central\Tenant;
@@ -17,6 +17,7 @@ use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use App\Models\Marketing\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -124,38 +125,32 @@ class IndexDispatchedEmails extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }
 
-    public function inMailroom(Mailroom $mailroom, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        return $this->handle($mailroom);
+        return $this->handle($shop);
     }
 
-    public function inOutbox(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
+    public function inMailroomInShop(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($outbox);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroomInOutbox(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
+    public function inMailroomInOutboxInShop(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($outbox);
     }
 
-    public function inMailroomInOutboxInMailshot(Mailshot $mailshot, ActionRequest $request): LengthAwarePaginator
-    {
-        //$this->validateAttributes();
-        $this->initialisation($request);
-        return $this->handle($mailshot);
-    }
 
     public function getBreadcrumbs(string $routeName, Mailshot|Outbox|Mailroom|Tenant $parent): array
     {
@@ -174,7 +169,7 @@ class IndexDispatchedEmails extends InertiaAction
         return match ($routeName) {
             'mail.outboxes.index' =>
             array_merge(
-                (new MailDashboard())->getBreadcrumbs(),
+                (new MailHub())->getBreadcrumbs(),
                 $headCrumb()
             ),
             'mail.mailrooms.show.outboxes.index' =>

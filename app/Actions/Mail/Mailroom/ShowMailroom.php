@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Mailroom;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Mail\MailDashboard;
+use App\Actions\UI\Mail\MailHub;
 use App\Http\Resources\Mail\MailroomResource;
 use App\Models\Mail\Mailroom;
 use Inertia\Inertia;
@@ -21,14 +21,24 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowMailroom extends InertiaAction
 {
+    public function handle(Mailroom $mailroom): Mailroom
+    {
+        return $mailroom;
+    }
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("mail.view");
     }
 
-    public function asController(Mailroom $mailroom): void
+    public function inTenant(Mailroom $mailroom): void
     {
         $this->mailroom    = $mailroom;
+    }
+
+    public function inShop(Mailroom $mailroom, ActionRequest $request): Mailroom
+    {
+        $this->initialisation($request);
+        return $this->handle($mailroom);
     }
 
     public function htmlResponse(): Response
@@ -100,7 +110,7 @@ class ShowMailroom extends InertiaAction
     public function getBreadcrumbs(Mailroom $mailroom): array
     {
         return array_merge(
-            (new MailDashboard())->getBreadcrumbs(),
+            (new MailHub())->getBreadcrumbs(),
             [
                 'mail.mailrooms.show' => [
                     'route'           => 'mail.mailrooms.show',
