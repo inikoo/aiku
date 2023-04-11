@@ -23,22 +23,22 @@ use Illuminate\Support\Facades\Route;
 if (empty($parent)) {
     $parent = 'tenant';
 }
+Route::get('/products/create', CreateProduct::class)->name('hub.products.create');
+Route::get('/departments/create', CreateDepartment::class)->name('hub.departments.create');
+Route::get('/families/create', CreateFamily::class)->name('hub.families.create');
 
 
 Route::get('/', [CatalogueHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
-Route::get('/products', [IndexProducts::class, 'inShop'])->name('hub.products.index');
-Route::get('/products/create', CreateProduct::class)->name('hub.products.create');
-Route::get('/products/{product}', [ShowProduct::class, 'inShop'])->name('hub.products.show');
+Route::get('/products', [IndexProducts::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.products.index');
+Route::get('/products/{product}', [ShowProduct::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.products.show');
 Route::get('/products/{product}/edit', [EditProduct::class, 'inShop'])->name('hub.products.edit');
 Route::get('/departments', [IndexDepartments::class, 'inShop'])->name('hub.departments.index');
-Route::get('/departments/create', CreateDepartment::class)->name('hub.departments.create');
 Route::get('/departments/{department}', [ShowDepartment::class, 'inShop'])->name('hub.departments.show');
 Route::get('/departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('hub.departments.edit');
-Route::get('/departments/{department}/families', [IndexFamilies::class, 'inShopInDepartment'])->name('hub.departments.show.families.index');
+Route::get('/departments/{department}/families', [IndexFamilies::class, $parent == 'tenant' ? 'inDepartment' : 'inShopInDepartment'])->name('hub.departments.show.families.index');
 Route::get('/departments/{department}/families/{show}', [ShowFamily::class, 'inShopInDepartment'])->name('hub.departments.show.families.show');
 Route::get('/departments/{department}/families/{show}/edit', [EditFamily::class, 'inShopInDepartment'])->name('hub.departments.show.families.edit');
 Route::get('/departments/{department}/products', [IndexProducts::class, 'inShopInDepartment'])->name('hub.departments.show.products.index');
 Route::get('/families', [IndexFamilies::class, 'inShop'])->name('hub.families.index');
-Route::get('/families/create', CreateFamily::class)->name('hub.families.create');
 Route::get('/families/{family}', [ShowFamily::class, 'inShop'])->name('hub.families.show');
 Route::get('/families/{family}/edit', [EditFamily::class, 'inShop'])->name('hub.families.edit');

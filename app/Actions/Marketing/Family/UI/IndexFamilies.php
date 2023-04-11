@@ -131,7 +131,7 @@ class IndexFamilies extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         $this->routeName = $request->route()->getName();
@@ -145,6 +145,11 @@ class IndexFamilies extends InertiaAction
     }
 
     public function inShopInDepartment(Shop $shop, Department $department, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        return $this->handle($department);
+    }
+    public function inDepartment(Department $department, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($department);

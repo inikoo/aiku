@@ -39,7 +39,7 @@ class ShowProduct extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
-    public function asController(Product $product, ActionRequest $request): Product
+    public function inTenant(Product $product, ActionRequest $request): Product
     {
         $this->initialisation($request)->withTab(ProductTabsEnum::values());
 
