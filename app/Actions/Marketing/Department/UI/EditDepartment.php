@@ -27,7 +27,7 @@ class EditDepartment extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.edit");
     }
 
-    public function asController(Department $department, ActionRequest $request): Department
+    public function inTenant(Department $department, ActionRequest $request): Department
     {
         $this->initialisation($request);
 

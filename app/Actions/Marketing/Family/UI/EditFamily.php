@@ -30,7 +30,7 @@ class EditFamily extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
-    public function asController(Family $family, ActionRequest $request): Family
+    public function inTenant(Family $family, ActionRequest $request): Family
     {
         $this->initialisation($request);
 
@@ -38,6 +38,13 @@ class EditFamily extends InertiaAction
     }
 
     public function inShop(Shop $shop, Family $family, ActionRequest $request): Family
+    {
+        $this->initialisation($request);
+
+        return $this->handle($family);
+    }
+
+    public function inShopInDepartment(Shop $shop, Family $family, ActionRequest $request): Family
     {
         $this->initialisation($request);
 

@@ -30,7 +30,7 @@ class EditProduct extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.edit");
     }
 
-    public function asController(Product $product, ActionRequest $request): Product
+    public function inTenant(Product $product, ActionRequest $request): Product
     {
         $this->initialisation($request);
 
