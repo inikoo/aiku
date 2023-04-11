@@ -44,9 +44,9 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    orders: object
-    products: object
-    dispatched_emails: object
+    orders?: object
+    products?: object
+    dispatched_emails?: object
 }>()
 
 let currentTab = ref(props.tabs.current);

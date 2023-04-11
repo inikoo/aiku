@@ -8,7 +8,8 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\IndexShops;
+use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Marketing\WebsiteResource;
 use App\Models\Marketing\Shop;
@@ -16,7 +17,6 @@ use App\Models\Web\Website;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -25,41 +25,38 @@ class ShowWebsite extends InertiaAction
     use AsAction;
     use WithInertia;
 
-    public function handle(Website $website): Website
-    {
-        return $website;
-    }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("shops.products.view");
+        return $request->user()->hasPermissionTo("shops.websites.view");
     }
 
     public function asController(Website $website): Website
     {
-        return $this->handle($website);
+        return $website;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Website $website, Request $request): Website
     {
-        $this->routeName = $request->route()->getName();
-        $this->validateAttributes();
-
-        return $this->handle($website);
+        return $website;
     }
 
-    public function htmlResponse(Website $website): Response
+    public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
 
         return Inertia::render(
-            'Marketing/Website',
+            'Web/Website',
             [
                 'title'       => __('Website'),
-                'breadcrumbs' => $this->getBreadcrumbs($website),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
-                    'title' => $website->number,
+                    'title' => $website->name,
 
 
                 ],
@@ -68,38 +65,97 @@ class ShowWebsite extends InertiaAction
         );
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->can('hr.edit'));
-        $this->set('canViewUsers', $request->user()->can('users.view'));
-    }
-
-    #[Pure] public function jsonResponse(Website $website): WebsiteResource
+    public function jsonResponse(Website $website): WebsiteResource
     {
         return new WebsiteResource($website);
     }
 
 
-    public function getBreadcrumbs(Website $website): array
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        return array_merge(
-            (new IndexShops())->getBreadcrumbs(),
-            [
-                'shops.show' => [
-                    'route'           => 'shops.show',
-                    'routeParameters' => $website->id,
-                    'name'            => $website->number,
-                    'index'           => [
-                        'route'   => 'shops.index',
-                        'overlay' => __('Websites list')
+        $headCrumb = function (string $type, Website $website, array $routeParameters, string $suffix) {
+            return [
+                [
+
+                    'type'           => $type,
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('websites')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $website->name,
+                        ],
+
                     ],
-                    'modelLabel' => [
-                        'label' => __('Website')
+                    'simple'=> [
+                        'route' => $routeParameters['model'],
+                        'label' => $website->name
                     ],
+
+
+                    'suffix'=> $suffix
+
                 ],
-            ]
-        );
+            ];
+        };
+
+
+
+
+        return match ($routeName) {
+            'websites.show',
+            'websites.edit' =>
+
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    'modelWithIndex',
+                    $routeParameters['website'],
+                    [
+                        'index' => [
+                            'name'       => 'websites.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'websites.show',
+                            'parameters' => [$routeParameters['website']->slug]
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+
+
+            'shops.show.websites.show',
+            'shops.show.websites.edit'
+            => array_merge(
+                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                $headCrumb(
+                    'simple',
+                    $routeParameters['website'],
+                    [
+                        'index' => [
+                            'name'       => 'shops.show.websites.index',
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
+                            ]
+                        ],
+                        'model' => [
+                            'name'       => 'shops.show.websites.show',
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
+                                $routeParameters['website']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
 }

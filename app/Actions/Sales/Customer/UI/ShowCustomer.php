@@ -12,6 +12,7 @@ use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Sales\Order\IndexOrders;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Marketing\ProductResource;
@@ -79,7 +80,7 @@ class ShowCustomer extends InertiaAction
     }
 
 
-    public function htmlResponse(Customer $customer): Response
+    public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
         $webUsersMeta = match ($customer->stats->number_web_users) {
             0 => [
@@ -128,7 +129,10 @@ class ShowCustomer extends InertiaAction
             'Sales/Customer',
             [
                 'title'       => __('customer'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $customer),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'title' => $customer->name,
                     'meta'  => array_filter([
@@ -143,7 +147,7 @@ class ShowCustomer extends InertiaAction
                     ] : false,
 
                 ],
-                'tabs'=> [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => CustomerTabsEnum::navigation()
 
@@ -163,8 +167,8 @@ class ShowCustomer extends InertiaAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
-         ->table(IndexProducts::make()->tableStructure($customer))
-         ->table(IndexDispatchedEmails::make()->tableStructure($customer));
+            ->table(IndexProducts::make()->tableStructure($customer))
+            ->table(IndexDispatchedEmails::make()->tableStructure($customer));
     }
 
 
@@ -173,36 +177,76 @@ class ShowCustomer extends InertiaAction
         return new CustomerResource($customer);
     }
 
-    public function getBreadcrumbs(string $routeName, Customer $customer): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        $headCrumb = function (array $routeParameters = []) use ($customer, $routeName) {
-            $indexRouteParameters = $routeParameters;
-            array_pop($indexRouteParameters);
-
+        $headCrumb = function (Customer $customer, array $routeParameters, string $suffix) {
             return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'name'            => $customer->reference,
-                    'index'           => [
-                        'route'           => preg_replace('/(show|edit)$/', 'index', $routeName),
-                        'routeParameters' => $indexRouteParameters,
-                        'overlay'         => __('customers list')
+                [
+
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('customers')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $customer->reference,
+                        ],
+
                     ],
-                    'modelLabel'      => [
-                        'label' => __('customer')
-                    ]
+                    'suffix'=> $suffix
+
                 ],
             ];
         };
 
         return match ($routeName) {
-            'customers.show', 'customers.edit' => $headCrumb([$customer->shop->slug]),
+            'customers.show',
+            'customers.edit' =>
+
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $routeParameters['customer'],
+                    [
+                        'index' => [
+                            'name'       => 'customer.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'customer.show',
+                            'parameters' => [$routeParameters['customer']->slug]
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+
+
             'shops.show.customers.show',
             'shops.show.customers.edit'
             => array_merge(
-                (new ShowShop())->getBreadcrumbs($customer->shop),
-                $headCrumb([$customer->shop->slug, $customer->slug])
+                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                $headCrumb(
+                    $routeParameters['customer'],
+                    [
+                        'index' => [
+                            'name'       => 'shops.show.customers.index',
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
+                            ]
+                        ],
+                        'model' => [
+                            'name'       => 'shops.show.customers.show',
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
+                                $routeParameters['customer']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
             ),
             default => []
         };

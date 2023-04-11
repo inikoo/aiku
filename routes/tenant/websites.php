@@ -6,9 +6,9 @@
  */
 
 
-use App\Actions\Marketing\SHop\IndexShops;
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Web\Website\IndexWebsites;
+use App\Actions\Web\Website\ShowWebsite;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', IndexShops::class)->name('index');
-Route::get('/{website}', ShowShop::class)->name('show');
+Route::get('/', IndexWebsites::class)->name('index');
+Route::get('/{website}', ShowWebsite::class)->name('show');

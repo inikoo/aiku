@@ -160,7 +160,6 @@ class Customer extends Model implements HasMedia
         return 'slug';
     }
 
-
     public function products(): MorphMany
     {
         return $this->morphMany(Product::class, 'owner', 'owner_type', 'owner_id', 'id');

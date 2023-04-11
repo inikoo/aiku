@@ -68,26 +68,20 @@ const displayBreadcrumbs = computed(() => {
             <ol role="list" class="w-full mx-auto px-4 flex ">
 
                 <li v-for="(breadcrumb, breadcrumbIdx) in  breadcrumbs" :key="breadcrumbIdx" class="flex">
-
                     <div class="flex items-center">
                         <font-awesome-icon v-if="breadcrumbIdx!==0" class="flex-shrink-0 h-3 w-3 mx-3 opacity-50" icon="fa-regular fa-chevron-right" aria-hidden="true"/>
-
                         <template v-if="breadcrumb.type==='simple'">
-
                             <component :is="breadcrumb.simple.route?Link:'span'" :class="'hover:text-gray-700' || ''"
                                        :href=" breadcrumb.simple.route?   route(breadcrumb.simple.route.name,breadcrumb.simple.route.parameters) :''">
                                 <font-awesome-icon v-if="breadcrumb.simple.icon" :class="breadcrumb.simple.label?'mr-1':''" class="flex-shrink-0 h-3.5 w-3.5" :icon="breadcrumb.simple.icon" aria-hidden="true"/>
                                 <span class="capitalize">{{ breadcrumb.simple.label }}</span>
                             </component>
-
-
                         </template>
                         <template v-else-if="breadcrumb.type==='creatingModel'">
                             <font-awesome-icon class="flex-shrink-0 h-3.5 w-3.5 mr-1 text-yellow-500" icon="fas fa-sparkles" aria-hidden="true"/>
                             <span class="capitalize text-yellow-600 opacity-75">{{ breadcrumb.creatingModel.label }}</span>
                         </template>
                         <template v-else-if="breadcrumb.type==='modelWithIndex'">
-
                             <Link class="mr-1 hover:text-gray-700" :href="route(breadcrumb.modelWithIndex.index.route.name,breadcrumb.modelWithIndex.index.route.parameters)">
                                 <font-awesome-icon
                                     :icon="['fal', 'bars']"
@@ -103,8 +97,6 @@ const displayBreadcrumbs = computed(() => {
 
                         </template>
                         <span :class="breadcrumb.type?'ml-1':''" v-show="breadcrumb.suffix" class="italic">{{ breadcrumb.suffix }}</span>
-
-
                     </div>
                 </li>
             </ol>

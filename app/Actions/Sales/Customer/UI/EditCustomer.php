@@ -24,12 +24,14 @@ class EditCustomer extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('shops.customers.edit');
+
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
 
     public function asController(Customer $customer, ActionRequest $request): Customer
     {
         $this->initialisation($request);
+
         return $this->handle($customer);
     }
 
@@ -37,16 +39,20 @@ class EditCustomer extends InertiaAction
     public function inShop(Shop $shop, Customer $customer, ActionRequest $request): Customer
     {
         $this->initialisation($request);
+
         return $this->handle($customer);
     }
 
-    public function htmlResponse(Customer $customer): Response
+    public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('customer'),
-                'breadcrumbs' => ShowCustomer::make()->getBreadcrumbs($this->routeName, $customer),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'title'    => $customer->name,
                     'exitEdit' => [
@@ -60,8 +66,8 @@ class EditCustomer extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'    => __('contact information'),
-                            'fields'   => [
+                            'title'  => __('contact information'),
+                            'fields' => [
 
                                 'contact_name' => [
                                     'type'  => 'input',
@@ -85,8 +91,8 @@ class EditCustomer extends InertiaAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'      => 'models.customer.update',
-                            'parameters'=> $customer->slug
+                            'name'       => 'models.customer.update',
+                            'parameters' => $customer->slug
 
                         ],
                     ]
@@ -94,6 +100,16 @@ class EditCustomer extends InertiaAction
                 ],
 
             ]
+        );
+    }
+
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowCustomer::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
         );
     }
 }
