@@ -8,6 +8,9 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
+use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Central\Tenant;
@@ -25,8 +28,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexLocations extends InertiaAction
 {
-    use HasUILocations;
-
     private WarehouseArea|Warehouse|Tenant  $parent;
 
     public function handle($parent): LengthAwarePaginator
@@ -143,7 +144,7 @@ class IndexLocations extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->parameters
                 ),
                 'title'       => __('locations'),
                 'pageHead'    => [
@@ -167,5 +168,70 @@ class IndexLocations extends InertiaAction
 
             ]
         )->table($this->tableStructure());
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                 [
+                    'routeParameters' => $routeParameters,
+                    'modelLabel'      => [
+                        'label' => __('locations')
+                    ]
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'inventory.locations.index' =>
+            array_merge(
+                (new InventoryDashboard())->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'=> 'inventory.locations.index',
+                        null
+                    ]
+                )
+            ),
+            'inventory.warehouses.show.locations.index' =>
+            array_merge(
+                (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
+                $headCrumb([
+                    'inventory.warehouses.show.locations.index',
+                    'parameters'=>
+                        [
+                            $routeParameters['warehouse']->slug
+                        ]
+                ])
+            ),
+            'inventory.warehouse-areas.show.locations.index' =>
+            array_merge(
+                (new ShowWarehouseArea())->getBreadcrumbs(
+                    $routeParameters['warehouse']
+                ),
+                $headCrumb([
+                    'name'      => 'inventory.warehouse-areas.show.locations.index',
+                    'parameters'=>
+                        [
+                            $routeParameters['warehouse']->slug
+                        ]
+                ])
+            ),
+            'inventory.warehouses.show.warehouse-areas.show.locations.index' =>
+            array_merge(
+                (new ShowWarehouseArea())->getBreadcrumbs(
+                    $routeParameters['warehouse']
+                ),
+                $headCrumb([
+                    'name'      => 'inventory.warehouses.show.warehouse-areas.show.locations.index',
+                    'parameters'=>
+                        [
+                            $routeParameters['warehouse']->slug
+                        ]                ])
+            ),
+
+            default => []
+        };
     }
 }

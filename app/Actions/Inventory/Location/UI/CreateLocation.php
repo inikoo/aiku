@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 14 Mar 2023 09:31:03 Central European Standard Time, Malaga, Spain
+ * Created: Tue, 11 Apr 2023 08:24:46 Central European Summer Time, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
@@ -14,15 +14,15 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateLocation extends InertiaAction
 {
-    use HasUILocations;
-
-
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __('new location'),
                 'pageHead'    => [
                     'title'        => __('new location'),
@@ -50,6 +50,24 @@ class CreateLocation extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle();
+        return $this->handle($request);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return array_merge(
+            IndexLocations::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating location'),
+                    ]
+                ]
+            ]
+        );
     }
 }
