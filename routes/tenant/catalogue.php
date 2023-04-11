@@ -21,12 +21,11 @@ use App\Actions\UI\Catalogue\CatalogueHub;
 use Illuminate\Support\Facades\Route;
 
 if (empty($parent)) {
-    $parent='tenant';
+    $parent = 'tenant';
 }
 
 
-
-Route::get('/', [CatalogueHub::class, 'inShop'])->name('hub');
+Route::get('/', [CatalogueHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
 Route::get('/products', [IndexProducts::class, 'inShop'])->name('hub.products.index');
 Route::get('/products/create', CreateProduct::class)->name('hub.products.create');
 Route::get('/products/{product}', [ShowProduct::class, 'inShop'])->name('hub.products.show');

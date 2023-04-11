@@ -9,7 +9,7 @@ import {Link} from '@inertiajs/vue3';
 import {trans} from 'laravel-vue-i18n';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {
-    faList,faFolderTree
+    faList,faFolderTree,faMailBulk
 } from '@/../private/pro-light-svg-icons';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {useLayoutStore} from '@/Stores/layout';
@@ -18,7 +18,7 @@ import AppShopNavigationDropDown from '@/Layouts/AppShopNavigationDropDown.vue';
 
 
 const layout = useLayoutStore();
-library.add(faList,faFolderTree);
+library.add(faList,faFolderTree,faMailBulk);
 
 
 </script>
@@ -53,6 +53,10 @@ library.add(faList,faFolderTree);
         <Link :title="trans('orders')"
               :href="layout.currentShopSlug?route('shops.show.orders.index', layout.currentShopSlug):route('orders.index')">
             <font-awesome-icon aria-hidden="true" icon="fal fa-shopping-cart"/>
+        </Link>
+        <Link :title="trans('mailroom')"
+              :href="layout.currentShopSlug?route('shops.show.outboxes.index', layout.currentShopSlug):route('mail.dashboard')">
+            <font-awesome-icon aria-hidden="true" icon="fal fa-mail-bulk"/>
         </Link>
 
     </div>

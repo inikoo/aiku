@@ -25,9 +25,6 @@ Route::middleware([
         Route::prefix("account")
             ->name("account.")
             ->group(__DIR__."/account.php");
-        Route::prefix("showroom")
-            ->name("showroom.")
-            ->group(__DIR__."/showroom.php");
         Route::prefix("crm")
             ->name("crm.")
             ->group(__DIR__."/crm.php");
