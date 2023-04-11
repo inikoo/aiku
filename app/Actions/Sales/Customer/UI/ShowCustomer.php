@@ -211,11 +211,11 @@ class ShowCustomer extends InertiaAction
                     $routeParameters['customer'],
                     [
                         'index' => [
-                            'name'       => 'customer.index',
+                            'name'       => 'customers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'customer.show',
+                            'name'       => 'customers.show',
                             'parameters' => [$routeParameters['customer']->slug]
                         ]
                     ],
