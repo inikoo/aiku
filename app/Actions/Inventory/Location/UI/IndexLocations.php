@@ -13,7 +13,6 @@ use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Inventory\LocationResource;
-use App\Models\Central\Tenant;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -28,8 +27,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexLocations extends InertiaAction
 {
-    private WarehouseArea|Warehouse|Tenant  $parent;
-
     public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -137,8 +134,6 @@ class IndexLocations extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $locations, ActionRequest $request)
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
-
         return Inertia::render(
             'Inventory/Locations',
             [
@@ -175,14 +170,15 @@ class IndexLocations extends InertiaAction
         $headCrumb = function (array $routeParameters = []) {
             return [
                  [
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('locations')
-                    ]
+                     'type'   => 'simple',
+                     'simple' => [
+                         'route' => $routeParameters,
+                         'label' => __('locations'),
+                         'icon'  => 'fal fa-bars'
+                     ],
                 ],
             ];
         };
-
         return match ($routeName) {
             'inventory.locations.index' =>
             array_merge(
@@ -198,7 +194,7 @@ class IndexLocations extends InertiaAction
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb([
-                    'inventory.warehouses.show.locations.index',
+                    'name'      => 'inventory.warehouses.show.locations.index',
                     'parameters'=>
                         [
                             $routeParameters['warehouse']->slug
@@ -208,7 +204,10 @@ class IndexLocations extends InertiaAction
             'inventory.warehouse-areas.show.locations.index' =>
             array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    $routeParameters['warehouse']
+                    'inventory.warehouse-areas.show',
+                    [
+                      'warehouseArea' => $routeParameters['warehouseArea']
+                    ]
                 ),
                 $headCrumb([
                     'name'      => 'inventory.warehouse-areas.show.locations.index',
@@ -221,7 +220,11 @@ class IndexLocations extends InertiaAction
             'inventory.warehouses.show.warehouse-areas.show.locations.index' =>
             array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    $routeParameters['warehouse']
+                    'inventory.warehouses.show.warehouse-areas.show',
+                    [
+                        'warehouse'     => $routeParameters['warehouse'],
+                        'warehouseArea' => $routeParameters['warehouseArea']
+                    ]
                 ),
                 $headCrumb([
                     'name'      => 'inventory.warehouses.show.warehouse-areas.show.locations.index',

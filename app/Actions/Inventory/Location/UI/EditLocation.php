@@ -8,8 +8,10 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\LocationTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,7 +20,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditLocation extends InertiaAction
 {
-    use HasUILocation;
     public function handle(Location $location): Location
     {
         return $location;
@@ -30,13 +31,6 @@ class EditLocation extends InertiaAction
         return $request->user()->hasPermissionTo("inventory.warehouses.view");
     }
 
-    public function asController(Location $location, ActionRequest $request): Location
-    {
-        $this->initialisation($request);
-
-        return $this->handle($location);
-    }
-
     public function inTenant(Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
@@ -44,6 +38,14 @@ class EditLocation extends InertiaAction
         return $this->handle($location);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
+    {
+        $this->initialisation($request);
+        return $this->handle($location);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
@@ -51,16 +53,26 @@ class EditLocation extends InertiaAction
         return $this->handle($location);
     }
 
-    public function htmlResponse(Location $location): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+    {
+        $this->initialisation($request)->withTab(LocationTabsEnum::values());
+        return $this->handle($location);
+    }
+
+    public function htmlResponse(Location $location, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('location'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $location),
-                'pageHead'    => [
-                    'title'     => $location->code,
-                    'exitEdit'  => [
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'pageHead' => [
+                    'title'    => $location->code,
+                    'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
@@ -80,19 +92,14 @@ class EditLocation extends InertiaAction
                                     'label' => __('code'),
                                     'value' => $location->code
                                 ],
-                                'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('label'),
-                                    'value' => $location->state // TODO , change State for a proper 'value'
-                                ],
                             ]
                         ]
 
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.location.update',
-                            'parameters'=> $location->slug
+                            'name'       => 'models.location.update',
+                            'parameters' => $location->slug
 
                         ],
                     ]
@@ -104,5 +111,14 @@ class EditLocation extends InertiaAction
     #[Pure] public function jsonResponse(Location $location): LocationResource
     {
         return new LocationResource($location);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowLocation::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '(' . __('editing') . ')'
+        );
     }
 }
