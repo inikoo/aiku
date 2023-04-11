@@ -32,6 +32,14 @@ Route::get('/{shop}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'i
 Route::get('/{shop}/websites', [IndexWebsites::class, 'inShop'])->name('show.websites.index');
 Route::get('/{shop}/websites/{website}', [ShowWebsite::class, 'inShop'])->name('show.websites.show');
 
+Route::prefix("{shop}")
+    ->name("show.")
+    ->group(
+        function () {
+            $parent='shop';
+            require __DIR__.'/invoice-payments.php';
+        }
+    );
 
 Route::prefix("{shop}/catalogue")
     ->name("show.catalogue.")
