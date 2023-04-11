@@ -49,9 +49,6 @@ Route::middleware([
         Route::prefix("websites")
             ->name("websites.")
             ->group(__DIR__."/websites.php");
-        Route::prefix("orders")
-            ->name("orders.")
-            ->group(__DIR__."/orders.php");
         Route::prefix("products")
             ->name("products.")
             ->group(__DIR__."/products.php");
