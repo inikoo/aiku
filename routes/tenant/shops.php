@@ -58,3 +58,12 @@ Route::prefix("{shop}/orders")
             require __DIR__.'/orders.php';
         }
     );
+
+Route::prefix("{shop}/mail")
+    ->name("show.mail.")
+    ->group(
+        function () {
+            $parent='shop';
+            require __DIR__.'/mail.php';
+        }
+    );
