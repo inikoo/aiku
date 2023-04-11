@@ -6,6 +6,8 @@
  */
 
 
+use App\Actions\Sales\Customer\UI\CreateCustomer;
+use App\Actions\Sales\Customer\UI\EditCustomer;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Actions\Sales\Order\ShowOrder;
@@ -25,3 +27,18 @@ Route::get('/{customer}/orders/{order}', [ShowOrder::class,'inCustomer'])->name(
 Route::get('/{customer}/web-users', [IndexWebUser::class, 'inCustomer'])->name('show.web-users.index');
 Route::get('/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomer'])->name('show.web-users.show');
 Route::get('/{customer}/web-users/create', [CreateWebUser::class, 'inCustomer'])->name('show.web-users.create');
+
+
+
+Route::get('/customers', [IndexCustomers::class, 'inShop'])->name('show.customers.index');
+Route::get('/customers/create', CreateCustomer::class)->name('show.customers.create');
+Route::get('/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('show.customers.show');
+Route::get('/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('show.customers.edit');
+Route::get('/customers/{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('show.customers.show.orders.show');
+
+
+Route::get('/customers/{customer}/web-users', [IndexWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.index');
+Route::get('/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.show');
+
+
+Route::get('/customers/{customer}/web-users/create', [CreateWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.create');

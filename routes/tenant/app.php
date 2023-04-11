@@ -96,6 +96,12 @@ Route::middleware([
                 $parent='tenant';
                 require __DIR__.'/catalogue.php';
             });
+        Route::prefix("customers")
+            ->name("customers.")
+            ->group(function () {
+                $parent='tenant';
+                require __DIR__.'/customers.php';
+            });
     });
 
     require __DIR__."/auth.php";
