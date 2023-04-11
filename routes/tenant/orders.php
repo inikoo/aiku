@@ -14,6 +14,10 @@ use App\Actions\Sales\Order\ShowOrder;
 use App\Actions\Sales\Order\UI\CreateOrder;
 use Illuminate\Support\Facades\Route;
 
+if (empty($parent)) {
+    $parent = 'tenant';
+}
+
 Route::get('/create', CreateOrder::class)->name('create');
 
 Route::get('/', [IndexOrders::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('index');
