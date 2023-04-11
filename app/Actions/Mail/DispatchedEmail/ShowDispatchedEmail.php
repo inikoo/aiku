@@ -46,6 +46,12 @@ class ShowDispatchedEmail extends InertiaAction
         return $this->handle($mailshot);
     }
 
+    public function inOutboxInShop(Outbox $outbox, ActionRequest $request): DispatchedEmail
+    {
+        $this->initialisation($request);
+        return $this->handle($outbox);
+    }
+
 
 
     /** @noinspection PhpUnusedParameterInspection */

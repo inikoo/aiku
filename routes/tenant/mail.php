@@ -52,8 +52,8 @@ Route::get('/outboxes/{outbox}/mailshots/{mailshot}', [ShowMailshot::class,  $pa
 Route::get('/outboxes/{outbox}/mailshots/{mailshot}/dispatched-emails', [IndexDispatchedEmails::class, $parent == 'tenant' ? 'inTenant' : 'inOutboxInShop'])->name('outboxes.show.mailshots.show.dispatched-emails.index');
 Route::get('/outboxes/{outbox}/mailshots/{mailshot}/dispatched-emails/{dispatchedEmail}', [ShowDispatchedEmail::class, $parent == 'tenant' ? 'inTenant' : 'inOutboxInShop'])->name('outboxes.show.mailshots.show.dispatched-emails.show');
 
-Route::get('/outboxes/{outbox}/dispatched-emails', [IndexDispatchedEmails::class, 'inOutbox'])->name('outboxes.show.dispatched-emails.index');
-Route::get('/outboxes/{outbox}/dispatched-emails/{dispatchedEmail}', [ShowDispatchedEmail::class, 'inOutbox'])->name('outboxes.show.dispatched-emails.show');
+Route::get('/outboxes/{outbox}/dispatched-emails', [IndexDispatchedEmails::class,  $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('outboxes.show.dispatched-emails.index');
+Route::get('/outboxes/{outbox}/dispatched-emails/{dispatchedEmail}', [ShowDispatchedEmail::class,  $parent == 'tenant' ? 'inTenant' : 'inOutBoxInShop'])->name('outboxes.show.dispatched-emails.show');
 
 
 Route::get('/mailshots', [IndexMailshots::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('mailshots.index');
