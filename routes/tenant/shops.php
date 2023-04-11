@@ -16,37 +16,17 @@ use App\Actions\Mail\Outbox\IndexOutboxes;
 use App\Actions\Mail\Outbox\ShowOutbox;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
-use App\Actions\Sales\Customer\UI\CreateCustomer;
-use App\Actions\Sales\Customer\UI\EditCustomer;
-use App\Actions\Sales\Customer\UI\IndexCustomers;
-use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Actions\Sales\Order\IndexOrders;
 use App\Actions\Sales\Order\ShowOrder;
 use App\Actions\Sales\Order\UI\CreateOrder;
 use App\Actions\Web\Website\IndexWebsites;
 use App\Actions\Web\Website\ShowWebsite;
-use App\Actions\Web\WebUser\CreateWebUser;
-use App\Actions\Web\WebUser\IndexWebUser;
-use App\Actions\Web\WebUser\ShowWebUser;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexShops::class)->name('index');
 Route::get('/{shop}', ShowShop::class)->name('show');
 
 Route::get('/{shop}/prospects', [IndexProspects::class, 'inShop'])->name('show.prospects.index');
-
-Route::get('/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('show.customers.index');
-Route::get('/{shop}/customers/create', CreateCustomer::class)->name('show.customers.create');
-Route::get('/{shop}/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('show.customers.show');
-Route::get('/{shop}/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('show.customers.edit');
-Route::get('/{shop}/customers/{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('show.customers.show.orders.show');
-
-Route::get('/{shop}/customers/{customer}/web-users', [IndexWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.index');
-Route::get('/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.show');
-
-
-Route::get('/{shop}/customers/{customer}/web-users/create', [CreateWebUser::class, 'inShopInCustomer'])->name('show.customers.show.web-users.create');
-
 
 Route::get('/{shop}/orders', [IndexOrders::class, 'inShop'])->name('show.orders.index');
 Route::get('/{shop}/orders/create', [CreateOrder::class, 'inShop'])->name('show.orders.create');
@@ -85,5 +65,14 @@ Route::prefix("{shop}/catalogue")
         function () {
             $parent='shop';
             require __DIR__.'/catalogue.php';
+        }
+    );
+
+Route::prefix("{shop}/customers")
+    ->name("show.customers.")
+    ->group(
+        function () {
+            $parent='shop';
+            require __DIR__.'/customers.php';
         }
     );

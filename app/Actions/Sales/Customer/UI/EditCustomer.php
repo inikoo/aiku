@@ -28,7 +28,7 @@ class EditCustomer extends InertiaAction
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
 
-    public function asController(Customer $customer, ActionRequest $request): Customer
+    public function inTenant(Customer $customer, ActionRequest $request): Customer
     {
         $this->initialisation($request);
 

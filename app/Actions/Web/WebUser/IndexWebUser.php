@@ -95,7 +95,7 @@ class IndexWebUser extends InertiaAction
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function inTenant(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
         $this->parent    = app('currentTenant');
@@ -104,7 +104,7 @@ class IndexWebUser extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShopInCustomer(Shop $shop, Customer $customer): LengthAwarePaginator
+    public function inCustomerInShop(Shop $shop, Customer $customer): LengthAwarePaginator
     {
         $this->parent = $customer;
 
@@ -112,7 +112,7 @@ class IndexWebUser extends InertiaAction
         return $this->handle();
     }
 
-    public function inCustomer(Customer $customer): LengthAwarePaginator
+    public function inCustomerInTenant(Customer $customer): LengthAwarePaginator
     {
         $this->parent = $customer;
         $this->validateAttributes();

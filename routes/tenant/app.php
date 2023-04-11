@@ -49,9 +49,6 @@ Route::middleware([
         Route::prefix("websites")
             ->name("websites.")
             ->group(__DIR__."/websites.php");
-        Route::prefix("customers")
-            ->name("customers.")
-            ->group(__DIR__."/customers.php");
         Route::prefix("orders")
             ->name("orders.")
             ->group(__DIR__."/orders.php");
@@ -95,6 +92,13 @@ Route::middleware([
             ->group(function () {
                 $parent='tenant';
                 require __DIR__.'/catalogue.php';
+            });
+
+        Route::prefix("customers")
+            ->name("customers.")
+            ->group(function () {
+                $parent='tenant';
+                require __DIR__.'/customers.php';
             });
     });
 

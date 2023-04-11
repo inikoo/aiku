@@ -96,7 +96,7 @@ class IndexCustomers extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 

@@ -32,7 +32,7 @@ class ShowWebUser extends InertiaAction
         return $request->user()->hasPermissionTo("shops.customers.view");
     }
 
-    public function asController(WebUser $webUser, Request $request): WebUser
+    public function inTenant(WebUser $webUser, Request $request): WebUser
     {
         $this->routeName = $request->route()->getName();
         $this->validateAttributes();
@@ -41,7 +41,7 @@ class ShowWebUser extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShopInCustomer(Shop $shop, Customer $customer, WebUser $webUser, Request $request): WebUser
+    public function inCustomerInShop(Shop $shop, Customer $customer, WebUser $webUser, Request $request): WebUser
     {
         $this->routeName = $request->route()->getName();
         $this->validateAttributes();
@@ -50,7 +50,7 @@ class ShowWebUser extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomer(Customer $customer, WebUser $webUser, Request $request): WebUser
+    public function inCustomerInTenant(Customer $customer, WebUser $webUser, Request $request): WebUser
     {
         $this->routeName = $request->route()->getName();
         $this->validateAttributes();
