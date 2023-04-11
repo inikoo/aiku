@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create('media_family', function (Blueprint $table) {
             $table->unsignedInteger('family_id')->index();
             $table->string('type')->index();
-            $table->foreign('family_id')->references('id')->on('familys');
+            $table->foreign('family_id')->references('id')->on('stock_families');
             $table->unsignedBigInteger('media_id')->index();
             $table->foreign('media_id')->references('id')->on('media');
             $table->unique(['family_id', 'media_id']);
