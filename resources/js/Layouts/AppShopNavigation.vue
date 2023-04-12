@@ -55,7 +55,7 @@ library.add(faList,faFolderTree,faMailBulk);
             <font-awesome-icon aria-hidden="true" icon="fal fa-shopping-cart"/>
         </Link>
         <Link :title="trans('mailroom')"
-              :href="layout.currentShopSlug?route('shops.show.outboxes.index', layout.currentShopSlug):route('mail.dashboard')">
+              :href="layout.currentShopSlug?route('shops.show.mail.hub', layout.currentShopSlug):route('mail.hub')">
             <font-awesome-icon aria-hidden="true" icon="fal fa-mail-bulk"/>
         </Link>
 

@@ -24,7 +24,7 @@ if (empty($parent)) {
 
 Route::get('/mailshots/create', CreateMailshot::class)->name('mailshots.create');
 
-Route::get('/', [MailHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('dashboard');
+Route::get('/', [MailHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
 
 Route::get('/mailrooms', [IndexMailrooms::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('mailrooms.index');
 Route::get('/mailrooms/{mailroom}', [ShowMailroom::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('mailrooms.show');

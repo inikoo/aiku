@@ -8,7 +8,10 @@
 namespace App\Actions\UI\Mail;
 
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Models\Mail\Outbox;
+use App\Models\Marketing\Shop;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,31 +29,45 @@ class MailHub extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): void
+    public function inTenant(ActionRequest $request): ActionRequest
     {
+        $this->initialisation($request);
+
+        return $request;
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Shop $shop, ActionRequest $request): ActionRequest
+    {
+        $this->initialisation($request);
+
+        return $request;
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
             'Mail/MailHub',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters()
+                ),
                 'title'       => __('mail'),
                 'pageHead'    => [
                     'title' => __('mail'),
                 ],
 
-                'treeMaps'    => [
+                'flatTreeMaps' => [
                     [
                         [// TODO Check why it gives error putting de ->stats->//whatever//
-                            'name'  => __('mailroom'),
-                            'icon'  => ['fal', 'fa-cash-register'],
-                            'href'  => ['mail.mailrooms.index'],
-                            'index' => [
-                                'number' => $this->outbox
-                            ]
+                         'name'  => __('mailroom'),
+                         'icon'  => ['fal', 'fa-cash-register'],
+                         'href'  => ['mail.mailrooms.index'],
+                         'index' => [
+                             'number' => $this->outbox
+                         ]
 
                         ],
                         [
@@ -90,14 +107,43 @@ class MailHub extends InertiaAction
         );
     }
 
-
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs($routeName, $routeParameters): array
     {
-        return [
-            'mail.dashboard' => [
-                'route' => 'mail.dashboard',
-                'name'  => __('mail'),
-            ]
-        ];
+        $headCrumb = function (array $route) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $route,
+                        'label' => __('mailroom'),
+                        'icon'  => 'fal fa-mail-bulk'
+                    ],
+                ],
+            ];
+        };
+
+
+        return match ($routeName) {
+            'mail.hub' => array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'      => 'mail.hub',
+                        'parameters'=> []
+                    ]
+                )
+            ),
+            'shops.show.mail.hub' =>
+            array_merge(
+                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                $headCrumb(
+                    [
+                        'name'      => 'shops.show.mail.hub',
+                        'parameters'=> $routeParameters['shop']->slug
+                    ]
+                )
+            ),
+            default => []
+        };
     }
 }

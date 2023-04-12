@@ -33,14 +33,12 @@ class CatalogueHub extends InertiaAction
     public function inTenant(ActionRequest $request): ActionRequest
     {
         $this->initialisation($request)->withTab(CatalogueTabsEnum::values());
-
         return $request;
     }
 
     public function inShop(Shop $shop, ActionRequest $request): ActionRequest
     {
         $this->initialisation($request)->withTab(CatalogueTabsEnum::values());
-
         return $request;
     }
 
@@ -61,9 +59,11 @@ class CatalogueHub extends InertiaAction
         return Inertia::render(
             'Marketing/CatalogueHub',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters()),
-                'title'       => $title
-                ,
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters()
+                ),
+                'title'       => $title,
                 'pageHead'    => [
                     'title' => $title,
                 ],
