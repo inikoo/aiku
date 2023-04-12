@@ -57,7 +57,7 @@ class IndexWebpages extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
