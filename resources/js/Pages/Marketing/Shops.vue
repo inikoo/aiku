@@ -4,27 +4,22 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableShops from "@/Pages/Tables/TableShops.vue";
 
-defineProps(['data', 'title', 'pageHead']);
+const props = defineProps <{
+    pageHead: object
+    title: string
+    data:object
+}>()
 
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="data" class="mt-5">
-
-
-        <template #cell(code)="{ item: shop }">
-            <Link :href="route('shops.show',shop.slug)">
-                {{ shop.code }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableShops :data="data" />
 </template>
 

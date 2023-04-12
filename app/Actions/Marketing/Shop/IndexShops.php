@@ -7,16 +7,16 @@
 
 namespace App\Actions\Marketing\Shop;
 
+use App\Actions\InertiaAction;
 use App\Actions\UI\Dashboard\Dashboard;
-use App\Actions\UI\WithInertia;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Models\Marketing\Shop;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -26,12 +26,8 @@ use Spatie\QueryBuilder\QueryBuilder;
  * @property bool $canEdit
  * @property string $title
  */
-class IndexShops
+class IndexShops extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -41,14 +37,32 @@ class IndexShops
             });
         });
 
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SHOPS->value);
 
         return QueryBuilder::for(Shop::class)
             ->defaultSort('shops.code')
             ->select(['code', 'id', 'name', 'slug'])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::SHOPS->value.'Page'
+            )
             ->withQueryString();
+    }
+
+    public function tableStructure($parent): Closure
+    {
+        return function (InertiaTable $table) use ($parent) {
+            $table
+                ->name(TabsAbbreviationEnum::SHOPS->value)
+                ->pageName(TabsAbbreviationEnum::SHOPS->value.'Page');
+            $table
+                ->withGlobalSearch()
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('code');
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -67,8 +81,10 @@ class IndexShops
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $shops)
+    public function htmlResponse(LengthAwarePaginator $shops, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Marketing/Shops',
             [
@@ -81,19 +97,13 @@ class IndexShops
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
-        });
+        )->table($this->tableStructure($parent));
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
+        $this->initialisation($request);
 
         return $this->handle();
     }
