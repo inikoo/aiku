@@ -14,16 +14,16 @@ import {
     faFolderTree,
     faIdCard,
     faShoppingCart, faStickyNote,
-    faUser
-} from "@/../private/pro-light-svg-icons";
+    faUser,
+} from '@/../private/pro-light-svg-icons';
 import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
+import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue';
 
 library.add(faIdCard, faUser, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice, faStickyNote);
 
-const props = defineProps(['title', 'pageHead', 'shop', 'treeMaps']);
+const props = defineProps(['title', 'pageHead', 'shop', 'flatTreeMaps']);
 
 
 </script>
@@ -32,9 +32,7 @@ const props = defineProps(['title', 'pageHead', 'shop', 'treeMaps']);
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <div class="m-4">
-        <DashboardNavigation v-for="(treeMap,idx) in treeMaps" :key="idx" :nodes="treeMap"/>
-    </div>
+    <FlatTreeMap class="m-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
 
 </template>
 

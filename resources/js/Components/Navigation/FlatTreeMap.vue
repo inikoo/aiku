@@ -16,6 +16,7 @@ const locale = useLocaleStore();
 </script>
 
 <template>
+
     <nav aria-label="Progress">
         <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 sm:flex sm:divide-y-0">
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative sm:flex sm:flex-1">
@@ -50,5 +51,7 @@ const locale = useLocaleStore();
             </li>
         </ol>
     </nav>
+
+
 </template>
 

@@ -10,7 +10,7 @@
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
-defineProps(['title', 'pageHead', 'treeMaps']);
+defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt} from '@/../private/pro-light-svg-icons';

@@ -51,7 +51,7 @@ class AccountingDashboard
                 'pageHead'    => [
                     'title' => __('accounting'),
                 ],
-                'treeMaps'    => [
+                'flatTreeMaps'    => [
                     [
                         [
                             'name'  => __('providers'),

@@ -47,7 +47,7 @@ class ProductionDashboard
                 'pageHead'    => [
                     'title' => __('production'),
                 ],
-                'treeMaps'    => [
+                'flatTreeMaps'    => [
 
                     [
                         [

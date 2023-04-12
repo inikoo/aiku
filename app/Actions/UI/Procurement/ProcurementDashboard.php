@@ -49,7 +49,7 @@ class ProcurementDashboard
                 'pageHead'    => [
                     'title' => __('procurement'),
                 ],
-                'treeMaps'    => [
+                'flatTreeMaps'    => [
 
                     [
                         [

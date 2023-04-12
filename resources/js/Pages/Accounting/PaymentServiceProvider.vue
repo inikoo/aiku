@@ -14,7 +14,7 @@ import {
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import ModelStats from '@/Components/Navigation/DashboardNavigation.vue';
+import ModelStats from '@/Components/Navigation/FlatTreeMap.vue';
 import {computed, defineAsyncComponent, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";

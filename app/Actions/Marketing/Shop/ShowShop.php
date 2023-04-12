@@ -51,8 +51,8 @@ class ShowShop
 
 
                 ],
-                'shop'        => new ShopResource($shop),
-                'treeMaps'    => [
+                'shop'            => new ShopResource($shop),
+                'flatTreeMaps'    => [
                     [
                         [
                             'name'  => __('customers'),

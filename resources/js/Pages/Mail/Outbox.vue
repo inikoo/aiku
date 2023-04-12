@@ -14,11 +14,11 @@ import {
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
+import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue';
 
 library.add(faFolder, faCube, faCreditCard);
 
-const props = defineProps(['title', 'pageHead', 'outbox', 'treeMaps']);
+const props = defineProps(['title', 'pageHead', 'outbox', 'flatTreeMaps']);
 
 
 </script>
@@ -27,9 +27,7 @@ const props = defineProps(['title', 'pageHead', 'outbox', 'treeMaps']);
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <div class="m-4">
-        <DashboardNavigation v-for="(treeMap,idx) in treeMaps" :key="idx" :nodes="treeMap"/>
-    </div>
+     <FlatTreeMap class="m-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
 
 </template>
 

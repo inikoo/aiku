@@ -21,7 +21,6 @@ import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import DashboardNavigation from "@/Components/Navigation/DashboardNavigation.vue";
 
 
 library.add(

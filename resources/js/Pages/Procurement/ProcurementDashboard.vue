@@ -7,9 +7,9 @@
 <script setup>
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import DashboardNavigation from '@/Components/Navigation/DashboardNavigation.vue';
+import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue';
 
-defineProps(['title', 'pageHead', 'treeMaps']);
+defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import { faPeopleArrows, faParachuteBox, faUsers } from "@/../private/pro-light-svg-icons";
@@ -22,9 +22,7 @@ library.add(faPeopleArrows,faParachuteBox, faUsers);
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
 
-    <div class="m-4">
-        <DashboardNavigation v-for="(treeMap,idx) in treeMaps" :key="idx" :nodes="treeMap"/>
-    </div>
+     <FlatTreeMap class="m-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
 
 </template>
 

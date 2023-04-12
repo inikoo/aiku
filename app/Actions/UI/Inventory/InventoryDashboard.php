@@ -106,7 +106,7 @@ class InventoryDashboard
                 'pageHead'    => [
                     'title' => __('inventory'),
                 ],
-                'treeMaps'    => [
+                'flatTreeMaps'    => [
                     [
                         $warehousesNode,
                         $warehouseAreasNode,

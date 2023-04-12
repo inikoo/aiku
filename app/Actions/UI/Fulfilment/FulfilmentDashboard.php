@@ -47,7 +47,7 @@ class FulfilmentDashboard
                 'pageHead'    => [
                     'title' => __('fulfilment'),
                 ],
-                'treeMaps'    => [
+                'flatTreeMaps'    => [
 
                     [
                         [
