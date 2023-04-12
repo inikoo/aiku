@@ -10,11 +10,12 @@ namespace App\Actions\Web\Website;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Http\Resources\Marketing\WebsiteResource;
 use App\Models\Web\Website;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -32,15 +33,33 @@ class IndexWebsites extends InertiaAction
                     ->orWhere('websites.code', 'LIKE', "%$value%");
             });
         });
-
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WEBSITES->value);
 
         return QueryBuilder::for(Website::class)
             ->defaultSort('websites.code')
             ->select(['code', 'id', 'name', 'slug'])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::WEBSITES->value.'Page'
+            )
+
             ->withQueryString();
+    }
+
+    public function tableStructure($parent): Closure
+    {
+        return function (InertiaTable $table) use ($parent) {
+            $table
+                ->name(TabsAbbreviationEnum::WEBSITES->value)
+                ->pageName(TabsAbbreviationEnum::WEBSITES->value.'Page');
+            $table
+                ->withGlobalSearch()
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('code');
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -61,6 +80,8 @@ class IndexWebsites extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $websites, ActionRequest $request)
     {
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Web/Websites',
             [
@@ -75,19 +96,13 @@ class IndexWebsites extends InertiaAction
                 'data'        => WebsiteResource::collection($websites),
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
-        });
+        )->table($this->tableStructure($parent));
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
+        $this->routeName = $request->route()->getName();
 
         return $this->handle();
     }

@@ -4,27 +4,21 @@
   -  Copyright (c) 2022, Jonathan Lopez
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
+import TableWebsites from "@/Pages/Tables/TableWebsites.vue";
 
-defineProps(['data', 'title', 'pageHead']);
-
+const props = defineProps <{
+    pageHead: object
+    title: string
+    data:object
+}>()
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="data" class="mt-5">
-
-
-        <template #cell(code)="{ item: website }">
-            <Link :href="route('websites.show',[website.slug])">
-                {{ website.code }}
-            </Link>
-        </template>
-
-    </Table>
+    <TableWebsites :data="data" />
 </template>
 
