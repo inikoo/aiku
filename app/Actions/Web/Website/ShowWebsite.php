@@ -11,10 +11,10 @@ use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
+use App\Enums\UI\WebsiteTabsEnum;
 use App\Http\Resources\Marketing\WebsiteResource;
 use App\Models\Marketing\Shop;
 use App\Models\Web\Website;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -31,14 +31,18 @@ class ShowWebsite extends InertiaAction
         return $request->user()->hasPermissionTo("shops.websites.view");
     }
 
-    public function asController(Website $website): Website
+    public function asController(Website $website, ActionRequest $request): Website
     {
+        $this->initialisation($request)->withTab(WebsiteTabsEnum::values());
+
         return $website;
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Website $website, Request $request): Website
+    public function inShop(Shop $shop, Website $website, ActionRequest $request): Website
     {
+        $this->initialisation($request)->withTab(WebsiteTabsEnum::values());
+
         return $website;
     }
 
@@ -60,7 +64,10 @@ class ShowWebsite extends InertiaAction
 
 
                 ],
-                'Website' => new WebsiteResource($website),
+                'tabs'                                => [
+                    'current'    => $this->tab,
+                    'navigation' => WebsiteTabsEnum::navigation()
+                ],
             ]
         );
     }

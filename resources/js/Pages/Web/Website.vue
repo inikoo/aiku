@@ -4,7 +4,8 @@
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
-    faChartLine
+    faAnalytics,
+    faChartLine, faDraftingCompass, faRoad, faSlidersH, faUsersClass
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
@@ -14,7 +15,16 @@ import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { faClock } from "../../../private/pro-solid-svg-icons";
 
-library.add(faChartLine, faClock);
+library.add(
+    faChartLine,
+    faClock,
+    faAnalytics,
+    faUsersClass,
+    faDraftingCompass,
+    faSlidersH,
+    faRoad,
+    faClock,
+);
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -25,7 +35,6 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    payments: object;
 }>()
 
 let currentTab = ref(props.tabs.current);

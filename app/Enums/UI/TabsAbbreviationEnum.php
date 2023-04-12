@@ -99,4 +99,8 @@ enum TabsAbbreviationEnum: string
     case USER                               = 'usr';
 
     case SHOPS                              = 'shps';
+
+    case ANALYTICS                          = 'ana';
+
+    case USERS                              = 'usrs';
 }
