@@ -4,7 +4,7 @@
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
-    faAnalytics,
+    faAnalytics, faBrowser,
     faChartLine, faDraftingCompass, faRoad, faSlidersH, faUsersClass
 } from "@/../private/pro-light-svg-icons";
 
@@ -24,6 +24,7 @@ library.add(
     faSlidersH,
     faRoad,
     faClock,
+    faBrowser,
 );
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))

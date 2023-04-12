@@ -15,6 +15,7 @@ enum WebsiteTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
+    case SHOWCASE             = 'showcase';
 
     case WEBPAGES             = 'webpages';
     case ANALYTICS            = 'analytics';
@@ -30,9 +31,13 @@ enum WebsiteTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
+            WebsiteTabsEnum::SHOWCASE => [
+                'title' => __('showcase'),
+                'icon'  => 'fas fa-info-circle',
+            ],
             WebsiteTabsEnum::WEBPAGES => [
                 'title' => __('webpages'),
-                'icon'  => 'fal fa-bars',
+                'icon'  => 'fal fa-browser',
             ],
             WebsiteTabsEnum::ANALYTICS => [
                 'title' => __('analytics'),
