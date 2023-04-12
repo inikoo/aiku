@@ -9,14 +9,14 @@ import {Head, Link} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Table from '@/Components/Table/Table.vue';
 
-defineProps(['shops', 'title', 'pageHead']);
+defineProps(['data', 'title', 'pageHead']);
 
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="shops" class="mt-5">
+    <Table :resource="data" class="mt-5">
 
 
         <template #cell(code)="{ item: shop }">

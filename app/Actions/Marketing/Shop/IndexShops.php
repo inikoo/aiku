@@ -77,7 +77,7 @@ class IndexShops
                 'pageHead'    => [
                     'title' => __('shops'),
                 ],
-                'shops'       => ShopResource::collection($shops),
+                'data'       => ShopResource::collection($shops),
 
 
             ]

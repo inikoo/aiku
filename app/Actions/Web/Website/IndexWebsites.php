@@ -7,9 +7,9 @@
 
 namespace App\Actions\Web\Website;
 
+use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Http\Resources\Marketing\WebsiteResource;
 use App\Models\Web\Website;
@@ -18,17 +18,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexWebsites
+class IndexWebsites extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -41,7 +36,7 @@ class IndexWebsites
 
         return QueryBuilder::for(Website::class)
             ->defaultSort('websites.code')
-            ->select(['code', 'id', 'name'])
+            ->select(['code', 'id', 'name', 'slug'])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -67,7 +62,7 @@ class IndexWebsites
     public function htmlResponse(LengthAwarePaginator $websites, ActionRequest $request)
     {
         return Inertia::render(
-            'Marketing/Shops',
+            'Web/Websites',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
