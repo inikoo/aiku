@@ -13,7 +13,7 @@ use App\Actions\Leads\Prospect\IndexProspects;
 use App\Actions\Marketing\Shop\IndexShops;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\Web\Website\IndexWebsites;
-use App\Actions\Web\Website\ShowWebsite;
+use App\Actions\Web\Website\WebsiteHub;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexShops::class)->name('index');
@@ -30,7 +30,7 @@ Route::get('/{shop}/delivery-notes', [IndexDeliveryNotes::class, 'inShop'])->nam
 Route::get('/{shop}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inShop'])->name('show.delivery-notes.show');
 
 Route::get('/{shop}/websites', [IndexWebsites::class, 'inShop'])->name('show.websites.index');
-Route::get('/{shop}/websites/{website}', [ShowWebsite::class, 'inShop'])->name('show.websites.show');
+Route::get('/{shop}/websites/{website}', [WebsiteHub::class, 'inShop'])->name('show.websites.show');
 
 Route::prefix("{shop}")
     ->name("show.")

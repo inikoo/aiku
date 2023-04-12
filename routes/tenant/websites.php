@@ -6,9 +6,11 @@
  */
 
 
+use App\Actions\Web\Webpage\IndexWebpages;
 use App\Actions\Web\Website\IndexWebsites;
-use App\Actions\Web\Website\ShowWebsite;
+use App\Actions\Web\Website\WebsiteHub;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexWebsites::class)->name('index');
-Route::get('/{website}', ShowWebsite::class)->name('show');
+Route::get('/{website}', WebsiteHub::class)->name('show');
+Route::get('/{website}/webpage', IndexWebpages::class)->name('show.webpages.index');

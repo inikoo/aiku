@@ -14,7 +14,6 @@ import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { faClock } from "../../../private/pro-solid-svg-icons";
-import TableWebpages from "@/Pages/Tables/TableWebpages.vue";
 
 library.add(
     faChartLine,
@@ -37,7 +36,6 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    webpages: string;
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -46,7 +44,6 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        webpages: TableWebpages,
         details: ModelDetails,
         history: ModelChangelog,
     };
