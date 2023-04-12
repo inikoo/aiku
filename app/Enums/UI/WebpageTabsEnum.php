@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 20 Mar 2023 14:46:07 Central European Standard Time, Malaga, Spain
+ * Created: Wed, 12 Apr 2023 13:50:04 Central European Summer Time, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
@@ -10,7 +10,7 @@ namespace App\Enums\UI;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum WebsiteTabsEnum: string
+enum WebpageTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -31,37 +31,37 @@ enum WebsiteTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            WebsiteTabsEnum::SHOWCASE => [
-                'title' => __('website'),
+            WebpageTabsEnum::SHOWCASE => [
+                'title' => __('showcase'),
                 'icon'  => 'fas fa-info-circle',
             ],
-            WebsiteTabsEnum::WEBPAGES => [
+            WebpageTabsEnum::WEBPAGES => [
                 'title' => __('webpages'),
                 'icon'  => 'fal fa-browser',
             ],
-            WebsiteTabsEnum::ANALYTICS => [
+            WebpageTabsEnum::ANALYTICS => [
                 'title' => __('analytics'),
                 'icon'  => 'fal fa-analytics',
             ],
-            WebsiteTabsEnum::USERS => [
+            WebpageTabsEnum::USERS => [
                 'title' => __('users'),
                 'icon'  => 'fal fa-users-class',
             ],
-            WebsiteTabsEnum::WORKSHOP => [
+            WebpageTabsEnum::WORKSHOP => [
                 'title' => __('workshop'),
                 'icon'  => 'fal fa-drafting-compass',
             ],
-            WebsiteTabsEnum::SETTINGS => [
+            WebpageTabsEnum::SETTINGS => [
                 'title' => __('settings'),
                 'icon'  => 'fal fa-sliders-h',
             ],
-            WebsiteTabsEnum::DATA => [
+            WebpageTabsEnum::DATA => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            WebsiteTabsEnum::CHANGELOG => [
+            WebpageTabsEnum::CHANGELOG => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',

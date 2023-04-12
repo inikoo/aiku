@@ -63,7 +63,7 @@ class MailHub extends InertiaAction
                     [
                         [// TODO Check why it gives error putting de ->stats->//whatever//
                          'name'  => __('mailroom'),
-                         'icon'  => ['fal', 'fa-cash-register'],
+                         'icon'  => ['fal', 'fa-mailbox'],
                          'href'  => ['mail.mailrooms.index'],
                          'index' => [
                              'number' => $this->outbox
@@ -72,7 +72,7 @@ class MailHub extends InertiaAction
                         ],
                         [
                             'name'  => __('outboxes'),
-                            'icon'  => ['fal', 'fa-cash-register'],
+                            'icon'  => ['fal', 'fa-inbox-out'],
                             'href'  => ['mail.outboxes.index'],
                             'index' => [
                                 'number' => $this->outbox
@@ -81,7 +81,7 @@ class MailHub extends InertiaAction
                         ],
                         [
                             'name'  => __('mailshots'),
-                            'icon'  => ['fal', 'fa-money-check-alt'],
+                            'icon'  => ['fal', 'fa-mail-bulk'],
                             'href'  => ['mail.mailshots.index'],
                             'index' => [
                                 'number' => $this->outbox
@@ -91,7 +91,7 @@ class MailHub extends InertiaAction
                         ],
                         [
                             'name'  => __('dispatched emails'),
-                            'icon'  => ['fal', 'fa-coins'],
+                            'icon'  => ['fal', 'fa-envelope'],
                             'href'  => ['mail.dispatched-emails.index'],
                             'index' => [
                                 'number' => $this->outbox
