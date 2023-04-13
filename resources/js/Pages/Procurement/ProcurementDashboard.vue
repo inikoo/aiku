@@ -12,9 +12,9 @@ import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue';
 defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import { faPeopleArrows, faParachuteBox, faUsers } from "@/../private/pro-light-svg-icons";
+import {faPeopleArrows, faParachuteBox, faUsers} from '@/../private/pro-light-svg-icons';
 
-library.add(faPeopleArrows,faParachuteBox, faUsers);
+library.add(faPeopleArrows, faParachuteBox, faUsers);
 
 </script>
 
