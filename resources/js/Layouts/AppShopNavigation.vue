@@ -62,6 +62,10 @@ library.add(faList,faFolderTree,faMailBulk);
               :href="layout.currentShopSlug?route('shops.show.invoice-payments.hub', layout.currentShopSlug):route('accounting.dashboard')">
             <font-awesome-icon aria-hidden="true" icon="fal fa-abacus"/>
         </Link>
+        <Link :title="trans('accounting')"
+              :href="layout.currentShopSlug?route('dispatch.hub', layout.currentShopSlug):route('dispatch.hub')">
+            <font-awesome-icon aria-hidden="true" icon="fal fa-conveyor-belt-alt"/>
+        </Link>
 
     </div>
 </template>
