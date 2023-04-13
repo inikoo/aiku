@@ -39,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property int|null $address_id
  * @property array $location
+ * @property int|null $image_id
  * @property int $currency_id
  * @property array $settings
  * @property array $shared_data

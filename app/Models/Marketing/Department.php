@@ -28,6 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property string $code
+ * @property int|null $image_id
  * @property int|null $shop_id
  * @property int|null $department_id
  * @property DepartmentStateEnum|null $state

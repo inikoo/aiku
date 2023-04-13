@@ -28,6 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property SupplierProductTradeUnitCompositionEnum|null $trade_unit_composition
  * @property string|null $slug
  * @property int|null $current_historic_supplier_product_id
+ * @property int|null $image_id
  * @property int|null $supplier_id
  * @property int|null $agent_id
  * @property SupplierProductStateEnum|null $state

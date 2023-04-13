@@ -24,6 +24,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int $payment_service_provider_id
+ * @property int|null $image_id
  * @property string $code
  * @property string $slug
  * @property string $name

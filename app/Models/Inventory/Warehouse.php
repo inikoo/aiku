@@ -26,6 +26,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property array $settings
  * @property array $data
+ * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

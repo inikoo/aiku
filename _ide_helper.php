@@ -5,7 +5,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 9.52.0.
+ * Generated for Laravel 9.52.5.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -10838,12 +10838,12 @@ namespace Illuminate\Support\Facades {
          * Clones a request and overrides some of its parameters.
          *
          * @return static
-         * @param array $query The GET parameters
-         * @param array $request The POST parameters
-         * @param array $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
-         * @param array $cookies The COOKIE parameters
-         * @param array $files The FILES parameters
-         * @param array $server The SERVER parameters
+         * @param array|null $query The GET parameters
+         * @param array|null $request The POST parameters
+         * @param array|null $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
+         * @param array|null $cookies The COOKIE parameters
+         * @param array|null $files The FILES parameters
+         * @param array|null $server The SERVER parameters
          * @static
          */
         public static function duplicate($query = null, $request = null, $attributes = null, $cookies = null, $files = null, $server = null)
@@ -18480,6 +18480,16 @@ namespace Livewire {
          *
          * @static
          */
+        public static function resolveMissingComponent($resolver)
+        {
+            /** @var \Livewire\LivewireManager $instance */
+            return $instance->resolveMissingComponent($resolver);
+        }
+                    /**
+         *
+         *
+         * @static
+         */
         public static function getClass($alias)
         {
             /** @var \Livewire\LivewireManager $instance */
@@ -19072,8 +19082,6 @@ namespace Opcodes\LogViewer\Facades {
                     /**
          * Find the file with the given identifier or file name.
          *
-         * @param string|null $fileIdentifier
-         * @return \Opcodes\LogViewer\LogFile|null
          * @static
          */
         public static function getFile($fileIdentifier)
@@ -19164,7 +19172,6 @@ namespace Opcodes\LogViewer\Facades {
                     /**
          * Get the maximum number of bytes of the log that we should display.
          *
-         * @return int
          * @static
          */
         public static function maxLogSize()
@@ -20052,6 +20059,26 @@ namespace Illuminate\Testing {
         public static function assertDontSeeLivewire($component)
         {
             return \Illuminate\Testing\TestView::assertDontSeeLivewire($component);
+        }
+    }
+}
+
+namespace Illuminate\Validation {
+    /**
+     *
+     *
+     */
+    class Rule
+    {
+        /**
+         *
+         *
+         * @see \Propaganistas\LaravelPhone\PhoneServiceProvider::registerValidator()
+         * @static
+         */
+        public static function phone()
+        {
+            return \Illuminate\Validation\Rule::phone();
         }
     }
 }

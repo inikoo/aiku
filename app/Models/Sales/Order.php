@@ -31,6 +31,7 @@ use Spatie\Sluggable\HasSlug;
  * @property string $slug
  * @property int $shop_id
  * @property int $customer_id
+ * @property int|null $image_id
  * @property int|null $customer_client_id
  * @property string|null $number
  * @property string|null $customer_number Customers own order number

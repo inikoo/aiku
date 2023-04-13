@@ -31,6 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $shop_id
  * @property int $payment_account_id
+ * @property int|null $image_id
  * @property int $customer_id
  * @property PaymentTypeEnum $type
  * @property string $reference

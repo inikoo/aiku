@@ -35,6 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $owner_type
  * @property int $owner_id
  * @property string $name
+ * @property int|null $image_id
  * @property string|null $company_name
  * @property string|null $contact_name
  * @property string|null $email
