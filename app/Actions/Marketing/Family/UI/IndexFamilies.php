@@ -144,7 +144,7 @@ class IndexFamilies extends InertiaAction
         return $this->handle($shop);
     }
 
-    public function inShopInDepartment(Shop $shop, Department $department, ActionRequest $request): LengthAwarePaginator
+    public function inDepartmentInShop(Shop $shop, Department $department, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($department);

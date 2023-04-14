@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Enums\UI\PaymentTabsEnum;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
+use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Order;
@@ -53,9 +54,24 @@ class EditPayment extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentAccountInShop(Shop $shop, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
+        return $this->handle($payment);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inOrder(Order $order, Payment $payment, ActionRequest $request): Payment
     {
         $this->initialisation($request)->withTab(PaymentTabsEnum::values());
+        return $this->handle($payment);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Shop $shop, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->initialisation($request);
+
         return $this->handle($payment);
     }
 

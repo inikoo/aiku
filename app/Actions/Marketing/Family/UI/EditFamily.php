@@ -44,7 +44,7 @@ class EditFamily extends InertiaAction
         return $this->handle($family);
     }
 
-    public function inShopInDepartment(Shop $shop, Family $family, ActionRequest $request): Family
+    public function inDepartmentInShop(Shop $shop, Family $family, ActionRequest $request): Family
     {
         $this->initialisation($request);
 

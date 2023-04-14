@@ -14,6 +14,7 @@ use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -35,7 +36,7 @@ class ShowPaymentAccount extends InertiaAction
         return $request->user()->hasPermissionTo("accounting.view");
     }
 
-    public function asController(PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
+    public function inTenant(PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(PaymentAccountTabsEnum::values());
@@ -47,6 +48,13 @@ class ShowPaymentAccount extends InertiaAction
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(PaymentAccountTabsEnum::values());
+        return $this->handle($paymentAccount);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Shop $shop, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
+    {
+        $this->initialisation($request);
         return $this->handle($paymentAccount);
     }
 

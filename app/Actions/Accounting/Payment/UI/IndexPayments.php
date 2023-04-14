@@ -112,7 +112,7 @@ class IndexPayments extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
@@ -127,6 +127,14 @@ class IndexPayments extends InertiaAction
     }
 
     public function inPaymentAccount(PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle($paymentAccount);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentAccountInShop(Shop $shop, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 

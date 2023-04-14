@@ -55,7 +55,7 @@ class ShowFamily extends InertiaAction
         $this->initialisation($request)->withTab(FamilyTabsEnum::values());
         return $this->handle($family);
     }
-    public function inShopInDepartment(Shop $shop, Department $department, Family $family, ActionRequest $request): Family
+    public function inDepartmentInShop(Shop $shop, Department $department, Family $family, ActionRequest $request): Family
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(FamilyTabsEnum::values());
