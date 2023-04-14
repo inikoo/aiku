@@ -57,7 +57,7 @@ function locationsRoute(warehouseArea: WarehouseArea) {
 
 
 <template>
-    <span v-if="data.createInlineModel" class="hidden sm:block">
+    <span v-if="data.createInlineModel" class="hidden sm:block text-end">
                 <Button type="secondary" action="create" class="capitalize">
                  {{data.createInlineModel.buttonLabel}}
                 </Button>
