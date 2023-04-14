@@ -8,10 +8,23 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Department} from "@/types/department";
+import NewItem from "@/Components/NewItem.vue";
+import { ref } from "vue";
+import Button from "@/Components/Elements/Buttons/Button.vue";
 
 const props = defineProps<{
-    data: object
-}>()
+    data: {
+        table: object
+        createInlineModel?: {
+            buttonLabel: string,
+            dialog: {
+                title: string
+                saveLabel: string
+                cancelLabel: string
+            }
+        }
+    }
+}>();
 
 
 function departmentRoute(department: Department) {
@@ -26,11 +39,21 @@ function departmentRoute(department: Department) {
                 [department.slug]);
     }
 }
+const showSearchDialog = ref(false);
 
 </script>
 
 <template>
-    <Table :resource="data" :name="'dep'" class="mt-5">
+    <span v-if="data.createInlineModel"
+          class="hidden sm:block text-end">
+                <Button v-on:click="showSearchDialog = !showSearchDialog" type="secondary" action="create"
+                        class="capitalize">
+                 {{ data.createInlineModel.buttonLabel }}
+                </Button>
+        <NewItem :data="data.createInlineModel.dialog" v-if="showSearchDialog" v-on:close="showSearchDialog = false">
+        </NewItem>
+    </span>
+    <Table :resource="data.table" :name="'dep'" class="mt-5">
         <template #cell(code)="{ item: department }">
             <Link :href="departmentRoute(department)">
                 {{ department['code'] }}

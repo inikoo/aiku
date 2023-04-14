@@ -101,8 +101,11 @@ class ShowWarehouse extends InertiaAction
                         'table'             => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse)),
                         'createInlineModel' => [
                             'buttonLabel' => __('warehouse area'),
-                            'title'       => 'New Warehouse Area',
-                            'buttonSave'  => 'Save'
+                            'dialog'      => [
+                                'title'       => __('new warehouse area'),
+                                'saveLabel'   => __('save'),
+                                'cancelLabel' => __('cancel')
+                            ]
                         ],
                     ]
 
@@ -111,8 +114,11 @@ class ShowWarehouse extends InertiaAction
                             'table'             => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse)),
                             'createInlineModel' => [
                                 'buttonLabel' => __('warehouse area'),
-                                'title'       => 'New Warehouse Area',
-                                'buttonSave'  => 'Save'
+                                'dialog'      => [
+                                    'title'       => __('new warehouse area'),
+                                    'saveLabel'   => __('save'),
+                                    'cancelLabel' => __('cancel')
+                                ]
                             ],
                         ]
                     ),

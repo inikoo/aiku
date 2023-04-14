@@ -6,13 +6,17 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import NewWarehouseArea from "@/Components/NewItems/NewWarehouseArea.vue";
 
 const props = defineProps<{
     data: {
         table: object
         createInlineModel?: {
             buttonLabel: string
+            dialog: {
+                title: string
+                saveLabel: string
+                cancelLabel: string
+            }
         }
     }
 }>();
@@ -20,6 +24,7 @@ import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
 import { WarehouseArea } from "@/types/warehouse-area";
 import Button from "@/Components/Elements/Buttons/Button.vue";
+import NewItem from "@/Components/NewItem.vue";
 
 
 function warehouseAreaRoute(warehouseArea: WarehouseArea) {
@@ -68,8 +73,8 @@ const showSearchDialog = ref(false);
                         class="capitalize">
                  {{ data.createInlineModel.buttonLabel }}
                 </Button>
-        <NewWarehouseArea :data="data" v-if="showSearchDialog" v-on:close="showSearchDialog = false">
-        </NewWarehouseArea>
+        <NewItem :data="data.createInlineModel.dialog" v-if="showSearchDialog" v-on:close="showSearchDialog = false">
+        </NewItem>
     </span>
     <Table :resource="data.table" :name="'wa'" class="mt-5">
         <template #cell(code)="{ item: warehouseArea }">

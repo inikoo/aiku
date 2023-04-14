@@ -43,6 +43,7 @@ class CatalogueHub extends InertiaAction
     }
 
 
+
     public function htmlResponse(ActionRequest $request): Response
     {
         $parent = match ($request->route()->getName()) {
@@ -73,9 +74,30 @@ class CatalogueHub extends InertiaAction
                     'navigation' => CatalogueTabsEnum::navigation()
                 ],
                 CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value ?
-                    fn () => DepartmentResource::collection(IndexDepartments::run($parent))
-                    : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($parent))),
-
+                    fn () => [
+                        'table'             => DepartmentResource::collection(IndexDepartments::run($parent)),
+                        'createInlineModel' => [
+                            'buttonLabel' => __('department'),
+                            'dialog'      => [
+                                'title'       => __('new department'),
+                                'saveLabel'   => __('save'),
+                                'cancelLabel' => __('cancel')
+                            ]
+                        ],
+                    ]
+                    : Inertia::lazy(
+                        fn () => [
+                            'table'             => DepartmentResource::collection(IndexDepartments::run($parent)),
+                            'createInlineModel' => [
+                                'buttonLabel' => __('department'),
+                                'dialog'      => [
+                                    'title'       => __('new department'),
+                                    'saveLabel'   => __('save'),
+                                    'cancelLabel' => __('cancel')
+                                ]
+                            ],
+                        ]
+                    ),
                 CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
                     fn () => FamilyResource::collection(IndexFamilies::run($parent))
                     : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($parent))),
