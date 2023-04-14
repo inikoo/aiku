@@ -5,6 +5,9 @@
   -->
 
 <script setup lang="ts">
+import { ref } from "vue";
+import NewWarehouseArea from "@/Components/NewItems/NewWarehouseArea.vue";
+
 const props = defineProps<{
     data: {
         table: object
@@ -53,15 +56,22 @@ function locationsRoute(warehouseArea: WarehouseArea) {
 
 }
 
+const showSearchDialog = ref(false);
+
 </script>
 
 
 <template>
-    <span v-if="data.createInlineModel" class="hidden sm:block text-end">
+    <span v-on:click="showSearchDialog = !showSearchDialog" v-if="data.createInlineModel"
+          class="hidden sm:block text-end">
                 <Button type="secondary" action="create" class="capitalize">
-                 {{data.createInlineModel.buttonLabel}}
+                 {{ data.createInlineModel.buttonLabel }}
                 </Button>
+            <NewWarehouseArea v-if="showSearchDialog" v-on:close="showSearchDialog = false">
+            </NewWarehouseArea>
     </span>
+
+
     <Table :resource="data.table" :name="'wa'" class="mt-5">
         <template #cell(code)="{ item: warehouseArea }">
             <Link :href="warehouseAreaRoute(warehouseArea)">
