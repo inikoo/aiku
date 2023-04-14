@@ -91,8 +91,32 @@ class ShowDepartment extends InertiaAction
                     fn () => MailshotResource::collection(IndexMailshots::run($this->department))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->department))),
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
-                    fn () => FamilyResource::collection(IndexFamilies::run($this->department))
-                    : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($this->department))),
+                    fn () => [
+                        'table'             => FamilyResource::collection(IndexFamilies::run($this->department)),
+                        'createInlineModel' => [
+                            'buttonLabel' => __('family'),
+                            'dialog'      => [
+                                'title'       => __('new family'),
+                                'saveLabel'   => __('save'),
+                                'cancelLabel' => __('cancel')
+                            ]
+                        ],
+                    ]
+                    : Inertia::lazy(
+                        fn () => [
+                            'table'             => FamilyResource::collection(IndexFamilies::run($this->department)),
+                            'createInlineModel' => [
+                                'buttonLabel' => __('family'),
+                                'dialog'      => [
+                                    'title'       => __('new family'),
+                                    'saveLabel'   => __('save'),
+                                    'cancelLabel' => __('cancel')
+                                ]
+                            ],
+                        ]
+                    ),
+
+
                 DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
                     fn () => ProductResource::collection(IndexProducts::run($this->department))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->department))),
