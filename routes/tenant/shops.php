@@ -32,12 +32,12 @@ Route::get('/{shop}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'i
 Route::get('/{shop}/websites', [IndexWebsites::class, 'inShop'])->name('show.websites.index');
 Route::get('/{shop}/websites/{website}', [WebsiteHub::class, 'inShop'])->name('show.websites.show');
 
-Route::prefix("{shop}")
-    ->name("show.")
+Route::prefix("{shop}/accounting")
+    ->name("show.accounting.")
     ->group(
         function () {
             $parent='shop';
-            require __DIR__.'/invoice-payments.php';
+            require __DIR__.'/accounting.php';
         }
     );
 

@@ -59,7 +59,7 @@ library.add(faList,faFolderTree,faMailBulk);
             <font-awesome-icon aria-hidden="true" icon="fal fa-mail-bulk"/>
         </Link>
         <Link :title="trans('accounting')"
-              :href="layout.currentShopSlug?route('shops.show.invoice-payments.hub', layout.currentShopSlug):route('accounting.dashboard')">
+              :href="layout.currentShopSlug?route('shops.show.accounting.dashboard', layout.currentShopSlug):route('accounting.dashboard')">
             <font-awesome-icon aria-hidden="true" icon="fal fa-abacus"/>
         </Link>
         <Link :title="trans('accounting')"
