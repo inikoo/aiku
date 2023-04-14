@@ -136,7 +136,9 @@ class IndexWarehouseAreas extends InertiaAction
                         'label' => __('warehouse areas')
                     ] : false,
                 ],
-                'data'        => WarehouseAreaResource::collection($warehousesAreas)
+                'data'        => [
+                   'table' => WarehouseAreaResource::collection($warehousesAreas)
+                ]
 
 
             ]

@@ -8,7 +8,7 @@
 const props = defineProps<{
     data: {
         table: object
-        createInlineModel: {
+        createInlineModel?: {
             buttonLabel: string
         }
     }
@@ -57,7 +57,7 @@ function locationsRoute(warehouseArea: WarehouseArea) {
 
 
 <template>
-    <span class="hidden sm:block">
+    <span v-if="data.createInlineModel" class="hidden sm:block">
                 <Button type="secondary" action="create" class="capitalize">
                  {{data.createInlineModel.buttonLabel}}
                 </Button>
