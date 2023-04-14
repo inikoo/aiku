@@ -68,7 +68,7 @@ const showSearchDialog = ref(false);
                         class="capitalize">
                  {{ data.createInlineModel.buttonLabel }}
                 </Button>
-        <NewWarehouseArea v-if="showSearchDialog" v-on:close="showSearchDialog = false">
+        <NewWarehouseArea :data="data" v-if="showSearchDialog" v-on:close="showSearchDialog = false">
         </NewWarehouseArea>
     </span>
     <Table :resource="data.table" :name="'wa'" class="mt-5">
