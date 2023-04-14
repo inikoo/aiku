@@ -8,6 +8,7 @@
 namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\UI\DepartmentTabsEnum;
 use App\Enums\UI\PaymentTabsEnum;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
@@ -50,6 +51,13 @@ class ShowPayment extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentAccountInShop(Shop $shop, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
+        return $this->handle($payment);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
     {
         $this->initialisation($request)->withTab(PaymentTabsEnum::values());
@@ -74,6 +82,14 @@ class ShowPayment extends InertiaAction
     public function inOrder(Order $order, Payment $payment, ActionRequest $request): Payment
     {
         $this->initialisation($request)->withTab(PaymentTabsEnum::values());
+        return $this->handle($payment);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Shop $shop, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
+
         return $this->handle($payment);
     }
 

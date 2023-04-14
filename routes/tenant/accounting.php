@@ -28,36 +28,38 @@ if (empty($parent)) {
 Route::get('/', AccountingDashboard::class)->name('dashboard');
 
 if ($parent=='tenant') {
+    Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments/create', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.create');
+    Route::get('/providers/{paymentServiceProvider}/payments/create', [IndexPayments::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.create');
+
+
     Route::get('/providers', IndexPaymentServiceProviders::class)->name('payment-service-providers.index');
     Route::get('/providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');
     Route::get('/providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');
     Route::get('/providers/{paymentServiceProvider}/accounts', [IndexPaymentAccounts::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.index');
     Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show');
     Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.index');
-    Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments/create', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.create');
     Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.show');
     Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.edit');
 
     Route::get('/providers/{paymentServiceProvider}/payments', [IndexPayments::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.index');
     Route::get('/providers/{paymentServiceProvider}/payments/{payment}/edit', [EditPayment::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.edit');
-    Route::get('/providers/{paymentServiceProvider}/payments/create', [IndexPayments::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.create');
     Route::get('/providers/{paymentServiceProvider}/payments/{payment}', [ShowPayment::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.show');
 }
-
-Route::get('/accounts', IndexPaymentAccounts::class)->name('payment-accounts.index');
 Route::get('/accounts/create', CreatePaymentAccount::class)->name('payment-accounts.create');
-Route::get('/accounts/{paymentAccount}', ShowPaymentAccount::class)->name('payment-accounts.show');
-Route::get('/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.index');
 Route::get('/accounts/{paymentAccount}/payments/create', [CreatePayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.create');
-Route::get('/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.show');
-Route::get('/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.edit');
-
-
-
-Route::get('/payments', IndexPayments::class)->name('payments.index');
 Route::get('/payments/create', CreatePayment::class)->name('payments.create');
-Route::get('/payments/{payment}', ShowPayment::class)->name('payments.show');
-Route::get('/payments/{payment}/edit', EditPayment::class)->name('payments.edit');
 
-Route::get('/invoices', IndexInvoices::class)->name('invoices.index');
-Route::get('/invoices/{invoice}', ShowInvoice::class)->name('invoices.show');
+
+Route::get('/accounts', [IndexPaymentAccounts::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('payment-accounts.index');
+Route::get('/accounts/{paymentAccount}', [ShowPaymentAccount::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('payment-accounts.show');
+Route::get('/accounts/{paymentAccount}/payments', [IndexPayments::class, $parent == 'tenant' ? 'inPaymentAccount' : 'inPaymentAccountInShop'])->name('payment-accounts.show.payments.index');
+Route::get('/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, $parent == 'tenant' ? 'inPaymentAccount' : 'inPaymentAccountInShop'])->name('payment-accounts.show.payments.show');
+Route::get('/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, $parent == 'tenant' ? 'inPaymentAccount' : 'inPaymentAccountInShop'])->name('payment-accounts.show.payments.edit');
+
+
+Route::get('/payments', [IndexPayments::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('payments.index');
+Route::get('/payments/{payment}', [ShowPayment::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('payments.show');
+Route::get('/payments/{payment}/edit', [EditPayment::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('payments.edit');
+
+Route::get('/invoices', [IndexInvoices::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('invoices.index');
+Route::get('/invoices/{invoice}', [ShowInvoice::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('invoices.show');
