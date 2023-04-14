@@ -55,11 +55,11 @@ class ShowWarehouse extends InertiaAction
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-                    'meta'  => [
+                    'meta' => [
                         [
-                            'name'     => trans_choice('warehouse area|warehouse areas', $this->warehouse->stats->number_warehouse_areas),
-                            'number'   => $this->warehouse->stats->number_warehouse_areas,
-                            'href'     => [
+                            'name'   => trans_choice('warehouse area|warehouse areas', $this->warehouse->stats->number_warehouse_areas),
+                            'number' => $this->warehouse->stats->number_warehouse_areas,
+                            'href'   => [
                                 'inventory.warehouses.show.warehouse-areas.index',
                                 $this->warehouse->slug
                             ],
@@ -69,9 +69,9 @@ class ShowWarehouse extends InertiaAction
                             ]
                         ],
                         [
-                            'name'     => trans_choice('location|locations', $this->warehouse->stats->number_locations),
-                            'number'   => $this->warehouse->stats->number_locations,
-                            'href'     => [
+                            'name'   => trans_choice('location|locations', $this->warehouse->stats->number_locations),
+                            'number' => $this->warehouse->stats->number_locations,
+                            'href'   => [
                                 'inventory.warehouses.show.locations.index',
                                 $this->warehouse->slug
                             ],
@@ -83,7 +83,7 @@ class ShowWarehouse extends InertiaAction
                     ]
 
                 ],
-                'tabs'        => [
+                'tabs' => [
 
                     'current'    => $this->tab,
                     'navigation' => WarehouseTabsEnum::navigation(),
@@ -97,8 +97,23 @@ class ShowWarehouse extends InertiaAction
                     : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($this->warehouse))),
 
                 WarehouseTabsEnum::WAREHOUSE_AREAS->value => $this->tab == WarehouseTabsEnum::WAREHOUSE_AREAS->value ?
-                    fn () => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse))
-                    : Inertia::lazy(fn () => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse))),
+                    fn () => [
+                        'table'             => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse)),
+                        'createInlineModel' => [
+                            'buttonLabel' => __('warehouse area')
+
+                        ]
+                    ]
+
+                    : Inertia::lazy(
+                        fn () => [
+                        'table'             => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse)),
+                        'createInlineModel' => [
+                            'buttonLabel' => __('warehouse area')
+
+                        ]
+                    ]
+                    ),
 
             ]
         )->table(IndexLocations::make()->tableStructure())
@@ -110,6 +125,7 @@ class ShowWarehouse extends InertiaAction
     {
         return new WarehouseResource($this->warehouse);
     }
+
     public function getBreadcrumbs(Warehouse $warehouse, $suffix = null): array
     {
         return array_merge(
@@ -132,7 +148,7 @@ class ShowWarehouse extends InertiaAction
                             'label' => $warehouse->code,
                         ],
                     ],
-                    'suffix'         => $suffix,
+                    'suffix' => $suffix,
 
                 ],
             ]

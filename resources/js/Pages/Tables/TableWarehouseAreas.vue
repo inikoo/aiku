@@ -6,25 +6,31 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-    data: object
-}>()
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {WarehouseArea} from "@/types/warehouse-area";
+    data: {
+        table: object
+        createInlineModel: {
+            buttonLabel: string
+        }
+    }
+}>();
+import { Link } from "@inertiajs/vue3";
+import Table from "@/Components/Table/Table.vue";
+import { WarehouseArea } from "@/types/warehouse-area";
+import Button from "@/Components/Elements/Buttons/Button.vue";
 
 
 function warehouseAreaRoute(warehouseArea: WarehouseArea) {
 
     switch (route().current()) {
-        case 'inventory.warehouses.show':
-        case 'inventory.warehouses.show.warehouse-areas.index':
+        case "inventory.warehouses.show":
+        case "inventory.warehouses.show.warehouse-areas.index":
             return route(
-                'inventory.warehouses.show.warehouse-areas.show',
+                "inventory.warehouses.show.warehouse-areas.show",
                 [warehouseArea.warehouse_slug, warehouseArea.slug]);
-        case 'inventor.warehouse-areas.index':
+        case "inventor.warehouse-areas.index":
         default:
             return route(
-                'inventory.warehouse-areas.show',
+                "inventory.warehouse-areas.show",
                 [warehouseArea.slug]);
     }
 
@@ -33,15 +39,15 @@ function warehouseAreaRoute(warehouseArea: WarehouseArea) {
 function locationsRoute(warehouseArea: WarehouseArea) {
     switch (route().current()) {
 
-        case 'inventory.warehouses.show':
-        case 'inventory.warehouses.show.warehouse-areas.index':
+        case "inventory.warehouses.show":
+        case "inventory.warehouses.show.warehouse-areas.index":
             return route(
-                'inventory.warehouses.show.warehouse-areas.show.locations.index',
+                "inventory.warehouses.show.warehouse-areas.show.locations.index",
                 [warehouseArea.warehouse_slug, warehouseArea.slug]);
-        case 'inventor.warehouse-areas.index':
+        case "inventor.warehouse-areas.index":
         default:
             return route(
-                'inventory.warehouse-areas.show.locations.index',
+                "inventory.warehouse-areas.show.locations.index",
                 [warehouseArea.slug]);
     }
 
@@ -51,16 +57,21 @@ function locationsRoute(warehouseArea: WarehouseArea) {
 
 
 <template>
-    <Table :resource="data" :name="'wa'" class="mt-5">
+    <span class="hidden sm:block">
+                <Button type="secondary" action="create" class="capitalize">
+                 {{data.createInlineModel.buttonLabel}}
+                </Button>
+    </span>
+    <Table :resource="data.table" :name="'wa'" class="mt-5">
         <template #cell(code)="{ item: warehouseArea }">
             <Link :href="warehouseAreaRoute(warehouseArea)">
-                {{ warehouseArea['code'] }}
+                {{ warehouseArea["code"] }}
             </Link>
         </template>
 
         <template #cell(number_locations)="{ item: warehouseArea }">
             <Link :href="locationsRoute(warehouseArea)">
-                {{ warehouseArea['number_locations'] }}
+                {{ warehouseArea["number_locations"] }}
             </Link>
         </template>
     </Table>
