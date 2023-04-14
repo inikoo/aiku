@@ -40,68 +40,119 @@ class MailHub extends InertiaAction
     public function inShop(Shop $shop, ActionRequest $request): ActionRequest
     {
         $this->initialisation($request);
-
         return $request;
     }
 
 
     public function htmlResponse(ActionRequest $request): Response
     {
+        $routeName      = $request->route()->getName();
+        $routeParameters= $request->route()->parameters();
+
+
         return Inertia::render(
             'Mail/MailHub',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters()
+                    $routeName,
+                    $routeParameters
                 ),
                 'title'       => __('mail'),
                 'pageHead'    => [
                     'title' => __('mail'),
                 ],
 
-                'flatTreeMaps' => [
+
+                'flatTreeMaps' => match ($routeName) {
+                    'shops.show.mail.hub'=>
                     [
-                        [// TODO Check why it gives error putting de ->stats->//whatever//
-                         'name'  => __('mailroom'),
-                         'icon'  => ['fal', 'fa-mailbox'],
-                         'href'  => ['mail.mailrooms.index'],
-                         'index' => [
-                             'number' => $this->outbox
-                         ]
-
-                        ],
                         [
-                            'name'  => __('outboxes'),
-                            'icon'  => ['fal', 'fa-inbox-out'],
-                            'href'  => ['mail.outboxes.index'],
-                            'index' => [
-                                'number' => $this->outbox
-                            ]
+                            [
+                                'name'  => __('mailroom'),
+                                'icon'  => ['fal', 'fa-mailbox'],
+                                'href'  => ['mail.mailrooms.index'],
+                                'index' => [
+                                    'number' => $routeParameters['shop']
+                                ]
 
-                        ],
-                        [
-                            'name'  => __('mailshots'),
-                            'icon'  => ['fal', 'fa-mail-bulk'],
-                            'href'  => ['mail.mailshots.index'],
-                            'index' => [
-                                'number' => $this->outbox
+                            ],
+                            [
+                                'name'  => __('outboxes'),
+                                'icon'  => ['fal', 'fa-inbox-out'],
+                                'href'  => ['mail.outboxes.index'],
+                                'index' => [
+                                    'number' => $this->outbox
+                                ]
 
-                            ]
+                            ],
+                            [
+                                'name'  => __('mailshots'),
+                                'icon'  => ['fal', 'fa-mail-bulk'],
+                                'href'  => ['mail.mailshots.index'],
+                                'index' => [
+                                    'number' => $this->outbox
 
-                        ],
-                        [
-                            'name'  => __('dispatched emails'),
-                            'icon'  => ['fal', 'fa-envelope'],
-                            'href'  => ['mail.dispatched-emails.index'],
-                            'index' => [
-                                'number' => $this->outbox
-                            ]
+                                ]
 
-                        ],
+                            ],
+                            [
+                                'name'  => __('dispatched emails'),
+                                'icon'  => ['fal', 'fa-envelope'],
+                                'href'  => ['mail.dispatched-emails.index'],
+                                'index' => [
+                                    'number' => $this->outbox
+                                ]
+
+                            ],
+                        ]
+
 
                     ],
+                    default => [
+                        [
+                            [
+                                'name'  => __('mailroom'),
+                                'icon'  => ['fal', 'fa-mailbox'],
+                                'href'  => ['mail.mailrooms.index'],
+                                'index' => [
+                                    'number' => $this->outbox
+                                ]
 
-                ]
+                            ],
+                            [
+                                'name'  => __('outboxes'),
+                                'icon'  => ['fal', 'fa-inbox-out'],
+                                'href'  => ['mail.outboxes.index'],
+                                'index' => [
+                                    'number' => $this->outbox
+                                ]
+
+                            ],
+                            [
+                                'name'  => __('mailshots'),
+                                'icon'  => ['fal', 'fa-mail-bulk'],
+                                'href'  => ['mail.mailshots.index'],
+                                'index' => [
+                                    'number' => $this->outbox
+
+                                ]
+
+                            ],
+                            [
+                                'name'  => __('dispatched emails'),
+                                'icon'  => ['fal', 'fa-envelope'],
+                                'href'  => ['mail.dispatched-emails.index'],
+                                'index' => [
+                                    'number' => $this->outbox
+                                ]
+
+                            ],
+                        ]
+
+
+                    ]
+                }
+
 
             ]
         );
@@ -128,8 +179,8 @@ class MailHub extends InertiaAction
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'      => 'mail.hub',
-                        'parameters'=> []
+                        'name'       => 'mail.hub',
+                        'parameters' => []
                     ]
                 )
             ),
@@ -138,8 +189,8 @@ class MailHub extends InertiaAction
                 (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
                 $headCrumb(
                     [
-                        'name'      => 'shops.show.mail.hub',
-                        'parameters'=> $routeParameters['shop']->slug
+                        'name'       => 'shops.show.mail.hub',
+                        'parameters' => $routeParameters['shop']->slug
                     ]
                 )
             ),

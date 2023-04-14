@@ -234,4 +234,9 @@ class Shop extends Model
     {
         return $this->morphOne(TaxNumber::class, 'owner');
     }
+
+    public function mailStats(): HasOne
+    {
+        return $this->hasOne(ShopMailStats::class);
+    }
 }

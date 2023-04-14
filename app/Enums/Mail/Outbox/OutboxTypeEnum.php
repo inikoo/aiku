@@ -8,11 +8,8 @@
 namespace App\Enums\Mail\Outbox;
 
 use App\Enums\EnumHelperTrait;
+use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 
-//enum('Basket Low Stock','Basket Reminder 1','Basket Reminder 2','Basket Reminder 3','New Customer',
-//'Delivery Note Dispatched','Delivery Note Undispatched','Invoice Deleted','New Order','AbandonedCart','Delivery Confirmation',
-//'GR Reminder','Invite','Invite Mailshot','Invite Full Mailshot',
-//'Marketing','Newsletter','OOS Notification','Order Confirmation','Password Reminder','Registration','Registration Approved','Registration Rejected')
 enum OutboxTypeEnum: string
 {
     use EnumHelperTrait;
@@ -71,7 +68,16 @@ enum OutboxTypeEnum: string
         };
     }
 
-    public function scope(): OutboxScopeEnum
+    // Here will mark what outboxes are not scoped inside a shop, so can be skipped in StoreShop and use on StoreTenant instead
+    public function scope(): string
+    {
+        return match ($this) {
+            default=> 'shop'
+        };
+    }
+
+
+    public function mailroomCode(): MailroomCodeEnum
     {
         return match ($this) {
             OutboxTypeEnum::BASKET_LOW_STOCK,
@@ -85,14 +91,14 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::DELIVERY_CONFIRMATION,
             OutboxTypeEnum::OOS_NOTIFICATION,
             OutboxTypeEnum::ORDER_CONFIRMATION
-            => OutboxScopeEnum::CUSTOMER_NOTIFICATION,
+            => MailroomCodeEnum::CUSTOMER_NOTIFICATION,
 
             OutboxTypeEnum::DELIVERY_NOTE_DISPATCHED,
             OutboxTypeEnum::DELIVERY_NOTE_UNDISPATCHED,
             OutboxTypeEnum::INVOICE_DELETED,
             OutboxTypeEnum::NEW_ORDER,
             OutboxTypeEnum::NEW_CUSTOMER
-            => OutboxScopeEnum::USER_NOTIFICATION,
+            => MailroomCodeEnum::USER_NOTIFICATION,
 
             OutboxTypeEnum::INVITE,
             OutboxTypeEnum::INVITE_MAILSHOT,
@@ -101,7 +107,7 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::NEWSLETTER,
             OutboxTypeEnum::ABANDONED_CART,
             OutboxTypeEnum::REORDER_REMINDER
-            => OutboxScopeEnum::MARKETING,
+            => MailroomCodeEnum::MARKETING,
         };
     }
 }

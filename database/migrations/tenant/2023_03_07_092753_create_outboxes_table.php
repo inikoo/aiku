@@ -16,7 +16,6 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('mailroom_id')->nullable();
             $table->foreign('mailroom_id')->references('id')->on('mailrooms');
-
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('slug')->unique();

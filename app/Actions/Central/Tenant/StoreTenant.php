@@ -33,6 +33,7 @@ class StoreTenant
         $tenant->salesStats()->create();
         $tenant->fulfilmentStats()->create();
         $tenant->accountingStats()->create();
+        $tenant->mailStats()->create();
         $tenant->refresh();
 
 

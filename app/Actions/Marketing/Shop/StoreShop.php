@@ -25,6 +25,7 @@ class StoreShop
         $shop = Shop::create($modelData);
         $shop->stats()->create();
         $shop->accountingStats()->create();
+        $shop->mailStats()->create();
 
 
         $paymentAccount = StorePaymentAccount::run($tenant->accountsServiceProvider(), [
@@ -39,17 +40,19 @@ class StoreShop
 
 
         foreach (OutboxTypeEnum::cases() as $case) {
-            $mailroom=Mailroom::where('code', $case->scope()->value)->first();
+            if ($case->scope()=='shop') {
+                $mailroom=Mailroom::where('code', $case->mailroomCode()->value)->first();
 
-            StoreOutbox::run(
-                $mailroom,
-                [
-                    'shop_id'=> $shop->id,
-                    'name'   => $case->label(),
-                    'type'   => str($case->value)->camel()->kebab()->value(),
+                StoreOutbox::run(
+                    $mailroom,
+                    [
+                        'shop_id'=> $shop->id,
+                        'name'   => $case->label(),
+                        'type'   => str($case->value)->camel()->kebab()->value(),
 
-                ]
-            );
+                    ]
+                );
+            }
         }
 
 
