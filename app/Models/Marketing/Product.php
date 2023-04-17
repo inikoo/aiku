@@ -11,6 +11,7 @@ use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
+use App\Models\Helpers\Barcode;
 use App\Models\Media\Media;
 use App\Models\Sales\SalesStats;
 use App\Models\Traits\HasImages;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -159,4 +161,10 @@ class Product extends Model implements HasMedia
             ->withPivot(['public','owner_type','owner_id'])
             ->wherePivot('type', 'image');
     }
+
+    public function barcode(): MorphToMany
+    {
+        return $this->morphToMany(Barcode::class, 'barcodeable');
+    }
+
 }

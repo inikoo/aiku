@@ -10,6 +10,8 @@ namespace App\Models\Inventory;
 use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
+use App\Models\Helpers\Barcode;
+use App\Models\Helpers\Issue;
 use App\Models\Marketing\TradeUnit;
 use App\Models\Media\Media;
 use App\Models\Traits\HasImages;
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -151,5 +154,10 @@ class Stock extends Model implements HasMedia
         return $this->belongsToMany(Media::class, 'media_stock')->withTimestamps()
             ->withPivot(['public','owner_type','owner_id'])
             ->wherePivot('type', 'image');
+    }
+
+    public function barcode(): MorphToMany
+    {
+        return $this->morphToMany(Barcode::class, 'barcodeable');
     }
 }
