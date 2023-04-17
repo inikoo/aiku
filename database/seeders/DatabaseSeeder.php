@@ -9,6 +9,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,5 +23,9 @@ class DatabaseSeeder extends Seeder
                         //PermissionSeeder::class,
                         //JobPositionSeeder::class,
                     ]);
+
+
+        Artisan::call('import:tariff_codes harmonized-system.csv');
+
     }
 }

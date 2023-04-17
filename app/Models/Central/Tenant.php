@@ -47,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Central\CentralMedia> $centralMedia
  * @property-read \App\Models\Central\TenantFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\Central\TenantInventoryStats|null $inventoryStats
+ * @property-read \App\Models\Central\TenantMailStats|null $mailStats
  * @property-read \App\Models\Central\TenantMarketingStats|null $marketingStats
  * @property-read \App\Models\Central\TenantProcurementStats|null $procurementStats
  * @property-read \App\Models\Central\TenantProductionStats|null $productionStats

@@ -1,13 +1,13 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 17 Apr 2023 10:48:33 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 18 Apr 2023 11:01:57 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Helpers\TariffCode;
+namespace App\Actions\Assets\TariffCode;
 
-use App\Models\Helpers\TariffCode;
+use App\Models\Assets\TariffCode;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreTariffCode

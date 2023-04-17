@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property StockQuantityStatusEnum|null $quantity_status
  * @property bool $sellable
  * @property bool $raw_material
- * @property string|null $barcode
+ * @property \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
  * @property string|null $description
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton

@@ -1,4 +1,4 @@
-php artisan tenants:artisan "ide-helper:models  -Wr  --ignore='App\Models\Assets\Country,App\Models\Assets\Currency,App\Models\Assets\Language,App\Models\Assets\Timezone,App\Models\Central\CentralUser,App\Models\Central\Tenant,App\Models\Central\TenantInventoryStats,App\Models\Central\TenantStats,App\Models\Central\CentralUserTenant,App\Models\Central\User,App\Models\Central\Admin,App\Models\Central\AdminUser,App\Models\Central\Deployment,App\Models\Central\TenantMarketingStats,App\Models\Central\TenantProcurementStats,App\Models\Central\TenantAccountingStats'" --tenant=aroma
+php artisan tenants:artisan "ide-helper:models  -Wr  --ignore='App\Models\Assets\TariffCode,App\Models\Assets\Country,App\Models\Assets\Currency,App\Models\Assets\Language,App\Models\Assets\Timezone,App\Models\Central\CentralUser,App\Models\Central\Tenant,App\Models\Central\TenantInventoryStats,App\Models\Central\TenantStats,App\Models\Central\CentralUserTenant,App\Models\Central\User,App\Models\Central\Admin,App\Models\Central\AdminUser,App\Models\Central\Deployment,App\Models\Central\TenantMarketingStats,App\Models\Central\TenantProcurementStats,App\Models\Central\TenantAccountingStats'" --tenant=aroma
 php artisan ide-helper:models -Wr 'App\Models\Assets\Country'
 php artisan ide-helper:models -Wr 'App\Models\Assets\Currency'
 php artisan ide-helper:models -Wr 'App\Models\Assets\Language'
@@ -16,4 +16,6 @@ php artisan ide-helper:models -Wr 'App\Models\Central\Deployment'
 php artisan ide-helper:models -Wr 'App\Models\Central\TenantMarketingStats'
 php artisan ide-helper:models -Wr 'App\Models\Central\TenantProcurementStats'
 php artisan ide-helper:models -Wr 'App\Models\Central\TenantAccountingStats'
+php artisan ide-helper:models -Wr 'App\Models\Assets\TariffCode'
+
 
