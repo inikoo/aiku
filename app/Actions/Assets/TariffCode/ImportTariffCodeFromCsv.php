@@ -7,6 +7,7 @@
 
 namespace App\Actions\Assets\TariffCode;
 
+use App\Imports\TariffCodeImport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -16,14 +17,17 @@ class ImportTariffCodeFromCsv
 {
     use AsAction;
 
-    public string $commandSignature = 'import:tariff_codes {filename}';
+    public string $commandSignature   = 'import:tariff_codes {filename}';
     public string $commandDescription = 'Import a tariff code from csv (https://github.com/datasets/harmonized-system)';
 
     public function handle(string $filename): void
     {
-        Excel::import(new ImportTariffCode,
+        Excel::import(
+            new TariffCodeImport(),
             Storage::disk('datasets')->path($filename),
-            null, \Maatwebsite\Excel\Excel::CSV);
+            null,
+            \Maatwebsite\Excel\Excel::CSV
+        );
     }
 
     public function asCommand(Command $command): int
