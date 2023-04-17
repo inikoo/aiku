@@ -9,6 +9,7 @@ namespace App\Models\Procurement;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Helpers\Address;
+use App\Models\PurchaseOrder;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
@@ -134,4 +136,10 @@ class Agent extends Model implements HasMedia
     {
         return 'slug';
     }
+
+    public function purchaseOrder(): MorphMany
+    {
+        return $this->morphMany(PurchaseOrder::class, 'provider');
+    }
+
 }
