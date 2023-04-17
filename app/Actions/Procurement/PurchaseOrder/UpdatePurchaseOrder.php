@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Models\PurchaseOrder;
+use App\Models\Procurement\PurchaseOrder;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePurchaseOrder

@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 17 Apr 2023 11:06:19 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Mon, 17 Apr 2023 11:42:36 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Procurement;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;

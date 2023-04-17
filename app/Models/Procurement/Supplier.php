@@ -10,7 +10,6 @@ namespace App\Models\Procurement;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
-use App\Models\PurchaseOrder;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;

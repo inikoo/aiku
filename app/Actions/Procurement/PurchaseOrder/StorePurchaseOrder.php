@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Models\PurchaseOrder;
+use App\Models\Procurement\PurchaseOrder;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StorePurchaseOrder
