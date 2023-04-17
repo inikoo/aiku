@@ -75,8 +75,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                   != '' && $value != '0000-00-00 00:00:00'
-                                                               && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value != '' && $value != '0000-00-00 00:00:00'
+                             && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 
@@ -130,7 +130,6 @@ trait WithAuroraParsers
             $data['data']['name']    = Arr::get($rawData, 'Customer Tax Number Registered Name');
             $data['data']['address'] = Arr::get($rawData, 'Customer Tax Number Registered Address');
         }
-
 
 
         return array_merge(

@@ -77,8 +77,14 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             "state"  => $state,
             "status" => $status,
 
+            "cost_items"    => $this->auroraModelData->{'Purchase Order Items Net Amount'},
+            "cost_shipping" => $this->auroraModelData->{'Purchase Order Shipping Net Amount'},
+
+            "cost_total" => $this->auroraModelData->{'Purchase Order Total Amount'},
+
             "source_id"    => $this->auroraModelData->{'Purchase Order Key'},
             "exchange"     => $this->auroraModelData->{'Purchase Order Currency Exchange'},
+            "currency_id"  => $this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'}),
             "created_at"   => $this->auroraModelData->{'Purchase Order Creation Date'},
             "cancelled_at" => $cancelled_at,
             "data"         => $data

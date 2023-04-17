@@ -23,6 +23,9 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->string('state')->index()->default(PurchaseOrderStateEnum::CREATING->value);
             $table->string('status')->index()->default(PurchaseOrderStatusEnum::PROCESSING->value);
+
+
+
             $table->dateTimeTz('date')->comment('latest relevant date');
 
 
@@ -34,6 +37,19 @@ return new class () extends Migration {
             $table->dateTimeTz('checked_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
+
+            $table->unsignedSmallInteger('currency_id');
+            $table->foreign('currency_id')->references('id')->on('central.currencies');
+            $table->decimal('exchange', 16, 6)->default(1);
+
+
+            $table->decimal('cost_items', 16)->default(null)->nullable();
+            $table->decimal('cost_extra', 16)->default(null)->nullable();
+
+            $table->decimal('cost_shipping', 16)->default(null)->nullable();
+            $table->decimal('cost_duties', 16)->default(null)->nullable();
+            $table->decimal('cost_tax', 16)->default(0);
+            $table->decimal('cost_total', 16)->default(0);
 
             $table->timestampsTz();
             $table->softDeletesTz();
