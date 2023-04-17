@@ -1,9 +1,4 @@
 <?php
-/*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 17 Apr 2023 13:31:15 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
- */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,9 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
 
-    public function up(): void
+    public function up()
     {
-        Schema::create('purchase_orders', function (Blueprint $table) {
+        Schema::create('supplier_deliveries', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('provider_id')->index();
             $table->string('provider_type');
@@ -22,12 +17,13 @@ return new class extends Migration
             $table->jsonb('data');
             $table->timestampsTz();
             $table->unique(['provider_id', 'provider_type']);
+            $table->timestampsTz();
         });
     }
 
 
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('purchase_orders');
+        Schema::dropIfExists('supplier_deliveries');
     }
 };
