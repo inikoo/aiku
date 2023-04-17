@@ -30,7 +30,7 @@ class UpdatePurchaseOrderItem
     {
         return [
             'unit_quantity' => ['sometimes', 'required', 'numeric', 'gt:0'],
-            'unit_price' => ['sometimes', 'required', 'numeric'],
+            'unit_price'    => ['sometimes', 'required', 'numeric'],
         ];
     }
 

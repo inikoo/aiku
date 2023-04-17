@@ -8,23 +8,14 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Department\UI\IndexDepartments;
-use App\Actions\Marketing\Family\UI\IndexFamilies;
-use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Actions\Web\Webpage\IndexWebpages;
-use App\Enums\UI\CatalogueTabsEnum;
 use App\Enums\UI\WebsiteTabsEnum;
-use App\Http\Resources\Marketing\DepartmentResource;
-use App\Http\Resources\Marketing\FamilyResource;
-use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Marketing\WebpageResource;
 use App\Http\Resources\Marketing\WebsiteResource;
-use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
-use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;

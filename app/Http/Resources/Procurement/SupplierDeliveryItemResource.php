@@ -22,9 +22,9 @@ class SupplierDeliveryItemResource extends JsonResource
     {
         return [
             'unit_quantity' => $this->unit_quantity,
-            'unit_price' => $this->unit_price,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'unit_price'    => $this->unit_price,
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at,
         ];
     }
 }

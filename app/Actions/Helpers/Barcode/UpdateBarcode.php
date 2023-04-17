@@ -29,12 +29,12 @@ class UpdateBarcode
     public function rules(): array
     {
         return [
-            'slug' => ['sometimes', 'required'],
-            'type' => ['sometimes', 'required'],
-            'status' => ['sometimes', 'required'],
-            'number' => ['sometimes', 'required'],
+            'slug'        => ['sometimes', 'required'],
+            'type'        => ['sometimes', 'required'],
+            'status'      => ['sometimes', 'required'],
+            'number'      => ['sometimes', 'required'],
             'assigned_at' => ['sometimes', 'required'],
-            'data' => ['sometimes', 'required'],
+            'data'        => ['sometimes', 'required'],
         ];
     }
 

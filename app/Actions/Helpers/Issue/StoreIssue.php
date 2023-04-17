@@ -17,7 +17,7 @@ class StoreIssue
     public function handle($modelData): Issue
     {
         $issue = Issue::create($modelData);
-//        $issue->stats()->create();
+        //        $issue->stats()->create();
 
         return $issue;
     }

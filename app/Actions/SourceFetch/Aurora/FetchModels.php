@@ -51,7 +51,7 @@ class FetchModels
             $result = (int)$tenant->execute(
                 /**
                  * @throws \Exception
-                 */ 
+                 */
                 function (Tenant $tenant) use ($command) {
                     $tenantSource = $this->getTenantSource($tenant);
                     $tenantSource->initialisation(app('currentTenant'));

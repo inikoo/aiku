@@ -25,12 +25,12 @@ class BarcodeResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug' => $this->slug,
-            'type' => $this->type,
-            'status' => $this->status,
+            'slug'        => $this->slug,
+            'type'        => $this->type,
+            'status'      => $this->status,
             'assigned_at' => $this->assigned_at,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at'  => $this->created_at,
+            'updated_at'  => $this->updated_at,
         ];
     }
 }
