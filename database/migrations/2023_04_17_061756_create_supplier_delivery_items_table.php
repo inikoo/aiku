@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Mon, 17 Apr 2023 14:32:38 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

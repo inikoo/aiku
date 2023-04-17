@@ -47,7 +47,7 @@ class SupplierDelivery extends Model
         return $this->belongsToMany(PurchaseOrder::class);
     }
 
-    public function supplierDeliveryItems(): HasMany
+    public function items(): HasMany
     {
         return $this->hasMany(SupplierDeliveryItem::class);
     }
