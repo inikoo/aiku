@@ -7,11 +7,13 @@
 
 namespace App\Models\Inventory;
 
+use App\Models\Helpers\Issue;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
@@ -90,5 +92,10 @@ class Warehouse extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function issues(): MorphToMany
+    {
+        return $this->morphToMany(Issue::class, 'issuable');
     }
 }

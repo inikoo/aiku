@@ -16,6 +16,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Issue;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Leads\Prospect;
 use App\Models\Mail\Outbox;
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
@@ -238,5 +240,10 @@ class Shop extends Model
     public function mailStats(): HasOne
     {
         return $this->hasOne(ShopMailStats::class);
+    }
+
+    public function issues(): MorphToMany
+    {
+        return $this->morphToMany(Issue::class, 'issuable');
     }
 }

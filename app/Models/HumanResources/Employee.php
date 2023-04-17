@@ -11,6 +11,7 @@ use App\Actions\Central\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
+use App\Models\Helpers\Issue;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasPhoto;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -137,4 +139,10 @@ class Employee extends Model implements HasMedia
     {
         return 'slug';
     }
+
+    public function issues(): MorphToMany
+    {
+        return $this->morphToMany(Issue::class, 'issuable');
+    }
+
 }

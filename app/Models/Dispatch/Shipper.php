@@ -7,9 +7,11 @@
 
 namespace App\Models\Dispatch;
 
+use App\Models\Helpers\Issue;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
@@ -71,5 +73,10 @@ class Shipper extends Model
     public function shipments(): HasMany
     {
         return $this->hasMany(Shipment::class);
+    }
+
+    public function issues(): MorphToMany
+    {
+        return $this->morphToMany(Issue::class, 'issuable');
     }
 }
