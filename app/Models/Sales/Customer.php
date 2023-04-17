@@ -118,6 +118,11 @@ class Customer extends Model implements HasMedia
             ->doNotGenerateSlugsOnUpdate();
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected static function booted()
     {
         static::creating(
@@ -158,10 +163,7 @@ class Customer extends Model implements HasMedia
         return $this->hasMany(WebUser::class);
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
+
 
     public function products(): MorphMany
     {

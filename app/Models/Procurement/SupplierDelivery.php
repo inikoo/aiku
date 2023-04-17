@@ -10,10 +10,13 @@ namespace App\Models\Procurement;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class SupplierDelivery extends Model
 {
     use UsesTenantConnection;
+    use HasSlug;
 
     protected $casts = [
         'data' => 'array',
@@ -24,6 +27,19 @@ class SupplierDelivery extends Model
     ];
 
     protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('number')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function purchaseOrders(): BelongsToMany
     {
