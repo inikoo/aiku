@@ -9,9 +9,7 @@ namespace App\Actions\Central\CentralUser;
 
 use App\Models\Central\CentralMedia;
 use App\Models\Central\CentralUser;
-use Exception;
 use Illuminate\Console\Command;
-use Laravolt\Avatar\Avatar;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
@@ -29,35 +27,16 @@ class SetCentralUserAvatar
      */
     public function handle(CentralUser $centralUser): CentralUser
     {
-        $avatarID=null;
-        try {
-            $seed=$centralUser->id;
-            /** @var CentralMedia $centralMedia */
-            $centralMedia =$centralUser->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
-                ->preservingOriginal()
-                ->usingFileName($centralUser->username."-avatar.sgv")
-                ->toMediaCollection('profile', 'central');
+        $seed = $centralUser->id;
+        /** @var CentralMedia $centralMedia */
+        $centralMedia = $centralUser->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
+            ->preservingOriginal()
+            ->usingFileName($centralUser->username . "-avatar.sgv")
+            ->toMediaCollection('profile', 'central');
 
-            $avatarID=$centralMedia->id;
-        } catch (Exception) {
-            $temporaryDirectory = (new TemporaryDirectory())->create();
+        $avatarID = $centralMedia->id;
 
-            $image_path = $temporaryDirectory->path('avatar.png');
-
-            (new Avatar())->create($centralUser->name??$centralUser->username)->save($image_path);
-
-            $checksum = md5_file($image_path);
-
-            if ($centralUser->getMedia('profile', ['checksum' => $checksum])->count() == 0) {
-                $centralMedia=$centralUser->addMedia($image_path)
-                    ->preservingOriginal()
-                    ->withCustomProperties(['checksum' => $checksum])
-                    ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
-                    ->toMediaCollection('profile');
-                $avatarID=$centralMedia->id;
-            }
-        }
-        $centralUser->update(['media_id'=>$avatarID]);
+        $centralUser->update(['media_id' => $avatarID]);
 
         return $centralUser;
     }
@@ -77,9 +56,6 @@ class SetCentralUserAvatar
         } else {
             $this->handle($centralUser);
         }
-
-
-
 
 
         return 0;
