@@ -95,6 +95,11 @@ class SupplierProduct extends Model
             ->saveSlugsTo('slug');
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function historicRecords(): HasMany
     {
         return $this->hasMany(HistoricSupplierProduct::class);
@@ -115,8 +120,9 @@ class SupplierProduct extends Model
         return $this->belongsTo(Agent::class);
     }
 
-    public function getRouteKeyName(): string
+    public function purchaseOrderItems(): HasMany
     {
-        return 'slug';
+        return $this->hasMany(PurchaseOrderItem::class);
     }
+
 }
