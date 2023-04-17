@@ -11,7 +11,6 @@ use App\Models\Central\CentralMedia;
 use App\Models\Central\CentralUser;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class SetCentralUserAvatar
 {
@@ -21,7 +20,7 @@ class SetCentralUserAvatar
 
 
     /**
-     * @throws \Spatie\TemporaryDirectory\Exceptions\PathAlreadyExists
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileCannotBeAdded
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
      */
@@ -32,7 +31,7 @@ class SetCentralUserAvatar
         $centralMedia = $centralUser->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
             ->preservingOriginal()
             ->usingFileName($centralUser->username . "-avatar.sgv")
-            ->toMediaCollection('profile', 'central');
+            ->toMediaCollection('profile', 'local');
 
         $avatarID = $centralMedia->id;
 
@@ -43,7 +42,7 @@ class SetCentralUserAvatar
 
 
     /**
-     * @throws \Spatie\TemporaryDirectory\Exceptions\PathAlreadyExists
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileCannotBeAdded
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
      */
