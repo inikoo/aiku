@@ -19,7 +19,9 @@ return new class () extends Migration {
             $table->string('symbol');
 
             $table->smallInteger('fraction_digits');
-            $table->string('status')->nullable()->index();
+            $table->boolean('status')->default(true)->index();
+            $table->boolean('store_historic_data')->default(false);
+            $table->date('historic_data_since')->nullable();
             $table->jsonb('data');
             $table->timestampsTz();
         });

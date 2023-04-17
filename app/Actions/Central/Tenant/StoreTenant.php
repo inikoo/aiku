@@ -22,8 +22,9 @@ class StoreTenant
 
     public function handle(array $modelData): Tenant
     {
-        $modelData['ulid']=Str::ulid();
-        $tenant           = Tenant::create($modelData);
+        $modelData['ulid'] = Str::ulid();
+
+        $tenant = Tenant::create($modelData);
 
         $tenant->stats()->create();
         $tenant->procurementStats()->create();
@@ -48,12 +49,12 @@ class StoreTenant
 
                 StorePaymentServiceProvider::run(
                     modelData: [
-                                   'type' => 'account',
-                                   'data' => [
-                                       'service-code' => 'accounts'
-                                   ],
-                                   'code' => 'accounts'
-                               ]
+                        'type' => 'account',
+                        'data' => [
+                            'service-code' => 'accounts'
+                        ],
+                        'code' => 'accounts'
+                    ]
                 );
 
                 foreach (MailroomCodeEnum::cases() as $case) {
