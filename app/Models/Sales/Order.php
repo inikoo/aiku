@@ -107,7 +107,6 @@ class Order extends Model
         return $this->hasMany(Transaction::class);
     }
 
-
     public function deliveryNotes(): MorphToMany
     {
         return $this->morphToMany(DeliveryNote::class, 'delivery_noteable')->withTimestamps();

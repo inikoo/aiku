@@ -7,18 +7,23 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class PurchaseOrder extends Model
 {
     use UsesTenantConnection;
     use SoftDeletes;
+    use HasAddress;
+    use HasSlug;
+
 
     protected $casts = [
         'data' => 'array',

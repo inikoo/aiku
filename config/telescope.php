@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'domain' => env('TELESCOPE_DOMAIN', null),
+    'domain' => env('TELESCOPE_DOMAIN'),
 
     /*
     |--------------------------------------------------------------------------
@@ -138,6 +138,8 @@ return [
         'fetch:delivery-notes',
         'fetch:invoices',
         'fetch:deleted-invoices',
+        'fetch:purchase-order',
+
         'fetch:models',
         'fetch:reset'
     ],

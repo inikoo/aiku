@@ -44,6 +44,7 @@ use App\Services\Tenant\Aurora\FetchAuroraPaymentServiceProvider;
 use App\Services\Tenant\Aurora\FetchAuroraProduct;
 use App\Services\Tenant\Aurora\FetchAuroraProductStocks;
 use App\Services\Tenant\Aurora\FetchAuroraProspect;
+use App\Services\Tenant\Aurora\FetchAuroraPurchaseOrder;
 use App\Services\Tenant\Aurora\FetchAuroraService;
 use App\Services\Tenant\Aurora\FetchAuroraShipper;
 use App\Services\Tenant\Aurora\FetchAuroraShop;
@@ -314,4 +315,10 @@ use Illuminate\Support\Facades\DB;
     {
         return (new FetchAuroraEmailTrackingEvent($this))->fetch($id);
     }
+
+    public function fetchPurchaseOrder($id): ?array
+    {
+        return (new FetchAuroraPurchaseOrder($this))->fetch($id);
+    }
+
 }

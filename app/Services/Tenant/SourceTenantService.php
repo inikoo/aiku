@@ -110,4 +110,7 @@ interface SourceTenantService
     public function fetchEmailTrackingEvent($id);
 
     public function initialisation(Tenant $tenant);
+
+    public function fetchPurchaseOrder($id);
+
 }

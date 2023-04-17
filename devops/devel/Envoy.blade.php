@@ -90,7 +90,7 @@
 @endtask
 
 @task('empty-aurora-tenants')
-    echo "empty-aurora-tenants" > step
+    echo "empty-aurora-tenants" > stsep
     cd ../../
     @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
         echo "Tenant {{ $tenantData->db }}"
@@ -146,6 +146,9 @@ php artisan create:guest-user aiku 'Developer' -a -r super-admin
     echo "supplier products"
     php artisan fetch:supplier-products {{$instance}} -q
     php artisan fetch:deleted-supplier-products {{$instance}} -q
+    echo "purchase orders"
+    php artisan fetch:purchase-orders {{$instance}} -q
+
 @endtask
 
 @task('tenant-fetch-inventory')

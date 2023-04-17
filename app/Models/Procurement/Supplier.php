@@ -139,7 +139,7 @@ class Supplier extends Model implements HasMedia
         return $this->morphToMany(Issue::class, 'issuable');
     }
 
-    public function purchaseOrder(): MorphMany
+    public function purchaseOrders(): MorphMany
     {
         return $this->morphMany(PurchaseOrder::class, 'provider');
     }

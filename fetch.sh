@@ -19,6 +19,7 @@ suppliers
 deleted-suppliers
 supplier-products
 deleted-supplier-products
+purchse-orders
 shippers
 warehouses
 warehouse-areas
