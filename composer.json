@@ -17,6 +17,7 @@
         "ext-pgsql": "*",
         "ext-soap": "*",
         "ext-zlib": "*",
+        "amrshawky/laravel-currency": "^6.0",
         "aws/aws-sdk-php": "^3.255",
         "commerceguys/addressing": "^1.4",
         "commerceguys/intl": "^1.1",
