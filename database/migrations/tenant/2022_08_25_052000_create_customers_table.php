@@ -37,7 +37,6 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
-            $table->index([DB::raw('name(64)')]);
         });
     }
 
