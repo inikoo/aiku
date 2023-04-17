@@ -9,6 +9,7 @@ namespace App\Models\Procurement;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -44,5 +45,10 @@ class SupplierDelivery extends Model
     public function purchaseOrders(): BelongsToMany
     {
         return $this->belongsToMany(PurchaseOrder::class);
+    }
+
+    public function supplierDeliveryItems(): HasMany
+    {
+        return $this->hasMany(SupplierDeliveryItem::class);
     }
 }
