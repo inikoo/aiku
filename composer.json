@@ -15,6 +15,7 @@
         "ext-mbstring": "*",
         "ext-pdo": "*",
         "ext-pgsql": "*",
+        "ext-soap": "*",
         "ext-zlib": "*",
         "aws/aws-sdk-php": "^3.255",
         "commerceguys/addressing": "^1.4",
@@ -32,6 +33,7 @@
         "laravel/tinker": "^2",
         "league/flysystem-aws-s3-v3": "^3.0",
         "lorisleiva/laravel-actions": "^2.4",
+        "maatwebsite/excel": "^3.1",
         "meilisearch/meilisearch-php": "^1.0",
         "monicahq/laravel-cloudflare": "^3.3",
         "opcodesio/log-viewer": "^1.2",
@@ -48,8 +50,7 @@
         "spatie/temporary-directory": "^2.1",
         "tightenco/ziggy": "^1.0",
         "vemcogroup/laravel-translation": "^3.0",
-        "vlucas/phpdotenv": "^5.4",
-        "ext-soap": "*"
+        "vlucas/phpdotenv": "^5.4"
     },
     "require-dev": {
         "amphibee/laravel-pint-pre-commit": "^1.5",
