@@ -4,8 +4,135 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "47176c41a93b86f01c8651a6950ba453",
+    "content-hash": "05c201852d65822a6306a841ca68b513",
     "packages": [
+        {
+            "name": "amrshawky/currency",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amrshawky/currency.git",
+                "reference": "39f13b6783ef611fd13916d48abd31bca2ab1e54"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amrshawky/currency/zipball/39f13b6783ef611fd13916d48abd31bca2ab1e54",
+                "reference": "39f13b6783ef611fd13916d48abd31bca2ab1e54",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": ">=6.0",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "AmrShawky\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Amr Shawky",
+                    "homepage": "https://amrshawky.com"
+                }
+            ],
+            "description": "A PHP library for current and historical currency exchange rates & crypto exchange rates based on the free API provided by exchangerate.host",
+            "keywords": [
+                "crypto exchange rates",
+                "currency",
+                "currency converter",
+                "exchange rates",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/amrshawky/currency/issues",
+                "source": "https://github.com/amrshawky/currency/tree/1.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://ko-fi.com/amrshawky",
+                    "type": "ko_fi"
+                }
+            ],
+            "time": "2021-05-13T23:41:33+00:00"
+        },
+        {
+            "name": "amrshawky/laravel-currency",
+            "version": "6.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amrshawky/laravel-currency.git",
+                "reference": "a6ab6c4f65b58b4a89e2f467e91cc139e59c4df7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amrshawky/laravel-currency/zipball/a6ab6c4f65b58b4a89e2f467e91cc139e59c4df7",
+                "reference": "a6ab6c4f65b58b4a89e2f467e91cc139e59c4df7",
+                "shasum": ""
+            },
+            "require": {
+                "amrshawky/currency": "^1.0",
+                "ext-json": "*",
+                "guzzlehttp/guzzle": ">=6.0",
+                "illuminate/support": "^6.0|^7.0|^8.0|^9.0|^10.0",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=8.5.23"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AmrShawky\\LaravelCurrency\\CurrencyServiceProvider"
+                    ],
+                    "aliases": {
+                        "Currency": "AmrShawky\\LaravelCurrency\\Facade\\Currency"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AmrShawky\\LaravelCurrency\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Amr Shawky",
+                    "homepage": "https://amrshawky.com"
+                }
+            ],
+            "description": "A Laravel package for current and historical currency exchange rates & crypto exchange rates based on the free API provided by exchangerate.host",
+            "keywords": [
+                "currency",
+                "currency converter",
+                "exchange rates",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/amrshawky/laravel-currency/issues",
+                "source": "https://github.com/amrshawky/laravel-currency/tree/6.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://ko-fi.com/amrshawky",
+                    "type": "ko_fi"
+                }
+            ],
+            "time": "2023-02-17T18:40:31+00:00"
+        },
         {
             "name": "aws/aws-crt-php",
             "version": "v1.2.1",
