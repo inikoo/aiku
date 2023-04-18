@@ -18,9 +18,10 @@ class CurrencyExchange
 
     public string $commandSignature = 'currency:exchange {from} {to}';
 
-    public function handle($fromCurrency, $toCurrency): float|null
+    public function handle($fromCurrency, $toCurrency, $date): float|null
     {
-        $key = $fromCurrency . '-' . $toCurrency;
+        $date = $date ?? now()->format('Y-m-d');
+        $key = $fromCurrency . '-' . $toCurrency . '-' . $date;
 
         $currencyExchange = (float)Cache::get($key);
 
@@ -28,6 +29,7 @@ class CurrencyExchange
             $currencyExchange = Currency::convert()
                 ->from($fromCurrency)
                 ->to($toCurrency)
+                ->date($date)
                 ->get();
         }
 
@@ -39,7 +41,7 @@ class CurrencyExchange
 
     public function asCommand(Command $command): int
     {
-        $this->handle($command->argument('from'), $command->argument('to'));
+        $this->handle($command->argument('from'), $command->argument('to'), now());
 
         return 0;
     }

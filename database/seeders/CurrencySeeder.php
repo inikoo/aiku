@@ -21,11 +21,18 @@ class CurrencySeeder extends Seeder
         $currencyRepository = new CurrencyRepository();
 
         foreach ($currencyRepository->getAll() as $currency) {
+            $symbol = match($currency->getCurrencyCode()) {
+                'AFN' => '؋',
+                'ALL' => 'L',
+                'DZD' => 'دج',
+                'DZD' => 'دج',
+                default => $currency->getSymbol()
+            };
             Currency::UpdateOrCreate(
                 ['code' => $currency->getCurrencyCode()],
                 [
                     'name'            => $currency->getName(),
-                    'symbol'          => $currency->getSymbol(),
+                    'symbol'          => $symbol,
                     'fraction_digits' => $currency->getFractionDigits(),
 
 
