@@ -11,6 +11,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
+/**
+ * App\Models\Procurement\PurchaseOrderItem
+ *
+ * @property int $id
+ * @property int $purchase_order_id
+ * @property int $supplier_product_id
+ * @property array $data
+ * @property string $unit_quantity
+ * @property string $unit_price
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
+ * @property-read \App\Models\Procurement\PurchaseOrder $purchaseOrder
+ * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderItem query()
+ * @mixin \Eloquent
+ */
 class PurchaseOrderItem extends Model
 {
     use UsesTenantConnection;

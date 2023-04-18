@@ -7,7 +7,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Helpers\TariffCode;
+use App\Models\Assets\TariffCode;
 use Illuminate\Database\Seeder;
 
 class TariffCodeSeeder extends Seeder
@@ -23,11 +23,11 @@ class TariffCodeSeeder extends Seeder
 
         foreach ($tariffCodes as $tariffCode) {
             TariffCode::create([
-                'section' => $tariffCode['section'],
-                'hs_code' => $tariffCode['hs_code'],
+                'section'     => $tariffCode['section'],
+                'hs_code'     => $tariffCode['hs_code'],
                 'description' => $tariffCode['description'],
-                'parent_id' => $tariffCode['parent_id'],
-                'level' => $tariffCode['level'],
+                'parent_id'   => $tariffCode['parent_id'],
+                'level'       => $tariffCode['level'],
             ]);
         }
     }

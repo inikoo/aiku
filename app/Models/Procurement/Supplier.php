@@ -56,8 +56,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read \App\Models\Procurement\Agent|null $agent
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Supplier newModelQuery()

@@ -16,6 +16,29 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ * App\Models\Helpers\Barcode
+ *
+ * @property int $id
+ * @property string $slug
+ * @property string $type
+ * @property string $status
+ * @property string $number
+ * @property string|null $assigned_at
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $product
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stock
+ * @method static \Illuminate\Database\Eloquent\Builder|Barcode newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Barcode newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Barcode onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Barcode query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Barcode withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Barcode withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Barcode extends Model
 {
     use UsesTenantConnection;

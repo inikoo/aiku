@@ -14,6 +14,26 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ * App\Models\Procurement\SupplierDelivery
+ *
+ * @property int $id
+ * @property string $slug
+ * @property int $provider_id
+ * @property string $provider_type
+ * @property string $number
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
+ * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDeliveryItem> $items
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
+ * @method static \Illuminate\Database\Eloquent\Builder|SupplierDelivery newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SupplierDelivery newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SupplierDelivery query()
+ * @mixin \Eloquent
+ */
 class SupplierDelivery extends Model
 {
     use UsesTenantConnection;

@@ -74,6 +74,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Family> $families
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
+ * @property-read \App\Models\Marketing\ShopMailStats|null $mailStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Outbox> $outboxes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
