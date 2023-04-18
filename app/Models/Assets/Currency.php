@@ -19,7 +19,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property string $name
  * @property string $symbol
  * @property int $fraction_digits
- * @property string|null $status
+ * @property bool $status
+ * @property bool $store_historic_data
+ * @property \Illuminate\Support\Carbon|null $historic_data_since
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -33,10 +35,13 @@ class Currency extends Model
     use UsesLandlordConnection;
 
     protected $casts = [
-        'data' => 'array',
+        'data'               => 'array',
+        'historic_data_since'=> 'datetime'
     ];
 
     protected $attributes = [
         'data' => '{}',
     ];
+
+    protected $guarded=[];
 }

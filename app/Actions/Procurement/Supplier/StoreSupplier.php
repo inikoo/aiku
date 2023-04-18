@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier;
 
+use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
@@ -31,6 +32,8 @@ class StoreSupplier
         $supplier = $owner->suppliers()->create($modelData);
 
         $supplier->stats()->create();
+        SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
+
 
         StoreAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
 
@@ -43,6 +46,7 @@ class StoreSupplier
         }
 
         SupplierHydrateUniversalSearch::dispatch($supplier);
+
         return $supplier;
     }
 }

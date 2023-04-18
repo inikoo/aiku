@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Central\Tenant;
@@ -26,6 +27,9 @@ class StoreShop
         $shop->stats()->create();
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
+
+        SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
+
 
 
         $paymentAccount = StorePaymentAccount::run($tenant->accountsServiceProvider(), [

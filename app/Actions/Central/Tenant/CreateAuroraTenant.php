@@ -25,6 +25,7 @@ class CreateAuroraTenant
 
 
     public string $commandSignature = 'create:tenant-aurora {code} {aurora_db} {email}';
+
     public function getCommandDescription(): string
     {
         return 'Crete new Aurora tenant.';
@@ -92,7 +93,8 @@ class CreateAuroraTenant
                 'db_name'      => $aurora_db,
                 'account_code' => $auData->{'Account Code'},
                 'url'          => $auroraURL
-            ]
+            ],
+            'created_at'  => $auData->{'Account Valid From'}
         ];
 
 

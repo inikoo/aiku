@@ -8,6 +8,7 @@
 namespace App\Actions\Central\Tenant;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
+use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Mail\Mailroom\StoreMailroom;
 use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Central\Tenant;
@@ -36,6 +37,8 @@ class StoreTenant
         $tenant->accountingStats()->create();
         $tenant->mailStats()->create();
         $tenant->refresh();
+
+        SetCurrencyHistoricFields::run($tenant->currency, $tenant->created_at);
 
 
         DB::statement("CREATE SCHEMA aiku_$tenant->slug");

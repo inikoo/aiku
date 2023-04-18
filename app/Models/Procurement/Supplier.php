@@ -8,6 +8,7 @@
 namespace App\Models\Procurement;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Traits\HasAddress;
@@ -56,6 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read \App\Models\Procurement\Agent|null $agent
+ * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
@@ -139,6 +141,11 @@ class Supplier extends Model implements HasMedia
     public function issues(): MorphToMany
     {
         return $this->morphToMany(Issue::class, 'issuable');
+    }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
     }
 
     public function purchaseOrders(): MorphMany

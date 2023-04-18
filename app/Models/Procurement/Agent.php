@@ -8,12 +8,14 @@
 namespace App\Models\Procurement;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -51,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $central_agent_id
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
+ * @property-read Currency $currency
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Model|\Eloquent $owner
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
@@ -126,6 +129,12 @@ class Agent extends Model implements HasMedia
     {
         return $this->hasMany(SupplierProduct::class);
     }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
 
     public function owner(): MorphTo
     {
