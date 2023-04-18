@@ -25,7 +25,16 @@ class CurrencySeeder extends Seeder
                 'AFN' => '؋',
                 'ALL' => 'L',
                 'DZD' => 'دج',
-                'DZD' => 'دج',
+                'AOA' => 'Kz',
+                'ARS' => '$',
+                'AMD' => '֏',
+                'AWG' => 'ƒ',
+                'AZN' => '₼',
+                'BSD' => 'B$',
+                'BHD' => 'د.ب',
+                'BDT' => '৳',
+                'BBD' => 'Bds$',
+                'BZD' => '$',
                 default => $currency->getSymbol()
             };
             Currency::UpdateOrCreate(
