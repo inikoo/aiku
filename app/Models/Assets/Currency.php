@@ -7,8 +7,10 @@
 
 namespace App\Models\Assets;
 
+use App\Models\Helpers\CurrencyExchange;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
@@ -25,6 +27,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, CurrencyExchange> $exchanges
  * @method static Builder|Currency newModelQuery()
  * @method static Builder|Currency newQuery()
  * @method static Builder|Currency query()
@@ -44,4 +47,9 @@ class Currency extends Model
     ];
 
     protected $guarded=[];
+
+    public function exchanges(): HasMany
+    {
+        return $this->hasMany(CurrencyExchange::class);
+    }
 }

@@ -7,15 +7,18 @@
 
 namespace App\Actions\Helpers\CurrencyExchange;
 
+use App\Models\Assets\Currency;
 use Lorisleiva\Actions\Concerns\AsAction;
-use App\Models\Helpers\CurrencyExchange as CurrencyExchangeModel;
+use App\Models\Helpers\CurrencyExchange;
 
 class StoreCurrencyExchange
 {
     use AsAction;
 
-    public function handle($modelData): CurrencyExchangeModel
+    public function handle(Currency $currency, $modelData): CurrencyExchange
     {
-        return CurrencyExchangeModel::create($modelData);
+        /** @var CurrencyExchange $currencyExchange */
+        $currencyExchange= $currency->exchanges()->create($modelData);
+        return  $currencyExchange;
     }
 }
