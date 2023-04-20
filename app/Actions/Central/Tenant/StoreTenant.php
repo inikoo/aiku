@@ -25,7 +25,6 @@ class StoreTenant
     public function handle(Group $group, array $modelData): Tenant
     {
         $modelData['ulid'] = Str::ulid();
-
         $tenant = $group->tenants()->create($modelData);
 
         $tenant->stats()->create();

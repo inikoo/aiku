@@ -11,6 +11,7 @@ use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
+use App\Models\Central\Group;
 use App\Models\Central\Tenant;
 use Exception;
 use Illuminate\Console\Command;
@@ -98,7 +99,8 @@ class CreateAuroraTenant
         ];
 
 
-        $tenant = StoreTenant::run($tenantData);
+        $group = Group::where('code', 'aw')->first();
+        $tenant = StoreTenant::run($group, $tenantData);
 
 
         $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')

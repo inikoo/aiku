@@ -7,7 +7,9 @@
 
 namespace App\Models\Central;
 
+use App\Models\Assets\Currency;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
@@ -37,5 +39,10 @@ class Group extends Model
     public function tenants(): HasMany
     {
         return $this->hasMany(Tenant::class, 'group_id');
+    }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
     }
 }

@@ -18,7 +18,6 @@ return new class () extends Migration {
             $table->string('hs_code')->unique();
             $table->text('description');
             $table->unsignedInteger('parent_id')->index()->nullable();
-            $table->foreign('parent_id')->references('id')->on('tariff_codes');
             $table->unsignedSmallInteger('level')->index();
             $table->timestampsTz();
         });

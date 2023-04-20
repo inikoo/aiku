@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('slug');
             $table->string('code');
             $table->string('name');
+            $table->unsignedSmallInteger('currency_id');
+            $table->foreign('currency_id')->references('id')->on('central.currencies');
             $table->softDeletesTz();
             $table->timestampsTz();
         });
