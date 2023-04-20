@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 25 Oct 2022 15:06:23 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 19 Apr 2023 21:57:28 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
@@ -22,7 +22,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('current_historic_supplier_product_id')->index()->nullable();
             $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('media');
+            $table->foreign('image_id')->references('id')->on('central_media');
             $table->unsignedInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
 
@@ -51,8 +51,6 @@ return new class () extends Migration {
 
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedSmallInteger('central_supplier_product_id')->nullable();
-            //$table->foreign('central_supplier_product_id')->references('id')->on('central.central_supplier_products');
 
             $table->unsignedInteger('source_id')->nullable()->unique();
         });

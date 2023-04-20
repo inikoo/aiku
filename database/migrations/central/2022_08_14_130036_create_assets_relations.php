@@ -15,8 +15,8 @@ return new class () extends Migration {
     {
         Schema::create('country_language', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('country_id');
-            $table->unsignedSmallInteger('language_id');
+            $table->unsignedSmallInteger('country_id')->index();
+            $table->unsignedSmallInteger('language_id')->index();
             $table->unsignedSmallInteger('priority')->default(1)->index();
             $table->string('status')->nullable()->index();
             $table->timestampsTz();
@@ -27,8 +27,8 @@ return new class () extends Migration {
 
         Schema::create('country_timezone', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('country_id');
-            $table->unsignedSmallInteger('timezone_id');
+            $table->unsignedSmallInteger('country_id')->index();
+            $table->unsignedSmallInteger('timezone_id')->index();
             $table->unsignedSmallInteger('priority')->default(1)->index();
             $table->string('type')->nullable()->index();
             $table->timestampsTz();

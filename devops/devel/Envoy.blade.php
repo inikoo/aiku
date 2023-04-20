@@ -13,19 +13,19 @@
 @endsetup
 
 @story('install')
-    clean-storage
-    initialise-dbs
-    create-admins
+    clean
+    seeded-central-db
+    dump-database
 @endstory
 
 
 @story('snapshot')
-    clean-storage
-    initialise-dbs
+    clean
+    seeded-central-db
     dump-database
     create-admins
     dump-database
-    empty-aurora-tenants
+    create-aurora-tenants
     dump-database
     tenant-guest-admin
     dump-database
@@ -52,8 +52,8 @@
     dump-database
 @endstory
 
-@task('clean-storage')
-    echo "clean-storage"
+@task('clean')
+    echo "cleaning storage and db dumps"
     pwd
     cd ../../
     pwd
@@ -63,14 +63,16 @@
     rm -rf storage/app/central
     rm -rf storage/app/public/tenants
     rm -rf storage/app/public/central
+    rm -rf devops/devel/snapshots/*.dump
+    rm -rf
 
     php artisan cache:clear
     php artisan horizon:clear
 
 @endtask
 
-@task('initialise-dbs')
-    echo "initialise-dbs" > step
+@task('seeded-central-db')
+    echo "seeded-central-db" > step
     cd ../../
     @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
         echo "Tenant {{ $tenantData->db }}"
@@ -89,8 +91,8 @@
     php artisan create:admin-token {{ $adminCode }} admin root
 @endtask
 
-@task('empty-aurora-tenants')
-    echo "empty-aurora-tenants" > stsep
+@task('create-aurora-tenants')
+    echo "create-aurora-tenants" > step
     cd ../../
     @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
         echo "Tenant {{ $tenantData->db }}"

@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -74,7 +74,7 @@ class Agent extends Model implements HasMedia
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
-    use UsesTenantConnection;
+    use UsesLandlordConnection;
     use HasUniversalSearch;
     use HasPhoto;
 

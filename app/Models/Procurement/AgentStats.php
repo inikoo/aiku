@@ -10,7 +10,7 @@ namespace App\Models\Procurement;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Procurement\AgentStats
@@ -48,7 +48,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class AgentStats extends Model
 {
-    use UsesTenantConnection;
+    use UsesLandlordConnection;
 
     protected $table = 'agent_stats';
 

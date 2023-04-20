@@ -25,3 +25,4 @@ deploy.sh
 staging-deploy.sh
 prod-diff.sh
 /public/tenants/
+/c1

@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 25 Oct 2022 15:04:59 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 20 Apr 2023 08:47:38 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 use Illuminate\Database\Migrations\Migration;
@@ -30,10 +30,6 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('currency_id')->nullable();
             $table->foreign('currency_id')->references('id')->on('central.currencies');
-
-            $table->unsignedSmallInteger('central_historic_supplier_product_id')->nullable();
-            //$table->foreign('central_historic_supplier_product_id')->references('id')->on('central.central_historic_supplier_products');
-
 
             $table->unsignedInteger('source_id')->nullable()->unique();
         });

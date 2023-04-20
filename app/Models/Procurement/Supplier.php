@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -74,7 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Supplier extends Model implements HasMedia
 {
-    use UsesTenantConnection;
+    use UsesLandlordConnection;
     use SoftDeletes;
     use HasAddress;
     use HasSlug;

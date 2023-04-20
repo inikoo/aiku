@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up()
     {
-        Schema::create('historic_product_stats', function (Blueprint $table) {
+        Schema::create('historic_supplier_product_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('historic_product_id')->index();
-            $table->foreign('historic_product_id')->references('id')->on('historic_products');
+            $table->unsignedInteger('historic_supplier_product_id')->index();
+            $table->foreign('historic_supplier_product_id')->references('id')->on('historic_supplier_products');
             $table->timestampsTz();
         });
     }
@@ -23,6 +23,6 @@ return new class () extends Migration {
 
     public function down()
     {
-        Schema::dropIfExists('historic_product_stats');
+        Schema::dropIfExists('historic_supplier_product_stats');
     }
 };
