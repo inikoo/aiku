@@ -17,8 +17,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups');
             $table->ulid('ulid')->index();
-            $table->string('slug')->unique();
-            $table->string('code');
+            $table->string('code')->unique();
             $table->string('name');
             $table->boolean('status')->default(true);
 

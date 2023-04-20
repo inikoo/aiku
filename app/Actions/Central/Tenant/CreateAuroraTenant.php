@@ -141,7 +141,7 @@ class CreateAuroraTenant
 
         /** @noinspection HttpUrlsUsage */
         DB::connection('aurora')->table('Account Data')
-            ->update(['pika_url' => (app()->isLocal() ? 'http://' : 'https://').$tenant->slug.'.'.config('app.domain')]);
+            ->update(['pika_url' => (app()->isLocal() ? 'http://' : 'https://').$tenant->code.'.'.config('app.domain')]);
 
 
         $command->table(

@@ -17,15 +17,21 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreTenant
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(Group $group, array $modelData): Tenant
     {
-        $modelData['ulid'] = Str::ulid();
-        $tenant = $group->tenants()->create($modelData);
+
+
+        $validatedData = $this->validateAttributes();
+
+        $validatedData['ulid'] = Str::ulid();
+        $tenant = $group->tenants()->create($validatedData);
 
         $tenant->stats()->create();
         $tenant->procurementStats()->create();
@@ -41,11 +47,11 @@ class StoreTenant
         SetCurrencyHistoricFields::run($tenant->currency, $tenant->created_at);
 
 
-        DB::statement("CREATE SCHEMA aiku_$tenant->slug");
+        DB::statement("CREATE SCHEMA aiku_$tenant->code");
         $tenant->execute(
             function (Tenant $tenant) {
-                Artisan::call('tenants:artisan "migrate:fresh --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->slug);
-                Artisan::call('tenants:artisan "db:seed --force --class=TenantsSeeder" --tenant='.$tenant->slug);
+               Artisan::call('tenants:artisan "migrate:fresh --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->code);
+              //  Artisan::call('tenants:artisan "db:seed --force --class=TenantsSeeder" --tenant='.$tenant->code);
 
 
                 CreateTenantStorageLink::run();
@@ -72,5 +78,27 @@ class StoreTenant
 
 
         return $tenant;
+    }
+
+    public function rules()
+    {
+        return [
+            'code' => ['sometimes', 'required', 'unique:groups', 'between:2,6', 'alpha'],
+            'name' => ['sometimes', 'required', 'max:64'],
+            'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
+            'country_id'  => ['sometimes', 'required', 'exists:countries,id'],
+            'language_id' => ['sometimes', 'required', 'exists:languages,id'],
+            'timezone_id' => ['sometimes', 'required', 'exists:timezones,id'],
+        ];
+    }
+
+
+    public function action(Group $group,$objectData): Tenant
+    {
+
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($group,$validatedData);
     }
 }

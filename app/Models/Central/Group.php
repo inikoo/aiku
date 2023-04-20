@@ -8,6 +8,7 @@
 namespace App\Models\Central;
 
 use App\Models\Assets\Currency;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,6 +22,7 @@ class Group extends Model
     use UsesLandlordConnection;
     use SoftDeletes;
     use HasSlug;
+    use HasFactory;
 
     protected $guarded = [];
 

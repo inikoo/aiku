@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Actions\Central\Group\StoreGroup;
 use App\Models\Central\Group;
+use Database\Seeders\RestoreDatabaseSeeder;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -11,11 +12,11 @@ use Tests\TestCase;
 
 class GroupTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
+    use RefreshDatabase;
+
+
+    protected $seeder = RestoreDatabaseSeeder::class;
+
     public function test_create_group()
     {
         $this->artisan('create:group aw awa USD')->assertOk();

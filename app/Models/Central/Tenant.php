@@ -21,8 +21,6 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Multitenancy\Models\Tenant as SpatieTenant;
 use Spatie\Multitenancy\TenantCollection;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Central\Tenant
@@ -67,8 +65,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Tenant extends SpatieTenant
 {
-    use HasSlug;
-
     protected $casts = [
         'data'   => 'array',
         'source' => 'array',
@@ -79,18 +75,11 @@ class Tenant extends SpatieTenant
         'source' => '{}',
     ];
 
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('code')
-            ->saveSlugsTo('slug');
-    }
-
     protected $guarded = [];
 
     public function getDatabaseName(): string
     {
-        return 'aiku_'.$this->slug;
+        return 'aiku_'.$this->code;
     }
 
     public function stats(): HasOne
