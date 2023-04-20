@@ -26,12 +26,9 @@ class StoreTenant
 
     public function handle(Group $group, array $modelData): Tenant
     {
-
-
-        $validatedData = $this->validateAttributes();
-
-        $validatedData['ulid'] = Str::ulid();
-        $tenant = $group->tenants()->create($validatedData);
+        $modelData['ulid'] = Str::ulid();
+        /** @var Tenant $tenant */
+        $tenant = $group->tenants()->create($modelData);
 
         $tenant->stats()->create();
         $tenant->procurementStats()->create();
@@ -46,12 +43,14 @@ class StoreTenant
 
         SetCurrencyHistoricFields::run($tenant->currency, $tenant->created_at);
 
-
         DB::statement("CREATE SCHEMA aiku_$tenant->code");
         $tenant->execute(
             function (Tenant $tenant) {
-               Artisan::call('tenants:artisan "migrate:fresh --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->code);
-              //  Artisan::call('tenants:artisan "db:seed --force --class=TenantsSeeder" --tenant='.$tenant->code);
+
+
+
+                Artisan::call('tenants:artisan "migrate:fresh  --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->code);
+                Artisan::call('tenants:artisan "db:seed --force --class=TenantsSeeder" --tenant='.$tenant->code);
 
 
                 CreateTenantStorageLink::run();
@@ -83,8 +82,8 @@ class StoreTenant
     public function rules()
     {
         return [
-            'code' => ['sometimes', 'required', 'unique:groups', 'between:2,6', 'alpha'],
-            'name' => ['sometimes', 'required', 'max:64'],
+            'code'        => ['sometimes', 'required', 'unique:groups', 'between:2,6', 'alpha'],
+            'name'        => ['sometimes', 'required', 'max:64'],
             'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
             'country_id'  => ['sometimes', 'required', 'exists:countries,id'],
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],
@@ -93,12 +92,11 @@ class StoreTenant
     }
 
 
-    public function action(Group $group,$objectData): Tenant
+    public function action(Group $group, $objectData): Tenant
     {
-
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($group,$validatedData);
+        return $this->handle($group, $validatedData);
     }
 }

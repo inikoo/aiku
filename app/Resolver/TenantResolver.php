@@ -37,6 +37,6 @@ class TenantResolver extends TenantFinder
             return null;
         }
 
-        return $this->getTenantModel()->where('slug', $subdomain)->first();
+        return $this->getTenantModel()->where('code', $subdomain)->first();
     }
 }

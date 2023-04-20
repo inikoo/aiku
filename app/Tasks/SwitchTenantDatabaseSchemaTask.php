@@ -49,6 +49,7 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
             throw InvalidConfiguration::tenantConnectionDoesNotExist($tenantConnectionName);
         }
 
+
         config([
                    "database.connections.$tenantConnectionName.search_path" => $databaseName,
                ]);

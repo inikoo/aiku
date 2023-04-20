@@ -36,7 +36,7 @@ return [
      * These fields are used by tenant:artisan command to match one or more tenant
      */
     'tenant_artisan_search_fields'       => [
-        'slug',
+        'code',
     ],
 
     /*

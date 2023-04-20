@@ -8,6 +8,7 @@
 namespace App\Actions\Central\Group;
 
 use App\Models\Assets\Currency;
+use Exception;
 use Illuminate\Console\Command;
 use App\Models\Central\Group;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,7 +16,6 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreGroup
 {
-
     use AsAction;
     use WithAttributes;
 
@@ -26,33 +26,39 @@ class StoreGroup
         $currency = Currency::where('code', $modelData['currency'])->first();
 
         return Group::create([
-            'code' => $modelData['code'],
-            'name' => $modelData['name'],
+            'code'        => $modelData['code'],
+            'name'        => $modelData['name'],
             'currency_id' => $currency->id
         ]);
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required', 'unique:groups', 'between:2,3'],
-            'name' => ['sometimes', 'required', 'max:64'],
+            'code'     => ['sometimes', 'required', 'unique:groups', 'between:2,3'],
+            'name'     => ['sometimes', 'required', 'max:64'],
             'currency' => ['sometimes', 'required', 'exists:currencies,code'],
         ];
     }
 
-    public function asCommand(Command $command): void
+    public function asCommand(Command $command): int
     {
         $this->setRawAttributes([
-            'code' => $command->argument('code'),
-            'name' => $command->argument('name'),
+            'code'     => $command->argument('code'),
+            'name'     => $command->argument('name'),
             'currency' => $command->argument('currency_code')
         ]);
 
-        $validatedData = $this->validateAttributes();
+        try {
+            $validatedData = $this->validateAttributes();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+            return 1;
+        }
 
         $this->handle($validatedData);
 
         $command->info('Done!');
+        return 0;
     }
 }

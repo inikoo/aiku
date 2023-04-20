@@ -8,13 +8,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Assets\Country;
-use CommerceGuys\Addressing\AddressFormat\AddressFormatRepository;
-use CommerceGuys\Addressing\Country\CountryRepository;
-use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Process;
-use Illuminate\Support\Str;
 
 class RestoreDatabaseSeeder extends Seeder
 {
@@ -25,7 +20,8 @@ class RestoreDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Process::run("psql -d aiku_test -qc 'drop SCHEMA IF EXISTS aiku_awa CASCADE'");
-        Process::run('pg_restore -U aiku -c -d aiku_test ./devops/devel/snapshots/seeded-central-db.dump');
+        Process::run("psql -d ".env('DB_DATABASE_TEST', 'aiku_test')." -qc 'drop SCHEMA IF EXISTS aiku_awa CASCADE'");
+        Process::run("pg_restore -U ".env('DB_USERNAME')." -c -d ".env('DB_DATABASE', 'aiku_test')." ./devops/devel/snapshots/seeded-central-db.dump");
+
     }
 }

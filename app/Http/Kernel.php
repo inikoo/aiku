@@ -7,7 +7,6 @@
 
 namespace App\Http;
 
-use Akempes\RequestLogging\LogRequest;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
@@ -71,7 +70,6 @@ class Kernel extends HttpKernel
             EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             SubstituteBindings::class,
-            LogRequest::class,
             'auth:api-admin-user'
         ],
 
@@ -87,7 +85,6 @@ class Kernel extends HttpKernel
         ],
         'app'     => [
             NeedsTenant::class,
-
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,

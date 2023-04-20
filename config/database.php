@@ -68,7 +68,7 @@ return [
             'charset'        => 'utf8',
             'prefix'         => '',
             'prefix_indexes' => true,
-            'search_path'    => '',
+            'search_path'    => env('DB_SEARCH_PATH', ''),
             'sslmode'        => 'prefer',
         ],
 

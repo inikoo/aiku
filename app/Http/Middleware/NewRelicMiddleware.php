@@ -24,6 +24,7 @@ class NewRelicMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+
         // Ensure New Relic is enabled before continuing.
         if (! app(NewRelicTransactionHandler::class)::newRelicEnabled()) {
             return $next($request);
