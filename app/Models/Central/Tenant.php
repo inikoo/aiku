@@ -177,4 +177,9 @@ class Tenant extends SpatieTenant
     {
         return $this->belongsToMany(CentralMedia::class)->withTimestamps();
     }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class, 'group_id');
+    }
 }

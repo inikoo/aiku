@@ -11,6 +11,7 @@ use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Mail\Mailroom\StoreMailroom;
 use App\Enums\Mail\Mailroom\MailroomCodeEnum;
+use App\Models\Central\Group;
 use App\Models\Central\Tenant;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -21,11 +22,11 @@ class StoreTenant
 {
     use AsAction;
 
-    public function handle(array $modelData): Tenant
+    public function handle(Group $group, array $modelData): Tenant
     {
         $modelData['ulid'] = Str::ulid();
 
-        $tenant = Tenant::create($modelData);
+        $tenant = $group->tenants()->create($modelData);
 
         $tenant->stats()->create();
         $tenant->procurementStats()->create();
