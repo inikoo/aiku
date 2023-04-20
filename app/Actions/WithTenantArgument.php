@@ -14,6 +14,6 @@ trait WithTenantArgument
 {
     protected function getTenant(Command $command): Tenant
     {
-        return Tenant::query()->where('slug', $command->argument('tenant'))->firstOrFail();
+        return Tenant::query()->where('code', $command->argument('tenant'))->firstOrFail();
     }
 }
