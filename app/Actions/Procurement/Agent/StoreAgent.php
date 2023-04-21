@@ -29,8 +29,8 @@ class StoreAgent
         $agent->stats()->create();
         SetCurrencyHistoricFields::run($agent->currency, $agent->created_at);
 
-//        StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
-//        $agent->location = $agent->getLocation();
+        StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
+        $agent->location = $agent->getLocation();
         $agent->save();
         TenantHydrateProcurement::dispatch(app('currentTenant'));
         AgentHydrateUniversalSearch::dispatch($agent);

@@ -79,7 +79,7 @@ class StoreTenant
         return $tenant;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'code'        => ['required', 'unique:groups', 'between:2,6', 'alpha'],

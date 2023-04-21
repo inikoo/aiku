@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Actions\Procurement\Agent\StoreAgent;
+use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
+use App\Models\Central\Group;
 use App\Models\Central\Tenant;
 use App\Models\Central\TenantProcurementStats;
 use Faker\Factory;
@@ -94,4 +96,30 @@ class AgentTest extends TestCase
         $this->assertEquals(2, $tenant->procurementStats->number_agents);
         $this->assertEquals(2, $tenant->procurementStats->number_active_agents);
     }
+
+    public function test_create_supplier()
+    {
+        $faker = Factory::create();
+
+        $tenant = Tenant::where('code', 'awa')->first();
+        $tenant->makeCurrent();
+
+        $currency = Currency::where('code', 'USD')->firstOrFail();
+        $group = Group::where('code', 'aw')->firstOrFail();
+
+        $supplierData = [
+            'code' => 'supplier',
+            'name' => $faker->name,
+            'company_name' => $faker->company,
+            'contact_name' => $faker->name,
+            'email' => $faker->email,
+            'currency_id' => $currency->id,
+            'type' => 'supplier',
+            'address_id' => 1,
+            'group_id' => $group->id,
+        ];
+
+        StoreSupplier::make()->action($tenant, $supplierData);
+    }
+
 }
