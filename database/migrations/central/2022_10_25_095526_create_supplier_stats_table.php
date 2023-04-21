@@ -18,6 +18,12 @@ return new class () extends Migration {
     {
         Schema::create('supplier_stats', function (Blueprint $table) {
             $table->mediumIncrements('id');
+
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups');
+            $table->unsignedSmallInteger('tenant_id');
+            $table->foreign('tenant_id')->references('id')->on('tenants');
+
             $table->unsignedInteger('supplier_id')->index();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table = $this->procurementStats($table);

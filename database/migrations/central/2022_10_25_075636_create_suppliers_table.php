@@ -14,6 +14,12 @@ return new class () extends Migration {
     {
         Schema::create('suppliers', function (Blueprint $table) {
             $table->increments('id');
+
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups');
+            $table->unsignedSmallInteger('tenant_id');
+            $table->foreign('tenant_id')->references('id')->on('tenants');
+
             $table->enum('type', ['supplier', 'sub-supplier'])->index()->comment('sub-supplier: agents supplier');
             $table->unsignedSmallInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('agents');

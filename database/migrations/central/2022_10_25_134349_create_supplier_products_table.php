@@ -16,6 +16,12 @@ return new class () extends Migration {
     {
         Schema::create('supplier_products', function (Blueprint $table) {
             $table->increments('id');
+
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups');
+            $table->unsignedSmallInteger('tenant_id');
+            $table->foreign('tenant_id')->references('id')->on('tenants');
+
             $table->string('trade_unit_composition')->default(SupplierProductTradeUnitCompositionEnum::MATCH->value)->nullable();
 
             $table->string('slug')->nullable()->index();
