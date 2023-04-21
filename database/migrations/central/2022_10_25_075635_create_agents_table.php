@@ -10,18 +10,17 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('agents', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('groups');
-            $table->unsignedSmallInteger('tenant_id');
-            $table->foreign('tenant_id')->references('id')->on('tenants');
+            //$table->unsignedSmallInteger('group_id');
+           // $table->foreign('group_id')->references('id')->on('groups');
+            $table->unsignedSmallInteger('owner_id')->comment('Tenant who owns this model');
+            $table->foreign('owner_id')->references('id')->on('tenants');
             $table->boolean('status')->default(true)->index();
             $table->string('slug')->unique();
             $table->string('code')->index();
-            $table->morphs('owner');
             $table->string('name');
             $table->string('company_name', 256)->nullable();
             $table->string('contact_name', 256)->nullable()->index();
@@ -46,7 +45,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('agents');
     }

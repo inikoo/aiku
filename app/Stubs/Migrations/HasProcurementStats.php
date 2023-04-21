@@ -7,6 +7,8 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Database\Schema\Blueprint;
@@ -25,10 +27,16 @@ trait HasProcurementStats
         }
 
         $table->unsignedInteger('number_purchase_orders')->default(0);
-        $purchaseOrderStates = ['in-process', 'submitted', 'confirmed', 'dispatched', 'delivered', 'cancelled'];
-        foreach ($purchaseOrderStates as $purchaseOrderState) {
-            $table->unsignedInteger('number_purchase_orders_state_'.str_replace('-', '_', $purchaseOrderState))->default(0);
+
+        foreach (PurchaseOrderStateEnum::cases() as $purchaseOrderState) {
+            $table->unsignedInteger('number_purchase_orders_state_'.$purchaseOrderState->snake())->default(0);
         }
+
+
+        foreach (PurchaseOrderStatusEnum::cases() as $purchaseOrderStatus) {
+            $table->unsignedInteger('number_purchase_orders_status_'.$purchaseOrderStatus->snake())->default(0);
+        }
+
         $table->unsignedInteger('number_deliveries')->default(0);
 
         return $table;

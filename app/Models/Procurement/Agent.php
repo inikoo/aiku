@@ -9,6 +9,7 @@ namespace App\Models\Procurement;
 
 use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Assets\Currency;
+use App\Models\Central\Tenant;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasPhoto;
@@ -136,9 +137,9 @@ class Agent extends Model implements HasMedia
     }
 
 
-    public function owner(): MorphTo
+    public function owner(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(Tenant::class, 'owner_id');
     }
 
     public function getRouteKeyName(): string

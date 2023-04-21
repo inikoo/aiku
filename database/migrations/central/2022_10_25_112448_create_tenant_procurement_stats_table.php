@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasProcurementStats;
 
-    public function up()
+    public function up(): void
     {
         Schema::create('tenant_procurement_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
@@ -25,8 +25,6 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('number_agents')->default(0);
             $table->unsignedSmallInteger('number_active_agents')->default(0);
-            $table->unsignedSmallInteger('number_active_tenant_agents')->default(0);
-            $table->unsignedSmallInteger('number_active_global_agents')->default(0);
 
             $table = $this->procurementStats($table);
 

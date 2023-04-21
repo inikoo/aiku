@@ -7,6 +7,7 @@
 
 namespace App\Actions\Central\Tenant\Hydrators;
 
+use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
@@ -29,11 +30,8 @@ class TenantHydrateProcurement implements ShouldBeUnique
 
             'number_agents'               => Agent::count(),
             'number_active_agents'        => Agent::where('status', true)->count(),
-            'number_active_tenant_agents' => Agent::where('status', true)->whereNull('central_agent_id')->count(),
-            'number_active_global_agents' => Agent::where('status', true)->whereNotNull('central_agent_id')->count(),
 
             'number_products' => SupplierProduct::count(),
-
         ];
 
 
@@ -48,10 +46,9 @@ class TenantHydrateProcurement implements ShouldBeUnique
             ->groupBy('stock_quantity_status')
             ->pluck('total', 'stock_quantity_status')->all();
 
-        foreach (SupplierProductStateEnum::cases() as $stockQuantityStatus) {
+        foreach (SupplierProductQuantityStatusEnum::cases() as $stockQuantityStatus) {
             $stats['number_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
         }
-
 
         $tenant->procurementStats->update($stats);
     }

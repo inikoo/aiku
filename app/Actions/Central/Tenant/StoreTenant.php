@@ -82,12 +82,12 @@ class StoreTenant
     public function rules()
     {
         return [
-            'code'        => ['sometimes', 'required', 'unique:groups', 'between:2,6', 'alpha'],
-            'name'        => ['sometimes', 'required', 'max:64'],
-            'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
-            'country_id'  => ['sometimes', 'required', 'exists:countries,id'],
-            'language_id' => ['sometimes', 'required', 'exists:languages,id'],
-            'timezone_id' => ['sometimes', 'required', 'exists:timezones,id'],
+            'code'        => ['required', 'unique:groups', 'between:2,6', 'alpha'],
+            'name'        => ['required', 'max:64'],
+            'currency_id' => ['required', 'exists:currencies,id'],
+            'country_id'  => ['required', 'exists:countries,id'],
+            'language_id' => ['required', 'exists:languages,id'],
+            'timezone_id' => ['required', 'exists:timezones,id'],
         ];
     }
 

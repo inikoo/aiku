@@ -142,9 +142,9 @@ class Tenant extends SpatieTenant
         return $this->morphMany(Supplier::class, 'owner');
     }
 
-    public function agents(): MorphMany
+    public function agents(): HasMany
     {
-        return $this->morphMany(Agent::class, 'owner');
+        return $this->hasMany(Agent::class, 'owner_id');
     }
 
     public function stocks(): MorphMany

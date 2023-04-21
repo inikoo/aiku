@@ -47,8 +47,6 @@ return new class () extends Migration {
 
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedSmallInteger('central_agent_id')->nullable();
-            //$table->foreign('central_agent_id')->references('id')->on('central.central_suppliers');
 
             $table->unsignedInteger('source_id')->index()->nullable();
         });

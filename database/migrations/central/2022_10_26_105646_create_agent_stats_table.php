@@ -19,11 +19,11 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('agent_id')->index();
             $table->foreign('agent_id')->references('id')->on('agents');
-
-            $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('groups');
-            $table->unsignedSmallInteger('tenant_id');
-            $table->foreign('tenant_id')->references('id')->on('tenants');
+//
+//            $table->unsignedSmallInteger('group_id');
+////            $table->foreign('group_id')->references('id')->on('groups');
+//            $table->unsignedSmallInteger('tenant_id');
+//            $table->foreign('tenant_id')->references('id')->on('tenants');
 
             $table->unsignedSmallInteger('number_suppliers')->default(0);
             $table->unsignedSmallInteger('number_active_suppliers')->default(0);
