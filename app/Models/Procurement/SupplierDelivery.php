@@ -10,7 +10,7 @@ namespace App\Models\Procurement;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -36,7 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class SupplierDelivery extends Model
 {
-    use UsesTenantConnection;
+    use UsesLandlordConnection;
     use HasSlug;
 
     protected $casts = [

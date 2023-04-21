@@ -9,7 +9,7 @@ namespace App\Models\Procurement;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Procurement\HistoricSupplierProductStats
@@ -21,7 +21,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class HistoricSupplierProductStats extends Model
 {
-    use UsesTenantConnection;
+    use UsesLandlordConnection;
 
     protected $table = 'historic_supplier product_stats';
 

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -63,7 +63,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class PurchaseOrder extends Model
 {
-    use UsesTenantConnection;
+    use UsesLandlordConnection;
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
