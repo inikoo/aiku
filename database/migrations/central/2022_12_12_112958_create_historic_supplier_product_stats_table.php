@@ -14,11 +14,11 @@ return new class () extends Migration {
     {
         Schema::create('historic_supplier_product_stats', function (Blueprint $table) {
             $table->increments('id');
-
-            $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('groups');
-            $table->unsignedSmallInteger('tenant_id');
-            $table->foreign('tenant_id')->references('id')->on('tenants');
+//
+//            $table->unsignedSmallInteger('group_id');
+//            $table->foreign('group_id')->references('id')->on('groups');
+//            $table->unsignedSmallInteger('tenant_id');
+//            $table->foreign('tenant_id')->references('id')->on('tenants');
 
             $table->unsignedInteger('historic_supplier_product_id')->index();
             $table->foreign('historic_supplier_product_id')->references('id')->on('historic_supplier_products');

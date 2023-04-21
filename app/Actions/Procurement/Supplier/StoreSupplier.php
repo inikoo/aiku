@@ -61,7 +61,6 @@ class StoreSupplier
             'email' => ['sometimes', 'required'],
             'currency_id' => ['required', 'exists:currencies,id'],
             'type' => ['required', 'in:supplier,sub-supplier'],
-            'group_id' => ['required', 'exists:groups,id'],
 //            'address_id' => ['required', 'exists:addresses,id']
         ];
     }

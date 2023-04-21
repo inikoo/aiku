@@ -115,11 +115,12 @@ class AgentTest extends TestCase
             'email' => $faker->email,
             'currency_id' => $currency->id,
             'type' => 'supplier',
-            'address_id' => 1,
-            'group_id' => $group->id,
+            'address_id' => 1
         ];
 
-        StoreSupplier::make()->action($tenant, $supplierData);
+        $supplier = StoreSupplier::make()->action($tenant, $supplierData);
+
+        $this->assertModelExists($supplier);
     }
 
 }
