@@ -27,9 +27,10 @@ class StoreSupplier
     public function handle(Tenant|Agent $owner, array $modelData, array $addressData = []): Supplier
     {
         if (class_basename($owner) == 'Agent') {
-            $modelData['owner_type'] = $owner->owner_type;
-            $modelData['owner_id'] = $owner->owner_id;
+            $modelData['owner_type'] = 'Agent';
+            $modelData['owner_id'] = $owner->id;
         }
+
         /** @var Supplier $supplier */
         $supplier = $owner->suppliers()->create($modelData);
         $supplier->stats()->create();
@@ -60,8 +61,7 @@ class StoreSupplier
             'contact_name' => ['sometimes', 'required'],
             'email' => ['sometimes', 'required'],
             'currency_id' => ['required', 'exists:currencies,id'],
-            'type' => ['required', 'in:supplier,sub-supplier'],
-//            'address_id' => ['required', 'exists:addresses,id']
+            'type' => ['required', 'in:supplier,sub-supplier']
         ];
     }
 
