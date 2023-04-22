@@ -9,6 +9,7 @@ namespace App\Actions\Central\CentralUser;
 
 use App\Models\Central\CentralMedia;
 use App\Models\Central\CentralUser;
+use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,33 +20,28 @@ class SetCentralUserAvatar
     public string $commandSignature = 'maintenance:reset-central-user-avatar {username}';
 
 
-    /**
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileCannotBeAdded
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
-     */
+
     public function handle(CentralUser $centralUser): CentralUser
     {
-        $seed = $centralUser->id;
-        /** @var CentralMedia $centralMedia */
-        $centralMedia = $centralUser->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
-            ->preservingOriginal()
-            ->usingFileName($centralUser->username . "-avatar.sgv")
-            ->toMediaCollection('profile', 'local');
+        try {
+            $seed = $centralUser->id;
+            /** @var CentralMedia $centralMedia */
+            $centralMedia = $centralUser->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
+                ->preservingOriginal()
+                ->usingFileName($centralUser->username."-avatar.sgv")
+                ->toMediaCollection('profile', 'local');
 
-        $avatarID = $centralMedia->id;
+            $avatarID = $centralMedia->id;
 
-        $centralUser->update(['media_id' => $avatarID]);
-
+            $centralUser->update(['media_id' => $avatarID]);
+        } catch(Exception) {
+            //
+        }
         return $centralUser;
     }
 
 
-    /**
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileCannotBeAdded
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
-     */
+
     public function asCommand(Command $command): int
     {
         $centralUser = CentralUser::where('username', $command->argument('username'))->first();

@@ -22,4 +22,6 @@ trait HasTenantHydrate
         $tenant=app('currentTenant');
         return ['central','tenant:'.$tenant->code];
     }
+
+
 }

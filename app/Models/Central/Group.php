@@ -17,6 +17,30 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ * App\Models\Central\Group
+ *
+ * @property int $id
+ * @property int|null $owner_id Tenant who owns this model
+ * @property string $slug
+ * @property string $code
+ * @property string $name
+ * @property int $currency_id
+ * @property int $number_tenants
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Currency $currency
+ * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Central\Tenant> $tenants
+ * @method static \Database\Factories\Central\GroupFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Group newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Group newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Group onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Group query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Group withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Group withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Group extends Model
 {
     use UsesLandlordConnection;
