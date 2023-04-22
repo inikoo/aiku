@@ -1,7 +1,7 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 17 Apr 2023 14:32:38 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 21 Apr 2023 13:18:07 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -12,16 +12,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('supplier_delivery_items', function (Blueprint $table) {
+        Schema::create('purchase_order_items', function (Blueprint $table) {
             $table->increments('id');
-//
-//            $table->unsignedSmallInteger('group_id');
-//            $table->foreign('group_id')->references('id')->on('groups');
-//            $table->unsignedSmallInteger('tenant_id');
-//            $table->foreign('tenant_id')->references('id')->on('tenants');
-
-            $table->unsignedInteger('supplier_delivery_id')->index();
-            $table->foreign('supplier_delivery_id')->references('id')->on('supplier_deliveries');
+            $table->unsignedInteger('purchase_order_id')->index();
+            $table->foreign('purchase_order_id')->references('id')->on('purchase_orders');
             $table->unsignedInteger('supplier_product_id')->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->jsonb('data');
@@ -32,8 +26,9 @@ return new class () extends Migration {
         });
     }
 
+
     public function down(): void
     {
-        Schema::dropIfExists('supplier_delivery_items');
+        Schema::dropIfExists('purchase_order_items');
     }
 };

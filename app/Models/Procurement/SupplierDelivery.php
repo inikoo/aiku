@@ -7,10 +7,11 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\Traits\UsesGroupConnection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -29,14 +30,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDeliveryItem> $items
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierDelivery newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierDelivery newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierDelivery query()
+ * @method static Builder|SupplierDelivery newModelQuery()
+ * @method static Builder|SupplierDelivery newQuery()
+ * @method static Builder|SupplierDelivery query()
  * @mixin \Eloquent
  */
 class SupplierDelivery extends Model
 {
-    use UsesLandlordConnection;
+    use UsesGroupConnection;
     use HasSlug;
 
     protected $casts = [

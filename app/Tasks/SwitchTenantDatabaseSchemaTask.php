@@ -23,7 +23,7 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
      */
     public function makeCurrent(Tenant $tenant): void
     {
-        $this->setTenantConnectionDatabaseName($tenant->getDatabaseName());
+        $this->setTenantConnectionDatabaseName($tenant->getDatabaseName(), 'aiku_grp_'.$tenant->group->code);
     }
 
     /**
@@ -31,13 +31,13 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
      */
     public function forgetCurrent(): void
     {
-        $this->setTenantConnectionDatabaseName(null);
+        $this->setTenantConnectionDatabaseName(null, null);
     }
 
     /**
      * @throws \Spatie\Multitenancy\Exceptions\InvalidConfiguration
      */
-    protected function setTenantConnectionDatabaseName(?string $databaseName)
+    protected function setTenantConnectionDatabaseName(?string $databaseName, ?string $groupSearchPath)
     {
         $tenantConnectionName = $this->tenantDatabaseConnectionName();
 
@@ -52,7 +52,9 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
 
         config([
                    "database.connections.$tenantConnectionName.search_path" => $databaseName,
-               ]);
+                   "database.connections.group.search_path"                 => $groupSearchPath
+
+        ]);
 
         app('db')->extend($tenantConnectionName, function ($config, $name) use ($databaseName) {
             $config['search_path'] = $databaseName;
@@ -61,6 +63,7 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
         });
 
         DB::purge($tenantConnectionName);
+        DB::purge('group');
 
         // Octane will have an old `db` instance in the Model::$resolver.
         Model::setConnectionResolver(app('db'));

@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 25 Oct 2022 10:58:51 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 21 Apr 2023 13:17:29 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 
@@ -19,10 +19,7 @@ return new class () extends Migration {
         Schema::create('supplier_stats', function (Blueprint $table) {
             $table->mediumIncrements('id');
 
-//            $table->unsignedSmallInteger('group_id');
-//            $table->foreign('group_id')->references('id')->on('groups');
-//            $table->unsignedSmallInteger('tenant_id');
-//            $table->foreign('tenant_id')->references('id')->on('tenants');
+
 
             $table->unsignedInteger('supplier_id')->index();
             $table->foreign('supplier_id')->references('id')->on('suppliers');

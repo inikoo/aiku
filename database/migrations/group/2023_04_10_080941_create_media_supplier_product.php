@@ -1,8 +1,8 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 10 Apr 2023 10:10:56 Central European Summer Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 21 Apr 2023 12:15:28 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 use Illuminate\Database\Migrations\Migration;
@@ -17,7 +17,7 @@ return new class () extends Migration {
             $table->string('type')->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->unsignedBigInteger('media_id')->index();
-            $table->foreign('media_id')->references('id')->on('central_media');
+            $table->foreign('media_id')->references('id')->on('group_media');
             $table->unique(['supplier_product_id', 'media_id']);
             $table->string('owner_type')->index();
             $table->unsignedInteger('owner_id');

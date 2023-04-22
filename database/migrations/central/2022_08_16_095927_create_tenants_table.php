@@ -25,13 +25,13 @@ return new class () extends Migration {
             $table->jsonb('source');
 
             $table->unsignedSmallInteger('country_id');
-            $table->foreign('country_id')->references('id')->on('central.countries');
+            $table->foreign('country_id')->references('id')->on('public.countries');
             $table->unsignedSmallInteger('language_id');
-            $table->foreign('language_id')->references('id')->on('central.languages');
+            $table->foreign('language_id')->references('id')->on('public.languages');
             $table->unsignedSmallInteger('timezone_id');
-            $table->foreign('timezone_id')->references('id')->on('central.timezones');
+            $table->foreign('timezone_id')->references('id')->on('public.timezones');
             $table->unsignedSmallInteger('currency_id')->comment('tenant accounting currency');
-            $table->foreign('currency_id')->references('id')->on('central.currencies');
+            $table->foreign('currency_id')->references('id')->on('public.currencies');
             $table->timestampsTz();
             $table->softDeletesTz();
         });

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 19 Apr 2023 22:04:15 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Fri, 21 Apr 2023 13:19:03 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -20,10 +20,8 @@ return new class () extends Migration {
 
     public function down()
     {
-        // Hack to remove the foreign constraint, because laravel stuff not work
-        DB::statement('alter table central.supplier_products drop constraint supplier_products_current_historic_supplier_product_id_foreign');
-        // Schema::table('supplier_products', function (Blueprint $table) {
-        //  $table->dropForeign('current_historic_supplier_product_id');
-        //});
+        Schema::table('supplier_products', function (Blueprint $table) {
+          $table->dropForeign('current_historic_supplier_product_id_foreign');
+        });
     }
 };

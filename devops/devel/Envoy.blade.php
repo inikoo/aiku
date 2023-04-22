@@ -74,10 +74,9 @@
 @task('seeded-central-db')
     echo "seeded-central-db" > step
     cd ../../
-    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
-        echo "Tenant {{ $tenantData->db }}"
-        psql -d {{ $_ENV['DB_DATABASE'] }} -qc 'drop SCHEMA IF EXISTS aiku_{{ $tenant }} CASCADE;'
-    @endforeach
+
+    dropdb -f --if-exists aiku
+    createdb aiku
     php artisan migrate:refresh --path=database/migrations/central  --database=central
     php artisan db:seed
 @endtask

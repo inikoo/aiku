@@ -7,10 +7,10 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Procurement\SupplierProductStats
@@ -27,7 +27,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  */
 class SupplierProductStats extends Model
 {
-    use UsesLandlordConnection;
+    use UsesGroupConnection;
 
     protected $table = 'supplier_product_stats';
 

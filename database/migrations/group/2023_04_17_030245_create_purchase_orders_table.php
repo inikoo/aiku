@@ -1,7 +1,7 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 17 Apr 2023 13:31:15 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 21 Apr 2023 13:18:44 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -45,7 +45,7 @@ return new class () extends Migration {
             $table->dateTimeTz('cancelled_at')->nullable();
 
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('central.currencies');
+            $table->foreign('currency_id')->references('id')->on('public.currencies');
             $table->decimal('exchange', 16, 6)->default(1);
 
 

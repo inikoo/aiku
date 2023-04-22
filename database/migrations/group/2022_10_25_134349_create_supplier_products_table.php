@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 19 Apr 2023 21:57:28 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Fri, 21 Apr 2023 13:17:34 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -17,10 +17,7 @@ return new class () extends Migration {
         Schema::create('supplier_products', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('groups');
-            $table->unsignedSmallInteger('tenant_id');
-            $table->foreign('tenant_id')->references('id')->on('tenants');
+
 
             $table->string('trade_unit_composition')->default(SupplierProductTradeUnitCompositionEnum::MATCH->value)->nullable();
 
@@ -28,7 +25,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('current_historic_supplier_product_id')->index()->nullable();
             $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('central_media');
+            $table->foreign('image_id')->references('id')->on('group_media');
             $table->unsignedInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
 

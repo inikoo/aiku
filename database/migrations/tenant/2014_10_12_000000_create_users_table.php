@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create('users', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('central_user_id');
-            $table->foreign('central_user_id')->references('id')->on('central.central_users');
+            $table->foreign('central_user_id')->references('id')->on('public.central_users');
             $table->string('username')->unique();
             $table->boolean('status')->default(true);
             $table->nullableMorphs('parent');

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 20 Apr 2023 08:47:38 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Fri, 21 Apr 2023 13:17:37 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -14,11 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('historic_supplier_products', function (Blueprint $table) {
             $table->increments('id');
-//
-//            $table->unsignedSmallInteger('group_id');
-//            $table->foreign('group_id')->references('id')->on('groups');
-//            $table->unsignedSmallInteger('tenant_id');
-//            $table->foreign('tenant_id')->references('id')->on('tenants');
+
 
             $table->string('slug')->unique();
             $table->boolean('status')->index();
@@ -35,7 +31,7 @@ return new class () extends Migration {
             $table->unsignedDecimal('cbm', 18, 4)->nullable();
 
             $table->unsignedSmallInteger('currency_id')->nullable();
-            $table->foreign('currency_id')->references('id')->on('central.currencies');
+            $table->foreign('currency_id')->references('id')->on('public.currencies');
 
             $table->unsignedInteger('source_id')->nullable()->unique();
         });

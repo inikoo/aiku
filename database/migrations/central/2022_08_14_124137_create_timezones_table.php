@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->string('name')->unique();
             $table->bigInteger('offset')->nullable()->comment('in hours');
             $table->unsignedSmallInteger('country_id')->nullable();
-            $table->foreign('country_id')->references('id')->on('central.countries');
+            $table->foreign('country_id')->references('id')->on('public.countries');
             $table->float('latitude')->nullable();
             $table->float('longitude')->nullable();
             $table->string('location');

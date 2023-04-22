@@ -8,12 +8,13 @@
 namespace App\Models\Procurement;
 
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\UsesGroupConnection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -53,17 +54,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
  * @property-read Model|\Eloquent $provider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder query()
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withoutTrashed()
+ * @method static Builder|PurchaseOrder newModelQuery()
+ * @method static Builder|PurchaseOrder newQuery()
+ * @method static Builder|PurchaseOrder onlyTrashed()
+ * @method static Builder|PurchaseOrder query()
+ * @method static Builder|PurchaseOrder withTrashed()
+ * @method static Builder|PurchaseOrder withoutTrashed()
  * @mixin \Eloquent
  */
 class PurchaseOrder extends Model
 {
-    use UsesLandlordConnection;
+    use UsesGroupConnection;
     use SoftDeletes;
     use HasAddress;
     use HasSlug;

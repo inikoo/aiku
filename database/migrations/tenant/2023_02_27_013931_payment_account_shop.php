@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('payment_account_id')->index();
             $table->foreign('payment_account_id')->references('id')->on('payment_accounts');
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('central.currencies');
+            $table->foreign('currency_id')->references('id')->on('public.currencies');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->unique(['shop_id', 'payment_account_id']);

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 19 Apr 2023 21:57:07 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Fri, 21 Apr 2023 11:28:24 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -10,27 +10,17 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('suppliers', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create('agents', function (Blueprint $table) {
+            $table->smallIncrements('id');
 
-            //$table->unsignedSmallInteger('group_id');
-            //$table->foreign('group_id')->references('id')->on('groups');
-            //$table->unsignedSmallInteger('tenant_id');
-            //$table->foreign('tenant_id')->references('id')->on('tenants');
-
-            $table->enum('type', ['supplier', 'sub-supplier'])->index()->comment('sub-supplier: agents supplier');
-            $table->unsignedSmallInteger('agent_id')->nullable();
-            $table->foreign('agent_id')->references('id')->on('agents');
-
+            $table->unsignedSmallInteger('owner_id')->comment('Tenant who owns this model');
+            $table->foreign('owner_id')->references('id')->on('public.tenants');
             $table->boolean('status')->default(true)->index();
             $table->string('slug')->unique();
             $table->string('code')->index();
-            $table->morphs('owner');
             $table->string('name');
-            $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('central_media');
             $table->string('company_name', 256)->nullable();
             $table->string('contact_name', 256)->nullable()->index();
             $table->string('email')->nullable();
@@ -38,9 +28,10 @@ return new class () extends Migration {
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
-
+            $table->unsignedBigInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('group_media');
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('central.currencies');
+            $table->foreign('currency_id')->references('id')->on('public.currencies');
             $table->jsonb('settings');
             $table->jsonb('shared_data');
             $table->jsonb('tenant_data');
@@ -53,8 +44,8 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('suppliers');
+        Schema::dropIfExists('agents');
     }
 };

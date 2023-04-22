@@ -30,7 +30,7 @@ return new class () extends Migration {
             $table->string('subsequent_status')->index()->nullable();
             $table->decimal('amount', 12);
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('central.currencies');
+            $table->foreign('currency_id')->references('id')->on('public.currencies');
             $table->decimal('dc_amount', 12);
             $table->jsonb('data');
             $table->dateTimeTz('date')->index()->comment('Most relevant date at current state');

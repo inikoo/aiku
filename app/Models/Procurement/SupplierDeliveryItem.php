@@ -7,9 +7,10 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\Traits\UsesGroupConnection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Procurement\SupplierDeliveryItem
@@ -25,14 +26,14 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property string|null $deleted_at
  * @property-read \App\Models\Procurement\SupplierDelivery $supplierDelivery
  * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierDeliveryItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierDeliveryItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierDeliveryItem query()
+ * @method static Builder|SupplierDeliveryItem newModelQuery()
+ * @method static Builder|SupplierDeliveryItem newQuery()
+ * @method static Builder|SupplierDeliveryItem query()
  * @mixin \Eloquent
  */
 class SupplierDeliveryItem extends Model
 {
-    use UsesLandlordConnection;
+    use UsesGroupConnection;
 
     protected $casts = [
         'data' => 'array',

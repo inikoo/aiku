@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 13:09:12 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 21 Apr 2023 13:17:44 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 use App\Stubs\Migrations\HasProcurementStats;
@@ -19,11 +19,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('agent_id')->index();
             $table->foreign('agent_id')->references('id')->on('agents');
-//
-//            $table->unsignedSmallInteger('group_id');
-////            $table->foreign('group_id')->references('id')->on('groups');
-//            $table->unsignedSmallInteger('tenant_id');
-//            $table->foreign('tenant_id')->references('id')->on('tenants');
+
 
             $table->unsignedSmallInteger('number_suppliers')->default(0);
             $table->unsignedSmallInteger('number_active_suppliers')->default(0);

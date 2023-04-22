@@ -20,8 +20,8 @@ class UserHydrateTenants implements ShouldBeUnique
 
     public function handle(User $user): void
     {
-        $numberOtherTenants       = DB::table('central.central_user_tenant')->where('central_user_id', $user->central_user_id)->whereNot('tenant_id', app('currentTenant')->id)->count();
-        $numberOtherActiveTenants = DB::table('central.central_user_tenant')->leftJoin('central.tenants', 'tenants.id', 'tenant_id')->where('central_user_id', $user->central_user_id)
+        $numberOtherTenants       = DB::table('public.central_user_tenant')->where('central_user_id', $user->central_user_id)->whereNot('tenant_id', app('currentTenant')->id)->count();
+        $numberOtherActiveTenants = DB::table('public.central_user_tenant')->leftJoin('public.tenants', 'tenants.id', 'tenant_id')->where('central_user_id', $user->central_user_id)
             ->whereNot('tenant_id', app('currentTenant')->id)
             ->where('tenants.status', true)
             ->count();
