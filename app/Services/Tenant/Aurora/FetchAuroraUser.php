@@ -66,7 +66,8 @@ class FetchAuroraUser extends FetchAurora
 
 
         if (!$this->parsedData['parent']) {
-            dd($this->auroraModelData);
+            print "Parent not found";
+            // dd($this->auroraModelData);
         }
     }
 

@@ -27,7 +27,7 @@ class FetchAuroraDispatchedEmail extends FetchAurora
         if ($this->parseMailshot($this->auroraModelData->{'Email Tracking Email Mailshot Key'})) {
             $parent = $this->parseMailshot($this->auroraModelData->{'Email Tracking Email Mailshot Key'});
             if (!$parent) {
-                dd('Error Mailshot not found');
+                print('Error Mailshot not found');
             }
         }
         if (!$parent) {
