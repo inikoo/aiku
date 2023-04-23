@@ -10,8 +10,9 @@ use App\Models\Tenancy\Tenant;
 use Faker\Factory;
 use Tests\TestCase;
 
-class AgentTest extends TestCase
+class ProcurementTest extends TestCase
 {
+    /*
     public function test_create_agents()
     {
         $faker = Factory::create();
@@ -166,4 +167,5 @@ class AgentTest extends TestCase
 
         return $addressData;
     }
+    */
 }
