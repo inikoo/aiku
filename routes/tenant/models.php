@@ -7,6 +7,7 @@
 
 
 use App\Actions\Accounting\Payment\UpdatePayment;
+use App\Actions\Auth\User\UpdateUser;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\Inventory\Location\UpdateLocation;
@@ -21,7 +22,6 @@ use App\Actions\Marketing\Product\UpdateProduct;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Sales\Customer\UpdateCustomer;
-use App\Actions\SysAdmin\User\UpdateUser;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');

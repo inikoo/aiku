@@ -7,8 +7,8 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\SysAdmin\Guest\StoreGuest;
-use App\Actions\SysAdmin\Guest\UpdateGuest;
+use App\Actions\Auth\Guest\StoreGuest;
+use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Utils\StoreImage;
 use App\Models\Auth\Guest;
 use App\Services\Tenant\SourceTenantService;

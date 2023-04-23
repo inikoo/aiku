@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 05 Mar 2023 02:41:07 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Mon, 24 Apr 2023 20:23:18 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\User\Hydrators;
+namespace App\Actions\Auth\User\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Auth\User;

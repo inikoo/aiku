@@ -6,12 +6,12 @@
  */
 
 
-use App\Actions\SysAdmin\Guest\IndexGuest;
-use App\Actions\SysAdmin\Guest\ShowGuest;
-use App\Actions\SysAdmin\User\UI\CreateUser;
-use App\Actions\SysAdmin\User\UI\EditUser;
-use App\Actions\SysAdmin\User\UI\IndexUsers;
-use App\Actions\SysAdmin\User\UI\ShowUser;
+use App\Actions\Auth\Guest\IndexGuest;
+use App\Actions\Auth\Guest\ShowGuest;
+use App\Actions\Auth\User\UI\CreateUser;
+use App\Actions\Auth\User\UI\EditUser;
+use App\Actions\Auth\User\UI\IndexUsers;
+use App\Actions\Auth\User\UI\ShowUser;
 use App\Actions\UI\Dashboard\DashTV;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use Illuminate\Support\Facades\Route;

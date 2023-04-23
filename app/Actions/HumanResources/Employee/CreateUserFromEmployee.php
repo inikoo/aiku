@@ -7,8 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\Auth\User\StoreUser;
 use App\Actions\Central\CentralUser\StoreCentralUser;
-use App\Actions\SysAdmin\User\StoreUser;
 use App\Models\Auth\User;
 use App\Models\HumanResources\Employee;
 use App\Models\Tenancy\Tenant;
