@@ -47,9 +47,9 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    invoices: object
-    delivery_notes: object
-    payments: object
+    invoices?: object
+    delivery_notes?: object
+    payments?: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -75,9 +75,6 @@ const component = computed(() => {
 
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <div class="m-4">
-        <DashboardNavigation v-for="(treeMap,idx) in treeMaps" :key="idx" :nodes="treeMap"/>
-    </div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>
 

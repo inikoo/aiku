@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\Marketing\OfferCampaign;
 
 use App\Models\Marketing\OfferCampaign;

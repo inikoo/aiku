@@ -32,7 +32,6 @@ class StoreService
         $service->salesStats()->create([
                                            'scope' => 'sales'
                                        ]);
-        /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant = app('currentTenant');
         if ($service->shop->currency_id != $tenant->currency_id) {
             $service->salesStats()->create([

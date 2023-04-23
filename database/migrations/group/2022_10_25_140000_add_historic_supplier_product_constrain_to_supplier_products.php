@@ -21,7 +21,7 @@ return new class () extends Migration {
     public function down()
     {
         Schema::table('supplier_products', function (Blueprint $table) {
-          $table->dropForeign('current_historic_supplier_product_id_foreign');
+            $table->dropForeign('current_historic_supplier_product_id_foreign');
         });
     }
 };

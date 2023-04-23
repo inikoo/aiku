@@ -33,7 +33,6 @@ class StoreFamily
         $family->salesStats()->create([
                                           'scope' => 'sales'
                                       ]);
-        /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant = app('currentTenant');
         if ($family->shop->currency_id != $tenant->currency_id) {
             $family->salesStats()->create([

@@ -18,7 +18,6 @@ class GetLayout
 
     public function handle(User $user): array
     {
-        /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant    = app('currentTenant');
         $shopCount = $tenant->marketingStats->number_shops;
 

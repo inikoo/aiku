@@ -22,19 +22,19 @@ class CurrencySeeder extends Seeder
 
         foreach ($currencyRepository->getAll() as $currency) {
             $symbol = match($currency->getCurrencyCode()) {
-                'AFN' => '؋',
-                'ALL' => 'L',
-                'DZD' => 'دج',
-                'AOA' => 'Kz',
-                'ARS' => '$',
-                'AMD' => '֏',
-                'AWG' => 'ƒ',
-                'AZN' => '₼',
-                'BSD' => 'B$',
-                'BHD' => 'د.ب',
-                'BDT' => '৳',
-                'BBD' => 'Bds$',
-                'BZD' => '$',
+                'AFN'   => '؋',
+                'ALL'   => 'L',
+                'DZD'   => 'دج',
+                'AOA'   => 'Kz',
+                'ARS'   => '$',
+                'AMD'   => '֏',
+                'AWG'   => 'ƒ',
+                'AZN'   => '₼',
+                'BSD'   => 'B$',
+                'BHD'   => 'د.ب',
+                'BDT'   => '৳',
+                'BBD'   => 'Bds$',
+                'BZD'   => '$',
                 default => $currency->getSymbol()
             };
             Currency::UpdateOrCreate(

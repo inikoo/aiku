@@ -12,7 +12,7 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\Multitenancy\Jobs\NotTenantAware;
 
-class GroupHydrateTenants implements ShouldBeUnique,NotTenantAware
+class GroupHydrateTenants implements ShouldBeUnique, NotTenantAware
 {
     use AsAction;
 

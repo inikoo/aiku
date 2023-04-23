@@ -16,11 +16,11 @@ return new class () extends Migration {
     {
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->increments('id');
-//
-//            $table->unsignedSmallInteger('group_id');
-//            $table->foreign('group_id')->references('id')->on('groups');
-//            $table->unsignedSmallInteger('tenant_id');
-//            $table->foreign('tenant_id')->references('id')->on('tenants');
+            //
+            //            $table->unsignedSmallInteger('group_id');
+            //            $table->foreign('group_id')->references('id')->on('groups');
+            //            $table->unsignedSmallInteger('tenant_id');
+            //            $table->foreign('tenant_id')->references('id')->on('tenants');
 
             $table->string('slug')->unique();
             $table->unsignedInteger('provider_id')->index();

@@ -22,9 +22,9 @@ class CurrencyExchangeResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'currency' => $this->currency,
-            'exchange' => $this->exchange,
-            'date' => $this->date,
+            'currency'   => $this->currency,
+            'exchange'   => $this->exchange,
+            'date'       => $this->date,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

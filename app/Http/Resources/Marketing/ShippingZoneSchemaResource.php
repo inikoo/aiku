@@ -23,10 +23,10 @@ class ShippingZoneSchemaResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'shop_id' => $this->shop_id,
-            'slug' => $this->slug,
-            'name' => $this->name,
-            'status' => $this->status,
+            'shop_id'    => $this->shop_id,
+            'slug'       => $this->slug,
+            'name'       => $this->name,
+            'status'     => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -99,7 +99,7 @@ class CreateAuroraTenant
         ];
 
 
-        $group = Group::where('code', 'aw')->first();
+        $group  = Group::where('code', 'aw')->first();
         $tenant = StoreTenant::run($group, $tenantData);
 
 

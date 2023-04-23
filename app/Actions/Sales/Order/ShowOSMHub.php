@@ -8,16 +8,11 @@
 namespace App\Actions\Sales\Order;
 
 use App\Actions\UI\WithInertia;
-use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-/**
- * @property \App\Models\Tenancy\Tenant $tenant
- * @property User $user
- */
 class ShowOSMHub
 {
     use AsAction;
@@ -31,8 +26,7 @@ class ShowOSMHub
 
     public function asController(ActionRequest $request): void
     {
-        $this->user   = $request->user();
-        $this->tenant = app('currentTenant');
+
     }
 
 

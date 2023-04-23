@@ -10,7 +10,6 @@
 namespace App\Actions\Tenancy\Tenant;
 
 use App\Actions\WithTenantsArgument;
-use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

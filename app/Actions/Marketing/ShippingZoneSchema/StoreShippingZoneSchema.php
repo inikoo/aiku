@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\Marketing\ShippingZoneSchema;
 
 use App\Models\Marketing\ShippingZoneSchema;

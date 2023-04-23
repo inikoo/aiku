@@ -22,13 +22,13 @@ class ShippingZone extends Model
 
     protected $casts = [
         'territories' => 'array',
-        'price' => 'array',
-        'status' => 'boolean',
+        'price'       => 'array',
+        'status'      => 'boolean',
     ];
 
     protected $attributes = [
         'territories' => '{}',
-        'price' => '{}',
+        'price'       => '{}',
     ];
 
     protected $guarded = [];

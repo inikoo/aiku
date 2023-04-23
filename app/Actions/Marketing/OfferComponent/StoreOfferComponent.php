@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\Marketing\OfferComponent;
 
 use App\Models\Marketing\OfferComponent;

@@ -29,10 +29,10 @@ class UpdateShippingZone
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required'],
-            'code' => ['sometimes', 'required'],
+            'name'        => ['sometimes', 'required'],
+            'code'        => ['sometimes', 'required'],
             'territories' => ['sometimes', 'required'],
-            'price' => ['sometimes', 'required'],
+            'price'       => ['sometimes', 'required'],
         ];
     }
 
