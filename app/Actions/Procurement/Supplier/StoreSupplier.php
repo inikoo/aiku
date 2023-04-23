@@ -8,12 +8,11 @@
 namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
-use App\Models\Central\Group;
-use App\Models\Central\Tenant;
+use App\Models\Tenancy\Tenant;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,7 +27,7 @@ class StoreSupplier
     {
         if (class_basename($owner) == 'Agent') {
             $modelData['owner_type'] = 'Agent';
-            $modelData['owner_id'] = $owner->id;
+            $modelData['owner_id']   = $owner->id;
         }
 
         /** @var Supplier $supplier */
@@ -55,13 +54,13 @@ class StoreSupplier
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:agents', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string'],
+            'code'         => ['required', 'unique:agents', 'between:2,9', 'alpha'],
+            'name'         => ['required', 'max:250', 'string'],
             'company_name' => ['sometimes', 'required'],
             'contact_name' => ['sometimes', 'required'],
-            'email' => ['sometimes', 'required'],
-            'currency_id' => ['required', 'exists:currencies,id'],
-            'type' => ['required', 'in:supplier,sub-supplier']
+            'email'        => ['sometimes', 'required'],
+            'currency_id'  => ['required', 'exists:currencies,id'],
+            'type'         => ['required', 'in:supplier,sub-supplier']
         ];
     }
 

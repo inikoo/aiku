@@ -6,7 +6,7 @@ use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
-use App\Models\Central\Tenant;
+use App\Models\Tenancy\Tenant;
 use Faker\Factory;
 use Tests\TestCase;
 
