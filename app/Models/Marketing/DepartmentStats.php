@@ -7,7 +7,7 @@
 
 namespace App\Models\Marketing;
 
-use App\Models\Central\Deployment;
+use App\Models\DevOps\Deployment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,7 +31,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Deployment $department
+ * @property-read \App\Models\DevOps\Deployment $department
  * @method static Builder|DepartmentStats newModelQuery()
  * @method static Builder|DepartmentStats newQuery()
  * @method static Builder|DepartmentStats query()

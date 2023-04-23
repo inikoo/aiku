@@ -8,7 +8,7 @@
 namespace App\Actions\DevOps\Deployment;
 
 use App\Actions\WithActionUpdate;
-use App\Models\Central\Deployment;
+use App\Models\DevOps\Deployment;
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\ActionRequest;
 

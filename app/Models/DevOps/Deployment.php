@@ -1,18 +1,18 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 22 Sept 2022 12:39:40 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 23 Apr 2023 11:49:53 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Central;
+namespace App\Models\DevOps;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
- * App\Models\Central\Deployment
+ * App\Models\DevOps\Deployment
  *
  * @property int $id
  * @property string $version
