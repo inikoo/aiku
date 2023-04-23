@@ -8,14 +8,14 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\Central\CentralUser\Hydrators\CentralUserHydrateTenants;
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Central\CentralUser;
-use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
-use  Spatie\Multitenancy\Landlord;
+use Spatie\Multitenancy\Landlord;
 
 class StoreUser
 {

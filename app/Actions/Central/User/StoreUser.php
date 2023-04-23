@@ -8,8 +8,8 @@
 namespace App\Actions\Central\User;
 
 use App\Actions\Central\User\Hydrators\UserHydrateUniversalSearch;
-use App\Models\Central\Tenant;
 use App\Models\Central\User;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreUser

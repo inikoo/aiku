@@ -12,7 +12,7 @@ use App\Models\Assets\Timezone;
 use App\Models\Central\Admin;
 use App\Models\Central\AdminUser;
 use App\Models\Central\CentralDomain;
-use App\Models\Central\Tenant;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreAdminUser

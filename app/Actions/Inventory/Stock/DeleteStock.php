@@ -7,8 +7,8 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Actions\WithActionUpdate;
 use App\Actions\WithTenantArgument;
 use App\Models\Inventory\Stock;

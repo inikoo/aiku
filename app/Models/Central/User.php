@@ -7,6 +7,7 @@
 
 namespace App\Models\Central;
 
+use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Central\Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|User newModelQuery()

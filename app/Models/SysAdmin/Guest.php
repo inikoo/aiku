@@ -7,7 +7,7 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Actions\Central\Tenant\HydrateTenant;
+use App\Actions\Tenancy\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;

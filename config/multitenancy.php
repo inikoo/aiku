@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Models\Central\Tenant;
+use App\Models\Tenancy\Tenant;
 use App\Resolver\TenantResolver;
 use App\Tasks\SetupFilesystemsTask;
 use App\Tasks\SwitchTenantDatabaseSchemaTask;

@@ -9,8 +9,8 @@
 namespace App\Actions\Sales\Order;
 
 use App\Actions\WithActionUpdate;
-use App\Models\Central\Tenant;
 use App\Models\Sales\Order;
+use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 
 class DeleteOrder

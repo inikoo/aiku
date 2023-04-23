@@ -7,7 +7,7 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;

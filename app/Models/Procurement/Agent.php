@@ -7,10 +7,10 @@
 
 namespace App\Models\Procurement;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Assets\Currency;
-use App\Models\Central\Tenant;
 use App\Models\Helpers\Address;
+use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;

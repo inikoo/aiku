@@ -8,12 +8,12 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
 use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Models\Central\Tenant;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Models\Inventory\Stock;
 use App\Models\Sales\Customer;
+use App\Models\Tenancy\Tenant;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;

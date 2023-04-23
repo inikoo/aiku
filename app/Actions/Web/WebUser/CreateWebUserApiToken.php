@@ -7,8 +7,7 @@
 
 namespace App\Actions\Web\WebUser;
 
-use App\Models\Central\Tenant;
-
+use App\Models\Tenancy\Tenant;
 use App\Models\Web\WebUser;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;

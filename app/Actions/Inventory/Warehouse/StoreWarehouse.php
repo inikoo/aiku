@@ -7,8 +7,8 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsAction;
 

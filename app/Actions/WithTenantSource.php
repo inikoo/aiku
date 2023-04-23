@@ -7,7 +7,7 @@
 
 namespace App\Actions;
 
-use App\Models\Central\Tenant;
+use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\AuroraTenantService;
 use Exception;
 use Illuminate\Support\Arr;

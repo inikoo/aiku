@@ -12,8 +12,8 @@ namespace App\Actions\Sales\Customer;
 
 use App\Actions\Web\WebUser\HydrateWebUser;
 use App\Actions\Web\WebUser\StoreWebUser;
-use App\Models\Central\Tenant;
 use App\Models\Sales\Customer;
+use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;

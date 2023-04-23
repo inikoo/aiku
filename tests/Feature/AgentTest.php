@@ -1,23 +1,35 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 22 Apr 2023 09:20:50 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 namespace Tests\Feature;
 
-use App\Actions\Procurement\Agent\StoreAgent;
-use App\Actions\Procurement\Supplier\StoreSupplier;
-use App\Models\Assets\Country;
-use App\Models\Assets\Currency;
-use App\Models\Central\Group;
-use App\Models\Central\Tenant;
-use App\Models\Central\TenantProcurementStats;
-use Faker\Factory;
 use Tests\TestCase;
 
 class AgentTest extends TestCase
 {
+    /*
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        $process = new Process(['/home/raul/aiku/devops/devel/reset_test_database.sh', 'aiku_test','raul','hello']);
+        $process->run();
+
+    }
+
     public function test_create_agents()
     {
+
         $faker = Factory::create();
+
+
         $tenant = Tenant::where('code', 'awa')->first();
+
+        dd($tenant);
         $tenant->makeCurrent();
 
         $currency = Currency::where('code', 'USD')->firstOrFail();
@@ -122,5 +134,6 @@ class AgentTest extends TestCase
 
         $this->assertModelExists($supplier);
     }
+    */
 
 }

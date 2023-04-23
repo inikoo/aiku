@@ -8,7 +8,6 @@
 namespace App\Actions\UI\SysAdmin;
 
 use App\Actions\UI\WithInertia;
-use App\Models\Central\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -33,7 +32,7 @@ class SysAdminDashboard
 
     public function htmlResponse(): Response
     {
-        /** @var Tenant $tenant */
+        /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant=app('currentTenant');
 
         return Inertia::render(

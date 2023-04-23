@@ -10,7 +10,6 @@ namespace App\Actions\Marketing\Family;
 use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateFamilies;
 use App\Actions\Marketing\Family\Hydrators\FamilyHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateFamilies;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Family;
 use App\Models\Marketing\Shop;
@@ -34,7 +33,7 @@ class StoreFamily
         $family->salesStats()->create([
                                           'scope' => 'sales'
                                       ]);
-        /** @var Tenant $tenant */
+        /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant = app('currentTenant');
         if ($family->shop->currency_id != $tenant->currency_id) {
             $family->salesStats()->create([

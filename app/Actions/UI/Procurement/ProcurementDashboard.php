@@ -8,8 +8,8 @@
 namespace App\Actions\UI\Procurement;
 
 use App\Actions\UI\WithInertia;
-use App\Models\Central\Tenant;
 use App\Models\SysAdmin\User;
+use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

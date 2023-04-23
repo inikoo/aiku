@@ -12,9 +12,9 @@ use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\HistoricProduct\StoreHistoricProduct;
 use App\Actions\Marketing\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreProduct

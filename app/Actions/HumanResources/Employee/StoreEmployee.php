@@ -7,9 +7,9 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;

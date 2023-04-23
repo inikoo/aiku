@@ -7,7 +7,7 @@
 
 namespace App\Actions;
 
-use App\Models\Central\Tenant;
+use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 
 trait WithTenantArgument

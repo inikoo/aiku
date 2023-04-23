@@ -10,8 +10,8 @@ namespace App\Actions\Marketing\Product;
 use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\WithActionUpdate;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Product;
+use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 
 class DeleteProduct

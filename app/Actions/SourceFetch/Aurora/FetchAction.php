@@ -9,8 +9,8 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\WithTenantsArgument;
 use App\Actions\WithTenantSource;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
+use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;

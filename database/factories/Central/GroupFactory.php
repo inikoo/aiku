@@ -10,7 +10,7 @@ namespace Database\Factories\Central;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Central\Group>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Tenancy\Group>
  */
 class GroupFactory extends Factory
 {
@@ -22,8 +22,8 @@ class GroupFactory extends Factory
     public function definition()
     {
         return [
-            'name' => 'Awa',
-            'code' => 'aw',
+            'name'        => 'Awa',
+            'code'        => 'aw',
             'currency_id' => 1
         ];
     }

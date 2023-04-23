@@ -11,9 +11,9 @@ use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Central\Tenant;
 use App\Models\Mail\Mailroom;
 use App\Models\Marketing\Shop;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreShop

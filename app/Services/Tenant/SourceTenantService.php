@@ -8,8 +8,8 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\Central\Tenant;
 use App\Models\Dispatch\DeliveryNote;
+use App\Models\Tenancy\Tenant;
 
 interface SourceTenantService
 {

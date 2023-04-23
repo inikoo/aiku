@@ -33,7 +33,7 @@ class HumanResourcesDashboard
 
     public function htmlResponse(): Response
     {
-        /** @var \App\Models\Central\Tenant $tenant */
+        /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant = app('currentTenant');
 
         return Inertia::render(

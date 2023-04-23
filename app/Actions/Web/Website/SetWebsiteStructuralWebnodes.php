@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\Web\Webnode\StoreWebnode;
-use App\Models\Central\Tenant;
+use App\Models\Tenancy\Tenant;
 use App\Models\Web\Webnode;
 use App\Models\Web\Website;
 use Illuminate\Console\Command;

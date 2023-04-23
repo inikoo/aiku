@@ -9,9 +9,9 @@ namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\UI\Mail\MailHub;
-use App\Models\Central\Tenant;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
+use App\Models\Tenancy\Tenant;
 
 trait HasUIMailshots
 {

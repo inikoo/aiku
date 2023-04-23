@@ -7,6 +7,7 @@
 
 namespace App\Models\Central;
 
+use App\Models\Tenancy\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -19,7 +20,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $tenant_id
  * @property int $central_user_id
  * @property bool $status
- * @property-read \App\Models\Central\Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|CentralUserTenant newModelQuery()
  * @method static Builder|CentralUserTenant newQuery()
  * @method static Builder|CentralUserTenant query()

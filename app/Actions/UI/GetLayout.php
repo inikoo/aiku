@@ -8,7 +8,6 @@
 namespace App\Actions\UI;
 
 use App\Http\Resources\UI\ShopsNavigationResource;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,7 +18,7 @@ class GetLayout
 
     public function handle(User $user): array
     {
-        /** @var Tenant $tenant */
+        /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant    = app('currentTenant');
         $shopCount = $tenant->marketingStats->number_shops;
 

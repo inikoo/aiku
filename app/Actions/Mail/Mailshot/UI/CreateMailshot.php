@@ -8,9 +8,9 @@
 namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Central\Tenant;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
+use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

@@ -7,8 +7,8 @@
 
 namespace App\Actions\Inventory\StockFamily;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateInventory;
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Models\Inventory\StockFamily;
 use Lorisleiva\Actions\Concerns\AsAction;
 

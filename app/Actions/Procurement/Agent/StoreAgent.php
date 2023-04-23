@@ -8,12 +8,11 @@
 namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
-use App\Models\Central\Group;
-use App\Models\Central\Tenant;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Procurement\Agent;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -40,12 +39,12 @@ class StoreAgent
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:agents', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string'],
+            'code'         => ['required', 'unique:agents', 'between:2,9', 'alpha'],
+            'name'         => ['required', 'max:250', 'string'],
             'company_name' => ['sometimes', 'required'],
             'contact_name' => ['sometimes', 'required'],
-            'email' => ['sometimes', 'required'],
-            'currency_id' => ['required', 'exists:currencies,id'],
+            'email'        => ['sometimes', 'required'],
+            'currency_id'  => ['required', 'exists:currencies,id'],
         ];
     }
 

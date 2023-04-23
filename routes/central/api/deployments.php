@@ -5,9 +5,9 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Actions\Central\Deployment\ShowDeployment;
-use App\Actions\Central\Deployment\StoreDeployment;
-use App\Actions\Central\Deployment\UpdateDeployment;
+use App\Actions\DevOps\Deployment\ShowDeployment;
+use App\Actions\DevOps\Deployment\StoreDeployment;
+use App\Actions\DevOps\Deployment\UpdateDeployment;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/latest', [ShowDeployment::class, 'latest'])->name('latest');

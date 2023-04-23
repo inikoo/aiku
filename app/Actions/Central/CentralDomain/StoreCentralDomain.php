@@ -9,7 +9,7 @@ namespace App\Actions\Central\CentralDomain;
 
 use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
 use App\Models\Central\CentralDomain;
-use App\Models\Central\Tenant;
+use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 

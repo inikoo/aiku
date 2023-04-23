@@ -7,7 +7,7 @@
 
 namespace App\Models\HumanResources;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateEmployees;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;

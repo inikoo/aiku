@@ -8,7 +8,7 @@
 namespace App\Models\Accounting;
 
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateAccounting;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

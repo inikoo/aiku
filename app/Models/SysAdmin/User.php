@@ -7,7 +7,7 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Actions\Central\Tenant\Hydrators\TenantHydrateUsers;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

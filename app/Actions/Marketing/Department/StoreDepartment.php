@@ -9,9 +9,9 @@ namespace App\Actions\Marketing\Department;
 
 use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Department;
 use App\Models\Marketing\Shop;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreDepartment

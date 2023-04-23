@@ -9,9 +9,9 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\Central\CentralUser\StoreCentralUser;
 use App\Actions\SysAdmin\User\StoreUser;
-use App\Models\Central\Tenant;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\User;
+use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

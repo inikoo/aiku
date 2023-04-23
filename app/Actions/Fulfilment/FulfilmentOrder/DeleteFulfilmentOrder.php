@@ -8,8 +8,8 @@
 namespace App\Actions\Fulfilment\FulfilmentOrder;
 
 use App\Actions\WithActionUpdate;
-use App\Models\Central\Tenant;
 use App\Models\Fulfilment\FulfilmentOrder;
+use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 
 class DeleteFulfilmentOrder

@@ -8,7 +8,6 @@
 namespace App\Actions\Marketing\Service;
 
 use App\Actions\Marketing\HistoricService\StoreHistoricService;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Service;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -33,7 +32,7 @@ class StoreService
         $service->salesStats()->create([
                                            'scope' => 'sales'
                                        ]);
-        /** @var Tenant $tenant */
+        /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant = app('currentTenant');
         if ($service->shop->currency_id != $tenant->currency_id) {
             $service->salesStats()->create([

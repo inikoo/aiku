@@ -8,7 +8,6 @@
 namespace App\Actions\UI\Dispatch;
 
 use App\Actions\UI\WithInertia;
-use App\Models\Central\Tenant;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,7 +15,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * @property Tenant $tenant
+ * @property \App\Models\Tenancy\Tenant $tenant
  * @property User $user
  */
 class ShowDispatchHub

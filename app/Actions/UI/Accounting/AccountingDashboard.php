@@ -9,8 +9,8 @@ namespace App\Actions\UI\Accounting;
 
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Central\Tenant;
 use App\Models\SysAdmin\User;
+use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

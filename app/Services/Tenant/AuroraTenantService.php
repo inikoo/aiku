@@ -9,8 +9,8 @@
 namespace App\Services\Tenant;
 
 use AllowDynamicProperties;
-use App\Models\Central\Tenant;
 use App\Models\Dispatch\DeliveryNote;
+use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\Aurora\FetchAuroraAgent;
 use App\Services\Tenant\Aurora\FetchAuroraCustomer;
 use App\Services\Tenant\Aurora\FetchAuroraCustomerClient;
@@ -35,6 +35,7 @@ use App\Services\Tenant\Aurora\FetchAuroraHistoricService;
 use App\Services\Tenant\Aurora\FetchAuroraInvoice;
 use App\Services\Tenant\Aurora\FetchAuroraInvoiceTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraLocation;
+use App\Services\Tenant\Aurora\FetchAuroraLocationStocks;
 use App\Services\Tenant\Aurora\FetchAuroraMailshot;
 use App\Services\Tenant\Aurora\FetchAuroraOrder;
 use App\Services\Tenant\Aurora\FetchAuroraOutbox;
@@ -50,7 +51,6 @@ use App\Services\Tenant\Aurora\FetchAuroraShipper;
 use App\Services\Tenant\Aurora\FetchAuroraShop;
 use App\Services\Tenant\Aurora\FetchAuroraStock;
 use App\Services\Tenant\Aurora\FetchAuroraStockFamily;
-use App\Services\Tenant\Aurora\FetchAuroraLocationStocks;
 use App\Services\Tenant\Aurora\FetchAuroraSupplier;
 use App\Services\Tenant\Aurora\FetchAuroraSupplierProduct;
 use App\Services\Tenant\Aurora\FetchAuroraTradeUnit;

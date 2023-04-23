@@ -9,8 +9,8 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\InertiaAction;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Central\Tenant;
 use App\Models\Marketing\Shop;
+use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

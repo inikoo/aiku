@@ -7,7 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Models\Central\Tenant;
+use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\SourceTenantService;
 
 class FetchAurora
