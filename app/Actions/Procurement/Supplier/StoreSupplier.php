@@ -8,13 +8,14 @@
 namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
+use App\Actions\Central\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Models\Central\Group;
+use App\Models\Central\Tenant;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
-use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -26,9 +27,10 @@ class StoreSupplier
     public function handle(Tenant|Agent $owner, array $modelData, array $addressData = []): Supplier
     {
         if (class_basename($owner) == 'Agent') {
-            $modelData['owner_type'] = $owner->owner_type;
-            $modelData['owner_id']   = $owner->owner_id;
+            $modelData['owner_type'] = 'Agent';
+            $modelData['owner_id'] = $owner->id;
         }
+
         /** @var Supplier $supplier */
         $supplier = $owner->suppliers()->create($modelData);
         $supplier->stats()->create();
@@ -53,14 +55,13 @@ class StoreSupplier
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:agents', 'between:2,9', 'alpha'],
-            'name'         => ['required', 'max:250', 'string'],
+            'code' => ['required', 'unique:agents', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
             'company_name' => ['sometimes', 'required'],
             'contact_name' => ['sometimes', 'required'],
-            'email'        => ['sometimes', 'required'],
-            'currency_id'  => ['required', 'exists:currencies,id'],
-            'type'         => ['required', 'in:supplier,sub-supplier'],
-//            'address_id' => ['required', 'exists:addresses,id']
+            'email' => ['sometimes', 'required'],
+            'currency_id' => ['required', 'exists:currencies,id'],
+            'type' => ['required', 'in:supplier,sub-supplier']
         ];
     }
 
