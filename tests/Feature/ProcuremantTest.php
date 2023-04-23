@@ -9,7 +9,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 
-class AgentTest extends TestCase
+class ProcuremantTest extends TestCase
 {
     /*
     public static function setUpBeforeClass(): void

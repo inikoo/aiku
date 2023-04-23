@@ -64,6 +64,8 @@
         "laravel/telescope": "^4.9",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7",
+        "pestphp/pest": "^2.5",
+        "pestphp/pest-plugin-laravel": "^2.0",
         "phpunit/phpunit": "^10",
         "spatie/laravel-ignition": "^2.0"
     },

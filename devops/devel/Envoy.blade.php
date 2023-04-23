@@ -1,5 +1,4 @@
 @servers(['localhost' => '127.0.0.1'])
-@servers(['localhost' => '127.0.0.1'])
 @setup
     $dotenv = Dotenv\Dotenv::createImmutable('../../');
     $dotenv->load();

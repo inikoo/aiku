@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Models\Assets\Country;
@@ -17,18 +16,28 @@ use Faker\Factory;
 use Symfony\Component\Process\Process;
 
 beforeAll(function () {
-    $process = new Process(['/home/raul/aiku/devops/devel/reset_test_database.sh', 'aiku_test','raul','hello']);
+
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../../','.env.testing');
+    $dotenv->load();
+
+    $process = new Process([
+            __DIR__.'/../../devops/devel/reset_test_database.sh',
+            env('DB_DATABASE_TEST','aiku_test'),
+            env('DB_USERNAME'),
+            env('DB_PASSWORD')
+        ]
+    );
     $process->run();
 });
 
 
 test('create group using action', function () {
-    $groupData=[
-        'code'       => 'hello',
-        'name'       => 'Hello Ltd',
-        'currency_id'=> 1
+    $groupData = [
+        'code'        => 'hello',
+        'name'        => 'Hello Ltd',
+        'currency_id' => 1
     ];
-    $group = StoreGroup::make()->asAction($groupData);
+    $group     = StoreGroup::make()->asAction($groupData);
     $this->assertModelExists($group);
 });
 
@@ -39,10 +48,9 @@ test('create group using command', function () {
 
 
 test('add tenant to group', function () {
-
     $faker = Factory::create();
 
-    $group= Group::where('slug', 'hello')->firstOrFail();
+    $group = Group::where('slug', 'hello')->firstOrFail();
 
     $country  = Country::where('code', 'US')->firstOrFail();
     $language = Language::where('code', $faker->languageCode)->firstOrFail();
@@ -62,10 +70,7 @@ test('add tenant to group', function () {
     $tenant = StoreTenant::make()->action($group, $tenantData);
 
     $this->assertModelExists($tenant);
-
 });
-
-
 
 
 test('try to create group with wrong currency', function () {

@@ -13,6 +13,8 @@ use Illuminate\Broadcasting\BroadcastEvent;
 use Illuminate\Events\CallQueuedListener;
 use Illuminate\Mail\SendQueuedMailable;
 use Illuminate\Notifications\SendQueuedNotifications;
+use Lorisleiva\Actions\Decorators\JobDecorator;
+use Lorisleiva\Actions\Decorators\UniqueJobDecorator;
 use Spatie\Multitenancy\Actions\ForgetCurrentTenantAction;
 use Spatie\Multitenancy\Actions\MakeQueueTenantAwareAction;
 use Spatie\Multitenancy\Actions\MakeTenantCurrentAction;
@@ -110,6 +112,9 @@ return [
         SendQueuedNotifications::class => 'notification',
         CallQueuedListener::class      => 'class',
         BroadcastEvent::class          => 'event',
+        JobDecorator::class            => 'getAction',
+        UniqueJobDecorator::class      => 'getAction'
+
     ],
 
     /*
@@ -123,6 +128,5 @@ return [
      * Jobs not tenant aware even if these don't implement the NotTenantAware interface.
      */
     'not_tenant_aware_jobs'              => [
-        // ...
     ],
 ];
