@@ -1,14 +1,14 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 22 Sept 2022 12:55:08 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 24 Apr 2023 20:11:54 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Central\Admin;
+namespace App\Actions\SysAdmin\Admin;
 
 use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
-use App\Models\Central\Admin;
+use App\Models\SysAdmin\Admin;
 use App\Rules\AlphaDashDot;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -37,11 +37,11 @@ class CreateAdminUser
     public function rules(): array
     {
         return [
-            'code'     => ['required', new AlphaDashDot(), 'unique:App\Models\Central\Admin,code'],
+            'code'     => ['required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\Admin,code'],
             'password' => ['required', app()->isLocal() ? null : Password::min(8)->uncompromised()],
             'name'     => 'sometimes|required',
-            'email'    => ['required', 'email', 'unique:App\Models\Central\Admin,email'],
-            'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\Central\AdminUser,username'],
+            'email'    => ['required', 'email', 'unique:App\Models\SysAdmin\Admin,email'],
+            'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\AdminUser,username'],
 
         ];
     }

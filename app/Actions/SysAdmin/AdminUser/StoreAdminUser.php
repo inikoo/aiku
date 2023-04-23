@@ -9,9 +9,9 @@ namespace App\Actions\SysAdmin\AdminUser;
 
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
-use App\Models\Central\Admin;
-use App\Models\Central\AdminUser;
 use App\Models\Central\CentralDomain;
+use App\Models\SysAdmin\Admin;
+use App\Models\SysAdmin\AdminUser;
 use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -32,7 +32,7 @@ class StoreAdminUser
             $userData['timezone_id'] = $timezone->id;
         }
 
-        /** @var AdminUser $adminUser */
+        /** @var \App\Models\SysAdmin\AdminUser $adminUser */
         $adminUser = $userable->adminUser()->create($userData);
         return $adminUser;
     }
