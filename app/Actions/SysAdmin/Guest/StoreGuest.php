@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
-use App\Models\SysAdmin\Guest;
+use App\Models\Auth\Guest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreGuest

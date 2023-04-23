@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\User;
 
 use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\User\Hydrators\UserHydrateTenants;
-use App\Models\SysAdmin\User;
+use App\Models\Auth\User;
 use Illuminate\Support\Collection;
 
 class HydrateUser extends HydrateModel

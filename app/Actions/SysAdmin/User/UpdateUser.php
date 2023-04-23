@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\WithActionUpdate;
-use App\Models\SysAdmin\User;
+use App\Models\Auth\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
@@ -16,7 +16,7 @@ use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property \App\Models\SysAdmin\User $user
+ * @property \App\Models\Auth\User $user
  */
 class UpdateUser
 {
@@ -41,7 +41,7 @@ class UpdateUser
     public function rules(): array
     {
         return [
-            'username' => 'sometimes|required|alpha_dash|unique:App\Models\SysAdmin\User,username',
+            'username' => 'sometimes|required|alpha_dash|unique:App\Models\Auth\User,username',
             'password' => ['required', Password::min(8)->uncompromised()],
         ];
     }

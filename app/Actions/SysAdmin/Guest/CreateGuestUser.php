@@ -10,11 +10,9 @@ namespace App\Actions\SysAdmin\Guest;
 use App\Actions\Central\CentralUser\StoreCentralUser;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\WithTenantsArgument;
-
+use App\Models\Auth\Role;
+use App\Models\Auth\User;
 use App\Models\Central\CentralUser;
-use App\Models\SysAdmin\Guest;
-use App\Models\SysAdmin\Role;
-use App\Models\SysAdmin\User;
 use App\Rules\AlphaDashDot;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -46,7 +44,7 @@ class CreateGuestUser
      * @param  array  $guestUserData
      * @param  array  $roles  array of Role models
      *
-     * @return User
+     * @return \App\Models\Auth\User
      */
     public function handle(array $guestUserData, array $roles): User
     {
@@ -142,7 +140,7 @@ class CreateGuestUser
                     }
 
 
-                    /** @var Guest $guest */
+                    /** @var \App\Models\Auth\Guest $guest */
                     $guest = $user->parent;
 
                     $command->line("Guest user created $user->username");

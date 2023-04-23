@@ -7,7 +7,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\SysAdmin\Role;
+use App\Models\Auth\Role;
 use App\Models\HumanResources\JobPosition;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;

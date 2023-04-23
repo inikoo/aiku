@@ -34,7 +34,7 @@ class HandleCentralInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        /** @var \App\Models\SysAdmin\User $user */
+        /** @var \App\Models\Auth\User $user */
         $user = $request->user();
 
 

@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\Profile;
 
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\UserResource;
-use App\Models\Sysadmin\User;
+use App\Models\Auth\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

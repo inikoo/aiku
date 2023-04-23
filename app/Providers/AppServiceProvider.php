@@ -47,11 +47,11 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::morphMap(
             [
-                'Admin'           => 'App\Models\Central\Admin',
-                'User'            => 'App\Models\SysAdmin\User',
+                'Admin'           => 'App\Models\SysAdmin\Admin',
+                'User'            => 'App\Models\Auth\User',
                 'CentralUser'     => 'App\Models\Central\CentralUser',
                 'Employee'        => 'App\Models\HumanResources\Employee',
-                'Guest'           => 'App\Models\SysAdmin\Guest',
+                'Guest'           => 'App\Models\Auth\Guest',
                 'Customer'        => 'App\Models\Sales\Customer',
                 'Prospect'        => 'App\Models\Deals\Prospect',
                 'Shop'            => 'App\Models\Marketing\Shop',

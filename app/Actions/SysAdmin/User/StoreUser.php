@@ -9,10 +9,10 @@ namespace App\Actions\SysAdmin\User;
 
 use App\Actions\Central\CentralUser\Hydrators\CentralUserHydrateTenants;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
+use App\Models\Auth\Guest;
+use App\Models\Auth\User;
 use App\Models\Central\CentralUser;
 use App\Models\HumanResources\Employee;
-use App\Models\SysAdmin\Guest;
-use App\Models\SysAdmin\User;
 use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\Multitenancy\Landlord;
@@ -26,7 +26,7 @@ class StoreUser
         Landlord::execute(function () use ($centralUser, $tenant) {
             $centralUser->tenants()->syncWithoutDetaching($tenant);
         });
-        /** @var \App\Models\SysAdmin\User $user */
+        /** @var \App\Models\Auth\User $user */
         $user = $parent->user()->create(
             [
                 'central_user_id' => $centralUser->id,

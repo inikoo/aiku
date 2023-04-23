@@ -7,7 +7,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\SysAdmin\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -17,7 +16,7 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next)
     {
-        /** @var User $user */
+        /** @var \App\Models\Auth\User $user */
 
         if ($user = auth()->user()) {
             $locale =Arr::get($user->settings, 'language');

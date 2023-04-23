@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 13 Sept 2022 12:56:52 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 24 Apr 2023 20:15:46 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\SysAdmin;
+namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,7 +19,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\SysAdmin\Guest
+ * App\Models\Auth\Guest
  *
  * @property int $id
  * @property string $slug
@@ -39,7 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property int|null $image_id
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
- * @property-read \App\Models\SysAdmin\User|null $user
+ * @property-read \App\Models\Auth\User|null $user
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest onlyTrashed()

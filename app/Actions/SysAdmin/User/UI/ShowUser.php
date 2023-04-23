@@ -10,7 +10,7 @@ namespace App\Actions\SysAdmin\User\UI;
 use App\Actions\InertiaAction;
 use App\Enums\UI\UserTabsEnum;
 use App\Http\Resources\SysAdmin\UserResource;
-use App\Models\Sysadmin\User;
+use App\Models\Auth\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\InertiaAction;
 use App\Http\Resources\SysAdmin\UserResource;
-use App\Models\SysAdmin\User;
+use App\Models\Auth\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;

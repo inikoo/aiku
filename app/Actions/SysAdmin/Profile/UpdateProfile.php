@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\Profile;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\SysAdmin\UserResource;
-use App\Models\SysAdmin\User;
+use App\Models\Auth\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
-use Illuminate\Validation\Rules\File;
 
 /**
  * @property User $user

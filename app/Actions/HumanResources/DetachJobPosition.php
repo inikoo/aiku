@@ -7,9 +7,9 @@
 
 namespace App\Actions\HumanResources;
 
+use App\Models\Auth\Guest;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
-use App\Models\SysAdmin\Guest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DetachJobPosition

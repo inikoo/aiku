@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\GuestTabsEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
-use App\Models\SysAdmin\Guest;
+use App\Models\Auth\Guest;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

@@ -8,8 +8,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\SysAdmin\Permission;
-use App\Models\SysAdmin\Role;
+use App\Models\Auth\Permission;
+use App\Models\Auth\Role;
 use Exception;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\PermissionRegistrar;

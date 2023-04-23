@@ -12,14 +12,13 @@ use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Models\Mail\Outbox;
 use App\Models\Marketing\Shop;
-use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
  * @property Outbox $outbox
- * @property User $user
+ * @property \App\Models\Auth\User $user
  */
 class MailHub extends InertiaAction
 {

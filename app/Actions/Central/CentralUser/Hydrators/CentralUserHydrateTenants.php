@@ -7,8 +7,8 @@
 
 namespace App\Actions\Central\CentralUser\Hydrators;
 
+use App\Models\Auth\User;
 use App\Models\Central\CentralUser;
-use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 

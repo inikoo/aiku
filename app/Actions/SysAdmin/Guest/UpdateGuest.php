@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\Guest;
 
 use App\Actions\WithActionUpdate;
-use App\Models\SysAdmin\Guest;
+use App\Models\Auth\Guest;
 
 class UpdateGuest
 {

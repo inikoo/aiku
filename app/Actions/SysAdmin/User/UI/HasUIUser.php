@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Models\SysAdmin\User;
+use App\Models\Auth\User;
 
 trait HasUIUser
 {

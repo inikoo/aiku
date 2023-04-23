@@ -7,7 +7,7 @@
 
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
-use App\Models\SysAdmin\User;
+use App\Models\Auth\User;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;

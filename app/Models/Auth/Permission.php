@@ -1,19 +1,18 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 24 Aug 2022 15:03:47 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 24 Apr 2023 20:15:46 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\SysAdmin;
+namespace App\Models\Auth;
 
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 
 /**
- * App\Models\SysAdmin\Permission
+ * App\Models\Auth\Permission
  *
  * @property int $id
  * @property string $name
@@ -22,7 +21,7 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SpatiePermission> $permissions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Auth\User> $users
  * @method static Builder|Permission newModelQuery()
  * @method static Builder|Permission newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Permission permission($permissions)

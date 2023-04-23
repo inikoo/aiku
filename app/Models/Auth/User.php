@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 06 Sept 2022 15:36:03 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 24 Apr 2023 20:15:46 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\SysAdmin;
+namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Traits\HasRoles;
@@ -20,7 +20,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\SysAdmin\User
+ * App\Models\Auth\User
  *
  * @property int $id
  * @property int $central_user_id
@@ -44,7 +44,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parentWithTrashed
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
- * @property-read \App\Models\SysAdmin\UserStats|null $stats
+ * @property-read \App\Models\Auth\UserStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()

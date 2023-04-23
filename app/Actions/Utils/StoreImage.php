@@ -8,6 +8,7 @@
 namespace App\Actions\Utils;
 
 use App\Actions\WithActionUpdate;
+use App\Models\Auth\Guest;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
@@ -16,7 +17,6 @@ use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use App\Models\Sales\Customer;
-use App\Models\SysAdmin\Guest;
 
 class StoreImage
 {

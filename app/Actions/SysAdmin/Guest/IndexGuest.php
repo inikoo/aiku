@@ -12,7 +12,7 @@ use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\SysAdmin\GuestInertiaResource;
 use App\Http\Resources\SysAdmin\GuestResource;
-use App\Models\SysAdmin\Guest;
+use App\Models\Auth\Guest;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

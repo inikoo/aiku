@@ -8,8 +8,8 @@
 namespace App\Actions\UI;
 
 use App\Http\Resources\UI\ShopsNavigationResource;
+use App\Models\Auth\User;
 use App\Models\Marketing\Shop;
-use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetLayout

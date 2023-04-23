@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Central\AdminUser;
-use App\Models\SysAdmin\User;
+use App\Models\Auth\User;
+use App\Models\SysAdmin\AdminUser;
 use App\Models\Web\WebUser;
 
 return [
