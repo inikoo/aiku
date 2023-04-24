@@ -7,23 +7,16 @@
 
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
-use App\Models\Assets\Country;
-use App\Models\Assets\Currency;
-use App\Models\Assets\Language;
-use App\Models\Assets\Timezone;
 use App\Models\Tenancy\Group;
-use Faker\Factory;
+use App\Models\Tenancy\Tenant;
+
 
 beforeAll(fn () => loadDB('d1_fresh_with_assets.dump'));
 
 
 test('create group using action', function () {
-    $groupData = [
-        'code'        => 'hello',
-        'name'        => 'Hello Ltd',
-        'currency_id' => 1
-    ];
-    $group     = StoreGroup::make()->asAction($groupData);
+    $group = StoreGroup::make()->asAction(Group::factory()->definition());
+
     $this->assertModelExists($group);
 });
 
@@ -34,26 +27,8 @@ test('create group using command', function () {
 
 
 test('add tenant to group', function () {
-    $faker = Factory::create();
-
-    $group = Group::where('slug', 'hello')->firstOrFail();
-
-    $country  = Country::where('code', 'US')->firstOrFail();
-    $language = Language::where('code', $faker->languageCode)->firstOrFail();
-    $timezone = Timezone::where('name', $faker->timezone('USA'))->firstOrFail();
-    $currency = Currency::where('code', 'USD')->firstOrFail();
-
-    $tenantData = [
-        'code'        => 'awa',
-        'name'        => $faker->name,
-        'country_id'  => $country->id,
-        'language_id' => $language->id,
-        'timezone_id' => $timezone->id,
-        'currency_id' => $currency->id,
-    ];
-
-
-    $tenant = StoreTenant::make()->action($group, $tenantData);
+    $group = Group::latest()->first();
+    $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
 
     $this->assertModelExists($tenant);
 });
