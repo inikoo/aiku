@@ -15,6 +15,8 @@
     clean
     seeded-central-db
     dump-database
+    create-admins
+    dump-database
 @endstory
 
 
@@ -73,7 +75,6 @@
 @task('seeded-central-db')
     echo "seeded-central-db" > step
     cd ../../
-
     dropdb --if-exists aiku
     createdb aiku
     php artisan migrate --path=database/migrations/central  --database=central
@@ -85,8 +86,10 @@
     echo "create-admins" > step
     cd ../../
     php artisan create:deployment
-    php artisan create:admin-user {{ $adminCode }} '{{ $adminName }}' {{ $adminEmail }} -a
-    php artisan create:admin-token {{ $adminCode }} admin root
+    php artisan create:admin {{ $adminCode }} '{{ $adminName }}' {{ $adminEmail }}
+    php artisan create:sys-user Admin {{ $adminCode }}  -a
+    echo "Admin token"
+    php artisan access-token:sys-user {{ $adminCode }} admin root
 @endtask
 
 @task('create-aurora-tenants')

@@ -63,7 +63,7 @@ class StoreSysUser
     }
 
 
-    public string $commandSignature = 'create:system-user
+    public string $commandSignature = 'create:sys-user
     {userable : type of userable model: Admin|Tenant|CentralDomain }
     {userable_slug : userable model slug/code}
     {--u|username= : use instead of slug/code argument}

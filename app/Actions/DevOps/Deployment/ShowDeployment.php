@@ -7,6 +7,7 @@
 
 namespace App\Actions\DevOps\Deployment;
 
+use App\Http\Resources\DevOps\DeploymentResource;
 use App\Models\DevOps\Deployment;
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,10 +21,10 @@ class ShowDeployment
         return $deployment;
     }
 
-    public function latest(): JsonResponse|Deployment
+    public function latest(): JsonResponse|DeploymentResource
     {
         if ($deployment = Deployment::latest()->first()) {
-            return $deployment;
+            return new DeploymentResource($deployment);
         } else {
             return response()->json(
                 [

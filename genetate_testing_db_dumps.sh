@@ -15,6 +15,6 @@ echo -e "💾 Saving ${PURPLE}fresh_with_assets.dump${NONE}"
 pg_dump -Fc -f "tests/datasets/db_dumps/d1_fresh_with_assets.dump" ${DB}
 echo "👮 Sysadmin admin/user/token"
 php artisan --env=testing  create:admin test 'John Test' 'test@ailu.io'
-php artisan --env=testing  create:system-user Admin test -a
+php artisan --env=testing  create:sys Admin test -a
 php artisan --env=testing  access-token:sys-user test admin root > tests/datasets/access_tokens/admin.token
 pg_dump -Fc -f "tests/datasets/db_dumps/d2_with_admin.dump" ${DB}
