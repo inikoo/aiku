@@ -42,7 +42,7 @@ class CreateTenantAdminUser
         $adminUser = StoreSysUser::run(
             $tenant,
             [
-                'username' => Arr::get($adminUserData, 'username', $tenant->code),
+                'username' => Arr::get($adminUserData, 'username', $tenant->slug),
                 'email'    => Arr::get($adminUserData, 'email'),
                 'password' => $password
             ]

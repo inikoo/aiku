@@ -149,7 +149,7 @@ class CreateGuestUser
                         ['Tenant', 'Username', 'Global Id', 'Password', 'Email', 'Name', 'Roles'],
                         [
                             [
-                                $tenant->code,
+                                $tenant->slug,
                                 $user->username,
                                 $user->central_user_id,
                                 ($command->option('autoPassword') ? Arr::get($validatedData, 'password') : '*****'),

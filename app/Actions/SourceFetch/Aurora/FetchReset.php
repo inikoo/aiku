@@ -45,7 +45,7 @@ class FetchReset
         foreach ($tenants as $tenant) {
             $result = (int)$tenant->execute(function () use ($command, $tenant) {
                 if ($databaseName = Arr::get($tenant->source, 'db_name')) {
-                    $command->line("🏃 $tenant->code ");
+                    $command->line("🏃 $tenant->slug ");
                     $this->setAuroraConnection($databaseName);
 
                     DB::connection('aurora')->table('pika_fetch')->truncate();

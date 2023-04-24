@@ -13,7 +13,10 @@ use App\Actions\Mail\Mailroom\StoreMailroom;
 use App\Actions\Tenancy\Group\Hydrators\GroupHydrateTenants;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Enums\Mail\Mailroom\MailroomCodeEnum;
+use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
+use App\Models\Assets\Language;
+use App\Models\Assets\Timezone;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Exception;
@@ -70,11 +73,11 @@ class StoreTenant
 
         SetCurrencyHistoricFields::run($tenant->currency, $tenant->created_at);
 
-        DB::statement("CREATE SCHEMA aiku_$tenant->code");
+        DB::statement("CREATE SCHEMA ".$tenant->schema());
         $tenant->execute(
             function (Tenant $tenant) {
-                Artisan::call('tenants:artisan "migrate:fresh  --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->code);
-                Artisan::call('tenants:artisan "db:seed --force --class=TenantsSeeder" --tenant='.$tenant->code);
+                Artisan::call('tenants:artisan "migrate:fresh  --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->slug);
+                Artisan::call('tenants:artisan "db:seed --force --class=TenantsSeeder" --tenant='.$tenant->slug);
 
 
                 CreateTenantStorageLink::run();
@@ -126,11 +129,19 @@ class StoreTenant
 
     public function getCommandSignature(): string
     {
-        return 'create:tenant {user_id} {role} {--g|group_slug= : group slug}';
+        return 'create:tenant {code} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone} {--g|group_slug= : group slug}';
     }
 
     public function asCommand(Command $command): int
     {
+        try {
+            $country = Country::where('code', $command->argument('country_code'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
         try {
             $currency = Currency::where('code', $command->argument('currency_code'))->firstOrFail();
         } catch (Exception $e) {
@@ -139,12 +150,38 @@ class StoreTenant
             return 1;
         }
 
-        $group=null;
-        if ($command->option('group_slug')) {
+        if ($command->option('language_code')) {
             try {
-                $group = Group::where('slug', $command->argument('group_slug'))->firstOrFail();
+                $language = Language::where('code', $command->option('language_code'))->firstOrFail();
             } catch (Exception $e) {
                 $command->error($e->getMessage());
+
+                return 1;
+            }
+        } else {
+            $language = Language::where('code', 'en-gb')->firstOrFail();
+        }
+
+        if ($command->option('timezone')) {
+            try {
+                $timezone = Timezone::where('name', $command->option('timezone'))->firstOrFail();
+            } catch (Exception $e) {
+                $command->error($e->getMessage());
+
+                return 1;
+            }
+        } else {
+            $timezone = Timezone::where('name', 'UTC')->firstOrFail();
+        }
+
+
+        $group = null;
+        if ($command->option('group_slug')) {
+            try {
+                $group = Group::where('slug', $command->option('group_slug'))->firstOrFail();
+            } catch (Exception $e) {
+                $command->error($e->getMessage());
+
                 return 1;
             }
         }
@@ -152,7 +189,10 @@ class StoreTenant
         $this->setRawAttributes([
             'code'        => $command->argument('code'),
             'name'        => $command->argument('name'),
-            'currency_id' => $currency->id
+            'country_id'  => $country->id,
+            'currency_id' => $currency->id,
+            'language_id' => $language->id,
+            'timezone_id' => $timezone->id
         ]);
 
         try {

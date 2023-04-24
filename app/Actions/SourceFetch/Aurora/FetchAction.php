@@ -113,7 +113,7 @@ class FetchAction
                     $this->handle($tenantSource, $command->option('source_id'));
                 } else {
                     if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
-                        $info = '✊ '.$command->getName().' '.$tenant->code;
+                        $info = '✊ '.$command->getName().' '.$tenant->slug;
                         if ($this->shop) {
                             $info .= ' shop:'.$this->shop->slug;
                         }

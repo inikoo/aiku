@@ -79,7 +79,7 @@ class StoreSysUser
         try {
             $userable = match ($command->argument('userable')) {
                 'Admin'         => Admin::where('slug', $command->argument('userable_slug'))->firstOrFail(),
-                'Tenant'        => Tenant::where('code', $command->argument('userable_slug'))->firstOrFail(),
+                'Tenant'        => Tenant::where('slug', $command->argument('userable_slug'))->firstOrFail(),
                 'CentralDomain' => CentralDomain::where('slug', $command->argument('userable_slug'))->firstOrFail(),
                 default         => null
             };

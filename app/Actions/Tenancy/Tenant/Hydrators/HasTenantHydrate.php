@@ -20,7 +20,7 @@ trait HasTenantHydrate
     {
         /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant=app('currentTenant');
-        return ['central','tenant:'.$tenant->code];
+        return ['central','tenant:'.$tenant->slug];
     }
 
 

@@ -28,7 +28,8 @@ class StoreGroup
         /** @var Group $group */
         $group = Group::create($modelData);
 
-        $dbSchema="aiku_grp_".$group->code;
+        $dbSchema=$group->schema();
+
         DB::statement("CREATE SCHEMA $dbSchema");
 
         $database_settings = data_get(config('database.connections'), 'group');
@@ -37,7 +38,8 @@ class StoreGroup
         DB::connection('group');
         DB::purge('group');
 
-        Artisan::call('migrate:fresh --force --path=database/migrations/group --database=group');
+
+        Artisan::call("migrate:fresh --force --path=database/migrations/group --database=group");
 
 
         return $group;

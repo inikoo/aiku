@@ -38,8 +38,8 @@ class CreateAuroraTenant
      */
     public function asCommand(Command $command): int
     {
-        if ($tenant = Tenant::where('code', $command->argument('code'))->first()) {
-            $command->error("Tenant $tenant->code already exists");
+        if ($tenant = Tenant::where('slug', $command->argument('code'))->first()) {
+            $command->error("Tenant $tenant->slug already exists");
 
             return 1;
         }
@@ -120,7 +120,7 @@ class CreateAuroraTenant
             $tenant,
             [
                 [
-                    'username' => $tenant->code,
+                    'username' => $tenant->slug,
                     'email'    => $email,
                     'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
                 ]
@@ -141,14 +141,14 @@ class CreateAuroraTenant
 
         /** @noinspection HttpUrlsUsage */
         DB::connection('aurora')->table('Account Data')
-            ->update(['pika_url' => (app()->isLocal() ? 'http://' : 'https://').$tenant->code.'.'.config('app.domain')]);
+            ->update(['pika_url' => (app()->isLocal() ? 'http://' : 'https://').$tenant->slug.'.'.config('app.domain')]);
 
 
         $command->table(
             ['Tenant', 'Token'],
             [
                 [
-                    $tenant->code,
+                    $tenant->slug,
                     $token
                 ],
 

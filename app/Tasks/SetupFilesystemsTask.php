@@ -36,11 +36,11 @@ class SetupFilesystemsTask implements SwitchTenantTask
 
             config()->set(
                 'filesystems.disks.tenant.root',
-                storage_path('app/tenant/'.$tenant->code)
+                storage_path('app/tenant/'.$tenant->slug)
             );
             config()->set(
                 'filesystems.disks.tenant_public.root',
-                storage_path('app/public/tenant/'.$tenant->code)
+                storage_path('app/public/tenant/'.$tenant->slug)
             );
         } else {
             config()->set('media-library.media_model', CentralMedia::class);

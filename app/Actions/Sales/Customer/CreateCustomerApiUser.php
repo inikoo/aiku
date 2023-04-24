@@ -40,7 +40,7 @@ class CreateCustomerApiUser
 
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('code', ($command->argument('tenant_code')))->firstOrFail();
+        $tenant = Tenant::where('slug', ($command->argument('tenant_code')))->firstOrFail();
 
         return $tenant->execute(function () use ($command) {
             if ($customer = Customer::find($command->argument('customer_id'))) {

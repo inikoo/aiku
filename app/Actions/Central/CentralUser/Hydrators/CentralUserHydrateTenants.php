@@ -32,7 +32,7 @@ class CentralUserHydrateTenants implements ShouldBeUnique
 
                 return '';
             });
-            $userNameInfo[] = array('tenant' => $tenant->code, 'name' => $userName);
+            $userNameInfo[] = array('tenant' => $tenant->slug, 'name' => $userName);
         }
 
         $userNameInfo = collect($userNameInfo)->groupBy('name')->all();

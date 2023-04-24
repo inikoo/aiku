@@ -71,7 +71,7 @@ class SetWebsiteStructuralWebnodes
 
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('code', ($command->argument('tenant')))->firstOrFail();
+        $tenant = Tenant::where('slug', ($command->argument('tenant')))->firstOrFail();
 
         $tenant->execute(function () use ($command) {
             $website = Website::where('code', ($command->argument('website')))->firstOrFail();

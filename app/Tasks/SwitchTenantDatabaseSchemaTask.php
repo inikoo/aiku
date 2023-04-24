@@ -23,7 +23,7 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
      */
     public function makeCurrent(Tenant $tenant): void
     {
-        $this->setTenantConnectionDatabaseName($tenant->getDatabaseName(), 'aiku_grp_'.$tenant->group->code);
+        $this->setTenantConnectionDatabaseName($tenant->schema(), $tenant->group->schema());
     }
 
     /**

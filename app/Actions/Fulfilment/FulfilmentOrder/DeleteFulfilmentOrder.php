@@ -31,7 +31,7 @@ class DeleteFulfilmentOrder
 
     public function asCommand(Command $command): int
     {
-        Tenant::where('code', $command->argument('tenant'))->first()->makeCurrent();
+        Tenant::where('slug', $command->argument('tenant'))->first()->makeCurrent();
         $this->handle(FulfilmentOrder::findOrFail($command->argument('id')));
 
         return 0;

@@ -89,7 +89,7 @@ class CreateUserFromEmployee
 
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('code', $command->argument('tenant'))->first();
+        $tenant = Tenant::where('slug', $command->argument('tenant'))->first();
         if (!$tenant) {
             $command->error("Tenant ".$command->argument('tenant')." not found");
 

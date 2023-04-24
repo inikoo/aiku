@@ -33,7 +33,7 @@ class CreateWebUserApiToken
 
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('code', ($command->argument('tenant_code')))->firstOrFail();
+        $tenant = Tenant::where('slug', ($command->argument('tenant_code')))->firstOrFail();
 
         return $tenant->execute(function () use ($command) {
             if ($webUser = WebUser::where('slug', $command->argument('web_user_slug'))->first()) {

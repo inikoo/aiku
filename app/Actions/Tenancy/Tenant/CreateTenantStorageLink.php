@@ -27,7 +27,7 @@ class CreateTenantStorageLink
         /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant   = app('currentTenant');
         $linkBase = public_path('tenants');
-        $link     = $linkBase.'/'.$tenant->ulid.'-'.$tenant->code;
+        $link     = $linkBase.'/'.$tenant->ulid.'-'.$tenant->slug;
         $target   = storage_path('app/public');
 
         if (!file_exists($linkBase)) {

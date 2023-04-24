@@ -8,6 +8,7 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Assets\Currency;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,12 +34,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Tenancy\Tenant> $tenants
  * @method static \Database\Factories\Central\GroupFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Group newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Group newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Group onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Group query()
- * @method static \Illuminate\Database\Eloquent\Builder|Group withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Group withoutTrashed()
+ * @method static Builder|Group newModelQuery()
+ * @method static Builder|Group newQuery()
+ * @method static Builder|Group onlyTrashed()
+ * @method static Builder|Group query()
+ * @method static Builder|Group withTrashed()
+ * @method static Builder|Group withoutTrashed()
  * @mixin \Eloquent
  */
 class Group extends Model
@@ -61,6 +62,12 @@ class Group extends Model
     {
         return 'slug';
     }
+
+    public function schema(): string
+    {
+        return 'aiku_grp_'.preg_replace('/-/', '_', $this->slug);
+    }
+
 
     public function tenants(): HasMany
     {

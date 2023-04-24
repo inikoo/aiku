@@ -16,6 +16,7 @@ use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\SysAdmin\SysUser;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\Multitenancy\Models\Tenant as SpatieTenant;
 use Spatie\Multitenancy\TenantCollection;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Tenancy\Tenant
@@ -68,6 +71,9 @@ use Spatie\Multitenancy\TenantCollection;
  */
 class Tenant extends SpatieTenant
 {
+    use HasFactory;
+    use HasSlug;
+
     protected $casts = [
         'data'   => 'array',
         'source' => 'array',
@@ -80,9 +86,23 @@ class Tenant extends SpatieTenant
 
     protected $guarded = [];
 
-    public function getDatabaseName(): string
+    public function getSlugOptions(): SlugOptions
     {
-        return 'aiku_'.$this->code;
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug');
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+
+
+    public function schema(): string
+    {
+        return 'tenant_'.preg_replace('/-/', '_', $this->slug);
     }
 
     public function stats(): HasOne

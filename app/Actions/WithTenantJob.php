@@ -12,6 +12,6 @@ trait WithTenantJob
     public function getJobTags(): array
     {
         $tenant=app('currentTenant');
-        return ['tenant:'.$tenant->code];
+        return ['tenant:'.$tenant->slug];
     }
 }

@@ -5974,10 +5974,10 @@ namespace Illuminate\Support\Facades {
          * @return string
          * @static
          */
-        public static function getDatabaseName()
+        public static function getSchemaName()
         {            //Method inherited from \Illuminate\Database\Connection
             /** @var \Illuminate\Database\PostgresConnection $instance */
-            return $instance->getDatabaseName();
+            return $instance->getSchemaName();
         }
                     /**
          * Set the name of the connected database.
