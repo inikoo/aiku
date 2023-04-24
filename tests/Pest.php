@@ -23,7 +23,7 @@ function loadDB($dumpName): void
             env('DB_DATABASE_TEST', 'aiku_test'),
             env('DB_USERNAME'),
             env('DB_PASSWORD'),
-            'fresh_with_assets.dump'
+            $dumpName
         ]
     );
     $process->run();

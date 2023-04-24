@@ -14,7 +14,7 @@ use App\Models\Assets\Timezone;
 use App\Models\Tenancy\Group;
 use Faker\Factory;
 
-beforeAll(fn () => loadDB('fresh_with_assets.dump'));
+beforeAll(fn () => loadDB('d1_fresh_with_assets.dump'));
 
 
 test('create group using action', function () {

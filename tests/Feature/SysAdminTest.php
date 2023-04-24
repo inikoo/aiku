@@ -11,7 +11,7 @@ use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\SysUser;
 
-beforeAll(fn () => loadDB('fresh_with_assets.dump'));
+beforeAll(fn () => loadDB('d1_fresh_with_assets.dump'));
 
 
 test('create a system admin', function () {
