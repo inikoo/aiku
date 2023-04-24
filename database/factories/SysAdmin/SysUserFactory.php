@@ -15,7 +15,7 @@ class SysUserFactory extends Factory
     {
         return [
             'username'=> fake()->userName(),
-            'password'=> fake()->password()
+            'password'=> fake()->password(10)
         ];
     }
 }

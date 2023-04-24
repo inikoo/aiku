@@ -5,8 +5,20 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Models\Assets\Country;
+
 beforeAll(fn () => loadDB('fresh_with_assets.dump'));
 
-test('countries exists', function () {
+it('has countries', function (string $countryCode) {
+    $country= Country::where('code', $countryCode)->firstOrFail();
+    expect($country->id)->toBeInt();
+})->with([
+    'GB','ES','FR','DE'
+]);
 
-})->todo();
+it('is no countries with code', function (string $countryCode) {
+    $country= Country::where('code', $countryCode)->firstOrFail();
+    expect($country->id)->toThrow(Exception::class);
+})->with([
+    'XX','es',''
+])->todo('Fix toThrow');
