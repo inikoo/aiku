@@ -1,142 +1,145 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 25 Apr 2023 15:51:21 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 namespace Tests\Feature;
 
 use App\Actions\Procurement\Agent\StoreAgent;
-use App\Actions\Procurement\Supplier\StoreSupplier;
-use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
 use App\Models\Tenancy\Tenant;
 
-
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
-    test('create agents', function () {
-        $tenant = Tenant::where('slug', 'agb')->first();
-        $tenant->makeCurrent();
+test('create agents', function () {
+    $tenant = Tenant::where('slug', 'agb')->first();
 
-        $agent = StoreAgent::make()->action($tenant, Agent::factory()->definition(), Address::factory()->definition());
 
-        $this->assertModelExists($agent);
-    });
+    $tenant->makeCurrent();
 
-    test('number of agents should be one', function () {
-        $tenant = Tenant::where('slug', 'awa')->first();
-        $tenant->makeCurrent();
+    $agent = StoreAgent::make()->action($tenant, Agent::factory()->definition(), Address::factory()->definition());
+    $this->assertModelExists($agent);
+});
 
-        $this->assertEquals(1, $tenant->procurementStats->number_agents);
-        $this->assertEquals(1, $tenant->procurementStats->number_active_agents);
-    });
+test('number of agents should be one', function () {
+    $tenant = Tenant::where('slug', 'awa')->first();
+    $tenant->makeCurrent();
+
+    $this->assertEquals(1, $tenant->procurementStats->number_agents);
+    $this->assertEquals(1, $tenant->procurementStats->number_active_agents);
+});
 
 
 test('create another agents', function () {
-        $tenant = Tenant::where('slug', 'awa')->first();
-        $tenant->makeCurrent();
+    $tenant = Tenant::where('slug', 'awa')->first();
+    $tenant->makeCurrent();
 
-        $currency = Currency::where('code', 'USD')->firstOrFail();
+    $currency = Currency::where('code', 'USD')->firstOrFail();
 
-        $agentData = [
-            'code' => 'agents',
-            'name' => fake()->name,
-            'company_name' => fake()->company,
-            'contact_name' => fake()->name,
-            'email' => fake()->email,
-            'currency_id' => $currency->id,
-        ];
+    $agentData = [
+        'code'         => 'agents',
+        'name'         => fake()->name,
+        'company_name' => fake()->company,
+        'contact_name' => fake()->name,
+        'email'        => fake()->email,
+        'currency_id'  => $currency->id,
+    ];
 
-        $agent = StoreAgent::make()->action($tenant, $agentData, Address::factory()->definition());
+    $agent = StoreAgent::make()->action($tenant, $agentData, Address::factory()->definition());
 
-        $this->assertModelExists($agent);
+    $this->assertModelExists($agent);
 });
 
-   /*
-    public function test_number_of_agents_should_be_two()
-    {
+/*
+ public function test_number_of_agents_should_be_two()
+ {
 
-        $tenant = Tenant::where('slug', 'awa')->first();
-        $tenant->makeCurrent();
+     $tenant = Tenant::where('slug', 'awa')->first();
+     $tenant->makeCurrent();
 
-        $this->assertEquals(2, $tenant->procurementStats->number_agents);
-        $this->assertEquals(2, $tenant->procurementStats->number_active_agents);
-    }
+     $this->assertEquals(2, $tenant->procurementStats->number_agents);
+     $this->assertEquals(2, $tenant->procurementStats->number_active_agents);
+ }
 
-    public function test_create_supplier()
-    {
-        $faker = Factory::create();
+ public function test_create_supplier()
+ {
+     $faker = Factory::create();
 
-        $tenant = Tenant::where('slug', 'awa')->first();
-        $tenant->makeCurrent();
+     $tenant = Tenant::where('slug', 'awa')->first();
+     $tenant->makeCurrent();
 
-        $currency = Currency::where('code', 'USD')->firstOrFail();
+     $currency = Currency::where('code', 'USD')->firstOrFail();
 
-        $supplierData = [
-            'code' => 'supplier',
-            'name' => $faker->name,
-            'company_name' => $faker->company,
-            'contact_name' => $faker->name,
-            'email' => $faker->email,
-            'currency_id' => $currency->id,
-            'type' => 'supplier',
-            'address_id' => 1
-        ];
+     $supplierData = [
+         'code' => 'supplier',
+         'name' => $faker->name,
+         'company_name' => $faker->company,
+         'contact_name' => $faker->name,
+         'email' => $faker->email,
+         'currency_id' => $currency->id,
+         'type' => 'supplier',
+         'address_id' => 1
+     ];
 
-        $supplier = StoreSupplier::make()->action($tenant, $supplierData);
+     $supplier = StoreSupplier::make()->action($tenant, $supplierData);
 
-        $this->assertModelExists($supplier);
-    }
+     $this->assertModelExists($supplier);
+ }
 
-    public function test_create_agent_with_the_supplier()
-    {
-        $faker = Factory::create();
-        $tenant = Tenant::where('slug', 'awa')->first();
-        $tenant->makeCurrent();
+ public function test_create_agent_with_the_supplier()
+ {
+     $faker = Factory::create();
+     $tenant = Tenant::where('slug', 'awa')->first();
+     $tenant->makeCurrent();
 
-        $currency = Currency::where('code', 'IDR')->firstOrFail();
+     $currency = Currency::where('code', 'IDR')->firstOrFail();
 
-        $agentData = [
-            'code' => 'agentp',
-            'name' => $faker->name,
-            'company_name' => $faker->company,
-            'contact_name' => $faker->name,
-            'email' => $faker->email,
-            'currency_id' => $currency->id,
-        ];
+     $agentData = [
+         'code' => 'agentp',
+         'name' => $faker->name,
+         'company_name' => $faker->company,
+         'contact_name' => $faker->name,
+         'email' => $faker->email,
+         'currency_id' => $currency->id,
+     ];
 
-        $agent = StoreAgent::make()->action($tenant, $agentData, $this->getAddress($faker));
-        $currency = Currency::where('code', 'IDR')->firstOrFail();
+     $agent = StoreAgent::make()->action($tenant, $agentData, $this->getAddress($faker));
+     $currency = Currency::where('code', 'IDR')->firstOrFail();
 
-        $supplierData = [
-            'code' => 'supplier',
-            'name' => $faker->name,
-            'company_name' => $faker->company,
-            'contact_name' => $faker->name,
-            'email' => $faker->email,
-            'currency_id' => $currency->id,
-            'type' => 'supplier',
-        ];
+     $supplierData = [
+         'code' => 'supplier',
+         'name' => $faker->name,
+         'company_name' => $faker->company,
+         'contact_name' => $faker->name,
+         'email' => $faker->email,
+         'currency_id' => $currency->id,
+         'type' => 'supplier',
+     ];
 
-        $supplier = StoreSupplier::make()->action($agent, $supplierData);
+     $supplier = StoreSupplier::make()->action($agent, $supplierData);
 
-        $this->assertModelExists($supplier);
-    }
+     $this->assertModelExists($supplier);
+ }
 
-    public function test_number_of_agents_should_be_three()
-    {
-        $tenant = Tenant::where('slug', 'awa')->first();
-        $tenant->makeCurrent();
+ public function test_number_of_agents_should_be_three()
+ {
+     $tenant = Tenant::where('slug', 'awa')->first();
+     $tenant->makeCurrent();
 
-        $this->assertEquals(3, $tenant->procurementStats->number_agents);
-        $this->assertEquals(3, $tenant->procurementStats->number_active_agents);
-    }
+     $this->assertEquals(3, $tenant->procurementStats->number_agents);
+     $this->assertEquals(3, $tenant->procurementStats->number_active_agents);
+ }
 
-    public function test_number_of_supplier_should_be_two()
-    {
-        $tenant = Tenant::where('slug', 'awa')->first();
-        $tenant->makeCurrent();
+ public function test_number_of_supplier_should_be_two()
+ {
+     $tenant = Tenant::where('slug', 'awa')->first();
+     $tenant->makeCurrent();
 
-        $this->assertEquals(2, $tenant->procurementStats->number_suppliers);
-        $this->assertEquals(2, $tenant->procurementStats->number_active_suppliers);
-    }
-    */
+     $this->assertEquals(2, $tenant->procurementStats->number_suppliers);
+     $this->assertEquals(2, $tenant->procurementStats->number_active_suppliers);
+ }
+ */
