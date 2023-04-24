@@ -65,8 +65,8 @@
     rm -rf devops/devel/snapshots/*.dump
     rm -rf
 
-    php artisan cache:clear
-    php artisan horizon:clear
+    #php artisan cache:clear
+    #php artisan horizon:clear
 
 @endtask
 
@@ -74,9 +74,9 @@
     echo "seeded-central-db" > step
     cd ../../
 
-    dropdb -f --if-exists aiku
+    dropdb --if-exists aiku
     createdb aiku
-    php artisan migrate:refresh --path=database/migrations/central  --database=central
+    php artisan migrate --path=database/migrations/central  --database=central
     php artisan db:seed
 @endtask
 

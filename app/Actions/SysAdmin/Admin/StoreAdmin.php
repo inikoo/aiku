@@ -68,7 +68,7 @@ class StoreAdmin
         }
 
         $admin = $this->handle($validatedData);
-        $command->line("System Admin created $admin->code");
+        $command->line(" admin created $admin->code");
 
 
 

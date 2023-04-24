@@ -8,17 +8,99 @@
 namespace App\Actions\DevOps\Deployment;
 
 use App\Models\DevOps\Deployment;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\JsonResponse;
+use Exception;
+use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 use PHLAK\SemVer\Version;
 use Symfony\Component\Process\Exception\RuntimeException;
 use Symfony\Component\Process\Process;
-use Throwable;
 
 class StoreDeployment
 {
     use AsAction;
+    use WithAttributes;
+
+
+    private null|Deployment $latestDeployment=null;
+
+
+    /**
+     * @throws \PHLAK\SemVer\Exceptions\InvalidVersionException
+     */
+    public function handle(string $currentHash): Deployment
+    {
+        $data = [
+            'changes' => [
+                'repo'     => false,
+                'vendors'  => false,
+                'npm'      => false,
+                'frontend' => false,
+            ]
+        ];
+
+        if($this->latestDeployment) {
+
+            $filesChanged = $this->runGitCommand("git --git-dir ".config('deployments.repo_path')."   diff --name-only $currentHash $this->latestDeployment->hash");
+
+            if ($currentHash != $this->latestDeployment->hash) {
+                $data['changes']['repo'] = true;
+            }
+
+            if (preg_match('/composer\.lock/', $filesChanged)) {
+                $data['changes']['vendors'] = true;
+            }
+            if (preg_match('/package\.lock/', $filesChanged)) {
+                $data['changes']['npm'] = true;
+            }
+
+            if (str_contains($filesChanged, 'resources')) {
+                $data['changes']['frontend'] = true;
+            }
+
+
+            $version = Version::parse($this->latestDeployment->version);
+
+            if ($currentHash == $this->latestDeployment->hash) {
+                $build = (int)$version->build ?? 0;
+                $build++;
+
+                $version->setBuild(sprintf('%03d', $build));
+            } else {
+                $version->incrementPatch();
+            }
+
+
+        } else {
+            $version = new Version();
+        }
+
+        return Deployment::create([
+            'version' => (string)$version,
+            'hash'    => $currentHash,
+            'data'    => $data
+        ]);
+
+    }
+
+    public function prepareForValidation(): void
+    {
+
+        if($this->latestDeployment) {
+            $this->fill([
+                'latest_hash' => $this->latestDeployment->hash,
+            ]);
+        }
+
+    }
+
+    public function rules(): array
+    {
+        return [
+            'current_hash' => ['required', 'regex:/^[0-9a-f]{7,40}$/i'],
+            'latest_hash'  => ['sometimes', 'required', 'regex:/^[0-9a-f]{7,40}$/i'],
+        ];
+    }
 
     public string $commandSignature = 'create:deployment';
 
@@ -27,9 +109,42 @@ class StoreDeployment
         return 'Create deployment.';
     }
 
-    public function handle(array $modelData): Deployment
+    public function asCommand(Command $command): int
     {
-        return Deployment::create($modelData);
+        $this->latestDeployment = Deployment::latest()->first();
+
+        $this->fill([
+            'current_hash' => $this->getCurrentHash(),
+        ]);
+        try {
+            $this->validateAttributes();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        $deployment=$this->handle($this->getCurrentHash());
+        $command->line("Deployment created $deployment->version");
+        return 0;
+    }
+
+    public function asController(): Deployment
+    {
+        $this->latestDeployment = Deployment::latest()->first();
+
+        $this->fill([
+            'current_hash' => $this->getCurrentHash(),
+        ]);
+        $this->validateAttributes();
+
+        return $this->handle($this->getCurrentHash());
+
+    }
+
+    public function jsonResponse($deployment)
+    {
+        return new DeploymentResource($deployment);
     }
 
 
@@ -55,85 +170,5 @@ class StoreDeployment
         }
     }
 
-    /**
-     * @throws \PHLAK\SemVer\Exceptions\InvalidVersionException
-     */
-    public function asController(): Model|Deployment|JsonResponse
-    {
-        $data = [
-            'changes' => [
-                'repo'     => false,
-                'vendors'  => false,
-                'npm'      => false,
-                'frontend' => false,
-            ]
-        ];
 
-
-        $currentHash = $this->getCurrentHash();
-        if ($latestDeployment = Deployment::latest()->first()) {
-            $latestHash = $latestDeployment->hash;
-
-
-            if (!$this->validateHash($currentHash) or !$this->validateHash($latestHash)) {
-                return response()->json([
-                                            'msg' => "Invalid hash $currentHash or $latestHash",
-
-                                        ], 400);
-            } else {
-                $filesChanged = $this->runGitCommand("git --git-dir ".config('deployments.repo_path')."   diff --name-only $currentHash $latestHash");
-
-                if ($currentHash != $latestHash) {
-                    $data['changes']['repo'] = true;
-                }
-
-                if (preg_match('/composer\.lock/', $filesChanged)) {
-                    $data['changes']['vendors'] = true;
-                }
-                if (preg_match('/package\.lock/', $filesChanged)) {
-                    $data['changes']['npm'] = true;
-                }
-
-                if (str_contains($filesChanged, 'resources')) {
-                    $data['changes']['frontend'] = true;
-                }
-            }
-
-            $version = Version::parse($latestDeployment->version);
-
-            if ($currentHash == $latestHash) {
-                $build = (int)$version->build ?? 0;
-                $build++;
-
-                $version->setBuild(sprintf('%03d', $build));
-            } else {
-                $version->incrementPatch();
-            }
-        } else {
-            $version = new Version();
-        }
-
-        try {
-            return Deployment::create([
-                                          'version' => (string)$version,
-                                          'hash'    => $currentHash,
-                                          'data'    => $data
-                                      ]);
-        } catch (Throwable $e) {
-            report($e);
-
-            return response()->json(
-                [
-                    'message' => 'Error creating the deployment.'
-                ],
-                404
-            );
-        }
-    }
-
-
-    private function validateHash($hash): bool
-    {
-        return preg_match('/^[0-9a-f]{7,40}$/', $hash) == true;
-    }
 }
