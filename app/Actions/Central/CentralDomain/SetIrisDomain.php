@@ -22,7 +22,7 @@ class SetIrisDomain
 
     public function handle(CentralDomain $centralDomain): PromiseInterface|Response
     {
-        $token = $centralDomain->adminUser->createToken(
+        $token = $centralDomain->sysUser->createToken(
             'iris',
             ['iris'],
         );
@@ -42,7 +42,7 @@ class SetIrisDomain
 
         if ($response->status() == 201 or $response->status() == 200) {
             $centralDomain->update(['state' => 'iris-enabled']);
-            $centralDomain->adminUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
+            $centralDomain->sysUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
         }
 
         return $response;

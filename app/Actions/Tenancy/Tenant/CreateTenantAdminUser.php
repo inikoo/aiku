@@ -7,7 +7,7 @@
 
 namespace App\Actions\Tenancy\Tenant;
 
-use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
+use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Actions\WithTenantsArgument;
 use App\Models\Tenancy\Tenant;
 use Arr;
@@ -39,7 +39,7 @@ class CreateTenantAdminUser
         );
 
 
-        $adminUser = StoreAdminUser::run(
+        $adminUser = StoreSysUser::run(
             $tenant,
             [
                 'username' => Arr::get($adminUserData, 'username', $tenant->code),
@@ -92,12 +92,12 @@ class CreateTenantAdminUser
                 $tokenData
             );
 
-            if ($result->adminUser) {
+            if ($result->sysUser) {
                 $command->table(
-                    ['AdminUser', 'Token'],
+                    ['SysUser', 'Token'],
                     [
                         [
-                            $result->adminUser->username,
+                            $result->sysUser->username,
                             $result->token
                         ],
 

@@ -20,7 +20,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\SysAdmin\AdminUser
+ * App\Models\SysAdmin\SysUser
  *
  * @property int $id
  * @property string $userable_type
@@ -42,15 +42,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Model|\Eloquent $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read Model|\Eloquent $userable
- * @method static Builder|AdminUser newModelQuery()
- * @method static Builder|AdminUser newQuery()
- * @method static Builder|AdminUser onlyTrashed()
- * @method static Builder|AdminUser query()
- * @method static Builder|AdminUser withTrashed()
- * @method static Builder|AdminUser withoutTrashed()
+ * @method static Builder|SysUser newModelQuery()
+ * @method static Builder|SysUser newQuery()
+ * @method static Builder|SysUser onlyTrashed()
+ * @method static Builder|SysUser query()
+ * @method static Builder|SysUser withTrashed()
+ * @method static Builder|SysUser withoutTrashed()
  * @mixin Eloquent
  */
-class AdminUser extends Authenticatable
+class SysUser extends Authenticatable
 {
     use HasFactory;
     use HasApiTokens;

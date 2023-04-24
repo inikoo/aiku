@@ -7,7 +7,7 @@
 
 namespace App\Models\Central;
 
-use App\Models\SysAdmin\AdminUser;
+use App\Models\SysAdmin\SysUser;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\SysAdmin\AdminUser|null $adminUser
+ * @property-read \App\Models\SysAdmin\SysUser|null $adminUser
  * @property-read \App\Models\Central\CentralDomainStats|null $stats
  * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|CentralDomain newModelQuery()
@@ -55,6 +55,11 @@ class CentralDomain extends Model
             ->saveSlugsTo('slug');
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
@@ -67,8 +72,8 @@ class CentralDomain extends Model
 
     protected $guarded = [];
 
-    public function adminUser(): MorphOne
+    public function sysUser(): MorphOne
     {
-        return $this->morphOne(AdminUser::class, 'userable');
+        return $this->morphOne(SysUser::class, 'userable');
     }
 }

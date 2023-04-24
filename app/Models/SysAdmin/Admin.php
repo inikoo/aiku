@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,7 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\SysAdmin\AdminUser|null $adminUser
+ * @property-read \App\Models\SysAdmin\SysUser|null $adminUser
  * @method static Builder|Admin newModelQuery()
  * @method static Builder|Admin newQuery()
  * @method static Builder|Admin onlyTrashed()
@@ -41,6 +42,7 @@ class Admin extends Model
     use UsesLandlordConnection;
     use HasSlug;
     use SoftDeletes;
+    use HasFactory;
 
     protected $guarded = [];
 
@@ -60,8 +62,13 @@ class Admin extends Model
             ->slugsShouldBeNoLongerThan(8);
     }
 
-    public function adminUser(): MorphOne
+    public function getRouteKeyName(): string
     {
-        return $this->morphOne(AdminUser::class, 'userable');
+        return 'slug';
+    }
+
+    public function sysUser(): MorphOne
+    {
+        return $this->morphOne(SysUser::class, 'userable');
     }
 }

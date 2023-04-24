@@ -13,22 +13,8 @@ use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Tenancy\Group;
 use Faker\Factory;
-use Symfony\Component\Process\Process;
 
-beforeAll(function () {
-
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../../','.env.testing');
-    $dotenv->load();
-
-    $process = new Process([
-            __DIR__.'/../../devops/devel/reset_test_database.sh',
-            env('DB_DATABASE_TEST','aiku_test'),
-            env('DB_USERNAME'),
-            env('DB_PASSWORD')
-        ]
-    );
-    $process->run();
-});
+beforeAll(fn () => loadDB('fresh_with_assets.dump'));
 
 
 test('create group using action', function () {

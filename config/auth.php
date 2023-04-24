@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Auth\User;
-use App\Models\SysAdmin\AdminUser;
+use App\Models\SysAdmin\SysUser;
 use App\Models\Web\WebUser;
 
 return [
@@ -81,7 +81,7 @@ return [
         ],
         'admin-user' => [
             'driver' => 'eloquent',
-            'model'  => AdminUser::class,
+            'model'  => SysUser::class,
         ],
         'web-user'   => [
             'driver' => 'eloquent',

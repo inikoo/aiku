@@ -7,7 +7,7 @@
 
 namespace App\Actions\Central\CentralDomain;
 
-use App\Actions\SysAdmin\AdminUser\StoreAdminUser;
+use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Models\Central\CentralDomain;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Str;
@@ -22,7 +22,7 @@ class StoreCentralDomain
         /** @var CentralDomain $centralDomain */
         $centralDomain = $tenant->centralDomains()->create($modelData);
         $centralDomain->stats()->create();
-        StoreAdminUser::run(
+        StoreSysUser::run(
             $centralDomain,
             [
                 'username'=> 'iris-'.$centralDomain->slug,

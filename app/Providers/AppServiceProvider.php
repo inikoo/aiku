@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
                 'Prospect'        => 'App\Models\Deals\Prospect',
                 'Shop'            => 'App\Models\Marketing\Shop',
                 'Tenant'          => 'App\Models\Tenancy\Tenant',
-                'AdminUser'       => 'App\Models\SysAdmin\AdminUser',
+                'SysUser'         => 'App\Models\SysAdmin\SysUser',
                 'Department'      => 'App\Models\Marketing\Department',
                 'Family'          => 'App\Models\Marketing\Family',
                 'Product'         => 'App\Models\Marketing\Product',
