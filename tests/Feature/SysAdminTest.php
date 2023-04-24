@@ -7,6 +7,7 @@
 
 
 use App\Actions\SysAdmin\Admin\StoreAdmin;
+use App\Actions\SysAdmin\SysUser\CreateSysUserAccessToken;
 use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\SysUser;
@@ -23,4 +24,11 @@ test('create a system admin user', function () {
     $admin   = StoreAdmin::make()->asAction(Admin::factory()->definition());
     $sysUser = StoreSysUser::make()->asAction($admin, SysUser::factory()->definition());
     $this->assertModelExists($sysUser);
+});
+
+test('create a system admin user access token', function () {
+    $admin   = StoreAdmin::make()->asAction(Admin::factory()->definition());
+    $sysUser = StoreSysUser::make()->asAction($admin, SysUser::factory()->definition());
+    $token   = CreateSysUserAccessToken::run($sysUser, 'admin', ['root']);
+    expect($token)->toBeString();
 });
