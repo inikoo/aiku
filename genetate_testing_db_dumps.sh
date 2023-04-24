@@ -1,6 +1,5 @@
 #!/bin/bash
 PURPLE='\033[01;35m'
-UNDERLINE='\033[4m'
 ITALIC='\e[3m'
 NONE='\033[00m'
 
