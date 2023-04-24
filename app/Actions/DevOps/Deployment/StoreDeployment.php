@@ -7,6 +7,7 @@
 
 namespace App\Actions\DevOps\Deployment;
 
+use App\Http\Resources\DevOps\DeploymentResource;
 use App\Models\DevOps\Deployment;
 use Exception;
 use Illuminate\Console\Command;
@@ -37,6 +38,10 @@ class StoreDeployment
                 'npm'      => false,
                 'frontend' => false,
             ]
+        ];
+
+        $modelData=[
+            'hash'    => $currentHash,
         ];
 
         if($this->latestDeployment) {
@@ -70,16 +75,16 @@ class StoreDeployment
                 $version->incrementPatch();
             }
 
+            $modelData['data']=$data;
 
         } else {
-            $version = new Version();
-        }
+            $version           = new Version();
+            $modelData['state']='deployed';
 
-        return Deployment::create([
-            'version' => (string)$version,
-            'hash'    => $currentHash,
-            'data'    => $data
-        ]);
+        }
+        $modelData['version']=$version;
+
+        return Deployment::create($modelData);
 
     }
 
@@ -109,6 +114,9 @@ class StoreDeployment
         return 'Create deployment.';
     }
 
+    /**
+     * @throws \PHLAK\SemVer\Exceptions\InvalidVersionException
+     */
     public function asCommand(Command $command): int
     {
         $this->latestDeployment = Deployment::latest()->first();
@@ -129,6 +137,9 @@ class StoreDeployment
         return 0;
     }
 
+    /**
+     * @throws \PHLAK\SemVer\Exceptions\InvalidVersionException
+     */
     public function asController(): Deployment
     {
         $this->latestDeployment = Deployment::latest()->first();
@@ -142,7 +153,7 @@ class StoreDeployment
 
     }
 
-    public function jsonResponse($deployment)
+    public function jsonResponse($deployment): DeploymentResource
     {
         return new DeploymentResource($deployment);
     }

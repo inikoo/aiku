@@ -133,7 +133,7 @@ cd {{ $new_release_dir }}
 {{$php}} artisan key:generate --force
 {{$php}} artisan migrate:refresh --path=database/migrations/central  --database=central --force
 {{$php}} artisan db:seed --force
-{{$php}} artisan create:first-deployment
+{{$php}} artisan create:deployment
 {{$php}} artisan create:admin-user {{ $adminCode }} '{{ $adminName }}' {{ $adminEmail }} -a
 {{$php}} artisan create:admin-token {{ $adminCode }} admin root
 
