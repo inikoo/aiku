@@ -21,7 +21,7 @@ class StoreHistoricSupplierProduct
         $historicSupplierProductData = [
             'code'       => Arr::get($modelData, 'code', $supplierProduct->code),
             'name'       => Arr::get($modelData, 'name', $supplierProduct->name),
-            'cost'      => Arr::get($modelData, 'cost', $supplierProduct->cost),
+            'cost'       => Arr::get($modelData, 'cost', $supplierProduct->cost),
 //            'units'      => Arr::get($modelData, 'units', $supplierProduct->units),
             'source_id'  => Arr::get($modelData, 'source_id'),
 

@@ -9,7 +9,6 @@ namespace App\Actions\Procurement\SupplierProduct;
 
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
-use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 
 class UpdateSupplierProduct

@@ -20,14 +20,14 @@ class SupplierFactory extends Factory
         $currency = Currency::where('code', 'USD')->firstOrFail();
 
         return [
-            'code' => 'supplier',
-            'name' => fake()->name,
+            'code'         => 'supplier',
+            'name'         => fake()->name,
             'company_name' => fake()->company,
             'contact_name' => fake()->name,
-            'email' => fake()->email,
-            'currency_id' => $currency->id,
-            'type' => 'supplier',
-            'address_id' => 1
+            'email'        => fake()->email,
+            'currency_id'  => $currency->id,
+            'type'         => 'supplier',
+            'address_id'   => 1
         ];
     }
 }

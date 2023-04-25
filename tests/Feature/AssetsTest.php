@@ -23,7 +23,7 @@ it('has countries', function (string $countryCode) {
 ]);
 
 it('is no countries with code', function (string $countryCode) {
-    expect(function() use($countryCode) {
+    expect(function () use ($countryCode) {
         Country::where('code', $countryCode)->firstOrFail();
     })->toThrow(ModelNotFoundException::class);
 })->with([
@@ -38,7 +38,7 @@ it('has timezones', function (string $timezone) {
 ]);
 
 it('is no timezones with code', function (string $countryCode) {
-    expect(function() use($countryCode) {
+    expect(function () use ($countryCode) {
         Timezone::where('name', $countryCode)->firstOrFail();
     })->toThrow(ModelNotFoundException::class);
 })->with([
@@ -53,7 +53,7 @@ it('has languages', function (string $language) {
 ]);
 
 it('is no languages with code', function (string $language) {
-    expect(function() use($language) {
+    expect(function () use ($language) {
         Language::where('name', $language)->firstOrFail();
     })->toThrow(ModelNotFoundException::class);
 })->with([
@@ -68,7 +68,7 @@ it('has tariff codes', function (string $tariffCode) {
 ]);
 
 it('is no tariff codes with code', function (string $tariffCode) {
-    expect(function() use($tariffCode) {
+    expect(function () use ($tariffCode) {
         TariffCode::where('hs_code', $tariffCode)->firstOrFail();
     })->toThrow(ModelNotFoundException::class);
 })->with([
@@ -83,7 +83,7 @@ it('has currencies', function (string $currency) {
 ]);
 
 it('is no currency with code', function (string $currency) {
-    expect(function() use($currency) {
+    expect(function () use ($currency) {
         Currency::where('code', $currency)->firstOrFail();
     })->toThrow(ModelNotFoundException::class);
 })->with([

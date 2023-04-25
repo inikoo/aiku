@@ -10,7 +10,6 @@ namespace App\Actions\Procurement\PurchaseOrder;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -31,12 +30,12 @@ class StorePurchaseOrder
     public function rules(): array
     {
         return [
-            'number' => ['required', 'numeric', 'unique:group.purchase_orders'],
-            'provider_id' => ['required'],
+            'number'        => ['required', 'numeric', 'unique:group.purchase_orders'],
+            'provider_id'   => ['required'],
             'provider_type' => ['required'],
-            'date' => ['required', 'date'],
-            'currency_id' => ['required', 'exists:currencies,id'],
-            'exchange' => ['required', 'numeric']
+            'date'          => ['required', 'date'],
+            'currency_id'   => ['required', 'exists:currencies,id'],
+            'exchange'      => ['required', 'numeric']
         ];
     }
 

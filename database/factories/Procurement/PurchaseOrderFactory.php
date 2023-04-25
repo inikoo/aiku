@@ -20,12 +20,12 @@ class PurchaseOrderFactory extends Factory
         $currency = Currency::where('code', 'USD')->firstOrFail();
 
         return [
-            'number' => fake()->numberBetween(100, 999),
-            'provider_id' => 2,
+            'number'        => fake()->numberBetween(100, 999),
+            'provider_id'   => 2,
             'provider_type' => '?',
-            'date' => fake()->date,
-            'currency_id' => $currency->id,
-            'exchange' => 1
+            'date'          => fake()->date,
+            'currency_id'   => $currency->id,
+            'exchange'      => 1
         ];
     }
 }

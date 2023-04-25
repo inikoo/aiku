@@ -9,9 +9,6 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Models\HumanResources\Employee;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
-use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

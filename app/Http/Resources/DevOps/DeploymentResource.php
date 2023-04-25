@@ -18,9 +18,9 @@ class DeploymentResource extends JsonResource
     {
         return [
             'version' => $this->version,
-            'hash' => $this->hash,
-            'state' => $this->state,
-            'data' => $this->data
+            'hash'    => $this->hash,
+            'state'   => $this->state,
+            'data'    => $this->data
         ];
     }
 }

@@ -9,9 +9,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\Supplier;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePurchaseOrder
@@ -31,12 +29,12 @@ class UpdatePurchaseOrder
     public function rules(): array
     {
         return [
-            'number' => ['required', 'numeric', 'unique:group.purchase_orders'],
-            'provider_id' => ['required'],
+            'number'        => ['required', 'numeric', 'unique:group.purchase_orders'],
+            'provider_id'   => ['required'],
             'provider_type' => ['required'],
-            'date' => ['required', 'date'],
-            'currency_id' => ['required', 'exists:currencies,id'],
-            'exchange' => ['required', 'numeric']
+            'date'          => ['required', 'date'],
+            'currency_id'   => ['required', 'exists:currencies,id'],
+            'exchange'      => ['required', 'numeric']
         ];
     }
 
