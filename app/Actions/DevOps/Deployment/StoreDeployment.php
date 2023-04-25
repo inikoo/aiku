@@ -7,6 +7,7 @@
 
 namespace App\Actions\DevOps\Deployment;
 
+use App\Http\Resources\DevOps\DeploymentResource;
 use App\Models\DevOps\Deployment;
 use Exception;
 use Illuminate\Console\Command;
