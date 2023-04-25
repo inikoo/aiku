@@ -10,6 +10,7 @@ namespace Tests\Feature;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
+use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Tenancy\Tenant;
@@ -33,5 +34,7 @@ test('create and update warehouse area', function () {
     $this->assertModelExists($warehouse);
     $warehouseArea = StoreWarehouseArea::make()->action($warehouse, WarehouseArea::factory()->definition());
     $this->assertModelExists($warehouseArea);
+    $warehouse = UpdateWarehouseArea::make()->action($warehouseArea, ['name' => 'Pika Ltd']);
+    expect($warehouse->name)->toBe('Pika Ltd');
 
 });

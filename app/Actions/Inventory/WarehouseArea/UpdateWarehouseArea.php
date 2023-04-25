@@ -18,6 +18,8 @@ class UpdateWarehouseArea
 {
     use WithActionUpdate;
 
+    private bool $asAction=false;
+
     public function handle(WarehouseArea $warehouseArea, array $modelData): WarehouseArea
     {
         $warehouseArea = $this->update($warehouseArea, $modelData, ['data']);
@@ -27,6 +29,9 @@ class UpdateWarehouseArea
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction) {
+            return true;
+        }
         return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
     public function rules(): array
@@ -37,7 +42,14 @@ class UpdateWarehouseArea
         ];
     }
 
+    public function action(WarehouseArea $warehouseArea, $objectData): WarehouseArea
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
 
+        return $this->handle($warehouseArea, $validatedData);
+    }
     public function asController(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $request->validate();
