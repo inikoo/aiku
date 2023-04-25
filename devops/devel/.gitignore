@@ -2,3 +2,4 @@
 !Envoy.blade.php
 !.gitignore
 !snapshots
+!reset_test_database.sh
