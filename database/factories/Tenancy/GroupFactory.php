@@ -1,27 +1,24 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 25 Apr 2023 20:31:30 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 namespace Database\Factories\Tenancy;
 
 use App\Models\Assets\Currency;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
- */
 class GroupFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
         $currency = Currency::latest()->first();
 
         return [
-            'code' => fake()->userName,
-            'name' => fake()->name,
+            'code'        => fake()->lexify(),
+            'name'        => fake()->company(),
             'currency_id' => $currency->id
         ];
     }

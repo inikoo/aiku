@@ -12,29 +12,20 @@ use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
- */
 class TenantFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
-        $country = Country::where('code', 'US')->firstOrFail();
+        $country  = Country::where('code', 'US')->firstOrFail();
         $language = Language::where('code', fake()->languageCode)->firstOrFail();
         $timezone = Timezone::where('name', fake()->timezone('USA'))->firstOrFail();
         $currency = Currency::where('code', 'USD')->firstOrFail();
 
         return [
-            'code' => strtolower(Str::random(3)),
-            'name' => fake()->name,
-            'country_id' => $country->id,
+            'code'        => fake()->lexify(),
+            'name'        => fake()->company(),
+            'country_id'  => $country->id,
             'language_id' => $language->id,
             'timezone_id' => $timezone->id,
             'currency_id' => $currency->id,
