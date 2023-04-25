@@ -37,8 +37,8 @@ class UpdateWarehouseArea
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required'],
-            'name' => ['sometimes', 'required'],
+            'code'         => ['sometimes', 'required', 'unique:tenant.warehouses', 'between:2,4', 'alpha'],
+            'name'         => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }
 

@@ -7,10 +7,13 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Inventory\Location\StoreLocation;
+use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
+use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Tenancy\Tenant;
@@ -36,5 +39,16 @@ test('create and update warehouse area', function () {
     $this->assertModelExists($warehouseArea);
     $warehouse = UpdateWarehouseArea::make()->action($warehouseArea, ['name' => 'Pika Ltd']);
     expect($warehouse->name)->toBe('Pika Ltd');
+});
+
+test('create and update location', function () {
+    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant->makeCurrent();
+    $warehouse = Warehouse::find(1);
+    $this->assertModelExists($warehouse);
+    $location = StoreLocation::make()->action($warehouse, Location::factory()->definition());
+    $this->assertModelExists($location);
+    $warehouse = UpdateLocation::make()->action($location, ['name' => 'Pika Ltd']);
+    expect($warehouse->warehouse_id)->toBe('Pika Ltd');
 
 });
