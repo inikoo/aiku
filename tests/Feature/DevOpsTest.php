@@ -5,7 +5,35 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+$headers = [
+    'Authorization' => 'Bearer 1|XptAVXfYLtZKhFoHZHqXKDeTeD1VUyo4A1u1tQIj'
+];
+$url = 'http://aiku.test/api';
 
-test('create first deployment', function () {
+test('create first deployment', function () use ($headers, $url) {
+    $result = Http::withHeaders($headers)->post($url . '/deployments/create');
 
-})->todo();
+    expect($result->status())->toEqual(201);
+});
+
+test('get latest deployment', function () use ($headers, $url) {
+    $result = Http::withHeaders($headers)->get($url . '/deployments/latest');
+
+    expect($result->status())->toEqual(200);
+});
+
+test('show deployment', function () use ($headers, $url) {
+    $result = Http::withHeaders($headers)->get($url . '/deployments/1');
+
+    expect($result->status())->toEqual(200);
+});
+
+test('edit deployment', function () use ($headers, $url) {
+    $result = Http::withHeaders($headers)->post($url . '/deployments/latest/edit', [
+        "version" => "0.1.1",
+        "hash"    => "4019599a",
+        "state"   => "deployed"
+    ]);
+
+    expect($result->status())->toEqual(200);
+});
