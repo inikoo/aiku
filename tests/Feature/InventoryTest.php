@@ -20,9 +20,13 @@ use App\Models\Tenancy\Tenant;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
-test('create and update warehouse', function () {
+beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();
     $tenant->makeCurrent();
+
+});
+
+test('create and update warehouse', function () {
     $warehouse = StoreWarehouse::make()->action(Warehouse::factory()->definition());
     $this->assertModelExists($warehouse);
     $warehouse = UpdateWarehouse::make()->action($warehouse, ['name' => 'Pika Ltd']);
@@ -31,8 +35,7 @@ test('create and update warehouse', function () {
 });
 
 test('create and update warehouse area', function () {
-    $tenant = Tenant::where('slug', 'agb')->first();
-    $tenant->makeCurrent();
+
     $warehouse = Warehouse::find(1);
     $this->assertModelExists($warehouse);
     $warehouseArea = StoreWarehouseArea::make()->action($warehouse, WarehouseArea::factory()->definition());
@@ -42,13 +45,12 @@ test('create and update warehouse area', function () {
 });
 
 test('create and update location', function () {
-    $tenant = Tenant::where('slug', 'agb')->first();
-    $tenant->makeCurrent();
+
     $warehouse = Warehouse::find(1);
     $this->assertModelExists($warehouse);
     $location = StoreLocation::make()->action($warehouse, Location::factory()->definition());
     $this->assertModelExists($location);
-    $warehouse = UpdateLocation::make()->action($location, ['name' => 'Pika Ltd']);
-    expect($warehouse->warehouse_id)->toBe('Pika Ltd');
+    $warehouse = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
+    expect($warehouse->code)->toBe('AE-3');
 
 });

@@ -36,8 +36,7 @@ class StoreLocation
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:tenant.warehouses', 'between:2,4', 'alpha'],
-            'name'         => ['required', 'max:250', 'string'],
+            'code'         => ['required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash'],
         ];
     }
 

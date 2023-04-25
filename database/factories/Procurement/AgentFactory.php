@@ -9,7 +9,6 @@ namespace Database\Factories\Procurement;
 
 use App\Models\Assets\Currency;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class AgentFactory extends Factory
 {
@@ -18,8 +17,8 @@ class AgentFactory extends Factory
         $currency = Currency::latest()->first();
 
         return [
-            'code'         => strtolower(Str::random(4)),
-            'name'         => fake()->name,
+            'code'         => fake()->lexify(),
+            'name'         => fake()->company,
             'company_name' => fake()->company,
             'contact_name' => fake()->name,
             'email'        => fake()->email,

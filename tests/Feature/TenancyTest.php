@@ -10,8 +10,9 @@ use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 
-
-beforeAll(fn () => loadDB('d1_fresh_with_assets.dump'));
+beforeAll(function () {
+    loadDB('d1_fresh_with_assets.dump');
+});
 
 
 test('create group using action', function () {
@@ -27,7 +28,7 @@ test('create group using command', function () {
 
 
 test('add tenant to group', function () {
-    $group = Group::latest()->first();
+    $group  = Group::latest()->first();
     $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
 
     $this->assertModelExists($tenant);

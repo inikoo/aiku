@@ -10,7 +10,7 @@ class LocationFactory extends Factory
     {
         return [
             'code' => fake()->lexify('????'),
-            'name' => fake()->company(),
+
         ];
     }
 }
