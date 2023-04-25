@@ -10,6 +10,7 @@ namespace App\Models\Inventory;
 use App\Models\Helpers\Issue;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -52,6 +53,7 @@ class Warehouse extends Model
     use SoftDeletes;
     use UsesTenantConnection;
     use HasUniversalSearch;
+    use HasFactory;
 
     protected $casts = [
         'data'     => 'array',

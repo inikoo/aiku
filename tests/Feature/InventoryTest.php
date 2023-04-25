@@ -8,6 +8,7 @@
 namespace Tests\Feature;
 
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
+use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Models\Inventory\Warehouse;
 use App\Models\Tenancy\Tenant;
 
@@ -16,7 +17,8 @@ beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 test('create warehouse', function () {
     $tenant = Tenant::where('slug', 'agb')->first();
     $tenant->makeCurrent();
-
     $warehouse = StoreWarehouse::make()->action(Warehouse::factory()->definition());
     $this->assertModelExists($warehouse);
+    $warehouse = UpdateWarehouse::make()->action($warehouse, ['name' => 'Pika Ltd']);
+    expect($warehouse->name)->toBe('Pika Ltd');
 });

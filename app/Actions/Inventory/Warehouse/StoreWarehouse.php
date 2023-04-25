@@ -11,10 +11,12 @@ use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreWarehouse
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle($modelData): Warehouse
     {
@@ -26,5 +28,21 @@ class StoreWarehouse
 
 
         return $warehouse;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code'         => ['required', 'unique:tenant.warehouses', 'between:2,4', 'alpha'],
+            'name'         => ['required', 'max:250', 'string'],
+        ];
+    }
+
+    public function action($objectData): Warehouse
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($validatedData);
     }
 }

@@ -32,8 +32,8 @@ class UpdateWarehouse
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required'],
-            'name' => ['sometimes', 'required'],
+            'code'         => ['required', 'unique:tenant.warehouses', 'between:2,4', 'alpha'],
+            'name'         => ['required', 'max:250', 'string'],
         ];
     }
 
@@ -44,6 +44,13 @@ class UpdateWarehouse
         return $this->handle($warehouse, $request->all());
     }
 
+    public function action(Warehouse $warehouse, $objectData): Warehouse
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($warehouse, $validatedData);
+    }
 
     public function jsonResponse(Warehouse $warehouse): WarehouseResource
     {
