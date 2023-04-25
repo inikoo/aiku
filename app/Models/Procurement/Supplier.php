@@ -106,7 +106,7 @@ class Supplier extends Model implements HasMedia
         return 'slug';
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::updated(function (Supplier $supplier) {
             if (!$supplier->wasRecentlyCreated) {

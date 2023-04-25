@@ -23,78 +23,50 @@ beforeEach(function () {
     $this->tenant->makeCurrent();
 });
 
-test('create agents', function () {
+test('create agent', function () {
     $agent = StoreAgent::make()->action($this->tenant, Agent::factory()->definition(), Address::factory()->definition());
     $this->assertModelExists($agent);
+    return $agent;
 });
 
 test('number of agents should be one', function () {
-
-
     $this->assertEquals(1, $this->tenant->procurementStats->number_agents);
     $this->assertEquals(1, $this->tenant->procurementStats->number_active_agents);
-});
+})->depends('create agent');
 
-test('create another agents', function () {
-
-
+test('create another agent', function () {
     $agent = StoreAgent::make()->action($this->tenant, Agent::factory()->definition(), Address::factory()->definition());
-
     $this->assertModelExists($agent);
 });
 
 test('number of agents should be two', function () {
-
     $this->assertEquals(2, $this->tenant->procurementStats->number_agents);
     $this->assertEquals(2, $this->tenant->procurementStats->number_active_agents);
-});
+})->depends('create agent', 'create another agent');
 
 test('create supplier', function () {
-
-
-     $supplier = StoreSupplier::make()->action($this->tenant, Supplier::factory()->definition());
-
-     $this->assertModelExists($supplier);
-});
-
-test('create agent with the supplier', function () {
-
-
-    $agent = StoreAgent::make()->action($this->tenant, Agent::factory()->definition(), Address::factory()->definition());
-
-    $supplier = StoreSupplier::make()->action($agent, Supplier::factory()->definition());
-
+    $supplier = StoreSupplier::make()->action($this->tenant, Supplier::factory()->definition());
     $this->assertModelExists($supplier);
+    return $supplier;
 });
 
-test('number of agents should be three', function () {
+test('create supplier in agent', function ($agent) {
+    $supplier = StoreSupplier::make()->action($agent, Supplier::factory()->definition());
+    $this->assertModelExists($supplier);
+})->depends('create agent');
 
-
-    $this->assertEquals(3, $this->tenant->procurementStats->number_agents);
-    $this->assertEquals(3, $this->tenant->procurementStats->number_active_agents);
-});
 
 test('number of supplier should be two', function () {
-
-
     $this->assertEquals(2, $this->tenant->procurementStats->number_suppliers);
     $this->assertEquals(2, $this->tenant->procurementStats->number_active_suppliers);
-});
+})->depends('create supplier', 'create supplier in agent');
 
-test('create supplier product', function () {
+test('create supplier product', function ($supplier) {
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $this->assertModelExists($supplierProduct);
+})->depends('create supplier');
 
-    $supplier = Supplier::latest()->first();
-
-    $purchaseOrder = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
-
-    $this->assertModelExists($purchaseOrder);
-});
-
-test('create purchase order', function () {
-
-    $supplier = Supplier::latest()->first();
-
+test('create purchase order', function ($supplier) {
     $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
-
     $this->assertModelExists($purchaseOrder);
-});
+})->depends('create supplier');
