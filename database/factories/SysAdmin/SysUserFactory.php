@@ -14,8 +14,10 @@ class SysUserFactory extends Factory
     public function definition(): array
     {
         return [
-            'username'=> fake()->userName(),
-            'password'=> fake()->password(10)
+            'username'   => fake()->userName(),
+            'password'   => fake()->password(10),
+            'language_id'=> 1,
+            'timezone_id'=> 1
         ];
     }
 }

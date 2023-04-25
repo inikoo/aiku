@@ -8,5 +8,5 @@
 
 return [
 
-    'repo_path'=> (env('APP_ENV')=='local' ? base_path('.git') : env('REPO_DIR'))
+    'repo_path'=> (env('APP_ENV')=='local' || env('APP_ENV')=='testing' ? base_path('.git') : env('REPO_DIR'))
 ];

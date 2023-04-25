@@ -5,35 +5,42 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-$headers = [
-    'Authorization' => 'Bearer 1|XptAVXfYLtZKhFoHZHqXKDeTeD1VUyo4A1u1tQIj'
-];
-$url = 'http://aiku.test/api';
+use App\Models\SysAdmin\Admin;
+use App\Models\SysAdmin\SysUser;
+use Laravel\Sanctum\Sanctum;
 
-test('create first deployment', function () use ($headers, $url) {
-    $response = $this->get($url.'/deployments/create');
-
-    $response->assertOk();
+beforeEach(function () {
+    Sanctum::actingAs(
+        SysUser::factory()->for(Admin::factory(), 'userable')->create(),
+        ['*'],
+        'api-admin-user'
+    );
 });
 
-test('get latest deployment', function () use ($headers, $url) {
-    $result = Http::withHeaders($headers)->get($url . '/deployments/latest');
-
-    expect($result->status())->toEqual(200);
+test('create first deployment', function () {
+    $response = $this->post(route('deployments.store'));
+    $response->assertCreated();
 });
 
-test('show deployment', function () use ($headers, $url) {
-    $result = Http::withHeaders($headers)->get($url . '/deployments/1');
-
-    expect($result->status())->toEqual(200);
+test('get latest deployment', function () {
+    $response = $this->get(route('deployments.latest'));
+    $response->assertOK();
 });
 
-test('edit deployment', function () use ($headers, $url) {
-    $result = Http::withHeaders($headers)->post($url . '/deployments/latest/edit', [
-        "version" => "0.1.1",
-        "hash" => "4019599a",
-        "state" => "deployed"
-    ]);
+test('show deployment', function () {
+    $response = $this->get(route('deployments.show', 1));
+    $response->assertOK();
+});
 
-    expect($result->status())->toEqual(200);
+test('edit deployment', function () {
+
+    $response = $this->patch(route(
+        'deployments.latest.edit',
+        [
+            "version" => "0.1.1",
+            "hash"    => "4019599a",
+            "state"   => "deployed"
+        ],
+    ));
+    $response->assertOK();
 });

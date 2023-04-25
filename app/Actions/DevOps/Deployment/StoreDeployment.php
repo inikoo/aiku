@@ -147,6 +147,7 @@ class StoreDeployment
         $this->fill([
             'current_hash' => $this->getCurrentHash(),
         ]);
+
         $this->validateAttributes();
 
         return $this->handle($this->getCurrentHash());

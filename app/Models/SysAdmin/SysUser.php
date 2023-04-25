@@ -93,20 +93,8 @@ class SysUser extends Authenticatable
 
     public function userable(): MorphTo
     {
-        return $this->morphTo(null, null, null, 'numeric_id');
+        return $this->morphTo();
     }
 
-    public function tenant(): MorphTo
-    {
-        return $this->morphTo('userable', 'userable_type', 'userable_id', 'numeric_id');
-    }
 
-    public function getUserable(): Model|Eloquent
-    {
-        if ($this->userable_type == 'Tenant') {
-            return $this->tenant;
-        } else {
-            return $this->userable;
-        }
-    }
 }
