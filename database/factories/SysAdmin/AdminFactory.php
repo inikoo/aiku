@@ -14,7 +14,7 @@ class AdminFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => fake()->safeColorName(),
+            'code' => fake()->userName(),
             'name' => fake()->name(),
             'email'=> fake()->email()
         ];

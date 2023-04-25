@@ -10,13 +10,11 @@ namespace App\Actions\SysAdmin\SysUser;
 use App\Models\SysAdmin\SysUser;
 use Exception;
 use Illuminate\Console\Command;
-use Lorisleiva\Actions\Concerns\AsCommand;
-use Lorisleiva\Actions\Concerns\WithAttributes;
+use Lorisleiva\Actions\Concerns\AsAction;
 
 class CreateSysUserAccessToken
 {
-    use asCommand;
-    use WithAttributes;
+    use asAction;
 
     public function handle(SysUser $sysUser, string $tokenName, array $scopes): string
     {
@@ -44,7 +42,7 @@ class CreateSysUserAccessToken
             return 1;
         }
         $token = $this->handle($sysUser, $command->argument('token_name'), $command->argument('scopes'));
-        $command->line("Admin access token: $token");
+        $command->line($token);
 
         return 0;
     }

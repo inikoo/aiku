@@ -13,7 +13,7 @@ use App\Models\Assets\Currency;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-beforeAll(fn () => loadDB('fresh_with_assets.dump'));
+beforeAll(fn () => loadDB('d1_fresh_with_assets.dump'));
 
 it('has countries', function (string $countryCode) {
     $country= Country::where('code', $countryCode)->firstOrFail();

@@ -16,7 +16,6 @@ use App\Models\Tenancy\Tenant;
 use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -51,7 +50,7 @@ class StoreSysUser
     {
         return [
             'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username'],
-            'password' => ['required', app()->isLocal() ? null : Password::min(8)->uncompromised()],
+            'password' => ['required', app()->isLocal()  || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
 
         ];
     }
@@ -65,7 +64,7 @@ class StoreSysUser
 
 
     public string $commandSignature = 'create:system-user
-    {userable : type of userable model,Admin|Tenant|CentralDomain }
+    {userable : type of userable model: Admin|Tenant|CentralDomain }
     {userable_slug : userable model slug/code}
     {--u|username= : use instead of slug/code argument}
     {--a|autoPassword : generate random password}';
@@ -79,9 +78,9 @@ class StoreSysUser
     {
         try {
             $userable = match ($command->argument('userable')) {
-                'Admin'         => Admin::findOrFail($command->argument('userable_slug')),
+                'Admin'         => Admin::where('slug', $command->argument('userable_slug'))->firstOrFail(),
                 'Tenant'        => Tenant::where('code', $command->argument('userable_slug'))->firstOrFail(),
-                'CentralDomain' => CentralDomain::findOrFail($command->argument('userable_slug')),
+                'CentralDomain' => CentralDomain::where('slug', $command->argument('userable_slug'))->firstOrFail(),
                 default         => null
             };
         } catch (Exception $e) {
@@ -102,7 +101,7 @@ class StoreSysUser
         }
 
         if ($command->option('autoPassword')) {
-            $password = (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true));
+            $password = (app()->isLocal() || app()->environment('testing') ? 'hello' : wordwrap(Str::random(), 4, '-', true));
         } else {
             $password = $command->ask('What is the password?');
         }
@@ -121,16 +120,16 @@ class StoreSysUser
         }
 
         $sysUser = $this->handle($userable, $validatedData);
-        $command->line("Account admin created $sysUser->username");
+        $command->line("System user created");
 
         $command->table(
-            ['Model','Id', 'Username', 'Password'],
+            ['Model','Slug/Code', 'Username', 'Password'],
             [
                 [
-                    class_basename($userable).
+                    class_basename($userable),
                     $command->argument('userable_slug'),
                     $sysUser->username,
-                    ($command->option('autoPassword') ? Arr::get($validatedData, 'password') : '*****'),
+                    ($command->option('autoPassword') ? $password : '*****'),
                 ],
 
             ]
