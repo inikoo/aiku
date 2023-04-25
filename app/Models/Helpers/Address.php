@@ -7,11 +7,11 @@
 
 namespace App\Models\Helpers;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Address extends BaseAddress
 {
     use UsesTenantConnection;
-
-
+    use HasFactory;
 }
