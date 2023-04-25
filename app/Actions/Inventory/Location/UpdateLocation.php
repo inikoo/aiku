@@ -17,6 +17,8 @@ class UpdateLocation
 {
     use WithActionUpdate;
 
+    private bool $asAction=false;
+
     public function handle(Location $location, array $modelData): Location
     {
         $location =  $this->update($location, $modelData, ['data']);
@@ -28,16 +30,26 @@ class UpdateLocation
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction) {
+            return true;
+        }
         return $request->user()->hasPermissionTo("inventory.locations.edit");
     }
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required'],
-            'name' => ['sometimes', 'required'],
+            'code'         => ['sometimes', 'required', 'unique:tenant.warehouses', 'between:2,4', 'alpha'],
+            'name'         => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }
+    public function action(Location $location, array $objectData): Location
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
 
+        return $this->handle($location, $validatedData);
+    }
 
     public function asController(Location $location, ActionRequest $request): Location
     {
