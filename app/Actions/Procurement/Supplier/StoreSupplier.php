@@ -54,7 +54,7 @@ class StoreSupplier
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:agents', 'between:2,9', 'alpha'],
+            'code'         => ['required', 'unique:group.agents', 'between:2,9', 'alpha'],
             'name'         => ['required', 'max:250', 'string'],
             'company_name' => ['sometimes', 'required'],
             'contact_name' => ['sometimes', 'required'],
