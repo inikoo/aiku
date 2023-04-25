@@ -11,9 +11,9 @@ $headers = [
 $url = 'http://aiku.test/api';
 
 test('create first deployment', function () use ($headers, $url) {
-    $result = Http::withHeaders($headers)->post($url . '/deployments/create');
+    $response = $this->get($url.'/deployments/create');
 
-    expect($result->status())->toEqual(201);
+    $response->assertOk();
 });
 
 test('get latest deployment', function () use ($headers, $url) {
@@ -31,8 +31,8 @@ test('show deployment', function () use ($headers, $url) {
 test('edit deployment', function () use ($headers, $url) {
     $result = Http::withHeaders($headers)->post($url . '/deployments/latest/edit', [
         "version" => "0.1.1",
-        "hash"    => "4019599a",
-        "state"   => "deployed"
+        "hash" => "4019599a",
+        "state" => "deployed"
     ]);
 
     expect($result->status())->toEqual(200);
