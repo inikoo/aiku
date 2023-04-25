@@ -23,7 +23,7 @@ return new class () extends Migration {
         Schema::create('tenant_mail_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('tenant_id')->references('id')->on('public.tenants')->onUpdate('cascade')->onDelete('cascade');
             $table=$this->outboxesStats($table);
             $table=$this->mailshotsStats($table);
             $table=$this->dispatchedEmailStats($table);
