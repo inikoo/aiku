@@ -12,10 +12,12 @@ use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalS
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreWarehouseArea
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(Warehouse $warehouse, array $modelData): WarehouseArea
     {
@@ -25,5 +27,21 @@ class StoreWarehouseArea
         WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
 
         return $warehouseArea;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code'         => ['required', 'unique:tenant.warehouses', 'between:2,4', 'alpha'],
+            'name'         => ['required', 'max:250', 'string'],
+        ];
+    }
+
+    public function action(Warehouse $warehouse, array $objectData): WarehouseArea
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($warehouse, $validatedData);
     }
 }

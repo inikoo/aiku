@@ -11,6 +11,7 @@ use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\Utils\Abbreviate;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -51,6 +52,7 @@ class WarehouseArea extends Model
     use HasSlug;
     use UsesTenantConnection;
     use HasUniversalSearch;
+    use HasFactory;
 
     protected $guarded = [];
 
