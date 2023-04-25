@@ -7,7 +7,7 @@ NONE='\033[00m'
 DB=aiku_test
 
 echo -e "✨ Resetting database ${ITALIC}${DB}${NONE}"
-dropdb -f --if-exists ${DB}
+dropdb --if-exists ${DB}
 createdb ${DB}
 echo "🌱 Migrating and seeding database"
 php artisan --env=testing migrate --path=database/migrations/central  --database=central
