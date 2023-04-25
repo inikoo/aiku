@@ -48,7 +48,7 @@ return new class () extends Migration {
 
 
             $table->unsignedSmallInteger('currency_id')->nullable();
-            $table->foreign('currency_id')->references('id')->on('currencies');
+            $table->foreign('currency_id')->references('id')->on('public.currencies');
 
             $table=$this->dateIntervals($table);
 

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 14 Apr 2023 10:07:16 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Wed, 26 Apr 2023 13:56:09 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -18,7 +18,7 @@ return new class () extends Migration {
     use HasOutboxesStats;
 
 
-    public function up()
+    public function up(): void
     {
         Schema::create('tenant_mail_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
@@ -33,7 +33,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('tenant_mail_stats');
     }

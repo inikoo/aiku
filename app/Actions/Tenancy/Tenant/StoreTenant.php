@@ -49,15 +49,7 @@ class StoreTenant
         $tenant = $group->tenants()->create($modelData);
 
 
-        $tenant->stats()->create();
-        $tenant->procurementStats()->create();
-        $tenant->inventoryStats()->create();
-        $tenant->productionStats()->create();
-        $tenant->marketingStats()->create();
-        $tenant->salesStats()->create();
-        $tenant->fulfilmentStats()->create();
-        $tenant->accountingStats()->create();
-        $tenant->mailStats()->create();
+
         $tenant->refresh();
 
         if (!$group->owner_id) {
@@ -76,6 +68,17 @@ class StoreTenant
         DB::statement("CREATE SCHEMA ".$tenant->schema());
         $tenant->execute(
             function (Tenant $tenant) {
+
+                $tenant->stats()->create();
+                $tenant->procurementStats()->create();
+                $tenant->inventoryStats()->create();
+                $tenant->productionStats()->create();
+                $tenant->marketingStats()->create();
+                $tenant->salesStats()->create();
+                $tenant->fulfilmentStats()->create();
+                $tenant->accountingStats()->create();
+                $tenant->mailStats()->create();
+
                 Artisan::call('tenants:artisan "migrate:fresh  --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->slug);
                 Artisan::call('tenants:artisan "db:seed --force --class=TenantsSeeder" --tenant='.$tenant->slug);
 
