@@ -26,31 +26,45 @@ beforeEach(function () {
 
 });
 
-test('create and update warehouse', function () {
+test('create warehouse', function () {
     $warehouse = StoreWarehouse::make()->action(Warehouse::factory()->definition());
     $this->assertModelExists($warehouse);
+    return $warehouse;
+});
+
+test('update warehouse', function ($warehouse) {
+    // $warehouse = Warehouse::find(1);
     $warehouse = UpdateWarehouse::make()->action($warehouse, ['name' => 'Pika Ltd']);
     expect($warehouse->name)->toBe('Pika Ltd');
+})->depends('create warehouse');
 
-});
-
-test('create and update warehouse area', function () {
-
-    $warehouse = Warehouse::find(1);
-    $this->assertModelExists($warehouse);
+test('create warehouse area', function ($warehouse) {
+    // $warehouse = Warehouse::factory()->create();
     $warehouseArea = StoreWarehouseArea::make()->action($warehouse, WarehouseArea::factory()->definition());
     $this->assertModelExists($warehouseArea);
-    $warehouse = UpdateWarehouseArea::make()->action($warehouseArea, ['name' => 'Pika Ltd']);
-    expect($warehouse->name)->toBe('Pika Ltd');
-});
+    return $warehouseArea;
+})->depends('create warehouse');
 
-test('create and update location', function () {
+test('update warehouse area', function ($warehouseArea) {
+    $warehouseArea = UpdateWarehouseArea::make()->action($warehouseArea, ['name' => 'Pika Ltd']);
+    expect($warehouseArea->name)->toBe('Pika Ltd');
+})->depends('create warehouse area');
 
-    $warehouse = Warehouse::find(1);
-    $this->assertModelExists($warehouse);
+
+test('create location in warehouse', function ($warehouse) {
     $location = StoreLocation::make()->action($warehouse, Location::factory()->definition());
     $this->assertModelExists($location);
-    $warehouse = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
-    expect($warehouse->code)->toBe('AE-3');
+})->depends('create warehouse');
 
-});
+test('create location in warehouse area', function ($warehouseArea) {
+    $location = StoreLocation::make()->action($warehouseArea, Location::factory()->definition());
+    $this->assertModelExists($location);
+    return $location;
+})->depends('create warehouse area');
+
+
+test('update location', function ($location) {
+    $location = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
+    expect($location->code)->toBe('AE-3');
+
+})->depends('create location in warehouse area');
