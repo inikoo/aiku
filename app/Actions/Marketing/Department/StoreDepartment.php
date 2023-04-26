@@ -9,7 +9,7 @@ namespace App\Actions\Marketing\Department;
 
 use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
-use App\Enums\Marketing\Department\DepartmentTypeEnum;
+use App\Enums\Marketing\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
@@ -24,10 +24,10 @@ class StoreDepartment
     public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
         if (class_basename($parent) == 'Department') {
-            $modelData['type'] = DepartmentTypeEnum::BRANCH;
+            $modelData['type']    = ProductCategoryTypeEnum::BRANCH;
             $modelData['shop_id'] = $parent->shop_id;
         } else {
-            $modelData['type'] = DepartmentTypeEnum::ROOT;
+            $modelData['type']    = ProductCategoryTypeEnum::ROOT;
             $modelData['shop_id'] = $parent->id;
         }
 
@@ -55,10 +55,10 @@ class StoreDepartment
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.product_categories', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string'],
-            'image_id' => ['sometimes', 'required', 'exists:media,id'],
-            'state' => ['sometimes', 'required'],
+            'code'        => ['required', 'unique:tenant.product_categories', 'between:2,9', 'alpha'],
+            'name'        => ['required', 'max:250', 'string'],
+            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
+            'state'       => ['sometimes', 'required'],
             'description' => ['sometimes', 'required', 'max:1500'],
         ];
     }

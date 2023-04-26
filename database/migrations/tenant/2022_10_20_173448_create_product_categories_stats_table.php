@@ -12,14 +12,14 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('department_stats', function (Blueprint $table) {
+        Schema::create('product_category_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('department_id')->index();
-            $table->foreign('department_id')->references('id')->on('departments');
+            $table->unsignedSmallInteger('product_category_id')->index();
+            $table->foreign('product_category_id')->references('id')->on('product_categories');
 
-            $table->unsignedSmallInteger('number_sub_departments')->default(0);
+            $table->unsignedSmallInteger('number_sub_product_categories')->default(0);
 
             $table->unsignedSmallInteger('number_families')->default(0);
             foreach (FamilyStateEnum::cases() as $familyState) {
@@ -36,8 +36,8 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('department_stats');
+        Schema::dropIfExists('product_category_stats');
     }
 };

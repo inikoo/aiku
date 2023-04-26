@@ -8,7 +8,7 @@
 namespace App\Models\Marketing;
 
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
-use App\Enums\Marketing\Department\DepartmentStateEnum;
+use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
 use App\Models\Sales\SalesStats;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,7 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property int|null $shop_id
  * @property int|null $department_id
- * @property DepartmentStateEnum|null $state
+ * @property ProductCategoryStateEnum|null $state
  * @property string|null $name
  * @property string|null $description
  * @property array $data
@@ -69,7 +69,7 @@ class ProductCategory extends Model
 
     protected $casts = [
         'data'  => 'array',
-        'state' => DepartmentStateEnum::class
+        'state' => ProductCategoryStateEnum::class
     ];
 
     protected $attributes = [

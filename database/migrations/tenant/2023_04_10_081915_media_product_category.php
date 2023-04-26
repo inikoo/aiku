@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 10 Apr 2023 10:21:48 Central European Summer Time, Malaga, Spain
+ * Created: Mon, 10 Apr 2023 10:21:36 Central European Summer Time, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up()
     {
-        Schema::create('media_family', function (Blueprint $table) {
-            $table->unsignedInteger('family_id')->index();
+        Schema::create('media_product_category', function (Blueprint $table) {
+            $table->unsignedInteger('product_category_id')->index();
             $table->string('type')->index();
-            $table->foreign('family_id')->references('id')->on('stock_families');
+            $table->foreign('product_category_id')->references('id')->on('product_categories');
             $table->unsignedBigInteger('media_id')->index();
             $table->foreign('media_id')->references('id')->on('media');
-            $table->unique(['family_id', 'media_id']);
+            $table->unique(['product_category_id', 'media_id']);
             $table->string('owner_type')->index();
             $table->unsignedInteger('owner_id');
             $table->boolean('public')->default(false)->index();
@@ -31,6 +31,6 @@ return new class () extends Migration {
 
     public function down()
     {
-        Schema::dropIfExists('media_family');
+        Schema::dropIfExists('media_product_category');
     }
 };
