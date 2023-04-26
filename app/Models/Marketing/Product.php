@@ -127,11 +127,6 @@ class Product extends Model implements HasMedia
         });
     }
 
-    public function family(): BelongsTo
-    {
-        return $this->belongsTo(Family::class);
-    }
-
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);

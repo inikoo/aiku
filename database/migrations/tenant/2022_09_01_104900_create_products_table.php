@@ -20,8 +20,8 @@ return new class () extends Migration {
             $table->unsignedInteger('current_historic_product_id')->index()->nullable();
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedSmallInteger('family_id')->nullable();
-            $table->foreign('family_id')->references('id')->on('families');
+
+
             $table->string('state')->nullable()->index();
             $table->boolean('status')->nullable()->index();
             $table->string('trade_unit_composition')->default(ProductTradeUnitCompositionEnum::MATCH->value);

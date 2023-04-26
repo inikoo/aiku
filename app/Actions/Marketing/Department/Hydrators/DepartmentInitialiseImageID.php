@@ -1,37 +1,36 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 04 Apr 2023 11:42:49 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Thu, 27 Apr 2023 11:37:01 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Family\Hydrators;
+namespace App\Actions\Marketing\Department\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Models\Marketing\Family;
+use App\Models\Marketing\Department;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * Fill image_id if id null and products has images (to be run after trade units set up or first image added)
  */
-class FamilyInitialiseImageID implements ShouldBeUnique
+class DepartmentInitialiseImageID implements ShouldBeUnique
 {
     use AsAction;
     use WithTenantJob;
 
-    public function handle(Family $family): void
+    public function handle(Department $department): void
     {
-        $image_id = null;
-        if ($family->images()->count()) {
-            if ($family->image_id) {
+        if ($department->images()->count()) {
+            if ($department->image_id) {
                 return;
             }
 
-            $image = $family->images()->first();
+            $image = $department->images()->first();
 
             if ($image) {
-                $family->update(
+                $department->update(
                     [
                         'image_id' => $image->id
                     ]
@@ -40,8 +39,8 @@ class FamilyInitialiseImageID implements ShouldBeUnique
         }
     }
 
-    public function getJobUniqueId(Family $family): string
+    public function getJobUniqueId(Department $department): string
     {
-        return $family->id;
+        return $department->id;
     }
 }
