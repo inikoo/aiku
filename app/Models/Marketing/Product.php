@@ -7,8 +7,6 @@
 
 namespace App\Models\Marketing;
 
-use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
 use App\Models\Helpers\Barcode;
@@ -115,14 +113,14 @@ class Product extends Model implements HasMedia
             ->slugsShouldBeNoLongerThan(64);
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::updated(function (Product $product) {
             if ($product->wasChanged('state')) {
-                if ($product->family_id) {
-                    FamilyHydrateProducts::dispatch($product->family);
-                }
-                ShopHydrateProducts::dispatch($product->shop);
+                //if ($product->family_id) {
+                //    FamilyHydrateProducts::dispatch($product->family);
+                // }
+                //ShopHydrateProducts::dispatch($product->shop);
             }
         });
     }
