@@ -39,12 +39,12 @@ class StoreAgent
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:group.agents', 'between:2,9', 'alpha'],
+            'code'         => ['required', 'unique:group.agents', 'between:2,9', 'alpha_dash'],
             'name'         => ['required', 'max:250', 'string'],
             'company_name' => ['sometimes', 'required'],
             'contact_name' => ['sometimes', 'required'],
             'email'        => ['sometimes', 'required'],
-            'currency_id'  => ['required', 'exists:currencies,id'],
+            'currency_id'  => ['required', 'exists:central.currencies,id'],
         ];
     }
 

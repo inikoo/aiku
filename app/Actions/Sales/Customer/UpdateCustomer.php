@@ -18,6 +18,8 @@ class UpdateCustomer
 {
     use WithActionUpdate;
 
+    private bool $asAction=false;
+
     public function handle(Customer $customer, array $modelData): Customer
     {
         if (Arr::hasAny($modelData, ['contact_name', 'company_name'])) {
@@ -37,6 +39,10 @@ class UpdateCustomer
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction) {
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
 

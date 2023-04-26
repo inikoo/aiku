@@ -11,6 +11,7 @@ use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -19,6 +20,7 @@ class StoreLocation
     use AsAction;
     use WithAttributes;
 
+    private bool $asAction=false;
 
     public function handle(WarehouseArea|Warehouse $parent, array $modelData): Location
     {
@@ -33,6 +35,14 @@ class StoreLocation
 
         return $location;
     }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    }
     public function rules(): array
     {
         return [
@@ -42,6 +52,7 @@ class StoreLocation
 
     public function action(WarehouseArea|Warehouse $parent, array $objectData): Location
     {
+        $this->asAction=true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 

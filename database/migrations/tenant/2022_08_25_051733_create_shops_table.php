@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Enums\Marketing\Shop\ShopStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,13 +22,12 @@ return new class () extends Migration {
             $table->string('contact_name', 256)->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
-            $table->string('url', 256)->nullable();
             $table->string('identity_document_type')->nullable();
             $table->string('identity_document_number')->nullable();
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
-            $table->string('state')->index();
+            $table->string('state')->index()->default(ShopStateEnum::IN_PROCESS->value);
             $table->string('type')->index();
             $table->string('subtype')->nullable();
             $table->date('open_at')->nullable();

@@ -15,15 +15,21 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Support\Facades\Bus;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
+use Illuminate\Validation\Validator;
 
 class StoreCustomer
 {
     use AsAction;
+    use WithAttributes;
+
+    private bool $asAction=false;
 
     public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
     {
-        /** @var \App\Models\Sales\Customer $customer */
+        /** @var Customer $customer */
         $customer = $shop->customers()->create($customerData);
         $customer->stats()->create();
 
@@ -44,5 +50,41 @@ class StoreCustomer
         CustomerHydrateUniversalSearch::dispatch($customer);
 
         return $customer;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    }
+    public function rules(): array
+    {
+        return [
+            'contact_name'              => ['nullable', 'string', 'max:255'],
+            'company_name'              => ['nullable', 'string', 'max:255'],
+            'email'                     => ['nullable', 'email'],
+            'phone'                     => ['nullable', 'string'],
+            'identity_document_number'  => ['nullable', 'string'],
+            'website'                   => ['nullable', 'active_url'],
+
+        ];
+    }
+
+    public function afterValidator(Validator $validator, ActionRequest $request): void
+    {
+        if (!$this->get('contact_name') and !$this->get('company_name')) {
+            $validator->errors()->add('contact_name', 'contact name required x');
+        }
+    }
+
+    public function action(Shop $shop, array $objectData): Customer
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($shop, $validatedData);
     }
 }
