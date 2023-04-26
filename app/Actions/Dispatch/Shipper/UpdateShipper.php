@@ -18,4 +18,27 @@ class UpdateShipper
     {
         return $this->update($shipper, $modelData, ['data']);
     }
+
+    public function rules(): array
+    {
+        return [
+            'code' => ['required', 'unique:tenant.offers', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
+            'api_shipper' => ['sometimes', 'required'],
+            'contact_name' => ['sometimes', 'required'],
+            'company_name' => ['sometimes', 'required'],
+            'email' => ['sometimes', 'required', 'email'],
+            'phone' => ['sometimes', 'required'],
+            'website' => ['sometimes', 'required', 'url'],
+            'tracking_url' => ['sometimes', 'required'],
+        ];
+    }
+
+    public function action(Shipper $shipper, array $objectData): Shipper
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($shipper, $validatedData);
+    }
 }

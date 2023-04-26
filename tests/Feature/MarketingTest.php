@@ -48,14 +48,28 @@ test('create department', function ($shop) {
 
 
 test('create sub department', function ($department) {
-    $department = StoreProductCategory::make()->action($department, ProductCategory::factory()->definition());
+    $subDepartment = StoreDepartment::make()->action($department, ProductCategory::factory()->definition());
+    $this->assertModelExists($subDepartment);
+
+    return $subDepartment;
+})->depends('create department');
+
+test('create department 2', function ($shop) {
+    $department = StoreDepartment::make()->action($shop, ProductCategory::factory()->definition());
     $this->assertModelExists($department);
 
     return $department;
+})->depends('create shop');
+
+test('get list of the parents', function ($department) {
+    $parents = GetFamilyTreeDepartment::run($department);
+    $this->assertModelExists($parents);
+
+    return $parents;
 })->depends('create department');
 
 test('update department', function ($department) {
-    $department = UpdateProductCategory::make()->action($department, ProductCategory::factory()->definition());
+    $department = UpdateDepartment::make()->action($department, Department::factory()->definition());
 
     $this->assertModelExists($department);
 })->depends('create department');
@@ -78,3 +92,10 @@ test('delete product', function ($product) {
 
     $this->assertModelExists($product);
 })->depends('create product')->todo();
+
+test('create offer campaign', function ($shop) {
+    $product = StoreOfferCampaign::make()->action($shop, OfferCampaign::factory()->definition());
+    $this->assertModelExists($product);
+
+    return $product;
+})->depends('create shop');

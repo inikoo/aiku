@@ -2,7 +2,9 @@
 
 namespace App\Models\Marketing;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
@@ -13,6 +15,7 @@ class OfferCampaign extends Model
     use SoftDeletes;
     use UsesTenantConnection;
     use HasSlug;
+    use HasFactory;
 
 
     protected $casts = [
@@ -36,5 +39,10 @@ class OfferCampaign extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function offers(): HasMany
+    {
+        return $this->hasMany(Offer::class);
     }
 }

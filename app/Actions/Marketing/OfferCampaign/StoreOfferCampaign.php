@@ -8,14 +8,36 @@
 namespace App\Actions\Marketing\OfferCampaign;
 
 use App\Models\Marketing\OfferCampaign;
+use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreOfferCampaign
 {
     use AsAction;
+    use WithAttributes;
 
-    public function handle(OfferCampaign $offerCampaign, array $modelData): OfferCampaign
+    public function handle(Shop $shop, array $modelData): OfferCampaign
     {
-        return $offerCampaign->create($modelData);
+        /** @var OfferCampaign $offerCampaign */
+        $offerCampaign = $shop->offerCampaigns()->create($modelData);
+
+        return $offerCampaign;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code' => ['required', 'unique:tenant.offers', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
+        ];
+    }
+
+    public function action(Shop $shop, array $objectData): OfferCampaign
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($shop, $validatedData);
     }
 }
