@@ -20,40 +20,43 @@ class StorePayment
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
-    public function handle(PaymentAccount|Customer $parent, array $modelData): Payment
+    public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        if (class_basename($parent)=='Customer') {
-            $modelData['shop_id']=$parent->shop_id;
-        }
+        $modelData['customer_id'] = $customer->id;
+        $modelData['shop_id']     = $customer->shop_id;
+
 
         /** @var Payment $payment */
-        $payment = $parent->payments()->create($modelData);
+        $payment = $paymentAccount->payments()->create($modelData);
         PaymentHydrateUniversalSearch::dispatch($payment);
+
         return $payment;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("accounting.edit");
     }
+
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.payments', 'between:2,9', 'alpha_dash'],
+            'reference' => ['required', 'string'],
         ];
     }
 
-    public function action(PaymentAccount|Customer $parent, array $objectData): Payment
+    public function action(Customer $customer, PaymentAccount $paymentAccount, array $objectData): Payment
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($parent, $validatedData);
+        return $this->handle($customer, $paymentAccount, $validatedData);
     }
 }
