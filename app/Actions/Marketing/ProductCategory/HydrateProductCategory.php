@@ -1,16 +1,15 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 15 Feb 2022 22:35:27 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
- *  Version 4.0
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 27 Apr 2023 16:57:47 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Marketing\ProductCategory;
 
 use App\Actions\HydrateModel;
+use App\Actions\Marketing\ProductCategory\Hydrators\ProductCategoryHydrateProducts;
 use App\Actions\Marketing\ProductCategory\Hydrators\ProductCategoryHydrateSubdepartments;
-use App\Actions\Marketing\ProductCategory\Hydrators\DepartmentHydrateProducts;
 use App\Models\Marketing\ProductCategory;
 use Illuminate\Support\Collection;
 
@@ -21,7 +20,7 @@ class HydrateProductCategory extends HydrateModel
     public function handle(ProductCategory $productCategory): void
     {
         ProductCategoryHydrateSubdepartments::run($productCategory);
-        DepartmentHydrateProducts::run($productCategory);
+        ProductCategoryHydrateProducts::run($productCategory);
     }
 
     protected function getModel(int $id): ProductCategory
