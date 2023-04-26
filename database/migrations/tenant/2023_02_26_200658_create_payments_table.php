@@ -14,11 +14,11 @@ return new class () extends Migration {
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedSmallInteger('shop_id')->index();
-            $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('payment_account_id')->index();
             $table->foreign('payment_account_id')->references('id')->on('payment_accounts');
-            $table->unsignedInteger('customer_id')->index();
+            $table->unsignedSmallInteger('shop_id')->nullable()->index();
+            $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedInteger('customer_id')->nullable()->index();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('type');
             $table->string('reference')->index();
