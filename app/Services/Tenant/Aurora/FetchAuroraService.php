@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Marketing\Product\ProductTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraService extends FetchAurora
@@ -40,14 +41,15 @@ class FetchAuroraService extends FetchAurora
         $this->parsedData['historic_service_source_id'] = $this->auroraModelData->{'Product Current Key'};
 
         $this->parsedData['service'] = [
-            'code'                        => $this->auroraModelData->{'Product Code'},
-            'name'                        => $this->auroraModelData->{'Product Name'},
-            'price'                       => round($unit_price, 2),
-            'status'                      => $status,
-            'data'                        => $data,
-            'settings'                    => $settings,
-            'created_at'                  => $created_at,
-            'source_id'                   => $this->auroraModelData->{'Product ID'},
+            'type'       => ProductTypeEnum::SERVICE,
+            'code'       => $this->auroraModelData->{'Product Code'},
+            'name'       => $this->auroraModelData->{'Product Name'},
+            'price'      => round($unit_price, 2),
+            'status'     => $status,
+            'data'       => $data,
+            'settings'   => $settings,
+            'created_at' => $created_at,
+            'source_id'  => $this->auroraModelData->{'Product ID'},
 
         ];
     }

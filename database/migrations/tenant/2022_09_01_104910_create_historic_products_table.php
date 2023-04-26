@@ -14,6 +14,8 @@ return new class () extends Migration {
     {
         Schema::create('historic_products', function (Blueprint $table) {
             $table->increments('id');
+
+
             $table->string('slug')->unique();
             $table->boolean('status')->index();
 

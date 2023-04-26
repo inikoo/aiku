@@ -87,7 +87,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Prospect> $prospects
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Service> $services
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read Website|null $website
