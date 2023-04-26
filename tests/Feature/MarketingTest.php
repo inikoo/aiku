@@ -7,14 +7,14 @@
 
 namespace Tests\Feature;
 
-use App\Actions\Marketing\Department\StoreDepartment;
-use App\Actions\Marketing\Department\UpdateDepartment;
+use App\Actions\Marketing\ProductCategory\StoreProductCategory;
+use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Product\DeleteProduct;
 use App\Actions\Marketing\Product\StoreProduct;
 use App\Actions\Marketing\Product\UpdateProduct;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
@@ -34,13 +34,13 @@ test('create shop', function () {
 });
 
 test('update shop', function ($shop) {
-    $department = UpdateShop::make()->action($shop, Shop::factory()->definition());
+    $shop = UpdateShop::make()->action($shop, Shop::factory()->definition());
 
-    $this->assertModelExists($department);
+    $this->assertModelExists($shop);
 })->depends('create shop');
 
 test('create department', function ($shop) {
-    $department = StoreDepartment::make()->action($shop, Department::factory()->definition());
+    $department = StoreProductCategory::make()->action($shop, ProductCategory::factory()->definition());
     $this->assertModelExists($department);
 
     return $department;
@@ -48,14 +48,14 @@ test('create department', function ($shop) {
 
 
 test('create sub department', function ($department) {
-    $department = StoreDepartment::make()->action($department, Department::factory()->definition());
+    $department = StoreProductCategory::make()->action($department, ProductCategory::factory()->definition());
     $this->assertModelExists($department);
 
     return $department;
 })->depends('create department');
 
 test('update department', function ($department) {
-    $department = UpdateDepartment::make()->action($department, Department::factory()->definition());
+    $department = UpdateProductCategory::make()->action($department, ProductCategory::factory()->definition());
 
     $this->assertModelExists($department);
 })->depends('create department');

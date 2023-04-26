@@ -11,7 +11,6 @@ use App\Actions\Marketing\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\Product;
-use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateProduct
@@ -44,16 +43,16 @@ class UpdateProduct
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.products', 'between:2,9', 'alpha'],
-            'family_id' => ['sometimes', 'required', 'exists:families,id'],
-            'units' => ['sometimes', 'required', 'numeric'],
-            'image_id' => ['sometimes', 'required', 'exists:media,id'],
-            'price' => ['sometimes', 'required', 'numeric'],
-            'rrp' => ['sometimes', 'required', 'numeric'],
-            'name' => ['required', 'max:250', 'string'],
-            'state' => ['sometimes', 'required'],
-            'owner_id' => ['required'],
-            'owner_type' => ['required'],
+            'code'        => ['required', 'unique:tenant.products', 'between:2,9', 'alpha'],
+            'family_id'   => ['sometimes', 'required', 'exists:families,id'],
+            'units'       => ['sometimes', 'required', 'numeric'],
+            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
+            'price'       => ['sometimes', 'required', 'numeric'],
+            'rrp'         => ['sometimes', 'required', 'numeric'],
+            'name'        => ['required', 'max:250', 'string'],
+            'state'       => ['sometimes', 'required'],
+            'owner_id'    => ['required'],
+            'owner_type'  => ['required'],
             'description' => ['sometimes', 'required', 'max:1500'],
         ];
     }

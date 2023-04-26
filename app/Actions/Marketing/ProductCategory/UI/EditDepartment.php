@@ -1,15 +1,15 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 14 Mar 2023 09:31:03 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 27 Apr 2023 16:36:34 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Department\UI;
+namespace App\Actions\Marketing\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
 use App\Http\Resources\Marketing\DepartmentResource;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,7 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditDepartment extends InertiaAction
 {
-    public function handle(Department $department): Department
+    public function handle(ProductCategory $department): ProductCategory
     {
         return $department;
     }
@@ -27,7 +27,7 @@ class EditDepartment extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.edit");
     }
 
-    public function inTenant(Department $department, ActionRequest $request): Department
+    public function inTenant(ProductCategory $department, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request);
 
@@ -35,14 +35,14 @@ class EditDepartment extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Department $department, ActionRequest $request): Department
+    public function inShop(Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request);
 
         return $this->handle($department);
     }
 
-    public function htmlResponse(Department $department, ActionRequest $request): Response
+    public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -95,7 +95,7 @@ class EditDepartment extends InertiaAction
         );
     }
 
-    public function jsonResponse(Department $department): DepartmentResource
+    public function jsonResponse(ProductCategory $department): DepartmentResource
     {
         return new DepartmentResource($department);
     }

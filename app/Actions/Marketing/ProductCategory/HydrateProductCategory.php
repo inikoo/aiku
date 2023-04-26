@@ -6,21 +6,21 @@
  *  Version 4.0
  */
 
-namespace App\Actions\Marketing\Department;
+namespace App\Actions\Marketing\ProductCategory;
 
 use App\Actions\HydrateModel;
-use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateFamilies;
-use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateProducts;
+use App\Actions\Marketing\ProductCategory\Hydrators\ProductCategoryHydrateSubdepartments;
+use App\Actions\Marketing\ProductCategory\Hydrators\DepartmentHydrateProducts;
 use App\Models\Marketing\ProductCategory;
 use Illuminate\Support\Collection;
 
-class HydrateDepartment extends HydrateModel
+class HydrateProductCategory extends HydrateModel
 {
     public string $commandSignature = 'hydrate:department {tenants?*} {--i|id=} ';
 
     public function handle(ProductCategory $productCategory): void
     {
-        DepartmentHydrateFamilies::run($productCategory);
+        ProductCategoryHydrateSubdepartments::run($productCategory);
         DepartmentHydrateProducts::run($productCategory);
     }
 

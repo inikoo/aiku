@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 27 Apr 2023 11:37:01 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Thu, 27 Apr 2023 16:34:41 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Department\Hydrators;
+namespace App\Actions\Marketing\ProductCategory\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,7 +20,7 @@ class DepartmentInitialiseImageID implements ShouldBeUnique
     use AsAction;
     use WithTenantJob;
 
-    public function handle(Department $department): void
+    public function handle(ProductCategory $department): void
     {
         if ($department->images()->count()) {
             if ($department->image_id) {
@@ -39,7 +39,7 @@ class DepartmentInitialiseImageID implements ShouldBeUnique
         }
     }
 
-    public function getJobUniqueId(Department $department): string
+    public function getJobUniqueId(ProductCategory $department): string
     {
         return $department->id;
     }

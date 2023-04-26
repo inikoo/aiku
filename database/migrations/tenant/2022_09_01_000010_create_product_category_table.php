@@ -34,7 +34,9 @@ return new class () extends Migration {
 
             $table->timestampstz();
             $table->softDeletesTz();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->unsignedInteger('source_department_id')->nullable()->unique();
+            $table->unsignedInteger('source_family_id')->nullable()->unique();
+
         });
     }
 

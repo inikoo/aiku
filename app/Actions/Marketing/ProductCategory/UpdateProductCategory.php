@@ -5,15 +5,15 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Department;
+namespace App\Actions\Marketing\ProductCategory;
 
-use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateUniversalSearch;
+use App\Actions\Marketing\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Models\Marketing\ProductCategory;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateDepartment
+class UpdateProductCategory
 {
     use WithActionUpdate;
 
@@ -23,7 +23,7 @@ class UpdateDepartment
     public function handle(ProductCategory $productCategory, array $modelData): ProductCategory
     {
         $productCategory = $this->update($productCategory, $modelData, ['data']);
-        DepartmentHydrateUniversalSearch::dispatch($productCategory);
+        ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
         return $productCategory;
     }
 

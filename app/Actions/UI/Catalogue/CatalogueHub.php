@@ -8,8 +8,7 @@
 namespace App\Actions\UI\Catalogue;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Department\UI\IndexDepartments;
-use App\Actions\Marketing\Family\UI\IndexFamilies;
+use App\Actions\Marketing\ProductCategory\UI\IndexDepartments;
 use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Marketing\Shop\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;

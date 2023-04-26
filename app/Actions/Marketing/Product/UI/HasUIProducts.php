@@ -8,13 +8,13 @@
 namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\Marketing\Shop\ShowShop;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 
 trait HasUIProducts
 {
-    public function getBreadcrumbs(string $routeName, Shop|Tenant|Department $parent): array
+    public function getBreadcrumbs(string $routeName, Shop|Tenant|ProductCategory $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [

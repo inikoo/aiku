@@ -5,27 +5,26 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Marketing\Department\Hydrators;
+namespace App\Actions\Marketing\ProductCategory\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Enums\Marketing\Family\FamilyStateEnum;
-use App\Models\Marketing\Department;
-use App\Models\Marketing\Family;
+
+use App\Models\Marketing\ProductCategory;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class DepartmentHydrateFamilies implements ShouldBeUnique
+class ProductCategoryHydrateSubdepartments implements ShouldBeUnique
 {
     use AsAction;
     use WithTenantJob;
 
-    public function handle(Department $department): void
+    public function handle(ProductCategory $productCategory): void
     {
+        /*
         $stats         = [
-            'number_families' => $department->families->count(),
+            'number_families' => $productCategory->families->count(),
         ];
-        $stateCounts   = Family::where('department_id', $department->id)
+        $stateCounts   = Family::where('productCategory_id', $productCategory->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -33,11 +32,12 @@ class DepartmentHydrateFamilies implements ShouldBeUnique
         foreach (FamilyStateEnum::cases() as $familyState) {
             $stats['number_families_state_'.$familyState->snake()] = Arr::get($stateCounts, $familyState->value, 0);
         }
-        $department->stats->update($stats);
+        $productCategory->stats->update($stats);
+        */
     }
 
-    public function getJobUniqueId(Department $department): int
+    public function getJobUniqueId(ProductCategory $productCategory): int
     {
-        return $department->id;
+        return $productCategory->id;
     }
 }

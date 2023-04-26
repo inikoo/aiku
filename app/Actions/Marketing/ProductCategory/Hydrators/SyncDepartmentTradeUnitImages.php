@@ -1,20 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 27 Apr 2023 11:41:49 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Thu, 27 Apr 2023 16:34:14 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Department\Hydrators;
+namespace App\Actions\Marketing\ProductCategory\Hydrators;
 
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SyncDepartmentTradeUnitImages
 {
     use AsAction;
 
-    public function handle(Department $department): Department
+    public function handle(ProductCategory $department): ProductCategory
     {
         $images = [];
 
