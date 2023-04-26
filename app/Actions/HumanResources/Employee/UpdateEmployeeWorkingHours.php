@@ -9,11 +9,16 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Models\HumanResources\Employee;
+use App\Models\Procurement\Agent;
+use App\Models\Procurement\Supplier;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class UpdateEmployeeWorkingHours
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(Employee $employee, array $workingHours): Employee
     {
@@ -24,5 +29,21 @@ class UpdateEmployeeWorkingHours
         );
         EmployeeHydrateWeekWorkingHours::run($employee);
         return $employee;
+    }
+
+
+    public function rules(): array
+    {
+        return [
+            'working_hours' => ['required']
+        ];
+    }
+
+    public function action(Employee $employee, array $workingHours): Employee
+    {
+        $this->setRawAttributes($workingHours);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($employee, $validatedData);
     }
 }

@@ -17,6 +17,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -76,6 +77,7 @@ class Employee extends Model implements HasMedia
     use SoftDeletes;
     use HasUniversalSearch;
     use HasPhoto;
+    use HasFactory;
 
     protected $casts = [
         'data'                => 'array',
