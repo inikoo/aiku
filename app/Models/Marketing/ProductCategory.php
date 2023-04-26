@@ -42,7 +42,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Family> $families
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
@@ -81,7 +80,7 @@ class ProductCategory extends Model
         return 'slug';
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::updated(function (ProductCategory $department) {
             if ($department->wasChanged('state')) {

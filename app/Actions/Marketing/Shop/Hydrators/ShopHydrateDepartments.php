@@ -9,7 +9,7 @@ namespace App\Actions\Marketing\Shop\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
@@ -22,7 +22,7 @@ class ShopHydrateDepartments implements ShouldBeUnique
 
     public function handle(Shop $shop): void
     {
-        $stateCounts      = Department::where('shop_id', $shop->id)
+        $stateCounts      = ProductCategory::where('shop_id', $shop->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
