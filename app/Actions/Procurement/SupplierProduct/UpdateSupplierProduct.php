@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\SupplierProduct;
 
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 
 class UpdateSupplierProduct
@@ -26,5 +27,22 @@ class UpdateSupplierProduct
 
         SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
         return $supplierProduct;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code' => ['required', 'unique:group.supplier_products', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
+            'cost' => ['required'],
+        ];
+    }
+
+    public function action(SupplierProduct $supplierProduct, array $objectData, bool $skipHistoric = false): SupplierProduct
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($supplierProduct, $validatedData, $skipHistoric);
     }
 }

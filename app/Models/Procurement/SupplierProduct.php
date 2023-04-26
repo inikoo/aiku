@@ -13,6 +13,7 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnu
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -69,6 +70,7 @@ class SupplierProduct extends Model
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
+    use HasFactory;
 
     protected $casts = [
         'shared_data'            => 'array',

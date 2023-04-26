@@ -9,7 +9,9 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\Supplier;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePurchaseOrder
@@ -29,8 +31,21 @@ class UpdatePurchaseOrder
     public function rules(): array
     {
         return [
-            'number' => ['sometimes', 'required'],
+            'number' => ['required', 'numeric', 'unique:group.purchase_orders'],
+            'provider_id' => ['required'],
+            'provider_type' => ['required'],
+            'date' => ['required', 'date'],
+            'currency_id' => ['required', 'exists:currencies,id'],
+            'exchange' => ['required', 'numeric']
         ];
+    }
+
+    public function action(PurchaseOrder $purchaseOrder, array $objectData): PurchaseOrder
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($purchaseOrder, $validatedData);
     }
 
     public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
@@ -38,7 +53,6 @@ class UpdatePurchaseOrder
         $request->validate();
         return $this->handle($purchaseOrder, $request->all());
     }
-
 
     public function jsonResponse(PurchaseOrder $purchaseOrder): PurchaseOrderResource
     {

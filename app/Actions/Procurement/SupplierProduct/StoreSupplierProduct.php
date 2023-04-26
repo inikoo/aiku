@@ -11,13 +11,17 @@ use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreSupplierProduct
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(Supplier $supplier, array $modelData, bool $skipHistoric = false): SupplierProduct
     {
@@ -41,5 +45,22 @@ class StoreSupplierProduct
 
         SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
         return $supplierProduct;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code' => ['required', 'unique:group.supplier_products', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
+            'cost' => ['required'],
+        ];
+    }
+
+    public function action(Supplier $supplier, array $objectData, bool $skipHistoric = false): SupplierProduct
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($supplier, $validatedData, $skipHistoric);
     }
 }

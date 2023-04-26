@@ -14,6 +14,7 @@ use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
+use App\Models\Procurement\PurchaseOrder;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
@@ -84,10 +85,7 @@ test('create supplier product', function () {
 
     $supplier = Supplier::latest()->first();
 
-    $purchaseOrder = StoreSupplierProduct::run($supplier, [
-        'code' => 'asdf',
-        'cost' => rand(111, 9999)
-    ]);
+    $purchaseOrder = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
 
     $this->assertModelExists($purchaseOrder);
 });
@@ -96,7 +94,7 @@ test('create purchase order', function () {
 
     $supplier = Supplier::latest()->first();
 
-    $purchaseOrder = StorePurchaseOrder::run($supplier, []);
+    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
 
     $this->assertModelExists($purchaseOrder);
 });
