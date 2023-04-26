@@ -15,4 +15,6 @@ enum PaymentTypeEnum: string
     case PAYMENT  = 'payment';
     case REFUND   = 'refund';
 
+    case REFERENCE = 'reference';
+
 }
