@@ -31,7 +31,7 @@ class StoreSupplierProduct
             $historicProduct = StoreHistoricSupplierProduct::run($supplierProduct);
             $supplierProduct->update(
                 [
-                    'current_historic_product_id' => $historicProduct->id
+                    'current_historic_supplier_product_id' => $historicProduct->id
                 ]
             );
         }

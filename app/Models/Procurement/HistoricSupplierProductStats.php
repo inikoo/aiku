@@ -23,7 +23,7 @@ class HistoricSupplierProductStats extends Model
 {
     use UsesGroupConnection;
 
-    protected $table = 'historic_supplier product_stats';
+    protected $table = 'historic_supplier_product_stats';
 
     protected $guarded = [];
 

@@ -70,6 +70,6 @@ class HistoricSupplierProduct extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(HistoricProductStats::class);
+        return $this->hasOne(HistoricSupplierProductStats::class);
     }
 }

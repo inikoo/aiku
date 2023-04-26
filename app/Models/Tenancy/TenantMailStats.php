@@ -7,9 +7,9 @@
 
 namespace App\Models\Tenancy;
 
+use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Tenancy\TenantMailStats
@@ -76,7 +76,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  */
 class TenantMailStats extends Model
 {
-    use UsesLandlordConnection;
+    use UsesGroupConnection;
 
     protected $table = 'tenant_mail_stats';
 
