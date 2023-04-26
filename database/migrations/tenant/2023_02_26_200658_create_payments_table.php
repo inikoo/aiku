@@ -10,15 +10,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedSmallInteger('payment_account_id')->index();
             $table->foreign('payment_account_id')->references('id')->on('payment_accounts');
-            $table->unsignedSmallInteger('shop_id')->nullable()->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedInteger('customer_id')->nullable()->index();
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('type');
             $table->string('reference')->index();
@@ -42,7 +42,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('payments');
     }
