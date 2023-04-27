@@ -7,7 +7,7 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
-use App\Enums\Accounting\Payment\PaymentTypeEnum;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -40,7 +40,7 @@ class StorePaymentServiceProvider
     {
         return [
             'code'         => ['required', 'unique:tenant.payment_service_providers', 'between:2,64', 'alpha_dash'],
-            'type'         => ['required', Rule::in(PaymentTypeEnum::values())],
+            'type'         => ['required', Rule::in(PaymentServiceProviderTypeEnum::values())],
         ];
     }
 

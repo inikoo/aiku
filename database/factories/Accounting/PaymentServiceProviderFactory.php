@@ -7,7 +7,7 @@
 
 namespace Database\Factories\Accounting;
 
-use App\Enums\Accounting\Payment\PaymentTypeEnum;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PaymentServiceProviderFactory extends Factory
@@ -16,7 +16,7 @@ class PaymentServiceProviderFactory extends Factory
     {
         return [
             'code' => fake()->lexify(),
-            'type' => PaymentTypeEnum::PAYMENT->value,
+            'type' => PaymentServiceProviderTypeEnum::ACCOUNT->value,
         ];
     }
 }

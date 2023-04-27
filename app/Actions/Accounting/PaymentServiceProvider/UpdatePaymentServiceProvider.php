@@ -8,10 +8,8 @@
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Actions\WithActionUpdate;
-use App\Enums\Accounting\Payment\PaymentTypeEnum;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Models\Accounting\PaymentServiceProvider;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePaymentServiceProvider
@@ -37,7 +35,6 @@ class UpdatePaymentServiceProvider
     {
         return [
             'code'         => ['sometimes', 'required', 'unique:tenant.payment_service_providers', 'between:2,9', 'alpha_dash'],
-            'type'         => ['required', Rule::in(PaymentTypeEnum::values())],
         ];
     }
 

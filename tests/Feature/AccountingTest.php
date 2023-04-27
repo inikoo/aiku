@@ -13,6 +13,7 @@ use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -32,9 +33,14 @@ test('create payment service provider', function () {
     return $paymentServiceProvider;
 });
 
-test('update payment service provider', function ($paymentServiceProvider) {
-    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['type' => 'account']);
-    expect($paymentServiceProvider->type)->toBe('account');
+test('can not update payment service provider type', function ($paymentServiceProvider) {
+    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['type' => PaymentServiceProviderTypeEnum::BANK->value]);
+    expect($paymentServiceProvider->type)->not->toBe(PaymentServiceProviderTypeEnum::BANK->value);
+})->depends('create payment service provider');
+
+test('update payment service provider code', function ($paymentServiceProvider) {
+    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['code' => 'hello']);
+    expect($paymentServiceProvider->code)->toBe('hello');
 })->depends('create payment service provider');
 /*
 test('create payment account', function ($paymentServiceProvider) {
