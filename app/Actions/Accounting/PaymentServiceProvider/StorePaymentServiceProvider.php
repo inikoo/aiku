@@ -8,11 +8,15 @@
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Models\Accounting\PaymentServiceProvider;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StorePaymentServiceProvider
 {
     use AsAction;
+    use WithAttributes;
+    private bool $asAction=false;
 
     public function handle(array $modelData): PaymentServiceProvider
     {
@@ -20,5 +24,21 @@ class StorePaymentServiceProvider
         $paymentServiceProvider = PaymentServiceProvider::create($modelData);
         $paymentServiceProvider->stats()->create();
         return $paymentServiceProvider;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("accounting.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code'         => ['required', 'unique:tenant.payment_service_providers', 'between:2,4', 'alpha_dash'],
+            'name'         => ['required', 'max:250', 'string'],
+        ];
     }
 }
