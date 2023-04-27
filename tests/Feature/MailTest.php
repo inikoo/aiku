@@ -7,12 +7,15 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Mail\DispatchedEmail\StoreDispatchEmail;
+use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Mail\Mailroom\StoreMailroom;
 use App\Actions\Mail\Mailroom\UpdateMailroom;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\Mail\Outbox\UpdateOutbox;
+use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
@@ -57,3 +60,21 @@ test('update mailshot', function ($mailshot) {
     $mailshot = UpdateMailshot::make()->action($mailshot, ['name' => 'Pika Ltd']);
     expect($mailshot->outbox)->toBe('Pika Ltd');
 })->depends('create mailshot');
+
+test('create dispatched email in outbox', function ($outbox) {
+    $dispatchedEmail = StoreDispatchEmail::make()->action($outbox, DispatchedEmail::factory()->definition());
+    $this->assertModelExists($dispatchedEmail);
+})->depends('create outbox');
+
+test('create location in warehouse area', function ($mailshot) {
+    $dispatchedEmail = StoreDispatchEmail::make()->action($mailshot, DispatchedEmail::factory()->definition());
+    $this->assertModelExists($dispatchedEmail);
+    return $dispatchedEmail;
+})->depends('create mailshot');
+
+
+test('update dispatched email', function ($dispatchedEmail) {
+    $dispatchedEmail = UpdateDispatchedEmail::make()->action($dispatchedEmail, ['code' => 'AE-3']);
+    expect($dispatchedEmail->outbox_id)->toBe('AE-3');
+
+})->depends('create dispatched email in outbox');

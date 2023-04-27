@@ -11,11 +11,16 @@ use App\Actions\Mail\EmailAddress\GetEmailAddress;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreDispatchEmail
 {
     use AsAction;
+    use WithAttributes;
+
+    private bool $asAction=false;
 
     public function handle(Outbox|Mailshot $parent, string $email, array $modelData): DispatchedEmail
     {
@@ -28,5 +33,28 @@ class StoreDispatchEmail
         /** @var DispatchedEmail $dispatchedEmail */
         $dispatchedEmail= $parent->dispatchedEmails()->create($modelData);
         return $dispatchedEmail;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("mail.edit");
+    }
+    public function rules(): array
+    {
+        return [
+            'code'         => ['required', 'unique:tenant.dispatched_emails', 'between:2,64', 'alpha_dash'],
+        ];
+    }
+
+    public function action(Outbox|Mailshot $parent, string $email, array $objectData): DispatchedEmail
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($parent, $email, $validatedData);
     }
 }

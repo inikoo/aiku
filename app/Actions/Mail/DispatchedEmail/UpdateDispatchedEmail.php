@@ -8,14 +8,52 @@
 namespace App\Actions\Mail\DispatchedEmail;
 
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Mail\DispatchedEmail;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateDispatchedEmail
 {
     use WithActionUpdate;
 
+    private bool $asAction=false;
+
     public function handle(DispatchedEmail $dispatchedEmail, array $modelData): DispatchedEmail
     {
         return $this->update($dispatchedEmail, $modelData, ['data']);
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("mail.edit");
+    }
+    public function rules(): array
+    {
+        return [
+            'code'         => ['sometimes', 'required', 'unique:tenant.dispatched_emails', 'between:2,64', 'alpha_dash'],
+        ];
+    }
+    public function action(DispatchedEmail $dispatchedEmail, array $objectData): DispatchedEmail
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($dispatchedEmail, $validatedData);
+    }
+
+    public function asController(DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    {
+        $request->validate();
+        return $this->handle($dispatchedEmail, $request->all());
+    }
+
+
+    public function jsonResponse(DispatchedEmail $dispatchedEmail): DispatchedEmailResource
+    {
+        return new DispatchedEmailResource($dispatchedEmail);
     }
 }

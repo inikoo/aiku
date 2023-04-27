@@ -9,6 +9,7 @@ namespace App\Models\Mail;
 
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -44,6 +45,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 class DispatchedEmail extends Model
 {
     use UsesTenantConnection;
+    use HasFactory;
 
     protected $casts = [
         'state'  => DispatchedEmailStateEnum::class,
