@@ -237,6 +237,11 @@ class Shop extends Model
         return $this->hasMany(Outbox::class);
     }
 
+    public function offerCampaigns(): HasMany
+    {
+        return $this->hasMany(OfferCampaign::class);
+    }
+
     public function taxNumber(): MorphOne
     {
         return $this->morphOne(TaxNumber::class, 'owner');

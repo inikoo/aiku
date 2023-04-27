@@ -8,7 +8,7 @@
 namespace App\Actions\Marketing\Department\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,18 +17,18 @@ class DepartmentHydrateUniversalSearch implements ShouldBeUnique
     use AsAction;
     use WithTenantJob;
 
-    public function handle(Department $department): void
+    public function handle(ProductCategory $productCategory): void
     {
-        $department->universalSearch()->create(
+        $productCategory->universalSearch()->create(
             [
-                'primary_term'   => $department->name,
-                'secondary_term' => $department->code
+                'primary_term'   => $productCategory->name,
+                'secondary_term' => $productCategory->code
             ]
         );
     }
 
-    public function getJobUniqueId(Department $department): int
+    public function getJobUniqueId(ProductCategory $productCategory): int
     {
-        return $department->id;
+        return $productCategory->id;
     }
 }
