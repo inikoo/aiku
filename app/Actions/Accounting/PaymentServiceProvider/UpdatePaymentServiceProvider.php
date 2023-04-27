@@ -34,7 +34,7 @@ class UpdatePaymentServiceProvider
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:tenant.payment_service_providers', 'between:2,4', 'alpha'],
+            'code'         => ['sometimes', 'required', 'unique:tenant.payment_service_providers', 'between:2,9', 'alpha_dash'],
             'name'         => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }

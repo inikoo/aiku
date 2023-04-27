@@ -10,6 +10,7 @@ namespace App\Models\Accounting;
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -50,6 +51,7 @@ class PaymentAccount extends Model
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
+    use HasFactory;
 
     protected $casts = [
         'data' => 'array',

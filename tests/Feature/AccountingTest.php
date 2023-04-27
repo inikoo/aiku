@@ -7,8 +7,11 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
+use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Tenancy\Tenant;
 
@@ -30,3 +33,15 @@ test('update payment service provider', function ($paymentServiceProvider) {
     $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['name' => 'Pika Ltd']);
     expect($paymentServiceProvider->payments)->toBe('Pika Ltd');
 })->depends('create create payment service provider');
+
+test('create payment account', function ($paymentServiceProvider) {
+    // $warehouse = Warehouse::factory()->create();
+    $paymentAccount = StorePaymentAccount::make()->action($paymentServiceProvider, PaymentAccount::factory()->definition());
+    $this->assertModelExists($paymentAccount);
+    return $paymentAccount;
+})->depends('create payment service provider');
+
+test('update warehouse area', function ($paymentAccount) {
+    $paymentAccount = UpdatePaymentAccount::make()->action($paymentAccount, ['name' => 'Pika Ltd']);
+    expect($paymentAccount->name)->toBe('Pika Ltd');
+})->depends('create payment account');
