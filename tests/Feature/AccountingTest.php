@@ -28,5 +28,5 @@ test('create payment service provider', function () {
 
 test('update payment service provider', function ($paymentServiceProvider) {
     $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['name' => 'Pika Ltd']);
-    expect($paymentServiceProvider->name)->toBe('Pika Ltd');
+    expect($paymentServiceProvider->payments)->toBe('Pika Ltd');
 })->depends('create create payment service provider');
