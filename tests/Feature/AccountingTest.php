@@ -38,7 +38,6 @@ test('update payment service provider', function ($paymentServiceProvider) {
 })->depends('create create payment service provider');
 
 test('create payment account', function ($paymentServiceProvider) {
-    // $warehouse = Warehouse::factory()->create();
     $paymentAccount = StorePaymentAccount::make()->action($paymentServiceProvider, PaymentAccount::factory()->definition());
     $this->assertModelExists($paymentAccount);
     return $paymentAccount;
