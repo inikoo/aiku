@@ -16,20 +16,35 @@ class UpdateOutbox
 {
     use WithActionUpdate;
 
+    private bool $asAction=false;
+
     public function handle(Outbox $outbox, array $modelData): Outbox
     {
         return $this->update($outbox, $modelData, ['data']);
     }
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction) {
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("mail.edit");
     }
     public function rules(): array
     {
         return [
-            'username' => ['sometimes', 'required'],
-            'about'    => ['sometimes', 'required'],
+            'username' => ['sometimes', 'required', 'unique:tenant.outboxes', 'between:2,64', 'alpha_dash'],
+            'about'    => ['sometimes', 'required', 'max:250', 'string'],
         ];
+    }
+
+    public function action(Outbox $outbox, $objectData): Outbox
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($outbox, $validatedData);
     }
 
 

@@ -9,7 +9,10 @@ namespace Tests\Feature;
 
 use App\Actions\Mail\Mailroom\StoreMailroom;
 use App\Actions\Mail\Mailroom\UpdateMailroom;
+use App\Actions\Mail\Outbox\StoreOutbox;
+use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Models\Mail\Mailroom;
+use App\Models\Mail\Outbox;
 use App\Models\Tenancy\Tenant;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
@@ -30,3 +33,14 @@ test('update mailroom', function ($mailroom) {
     $mailroom = UpdateMailroom::make()->action($mailroom, ['name' => 'Pika Ltd']);
     expect($mailroom->code)->toBe('Pika Ltd');
 })->depends('create mailroom');
+
+test('create outbox ', function ($mailroom) {
+    $outbox = StoreOutbox::make()->action($mailroom, Outbox::factory()->definition());
+    $this->assertModelExists($outbox);
+    return $outbox;
+})->depends('create mailroom');
+
+test('update outbox', function ($outbox) {
+    $outbox = UpdateOutbox::make()->action($outbox, ['name' => 'Pika Ltd']);
+    expect($outbox->name)->toBe('Pika Ltd');
+})->depends('create outbox');

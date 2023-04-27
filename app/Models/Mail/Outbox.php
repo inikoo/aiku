@@ -10,6 +10,7 @@ namespace App\Models\Mail;
 use App\Actions\Utils\Abbreviate;
 use App\Models\Marketing\Shop;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -51,6 +52,7 @@ class Outbox extends Model
     use UsesTenantConnection;
     use SoftDeletes;
     use HasSlug;
+    use HasFactory;
 
     protected $table = 'outboxes';
 
