@@ -14,4 +14,6 @@ enum PaymentTypeEnum: string
     use EnumHelperTrait;
     case PAYMENT  = 'payment';
     case REFUND   = 'refund';
+
+    case TYPE     = 'type';
 }
