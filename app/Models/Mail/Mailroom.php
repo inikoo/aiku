@@ -8,6 +8,7 @@
 namespace App\Models\Mail;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -31,6 +32,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 class Mailroom extends Model
 {
     use UsesTenantConnection;
+    use HasFactory;
 
     protected $casts = [
         'data' => 'array',

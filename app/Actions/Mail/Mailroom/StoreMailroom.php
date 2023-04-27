@@ -8,11 +8,16 @@
 namespace App\Actions\Mail\Mailroom;
 
 use App\Models\Mail\Mailroom;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreMailroom
 {
     use AsAction;
+    use WithAttributes;
+
+    private bool $asAction=false;
 
     public function handle(array $modelData): Mailroom
     {
@@ -20,5 +25,30 @@ class StoreMailroom
         $mailroom->stats()->create();
 
         return $mailroom;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code'         => ['required', 'unique:tenant.warehouses', 'between:2,9', 'alpha_dash'],
+            'name'         => ['required', 'max:250', 'string'],
+        ];
+    }
+
+    public function action(array $objectData): Mailroom
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($validatedData);
     }
 }
