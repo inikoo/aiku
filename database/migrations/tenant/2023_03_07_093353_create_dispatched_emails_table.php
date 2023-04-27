@@ -5,12 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('dispatched_emails', function (Blueprint $table) {
             $table->id();
@@ -25,7 +26,7 @@ return new class () extends Migration {
             $table->unsignedInteger('recipient_id')->nullable();
             $table->index(['recipient_type','recipient_id']);
 
-            $table->string('state');
+            $table->string('state')->default(DispatchedEmailStateEnum::READY->value);
             $table->timestampsTz();
             $table->dateTimeTz('sent_at')->nullable();
             $table->dateTimeTz('first_read_at')->nullable();
@@ -41,7 +42,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('dispatched_emails');
     }

@@ -26,6 +26,7 @@ use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
 use App\Actions\Marketing\TradeUnit\StoreTradeUnit;
 use App\Actions\Marketing\TradeUnit\UpdateTradeUnit;
+use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Marketing\Offer;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;
@@ -40,14 +41,17 @@ use App\Models\Tenancy\Tenant;
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
-    $this->tenant = Tenant::where('slug', 'agb')->first();
-    $this->tenant->makeCurrent();
-
+    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant->makeCurrent();
 });
 
 test('create shop', function () {
     $shop = StoreShop::make()->action(Shop::factory()->definition());
     $this->assertModelExists($shop);
+    expect($shop->paymentAccounts()->count())->toBe(1)
+        ->and($shop->outboxes()->count())->toBe(count(OutboxTypeEnum::values()));
+
+
     return $shop;
 });
 

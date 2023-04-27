@@ -5,12 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('mailshots', function (Blueprint $table) {
             $table->increments('id');
@@ -18,8 +19,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('outbox_id')->nullable();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
-
-            $table->string('state')->index();
+            $table->string('state')->index()->default(MailshotStateEnum::IN_PROCESS->value);
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
@@ -28,7 +28,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('mailshots');
     }

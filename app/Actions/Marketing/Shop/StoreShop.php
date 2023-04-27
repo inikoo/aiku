@@ -62,7 +62,7 @@ class StoreShop
         ]);
         $paymentAccount->slug = 'accounts-' . $shop->slug;
         $paymentAccount->save();
-
+        $shop=AttachPaymentAccountToShop::run($shop, $paymentAccount);
 
         foreach (OutboxTypeEnum::cases() as $case) {
             if ($case->scope() == 'shop') {
@@ -81,7 +81,7 @@ class StoreShop
         }
 
 
-        return AttachPaymentAccountToShop::run($shop, $paymentAccount);
+        return $shop;
     }
 
     public function authorize(ActionRequest $request): bool

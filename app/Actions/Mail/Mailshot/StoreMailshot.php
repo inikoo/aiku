@@ -37,6 +37,7 @@ class StoreMailshot
         return $request->user()->hasPermissionTo("mail.edit");
     }
 
+    /*
     public function rules(): array
     {
         return [
@@ -44,6 +45,7 @@ class StoreMailshot
             'name'         => ['required', 'max:250', 'string'],
         ];
     }
+    */
 
     public function action(Outbox $outbox, array $objectData): Mailshot
     {

@@ -45,7 +45,6 @@ class StoreDispatchEmail
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:tenant.dispatched_emails', 'between:2,64', 'alpha_dash'],
         ];
     }
 
