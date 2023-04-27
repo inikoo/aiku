@@ -42,18 +42,18 @@ test('update payment service provider code', function ($paymentServiceProvider) 
     $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['code' => 'hello']);
     expect($paymentServiceProvider->code)->toBe('hello');
 })->depends('create payment service provider');
-/*
+
 test('create payment account', function ($paymentServiceProvider) {
     $paymentAccount = StorePaymentAccount::make()->action($paymentServiceProvider, PaymentAccount::factory()->definition());
     $this->assertModelExists($paymentAccount);
     return $paymentAccount;
 })->depends('create payment service provider');
 
-test('update warehouse area', function ($paymentAccount) {
+test('update payment account', function ($paymentAccount) {
     $paymentAccount = UpdatePaymentAccount::make()->action($paymentAccount, ['name' => 'Pika Ltd']);
     expect($paymentAccount->name)->toBe('Pika Ltd');
 })->depends('create payment account');
-
+/*
 test('create payment', function ($paymentAccount) {
     $payment = StorePayment::make()->action($paymentAccount, Payment::factory()->definition());
     $this->assertModelExists($payment);
