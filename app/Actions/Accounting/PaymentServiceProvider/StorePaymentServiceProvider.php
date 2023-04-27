@@ -37,8 +37,17 @@ class StorePaymentServiceProvider
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:tenant.payment_service_providers', 'between:2,4', 'alpha_dash'],
+            'code'         => ['required', 'unique:tenant.payment_service_providers', 'between:2,64', 'alpha_dash'],
             'name'         => ['required', 'max:250', 'string'],
         ];
+    }
+
+    public function action(array $objectData): PaymentServiceProvider
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($validatedData);
     }
 }
