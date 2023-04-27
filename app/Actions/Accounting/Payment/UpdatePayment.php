@@ -17,6 +17,8 @@ class UpdatePayment
 {
     use WithActionUpdate;
 
+    private bool $asAction=false;
+
     public function handle(Payment $payment, array $modelData): Payment
     {
         $payment = $this->update($payment, $modelData, ['data']);
@@ -25,14 +27,26 @@ class UpdatePayment
     }
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction) {
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("accounting.edit");
     }
     public function rules(): array
     {
         return [
-            'amount' => ['sometimes', 'required'],
-            'date'   => ['sometimes', 'required'],
+            'code'         => ['sometimes', 'required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash'],
+
         ];
+    }
+    public function action(Payment $payment, array $objectData): Payment
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($payment, $validatedData);
     }
 
 
@@ -41,7 +55,6 @@ class UpdatePayment
         $request->validate();
         return $this->handle($payment, $request->all());
     }
-
 
     public function jsonResponse(Payment $payment): PaymentResource
     {
