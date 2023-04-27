@@ -9,9 +9,12 @@ namespace Tests\Feature;
 
 use App\Actions\Mail\Mailroom\StoreMailroom;
 use App\Actions\Mail\Mailroom\UpdateMailroom;
+use App\Actions\Mail\Mailshot\StoreMailshot;
+use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Models\Mail\Mailroom;
+use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Tenancy\Tenant;
 
@@ -44,3 +47,13 @@ test('update outbox', function ($outbox) {
     $outbox = UpdateOutbox::make()->action($outbox, ['name' => 'Pika Ltd']);
     expect($outbox->name)->toBe('Pika Ltd');
 })->depends('create outbox');
+
+test('create mailshot', function ($outbox) {
+    $mailshot = StoreMailshot::make()->action($outbox, Mailshot::factory()->definition());
+    $this->assertModelExists($mailshot);
+})->depends('create outbox');
+
+test('update mailshot', function ($mailshot) {
+    $mailshot = UpdateMailshot::make()->action($mailshot, ['name' => 'Pika Ltd']);
+    expect($mailshot->outbox)->toBe('Pika Ltd');
+})->depends('create mailshot');

@@ -9,11 +9,15 @@ namespace App\Actions\Mail\Mailshot;
 
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreMailshot
 {
     use AsAction;
+    use WithAttributes;
+    private bool $asAction=false;
 
     public function handle(Outbox $outbox, array $modelData): Mailshot
     {
@@ -23,5 +27,30 @@ class StoreMailshot
         $mailshot->stats()->create();
 
         return $mailshot;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("mail.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code'         => ['required', 'unique:tenant.mailshots', 'between:2,256', 'alpha_dash'],
+            'name'         => ['required', 'max:250', 'string'],
+        ];
+    }
+
+    public function action(Outbox $outbox, array $objectData): Mailshot
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($outbox, $validatedData);
     }
 }
