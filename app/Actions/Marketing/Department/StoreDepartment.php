@@ -10,7 +10,7 @@ namespace App\Actions\Marketing\Department;
 use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Marketing\Department\DepartmentTypeEnum;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -21,7 +21,7 @@ class StoreDepartment
     use AsAction;
     use WithAttributes;
 
-    public function handle(Shop|Department $parent, array $modelData): Department
+    public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
         if (class_basename($parent) == 'Department') {
             $modelData['type'] = DepartmentTypeEnum::BRANCH;
@@ -31,31 +31,31 @@ class StoreDepartment
             $modelData['shop_id'] = $parent->id;
         }
 
-        /** @var Department $department */
-        $department = $parent->departments()->create($modelData);
+        /** @var ProductCategory $productCategory */
+        $productCategory = $parent->departments()->create($modelData);
 
-        $department->stats()->create();
-        $department->salesStats()->create([
+        $productCategory->stats()->create();
+        $productCategory->salesStats()->create([
             'scope' => 'sales'
         ]);
         /** @var Tenant $tenant */
         $tenant = app('currentTenant');
-        if ($department->shop->currency_id != $tenant->currency_id) {
-            $department->salesStats()->create([
+        if ($productCategory->shop->currency_id != $tenant->currency_id) {
+            $productCategory->salesStats()->create([
                 'scope' => 'sales-tenant-currency'
             ]);
         }
 
-        DepartmentHydrateUniversalSearch::dispatch($department);
-        ShopHydrateDepartments::dispatch($department->shop);
+        DepartmentHydrateUniversalSearch::dispatch($productCategory);
+        ShopHydrateDepartments::dispatch($productCategory->shop);
 
-        return $department;
+        return $productCategory;
     }
 
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.departments', 'between:2,9', 'alpha'],
+            'code' => ['required', 'unique:tenant.product_categories', 'between:2,9', 'alpha'],
             'name' => ['required', 'max:250', 'string'],
             'image_id' => ['sometimes', 'required', 'exists:media,id'],
             'state' => ['sometimes', 'required'],
@@ -63,7 +63,7 @@ class StoreDepartment
         ];
     }
 
-    public function action(Shop|Department $parent, array $objectData): Department
+    public function action(Shop|ProductCategory $parent, array $objectData): ProductCategory
     {
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();

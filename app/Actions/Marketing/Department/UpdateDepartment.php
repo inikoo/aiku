@@ -10,8 +10,7 @@ namespace App\Actions\Marketing\Department;
 use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\DepartmentResource;
-use App\Models\Marketing\Department;
-use App\Models\Marketing\Shop;
+use App\Models\Marketing\ProductCategory;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateDepartment
@@ -21,11 +20,11 @@ class UpdateDepartment
 
     private bool $asAction=false;
 
-    public function handle(Department $department, array $modelData): Department
+    public function handle(ProductCategory $productCategory, array $modelData): ProductCategory
     {
-        $department = $this->update($department, $modelData, ['data']);
-        DepartmentHydrateUniversalSearch::dispatch($department);
-        return $department;
+        $productCategory = $this->update($productCategory, $modelData, ['data']);
+        DepartmentHydrateUniversalSearch::dispatch($productCategory);
+        return $productCategory;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -40,7 +39,7 @@ class UpdateDepartment
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.departments', 'between:2,9', 'alpha'],
+            'code' => ['required', 'unique:tenant.product_categories', 'between:2,9', 'alpha'],
             'name' => ['required', 'max:250', 'string'],
             'image_id' => ['sometimes', 'required', 'exists:media,id'],
             'state' => ['sometimes', 'required'],
@@ -48,23 +47,23 @@ class UpdateDepartment
         ];
     }
 
-    public function action(Department $department, array $objectData): Department
+    public function action(ProductCategory $productCategory, array $objectData): ProductCategory
     {
         $this->asAction=true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($department, $validatedData);
+        return $this->handle($productCategory, $validatedData);
     }
 
-    public function asController(Department $department, ActionRequest $request): Department
+    public function asController(ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
         $request->validate();
-        return $this->handle($department, $request->all());
+        return $this->handle($productCategory, $request->all());
     }
 
-    public function jsonResponse(Department $department): DepartmentResource
+    public function jsonResponse(ProductCategory $productCategory): DepartmentResource
     {
-        return new DepartmentResource($department);
+        return new DepartmentResource($productCategory);
     }
 }

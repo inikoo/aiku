@@ -32,16 +32,16 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\DevOps\Deployment $department
- * @method static Builder|DepartmentStats newModelQuery()
- * @method static Builder|DepartmentStats newQuery()
- * @method static Builder|DepartmentStats query()
+ * @method static Builder|ProductCategoryStats newModelQuery()
+ * @method static Builder|ProductCategoryStats newQuery()
+ * @method static Builder|ProductCategoryStats query()
  * @mixin \Eloquent
  */
-class DepartmentStats extends Model
+class ProductCategoryStats extends Model
 {
     use UsesTenantConnection;
 
-    protected $table = 'department_stats';
+    protected $table = 'product_category_stats';
 
     protected $guarded = [];
 

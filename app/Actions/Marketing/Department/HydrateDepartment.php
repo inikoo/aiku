@@ -11,28 +11,26 @@ namespace App\Actions\Marketing\Department;
 use App\Actions\HydrateModel;
 use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateFamilies;
 use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateProducts;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use Illuminate\Support\Collection;
 
 class HydrateDepartment extends HydrateModel
 {
     public string $commandSignature = 'hydrate:department {tenants?*} {--i|id=} ';
 
-
-    public function handle(Department $department): void
+    public function handle(ProductCategory $productCategory): void
     {
-        DepartmentHydrateFamilies::run($department);
-        DepartmentHydrateProducts::run($department);
+        DepartmentHydrateFamilies::run($productCategory);
+        DepartmentHydrateProducts::run($productCategory);
     }
 
-
-    protected function getModel(int $id): Department
+    protected function getModel(int $id): ProductCategory
     {
-        return Department::find($id);
+        return ProductCategory::find($id);
     }
 
     protected function getAllModels(): Collection
     {
-        return Department::withTrashed()->get();
+        return ProductCategory::withTrashed()->get();
     }
 }

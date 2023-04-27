@@ -47,17 +47,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Marketing\Shop|null $shop
- * @property-read \App\Models\Marketing\DepartmentStats|null $stats
+ * @property-read \App\Models\Marketing\ProductCategoryStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static Builder|Department newModelQuery()
- * @method static Builder|Department newQuery()
- * @method static Builder|Department onlyTrashed()
- * @method static Builder|Department query()
- * @method static Builder|Department withTrashed()
- * @method static Builder|Department withoutTrashed()
+ * @method static Builder|ProductCategory newModelQuery()
+ * @method static Builder|ProductCategory newQuery()
+ * @method static Builder|ProductCategory onlyTrashed()
+ * @method static Builder|ProductCategory query()
+ * @method static Builder|ProductCategory withTrashed()
+ * @method static Builder|ProductCategory withoutTrashed()
  * @mixin \Eloquent
  */
-class Department extends Model
+class ProductCategory extends Model
 {
     use HasSlug;
     use SoftDeletes;
@@ -83,7 +83,7 @@ class Department extends Model
 
     protected static function booted()
     {
-        static::updated(function (Department $department) {
+        static::updated(function (ProductCategory $department) {
             if ($department->wasChanged('state')) {
                 ShopHydrateDepartments::dispatch($department->shop);
             }
@@ -116,7 +116,7 @@ class Department extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(DepartmentStats::class);
+        return $this->hasOne(ProductCategoryStats::class);
     }
 
     public function salesStats(): MorphOne
@@ -136,7 +136,7 @@ class Department extends Model
 
     public function departments(): MorphMany
     {
-        return $this->morphMany(Department::class, 'parent');
+        return $this->morphMany(ProductCategory::class, 'parent');
     }
 
     public function products(): MorphMany
