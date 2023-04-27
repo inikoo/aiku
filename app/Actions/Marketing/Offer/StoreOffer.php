@@ -8,14 +8,20 @@
 namespace App\Actions\Marketing\Offer;
 
 use App\Models\Marketing\Offer;
+use App\Models\Marketing\OfferCampaign;
+use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreOffer
 {
     use AsAction;
 
-    public function handle(Offer $offer, array $modelData): Offer
+    public function handle(Shop $shop, OfferCampaign $offerCampaign, array $modelData): Offer
     {
-        return $offer->create($modelData);
+        $modelData['shop_id'] = $shop->id;
+        /** @var Offer $offer */
+        $offer = $offerCampaign->offers()->create($modelData);
+
+        return $offer;
     }
 }

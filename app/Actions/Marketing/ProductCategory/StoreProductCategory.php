@@ -5,9 +5,9 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Department;
+namespace App\Actions\Marketing\ProductCategory;
 
-use App\Actions\Marketing\Department\Hydrators\DepartmentHydrateUniversalSearch;
+use App\Actions\Marketing\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Marketing\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Marketing\ProductCategory;
@@ -16,7 +16,7 @@ use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreDepartment
+class StoreProductCategory
 {
     use AsAction;
     use WithAttributes;
@@ -46,7 +46,7 @@ class StoreDepartment
             ]);
         }
 
-        DepartmentHydrateUniversalSearch::dispatch($productCategory);
+        ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
         ShopHydrateDepartments::dispatch($productCategory->shop);
 
         return $productCategory;

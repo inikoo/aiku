@@ -1,15 +1,14 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 14 Mar 2023 09:33:00 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 27 Apr 2023 16:35:18 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Department\UI;
+namespace App\Actions\Marketing\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
-use App\Actions\Marketing\Family\UI\IndexFamilies;
 use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Actions\UI\Catalogue\CatalogueHub;
@@ -19,18 +18,16 @@ use App\Http\Resources\Marketing\DepartmentResource;
 use App\Http\Resources\Marketing\FamilyResource;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Department $department
- */
+
 class ShowDepartment extends InertiaAction
 {
-    public function handle(Department $department): Department
+    public function handle(ProductCategory $department): ProductCategory
     {
         return $department;
     }
@@ -42,7 +39,7 @@ class ShowDepartment extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
-    public function inTenant(Department $department, ActionRequest $request): Department
+    public function inTenant(ProductCategory $department, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
 
@@ -50,14 +47,14 @@ class ShowDepartment extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Department $department, ActionRequest $request): Department
+    public function inShop(Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($department);
     }
 
-    public function htmlResponse(Department $department, ActionRequest $request): Response
+    public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -90,6 +87,8 @@ class ShowDepartment extends InertiaAction
                 DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($this->department))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->department))),
+
+                /*
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
                     fn () => [
                         'table'             => FamilyResource::collection(IndexFamilies::run($this->department)),
@@ -115,7 +114,7 @@ class ShowDepartment extends InertiaAction
                             ],
                         ]
                     ),
-
+*/
 
                 DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
                     fn () => ProductResource::collection(IndexProducts::run($this->department))
@@ -136,7 +135,7 @@ class ShowDepartment extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Department $department, array $routeParameters, $suffix) {
+        $headCrumb = function (ProductCategory $department, array $routeParameters, $suffix) {
             return [
 
                 [

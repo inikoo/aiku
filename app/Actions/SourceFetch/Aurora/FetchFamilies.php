@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Marketing\Family\StoreFamily;
-use App\Actions\Marketing\Family\UpdateFamily;
-use App\Models\Marketing\Family;
+use App\Actions\Marketing\ProductCategory\StoreProductCategory;
+use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
+use App\Models\Marketing\ProductCategory;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,17 +19,17 @@ class FetchFamilies
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Family
+    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?ProductCategory
     {
         if ($familyData = $tenantSource->fetchFamily($tenantSourceId)) {
-            if ($family = Family::where('source_id', $familyData['family']['source_id'])
+            if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
                 ->first()) {
-                $family = UpdateFamily::run(
+                $family = UpdateProductCategory::run(
                     family:    $family,
                     modelData: $familyData['family'],
                 );
             } else {
-                $family = StoreFamily::run(
+                $family = StoreProductCategory::run(
                     parent:    $familyData['parent'],
                     modelData: $familyData['family']
                 );

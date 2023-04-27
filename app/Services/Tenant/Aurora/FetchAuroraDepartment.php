@@ -22,8 +22,8 @@ class FetchAuroraDepartment extends FetchAurora
                 'In Process' => 'in-process',
                 default      => strtolower($this->auroraModelData->{'Product Category Status'})
             },
-            'created_at' => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),
-            'source_id'  => $this->auroraModelData->{'Category Key'},
+            'created_at'            => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),
+            'source_department_id'  => $this->auroraModelData->{'Category Key'},
         ];
     }
 

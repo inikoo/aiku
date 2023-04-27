@@ -5,27 +5,27 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Department\Hydrators;
+namespace App\Actions\Marketing\ProductCategory\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Enums\Marketing\Product\ProductStateEnum;
-use App\Models\Marketing\Department;
 use App\Models\Marketing\Product;
+use App\Models\Marketing\ProductCategory;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class DepartmentHydrateProducts implements ShouldBeUnique
+class ProductCategoryHydrateProducts implements ShouldBeUnique
 {
     use AsAction;
     use WithTenantJob;
 
-    public function handle(Department $department): void
+    public function handle(ProductCategory $productCategory): void
     {
         $stats         = [
-            'number_products' => $department->products->count(),
+            'number_products' => $productCategory->products->count(),
         ];
-        $stateCounts   = Product::where('department_id', $department->id)
+        $stateCounts   = Product::where('productCategory_id', $productCategory->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -33,11 +33,11 @@ class DepartmentHydrateProducts implements ShouldBeUnique
         foreach (ProductStateEnum::cases() as $productState) {
             $stats['number_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
         }
-        $department->stats->update($stats);
+        $productCategory->stats->update($stats);
     }
 
-    public function getJobUniqueId(Department $department): int
+    public function getJobUniqueId(ProductCategory $productCategory): int
     {
-        return $department->id;
+        return $productCategory->id;
     }
 }

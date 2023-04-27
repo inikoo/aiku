@@ -7,7 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +15,7 @@ class FetchAuroraFamily extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $parent = (new Department())->firstWhere('source_id', $this->auroraModelData->{'Product Category Department Category Key'});
+        $parent = (new ProductCategory())->firstWhere('source_family_id', $this->auroraModelData->{'Product Category Department Category Key'});
         if (is_null($parent)) {
             $parent = (new Shop())->firstWhere('source_id', $this->auroraModelData->{'Product Category Store Key'});
         }
@@ -30,8 +30,8 @@ class FetchAuroraFamily extends FetchAurora
                 'Suspended'  => 'active',
                 default      => strtolower($this->auroraModelData->{'Product Category Status'})
             },
-            'created_at' => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),
-            'source_id'  => $this->auroraModelData->{'Category Key'},
+            'created_at'        => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),
+            'source_family_id'  => $this->auroraModelData->{'Category Key'},
         ];
     }
 

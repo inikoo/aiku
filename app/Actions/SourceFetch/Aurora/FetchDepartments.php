@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Marketing\Department\StoreDepartment;
-use App\Actions\Marketing\Department\UpdateDepartment;
-use App\Models\Marketing\Department;
+use App\Actions\Marketing\ProductCategory\StoreProductCategory;
+use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
+use App\Models\Marketing\ProductCategory;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,23 +19,23 @@ class FetchDepartments
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Department
+    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?ProductCategory
     {
-        if ($departmentData = $tenantSource->fetchDepartment($tenantSourceId)) {
-            if ($department = Department::where('source_id', $departmentData['department']['source_id'])
+        if ($productCategoryData = $tenantSource->fetchDepartment($tenantSourceId)) {
+            if ($productCategory = ProductCategory::where('source_department_id', $productCategoryData['department']['source_department_id'])
                 ->first()) {
-                $department = UpdateDepartment::run(
-                    department: $department,
-                    modelData:  $departmentData['department'],
+                $productCategory = UpdateProductCategory::run(
+                    productCategory: $productCategory,
+                    modelData:  $productCategoryData['department'],
                 );
             } else {
-                $department = StoreDepartment::run(
-                    shop:      $departmentData['shop'],
-                    modelData: $departmentData['department']
+                $productCategory = StoreProductCategory::run(
+                    shop:      $productCategoryData['shop'],
+                    modelData: $productCategoryData['department']
                 );
             }
 
-            return $department;
+            return $productCategory;
         }
 
 

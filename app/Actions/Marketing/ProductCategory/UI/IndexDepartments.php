@@ -1,17 +1,17 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 14 Mar 2023 08:13:54 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 27 Apr 2023 16:37:19 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Department\UI;
+namespace App\Actions\Marketing\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\DepartmentResource;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 use Closure;
@@ -35,7 +35,7 @@ class IndexDepartments extends InertiaAction
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DEPARTMENTS->value);
 
-        return QueryBuilder::for(Department::class)
+        return QueryBuilder::for(ProductCategory::class)
             ->defaultSort('departments.code')
             ->select([
                 'departments.slug',

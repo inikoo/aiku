@@ -16,7 +16,7 @@ use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\WebpageResource;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Web\Webpage;
 use Inertia\Inertia;
@@ -53,7 +53,7 @@ class ShowWebpage extends InertiaAction
         $this->initialisation($request)->withTab(WebpageTabsEnum::values());
         return $this->handle($webpage);
     }
-    public function inShopInDepartment(Shop $shop, Department $department, Webpage $webpage, ActionRequest $request): Webpage
+    public function inShopInDepartment(Shop $shop, ProductCategory $department, Webpage $webpage, ActionRequest $request): Webpage
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(WebpageTabsEnum::values());
@@ -83,6 +83,7 @@ class ShowWebpage extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => WebpageTabsEnum::navigation()
                 ],
+                /*
                 WebpageTabsEnum::CUSTOMERS->value => $this->tab == WebpageTabsEnum::CUSTOMERS->value ?
                     fn () => CustomerResource::collection(IndexCustomers::run($this->family))
                     : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($this->family))),
@@ -92,7 +93,7 @@ class ShowWebpage extends InertiaAction
                 WebpageTabsEnum::PRODUCTS->value => $this->tab == WebpageTabsEnum::PRODUCTS->value ?
                     fn () => ProductResource::collection(IndexProducts::run($this->family))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->family))),
-
+*/
 
 
             ]

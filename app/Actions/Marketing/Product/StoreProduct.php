@@ -8,11 +8,9 @@
 
 namespace App\Actions\Marketing\Product;
 
-use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\HistoricProduct\StoreHistoricProduct;
 use App\Actions\Marketing\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
-use App\Models\Marketing\Department;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
@@ -50,9 +48,7 @@ class StoreProduct
         }
 
 
-        if ($product->family_id) {
-            FamilyHydrateProducts::dispatch($product->family);
-        }
+
         ShopHydrateProducts::dispatch($product->shop);
         ProductHydrateUniversalSearch::dispatch($product);
         return $product;
@@ -61,16 +57,16 @@ class StoreProduct
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.products', 'between:2,9', 'alpha'],
-            'family_id' => ['sometimes', 'required', 'exists:families,id'],
-            'units' => ['sometimes', 'required', 'numeric'],
-            'image_id' => ['sometimes', 'required', 'exists:media,id'],
-            'price' => ['sometimes', 'required', 'numeric'],
-            'rrp' => ['sometimes', 'required', 'numeric'],
-            'name' => ['required', 'max:250', 'string'],
-            'state' => ['sometimes', 'required'],
-            'owner_id' => ['required'],
-            'owner_type' => ['required'],
+            'code'        => ['required', 'unique:tenant.products', 'between:2,9', 'alpha'],
+            'family_id'   => ['sometimes', 'required', 'exists:families,id'],
+            'units'       => ['sometimes', 'required', 'numeric'],
+            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
+            'price'       => ['sometimes', 'required', 'numeric'],
+            'rrp'         => ['sometimes', 'required', 'numeric'],
+            'name'        => ['required', 'max:250', 'string'],
+            'state'       => ['sometimes', 'required'],
+            'owner_id'    => ['required'],
+            'owner_type'  => ['required'],
             'description' => ['sometimes', 'required', 'max:1500'],
         ];
     }

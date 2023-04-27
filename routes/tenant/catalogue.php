@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Marketing\Department\UI\CreateDepartment;
-use App\Actions\Marketing\Department\UI\EditDepartment;
-use App\Actions\Marketing\Department\UI\IndexDepartments;
-use App\Actions\Marketing\Department\UI\ShowDepartment;
+use App\Actions\Marketing\ProductCategory\UI\CreateDepartment;
+use App\Actions\Marketing\ProductCategory\UI\EditDepartment;
+use App\Actions\Marketing\ProductCategory\UI\IndexDepartments;
+use App\Actions\Marketing\ProductCategory\UI\ShowDepartment;
 
 use App\Actions\Marketing\Product\UI\CreateProduct;
 use App\Actions\Marketing\Product\UI\EditProduct;

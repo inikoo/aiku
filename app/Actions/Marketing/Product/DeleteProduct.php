@@ -7,7 +7,6 @@
 
 namespace App\Actions\Marketing\Product;
 
-use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\WithActionUpdate;
 use App\Models\Marketing\Product;
@@ -26,9 +25,12 @@ class DeleteProduct
         $product->historicRecords()->delete();
         $product = $this->update($product, $deletedData, ['data']);
         if (!$skipHydrate) {
+            //todo fix this
+            /*
             if ($product->family_id) {
                 FamilyHydrateProducts::dispatch($product->family);
             }
+            */
             ShopHydrateProducts::dispatch($product->shop);
         }
 

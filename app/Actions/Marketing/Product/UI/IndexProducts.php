@@ -10,7 +10,7 @@ namespace App\Actions\Marketing\Product\UI;
 use App\Actions\InertiaAction;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\ProductResource;
-use App\Models\Marketing\Department;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
@@ -157,7 +157,7 @@ class IndexProducts extends InertiaAction
         return $this->handle($shop);
     }
 
-    public function inDepartmentInShop(Shop $shop, Department $department, ActionRequest $request): LengthAwarePaginator
+    public function inDepartmentInShop(Shop $shop, ProductCategory $department, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($department);

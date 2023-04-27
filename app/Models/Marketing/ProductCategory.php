@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -102,16 +101,7 @@ class ProductCategory extends Model
     {
         return $this->belongsTo(Shop::class);
     }
-//
-//    public function families(): HasMany
-//    {
-//        return $this->hasMany(Family::class);
-//    }
-//
-//    public function products(): HasMany
-//    {
-//        return $this->hasMany(Product::class);
-//    }
+
 
     public function stats(): HasOne
     {

@@ -16,7 +16,7 @@ use App\Actions\Inventory\StockFamily\UpdateStockFamily;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Mail\Outbox\UpdateOutbox;
-use App\Actions\Marketing\Department\UpdateDepartment;
+use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Product\UpdateProduct;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
@@ -28,7 +28,7 @@ Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.upda
 Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');
 
 
-Route::patch('/department/{department}', UpdateDepartment::class)->name('department.update');
+Route::patch('/department/{department}', UpdateProductCategory::class)->name('department.update');
 
 Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.update');
 Route::post('/employee/', StoreEmployee::class)->name('employee.store');
