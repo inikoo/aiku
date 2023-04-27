@@ -18,6 +18,7 @@ use App\Models\Assets\Currency;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
+use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Leads\Prospect;
 use App\Models\Mail\Outbox;
@@ -260,5 +261,10 @@ class Shop extends Model
     public function shippingZoneSchemas(): HasMany
     {
         return $this->hasMany(ShippingZoneSchema::class);
+    }
+
+    public function serialReferences(): MorphMany
+    {
+        return $this->morphMany(SerialReference::class, 'container');
     }
 }

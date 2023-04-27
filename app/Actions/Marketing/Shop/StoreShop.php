@@ -10,6 +10,7 @@ namespace App\Actions\Marketing\Shop;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Mail\Outbox\StoreOutbox;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Enums\Marketing\Shop\ShopSubtypeEnum;
 use App\Enums\Marketing\Shop\ShopTypeEnum;
@@ -36,6 +37,19 @@ class StoreShop
         $shop->stats()->create();
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
+        $shop->serialReferences()->create(
+            [
+                'model'    => SerialReferenceModelEnum::CUSTOMER,
+                'tenant_id'=> $tenant->id,
+            ]
+        );
+        $shop->serialReferences()->create(
+            [
+                'model'    => SerialReferenceModelEnum::ORDER,
+                'tenant_id'=> $tenant->id,
+            ]
+        );
+
 
         SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
 

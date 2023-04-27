@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->unsignedBigInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media');
             $table->string('slug')->unique();
-            $table->string('reference')->unique()->comment('customer public id');
+            $table->string('reference')->nullable()->comment('customer public id');
             $table->string('name', 256)->nullable()->fulltext();
             $table->string('contact_name', 256)->nullable()->index()->fulltext();
             $table->string('company_name', 256)->nullable();
@@ -37,6 +37,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->unique(['shop_id','reference']);
         });
     }
 
