@@ -9,6 +9,7 @@ namespace App\Models\Marketing;
 
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
+use App\Enums\Marketing\Product\ProductTypeEnum;
 use App\Models\Helpers\Barcode;
 use App\Models\Media\Media;
 use App\Models\Sales\SalesStats;
@@ -87,6 +88,7 @@ class Product extends Model implements HasMedia
         'data'                   => 'array',
         'settings'               => 'array',
         'status'                 => 'boolean',
+        'type'                   => ProductTypeEnum::class,
         'state'                  => ProductStateEnum::class,
         'trade_unit_composition' => ProductTradeUnitCompositionEnum::class
     ];
@@ -111,18 +113,20 @@ class Product extends Model implements HasMedia
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
-
+/*
     protected static function booted(): void
     {
         static::updated(function (Product $product) {
             if ($product->wasChanged('state')) {
-                //if ($product->family_id) {
-                //    FamilyHydrateProducts::dispatch($product->family);
-                // }
-                //ShopHydrateProducts::dispatch($product->shop);
+
+                if ($product->family_id) {
+                    FamilyHydrateProducts::dispatch($product->family);
+                 }
+                ShopHydrateProducts::dispatch($product->shop);
             }
         });
     }
+*/
 
     public function shop(): BelongsTo
     {
@@ -152,7 +156,7 @@ class Product extends Model implements HasMedia
     public function images(): BelongsToMany
     {
         return $this->belongsToMany(Media::class, 'media_product')->withTimestamps()
-            ->withPivot(['public','owner_type','owner_id'])
+            ->withPivot(['public', 'owner_type', 'owner_id'])
             ->wherePivot('type', 'image');
     }
 

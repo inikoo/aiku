@@ -7,51 +7,51 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Marketing\Service\StoreService;
-use App\Actions\Marketing\Service\UpdateService;
-use App\Models\Marketing\HistoricService;
-use App\Models\Marketing\Service;
-use App\Services\Tenant\SourceTenantService;
+use App\Actions\Marketing\Product\StoreProduct;
+use App\Actions\Marketing\Product\UpdateProduct;
+use App\Models\Marketing\HistoricProduct;
+use App\Models\Marketing\Product;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
+use App\Services\Tenant\SourceTenantService;
 
 class FetchServices extends FetchAction
 {
-    public string $commandSignature = 'fetch:services {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Service
+    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
     {
-        if ($serviceData = $tenantSource->fetchService($tenantSourceId)) {
-            if ($service = Service::where('source_id', $serviceData['service']['source_id'])
+        if ($productData = $tenantSource->fetchProduct($tenantSourceId)) {
+            if ($product = Product::where('source_id', $productData['product']['source_id'])
                 ->first()) {
-                $service = UpdateService::run(
-                    service:      $service,
-                    modelData:    $serviceData['service'],
+                $product = UpdateProduct::run(
+                    product:      $product,
+                    modelData:    $productData['product'],
                     skipHistoric: true
                 );
             } else {
-                $service = StoreService::run(
-                    shop:         $serviceData['shop'],
-                    modelData:    $serviceData['service'],
+                $product = StoreProduct::run(
+                    shop:         $productData['shop'],
+                    modelData:    $productData['product'],
                     skipHistoric: true
                 );
             }
 
 
-            $historicService = HistoricService::where('source_id', $serviceData['historic_service_source_id'])->first();
+            $historicProduct = HistoricProduct::where('source_id', $productData['historic_product_source_id'])->first();
 
-            if (!$historicService) {
-                $historicService = FetchHistoricServices::run($tenantSource, $serviceData['historic_service_source_id']);
+            if (!$historicProduct) {
+                $historicProduct = FetchHistoricProducts::run($tenantSource, $productData['historic_product_source_id']);
             }
 
-            $service->update(
+            $product->update(
                 [
-                    'current_historic_service_id' => $historicService->id
+                    'current_historic_product_id' => $historicProduct->id
                 ]
             );
 
-            return $service;
+            return $product;
         }
 
 

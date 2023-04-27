@@ -11,11 +11,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug')->nullable()->index();
+            $table->string('type')->index();
             $table->morphs('owner');
             $table->unsignedInteger('current_historic_product_id')->index()->nullable();
             $table->unsignedSmallInteger('shop_id')->nullable();
@@ -44,7 +45,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('products');
     }

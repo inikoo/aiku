@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Marketing\HistoricService\StoreHistoricService;
-use App\Actions\Marketing\HistoricService\UpdateHistoricService;
-use App\Models\Marketing\HistoricService;
+use App\Actions\Marketing\HistoricProduct\StoreHistoricProduct;
+use App\Actions\Marketing\HistoricProduct\UpdateHistoricProduct;
+use App\Models\Marketing\HistoricProduct;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,17 +19,17 @@ class FetchHistoricServices
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id): ?HistoricService
+    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id): ?HistoricProduct
     {
         if ($historicServiceData = $tenantSource->fetchHistoricService($source_id)) {
-            if ($historicService = HistoricService::withTrashed()->where('source_id', $historicServiceData['historic_service']['source_id'])
+            if ($historicService = HistoricProduct::withTrashed()->where('source_id', $historicServiceData['historic_service']['source_id'])
                 ->first()) {
-                $historicService = UpdateHistoricService::run(
+                $historicService = UpdateHistoricProduct::run(
                     historicService: $historicService,
                     modelData:       $historicServiceData['historic_service'],
                 );
             } else {
-                $historicService = StoreHistoricService::run(
+                $historicService = StoreHistoricProduct::run(
                     service:   $historicServiceData['service'],
                     modelData: $historicServiceData['historic_service']
                 );

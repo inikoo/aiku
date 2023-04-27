@@ -55,9 +55,7 @@ use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Marketing\HistoricProduct;
-use App\Models\Marketing\HistoricService;
 use App\Models\Marketing\Product;
-use App\Models\Marketing\Service;
 use App\Models\Marketing\Shop;
 use App\Models\Marketing\TradeUnit;
 use App\Models\Procurement\Agent;
@@ -75,8 +73,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                     != '' && $value != '0000-00-00 00:00:00'
-                                                                                                 && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                                                                                      != '' && $value != '0000-00-00 00:00:00'
+                                                                                                                  && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 
@@ -246,18 +244,10 @@ trait WithAuroraParsers
         return $historicProduct;
     }
 
-    public function parseHistoricService($source_id): HistoricService
-    {
-        $historicService = HistoricService::where('source_id', $source_id)->first();
-        if (!$historicService) {
-            $historicService = FetchHistoricServices::run($this->tenantSource, $source_id);
-        }
-
-        return $historicService;
-    }
 
 
-    public function parseHistoricItem($source_id): HistoricProduct|HistoricService
+
+    public function parseHistoricItem($source_id): HistoricProduct
     {
         $auroraData = DB::connection('aurora')
             ->table('Product History Dimension as PH')
@@ -265,13 +255,13 @@ trait WithAuroraParsers
             ->select('Product Type')
             ->where('PH.Product Key', $source_id)->first();
 
+        $historicItem = HistoricProduct::where('source_id', $source_id)->first();
+
         if ($auroraData->{'Product Type'} == 'Product') {
-            $historicItem = HistoricProduct::where('source_id', $source_id)->first();
             if (!$historicItem) {
                 $historicItem = FetchHistoricProducts::run($this->tenantSource, $source_id);
             }
         } else {
-            $historicItem = HistoricService::where('source_id', $source_id)->first();
             if (!$historicItem) {
                 $historicItem = FetchHistoricServices::run($this->tenantSource, $source_id);
             }
@@ -290,9 +280,9 @@ trait WithAuroraParsers
         return $product;
     }
 
-    public function parseService($source_id): Service
+    public function parseService($source_id): Product
     {
-        $service = Service::where('source_id', $source_id)->first();
+        $service = Product::withTrashed()->where('source_id', $source_id)->first();
         if (!$service) {
             $service = FetchServices::run($this->tenantSource, $source_id);
         }

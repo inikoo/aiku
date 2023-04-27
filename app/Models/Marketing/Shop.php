@@ -75,8 +75,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Department> $departments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Family> $families
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
@@ -87,7 +85,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Prospect> $prospects
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Service> $services
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read Website|null $website
@@ -129,7 +126,7 @@ class Shop extends Model
         return 'slug';
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::created(
             function () {
@@ -192,11 +189,6 @@ class Shop extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
-    }
-
-    public function services(): HasMany
-    {
-        return $this->hasMany(Service::class);
     }
 
     public function website(): HasOne
