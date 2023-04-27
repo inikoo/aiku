@@ -12,14 +12,17 @@ use App\Actions\Marketing\Family\Hydrators\FamilyHydrateProducts;
 use App\Actions\Marketing\HistoricProduct\StoreHistoricProduct;
 use App\Actions\Marketing\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
+use App\Models\Marketing\Department;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreProduct
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(Shop $shop, array $modelData, bool $skipHistoric = false): Product
     {
@@ -53,5 +56,30 @@ class StoreProduct
         ShopHydrateProducts::dispatch($product->shop);
         ProductHydrateUniversalSearch::dispatch($product);
         return $product;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code' => ['required', 'unique:tenant.products', 'between:2,9', 'alpha'],
+            'family_id' => ['sometimes', 'required', 'exists:families,id'],
+            'units' => ['sometimes', 'required', 'numeric'],
+            'image_id' => ['sometimes', 'required', 'exists:media,id'],
+            'price' => ['sometimes', 'required', 'numeric'],
+            'rrp' => ['sometimes', 'required', 'numeric'],
+            'name' => ['required', 'max:250', 'string'],
+            'state' => ['sometimes', 'required'],
+            'owner_id' => ['required'],
+            'owner_type' => ['required'],
+            'description' => ['sometimes', 'required', 'max:1500'],
+        ];
+    }
+
+    public function action(Shop $shop, array $objectData): Product
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($shop, $validatedData);
     }
 }

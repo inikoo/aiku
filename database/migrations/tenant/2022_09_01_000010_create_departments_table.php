@@ -10,7 +10,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->smallIncrements('id');
@@ -18,10 +18,13 @@ return new class () extends Migration {
             $table->string('code')->index();
             $table->unsignedBigInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media');
+
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedSmallInteger('department_id')->nullable();
-            $table->foreign('department_id')->references('id')->on('departments');
+
+            $table->morphs('parent');
+            $table->string('type')->index();
+            $table->boolean('is_family')->default(false);
 
             $table->string('state')->nullable()->index();
             $table->string('name', 255)->nullable();
@@ -36,7 +39,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('departments');
     }

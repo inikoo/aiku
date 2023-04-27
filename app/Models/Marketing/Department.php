@@ -12,11 +12,14 @@ use App\Enums\Marketing\Department\DepartmentStateEnum;
 use App\Models\Sales\SalesStats;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
@@ -60,6 +63,7 @@ class Department extends Model
     use SoftDeletes;
     use UsesTenantConnection;
     use HasUniversalSearch;
+    use HasFactory;
 
     protected $guarded = [];
 
@@ -99,16 +103,16 @@ class Department extends Model
     {
         return $this->belongsTo(Shop::class);
     }
-
-    public function families(): HasMany
-    {
-        return $this->hasMany(Family::class);
-    }
-
-    public function products(): HasMany
-    {
-        return $this->hasMany(Product::class);
-    }
+//
+//    public function families(): HasMany
+//    {
+//        return $this->hasMany(Family::class);
+//    }
+//
+//    public function products(): HasMany
+//    {
+//        return $this->hasMany(Product::class);
+//    }
 
     public function stats(): HasOne
     {
@@ -123,5 +127,20 @@ class Department extends Model
     public function salesTenantCurrencyStats(): MorphOne
     {
         return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-tenant-currency');
+    }
+
+    public function parent(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function departments(): MorphMany
+    {
+        return $this->morphMany(Department::class, 'parent');
+    }
+
+    public function products(): MorphMany
+    {
+        return $this->morphMany(Product::class, 'parent');
     }
 }

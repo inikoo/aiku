@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -208,15 +209,15 @@ class Shop extends Model
         return $this->hasMany(Invoice::class);
     }
 
-    public function departments(): HasMany
+    public function departments(): MorphMany
     {
-        return $this->hasMany(Department::class);
+        return $this->morphMany(Department::class, 'parent');
     }
 
-    public function families(): HasMany
-    {
-        return $this->hasMany(Family::class);
-    }
+//    public function families(): HasMany
+//    {
+//        return $this->hasMany(Family::class);
+//    }
 
     public function payments(): HasMany
     {

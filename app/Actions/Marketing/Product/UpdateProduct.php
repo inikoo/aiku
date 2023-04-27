@@ -11,11 +11,14 @@ use App\Actions\Marketing\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\Product;
+use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateProduct
 {
     use WithActionUpdate;
+
+    private bool $asAction=false;
 
     public function handle(Product $product, array $modelData, bool $skipHistoric=false): Product
     {
@@ -32,16 +35,28 @@ class UpdateProduct
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction) {
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("shops.products.edit");
     }
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required'],
-            'name' => ['sometimes', 'required'],
+            'code' => ['required', 'unique:tenant.products', 'between:2,9', 'alpha'],
+            'family_id' => ['sometimes', 'required', 'exists:families,id'],
+            'units' => ['sometimes', 'required', 'numeric'],
+            'image_id' => ['sometimes', 'required', 'exists:media,id'],
+            'price' => ['sometimes', 'required', 'numeric'],
+            'rrp' => ['sometimes', 'required', 'numeric'],
+            'name' => ['required', 'max:250', 'string'],
+            'state' => ['sometimes', 'required'],
+            'owner_id' => ['required'],
+            'owner_type' => ['required'],
+            'description' => ['sometimes', 'required', 'max:1500'],
         ];
     }
-
 
     public function asController(Product $product, ActionRequest $request): Product
     {
@@ -49,6 +64,14 @@ class UpdateProduct
         return $this->handle($product, $request->all());
     }
 
+    public function action(Product $product, array $objectData): Product
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($product, $validatedData);
+    }
 
     public function jsonResponse(Product $product): ProductResource
     {
