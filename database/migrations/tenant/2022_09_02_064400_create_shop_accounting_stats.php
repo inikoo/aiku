@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasPaymentStats;
 
-    public function up()
+    public function up(): void
     {
         Schema::create('shop_accounting_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
@@ -32,7 +32,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('shop_accounting_stats');
     }

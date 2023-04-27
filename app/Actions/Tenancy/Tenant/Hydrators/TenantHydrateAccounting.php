@@ -26,12 +26,12 @@ class TenantHydrateAccounting implements ShouldBeUnique
         $paymentRecords = Payment::count();
         $refunds        = Payment::where('type', 'refund')->count();
 
-        $dCAmountSuccessfullyPaid = Payment::where('type', 'payment')
+        $amountTenantCurrencySuccessfullyPaid = Payment::where('type', 'payment')
             ->where('status', 'success')
-            ->sum('dc_amount');
-        $dCAmountRefunded         = Payment::where('type', 'refund')
+            ->sum('tc_amount');
+        $amountTenantCurrencyRefunded         = Payment::where('type', 'refund')
             ->where('status', 'success')
-            ->sum('dc_amount');
+            ->sum('tc_amount');
 
         $stats = [
             'number_payment_service_providers' => PaymentServiceProvider::count(),
@@ -39,9 +39,9 @@ class TenantHydrateAccounting implements ShouldBeUnique
             'number_payment_records'           => $paymentRecords,
             'number_payments'                  => $paymentRecords - $refunds,
             'number_refunds'                   => $refunds,
-            'dc_amount'                        => $dCAmountSuccessfullyPaid + $dCAmountRefunded,
-            'dc_amount_successfully_paid'      => $dCAmountSuccessfullyPaid,
-            'dc_amount_refunded'               => $dCAmountRefunded
+            'tc_amount'                        => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
+            'tc_amount_successfully_paid'      => $amountTenantCurrencySuccessfullyPaid,
+            'tc_amount_refunded'               => $amountTenantCurrencyRefunded,
         ];
 
         $stateCounts = Payment::selectRaw('state, count(*) as total')

@@ -8,9 +8,13 @@
 namespace App\Actions\Accounting\Payment;
 
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
+use App\Enums\Accounting\Payment\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Sales\Customer;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -27,6 +31,10 @@ class StorePayment
         $modelData['customer_id'] = $customer->id;
         $modelData['shop_id']     = $customer->shop_id;
 
+        data_fill($modelData, 'currency_id', $customer->shop->currency_id);
+        data_fill($modelData, 'tc_amount', GetCurrencyExchange::run($customer->shop->currency, app('currentTenant')->currency));
+        data_fill($modelData, 'gc_amount', GetCurrencyExchange::run($customer->shop->currency, app('currentTenant')->group->currency));
+        data_fill($modelData, 'date', gmdate('Y-m-d H:i:s'));
 
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
@@ -48,6 +56,10 @@ class StorePayment
     {
         return [
             'reference' => ['required', 'string'],
+            'status'    => ['sometimes','required', Rule::in(PaymentStatusEnum::values())],
+            'state'     => ['sometimes','required', Rule::in(PaymentStateEnum::values())],
+            'amount'    => ['required','decimal:2,4']
+
         ];
     }
 
