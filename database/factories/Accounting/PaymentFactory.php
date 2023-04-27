@@ -9,7 +9,7 @@ class PaymentFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => fake()->lexify('????'),
+            'reference' => fake()->lexify('????'),
         ];
     }
 }

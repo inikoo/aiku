@@ -68,7 +68,6 @@ class StoreCustomer
             'phone'                     => ['nullable', 'string'],
             'identity_document_number'  => ['nullable', 'string'],
             'website'                   => ['nullable', 'active_url'],
-
         ];
     }
 

@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Payment;
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,11 +23,9 @@ class StorePayment
 
     private bool $asAction=false;
 
-    public function handle(PaymentAccount|Customer $parent, array $modelData): Payment
+    public function handle(PaymentAccount|Customer|Shop $parent, array $modelData): Payment
     {
-        if (class_basename($parent)=='Customer') {
-            $modelData['shop_id']=$parent->shop_id;
-        }
+
 
         /** @var Payment $payment */
         $payment = $parent->payments()->create($modelData);
@@ -44,11 +43,11 @@ class StorePayment
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.payments', 'between:2,9', 'alpha_dash'],
+            'reference' => ['required', 'unique:tenant.payments', 'between:2,9', 'alpha_dash'],
         ];
     }
 
-    public function action(PaymentAccount|Customer $parent, array $objectData): Payment
+    public function action(PaymentAccount|Customer|Shop $parent, array $objectData): Payment
     {
         $this->asAction=true;
         $this->setRawAttributes($objectData);

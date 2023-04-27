@@ -36,8 +36,7 @@ class UpdatePayment
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash'],
-
+            'reference'         => ['sometimes', 'required', 'unique:tenant.payments', 'between:2,64', 'alpha_dash'],
         ];
     }
     public function action(Payment $payment, array $objectData): Payment
