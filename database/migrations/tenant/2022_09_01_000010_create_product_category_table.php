@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
+        Schema::create('product_categories', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
@@ -41,6 +41,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('departments');
+        Schema::dropIfExists('product_categories');
     }
 };

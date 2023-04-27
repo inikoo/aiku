@@ -211,7 +211,7 @@ class Shop extends Model
 
     public function departments(): MorphMany
     {
-        return $this->morphMany(Department::class, 'parent');
+        return $this->morphMany(ProductCategory::class, 'parent');
     }
 
 //    public function families(): HasMany

@@ -6,7 +6,7 @@
  */
 
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Marketing\Department\DepartmentStateEnum;
+use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Marketing\Family\FamilyStateEnum;
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Enums\Sales\Customer\CustomerStateEnum;
@@ -17,7 +17,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('shop_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
@@ -35,7 +35,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('number_departments')->default(0);
 
-            foreach (DepartmentStateEnum::cases() as $departmentState) {
+            foreach (ProductCategoryStateEnum::cases() as $departmentState) {
                 $table->unsignedInteger('number_departments_state_'.$departmentState->snake())->default(0);
             }
 
@@ -86,7 +86,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('shop_stats');
     }

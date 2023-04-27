@@ -5,11 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Marketing\Department;
+namespace App\Enums\Marketing\ProductCategory;
 
 use App\Enums\EnumHelperTrait;
 
-enum DepartmentTypeEnum: string
+enum ProductCategoryTypeEnum: string
 {
     use EnumHelperTrait;
 
