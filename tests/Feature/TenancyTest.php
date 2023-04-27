@@ -7,6 +7,8 @@
 
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Enums\Mail\Mailroom\MailroomCodeEnum;
+use App\Models\Mail\Mailroom;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 
@@ -32,7 +34,26 @@ test('add tenant to group', function () {
     $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
 
     $this->assertModelExists($tenant);
+    return $tenant;
 });
+
+test('tenant has correct mailrooms', function ($tenant) {
+
+    $tenant->makeCurrent();
+
+    $mailrooms= Mailroom::all();
+    expect($mailrooms->count())->toBe(3);
+
+    $mailroomCustomerNotifications=Mailroom::where('code', MailroomCodeEnum::CUSTOMER_NOTIFICATION)->firstOrFail();
+    $this->assertModelExists($mailroomCustomerNotifications);
+    $mailroomMarketing=Mailroom::where('code', MailroomCodeEnum::MARKETING)->firstOrFail();
+    $this->assertModelExists($mailroomMarketing);
+    $mailroomUserNotifications=Mailroom::where('code', MailroomCodeEnum::USER_NOTIFICATION)->firstOrFail();
+    $this->assertModelExists($mailroomUserNotifications);
+
+
+})->depends('add tenant to group');
+
 
 
 test('try to create group with wrong currency', function () {
