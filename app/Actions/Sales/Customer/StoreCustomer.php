@@ -50,14 +50,15 @@ class StoreCustomer
 
         /** @var Customer $customer */
         $customer=DB::transaction(function () use ($shop, $customerData) {
-            $serialReference=$shop->serialReferences()->where('model', SerialReferenceModelEnum::CUSTOMER)->firstOrFail();
             $customer       = $shop->customers()->create($customerData);
-            $reference      = GetSerialReference::run($serialReference);
-            $customer->update(
-                [
-                    'reference'=> $reference
-                ]
-            );
+            if($customer->reference==null) {
+                $reference = GetSerialReference::run(container: $shop, modelType: SerialReferenceModelEnum::CUSTOMER);
+                $customer->update(
+                    [
+                        'reference' => $reference
+                    ]
+                );
+            }
             $customer->stats()->create();
             return $customer;
         });
