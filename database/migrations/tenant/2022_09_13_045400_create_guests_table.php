@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Auth\GuestTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->boolean('status')->index()->default(true);
-            $table->enum('type', ['contractor', 'external-employee','external-administrator'])->default('contractor');
+            $table->string('type')->default(GuestTypeEnum::CONTRACTOR->value);
             $table->string('name', 256)->nullable()->index();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();

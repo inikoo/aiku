@@ -13,7 +13,7 @@ enum GuestTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case type             = 'type';
-    case FULFILMENT_HOUSE = 'fulfilment-house';
-    case AGENT            = 'agent';
+    case CONTRACTOR             = 'contractor';
+    case EXTERNAL_EMPLOYEE      = 'external_employee';
+    case EXTERNAL_ADMINISTRATOR = 'external_administrator';
 }
