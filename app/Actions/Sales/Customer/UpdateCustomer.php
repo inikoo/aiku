@@ -49,9 +49,13 @@ class UpdateCustomer
     public function rules(): array
     {
         return [
-            'contact_name' => ['sometimes'],
-            'company_name' => ['sometimes'],
-            'phone'        => 'sometimes|phone:AUTO',
+            'contact_name'              => ['sometimes'],
+            'company_name'              => ['sometimes'],
+            'phone'                     => 'sometimes|phone:AUTO',
+            'identity_document_number'  => ['sometimes', 'nullable', 'string'],
+            'website'                   => ['sometimes', 'nullable', 'active_url'],
+            'email'                     => ['sometimes', 'nullable', 'email'],
+
         ];
     }
 

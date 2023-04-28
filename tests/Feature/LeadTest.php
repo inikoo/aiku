@@ -7,8 +7,8 @@
 
 namespace Tests\Feature;
 
-use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Leads\Prospect\StoreProspect;
+use App\Actions\Leads\Prospect\UpdateProspect;
 use App\Models\Leads\Prospect;
 use App\Models\Tenancy\Tenant;
 
@@ -26,7 +26,7 @@ test('create prospect', function () {
     return $prospect;
 });
 
-test('update payment account', function ($prospect) {
-    $prospect = UpdatePaymentAccount::make()->action($prospect, ['name' => 'Pika Ltd']);
-    expect($prospect->name)->toBe('Pika Ltd');
+test('update prospect', function ($prospect) {
+    $prospect = UpdateProspect::make()->action($prospect, ['name' => 'Pika']);
+    expect($prospect->name)->toBe('Pika');
 })->depends('create prospect');
