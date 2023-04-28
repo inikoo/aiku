@@ -10,6 +10,7 @@ namespace App\Actions\Marketing\Offer;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\OfferResource;
 use App\Models\Marketing\Offer;
+use App\Models\Marketing\OfferCampaign;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOffer
@@ -29,12 +30,19 @@ class UpdateOffer
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required'],
-            'code' => ['sometimes', 'required'],
+            'code' => ['required', 'unique:tenant.offers', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
             'data' => ['sometimes', 'required'],
         ];
     }
 
+    public function action(Offer $offer, array $objectData): Offer
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($offer, $validatedData);
+    }
 
     public function asController(Offer $offer, ActionRequest $request): Offer
     {
@@ -42,7 +50,6 @@ class UpdateOffer
 
         return $this->handle($offer, $request->all());
     }
-
 
     public function jsonResponse(Offer $offer): OfferResource
     {
