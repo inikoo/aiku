@@ -9,6 +9,7 @@ namespace App\Actions\Dispatch\Shipment;
 
 use App\Actions\Dispatch\Shipment\Hydrators\ShipmentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
 
 class UpdateShipment
@@ -20,5 +21,21 @@ class UpdateShipment
         $shipment = $this->update($shipment, $modelData, ['data']);
         ShipmentHydrateUniversalSearch::dispatch($shipment);
         return $shipment;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code' => ['required', 'unique:tenant.shipments', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string']
+        ];
+    }
+
+    public function action(Shipment $shipment, array $objectData): Shipment
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($shipment, $validatedData);
     }
 }
