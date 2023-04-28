@@ -8,14 +8,35 @@
 namespace App\Actions\Marketing\ShippingZoneSchema;
 
 use App\Models\Marketing\ShippingZoneSchema;
+use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreShippingZoneSchema
 {
     use AsAction;
+    use WithAttributes;
 
-    public function handle(ShippingZoneSchema $shippingZoneSchema, array $modelData): ShippingZoneSchema
+    public function handle(Shop $shop, array $modelData): ShippingZoneSchema
     {
-        return $shippingZoneSchema->create($modelData);
+        /** @var ShippingZoneSchema */
+        return $shop->shippingZoneSchemas()->create($modelData);
+    }
+
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'max:250', 'string'],
+            'status' => ['sometimes', 'required', 'boolean'],
+            'data' => ['sometimes', 'required']
+        ];
+    }
+
+    public function action(Shop $shop, array $objectData): ShippingZoneSchema
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($shop, $validatedData);
     }
 }

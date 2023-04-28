@@ -7,7 +7,9 @@
 
 namespace App\Models\Marketing;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
@@ -18,6 +20,7 @@ class ShippingZoneSchema extends Model
     use UsesTenantConnection;
     use SoftDeletes;
     use HasSlug;
+    use HasFactory;
 
     protected $casts = [
         'status'   => 'boolean',
@@ -36,5 +39,10 @@ class ShippingZoneSchema extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function shippingZone(): HasMany
+    {
+        return $this->hasMany(ShippingZone::class);
     }
 }

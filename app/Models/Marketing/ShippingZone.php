@@ -7,6 +7,7 @@
 
 namespace App\Models\Marketing;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -18,6 +19,7 @@ class ShippingZone extends Model
     use SoftDeletes;
     use UsesTenantConnection;
     use HasSlug;
+    use HasFactory;
 
 
     protected $casts = [
