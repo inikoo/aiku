@@ -8,17 +8,18 @@
 namespace Tests\Feature;
 
 use App\Actions\Accounting\Payment\StorePayment;
-use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\Marketing\Shop\StoreShop;
+use App\Actions\Sales\Customer\StoreCustomer;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use App\Models\Tenancy\Tenant;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
@@ -63,14 +64,9 @@ test('create shop', function () {
 });
 
 test('create payment', function ($paymentAccount) {
-    $payment = StorePayment::make()->action($paymentAccount, Payment::factory()->definition());
+    $shop     = StoreShop::make()->action(Shop::factory()->definition());
+    $customer = StoreCustomer::make()->action($shop, Customer::factory()->definition());
+    $payment  = StorePayment::make()->action($customer, $paymentAccount, Payment::factory()->definition());
     $this->assertModelExists($payment);
     return $payment;
-})->depends('create payment account')
-    ->depends('create shop');
-/*
-test('update payment', function ($payment) {
-    $payment = UpdatePayment::make()->action($payment, ['amount' => 1500]);
-    expect($payment->amount)->toBe(1500);
-})->depends('create payment');
-*/
+})->depends('create payment account');

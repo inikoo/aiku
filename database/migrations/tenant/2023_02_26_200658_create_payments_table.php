@@ -5,6 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Accounting\Payment\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,13 +25,14 @@ return new class () extends Migration {
             $table->string('type');
             $table->string('reference')->index();
             $table->string('slug')->unique();
-            $table->string('status')->index();
-            $table->string('state')->index();
+            $table->string('status')->index()->default(PaymentStatusEnum::IN_PROCESS->value);
+            $table->string('state')->index()->default(PaymentStateEnum::APPROVING->value);
             $table->string('subsequent_status')->index()->nullable();
-            $table->decimal('amount', 12);
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('public.currencies');
-            $table->decimal('dc_amount', 12);
+            $table->decimal('amount', 12);
+            $table->decimal('tc_amount', 12)->comment('amount in tenancy currency');
+            $table->decimal('gc_amount', 12)->nullable()->comment('amount in group currency');
             $table->jsonb('data');
             $table->dateTimeTz('date')->index()->comment('Most relevant date at current state');
             $table->dateTimeTz('completed_at')->nullable();

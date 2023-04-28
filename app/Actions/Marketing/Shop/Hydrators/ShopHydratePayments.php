@@ -25,14 +25,14 @@ class ShopHydratePayments implements ShouldBeUnique
         $paymentRecords = $shop->payments()->count();
         $refunds        = $shop->payments()->where('type', 'refund')->count();
 
-        $dCAmountSuccessfullyPaid = $shop->payments()
+        $amountTenantCurrencySuccessfullyPaid = $shop->payments()
             ->where('type', 'payment')
             ->where('status', 'success')
-            ->sum('dc_amount');
-        $dCAmountRefunded         = $shop->payments()
+            ->sum('tc_amount');
+        $amountTenantCurrencyRefunded         = $shop->payments()
             ->where('type', 'refund')
             ->where('status', 'success')
-            ->sum('dc_amount');
+            ->sum('tc_amount');
 
         $amountSuccessfullyPaid = $shop->payments()
             ->where('type', 'payment')
@@ -48,12 +48,12 @@ class ShopHydratePayments implements ShouldBeUnique
             'number_payment_records'      => $paymentRecords,
             'number_payments'             => $paymentRecords - $refunds,
             'number_refunds'              => $refunds,
-            'amount'                      => $amountSuccessfullyPaid + $dCAmountRefunded,
+            'amount'                      => $amountSuccessfullyPaid + $amountTenantCurrencyRefunded,
             'amount_successfully_paid'    => $amountSuccessfullyPaid,
             'amount_refunded'             => $amountRefunded,
-            'dc_amount'                   => $dCAmountSuccessfullyPaid + $dCAmountRefunded,
-            'dc_amount_successfully_paid' => $dCAmountSuccessfullyPaid,
-            'dc_amount_refunded'          => $dCAmountRefunded
+            'tc_amount'                   => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
+            'tc_amount_successfully_paid' => $amountTenantCurrencySuccessfullyPaid,
+            'tc_amount_refunded'          => $amountTenantCurrencyRefunded
 
 
         ];
