@@ -25,19 +25,19 @@ class UpdateShop
     public function rules(): array
     {
         return [
-            'name'                     => ['required', 'string', 'max:255'],
-            'code'                     => ['required', 'unique:tenant.shops', 'between:2,4', 'alpha_dash'],
-            'contact_name'             => ['nullable', 'string', 'max:255'],
-            'company_name'             => ['nullable', 'string', 'max:255'],
-            'email'                    => ['nullable', 'email'],
-            'phone'                    => 'nullable',
-            'identity_document_number' => ['nullable', 'string'],
-            'identity_document_type'   => ['nullable', 'string'],
-            'type'                     => ['required', Rule::in(ShopTypeEnum::values())],
-            'subtype'                  => ['required', Rule::in(ShopSubtypeEnum::values())],
-            'currency_id'              => ['required', 'exists:central.currencies,id'],
-            'language_id'              => ['required', 'exists:central.languages,id'],
-            'timezone_id'              => ['required', 'exists:central.timezones,id'],
+            'name'                     => ['sometimes', 'required', 'string', 'max:255'],
+            'code'                     => ['sometimes', 'required', 'unique:tenant.shops', 'between:2,4', 'alpha_dash'],
+            'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'                    => ['sometimes', 'nullable', 'email'],
+            'phone'                    => 'sometimes|nullable',
+            'identity_document_number' => ['sometimes', 'nullable', 'string'],
+            'identity_document_type'   => ['sometimes', 'nullable', 'string'],
+            'type'                     => ['sometimes', 'required', Rule::in(ShopTypeEnum::values())],
+            'subtype'                  => ['sometimes', 'required', Rule::in(ShopSubtypeEnum::values())],
+            'currency_id'              => ['sometimes', 'required', 'exists:central.currencies,id'],
+            'language_id'              => ['sometimes', 'required', 'exists:central.languages,id'],
+            'timezone_id'              => ['sometimes', 'required', 'exists:central.timezones,id'],
         ];
     }
 
