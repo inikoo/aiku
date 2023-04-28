@@ -45,4 +45,9 @@ class OfferCampaign extends Model
     {
         return $this->hasMany(Offer::class);
     }
+
+    public function offerComponent(): HasMany
+    {
+        return $this->hasMany(OfferComponent::class);
+    }
 }

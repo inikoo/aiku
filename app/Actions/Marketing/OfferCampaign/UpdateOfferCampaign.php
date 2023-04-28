@@ -10,6 +10,7 @@ namespace App\Actions\Marketing\OfferCampaign;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\OfferCampaignResource;
 use App\Models\Marketing\OfferCampaign;
+use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOfferCampaign
@@ -29,12 +30,19 @@ class UpdateOfferCampaign
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required'],
-            'code' => ['sometimes', 'required'],
-            'data' => ['sometimes', 'required'],
+            'code' => ['required', 'unique:tenant.offer_campaigns', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
+            'data' => ['sometimes', 'required']
         ];
     }
 
+    public function action(OfferCampaign $offerCampaign, array $objectData): OfferCampaign
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($offerCampaign, $validatedData);
+    }
 
     public function asController(OfferCampaign $offerCampaign, ActionRequest $request): OfferCampaign
     {
