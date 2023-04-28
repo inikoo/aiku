@@ -9,6 +9,7 @@ namespace App\Models\Dispatch;
 
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -45,6 +46,7 @@ class Shipment extends Model
     use HasSlug;
     use UsesTenantConnection;
     use HasUniversalSearch;
+    use HasFactory;
 
     protected $casts = [
         'data' => 'array',

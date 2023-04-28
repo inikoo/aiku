@@ -14,10 +14,12 @@ use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreDeliveryNote
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(
         Order $order,
@@ -36,5 +38,25 @@ class StoreDeliveryNote
 
         DeliveryNoteHydrateUniversalSearch::dispatch($deliveryNote);
         return $deliveryNote;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'number' => ['required', 'unique:tenant.delivery_notes', 'numeric'],
+            'state' => ['required', 'max:250', 'string'],
+            'status' => ['required', 'boolean'],
+            'email' => ['required', 'string', 'email'],
+            'phone' => ['required', 'string'],
+            'date' => ['required', 'date'],
+        ];
+    }
+
+    public function action(Order $order, array $objectData, Address $address): DeliveryNote
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($order, $validatedData, $address);
     }
 }
