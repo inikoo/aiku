@@ -9,6 +9,7 @@ namespace App\Actions\Auth\User;
 
 use App\Actions\WithActionUpdate;
 use App\Models\Auth\User;
+use App\Rules\AlphaDashDot;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
@@ -21,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateUser
 {
     use WithActionUpdate;
+
+    private bool $asAction = false;
 
     public function handle(User $user, array $modelData): User
     {
@@ -41,8 +44,9 @@ class UpdateUser
     public function rules(): array
     {
         return [
-            'username' => 'sometimes|required|alpha_dash|unique:App\Models\Auth\User,username',
-            'password' => ['required', Password::min(8)->uncompromised()],
+            'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username'],
+            'password' => ['sometimes', 'required', app()->isLocal()  || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+
         ];
     }
 
@@ -58,6 +62,16 @@ class UpdateUser
     public function asController(User $user, ActionRequest $request): User
     {
         return $this->handle($user, $request->validated());
+    }
+
+    public function action(User $user, $objectData): User
+    {
+        $this->asAction = true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($user, $validatedData);
+
     }
 
     public function htmlResponse(User $user): RedirectResponse

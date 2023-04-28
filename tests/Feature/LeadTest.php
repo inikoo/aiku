@@ -20,6 +20,7 @@ beforeEach(function () {
 
 });
 
+
 test('create prospect', function () {
     $prospect = StoreProspect::make()->action(Prospect::factory()->definition());
     $this->assertModelExists($prospect);

@@ -109,12 +109,15 @@ class StoreCustomer
         }
     }
 
-    public function action(Shop $shop, array $objectData): Customer
+    /**
+     * @throws \Throwable
+     */
+    public function action(Shop $shop, array $objectData, array $customerAddressesData): Customer
     {
         $this->asAction=true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($shop, $validatedData);
+        return $this->handle($shop, $validatedData, $customerAddressesData);
     }
 }

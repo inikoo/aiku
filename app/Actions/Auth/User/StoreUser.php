@@ -14,12 +14,19 @@ use App\Models\Auth\User;
 use App\Models\Central\CentralUser;
 use App\Models\HumanResources\Employee;
 use App\Models\Tenancy\Tenant;
+use App\Rules\AlphaDashDot;
+use Illuminate\Validation\Rules\Password;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 use Spatie\Multitenancy\Landlord;
 
 class StoreUser
 {
     use AsAction;
+    use WithAttributes;
+
+    private bool $asAction = false;
 
     public function handle(Tenant $tenant, Guest|Employee $parent, CentralUser $centralUser): User
     {
@@ -46,5 +53,31 @@ class StoreUser
 
 
         return $user;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("shops.customers.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username'],
+            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+
+        ];
+    }
+
+    public function action(array $objectData, Guest|Employee $parent, Tenant $tenant, CentralUser $centralUser): User
+    {
+        $this->asAction = true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($tenant, $parent, $centralUser);
     }
 }

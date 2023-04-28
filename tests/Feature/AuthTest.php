@@ -9,7 +9,10 @@ namespace Tests\Feature;
 
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
+use App\Actions\Auth\User\StoreUser;
+use App\Actions\Auth\User\UpdateUser;
 use App\Models\Auth\Guest;
+use App\Models\Auth\User;
 use App\Models\Tenancy\Tenant;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
@@ -30,3 +33,14 @@ test('update guest', function ($guest) {
     $guest = UpdateGuest::make()->action($guest, ['name' => 'Pika']);
     expect($guest->name)->toBe('Pika');
 })->depends('create guest');
+
+test('create user', function () {
+    $user = StoreUser::make()->action(User::factory()->definition());
+    $this->assertModelExists($user);
+    return $user;
+});
+
+test('update user', function ($user) {
+    $user = UpdateUser::make()->action($user, ['id' => 'AWA28ES']);
+    expect($user->id)->toBe('AWA28ES');
+})->depends('create user');
