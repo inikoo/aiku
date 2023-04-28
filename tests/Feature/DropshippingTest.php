@@ -26,22 +26,14 @@ beforeEach(function () {
 });
 
 test('create customer client', function () {
-    $shop     = StoreShop::make()->action(Shop::factory()->definition());
-    $customer = StoreCustomer::make()->action(
-        $shop,
-        Customer::factory()->definition(),
-        Address::factory()->definition(),
-    );
-    $customerClient = StoreCustomerClient::make()->action(
-        $customer,
-        CustomerClient::factory()->definition(),
-        Address::factory()->definition(),
-    );
+    $shop           = StoreShop::make()->action(Shop::factory()->definition());
+    $customer       = StoreCustomer::make()->action($shop, Customer::factory()->definition(), Address::factory()->definition(), );
+    $customerClient = StoreCustomerClient::make()->action($customer, CustomerClient::factory()->definition(), Address::factory()->definition(), );
     $this->assertModelExists($customerClient);
     return $customerClient;
 });
 
 test('update customer client', function ($customerClient) {
-    $customerClient = UpdateCustomerClient::make()->action($customerClient, ['id' => 0001]);
-    expect($customerClient->id)->toBe(0001);
+    $customerClient = UpdateCustomerClient::make()->action($customerClient, ['reference' => '001']);
+    expect($customerClient->reference)->toBe('001');
 })->depends('create customer client');

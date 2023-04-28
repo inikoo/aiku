@@ -49,21 +49,21 @@ class StoreProspect
     public function rules(): array
     {
         return [
-            'contact_name'              => ['nullable', 'string', 'max:255'],
-            'company_name'              => ['nullable', 'string', 'max:255'],
-            'email'                     => ['nullable', 'email'],
-            'phone'                     => ['nullable', 'string'],
-            'website'                   => ['nullable', 'active_url'],
+            'contact_name'              => ['required', 'nullable', 'string', 'max:255'],
+            'company_name'              => ['required', 'nullable', 'string', 'max:255'],
+            'email'                     => ['required', 'nullable', 'email'],
+            'phone'                     => ['required', 'nullable', 'string'],
+            'website'                   => ['required', 'nullable', 'active_url'],
         ];
     }
 
-    public function action(Shop $shop, array $objectData): Prospect
+    public function action(Shop $shop, array $objectData, array $addressesData): Prospect
     {
         $this->asAction=true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($shop, $validatedData);
+        return $this->handle($shop, $validatedData, $addressesData);
     }
 
 }

@@ -49,10 +49,12 @@ class StoreCustomerClient
     public function rules(): array
     {
         return [
-            'contact_name'              => ['nullable', 'string', 'max:255'],
-            'company_name'              => ['nullable', 'string', 'max:255'],
-            'email'                     => ['nullable', 'email'],
-            'phone'                     => ['nullable', 'string'],
+
+            'reference'                 => ['required', 'nullable', 'string', ],
+            'contact_name'              => ['required', 'nullable', 'string', 'max:255'],
+            'company_name'              => ['required', 'nullable', 'string', 'max:255'],
+            'email'                     => ['required', 'nullable', 'email'],
+            'phone'                     => ['required', 'nullable', 'string'],
         ];
     }
 

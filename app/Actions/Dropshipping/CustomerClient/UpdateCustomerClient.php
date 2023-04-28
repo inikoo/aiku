@@ -37,10 +37,11 @@ class UpdateCustomerClient
     public function rules(): array
     {
         return [
-            'contact_name' => ['sometimes'],
-            'company_name' => ['sometimes'],
-            'phone'        => 'sometimes|phone:AUTO',
-            'email'        => ['sometimes', 'nullable', 'email'],
+            'reference'    => ['sometimes', 'string'],
+            'contact_name' => ['sometimes', 'string'],
+            'company_name' => ['sometimes', 'string'],
+            'phone'        => ['sometimes', 'phone:AUTO'],
+            'email'        => ['sometimes', 'email'],
         ];
     }
 

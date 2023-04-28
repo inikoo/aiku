@@ -16,7 +16,6 @@ function loadDB($dumpName): void
 {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../', '.env.testing');
     $dotenv->load();
-
     $process = new Process(
         [
             __DIR__.'/../devops/devel/reset_test_database.sh',
