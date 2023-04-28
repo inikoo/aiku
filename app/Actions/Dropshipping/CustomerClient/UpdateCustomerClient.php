@@ -9,16 +9,59 @@ namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\Dropshipping\CustomerClientResource;
 use App\Models\Dropshipping\CustomerClient;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateCustomerClient
 {
     use WithActionUpdate;
+
+    private bool $asAction = false;
 
     public function handle(CustomerClient $customerClient, array $modelData): CustomerClient
     {
         $customerClient = $this->update($customerClient, $modelData, ['data']);
         CustomerClientHydrateUniversalSearch::dispatch($customerClient);
         return $customerClient;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("shops.customers.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'contact_name' => ['sometimes'],
+            'company_name' => ['sometimes'],
+            'phone'        => 'sometimes|phone:AUTO',
+            'website'      => ['sometimes', 'nullable', 'active_url'],
+            'email'        => ['sometimes', 'nullable', 'email'],
+        ];
+    }
+
+    public function asController(CustomerClient $customerClient, ActionRequest $request): CustomerClient
+    {
+        $request->validate();
+        return $this->handle($customerClient, $request->all());
+    }
+
+    public function action(CustomerClient $customerClient, $objectData): CustomerClient
+    {
+        $this->asAction = true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($customerClient, $validatedData);
+    }
+
+    public function jsonResponse(CustomerClient $customerClient): CustomerClientResource
+    {
+        return new CustomerClientResource($customerClient);
     }
 }

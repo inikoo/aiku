@@ -8,6 +8,7 @@
 namespace App\Actions\Helpers\SerialReference;
 
 use App\Models\Helpers\SerialReference;
+use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Illuminate\Support\Facades\DB;
 
@@ -18,20 +19,33 @@ class GetSerialReference
     /**
      * @throws \Throwable
      */
-    public function handle(SerialReference $serialReference): string
+    public function handle(Shop $container, $modelType): string
     {
-        $res = DB::connection('group')->table('serial_references')->select('serial')
-            ->where('id', $serialReference->id)->first();
+        $serialReference = $this->getSerialReference($container, $modelType);
+
+        $serial=DB::transaction(function () use ($serialReference) {
+            $res = DB::connection('group')->table('serial_references')->select('serial')
+                ->where('id', $serialReference->id)->first();
 
 
-        $serial = $res->serial + 1;
+            $serial = $res->serial + 1;
 
 
-        DB::connection('group')->table('serial_references')
-            ->where('id', $serialReference->id)
-            ->update(['serial' => $serial]);
-
+            DB::connection('group')->table('serial_references')
+                ->where('id', $serialReference->id)
+                ->update(['serial' => $serial]);
+            return $serial;
+        });
 
         return sprintf($serialReference->format, $serial);
     }
+
+
+    private function getSerialReference($container, $modelType): SerialReference
+    {
+        return match (class_basename($container)) {
+            'Shop' => $container->serialReferences()->where('model', $modelType)->firstOrFail()
+        };
+    }
+
 }

@@ -12,11 +12,16 @@ use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Sales\Customer;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreCustomerClient
 {
     use AsAction;
+    use WithAttributes;
+
+    private bool $asAction=false;
 
     public function handle(Customer $customer, array $modelData, array $addressesData = []): CustomerClient
     {
@@ -31,5 +36,33 @@ class StoreCustomerClient
         CustomerHydrateClients::dispatch($customer);
 
         return $customerClient;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("shops.customers.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'contact_name'              => ['nullable', 'string', 'max:255'],
+            'company_name'              => ['nullable', 'string', 'max:255'],
+            'email'                     => ['nullable', 'email'],
+            'phone'                     => ['nullable', 'string'],
+            'website'                   => ['nullable', 'active_url'],
+        ];
+    }
+
+    public function action(Customer $customer, array $objectData): CustomerClient
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($customer, $validatedData);
     }
 }

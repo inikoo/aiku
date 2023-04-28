@@ -64,6 +64,7 @@ class User extends Authenticatable
     use SoftDeletes;
     use HasRoles;
     use UsesTenantConnection;
+    use HasFactory;
 
 
     protected $guarded = [

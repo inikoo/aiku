@@ -9,6 +9,7 @@ namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\HydrateTenant;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -54,6 +55,7 @@ class Guest extends Model implements HasMedia
     use InteractsWithMedia;
     use SoftDeletes;
     use UsesTenantConnection;
+    use HasFactory;
 
     protected $casts = [
         'data'          => 'array',
