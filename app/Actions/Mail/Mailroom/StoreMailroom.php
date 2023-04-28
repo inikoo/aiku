@@ -39,7 +39,6 @@ class StoreMailroom
     {
         return [
             'code'         => ['required', 'unique:tenant.warehouses', 'between:2,9', 'alpha_dash'],
-            'name'         => ['required', 'max:250', 'string'],
         ];
     }
 

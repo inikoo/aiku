@@ -11,15 +11,19 @@ namespace App\Actions\Sales\Order;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Sales\Order\Hydrators\OrderHydrateUniversalSearch;
+use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatch\Shipment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreOrder
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(
         Customer|CustomerClient $parent,
@@ -55,5 +59,26 @@ class StoreOrder
 
 
         return $order;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'number' => ['required', 'unique:tenant.orders'],
+            'date' => ['required', 'date']
+        ];
+    }
+
+    public function action(
+        Customer|CustomerClient $parent,
+        array $modelData,
+        Address $seedBillingAddress,
+        Address $seedDeliveryAddress
+    ): Order
+    {
+        $this->setRawAttributes($modelData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($parent, $validatedData, $seedBillingAddress, $seedDeliveryAddress);
     }
 }

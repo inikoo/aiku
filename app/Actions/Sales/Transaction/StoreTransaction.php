@@ -10,10 +10,12 @@ namespace App\Actions\Sales\Transaction;
 use App\Models\Sales\Transaction;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreTransaction
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(Order $order, array $modelData): Transaction
     {
@@ -23,5 +25,22 @@ class StoreTransaction
         /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);
         return $transaction;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'type' => ['required'],
+            'quantity_bonus' => ['required', 'numeric'],
+            'quantity_ordered' => ['required', 'numeric'],
+        ];
+    }
+
+    public function action(Order $order, array $objectData): Transaction
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($order, $validatedData);
     }
 }

@@ -23,4 +23,20 @@ class UpdateOrder
         OrderHydrateUniversalSearch::dispatch($order);
         return $order;
     }
+
+    public function rules(): array
+    {
+        return [
+            'number' => ['required', 'unique:tenant.orders'],
+            'date' => ['required', 'date']
+        ];
+    }
+
+    public function action(Order $order, array $objectData): Order
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($order, $validatedData);
+    }
 }

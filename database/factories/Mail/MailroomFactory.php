@@ -15,7 +15,6 @@ class MailroomFactory extends Factory
     {
         return [
             'code' => fake()->lexify(),
-            'name' => fake()->company(),
         ];
     }
 }
