@@ -40,7 +40,6 @@ class UpdateCustomerClient
             'contact_name' => ['sometimes'],
             'company_name' => ['sometimes'],
             'phone'        => 'sometimes|phone:AUTO',
-            'website'      => ['sometimes', 'nullable', 'active_url'],
             'email'        => ['sometimes', 'nullable', 'email'],
         ];
     }

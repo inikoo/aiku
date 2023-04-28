@@ -42,6 +42,6 @@ test('create customer client', function () {
 });
 
 test('update customer client', function ($customerClient) {
-    $customerClient = UpdateCustomerClient::make()->action($customerClient, ['name' => 'Pika']);
-    expect($customerClient->name)->toBe('Pika');
+    $customerClient = UpdateCustomerClient::make()->action($customerClient, ['id' => 0001]);
+    expect($customerClient->id)->toBe(0001);
 })->depends('create customer client');

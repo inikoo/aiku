@@ -53,7 +53,6 @@ class StoreCustomerClient
             'company_name'              => ['nullable', 'string', 'max:255'],
             'email'                     => ['nullable', 'email'],
             'phone'                     => ['nullable', 'string'],
-            'website'                   => ['nullable', 'active_url'],
         ];
     }
 
