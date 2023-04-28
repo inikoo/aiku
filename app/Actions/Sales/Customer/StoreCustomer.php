@@ -8,13 +8,18 @@
 namespace App\Actions\Sales\Customer;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -27,11 +32,37 @@ class StoreCustomer
 
     private bool $asAction=false;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
     {
+
+
+        data_fill(
+            $customerData,
+            'status',
+            Arr::get($shop->settings, 'registration_type', 'open')=='approval-only' ?
+            CustomerStatusEnum::PENDING_APPROVAL :
+            CustomerStatusEnum::APPROVED
+        );
+
+
         /** @var Customer $customer */
-        $customer = $shop->customers()->create($customerData);
-        $customer->stats()->create();
+        $customer=DB::transaction(function () use ($shop, $customerData) {
+            $customer       = $shop->customers()->create($customerData);
+            if($customer->reference==null) {
+                $reference = GetSerialReference::run(container: $shop, modelType: SerialReferenceModelEnum::CUSTOMER);
+                $customer->update(
+                    [
+                        'reference' => $reference
+                    ]
+                );
+            }
+            $customer->stats()->create();
+            return $customer;
+        });
+
 
         StoreAddressAttachToModel::run($customer, $customerAddressesData, ['scope' => 'contact']);
         $customer->location = $customer->getLocation();
@@ -67,7 +98,7 @@ class StoreCustomer
             'email'                     => ['nullable', 'email'],
             'phone'                     => ['nullable', 'string'],
             'identity_document_number'  => ['nullable', 'string'],
-            'website'                   => ['nullable', 'active_url'],
+            //'website'                   => ['nullable', 'active_url'],
         ];
     }
 

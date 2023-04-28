@@ -67,6 +67,7 @@ class StoreProduct
             'state'       => ['sometimes', 'required'],
             'owner_id'    => ['required'],
             'owner_type'  => ['required'],
+            'type'        => ['required'],
             'description' => ['sometimes', 'required', 'max:1500'],
         ];
     }

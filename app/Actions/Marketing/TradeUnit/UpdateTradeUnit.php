@@ -18,4 +18,27 @@ class UpdateTradeUnit
     {
         return $this->update($tradeUnit, $modelData, ['data', 'dimensions']);
     }
+
+    public function rules(): array
+    {
+        return [
+            'code' => ['required', 'unique:tenant.trade_units', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
+            'description' => ['sometimes', 'required'],
+            'barcode' => ['sometimes', 'required'],
+            'weight' => ['sometimes', 'required', 'numeric'],
+            'dimensions' => ['sometimes', 'required'],
+            'type' => ['sometimes', 'required'],
+            'image_id' => ['sometimes', 'required', 'exists:media,id'],
+            'data' => ['sometimes', 'required']
+        ];
+    }
+
+    public function action(TradeUnit $tradeUnit, array $objectData): TradeUnit
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($tradeUnit, $validatedData);
+    }
 }

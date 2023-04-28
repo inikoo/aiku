@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Marketing;
 
+use App\Enums\Marketing\Product\ProductTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,6 +24,7 @@ class ProductFactory extends Factory
             'rrp' => fake()->numberBetween(20, 100),
             'name' => fake()->name,
             'description' => fake()->text,
+            'type' => ProductTypeEnum::PHYSICAL_GOOD,
             'owner_id' => 1,
             'owner_type' => '?',
         ];

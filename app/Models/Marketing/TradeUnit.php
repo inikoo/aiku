@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use App\Models\Inventory\Stock;
 use App\Models\Traits\HasImages;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -53,6 +54,7 @@ class TradeUnit extends Model implements HasMedia
     use HasSlug;
     use UsesTenantConnection;
     use HasImages;
+    use HasFactory;
 
     protected $casts = [
         'data'       => 'array',

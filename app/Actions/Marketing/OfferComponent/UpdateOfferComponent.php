@@ -9,6 +9,7 @@ namespace App\Actions\Marketing\OfferComponent;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\OfferComponentResource;
+use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -29,12 +30,19 @@ class UpdateOfferComponent
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required'],
-            'code' => ['sometimes', 'required'],
-            'data' => ['sometimes', 'required'],
+            'code' => ['required', 'unique:tenant.offer_components', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
+            'data' => ['sometimes', 'required']
         ];
     }
 
+    public function action(OfferComponent $offerComponent, array $objectData): OfferComponent
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($offerComponent, $validatedData);
+    }
 
     public function asController(OfferComponent $offerComponent, ActionRequest $request): OfferComponent
     {

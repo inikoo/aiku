@@ -10,6 +10,7 @@ namespace App\Actions\Marketing\ShippingZone;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\ShippingZoneResource;
 use App\Models\Marketing\ShippingZone;
+use App\Models\Marketing\ShippingZoneSchema;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateShippingZone
@@ -26,16 +27,23 @@ class UpdateShippingZone
 //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
 //    }
 
+
     public function rules(): array
     {
         return [
-            'name'        => ['sometimes', 'required'],
-            'code'        => ['sometimes', 'required'],
-            'territories' => ['sometimes', 'required'],
-            'price'       => ['sometimes', 'required'],
+            'code' => ['required', 'unique:tenant.shipping_zones', 'between:2,9', 'alpha'],
+            'name' => ['required', 'max:250', 'string'],
+            'status' => ['sometimes', 'required', 'boolean']
         ];
     }
 
+    public function action(ShippingZone $shippingZone, array $objectData): ShippingZone
+    {
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($shippingZone, $validatedData);
+    }
 
     public function asController(ShippingZone $shippingZone, ActionRequest $request): ShippingZone
     {
