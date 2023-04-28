@@ -24,6 +24,8 @@ use App\Actions\Marketing\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Marketing\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
+use App\Actions\Marketing\TradeUnit\StoreTradeUnit;
+use App\Actions\Marketing\TradeUnit\UpdateTradeUnit;
 use App\Models\Marketing\Offer;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;
@@ -32,6 +34,7 @@ use App\Models\Marketing\Product;
 use App\Models\Marketing\ShippingZone;
 use App\Models\Marketing\ShippingZoneSchema;
 use App\Models\Marketing\Shop;
+use App\Models\Marketing\TradeUnit;
 use App\Models\Tenancy\Tenant;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
@@ -163,3 +166,15 @@ test('update shipping zone', function ($shippingZone) {
     $shippingZone = UpdateShippingZone::make()->action($shippingZone, ShippingZone::factory()->definition());
     $this->assertModelExists($shippingZone);
 })->depends('create shipping zone');
+
+test('create trade unit', function () {
+    $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
+    $this->assertModelExists($tradeUnit);
+
+    return $tradeUnit;
+});
+
+test('update trade unit', function ($tradeUnit) {
+    $tradeUnit = UpdateTradeUnit::make()->action($tradeUnit, TradeUnit::factory()->definition());
+    $this->assertModelExists($tradeUnit);
+})->depends('create trade unit');

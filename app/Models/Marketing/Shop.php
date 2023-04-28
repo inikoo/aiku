@@ -256,4 +256,9 @@ class Shop extends Model
     {
         return $this->morphToMany(Issue::class, 'issuable');
     }
+
+    public function shippingZoneSchemas(): HasMany
+    {
+        return $this->hasMany(ShippingZoneSchema::class);
+    }
 }
