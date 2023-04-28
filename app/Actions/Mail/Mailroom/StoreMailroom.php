@@ -38,7 +38,7 @@ class StoreMailroom
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:tenant.warehouses', 'between:2,9', 'alpha_dash'],
+            'code'         => ['required', 'string', 'unique:tenant.mailrooms', 'between:2,9', 'alpha_dash'],
         ];
     }
 

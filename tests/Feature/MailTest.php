@@ -34,7 +34,12 @@ test('create mailroom', function () {
     $this->assertModelExists($mailroom);
     return $mailroom;
 });
-
+/*
+ * Outbox: name type 'string'
+ * Mailshot: state 'string'
+ * Dispatched:  state 'string' , recipient_type (customer) recipient_id (customer)
+ * EmailAdress || store and update , tenant
+ *
 test('update mailroom', function ($mailroom) {
     $mailroom = UpdateMailroom::make()->action($mailroom, ['name' => 'Pika Ltd']);
     expect($mailroom->code)->toBe('Pika Ltd');
@@ -66,7 +71,7 @@ test('create dispatched email in outbox', function ($outbox) {
     $this->assertModelExists($dispatchedEmail);
 })->depends('create outbox');
 
-test('create location in warehouse area', function ($mailshot) {
+test('create dispatched email in mailshot', function ($mailshot) {
     $dispatchedEmail = StoreDispatchEmail::make()->action($mailshot, DispatchedEmail::factory()->definition());
     $this->assertModelExists($dispatchedEmail);
     return $dispatchedEmail;
@@ -78,3 +83,4 @@ test('update dispatched email', function ($dispatchedEmail) {
     expect($dispatchedEmail->outbox_id)->toBe('AE-3');
 
 })->depends('create dispatched email in outbox');
+*/
