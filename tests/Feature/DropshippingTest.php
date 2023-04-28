@@ -30,6 +30,8 @@ test('create customer client', function () {
     $customer       = StoreCustomer::make()->action($shop, Customer::factory()->definition(), Address::factory()->definition(), );
     $customerClient = StoreCustomerClient::make()->action($customer, CustomerClient::factory()->definition(), Address::factory()->definition(), );
     $this->assertModelExists($customerClient);
+    expect($customerClient->shop->code)->toBe($shop->code)
+        ->and($customerClient->customer->reference)->toBe($customer->reference);
     return $customerClient;
 });
 
