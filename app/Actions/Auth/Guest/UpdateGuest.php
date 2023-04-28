@@ -8,16 +8,17 @@
 namespace App\Actions\Auth\Guest;
 
 use App\Actions\WithActionUpdate;
-use App\Enums\Marketing\Shop\ShopTypeEnum;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Enums\Auth\GuestTypeEnum;
+use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\Auth\Guest;
-use App\Models\Sales\Customer;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateGuest
 {
     use WithActionUpdate;
+
+    private bool $asAction = false;
 
     public function handle(Guest $guest, array $modelData): Guest
     {
@@ -28,7 +29,7 @@ class UpdateGuest
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 
@@ -38,27 +39,36 @@ class UpdateGuest
     public function rules(): array
     {
         return [
-            'name'                      => ['sometimes','required', 'string', 'max:255'],
-            'email'                     => ['sometimes','nullable', 'email'],
-            'phone'                     => ['sometimes','nullable', 'string'],
-            'identity_document_number'  => ['sometimes','nullable', 'string'],
-            'identity_document_type'    => ['sometimes','nullable', 'string'],
-            'type'                      => ['sometimes', 'required', Rule::in(ShopTypeEnum::values())],
+            'name'                     => ['sometimes', 'required', 'string', 'max:255'],
+            'email'                    => ['sometimes', 'nullable', 'email'],
+            'phone'                    => ['sometimes', 'nullable', 'string'],
+            'identity_document_number' => ['sometimes', 'nullable', 'string'],
+            'identity_document_type'   => ['sometimes', 'nullable', 'string'],
+            'type'                     => ['sometimes', 'required', Rule::in(GuestTypeEnum::values())],
 
         ];
     }
 
 
-    public function asController(Customer $customer, ActionRequest $request): Customer
+    public function asController(Guest $guest, ActionRequest $request): Guest
     {
         $request->validate();
 
-        return $this->handle($customer, $request->all());
+        return $this->handle($guest, $request->all());
     }
 
-
-    public function jsonResponse(Customer $customer): CustomerResource
+    public function action(Guest $guest, $objectData): Guest
     {
-        return new CustomerResource($customer);
+        $this->asAction = true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($guest, $validatedData);
+
+    }
+
+    public function jsonResponse(Guest $guest): GuestResource
+    {
+        return new GuestResource($guest);
     }
 }

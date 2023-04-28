@@ -7,7 +7,7 @@
 
 namespace Database\Factories\Auth;
 
-use App\Enums\Marketing\Shop\ShopTypeEnum;
+use App\Enums\Auth\GuestTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GuestFactory extends Factory
@@ -20,7 +20,7 @@ class GuestFactory extends Factory
             'phone'                    => fake()->phoneNumber,
             'identity_document_number' => fake('en_GB')->vat(),
             'identity_document_type'   => 'passport',
-            'type'                     => ShopTypeEnum::SHOP->value,
+            'type'                     => GuestTypeEnum::CONTRACTOR->value,
         ];
     }
 }

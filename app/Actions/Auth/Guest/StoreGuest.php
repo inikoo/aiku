@@ -7,7 +7,7 @@
 
 namespace App\Actions\Auth\Guest;
 
-use App\Enums\Marketing\Shop\ShopTypeEnum;
+use App\Enums\Auth\GuestTypeEnum;
 use App\Models\Auth\Guest;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -42,7 +42,7 @@ class StoreGuest
             'phone'                     => ['nullable', 'string'],
             'identity_document_number'  => ['nullable', 'string'],
             'identity_document_type'    => ['nullable', 'string'],
-            'type'                      => ['required', Rule::in(ShopTypeEnum::values())],
+            'type'                      => ['required', Rule::in(GuestTypeEnum::values())],
 
         ];
     }

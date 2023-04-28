@@ -8,7 +8,7 @@
 namespace Tests\Feature;
 
 use App\Actions\Auth\Guest\StoreGuest;
-use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
+use App\Actions\Auth\Guest\UpdateGuest;
 use App\Models\Auth\Guest;
 use App\Models\Tenancy\Tenant;
 
@@ -26,7 +26,7 @@ test('create guest', function () {
     return $guest;
 });
 
-test('update guest', function ($customerClient) {
-    $customerClient = UpdateCustomerClient::make()->action($customerClient, ['name' => 'Pika']);
-    expect($customerClient->name)->toBe('Pika');
-})->depends('create customer client');
+test('update guest', function ($guest) {
+    $guest = UpdateGuest::make()->action($guest, ['name' => 'Pika']);
+    expect($guest->name)->toBe('Pika');
+})->depends('create guest');
