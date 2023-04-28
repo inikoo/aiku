@@ -11,11 +11,16 @@ use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Leads\Prospect\Hydrators\ProspectHydrateUniversalSearch;
 use App\Models\Leads\Prospect;
 use App\Models\Marketing\Shop;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreProspect
 {
     use AsAction;
+    use WithAttributes;
+
+    private bool $asAction=false;
 
     public function handle(Shop $shop, array $modelData, array $addressesData = []): Prospect
     {
@@ -32,4 +37,33 @@ class StoreProspect
         ProspectHydrateUniversalSearch::dispatch($prospect);
         return $prospect;
     }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("shops.customers.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'contact_name'              => ['nullable', 'string', 'max:255'],
+            'company_name'              => ['nullable', 'string', 'max:255'],
+            'email'                     => ['nullable', 'email'],
+            'phone'                     => ['nullable', 'string'],
+            'website'                   => ['nullable', 'active_url'],
+        ];
+    }
+
+    public function action(Shop $shop, array $objectData): Prospect
+    {
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($shop, $validatedData);
+    }
+
 }

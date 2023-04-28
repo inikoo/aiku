@@ -57,7 +57,7 @@ class StoreCustomer
         if($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return $request->user()->hasPermissionTo("shops.customers.edit");
     }
     public function rules(): array
     {
