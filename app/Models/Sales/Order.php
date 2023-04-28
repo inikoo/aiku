@@ -16,6 +16,7 @@ use App\Models\Marketing\Shop;
 use App\Models\Traits\HasOrder;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -84,6 +85,7 @@ class Order extends Model
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
+    use HasFactory;
 
     protected $casts = [
         'data'   => 'array',

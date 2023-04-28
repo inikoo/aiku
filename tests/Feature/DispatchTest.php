@@ -12,11 +12,16 @@ use App\Actions\Dispatch\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\Dispatch\Shipment\StoreShipment;
 use App\Actions\Dispatch\Shipment\UpdateShipment;
 use App\Actions\Dispatch\Shipper\UpdateShipper;
+use App\Actions\Marketing\Shop\StoreShop;
+use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Order\StoreOrder;
+use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
 use App\Models\Dispatch\Shipper;
 use App\Models\Helpers\Address;
+use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Tenancy\Tenant;
 use App\Actions\Dispatch\Shipper\StoreShipper;
@@ -42,15 +47,41 @@ test('update shipper', function ($shipper) {
     $this->assertModelExists($shipper);
 })->depends('create shipper');
 
-test('create delivery note', function () {
-    $order = Order::latest()->first();
+
+test('create shop', function () {
+    $shop = StoreShop::make()->action(Shop::factory()->definition());
+    $this->assertModelExists($shop);
+    return $shop;
+});
+
+test('create customer', function ($shop) {
+    $customer = StoreCustomer::make()->action($shop, Customer::factory()->definition());
+    $this->assertModelExists($customer);
+    expect($customer->reference)->toBe('000001')
+        ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
+
+
+    return $customer;
+})->depends('create shop');
+
+test('create order', function ($customer) {
+    $billingAddress = Address::first();
+    $shipmentAddress = Address::latest()->first();
+    $order = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
+
+    $this->assertModelExists($order);
+
+    return $order;
+})->depends('create customer');
+
+test('create delivery note', function ($order) {
     $address = Address::latest()->first();
 
     $deliveryNote = StoreDeliveryNote::make()->action($order, DeliveryNote::factory()->definition(), $address);
     $this->assertModelExists($deliveryNote);
 
     return $deliveryNote;
-})->todo(); // Todo waiting order to be tested
+})->depends('create order');
 
 test('update delivery note', function ($deliveryNote) {
     $deliveryNote = UpdateDeliveryNote::make()->action($deliveryNote, DeliveryNote::factory()->definition());
