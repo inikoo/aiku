@@ -24,8 +24,8 @@ use App\Models\Tenancy\Tenant;
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
-    $this->tenant = Tenant::where('slug', 'agb')->first();
-    $this->tenant->makeCurrent();
+    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant->makeCurrent();
 });
 
 test('create shop', function () {
