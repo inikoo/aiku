@@ -54,7 +54,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $central_agent_id
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read \App\Models\Procurement\Agent|null $agent
@@ -65,6 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Procurement\SupplierFactory factory($count = null, $state = [])
  * @method static Builder|Supplier newModelQuery()
  * @method static Builder|Supplier newQuery()
  * @method static Builder|Supplier onlyTrashed()

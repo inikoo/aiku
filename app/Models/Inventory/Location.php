@@ -44,6 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
+ * @method static \Database\Factories\Inventory\LocationFactory factory($count = null, $state = [])
  * @method static Builder|Location newModelQuery()
  * @method static Builder|Location newQuery()
  * @method static Builder|Location onlyTrashed()

@@ -21,8 +21,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_active_suppliers
  * @property int $number_agents
  * @property int $number_active_agents
- * @property int $number_active_tenant_agents
- * @property int $number_active_global_agents
  * @property int $number_products all excluding discontinued
  * @property int $number_products_state_creating
  * @property int $number_products_state_active
@@ -35,12 +33,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_products_stock_quantity_status_out_of_stock
  * @property int $number_products_stock_quantity_status_no_applicable
  * @property int $number_purchase_orders
- * @property int $number_purchase_orders_state_in_process
+ * @property int $number_purchase_orders_state_creating
  * @property int $number_purchase_orders_state_submitted
  * @property int $number_purchase_orders_state_confirmed
+ * @property int $number_purchase_orders_state_manufactured
  * @property int $number_purchase_orders_state_dispatched
- * @property int $number_purchase_orders_state_delivered
- * @property int $number_purchase_orders_state_cancelled
+ * @property int $number_purchase_orders_state_received
+ * @property int $number_purchase_orders_state_checked
+ * @property int $number_purchase_orders_state_settled
+ * @property int $number_purchase_orders_status_processing
+ * @property int $number_purchase_orders_status_settled_placed
+ * @property int $number_purchase_orders_status_settled_no_received
+ * @property int $number_purchase_orders_status_settled_cancelled
  * @property int $number_deliveries
  * @property int $number_workshops
  * @property \Illuminate\Support\Carbon|null $created_at

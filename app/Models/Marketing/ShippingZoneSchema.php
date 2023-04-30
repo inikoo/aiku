@@ -15,6 +15,27 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ * App\Models\Marketing\ShippingZoneSchema
+ *
+ * @property int $id
+ * @property int $shop_id
+ * @property bool $status
+ * @property string $slug
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\ShippingZone> $shippingZone
+ * @method static \Database\Factories\Marketing\ShippingZoneSchemaFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZoneSchema newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZoneSchema newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZoneSchema onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZoneSchema query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZoneSchema withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZoneSchema withoutTrashed()
+ * @mixin \Eloquent
+ */
 class ShippingZoneSchema extends Model
 {
     use UsesTenantConnection;

@@ -31,10 +31,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property int|null $image_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentServiceProviderStats|null $stats
+ * @method static \Database\Factories\Accounting\PaymentServiceProviderFactory factory($count = null, $state = [])
  * @method static Builder|PaymentServiceProvider newModelQuery()
  * @method static Builder|PaymentServiceProvider newQuery()
  * @method static Builder|PaymentServiceProvider onlyTrashed()

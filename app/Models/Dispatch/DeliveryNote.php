@@ -71,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop $shop
  * @property-read \App\Models\Dispatch\DeliveryNoteStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Dispatch\DeliveryNoteFactory factory($count = null, $state = [])
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
  * @method static Builder|DeliveryNote onlyTrashed()

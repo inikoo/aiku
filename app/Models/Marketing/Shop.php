@@ -53,7 +53,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $contact_name
  * @property string|null $email
  * @property string|null $phone
- * @property string|null $url
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property int|null $address_id
@@ -76,19 +75,24 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\ProductCategory> $departments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
  * @property-read \App\Models\Marketing\ShopMailStats|null $mailStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\OfferCampaign> $offerCampaigns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Outbox> $outboxes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Prospect> $prospects
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read Website|null $website
+ * @method static \Database\Factories\Marketing\ShopFactory factory($count = null, $state = [])
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop onlyTrashed()

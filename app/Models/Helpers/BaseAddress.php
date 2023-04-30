@@ -21,26 +21,11 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 /**
  * App\Models\Helpers\Address
  *
- * @property int $id
- * @property string|null $address_line_1
- * @property string|null $address_line_2
- * @property string|null $sorting_code
- * @property string|null $postal_code
- * @property string|null $locality
- * @property string|null $dependant_locality
- * @property string|null $administrative_area
- * @property string|null $country_code
- * @property int|null $country_id
- * @property string|null $checksum
- * @property bool $historic
- * @property int $usage
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read string $formatted_address
  * @property-read Model|\Eloquent $owner
- * @method static Builder|Address newModelQuery()
- * @method static Builder|Address newQuery()
- * @method static Builder|Address query()
+ * @method static Builder|BaseAddress newModelQuery()
+ * @method static Builder|BaseAddress newQuery()
+ * @method static Builder|BaseAddress query()
  * @mixin \Eloquent
  */
 class BaseAddress extends Model

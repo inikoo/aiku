@@ -23,29 +23,31 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * App\Models\Auth\User
  *
  * @property int $id
- * @property int $central_user_id
- * @property string $username
+ * @property int $group_user_id
+ * @property int $tenant_id
  * @property bool $status
+ * @property string $username mirror group_users.username
+ * @property string $password mirror group_users.password
+ * @property string|null $email mirror group_users.email
  * @property string|null $parent_type
  * @property int|null $parent_id
- * @property string|null $email
- * @property string|null $about
  * @property string|null $remember_token
  * @property array $data
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string $password
  * @property int|null $source_id
  * @property int|null $image_id
+ * @property-read \App\Models\Auth\GroupUser|null $groupUser
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parent
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parentWithTrashed
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read \App\Models\Auth\UserStats|null $stats
+ * @property-read Tenant $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User onlyTrashed()

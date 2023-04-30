@@ -39,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\Mailshot> $mailshots
  * @property-read Shop|null $shop
  * @property-read \App\Models\Mail\OutboxStats|null $stats
+ * @method static \Database\Factories\Mail\OutboxFactory factory($count = null, $state = [])
  * @method static Builder|Outbox newModelQuery()
  * @method static Builder|Outbox newQuery()
  * @method static Builder|Outbox onlyTrashed()

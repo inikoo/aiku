@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * App\Models\Procurement\HistoricSupplierProductStats
  *
+ * @property int $id
+ * @property int $historic_supplier_product_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static Builder|HistoricSupplierProductStats newModelQuery()
  * @method static Builder|HistoricSupplierProductStats newQuery()
  * @method static Builder|HistoricSupplierProductStats query()

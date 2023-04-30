@@ -32,6 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Dispatch\Shipper|null $shipper
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Dispatch\ShipmentFactory factory($count = null, $state = [])
  * @method static Builder|Shipment newModelQuery()
  * @method static Builder|Shipment newQuery()
  * @method static Builder|Shipment onlyTrashed()

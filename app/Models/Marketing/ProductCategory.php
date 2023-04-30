@@ -32,7 +32,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property int|null $image_id
  * @property int|null $shop_id
- * @property int|null $department_id
+ * @property string $parent_type
+ * @property int $parent_id
+ * @property string $type
+ * @property bool $is_family
  * @property ProductCategoryStateEnum|null $state
  * @property string|null $name
  * @property string|null $description
@@ -40,13 +43,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property int|null $source_department_id
+ * @property int|null $source_family_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductCategory> $departments
+ * @property-read Model|\Eloquent $parent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductCategoryStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Marketing\ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
  * @method static Builder|ProductCategory newQuery()
  * @method static Builder|ProductCategory onlyTrashed()

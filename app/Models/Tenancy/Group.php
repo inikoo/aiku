@@ -33,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Currency $currency
  * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Tenancy\Tenant> $tenants
- * @method static \Database\Factories\Central\GroupFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Tenancy\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
  * @method static Builder|Group onlyTrashed()

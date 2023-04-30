@@ -39,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
+ * @method static \Database\Factories\Inventory\WarehouseFactory factory($count = null, $state = [])
  * @method static Builder|Warehouse newModelQuery()
  * @method static Builder|Warehouse newQuery()
  * @method static Builder|Warehouse onlyTrashed()

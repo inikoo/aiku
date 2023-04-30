@@ -28,7 +28,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\SysAdmin\SysUser|null $adminUser
+ * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
+ * @method static \Database\Factories\SysAdmin\AdminFactory factory($count = null, $state = [])
  * @method static Builder|Admin newModelQuery()
  * @method static Builder|Admin newQuery()
  * @method static Builder|Admin onlyTrashed()

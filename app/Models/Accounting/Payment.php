@@ -30,9 +30,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Payments\Payment
  *
  * @property int $id
- * @property int $shop_id
  * @property int $payment_account_id
- * @property int|null $image_id
+ * @property int $shop_id
  * @property int $customer_id
  * @property PaymentTypeEnum $type
  * @property string $reference
@@ -40,9 +39,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property PaymentStatusEnum $status
  * @property PaymentStateEnum $state
  * @property PaymentSubsequentStatusEnum|null $subsequent_status
- * @property string $amount
  * @property int $currency_id
- * @property string $dc_amount
+ * @property string $amount
+ * @property string $tc_amount amount in tenancy currency
+ * @property string|null $gc_amount amount in group currency
  * @property array $data
  * @property string $date Most relevant date at current state
  * @property string|null $completed_at
@@ -55,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Accounting\PaymentFactory factory($count = null, $state = [])
  * @method static Builder|Payment newModelQuery()
  * @method static Builder|Payment newQuery()
  * @method static Builder|Payment onlyTrashed()

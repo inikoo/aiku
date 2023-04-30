@@ -17,8 +17,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * App\Models\Marketing\DepartmentStats
  *
  * @property int $id
- * @property int $department_id
- * @property int $number_sub_departments
+ * @property int $product_category_id
+ * @property int $number_sub_product_categories
  * @property int $number_families
  * @property int $number_families_state_in_process
  * @property int $number_families_state_active
@@ -31,7 +31,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\DevOps\Deployment $department
+ * @property-read Deployment|null $department
  * @method static Builder|ProductCategoryStats newModelQuery()
  * @method static Builder|ProductCategoryStats newQuery()
  * @method static Builder|ProductCategoryStats query()

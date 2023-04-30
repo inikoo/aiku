@@ -10,6 +10,29 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ * App\Models\Marketing\OfferCampaign
+ *
+ * @property int $id
+ * @property int $shop_id
+ * @property string $slug
+ * @property string $code
+ * @property string $name
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\OfferComponent> $offerComponent
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Offer> $offers
+ * @method static \Database\Factories\Marketing\OfferCampaignFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign query()
+ * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign withoutTrashed()
+ * @mixin \Eloquent
+ */
 class OfferCampaign extends Model
 {
     use SoftDeletes;

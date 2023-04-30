@@ -37,7 +37,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $model
- * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Tenancy\Tenant> $tenants
+ * @property-read \Spatie\Multitenancy\TenantCollection<int, Tenant> $tenants
  * @method static MediaCollection<int, static> all($columns = ['*'])
  * @method static MediaCollection<int, static> get($columns = ['*'])
  * @method static Builder|CentralMedia newModelQuery()

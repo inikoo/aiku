@@ -37,6 +37,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property bool $provoked_unsubscribe
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTrackingEvent> $emailTrackingEvents
+ * @method static \Database\Factories\Mail\DispatchedEmailFactory factory($count = null, $state = [])
  * @method static Builder|DispatchedEmail newModelQuery()
  * @method static Builder|DispatchedEmail newQuery()
  * @method static Builder|DispatchedEmail query()

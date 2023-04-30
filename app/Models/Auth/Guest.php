@@ -41,6 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \App\Models\Auth\User|null $user
+ * @method static \Database\Factories\Auth\GuestFactory factory($count = null, $state = [])
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest onlyTrashed()

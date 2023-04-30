@@ -21,9 +21,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_payment_records
  * @property int $number_payments
  * @property int $number_refunds
- * @property string $dc_amount Account currency, amount_successfully_paid-amount_returned
- * @property string $dc_amount_successfully_paid
- * @property string $dc_amount_refunded
+ * @property string $tc_amount tenant currency, amount_successfully_paid-amount_returned
+ * @property string $tc_amount_successfully_paid
+ * @property string $tc_amount_refunded
+ * @property string $gc_amount Group currency, amount_successfully_paid-amount_returned
+ * @property string $gc_amount_successfully_paid
+ * @property string $gc_amount_refunded
  * @property int $number_payment_records_state_in_process
  * @property int $number_payments_state_in_process
  * @property int $number_refunds_state_in_process

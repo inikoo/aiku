@@ -25,7 +25,6 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int $payment_service_provider_id
- * @property int|null $image_id
  * @property string $code
  * @property string $slug
  * @property string $name
@@ -38,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
+ * @method static \Database\Factories\Accounting\PaymentAccountFactory factory($count = null, $state = [])
  * @method static Builder|PaymentAccount newModelQuery()
  * @method static Builder|PaymentAccount newQuery()
  * @method static Builder|PaymentAccount onlyTrashed()

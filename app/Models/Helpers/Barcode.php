@@ -19,16 +19,6 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * App\Models\Helpers\Barcode
  *
- * @property int $id
- * @property string $slug
- * @property string $type
- * @property string $status
- * @property string $number
- * @property string|null $assigned_at
- * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $product
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stock
  * @method static \Illuminate\Database\Eloquent\Builder|Barcode newModelQuery()

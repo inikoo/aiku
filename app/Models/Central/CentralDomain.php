@@ -31,9 +31,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\SysAdmin\SysUser|null $adminUser
  * @property-read \App\Models\Central\CentralDomainStats|null $stats
- * @property-read \App\Models\Tenancy\Tenant $tenant
+ * @property-read SysUser|null $sysUser
+ * @property-read Tenant $tenant
  * @method static Builder|CentralDomain newModelQuery()
  * @method static Builder|CentralDomain newQuery()
  * @method static Builder|CentralDomain onlyTrashed()

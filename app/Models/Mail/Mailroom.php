@@ -24,6 +24,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\Outbox> $outboxes
  * @property-read \App\Models\Mail\MailroomStats|null $stats
+ * @method static \Database\Factories\Mail\MailroomFactory factory($count = null, $state = [])
  * @method static Builder|Mailroom newModelQuery()
  * @method static Builder|Mailroom newQuery()
  * @method static Builder|Mailroom query()

@@ -2,7 +2,6 @@
 
 namespace App\Models\Procurement;
 
-use App\Models\Marketing\HistoricProductStats;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,9 +26,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $units_per_carton
  * @property string|null $cbm
  * @property int|null $currency_id
- * @property int|null $central_historic_supplier_product_id
  * @property int|null $source_id
- * @property-read HistoricProductStats|null $stats
+ * @property-read \App\Models\Procurement\HistoricSupplierProductStats|null $stats
  * @method static Builder|HistoricSupplierProduct newModelQuery()
  * @method static Builder|HistoricSupplierProduct newQuery()
  * @method static Builder|HistoricSupplierProduct onlyTrashed()

@@ -40,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Shipment> $shipments
+ * @method static \Database\Factories\Dispatch\ShipperFactory factory($count = null, $state = [])
  * @method static Builder|Shipper newModelQuery()
  * @method static Builder|Shipper newQuery()
  * @method static Builder|Shipper onlyTrashed()

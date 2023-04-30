@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $shop_id
  * @property int|null $image_id
  * @property string $slug
- * @property string $reference customer public id
+ * @property string|null $reference customer public id
  * @property string|null $name
  * @property string|null $contact_name
  * @property string|null $company_name
@@ -79,6 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read TaxNumber|null $taxNumber
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
+ * @method static \Database\Factories\Sales\CustomerFactory factory($count = null, $state = [])
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static Builder|Customer onlyTrashed()

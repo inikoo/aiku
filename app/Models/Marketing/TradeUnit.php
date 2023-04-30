@@ -40,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @method static \Database\Factories\Marketing\TradeUnitFactory factory($count = null, $state = [])
  * @method static Builder|TradeUnit newModelQuery()
  * @method static Builder|TradeUnit newQuery()
  * @method static Builder|TradeUnit onlyTrashed()

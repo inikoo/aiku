@@ -35,6 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Mail\Outbox|null $outbox
  * @property-read Shop|null $shop
  * @property-read \App\Models\Mail\MailshotStats|null $stats
+ * @method static \Database\Factories\Mail\MailshotFactory factory($count = null, $state = [])
  * @method static Builder|Mailshot newModelQuery()
  * @method static Builder|Mailshot newQuery()
  * @method static Builder|Mailshot onlyTrashed()

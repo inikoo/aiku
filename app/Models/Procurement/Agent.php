@@ -31,11 +31,10 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\Agent
  *
  * @property int $id
+ * @property int $owner_id Tenant who owns this model
  * @property bool $status
  * @property string $slug
  * @property string $code
- * @property string $owner_type
- * @property int $owner_id
  * @property string $name
  * @property string|null $company_name
  * @property string|null $contact_name
@@ -51,17 +50,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $central_agent_id
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read Currency $currency
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
- * @property-read Model|\Eloquent $owner
+ * @property-read Tenant $owner
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\AgentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\Supplier> $suppliers
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Procurement\AgentFactory factory($count = null, $state = [])
  * @method static Builder|Agent newModelQuery()
  * @method static Builder|Agent newQuery()
  * @method static Builder|Agent onlyTrashed()

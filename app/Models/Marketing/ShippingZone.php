@@ -14,6 +14,30 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ * App\Models\Marketing\ShippingZone
+ *
+ * @property int $id
+ * @property int $shop_id
+ * @property int $shipping_zone_schema_id
+ * @property bool $status
+ * @property string $slug
+ * @property string $code
+ * @property string $name
+ * @property array $territories
+ * @property array $price
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Database\Factories\Marketing\ShippingZoneFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone withoutTrashed()
+ * @mixin \Eloquent
+ */
 class ShippingZone extends Model
 {
     use SoftDeletes;

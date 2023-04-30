@@ -35,11 +35,11 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string|null $slug
+ * @property ProductTypeEnum $type
  * @property string $owner_type
  * @property int $owner_id
  * @property int|null $current_historic_product_id
  * @property int|null $shop_id
- * @property int|null $family_id
  * @property ProductStateEnum|null $state
  * @property bool|null $status
  * @property ProductTradeUnitCompositionEnum $trade_unit_composition
@@ -66,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\ProductStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\TradeUnit> $tradeUnits
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Marketing\ProductFactory factory($count = null, $state = [])
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
  * @method static Builder|Product onlyTrashed()

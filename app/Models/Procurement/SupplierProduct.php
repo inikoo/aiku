@@ -47,7 +47,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $central_supplier_product_id
  * @property int|null $source_id
  * @property SupplierProductQuantityStatusEnum $quantity_status
  * @property-read \App\Models\Procurement\Agent|null $agent
@@ -56,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
  * @property-read \App\Models\Procurement\Supplier|null $supplier
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Procurement\SupplierProductFactory factory($count = null, $state = [])
  * @method static Builder|SupplierProduct newModelQuery()
  * @method static Builder|SupplierProduct newQuery()
  * @method static Builder|SupplierProduct onlyTrashed()

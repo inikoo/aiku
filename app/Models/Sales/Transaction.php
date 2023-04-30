@@ -53,6 +53,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \App\Models\Sales\Order $order
  * @property-write mixed $quantity
  * @property-read Shop $shop
+ * @method static \Database\Factories\Sales\TransactionFactory factory($count = null, $state = [])
  * @method static Builder|Transaction newModelQuery()
  * @method static Builder|Transaction newQuery()
  * @method static Builder|Transaction onlyTrashed()

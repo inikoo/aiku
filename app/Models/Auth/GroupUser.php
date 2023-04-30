@@ -29,15 +29,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $about
  * @property int|null $media_id
  * @property array|null $data
- * @property int $number_tenants
+ * @property int $number_users
+ * @property int $number_active_users
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Central\CentralMedia|null $avatar
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Central\CentralMedia> $media
- * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Tenancy\Tenant> $tenants
- * @method static Builder|CentralUser newModelQuery()
- * @method static Builder|CentralUser newQuery()
- * @method static Builder|CentralUser query()
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read CentralMedia|null $avatar
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Auth\User> $users
+ * @method static Builder|GroupUser newModelQuery()
+ * @method static Builder|GroupUser newQuery()
+ * @method static Builder|GroupUser onlyTrashed()
+ * @method static Builder|GroupUser query()
+ * @method static Builder|GroupUser withTrashed()
+ * @method static Builder|GroupUser withoutTrashed()
  * @mixin \Eloquent
  */
 class CentralUser extends Model implements HasMedia

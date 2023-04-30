@@ -39,9 +39,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read Model|\Eloquent $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read Model|\Eloquent $userable
+ * @method static \Database\Factories\SysAdmin\SysUserFactory factory($count = null, $state = [])
  * @method static Builder|SysUser newModelQuery()
  * @method static Builder|SysUser newQuery()
  * @method static Builder|SysUser onlyTrashed()
