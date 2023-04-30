@@ -24,11 +24,13 @@ test('create a system admin user', function () {
     $admin   = StoreAdmin::make()->asAction(Admin::factory()->definition());
     $sysUser = StoreSysUser::make()->asAction($admin, SysUser::factory()->definition());
     $this->assertModelExists($sysUser);
+    expect($sysUser)->toBeInstanceOf(SysUser::class)
+        ->and($sysUser->userable)->toBeInstanceOf(Admin::class);
 });
 
 test('create a system admin user access token', function () {
     $admin   = StoreAdmin::make()->asAction(Admin::factory()->definition());
     $sysUser = StoreSysUser::make()->asAction($admin, SysUser::factory()->definition());
-    $token   = CreateSysUserAccessToken::run($sysUser, 'admin', ['root']);
+    $token   = CreateSysUserAccessToken::run($sysUser, 'admin', ['*']);
     expect($token)->toBeString();
 });

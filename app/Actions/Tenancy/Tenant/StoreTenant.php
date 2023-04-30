@@ -49,7 +49,6 @@ class StoreTenant
         $tenant = $group->tenants()->create($modelData);
 
 
-
         $tenant->refresh();
 
         if (!$group->owner_id) {
@@ -68,7 +67,6 @@ class StoreTenant
         DB::statement("CREATE SCHEMA ".$tenant->schema());
         $tenant->execute(
             function (Tenant $tenant) {
-
                 $tenant->stats()->create();
                 $tenant->procurementStats()->create();
                 $tenant->inventoryStats()->create();
@@ -112,12 +110,14 @@ class StoreTenant
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:groups', 'between:2,6', 'alpha'],
+            'code'        => ['required', 'unique:tenants', 'between:2,6', 'alpha'],
             'name'        => ['required', 'max:64'],
+            'email'       => ['required', 'email', 'unique:tenants'],
             'currency_id' => ['required', 'exists:currencies,id'],
             'country_id'  => ['required', 'exists:countries,id'],
             'language_id' => ['required', 'exists:languages,id'],
             'timezone_id' => ['required', 'exists:timezones,id'],
+            'source'      => ['sometimes', 'array']
         ];
     }
 
@@ -132,7 +132,11 @@ class StoreTenant
 
     public function getCommandSignature(): string
     {
-        return 'create:tenant {code} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone} {--g|group_slug= : group slug}';
+        return 'create:tenant {code}  {email} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone}
+        {--g|group_slug= : group slug}
+        {--s|source= : source for migration from other system}
+
+        ';
     }
 
     public function asCommand(Command $command): int
@@ -189,13 +193,28 @@ class StoreTenant
             }
         }
 
+        $source = [];
+        if ($command->option('source')) {
+            if (Str::isJson($command->option('source'))) {
+                $source = json_decode($command->option('source'), true);
+            } else {
+                $command->error('Source data is not a valid json');
+
+                return 1;
+            }
+        }
+
+
+
         $this->setRawAttributes([
             'code'        => $command->argument('code'),
             'name'        => $command->argument('name'),
+            'email'       => $command->argument('email'),
             'country_id'  => $country->id,
             'currency_id' => $currency->id,
             'language_id' => $language->id,
-            'timezone_id' => $timezone->id
+            'timezone_id' => $timezone->id,
+            'source'      => $source
         ]);
 
         try {
@@ -206,9 +225,9 @@ class StoreTenant
             return 1;
         }
 
-        $this->handle($group, $validatedData);
+        $tenant = $this->handle($group, $validatedData);
 
-        $command->info('Done!');
+        $command->info("Tenant $tenant->slug created successfully 🎉");
 
         return 0;
     }

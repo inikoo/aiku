@@ -53,6 +53,7 @@ use App\Services\Tenant\Aurora\FetchAuroraStock;
 use App\Services\Tenant\Aurora\FetchAuroraStockFamily;
 use App\Services\Tenant\Aurora\FetchAuroraSupplier;
 use App\Services\Tenant\Aurora\FetchAuroraSupplierProduct;
+use App\Services\Tenant\Aurora\FetchAuroraTenant;
 use App\Services\Tenant\Aurora\FetchAuroraTradeUnit;
 use App\Services\Tenant\Aurora\FetchAuroraTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraUser;
@@ -79,6 +80,10 @@ use Illuminate\Support\Facades\DB;
         $this->tenant = $tenant;
     }
 
+    public function fetchTenant(Tenant $tenant): ?array
+    {
+        return (new FetchAuroraTenant($this))->fetch($tenant);
+    }
     public function fetchUser($id): ?array
     {
         return (new FetchAuroraUser($this))->fetch($id);

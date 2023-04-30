@@ -50,7 +50,8 @@ class StoreSysUser
     {
         return [
             'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username'],
-            'password' => ['required', app()->isLocal()  || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'email'    => ['sometimes', 'nullable', 'email', 'unique:App\Models\SysAdmin\SysUser,email']
 
         ];
     }
@@ -59,6 +60,7 @@ class StoreSysUser
     {
         $this->fill($modelData);
         $validatedData = $this->validateAttributes();
+
         return $this->handle($userable, $validatedData);
     }
 
@@ -97,7 +99,16 @@ class StoreSysUser
         if ($command->option('username')) {
             $username = $command->option('username');
         } else {
-            $username = $userable->code;
+            $prefix = '';
+
+            if ($userable instanceof Admin) {
+                $prefix = 'root-';
+            }
+            if ($userable instanceof CentralDomain) {
+                $prefix = 'domain-';
+            }
+
+            $username = $prefix.$userable->slug;
         }
 
         if ($command->option('autoPassword')) {
@@ -111,6 +122,11 @@ class StoreSysUser
             'password' => $password,
         ]);
 
+
+        if (!$userable instanceof CentralDomain) {
+            $this->attributes['email'] = $userable->email;
+        }
+
         try {
             $validatedData = $this->validateAttributes();
         } catch (Exception $e) {
@@ -123,7 +139,7 @@ class StoreSysUser
         $command->line("System user created");
 
         $command->table(
-            ['Model','Slug/Code', 'Username', 'Password'],
+            ['Model', 'Slug/Code', 'Username', 'Password'],
             [
                 [
                     class_basename($userable),
@@ -134,7 +150,6 @@ class StoreSysUser
 
             ]
         );
-
 
 
         return 0;

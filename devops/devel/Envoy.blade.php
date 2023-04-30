@@ -19,13 +19,21 @@
     dump-database
 @endstory
 
-
-@story('snapshot')
+@story('install')
     clean
     seeded-central-db
     dump-database
     create-admins
     dump-database
+@endstory
+
+@story('snapshot_bk')
+    clean
+    seeded-central-db
+    dump-database
+    create-admins
+    dump-database
+
     create-aurora-tenants
     dump-database
     tenant-guest-admin

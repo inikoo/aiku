@@ -5,10 +5,12 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Mail\Mailroom;
+use App\Models\SysAdmin\SysUser;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 
@@ -63,3 +65,12 @@ test('try to create group with wrong currency', function () {
 test('try to create group with duplicated code', function () {
     $this->artisan('create:group fail "Fail Inc" XXX')->assertFailed();
 });
+
+test('create tenant sys-user', function ($tenant) {
+    $sysUser=StoreSysUser::make()->asAction($tenant, SysUser::factory()->definition());
+    $this->assertModelExists($sysUser);
+    expect($sysUser->userable)->toBeInstanceOf(Tenant::class);
+    return $sysUser;
+})->depends(
+    'add tenant to group'
+);

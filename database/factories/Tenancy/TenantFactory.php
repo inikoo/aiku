@@ -25,6 +25,7 @@ class TenantFactory extends Factory
         return [
             'code'        => fake()->lexify(),
             'name'        => fake()->company(),
+            'email'       => fake()->safeEmail(),
             'country_id'  => $country->id,
             'language_id' => $language->id,
             'timezone_id' => $timezone->id,

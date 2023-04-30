@@ -13,6 +13,8 @@ use App\Models\Tenancy\Tenant;
 
 interface SourceTenantService
 {
+    public function fetchTenant(Tenant $tenant);
+
     public function fetchUser($id);
 
     public function fetchEmployee($id);

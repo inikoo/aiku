@@ -20,10 +20,10 @@ yarn-error.log
 lang/php_*.json
 /storage/tenants
 tt
-ctt
 deploy.sh
 staging-deploy.sh
 prod-diff.sh
 /public/tenants/
 /c1
 /hash
+/migrate_aurora.sh

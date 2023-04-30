@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->foreign('language_id')->references('id')->on('public.languages');
             $table->unsignedSmallInteger('timezone_id');
             $table->foreign('timezone_id')->references('id')->on('public.timezones');
-
+            $table->string('email')->nullable();
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->text('two_factor_secret')->nullable();

@@ -10,21 +10,20 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('tenants', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups');
-            $table->ulid('ulid')->index();
+            $table->ulid()->index();
             $table->string('slug')->unique();
             $table->string('code')->index();
             $table->string('name');
+            $table->string('email')->nullable();
             $table->boolean('status')->default(true);
-
             $table->jsonb('data');
             $table->jsonb('source');
-
             $table->unsignedSmallInteger('country_id');
             $table->foreign('country_id')->references('id')->on('public.countries');
             $table->unsignedSmallInteger('language_id');

@@ -19,8 +19,8 @@ php artisan --env=testing create:sys Admin test -a
 php artisan --env=testing access-token:sys-user test admin root > tests/datasets/access_tokens/admin.token
 pg_dump -Fc -f "tests/datasets/db_dumps/d2_with_admin.dump" ${DB}
 php artisan --env=testing create:group ACME 'Acme Corporation' GBP
-php artisan --env=testing create:tenant AGB 'Acme (United Kingdom) Ltd' GB  GBP -g acme
-php artisan --env=testing create:tenant AUS 'Acme US Inc'  US  USD -g acme
-php artisan --env=testing create:tenant AES 'Acme España'  ES EUR -l es -g acme
-php artisan --env=testing create:tenant hello 'Hello Inc'  GB GBP
+php artisan --env=testing create:tenant AGB gb@exmaple.com 'Acme (United Kingdom) Ltd' GB  GBP -g acme
+php artisan --env=testing create:tenant AUS us@exmaple.com 'Acme US Inc'  US  USD -g acme
+php artisan --env=testing create:tenant AES es@exmaple.com 'Acme España'  ES EUR -l es -g acme
+php artisan --env=testing create:tenant hello hello@exmaple.com 'Hello Inc'  GB GBP
 pg_dump -Fc -f "tests/datasets/db_dumps/d3_with_tenants.dump" ${DB}
