@@ -54,7 +54,6 @@ return new class () extends Migration {
                 'picker-assigned',
                 'picking',
                 'picked',
-
                 'packing',
                 'packed',
                 'finalised',

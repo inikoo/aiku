@@ -29,8 +29,8 @@ use App\Actions\Dispatch\Shipper\StoreShipper;
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
-    $this->tenant = Tenant::where('slug', 'agb')->first();
-    $this->tenant->makeCurrent();
+    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant->makeCurrent();
 
 });
 
@@ -55,7 +55,11 @@ test('create shop', function () {
 });
 
 test('create customer', function ($shop) {
-    $customer = StoreCustomer::make()->action($shop, Customer::factory()->definition());
+    $customer = StoreCustomer::make()->action(
+        $shop,
+        Customer::factory()->definition(),
+        Address::factory()->definition()
+    );
     $this->assertModelExists($customer);
     expect($customer->reference)->toBe('000001')
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
@@ -65,9 +69,9 @@ test('create customer', function ($shop) {
 })->depends('create shop');
 
 test('create order', function ($customer) {
-    $billingAddress = Address::first();
+    $billingAddress  = Address::first();
     $shipmentAddress = Address::latest()->first();
-    $order = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
+    $order           = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
 
     $this->assertModelExists($order);
 

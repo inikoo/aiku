@@ -18,6 +18,7 @@ use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Tenancy\Tenant;
@@ -27,12 +28,12 @@ beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();
     $tenant->makeCurrent();
-
 });
 
 test('create payment service provider', function () {
     $paymentServiceProvider = StorePaymentServiceProvider::make()->action(PaymentServiceProvider::factory()->definition());
     $this->assertModelExists($paymentServiceProvider);
+
     return $paymentServiceProvider;
 });
 
@@ -49,6 +50,7 @@ test('update payment service provider code', function ($paymentServiceProvider) 
 test('create payment account', function ($paymentServiceProvider) {
     $paymentAccount = StorePaymentAccount::make()->action($paymentServiceProvider, PaymentAccount::factory()->definition());
     $this->assertModelExists($paymentAccount);
+
     return $paymentAccount;
 })->depends('create payment service provider');
 
@@ -60,13 +62,22 @@ test('update payment account', function ($paymentAccount) {
 test('create shop', function () {
     $shop = StoreShop::make()->action(Shop::factory()->definition());
     $this->assertModelExists($shop);
+
     return $shop;
 });
 
-test('create payment', function ($paymentAccount) {
-    $shop     = StoreShop::make()->action(Shop::factory()->definition());
-    $customer = StoreCustomer::make()->action($shop, Customer::factory()->definition());
-    $payment  = StorePayment::make()->action($customer, $paymentAccount, Payment::factory()->definition());
-    $this->assertModelExists($payment);
-    return $payment;
-})->depends('create payment account');
+test(
+    'create payment',
+    function ($paymentAccount) {
+        $shop     = StoreShop::make()->action(Shop::factory()->definition());
+        $customer = StoreCustomer::make()->action(
+            $shop,
+            Customer::factory()->definition(),
+            Address::factory()->definition()
+        );
+        $payment  = StorePayment::make()->action($customer, $paymentAccount, Payment::factory()->definition());
+        $this->assertModelExists($payment);
+
+        return $payment;
+    }
+)->depends('create payment account');
