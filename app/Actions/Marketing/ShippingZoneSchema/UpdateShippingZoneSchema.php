@@ -11,7 +11,6 @@ use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\ShippingZoneSchemaResource;
 use App\Models\Marketing\ShippingZone;
 use App\Models\Marketing\ShippingZoneSchema;
-use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateShippingZoneSchema
@@ -31,9 +30,9 @@ class UpdateShippingZoneSchema
     public function rules(): array
     {
         return [
-            'name' => ['required', 'max:250', 'string'],
+            'name'   => ['required', 'max:250', 'string'],
             'status' => ['sometimes', 'required', 'boolean'],
-            'data' => ['sometimes', 'required']
+            'data'   => ['sometimes', 'required']
         ];
     }
 

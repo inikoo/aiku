@@ -23,11 +23,11 @@ class DeliveryNoteFactory extends Factory
     {
         return [
             'number' => fake()->numberBetween(100, 999),
-            'state' => fake()->lexify,
+            'state'  => fake()->lexify,
             'status' => fake()->boolean,
-            'email' => fake()->email,
-            'phone' => fake()->phoneNumber,
-            'date' => fake()->date
+            'email'  => fake()->email,
+            'phone'  => fake()->phoneNumber,
+            'date'   => fake()->date
         ];
     }
 }

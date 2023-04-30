@@ -44,11 +44,11 @@ class StoreDeliveryNote
     {
         return [
             'number' => ['required', 'unique:tenant.delivery_notes', 'numeric'],
-            'state' => ['required', 'max:250', 'string'],
+            'state'  => ['required', 'max:250', 'string'],
             'status' => ['required', 'boolean'],
-            'email' => ['required', 'string', 'email'],
-            'phone' => ['required', 'string'],
-            'date' => ['required', 'date'],
+            'email'  => ['required', 'string', 'email'],
+            'phone'  => ['required', 'string'],
+            'date'   => ['required', 'date'],
         ];
     }
 

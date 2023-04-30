@@ -18,15 +18,15 @@ class ProductFactory extends Factory
     public function definition()
     {
         return [
-            'code' => fake()->lexify(),
-            'units' => fake()->numberBetween(20, 200),
-            'price' => fake()->numberBetween(100, 2000),
-            'rrp' => fake()->numberBetween(20, 100),
-            'name' => fake()->name,
+            'code'        => fake()->lexify(),
+            'units'       => fake()->numberBetween(20, 200),
+            'price'       => fake()->numberBetween(100, 2000),
+            'rrp'         => fake()->numberBetween(20, 100),
+            'name'        => fake()->name,
             'description' => fake()->text,
-            'type' => ProductTypeEnum::PHYSICAL_GOOD,
-            'owner_id' => 1,
-            'owner_type' => '?',
+            'type'        => ProductTypeEnum::PHYSICAL_GOOD,
+            'owner_id'    => 1,
+            'owner_type'  => '?',
         ];
     }
 }

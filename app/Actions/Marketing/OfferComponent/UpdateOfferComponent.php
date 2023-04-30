@@ -9,7 +9,6 @@ namespace App\Actions\Marketing\OfferComponent;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\OfferComponentResource;
-use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;
 use Lorisleiva\Actions\ActionRequest;
 

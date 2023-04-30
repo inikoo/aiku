@@ -26,9 +26,9 @@ class StoreShippingZoneSchema
     public function rules(): array
     {
         return [
-            'name' => ['required', 'max:250', 'string'],
+            'name'   => ['required', 'max:250', 'string'],
             'status' => ['sometimes', 'required', 'boolean'],
-            'data' => ['sometimes', 'required']
+            'data'   => ['sometimes', 'required']
         ];
     }
 

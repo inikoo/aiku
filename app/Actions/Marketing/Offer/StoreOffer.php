@@ -9,7 +9,6 @@ namespace App\Actions\Marketing\Offer;
 
 use App\Models\Marketing\Offer;
 use App\Models\Marketing\OfferCampaign;
-use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

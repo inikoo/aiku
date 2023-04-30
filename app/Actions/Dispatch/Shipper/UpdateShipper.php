@@ -22,14 +22,14 @@ class UpdateShipper
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.shippers', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string'],
-            'api_shipper' => ['sometimes', 'required'],
+            'code'         => ['required', 'unique:tenant.shippers', 'between:2,9', 'alpha'],
+            'name'         => ['required', 'max:250', 'string'],
+            'api_shipper'  => ['sometimes', 'required'],
             'contact_name' => ['sometimes', 'required'],
             'company_name' => ['sometimes', 'required'],
-            'email' => ['sometimes', 'required', 'email'],
-            'phone' => ['sometimes', 'required'],
-            'website' => ['sometimes', 'required', 'url'],
+            'email'        => ['sometimes', 'required', 'email'],
+            'phone'        => ['sometimes', 'required'],
+            'website'      => ['sometimes', 'required', 'url'],
             'tracking_url' => ['sometimes', 'required'],
         ];
     }

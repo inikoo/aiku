@@ -17,8 +17,8 @@ class ShippingZoneFactory extends Factory
     public function definition()
     {
         return [
-            'code' => fake()->lexify,
-            'name' => fake()->name,
+            'code'   => fake()->lexify,
+            'name'   => fake()->name,
             'status' => fake()->boolean
         ];
     }

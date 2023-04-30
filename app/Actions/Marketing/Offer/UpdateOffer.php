@@ -10,7 +10,6 @@ namespace App\Actions\Marketing\Offer;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\OfferResource;
 use App\Models\Marketing\Offer;
-use App\Models\Marketing\OfferCampaign;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOffer

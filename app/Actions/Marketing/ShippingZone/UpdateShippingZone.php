@@ -10,7 +10,6 @@ namespace App\Actions\Marketing\ShippingZone;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Marketing\ShippingZoneResource;
 use App\Models\Marketing\ShippingZone;
-use App\Models\Marketing\ShippingZoneSchema;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateShippingZone
@@ -31,8 +30,8 @@ class UpdateShippingZone
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.shipping_zones', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string'],
+            'code'   => ['required', 'unique:tenant.shipping_zones', 'between:2,9', 'alpha'],
+            'name'   => ['required', 'max:250', 'string'],
             'status' => ['sometimes', 'required', 'boolean']
         ];
     }

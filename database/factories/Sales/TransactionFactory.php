@@ -23,8 +23,8 @@ class TransactionFactory extends Factory
     public function definition()
     {
         return [
-            'type' => TransactionTypeEnum::ORDER,
-            'quantity_bonus' => fake()->numberBetween(0, 10),
+            'type'             => TransactionTypeEnum::ORDER,
+            'quantity_bonus'   => fake()->numberBetween(0, 10),
             'quantity_ordered' => fake()->numberBetween(0, 10),
         ];
     }

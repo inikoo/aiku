@@ -8,7 +8,6 @@
 namespace App\Actions\Sales\Transaction;
 
 use App\Actions\WithActionUpdate;
-use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
 
 class UpdateTransaction
@@ -23,8 +22,8 @@ class UpdateTransaction
     public function rules(): array
     {
         return [
-            'type' => ['required'],
-            'quantity_bonus' => ['required', 'numeric'],
+            'type'             => ['required'],
+            'quantity_bonus'   => ['required', 'numeric'],
             'quantity_ordered' => ['required', 'numeric'],
         ];
     }

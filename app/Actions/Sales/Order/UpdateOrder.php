@@ -28,7 +28,7 @@ class UpdateOrder
     {
         return [
             'number' => ['required', 'unique:tenant.orders'],
-            'date' => ['required', 'date']
+            'date'   => ['required', 'date']
         ];
     }
 

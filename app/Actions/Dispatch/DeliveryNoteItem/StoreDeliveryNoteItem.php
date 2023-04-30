@@ -9,7 +9,6 @@ namespace App\Actions\Dispatch\DeliveryNoteItem;
 
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\DeliveryNoteItem;
-use App\Models\Dispatch\Shipment;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

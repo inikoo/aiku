@@ -13,7 +13,7 @@ enum ProductCategoryTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case ROOT = 'root';
+    case ROOT   = 'root';
     case BRANCH = 'branch';
-    case HEAD = 'head';
+    case HEAD   = 'head';
 }

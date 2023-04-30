@@ -22,15 +22,15 @@ class UpdateTradeUnit
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.trade_units', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string'],
+            'code'        => ['required', 'unique:tenant.trade_units', 'between:2,9', 'alpha'],
+            'name'        => ['required', 'max:250', 'string'],
             'description' => ['sometimes', 'required'],
-            'barcode' => ['sometimes', 'required'],
-            'weight' => ['sometimes', 'required', 'numeric'],
-            'dimensions' => ['sometimes', 'required'],
-            'type' => ['sometimes', 'required'],
-            'image_id' => ['sometimes', 'required', 'exists:media,id'],
-            'data' => ['sometimes', 'required']
+            'barcode'     => ['sometimes', 'required'],
+            'weight'      => ['sometimes', 'required', 'numeric'],
+            'dimensions'  => ['sometimes', 'required'],
+            'type'        => ['sometimes', 'required'],
+            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
+            'data'        => ['sometimes', 'required']
         ];
     }
 

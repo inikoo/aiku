@@ -10,8 +10,6 @@ namespace App\Actions\Dispatch\Shipment;
 use App\Actions\Dispatch\Shipment\Hydrators\ShipmentHydrateUniversalSearch;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
-use App\Models\Marketing\OfferCampaign;
-use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

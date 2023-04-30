@@ -30,8 +30,8 @@ class StoreTransaction
     public function rules(): array
     {
         return [
-            'type' => ['required'],
-            'quantity_bonus' => ['required', 'numeric'],
+            'type'             => ['required'],
+            'quantity_bonus'   => ['required', 'numeric'],
             'quantity_ordered' => ['required', 'numeric'],
         ];
     }

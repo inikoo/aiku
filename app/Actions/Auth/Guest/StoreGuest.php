@@ -34,6 +34,15 @@ class StoreGuest
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
 
+    public function prepareForValidation(): void
+    {
+
+        if($this->get('phone')) {
+            $this->set('phone', preg_replace('/[^0-9+]/', '', $this->get('phone')));
+        }
+
+    }
+
     public function rules(): array
     {
         return [

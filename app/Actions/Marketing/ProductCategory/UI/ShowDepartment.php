@@ -24,7 +24,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-
 class ShowDepartment extends InertiaAction
 {
     public function handle(ProductCategory $department): ProductCategory
