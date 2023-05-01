@@ -49,7 +49,7 @@ class UserAddRoles
     public function rules(): array
     {
         return [
-            'roles' => ['required', 'array'],
+            'role_names' => ['required', 'array'],
 
         ];
     }
@@ -57,10 +57,8 @@ class UserAddRoles
     public function afterValidator(Validator $validator): void
     {
 
-
-
         $roles = [];
-        foreach ($this->get('roles') as $roleName) {
+        foreach ($this->get('role_names') as $roleName) {
             /** @var Role $role */
             if ($role = Role::where('name', $roleName)->first()) {
                 $roles[] = $role;
@@ -81,17 +79,17 @@ class UserAddRoles
         return $this->handle($user, $request->validated());
     }
 
-    public function action(User $user, array $roles): User
+    public function action(User $user, array $role_names): User
     {
         $this->trusted = true;
         $this->setRawAttributes(
             [
-                'roles' => $roles
+                'role_names' => $role_names
             ]
         );
-        $validatedData = $this->validateAttributes();
+        $this->validateAttributes();
 
-        return $this->handle($user, $validatedData);
+        return $this->handle($user, $this->get('roles'));
     }
 
     public string $commandSignature = 'user:add-roles {tenant : tenant slug} {user : User username} {roles* : list of roles}';
@@ -124,14 +122,11 @@ class UserAddRoles
 
 
         $this->fill([
-            'roles' => $command->argument('roles'),
+            'role_names' => $command->argument('roles'),
         ]);
 
-
-        $validatedData = $this->validateAttributes();
-
-
-        $groupUser = $this->handle($user, $validatedData);
+        $this->validateAttributes();
+        $groupUser = $this->handle($user, $this->get('roles'));
 
 
         $command->info("Group User <fg=yellow>$groupUser->username</> added roles: ".join($command->argument('roles'))." 👍");
