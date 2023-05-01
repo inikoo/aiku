@@ -1,19 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 22 Mar 2023 14:11:44 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sun, 30 Apr 2023 20:26:08 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Central\CentralUser;
+namespace App\Actions\Auth\GroupUser;
 
+use App\Models\Auth\GroupUser;
 use App\Models\Central\CentralMedia;
-use App\Models\Central\CentralUser;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetCentralUserAvatar
+class SetGroupUserAvatar
 {
     use AsAction;
 
@@ -21,7 +21,7 @@ class SetCentralUserAvatar
 
 
 
-    public function handle(CentralUser $centralUser): CentralUser
+    public function handle(GroupUser $centralUser): GroupUser
     {
         try {
             $seed = $centralUser->id;
@@ -44,7 +44,7 @@ class SetCentralUserAvatar
 
     public function asCommand(Command $command): int
     {
-        $centralUser = CentralUser::where('username', $command->argument('username'))->first();
+        $centralUser = GroupUser::where('username', $command->argument('username'))->first();
         if (!$centralUser) {
             $command->error('User not found');
             return 1;

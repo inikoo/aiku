@@ -1,38 +1,38 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 02 Mar 2023 19:02:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sun, 30 Apr 2023 20:26:08 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Central\CentralUser;
+namespace App\Actions\Auth\GroupUser;
 
-use App\Actions\Central\CentralUser\Hydrators\CentralUserHydrateTenants;
-use App\Models\Central\CentralUser;
+use App\Actions\Auth\GroupUser\Hydrators\GroupUserHydrateTenants;
+use App\Models\Auth\GroupUser;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class HydrateCentralUser
+class HydrateGroupUser
 {
     use AsAction;
 
     public string $commandSignature = 'hydrate:central-user {--username}';
 
 
-    public function handle(CentralUser $centralUser): void
+    public function handle(GroupUser $centralUser): void
     {
-        CentralUserHydrateTenants::run($centralUser);
+        GroupUserHydrateTenants::run($centralUser);
     }
 
 
-    protected function getModel($username): ?CentralUser
+    protected function getModel($username): ?GroupUser
     {
-        return CentralUser::where('username', $username)->first();
+        return GroupUser::where('username', $username)->first();
     }
     protected function getAllModels(): Collection
     {
-        return CentralUser::all();
+        return GroupUser::all();
     }
 
     protected function loopAll(Command $command): void

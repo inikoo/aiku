@@ -8,9 +8,11 @@
 namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
+use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -90,7 +92,7 @@ class User extends Authenticatable
     ];
 
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
 
@@ -111,12 +113,16 @@ class User extends Authenticatable
         return $this->morphTo();
     }
 
-    public function parentWithTrashed(): MorphTo
+
+    public function tenant(): BelongsTo
     {
-        return $this->morphTo('parent')->withTrashed();
+        return $this->belongsTo(Tenant::class);
     }
 
-
+    public function groupUser(): BelongsTo
+    {
+        return $this->belongsTo(GroupUser::class);
+    }
 
     public function stats(): HasOne
     {

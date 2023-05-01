@@ -80,7 +80,7 @@ class Guest extends Model implements HasMedia
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(16);
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::created(
             function () {

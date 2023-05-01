@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
             [
                 'Admin'           => 'App\Models\SysAdmin\Admin',
                 'User'            => 'App\Models\Auth\User',
-                'CentralUser'     => 'App\Models\Central\CentralUser',
+                'GroupUser'       => 'App\Models\Auth\GroupUser',
                 'Employee'        => 'App\Models\HumanResources\Employee',
                 'Guest'           => 'App\Models\Auth\Guest',
                 'Customer'        => 'App\Models\Sales\Customer',

@@ -7,12 +7,12 @@
 
 namespace App\Actions\Auth\Guest;
 
+use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\User\StoreUser;
-use App\Actions\Central\CentralUser\StoreCentralUser;
 use App\Actions\WithTenantsArgument;
+use App\Models\Auth\GroupUser;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
-use App\Models\Central\CentralUser;
 use App\Rules\AlphaDashDot;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -31,7 +31,7 @@ class CreateGuestUser
 
     public string $commandSignature = 'create:guest-user {username} {name} {tenants?*} {--E|email=} {--N|name=} {--r|roles=*} {--a|autoPassword}';
 
-    private ?CentralUser $centralUser = null;
+    private ?GroupUser $centralUser = null;
 
 
     public function getCommandDescription(): string
@@ -48,7 +48,7 @@ class CreateGuestUser
      */
     public function handle(array $guestUserData, array $roles): User
     {
-        $centralUser = Landlord::execute(fn () => StoreCentralUser::run(
+        $centralUser = Landlord::execute(fn () => StoreGroupUser::run(
             Arr::only($guestUserData, ['username', 'password', 'email', 'name']),
         ));
 
@@ -75,7 +75,7 @@ class CreateGuestUser
     {
         return [
 
-            'username' => ['required', new AlphaDashDot(), 'unique:App\Models\Central\CentralUser,username'],
+            'username' => ['required', new AlphaDashDot(), 'unique:App\Models\Auth\CentralUser,username'],
             'password' => ['required', app()->isProduction() ? Password::min(8)->uncompromised() : null],
             'name'     => 'sometimes|required',
             'email'    => 'sometimes|required|email'
@@ -136,7 +136,7 @@ class CreateGuestUser
                         $user  = $guest->user;
                     } else {
                         $user              = $this->handle($validatedData, $roles);
-                        $this->centralUser = CentralUser::where('id', $user->central_user_id)->firstOrFail();
+                        $this->centralUser = GroupUser::where('id', $user->central_user_id)->firstOrFail();
                     }
 
 

@@ -32,6 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Currency $currency
+ * @property-read \App\Models\Tenancy\Tenant|null $owner
  * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Tenancy\Tenant> $tenants
  * @method static \Database\Factories\Tenancy\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
@@ -72,6 +73,10 @@ class Group extends Model
     public function tenants(): HasMany
     {
         return $this->hasMany(Tenant::class, 'group_id');
+    }
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class, 'owner_id');
     }
 
     public function currency(): BelongsTo

@@ -7,11 +7,11 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\Auth\User\UpdateUser;
-use App\Actions\Central\CentralUser\StoreCentralUser;
+use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
-use App\Models\Central\CentralUser;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -30,9 +30,9 @@ class FetchUsers extends FetchAction
                 ->first()) {
                 $user = UpdateUser::run($user, $userData['user']);
             } else {
-                $centralUser = CentralUser::where('username', $userData['user']['username'])->first();
+                $centralUser = GroupUser::where('username', $userData['user']['username'])->first();
                 if (!$centralUser) {
-                    $centralUser = StoreCentralUser::run(
+                    $centralUser = StoreGroupUser::run(
                         [
                             'username' => $userData['user']['username'],
                             'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))

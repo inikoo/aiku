@@ -1,25 +1,26 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 20 Sept 2022 19:25:23 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 30 Apr 2023 14:23:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Central;
+namespace App\Models\Auth;
 
-use App\Models\Tenancy\Tenant;
+use App\Models\Central\CentralMedia;
+use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Central\CentralUser
+ * App\Models\Auth\GroupUser
  *
  * @property int $id
  * @property string $username
@@ -45,11 +46,12 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|GroupUser withoutTrashed()
  * @mixin \Eloquent
  */
-class CentralUser extends Model implements HasMedia
+class GroupUser extends Model implements HasMedia
 {
     use HasSlug;
-    use UsesLandlordConnection;
+    use UsesGroupConnection;
     use InteractsWithMedia;
+    use SoftDeletes;
 
     protected $casts = [
         'data' => 'array',
@@ -68,12 +70,9 @@ class CentralUser extends Model implements HasMedia
             ->saveSlugsTo('username');
     }
 
-    public function tenants(): BelongsToMany
+    public function users(): HasMany
     {
-        return $this->belongsToMany(
-            Tenant::class,
-            'central_user_tenant',
-        )->using(CentralUserTenant::class);
+        return $this->hasMany(User::class);
     }
 
     public function avatar(): HasOne

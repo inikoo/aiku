@@ -9,10 +9,10 @@ namespace App\Actions\Auth\Guest;
 
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\WithTenantsArgument;
+use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
-use App\Models\Central\CentralUser;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -37,7 +37,7 @@ class CreateGuestFromCentralUser
      * @param  array  $roles  array of Role models
      *
      */
-    public function handle(CentralUser $centralUser, array $modelData, array $roles): Guest
+    public function handle(GroupUser $centralUser, array $modelData, array $roles): Guest
     {
         $modelData['slug'] = Arr::get($modelData, 'slug', $centralUser->username);
 
@@ -55,7 +55,7 @@ class CreateGuestFromCentralUser
 
     public function asCommand(Command $command): int
     {
-        $centralUser = CentralUser::where('username', $command->argument('username'))->firstOrFail();
+        $centralUser = GroupUser::where('username', $command->argument('username'))->firstOrFail();
 
 
         $tenants  = $this->getTenants($command);

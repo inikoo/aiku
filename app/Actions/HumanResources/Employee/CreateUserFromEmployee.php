@@ -7,8 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\User\StoreUser;
-use App\Actions\Central\CentralUser\StoreCentralUser;
 use App\Models\Auth\User;
 use App\Models\HumanResources\Employee;
 use App\Models\Tenancy\Tenant;
@@ -45,7 +45,7 @@ class CreateUserFromEmployee
         ];
 
 
-        $centralUser = StoreCentralUser::run($modelData);
+        $centralUser = StoreGroupUser::run($modelData);
 
         /** @var User $user */
         $user = StoreUser::run(app('currentTenant'), $employee, $centralUser);
