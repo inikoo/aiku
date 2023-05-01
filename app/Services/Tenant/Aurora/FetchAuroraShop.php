@@ -44,7 +44,6 @@ class FetchAuroraShop extends FetchAurora
             'subtype'      => strtolower($this->auroraModelData->{'Store Type'}),
             'code'         => $this->auroraModelData->{'Store Code'},
             'name'         => $this->auroraModelData->{'Store Name'},
-            'url'          => $this->auroraModelData->{'Store URL'},
             'company_name' => $this->auroraModelData->{'Store Company Name'},
             'contact_name' => $this->auroraModelData->{'Store Contact Name'},
             'email'        => $this->auroraModelData->{'Store Email'},
