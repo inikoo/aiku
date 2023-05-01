@@ -47,9 +47,8 @@ class StoreGroupUser
         return [
             'username' => ['required', new AlphaDashDot(), 'unique:App\Models\Auth\GroupUser,username'],
             'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'email'    => 'required|email|unique:App\Models\SysAdmin\SysUser,email',
+            'email'    => ['required', 'email', 'unique:App\Models\SysAdmin\SysUser,email']
         ];
-
     }
 
     public function action(array $objectData): GroupUser

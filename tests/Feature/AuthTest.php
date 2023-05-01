@@ -62,13 +62,29 @@ test('update user password', function ($user) {
 
     Hash::shouldReceive('make')
         ->andReturn($userFactory['password']);
-    $user = UpdateUser::make()->action($user, $userFactory);
+    $user = UpdateUser::make()->action($user, [
+        'password' => $userFactory['password']
+    ]);
 
     $groupUser = $user->groupUser()->first();
 
     expect($user->password)->toBe($userFactory['password'])
         ->and($groupUser->username)->toBe($userFactory['username'])
         ->and($groupUser->password)->toBe($userFactory['password']);
+
+    return $user;
+})->depends('create user for guest');
+
+test('update user username', function ($user) {
+    $userFactory = User::factory()->definition();
+    $user = UpdateUser::make()->action($user, [
+        'username' => $userFactory['username']
+    ]);
+
+    $groupUser = $user->groupUser()->first();
+
+    expect($user->password)->toBe($userFactory['password'])
+        ->and($groupUser->username)->toBe($userFactory['username']);
 
     return $user;
 })->depends('create user for guest');
