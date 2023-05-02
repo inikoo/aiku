@@ -50,7 +50,7 @@ class StoreGuest
         return [
             'name'                     => ['required', 'string', 'max:255'],
             'email'                    => ['nullable', 'email'],
-            'phone'                    => ['nullable', 'phone:INTERNATIONAL'],
+            'phone'                    => ['nullable'],
             'identity_document_number' => ['nullable', 'string'],
             'identity_document_type'   => ['nullable', 'string'],
             'type'                     => ['required', Rule::in(GuestTypeEnum::values())],

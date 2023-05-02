@@ -11,6 +11,7 @@ use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\Auth\User\UpdateUser;
+use App\Actions\fromIris;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
@@ -57,18 +58,17 @@ test('create user for guest', function ($guest) {
 })->depends('create guest');
 
 test('update user password', function ($user) {
+    $userFactory = User::factory()->definition();
+
     Hash::shouldReceive('make')
-        ->andReturn('7654321');
-    $user = UpdateUser::make()->action(
-        $user,
-        [
-            'username' => 'hello',
-            'password' => 'hello1234'
-        ]
-    );
-    expect($user->password)->toBe('7654321')
-        ->and($user->groupUser->username)->toBe('hello')
-        ->and($user->groupUser->password)->toBe('7654321');
+        ->andReturn($userFactory['password']);
+    $user = UpdateUser::make()->action($user, $userFactory);
+
+    $groupUser = $user->groupUser()->first();
+
+    expect($user->password)->toBe($userFactory['password'])
+        ->and($groupUser->username)->toBe($userFactory['username'])
+        ->and($groupUser->password)->toBe($userFactory['password']);
 
     return $user;
 })->depends('create user for guest');
@@ -87,7 +87,7 @@ test('attaching existing group user to another tenant guest', function () {
 
     $user = StoreUser::make()->action($guest, $groupUser, []);
     $this->assertModelExists($user);
-    expect($user->password)->toBe('7654321');
+    expect($user->password)->toBe('password');
 
     return $user;
 })->depends('update user password');
