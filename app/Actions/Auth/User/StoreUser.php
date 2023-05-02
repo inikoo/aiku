@@ -16,6 +16,7 @@ use App\Models\Auth\User;
 use App\Models\HumanResources\Employee;
 use App\Rules\AlphaDashDot;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -31,7 +32,10 @@ class StoreUser
      */
     private ?GroupUser $groupUser;
 
-    public function handle(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData=[]): User
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function handle(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData=[]): User|ValidationException
     {
         if (!$groupUser) {
             $groupUser = StoreGroupUser::run($objectData);
@@ -39,6 +43,8 @@ class StoreUser
 
         $tenant = app('currentTenant');
 
+        $checkUser = User::where([['tenant_id', $tenant->id], ['group_user_id', $groupUser->id]])->exists();
+        if($checkUser) throw ValidationException::withMessages(['You only can add one user']);
 
         /** @var \App\Models\Auth\User $user */
         $user = $parent->user()->create(
@@ -85,7 +91,7 @@ class StoreUser
         }
     }
 
-    public function action(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData): User
+    public function action(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData): User|ValidationException
     {
         $this->asAction  = true;
         $this->groupUser = $groupUser;
