@@ -30,7 +30,7 @@ class UpdateUser
 
     public function handle(User $user, array $modelData): User
     {
-        $modelData['password'] = Hash::make($modelData['password']);;
+        if(isset($modelData['password'])) $modelData['password'] = Hash::make($modelData['password']);
 
         $groupUser = $user->groupUser()->first();
         UpdateGroupUser::run($groupUser, $modelData);
@@ -53,7 +53,6 @@ class UpdateUser
         return [
             'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username'],
             'password' => ['sometimes', 'required', app()->isLocal()  || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-
         ];
     }
 

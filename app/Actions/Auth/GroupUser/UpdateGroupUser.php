@@ -29,7 +29,8 @@ class UpdateGroupUser
 
     public function handle(GroupUser $groupUser, array $modelData): GroupUser
     {
-        $modelData['password'] = Hash::make($modelData['password']);
+        if(isset($modelData['password'])) $modelData['password'] = Hash::make($modelData['password']);
+
         $updatedGroupUser = $this->update($groupUser, $modelData);
 
         $users = $groupUser->users()->get();
@@ -53,9 +54,9 @@ class UpdateGroupUser
     public function rules(): array
     {
         return [
-            'username' => ['required', new AlphaDashDot(), 'unique:App\Models\Auth\GroupUser,username'],
-            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'email'    => 'required|email|unique:App\Models\SysAdmin\SysUser,email'
+            'username' => ['sometimes', new AlphaDashDot(), 'unique:App\Models\Auth\GroupUser,username'],
+            'password' => ['sometimes', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'email'    => ['sometimes', 'email', 'unique:App\Models\SysAdmin\SysUser,email']
         ];
     }
 
