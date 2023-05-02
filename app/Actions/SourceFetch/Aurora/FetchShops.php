@@ -61,7 +61,6 @@ class FetchShops extends FetchAction
                 }
             } else {
                 $shop = StoreShop::run(
-                    tenant: app('currentTenant'),
                     modelData: $shopData['shop']
                 );
 
