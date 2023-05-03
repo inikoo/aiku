@@ -11,12 +11,15 @@ use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
-use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Validation\Validator;
 
 class UpdateAgent
 {
     use WithActionUpdate;
+
+
+    private Agent $agent;
 
     public function handle(Agent $agent, array $modelData): Agent
     {
@@ -38,18 +41,30 @@ class UpdateAgent
         ];
     }
 
-    public function action(Agent $agent, $objectData)
+    public function action(Agent $agent, $objectData): Agent
     {
-        if($agent->owner_id !== app('currentTenant')->id) throw ValidationException::withMessages(['You can not update the agent']);
+        $this->agent=$agent;
+
 
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        $this->handle($agent, $validatedData);
+        return $this->handle($agent, $validatedData);
+    }
+
+    public function afterValidator(Validator $validator): void
+    {
+
+        if($this->agent->owner_id !== app('currentTenant')->id) {
+            $validator->errors()->add('agent', 'You can not update the agent.');
+
+        }
+
     }
 
     public function asController(Agent $agent, ActionRequest $request): Agent
     {
+        $this->agent=$agent;
         $request->validate();
         return $this->handle($agent, $request->all());
     }
