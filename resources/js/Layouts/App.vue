@@ -135,7 +135,7 @@ const user = ref(usePage().props.auth.user);
 
 <template>
     <div class="min-h-full">
-        <Disclosure as="nav" class="bg-gray-100 fixed top-0 z-10 w-full" v-slot="{ open }">
+        <Disclosure as="nav" class="bg-gray-100 fixed top-0 z-20 w-full" v-slot="{ open }">
             <div class=" px-0">
                 <div class="flex h-11 lg:h-10 flex-shrink-0 border-b border-gray-200 bg-white ">
 
@@ -276,12 +276,13 @@ const user = ref(usePage().props.auth.user);
         <AppLeftSideBar/>
 
 
-        <main class="relative flex flex-col pt-16 pl-0
-        md:pl-10
-        xl:pl-40
-        2xl:pl-56 
-">
-            <Breadcrumbs class="fixed top-10 z-10 w-full bg-white" :breadcrumbs="$page.props.breadcrumbs??[]"/>
+        <main class="relative flex flex-col pt-16 ml-0
+            md:ml-11
+            lg:ml-10
+            xl:ml-40
+            2xl:ml-56 
+        ">
+            <Breadcrumbs class="fixed top-10 md:top-11 lg:top-10 z-10 w-full bg-white" :breadcrumbs="$page.props.breadcrumbs??[]"/>
             <slot/>
         </main>
 
