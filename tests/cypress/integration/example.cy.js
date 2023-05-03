@@ -1,7 +1,7 @@
-describe('Example Test', () => {
-    it('shows a homepage', () => {
-        cy.visit('/abc');
+describe('Login Test', () => {
+    it('shows login', () => {
+        cy.visit('/login');
+        cy.get('button').contains('Sign in').click()
 
-        cy.contains('Laravel');
     });
 });

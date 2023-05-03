@@ -95,6 +95,19 @@ class Kernel extends HttpKernel
             EnsureValidTenantSession::class,
             SetLocale::class
         ],
+        // for use in cypress
+        'web'     => [
+            NeedsTenant::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandleInertiaRequests::class,
+            EnsureValidTenantSession::class,
+            SetLocale::class
+        ],
 
         'api'            => [
             'throttle:api',

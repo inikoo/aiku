@@ -7,10 +7,12 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Auth\GroupUser\UpdateGroupUserStatus;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\Auth\User\UpdateUser;
+use App\Actions\Auth\User\UpdateUserStatus;
 use App\Actions\Auth\User\UserAddRoles;
 use App\Actions\Auth\User\UserRemoveRoles;
 use App\Actions\Auth\User\UserSyncRoles;
@@ -21,6 +23,7 @@ use App\Models\Auth\User;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
@@ -111,6 +114,25 @@ test('attaching existing group user to another tenant guest', function () {
     return $user;
 })->depends('update user password');
 
+
+test('make sure a group user can be only attaches once in each tenant', function () {
+    $tenant = Tenant::where('slug', 'aus')->first();
+    $tenant->makeCurrent();
+
+    $guestData = Guest::factory()->definition();
+    Arr::set($guestData, 'phone', '+6081212120000');
+    $guest = StoreGuest::make()->action(
+        $guestData
+    );
+
+    $groupUser = GroupUser::where('username', 'hello')->first();
+
+    expect(function () use ($guest, $groupUser) {
+        StoreUser::make()->action($guest, $groupUser, []);
+    })->toThrow(ValidationException::class);
+})->depends('update user password');
+
+
 test('add user roles', function ($user) {
     $addRole = UserAddRoles::make()->action($user, ['super-admin', 'system-admin']);
 
@@ -118,13 +140,31 @@ test('add user roles', function ($user) {
 })->depends('create user for guest');
 
 test('remove user roles', function ($user) {
-    $addRole = UserRemoveRoles::make()->action($user, ['super-admin', 'system-admin']);
+    $removeRole = UserRemoveRoles::make()->action($user, ['super-admin', 'system-admin']);
+
+    $this->assertModelExists($removeRole);
+})->depends('create user for guest');
+
+test('sync user roles', function ($user) {
+    $syncRole = UserSyncRoles::make()->action($user, ['super-admin', 'system-admin']);
+
+    $this->assertModelExists($syncRole);
+})->depends('create user for guest');
+
+test('user change status if group user status is false  ', function ($user) {
+    $addRole = UpdateUserStatus::make()->action($user, [
+        'status' => false
+    ]);
 
     $this->assertModelExists($addRole);
 })->depends('create user for guest');
 
-test('sync user roles', function ($user) {
-    $addRole = UserSyncRoles::make()->action($user, ['super-admin', 'system-admin']);
+test('group status change status', function ($user) {
+    $groupUser = GroupUser::where('username', 'hello')->first();
+
+    $addRole = UpdateGroupUserStatus::make()->action($groupUser, [
+        'status' => false
+    ]);
 
     $this->assertModelExists($addRole);
 })->depends('create user for guest');

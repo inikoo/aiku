@@ -19,6 +19,7 @@ return new class () extends Migration {
             $table->string('email')->nullable();
             $table->string('name')->nullable();
             $table->string('about')->nullable();
+            $table->boolean('status')->default(true)->index();
             $table->unsignedInteger('media_id')->nullable();
             $table->jsonb('data')->nullable();
             $table->unsignedSmallInteger('number_users')->default(0);
