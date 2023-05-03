@@ -7,6 +7,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Auth\GroupUser\DeleteGroupUser;
 use App\Actions\Auth\GroupUser\UpdateGroupUserStatus;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
@@ -159,12 +160,20 @@ test('user change status if group user status is false  ', function ($user) {
     $this->assertModelExists($addRole);
 })->depends('create user for guest');
 
-test('group status change status', function ($user) {
+test('group status change status', function () {
     $groupUser = GroupUser::where('username', 'hello')->first();
 
-    $addRole = UpdateGroupUserStatus::make()->action($groupUser, [
+    $status = UpdateGroupUserStatus::make()->action($groupUser, [
         'status' => false
     ]);
 
-    $this->assertModelExists($addRole);
-})->depends('create user for guest');
+    $this->assertModelExists($status);
+});
+
+test('delete group user', function () {
+    $groupUser = GroupUser::where('username', 'hello')->first();
+
+    $deleteGroupUser = DeleteGroupUser::make()->action($groupUser);
+
+    expect($deleteGroupUser)->toBe(true);
+});
