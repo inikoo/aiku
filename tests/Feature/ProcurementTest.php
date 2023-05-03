@@ -7,7 +7,9 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Procurement\Agent\ChangeAgentOwner;
 use App\Actions\Procurement\Agent\StoreAgent;
+use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Agent\UpdateAgentVisibility;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\Supplier\GetSupplier;
@@ -113,4 +115,16 @@ test('change agent visibility to public', function ($agent) {
     ]);
 
     $this->assertModelExists($agent);
+})->depends('create agent');
+
+test('change agent owner', function ($agent) {
+    $agent = ChangeAgentOwner::run($agent, $this->tenant2);
+
+    $this->assertModelExists($agent);
+})->depends('create agent');
+
+test('check if last tenant cant update', function ($agent) {
+    expect(function () use ($agent) {
+        UpdateAgent::make()->action($agent, Agent::factory()->definition());
+    })->toThrow(ValidationException::class);
 })->depends('create agent');
