@@ -26,7 +26,6 @@ class SupplierFactory extends Factory
             'contact_name' => fake()->name,
             'email'        => fake()->email,
             'currency_id'  => $currency->id,
-            'type'         => 'supplier',
             'address_id'   => 1
         ];
     }

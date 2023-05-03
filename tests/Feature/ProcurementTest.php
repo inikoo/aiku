@@ -23,6 +23,7 @@ use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(fn() => loadDB('d3_with_tenants.dump'));
@@ -57,19 +58,20 @@ test('number of agents should be two', function () {
 })->depends('create agent', 'create another agent');
 
 test('create supplier', function () {
-    $supplier = StoreSupplier::make()->action($this->tenant, Supplier::factory()->definition());
+    $supplier = StoreSupplier::make()->action($this->tenant, Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
     $this->assertModelExists($supplier);
+
     return $supplier;
 });
 
 test('create supplier in agent', function ($agent) {
-    $supplier = StoreSupplier::make()->action($agent, Supplier::factory()->definition());
+    $supplier = StoreSupplier::make()->action($agent,  Arr::prepend(Supplier::factory()->definition(), 'sub-supplier', 'type'));
     $this->assertModelExists($supplier);
 })->depends('create agent');
 
-test('number of supplier should be two', function () {
-    $this->assertEquals(2, $this->tenant->procurementStats->number_suppliers);
-    $this->assertEquals(2, $this->tenant->procurementStats->number_active_suppliers);
+test('number independent supplier should be one', function () {
+    $this->assertEquals(1, $this->tenant->procurementStats->number_suppliers);
+    $this->assertEquals(1, $this->tenant->procurementStats->number_active_suppliers);
 })->depends('create supplier', 'create supplier in agent');
 
 test('create supplier product', function ($supplier) {
