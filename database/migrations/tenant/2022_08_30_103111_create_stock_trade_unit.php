@@ -10,7 +10,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('stock_trade_unit', function (Blueprint $table) {
             $table->unsignedInteger('stock_id')->nullable();
@@ -21,7 +21,7 @@ return new class () extends Migration {
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('stock_trade_unit');
     }
