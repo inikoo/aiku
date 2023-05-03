@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Agent;
 
+use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Procurement\Agent;
 use App\Models\Tenancy\Tenant;
@@ -17,8 +18,11 @@ class ChangeAgentOwner
 
     public function handle(Agent $agent, Tenant $tenant): Agent
     {
-        return $this->update($agent, [
+        $agent = $this->update($agent, [
             'owner_id' => $tenant->id
         ]);
+        AgentHydrateUniversalSearch::dispatch($agent);
+
+        return $agent;
     }
 }

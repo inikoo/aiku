@@ -20,6 +20,7 @@ class UpdateAgent
 
 
     private Agent $agent;
+    private bool $action = false;
 
     public function handle(Agent $agent, array $modelData): Agent
     {
@@ -30,6 +31,8 @@ class UpdateAgent
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->action = true) return true;
+
         return $request->user()->hasPermissionTo("procurement.edit");
     }
 
@@ -44,7 +47,7 @@ class UpdateAgent
     public function action(Agent $agent, $objectData): Agent
     {
         $this->agent=$agent;
-
+        $this->action = true;
 
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
@@ -57,7 +60,6 @@ class UpdateAgent
 
         if($this->agent->owner_id !== app('currentTenant')->id) {
             $validator->errors()->add('agent', 'You can not update the agent.');
-
         }
 
     }
