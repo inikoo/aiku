@@ -26,7 +26,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property int $group_user_id
- * @property int $tenant_id
  * @property bool $status
  * @property string $username mirror group_users.username
  * @property string $password mirror group_users.password
@@ -41,7 +40,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property int|null $image_id
- * @property-read \App\Models\Auth\GroupUser|null $groupUser
+ * @property-read \App\Models\Auth\GroupUser $groupUser
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
@@ -110,7 +109,7 @@ class User extends Authenticatable
 
     public function parent(): MorphTo
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();
     }
 
 

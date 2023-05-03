@@ -9,11 +9,11 @@ namespace App\Actions\Auth\User;
 
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
 use App\Actions\WithActionUpdate;
-use App\Models\Auth\GroupUser;
+use App\Enums\Auth\SynchronisableUserFields;
 use App\Models\Auth\User;
 use App\Rules\AlphaDashDot;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
@@ -30,12 +30,13 @@ class UpdateUser
 
     public function handle(User $user, array $modelData): User
     {
-        if(isset($modelData['password'])) $modelData['password'] = Hash::make($modelData['password']);
+        UpdateGroupUser::run(
+            $user->groupUser,
+            Arr::only($modelData, SynchronisableUserFields::values())
+        );
 
-        $groupUser = $user->groupUser()->first();
-        UpdateGroupUser::run($groupUser, $modelData);
-
-        return $this->update($user, $modelData, ['profile', 'settings']);
+        $user->refresh();
+        return $this->update($user, Arr::except($modelData, SynchronisableUserFields::values()), ['profile', 'settings']);
     }
 
     public function authorize(User $user, ActionRequest $request): bool
