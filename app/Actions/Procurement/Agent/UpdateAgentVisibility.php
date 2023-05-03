@@ -35,25 +35,18 @@ class UpdateAgentVisibility
         return true;
 //        return $request->user()->hasPermissionTo("procurement.edit");
     }
-    public function rules(): array
-    {
-        return [
-            'is_private' => ['sometimes', 'required', 'boolean']
-        ];
-    }
 
     /**
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function action(Agent $agent, array $modelData): Agent|ValidationException
+    public function action(Agent $agent, bool $isPrivate): Agent|ValidationException
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
-
-        return $this->handle($agent, $validatedData);
+        return $this->handle($agent, [
+            'is_private' => $isPrivate
+        ]);
     }
 
-    public function asController(Agent $agent, ActionRequest $request): Agent| ValidationException
+    public function asController(Agent $agent, ActionRequest $request): Agent|ValidationException
     {
         $request->validate();
         return $this->handle($agent, $request->all());
