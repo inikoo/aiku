@@ -20,12 +20,11 @@ import AppShopNavigationDropDown from '@/Layouts/AppShopNavigationDropDown.vue';
 const layout = useLayoutStore();
 library.add(faList,faFolderTree,faMailBulk);
 
-
 </script>
 
 <template>
     <Link
-        :class="'ml-8  xl:ml-0 mr-4'"
+        :class="'ml-8 hidden lg:block xl:ml-0 mr-4'"
         :title="trans('Shop')"
           :href="layout.currentShopSlug? route( 'shops.show',layout.currentShopSlug) : route('shops.index')">
         <font-awesome-icon aria-hidden="true"
@@ -33,40 +32,45 @@ library.add(faList,faFolderTree,faMailBulk);
         />
     </Link>
 
-
-
     <AppShopNavigationDropDown/>
 
-    <div class="ml-5 space-x-4">
-        <Link :title="trans('Catalogue')"
-              :href="layout.currentShopSlug? route( 'shops.show.catalogue.hub',layout.currentShopSlug) : route('catalogue.hub')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-folder-tree"/>
-        </Link>
-        <Link :title="trans('websites')"
+    <!-- Icon Shops -->
+    <div class="flex flex-wrap mt-3 md:mt-0 md:inline-flex justify-center items-center border-b border-gray-200 md:border-0 bg-gray-100/50 md:bg-inherit">
+        <Link class="px-4 py-2 md:px-3 md:py-0 lg:px-4 inline-flex items-center" :title="trans('Catalogue')"
+              :href="layout.currentShopSlug? route('shops.show.catalogue.hub',layout.currentShopSlug) : route('catalogue.hub')">
+            <font-awesome-icon class="text-xl text-gray-700" aria-hidden="true" icon="fal fa-folder-tree" />
+            <!-- <span class="md:hidden text-xs inline text-gray-900">{{trans('Catalogue')}}</span> -->
+          </Link>
+        <Link class="px-4 py-2 md:px-3 md:py-0 lg:px-4 inline-flex items-center" :title="trans('websites')"
               :href="layout.currentShopSlug?route('shops.show.websites.index', layout.currentShopSlug) : route('websites.index')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-globe"/>
-        </Link>
-        <Link :title="trans('customers')"
+            <font-awesome-icon class="text-xl text-gray-700" aria-hidden="true" icon="fal fa-globe"/>
+            <!-- <span class="md:hidden text-xs inline text-gray-900">{{trans('Websites')}}</span> -->
+          </Link>
+        <Link class="px-4 py-2 md:px-3 md:py-0 lg:px-4 inline-flex items-center" :title="trans('customers')"
               :href="layout.currentShopSlug?route('shops.show.customers.index',layout.currentShopSlug):route('customers.index')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-user"/>
-        </Link>
-        <Link :title="trans('orders')"
+            <font-awesome-icon class="text-xl text-gray-700" aria-hidden="true" icon="fal fa-user"/>
+            <!-- <span class="md:hidden text-xs inline text-gray-900">{{trans('Customers')}}</span> -->
+          </Link>
+        <Link class="px-4 py-2 md:px-3 md:py-0 lg:px-4 inline-flex items-center" :title="trans('orders')"
               :href="layout.currentShopSlug?route('shops.show.orders.index', layout.currentShopSlug):route('orders.index')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-shopping-cart"/>
-        </Link>
-        <Link :title="trans('mailroom')"
+            <font-awesome-icon class="text-xl text-gray-700" aria-hidden="true" icon="fal fa-shopping-cart"/>
+            <!-- <span class="md:hidden text-xs inline text-gray-900">{{trans('Orders')}}</span> -->
+          </Link>
+        <Link class="px-4 py-2 md:px-3 md:py-0 lg:px-4 inline-flex items-center" :title="trans('mailroom')"
               :href="layout.currentShopSlug?route('shops.show.mail.hub', layout.currentShopSlug):route('mail.hub')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-mail-bulk"/>
-        </Link>
-        <Link :title="trans('accounting')"
+            <font-awesome-icon class="text-xl text-gray-700" aria-hidden="true" icon="fal fa-mail-bulk"/>
+            <!-- <span class="md:hidden text-xs inline text-gray-900">{{trans('Mailroom')}}</span> -->
+          </Link>
+        <Link class="px-4 py-2 md:px-3 md:py-0 lg:px-4 inline-flex items-center" :title="trans('accounting')"
               :href="layout.currentShopSlug?route('shops.show.accounting.dashboard', layout.currentShopSlug):route('accounting.dashboard')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-abacus"/>
-        </Link>
-        <Link :title="trans('accounting')"
+            <font-awesome-icon class="text-xl text-gray-700" aria-hidden="true" icon="fal fa-abacus"/>
+            <!-- <span class="md:hidden text-xs inline text-gray-900">{{trans('Accounting')}}</span> -->
+          </Link>
+        <Link class="px-4 py-2 md:px-3 md:py-0 lg:px-4 inline-flex items-center" :title="trans('accounting')"
               :href="layout.currentShopSlug?route('dispatch.hub', layout.currentShopSlug):route('dispatch.hub')">
-            <font-awesome-icon aria-hidden="true" icon="fal fa-conveyor-belt-alt"/>
-        </Link>
-
+            <font-awesome-icon class="text-xl text-gray-700" aria-hidden="true" icon="fal fa-conveyor-belt-alt"/>
+            <!-- <span class="md:hidden text-xs inline text-gray-900">{{trans('Accounting')}}</span> -->
+          </Link>
     </div>
 </template>
 

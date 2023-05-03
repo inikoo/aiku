@@ -80,19 +80,22 @@ const handleClick = (shopSlug) => {
 </script>
 
 <template>
-    <Menu as="div" class="relative inline-block text-left    md:w-56">
-        <MenuButton class="inline-flex w-full justify-center gap-x-1.5 bg-white px-3 py-1 text-sm  text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            <span class="hidden xl:inline">{{ layout.currentShopData.name}}   </span> <span class="inline xl:hidden">{{ layout.currentShopData.code }}</span>
-            <FontAwesomeIcon aria-hidden="true" class="ml-4 opacity-50 hover:opacity-100" icon="fal fa-chevron-down"/>
+    <Menu as="div" class="ml-8 lg:ml-0 relative inline-block text-right md:w-44 xl:w-56">
 
+        <!-- Button All Shops -->
+        <MenuButton class="inline-flex w-full justify-center gap-x-1.5 bg-white py-1 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <span class="hidden xl:inline">{{ layout.currentShopData.name}}</span>
+            <span class="inline xl:hidden">{{ layout.currentShopData.code }}</span>
+            <FontAwesomeIcon aria-hidden="true" class="place-self-center ml-4 opacity-50 hover:opacity-100" icon="fal fa-chevron-down"/>
         </MenuButton>
+        
+        <!-- Popup All Shops -->
         <transition enter-active-class="transition ease-out duration-100"
                     enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
                     leave-active-class="transition ease-in duration-75"
                     leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-
-            <MenuItems class="absolute w-56  divide-y divide-gray-300  right-0 z-10 mt-1  origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <div class="py-1 ">
+            <MenuItems class="absolute w-56 divide-y divide-gray-300 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <div class="py-1">
                     <MenuItem v-slot="{ active }" v-for="shop in layout.shopsInDropDown" :key="shop.slug" >
                         <button
                             @click="handleClick(shop.slug)"

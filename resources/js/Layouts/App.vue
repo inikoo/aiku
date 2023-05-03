@@ -127,37 +127,38 @@ import {useLayoutStore} from '@/Stores/layout';
 const showSearchDialog = ref(false);
 
 const user = ref(usePage().props.auth.user);
-
-
-
-
 </script>
 
 <template>
-    <div class="min-h-full">
+    <div class="min-h-full ">
         <Disclosure as="nav" class="bg-gray-100 fixed top-0 z-20 w-full" v-slot="{ open }">
-            <div class=" px-0">
+            <div class="px-0">
                 <div class="flex h-11 lg:h-10 flex-shrink-0 border-b border-gray-200 bg-white ">
-
-                    <div class="flex flex-1 justify-between pl-3 md:pl-0">
-
-                        <div class="flex items-center">
-
-
-                            <div class="hidden md:block  mb-3  ml-3 xl:w-40 2xl:w-56   ">
-                                <img class=" h-4  mt-4  xl:h-6  " src="/art/logo-color-trimmed.png" alt="Aiku"/>
-
-                                <span class="font-logo hidden md:block mb-1 mr-2  xl:hidden   whitespace-nowrap	   text-sm">
-                                        {{ layout.tenant.name }}
-                                    </span>
-
+                    <div class="flex flex-1 justify-between">
+                        <!-- Hamburger -->
+                        <button class="block md:hidden w-10 h-10 relative focus:outline-none bg-white" @click="sidebarOpen = !sidebarOpen">
+                            <span class="sr-only">Open sidebar</span>
+                            <div class="block w-5 absolute left-1/2 top-1/2   transform  -translate-x-1/2 -translate-y-1/2">
+                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out" :class="{'rotate-45': sidebarOpen,' -translate-y-1.5': !sidebarOpen }"></span>
+                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-100 ease-in-out" :class="{'opacity-0': sidebarOpen } "></span>
+                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out" :class="{'-rotate-45': sidebarOpen, ' translate-y-1.5': !sidebarOpen}"></span>
                             </div>
-                            <AppShopNavigation/>
+                        </button>
+
+                        <!-- Shop Navigation -->
+                        <div class="hidden md:flex justify-between items-center">
+                            <div class="block mb-3 ml-3 xl:w-40 2xl:w-56">
+                                <img class=" h-4  mt-4  xl:h-6  " src="/art/logo-color-trimmed.png" alt="Aiku"/>
+                                <span class="font-logo mb-1 mr-2  xl:hidden   whitespace-nowrap	   text-sm">
+                                    {{ layout.tenant.name }}
+                                </span>
+                            </div>
+                            <AppShopNavigation />
                         </div>
 
-
+                        <!-- Avatar Group -->
                         <div class="flex items-center">
-
+                            <!-- Search Button -->
                             <button v-on:click="showSearchDialog = !showSearchDialog"
                                     class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                                 <span class="sr-only">{{ trans('Search') }}</span>
@@ -167,13 +168,15 @@ const user = ref(usePage().props.auth.user);
                                 </SearchBar>
                             </button>
 
+                            <!-- Notifications -->
                             <button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                                 <span class="sr-only">{{ trans('View notifications') }}</span>
                                 <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
 
                             </button>
 
-                            <Menu as="div" class="relative ml-3 mr-6 hidden lg:block ">
+                            <!-- Avatar Button -->
+                            <Menu as="div" class="relative ml-3 mr-6 block">
                                 <div>
                                     <MenuButton
                                         class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
@@ -213,23 +216,12 @@ const user = ref(usePage().props.auth.user);
                                     </MenuItems>
                                 </transition>
                             </Menu>
-
-
                         </div>
                     </div>
 
-
-                    <button type="button"
-                            class="border-l border-gray-400 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-500 lg:hidden"
-                            @click="sidebarOpen = true">
-                        <span class="sr-only">Open sidebar</span>
-                        <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bars  " size="lg"/>
-
-                    </button>
+                    
 
                 </div>
-
-
             </div>
 
             <DisclosurePanel class="md:hidden">
@@ -272,21 +264,20 @@ const user = ref(usePage().props.auth.user);
                 </div>
             </DisclosurePanel>
         </Disclosure>
-
-        <AppLeftSideBar/>
-
+        
+        <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
+        <AppLeftSideBar v-if="!sidebarOpen" class="hidden md:block"/>
+        <AppLeftSideBar class="-left-64 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0px]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen" />
 
         <main class="relative flex flex-col pt-16 ml-0
             md:ml-11
             lg:ml-10
             xl:ml-40
-            2xl:ml-56 
-        ">
+            2xl:ml-56"
+        >
             <Breadcrumbs class="fixed top-10 md:top-11 lg:top-10 z-10 w-full bg-white" :breadcrumbs="$page.props.breadcrumbs??[]"/>
             <slot/>
         </main>
-
-
     </div>
 </template>
 
