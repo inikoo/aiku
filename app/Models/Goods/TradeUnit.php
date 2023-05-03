@@ -1,14 +1,17 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 30 Aug 2022 19:15:50 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 03 May 2023 11:42:04 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Goods;
 
 use App\Models\Inventory\Stock;
+use App\Models\Marketing\Product;
 use App\Models\Traits\HasImages;
+use App\Models\Traits\UsesGroupConnection;
+use Database\Factories\Marketing\TradeUnitFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +23,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Marketing\TradeUnit
+ * App\Models\Goods\TradeUnit
  *
  * @property int $id
  * @property string $slug
@@ -40,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
- * @method static \Database\Factories\Marketing\TradeUnitFactory factory($count = null, $state = [])
+ * @method static TradeUnitFactory factory($count = null, $state = [])
  * @method static Builder|TradeUnit newModelQuery()
  * @method static Builder|TradeUnit newQuery()
  * @method static Builder|TradeUnit onlyTrashed()
@@ -53,7 +56,7 @@ class TradeUnit extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
-    use UsesTenantConnection;
+    use UsesGroupConnection;
     use HasImages;
     use HasFactory;
 

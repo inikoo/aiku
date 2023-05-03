@@ -10,8 +10,8 @@ namespace App\Models\Inventory;
 use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
+use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
-use App\Models\Marketing\TradeUnit;
 use App\Models\Media\Media;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
@@ -67,7 +67,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\StockStats|null $stats
  * @property-read \App\Models\Inventory\StockFamily|null $stockFamily
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\StockMovement> $stockMovements
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Stock newModelQuery()
  * @method static Builder|Stock newQuery()
