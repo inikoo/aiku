@@ -10,7 +10,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('trade_units', function (Blueprint $table) {
             $table->increments('id');
@@ -21,7 +21,6 @@ return new class () extends Migration {
             $table->string('barcode')->index()->nullable();
             $table->float('weight')->nullable();
             $table->jsonb('dimensions')->nullable();
-
             $table->string('type')->default('piece')->index()->nullable()->comment('unit type');
             $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('data');
@@ -33,7 +32,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('trade_units');
     }

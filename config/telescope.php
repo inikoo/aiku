@@ -138,6 +138,7 @@ return [
         'fetch:invoices',
         'fetch:deleted-invoices',
         'fetch:purchase-order',
+        'fetch:users',
 
         'fetch:models',
         'fetch:reset'

@@ -10,6 +10,7 @@ namespace App\Models\Marketing;
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
 use App\Enums\Marketing\Product\ProductTypeEnum;
+use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Media\Media;
 use App\Models\Sales\SalesStats;
@@ -64,7 +65,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\TradeUnit> $tradeUnits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Marketing\ProductFactory factory($count = null, $state = [])
  * @method static Builder|Product newModelQuery()

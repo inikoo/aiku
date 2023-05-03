@@ -8,9 +8,11 @@
 namespace App\Models\Auth;
 
 use App\Models\Central\CentralMedia;
+use App\Models\Tenancy\Tenant;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,6 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $email
  * @property string|null $name
  * @property string|null $about
+ * @property bool $status
  * @property int|null $media_id
  * @property array|null $data
  * @property int $number_users
@@ -37,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read CentralMedia|null $avatar
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Spatie\Multitenancy\TenantCollection<int, Tenant> $tenants
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Auth\User> $users
  * @method static Builder|GroupUser newModelQuery()
  * @method static Builder|GroupUser newQuery()
@@ -78,6 +82,13 @@ class GroupUser extends Model implements HasMedia
     public function avatar(): HasOne
     {
         return $this->hasOne(CentralMedia::class, 'id', 'media_id');
+    }
+
+    public function tenants(): BelongsToMany
+    {
+        return $this->BelongsToMany(Tenant::class)->using(GroupUserTenant::class)
+            ->withPivot('user_id', 'data')
+            ->withTimestamps();
     }
 
     public function registerMediaCollections(): void

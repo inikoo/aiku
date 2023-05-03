@@ -28,5 +28,5 @@ prod-diff.sh
 /public/tenants/
 /c1
 /hash
-/initialise_aurora_migration.sh
+/aurora_migration.sh
 /migrate_aurora.sh

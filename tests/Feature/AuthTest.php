@@ -7,6 +7,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Auth\GroupUser\DeleteGroupUser;
 use App\Actions\Auth\GroupUser\UpdateGroupUserStatus;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
@@ -16,7 +17,6 @@ use App\Actions\Auth\User\UpdateUserStatus;
 use App\Actions\Auth\User\UserAddRoles;
 use App\Actions\Auth\User\UserRemoveRoles;
 use App\Actions\Auth\User\UserSyncRoles;
-use App\Actions\fromIris;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
@@ -49,13 +49,14 @@ test('update guest', function ($guest) {
 })->depends('create guest');
 
 test('create user for guest', function ($guest) {
-    Hash::shouldReceive('make')
-        ->andReturn('1234567');
+    Hash::shouldReceive('make')->andReturn('1234567');
 
 
     $userData = User::factory()->definition();
     Arr::set($userData, 'email', $guest->email);
+    /** @noinspection PhpUnhandledExceptionInspection */
     $user = StoreUser::make()->action($guest, null, $userData);
+
     $this->assertModelExists($user);
     expect($user->password)->toBe('1234567')
         ->and($user->groupUser->password)->toBe('1234567');
@@ -64,32 +65,34 @@ test('create user for guest', function ($guest) {
 })->depends('create guest');
 
 test('update user password', function ($user) {
-    $userFactory = User::factory()->definition();
 
     Hash::shouldReceive('make')
-        ->andReturn($userFactory['password']);
+        ->andReturn('hello1234');
+
+
     $user = UpdateUser::make()->action($user, [
-        'password' => $userFactory['password']
+        'password' => 'secret'
     ]);
 
+    /** @var GroupUser $groupUser */
     $groupUser = $user->groupUser()->first();
 
-    expect($user->password)->toBe($userFactory['password'])
-        ->and($groupUser->username)->toBe($userFactory['username'])
-        ->and($groupUser->password)->toBe($userFactory['password']);
+    expect($user->password)->toBe('hello1234')
+        ->and($groupUser->password)->toBe('hello1234');
+
 
     return $user;
 })->depends('create user for guest');
 
 test('update user username', function ($user) {
     $userFactory = User::factory()->definition();
-    $user = UpdateUser::make()->action($user, [
+    $user        = UpdateUser::make()->action($user, [
         'username' => $userFactory['username']
     ]);
-
+    /** @var GroupUser $groupUser */
     $groupUser = $user->groupUser()->first();
 
-    expect($user->password)->toBe($userFactory['password'])
+    expect($user->username)->toBe($userFactory['username'])
         ->and($groupUser->username)->toBe($userFactory['username']);
 
     return $user;
@@ -107,9 +110,11 @@ test('attaching existing group user to another tenant guest', function () {
 
     $groupUser = GroupUser::where('username', 'hello')->first();
 
+    /** @noinspection PhpUnhandledExceptionInspection */
     $user = StoreUser::make()->action($guest, $groupUser, []);
     $this->assertModelExists($user);
-    expect($user->password)->toBe('password');
+
+    expect($user->groupUser->username)->toBe('hello');
 
     return $user;
 })->depends('update user password');
@@ -128,6 +133,7 @@ test('make sure a group user can be only attaches once in each tenant', function
     $groupUser = GroupUser::where('username', 'hello')->first();
 
     expect(function () use ($guest, $groupUser) {
+        /** @noinspection PhpUnhandledExceptionInspection */
         StoreUser::make()->action($guest, $groupUser, []);
     })->toThrow(ValidationException::class);
 })->depends('update user password');
@@ -159,12 +165,20 @@ test('user change status if group user status is false  ', function ($user) {
     $this->assertModelExists($addRole);
 })->depends('create user for guest');
 
-test('group status change status', function ($user) {
+test('group status change status', function () {
     $groupUser = GroupUser::where('username', 'hello')->first();
 
-    $addRole = UpdateGroupUserStatus::make()->action($groupUser, [
+    $status = UpdateGroupUserStatus::make()->action($groupUser, [
         'status' => false
     ]);
 
-    $this->assertModelExists($addRole);
-})->depends('create user for guest');
+    $this->assertModelExists($status);
+});
+
+test('delete group user', function () {
+    $groupUser = GroupUser::where('username', 'hello')->first();
+
+    $deleteGroupUser = DeleteGroupUser::make()->action($groupUser);
+
+    expect($deleteGroupUser)->toBe(true);
+});

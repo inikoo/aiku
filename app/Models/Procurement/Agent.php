@@ -85,6 +85,7 @@ class Agent extends Model implements HasMedia
         'settings'    => 'array',
         'location'    => 'array',
         'status'      => 'boolean',
+        'is_private'  => 'boolean'
     ];
 
     protected $attributes = [

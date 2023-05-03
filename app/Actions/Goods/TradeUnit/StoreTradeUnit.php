@@ -1,13 +1,13 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sat, 03 Sept 2022 02:51:55 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 03 May 2023 11:42:32 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\TradeUnit;
+namespace App\Actions\Goods\TradeUnit;
 
-use App\Models\Marketing\TradeUnit;
+use App\Models\Goods\TradeUnit;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

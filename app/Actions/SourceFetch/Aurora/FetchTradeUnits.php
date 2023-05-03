@@ -7,10 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Marketing\TradeUnit\StoreTradeUnit;
-use App\Actions\Marketing\TradeUnit\UpdateTradeUnit;
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Actions\Utils\StoreImage;
-use App\Models\Marketing\TradeUnit;
+use App\Models\Goods\TradeUnit;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

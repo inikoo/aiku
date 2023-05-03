@@ -66,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
                 'Order'           => 'App\Models\Sales\Order',
                 'Agent'           => 'App\Models\Procurement\Agent',
                 'Location'        => 'App\Models\Inventory\Location',
-                'TradeUnit'       => 'App\Models\Marketing\TradeUnit'
+                'TradeUnit'       => 'App\Models\Goods\TradeUnit'
             ]
         );
     }

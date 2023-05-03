@@ -9,6 +9,7 @@ namespace App\Actions\Auth\GroupUser\Hydrators;
 
 use App\Models\Auth\GroupUser;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GroupUserHydrateTenants implements ShouldBeUnique
@@ -17,10 +18,11 @@ class GroupUserHydrateTenants implements ShouldBeUnique
 
     public function handle(GroupUser $groupUser): void
     {
+
         $userNameInfo = [];
 
-        foreach ($groupUser->users as $user) {
-            $userNameInfo[] = array('tenant' => $user->tenant->slug, 'name' => $user->parent->name);
+        foreach ($groupUser->tenants as $tenant) {
+            $userNameInfo[] = array('tenant' => $tenant->slug, 'name' =>Arr::get($tenant->pivot->data, 'name', 'error'));
         }
 
         $userNameInfo = collect($userNameInfo)->groupBy('name')->all();

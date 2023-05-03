@@ -9,6 +9,9 @@ namespace App\Actions\Auth\GroupUser;
 
 use App\Actions\Auth\GroupUser\Hydrators\GroupUserHydrateTenants;
 use App\Models\Auth\GroupUser;
+use App\Models\Tenancy\Group;
+use App\Models\Tenancy\Tenant;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,7 +20,7 @@ class HydrateGroupUser
 {
     use AsAction;
 
-    public string $commandSignature = 'hydrate:central-user {--username}';
+    public string $commandSignature = 'hydrate:group-user {group} {--U|username=}';
 
 
     public function handle(GroupUser $centralUser): void
@@ -47,6 +50,17 @@ class HydrateGroupUser
 
     public function asCommand(Command $command): int
     {
+        try {
+            $group= Group::where('slug', $command->argument('group'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Group not found!');
+            return 1;
+        }
+
+        /** @var Tenant $tenant */
+        $tenant=$group->tenants()->first();
+        $tenant->makeCurrent();
+
         if ($command->option('username')) {
             if ($model = $this->getModel($command->option('username'))) {
                 $this->handle($model);
