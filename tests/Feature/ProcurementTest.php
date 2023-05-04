@@ -122,6 +122,11 @@ test('check if agent match with tenant', function ($agent) {
     $this->assertModelExists($agent);
 })->depends('create agent');
 
+test('create purchase order by agent', function ($agent) {
+    $purchaseOrder = StorePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());
+    $this->assertModelExists($purchaseOrder);
+})->depends('create agent');
+
 test('check if agent not match with tenant', function ($agent) {
     $agent = $agent->where('owner_id', $this->tenant2->id)->first();
 

@@ -7,6 +7,8 @@
 
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\Agent;
@@ -37,7 +39,6 @@ class TenantHydrateProcurement implements ShouldBeUnique
             'number_purchase_orders' => PurchaseOrder::count()
         ];
 
-
         $stateCounts = SupplierProduct::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -51,6 +52,14 @@ class TenantHydrateProcurement implements ShouldBeUnique
 
         foreach (SupplierProductQuantityStatusEnum::cases() as $stockQuantityStatus) {
             $stats['number_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
+        }
+
+        $purchaseOrderStatusCounts = PurchaseOrder::selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')->all();
+
+        foreach (PurchaseOrderStatusEnum::cases() as $purchaseOrderStatusEnum) {
+            $stats['number_purchase_orders_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
         }
 
         $tenant->procurementStats->update($stats);

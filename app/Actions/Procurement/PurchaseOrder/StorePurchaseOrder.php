@@ -7,7 +7,8 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
+use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrder;
+use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrder;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
@@ -33,7 +34,9 @@ class StorePurchaseOrder
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
         if(class_basename($parent) == 'Supplier') {
-            SupplierHydrateSupplierProducts::dispatch($parent);
+            SupplierHydratePurchaseOrder::dispatch($parent);
+        } else {
+            AgentHydratePurchaseOrder::dispatch($parent);
         }
 
         TenantHydrateProcurement::dispatch(app('currentTenant'));
@@ -45,8 +48,6 @@ class StorePurchaseOrder
     {
         return [
             'number'        => ['required', 'numeric', 'unique:group.purchase_orders'],
-            'provider_id'   => ['required'],
-            'provider_type' => ['required'],
             'date'          => ['required', 'date'],
             'currency_id'   => ['required', 'exists:currencies,id'],
             'exchange'      => ['required', 'numeric']
