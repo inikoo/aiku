@@ -15,6 +15,7 @@ return new class () extends Migration {
         Schema::create('groups', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('owner_id')->nullable()->comment('Tenant who owns this model');
+            $table->ulid()->index();
             $table->string('slug');
             $table->string('code');
             $table->string('name');

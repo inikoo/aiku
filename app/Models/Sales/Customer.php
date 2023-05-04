@@ -25,6 +25,7 @@ use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\WebUser;
+use Database\Factories\Sales\CustomerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -69,7 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Order> $orders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
@@ -79,7 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read TaxNumber|null $taxNumber
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
- * @method static \Database\Factories\Sales\CustomerFactory factory($count = null, $state = [])
+ * @method static CustomerFactory factory($count = null, $state = [])
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static Builder|Customer onlyTrashed()

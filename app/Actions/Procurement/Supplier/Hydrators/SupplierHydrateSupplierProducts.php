@@ -7,8 +7,11 @@
 
 namespace App\Actions\Procurement\Supplier\Hydrators;
 
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -22,7 +25,7 @@ class SupplierHydrateSupplierProducts implements ShouldBeUnique
     public function handle(Supplier $supplier): void
     {
         $stats = [
-            'number_products' => $supplier->products->count(),
+            'number_products' => $supplier->products->count()
         ];
 
         $stateCounts = SupplierProduct::where('supplier_id', $supplier->id)
@@ -42,7 +45,6 @@ class SupplierHydrateSupplierProducts implements ShouldBeUnique
         foreach (SupplierProductQuantityStatusEnum::cases() as $stockQuantityStatus) {
             $stats['number_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
         }
-
 
         $supplier->stats->update($stats);
     }

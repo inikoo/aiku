@@ -6,8 +6,8 @@
  */
 
 use App\Actions\Media\ShowCentralMedia;
-use App\Actions\Media\ShowMedia;
+use App\Actions\Media\ShowGroupMedia;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/{media}', ShowMedia::class)->name('show');
+Route::get('/group/{groupMedia}', ShowGroupMedia::class)->name('group.show');
 Route::get('/central/{centralMedia}', ShowCentralMedia::class)->name('central.show');

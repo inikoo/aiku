@@ -5,8 +5,14 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+namespace Tests\Feature;
+
+use App\Actions\Procurement\Agent\ChangeAgentOwner;
 use App\Actions\Procurement\Agent\StoreAgent;
+use App\Actions\Procurement\Agent\UpdateAgent;
+use App\Actions\Procurement\Agent\UpdateAgentVisibility;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
+use App\Actions\Procurement\Supplier\GetSupplier;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Models\Helpers\Address;
@@ -15,11 +21,17 @@ use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
 use App\Models\Procurement\PurchaseOrder;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
-beforeAll(fn () => loadDB('d3_with_tenants.dump'));
+beforeAll(fn() => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
     $this->tenant = Tenant::where('slug', 'agb')->first();
+    $this->tenant2 = Tenant::where('slug', 'aus')->first();
+    $this->tenant3 = Tenant::where('slug', 'aes')->first();
+
     $this->tenant->makeCurrent();
 });
 
@@ -44,29 +56,110 @@ test('number of agents should be two', function () {
     $this->assertEquals(2, $this->tenant->procurementStats->number_active_agents);
 })->depends('create agent', 'create another agent');
 
-test('create supplier', function () {
-    $supplier = StoreSupplier::make()->action($this->tenant, Supplier::factory()->definition());
+test('create independent supplier', function () {
+    $supplier = StoreSupplier::make()->action($this->tenant, Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
     $this->assertModelExists($supplier);
+
     return $supplier;
 });
 
-test('create supplier in agent', function ($agent) {
-    $supplier = StoreSupplier::make()->action($agent, Supplier::factory()->definition());
+test('number independent supplier should be one', function () {
+    $this->assertEquals(1, $this->tenant->procurementStats->number_suppliers);
+    $this->assertEquals(1, $this->tenant->procurementStats->number_active_suppliers);
+});
+
+test('create independent supplier 2', function () {
+    $supplier = StoreSupplier::make()->action($this->tenant, Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
     $this->assertModelExists($supplier);
-})->depends('create agent');
 
+    return $supplier;
+});
 
-test('number of supplier should be two', function () {
+test('number independent supplier should be two', function () {
     $this->assertEquals(2, $this->tenant->procurementStats->number_suppliers);
     $this->assertEquals(2, $this->tenant->procurementStats->number_active_suppliers);
-})->depends('create supplier', 'create supplier in agent');
+});
+
+test('create supplier in agent', function ($agent) {
+    $supplier = StoreSupplier::make()->action($agent,  Arr::prepend(Supplier::factory()->definition(), 'sub-supplier', 'type'));
+    $this->assertModelExists($supplier);
+})->depends('create agent');
 
 test('create supplier product', function ($supplier) {
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
     $this->assertModelExists($supplierProduct);
-})->depends('create supplier');
+})->depends('create independent supplier');
 
 test('create purchase order', function ($supplier) {
     $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
     $this->assertModelExists($purchaseOrder);
-})->depends('create supplier');
+})->depends('create independent supplier');
+
+test('check has one purchase order', function ($supplier) {
+    $this->assertEquals(1, $supplier->stats->number_products);
+    $this->assertEquals(1, $supplier->stats->number_purchase_orders);
+})->depends('create independent supplier');
+
+test('create supplier product 2', function ($supplier) {
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $this->assertModelExists($supplierProduct);
+})->depends('create independent supplier');
+
+test('create new purchase order', function ($supplier) {
+    expect(function () use ($supplier) {
+        StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+    })->toThrow(ValidationException::class);
+})->depends('create independent supplier');
+
+test('create new purchase order by force', function ($supplier) {
+    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition(), true);
+    $this->assertModelExists($purchaseOrder);
+})->depends('create independent supplier');
+
+test('check if agent match with tenant', function ($agent) {
+    $agent = $agent->where('owner_id', $this->tenant->id)->first();
+
+    $this->assertModelExists($agent);
+})->depends('create agent');
+
+test('create purchase order by agent', function ($agent) {
+    $purchaseOrder = StorePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());
+    $this->assertModelExists($purchaseOrder);
+})->depends('create agent');
+
+test('check if agent not match with tenant', function ($agent) {
+    $agent = $agent->where('owner_id', $this->tenant2->id)->first();
+
+    expect($agent)->toBeNull();
+})->depends('create agent');
+
+test('others tenant can view supplier', function ($agent) {
+    $this->tenant2->makeCurrent();
+    $supplier = GetSupplier::run($agent);
+
+    expect($supplier)->toBeInstanceOf(LengthAwarePaginator::class);
+})->depends('create agent');
+
+test('cant change agent visibility to private', function ($agent) {
+    expect(function () use ($agent) {
+        UpdateAgentVisibility::make()->action($agent, false);
+    })->toThrow(ValidationException::class);
+})->depends('create agent');
+
+test('change agent visibility to public', function ($agent) {
+    $agent = UpdateAgentVisibility::make()->action($agent->first(), false);
+
+    $this->assertModelExists($agent);
+})->depends('create agent');
+
+test('change agent owner', function ($agent) {
+    $agent = ChangeAgentOwner::run($agent, $this->tenant2);
+
+    $this->assertModelExists($agent);
+})->depends('create agent');
+
+test('check if last tenant cant update', function ($agent) {
+    expect(function () use ($agent) {
+        UpdateAgent::make()->action($agent, Agent::factory()->definition());
+    })->toThrow(ValidationException::class);
+})->depends('create agent');

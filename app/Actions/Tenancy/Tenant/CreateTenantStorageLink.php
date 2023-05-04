@@ -9,6 +9,7 @@
 
 namespace App\Actions\Tenancy\Tenant;
 
+use App\Actions\WithStorageLink;
 use App\Actions\WithTenantsArgument;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,6 +18,7 @@ class CreateTenantStorageLink
 {
     use AsAction;
     use WithTenantsArgument;
+    use WithStorageLink;
 
     public string $commandSignature   = 'create:tenant-storage-link {tenants?*} ';
     public string $commandDescription = 'Create the symbolic links configured for the application';
@@ -26,26 +28,12 @@ class CreateTenantStorageLink
     {
         /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant   = app('currentTenant');
-        $linkBase = public_path('tenants');
-        $link     = $linkBase.'/'.$tenant->ulid.'-'.$tenant->slug;
-        $target   = storage_path('app/public');
 
-        if (!file_exists($linkBase)) {
-            mkdir($linkBase, 0777, true);
-        }
-        if (!file_exists($target)) {
-            mkdir($target, 0777, true);
-        }
+        return  $this->setStorageLink(
+            'tenants',
+            $tenant->ulid.'-'.$tenant->slug
+        );
 
-        if (file_exists($link)) {
-            if (!is_link($link)) {
-                return array('success' => false, 'target' => $target, 'link' => $link);
-            }
-            unlink($link);
-        }
-        symlink($target, $link);
-
-        return array('success' => true, 'target' => $target, 'link' => $link);
     }
 
     public function asCommand(Command $command): int

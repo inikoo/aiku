@@ -59,7 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\SupplierStats|null $stats

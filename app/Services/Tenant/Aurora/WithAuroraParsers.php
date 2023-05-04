@@ -46,6 +46,7 @@ use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Auth\Guest;
 use App\Models\Dispatch\Shipper;
+use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Stock;
@@ -57,7 +58,6 @@ use App\Models\Mail\Outbox;
 use App\Models\Marketing\HistoricProduct;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
-use App\Models\Marketing\TradeUnit;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
@@ -73,8 +73,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                        != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                                    && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                                                                                                                                         != '' && $value != '0000-00-00 00:00:00'
+                                                                                                                                                                     && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 

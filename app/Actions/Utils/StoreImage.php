@@ -9,10 +9,10 @@ namespace App\Actions\Utils;
 
 use App\Actions\WithActionUpdate;
 use App\Models\Auth\Guest;
+use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
-use App\Models\Marketing\TradeUnit;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
@@ -39,7 +39,7 @@ class StoreImage
                 ->withCustomProperties(['checksum' => $checksum])
                 ->usingName($filename)
                 ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
-                ->toMediaCollection($collection, 'tenant');
+                ->toMediaCollection($collection, 'group');
         }
         return $subject;
     }

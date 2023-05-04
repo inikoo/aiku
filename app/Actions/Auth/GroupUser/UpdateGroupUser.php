@@ -8,12 +8,11 @@
 namespace App\Actions\Auth\GroupUser;
 
 use App\Actions\WithActionUpdate;
+use App\Enums\Auth\SynchronisableUserFields;
 use App\Models\Auth\GroupUser;
-use App\Models\Auth\User;
 use App\Rules\AlphaDashDot;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,26 +28,19 @@ class UpdateGroupUser
 
     public function handle(GroupUser $groupUser, array $modelData): GroupUser
     {
-        if(isset($modelData['password'])) $modelData['password'] = Hash::make($modelData['password']);
 
+        if(isset($modelData['password'])) {
+            $modelData['password'] = Hash::make($modelData['password']);
+        }
         $updatedGroupUser = $this->update($groupUser, $modelData);
 
-        $users = $groupUser->users()->get();
-        foreach ($users as $user) {
-            $this->update($user, $modelData);
+        foreach ($groupUser->users as $user) {
+            $this->update($user, Arr::only($modelData, SynchronisableUserFields::values()));
         }
 
         return $updatedGroupUser;
     }
 
-    public function authorize(GroupUser $groupUser, ActionRequest $request): bool
-    {
-//        if ($groupUser->id == $request->user()) {
-//            return true;
-//        }
-
-        return false;
-    }
 
 
     public function rules(): array

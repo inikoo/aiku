@@ -64,7 +64,7 @@ const displayBreadcrumbs = computed(() => {
 
 <template>
     <div v-if="displayBreadcrumbs">
-        <nav class="hidden sm:flex text-gray-600 bg-white border-b h-6 border-gray-200 text-sm" aria-label="Breadcrumb">
+        <nav class="hidden sm:flex text-gray-600 border-b h-6 border-gray-200 text-sm" aria-label="Breadcrumb">
             <ol role="list" class="w-full mx-auto px-4 flex ">
 
                 <li v-for="(breadcrumb, breadcrumbIdx) in  breadcrumbs" :key="breadcrumbIdx" class="flex">

@@ -26,13 +26,12 @@ class FetchUsers extends FetchAction
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?User
     {
         if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
-            if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])
-                ->first()) {
+            if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                 $user = UpdateUser::run($user, $userData['user']);
             } else {
-                $centralUser = GroupUser::where('username', $userData['user']['username'])->first();
-                if (!$centralUser) {
-                    $centralUser = StoreGroupUser::run(
+                $groupUser = GroupUser::where('username', $userData['user']['username'])->first();
+                if (!$groupUser) {
+                    $groupUser = StoreGroupUser::run(
                         [
                             'username' => $userData['user']['username'],
                             'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
@@ -41,7 +40,7 @@ class FetchUsers extends FetchAction
                 }
 
 
-                $user = StoreUser::run(app('currentTenant'), $userData['parent'], $centralUser);
+                $user = StoreUser::run($userData['parent'], $groupUser);
                 $user->update(
                     [
                         'source_id'=> $userData['user']['source_id']
@@ -52,6 +51,7 @@ class FetchUsers extends FetchAction
                 DB::connection('aurora')->table('User Dimension')
                     ->where('User Key', $user->source_id)
                     ->update(['aiku_id' => $user->id]);
+
             }
 
 

@@ -15,8 +15,6 @@ return new class () extends Migration {
         Schema::create('users', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_user_id');
-            $table->unsignedSmallInteger('tenant_id')->index();
-            $table->foreign('tenant_id')->references('id')->on('public.tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->boolean('status')->default(true);
             $table->string('username')->unique()->comment('mirror group_users.username');
             $table->string('password')->comment('mirror group_users.password');
@@ -28,8 +26,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
-            $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('media');
+
         });
     }
 

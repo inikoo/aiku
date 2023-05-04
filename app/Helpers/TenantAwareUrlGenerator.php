@@ -13,9 +13,10 @@ class TenantAwareUrlGenerator extends DefaultUrlGenerator
 {
     public function getUrl(): string
     {
+
         $url = match ($this->getDiskName()) {
             'r2'     => config('app.media_domain').'/tenants/'.app('currentTenant')->id.'/'.$this->getPathRelativeToRoot(),
-            'public' => 'tenants/'.app('currentTenant')->id.'/'.$this->getPathRelativeToRoot(),
+            'public' => 'groups/'.app('currentTenant')->group->id.'/'.$this->getPathRelativeToRoot(),
 
             default => asset($this->getPathRelativeToRoot())
         };

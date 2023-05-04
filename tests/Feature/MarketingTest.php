@@ -7,35 +7,35 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Actions\Marketing\Offer\StoreOffer;
 use App\Actions\Marketing\Offer\UpdateOffer;
 use App\Actions\Marketing\OfferCampaign\StoreOfferCampaign;
 use App\Actions\Marketing\OfferCampaign\UpdateOfferCampaign;
 use App\Actions\Marketing\OfferComponent\StoreOfferComponent;
 use App\Actions\Marketing\OfferComponent\UpdateOfferComponent;
-use App\Actions\Marketing\ProductCategory\StoreProductCategory;
-use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Product\DeleteProduct;
 use App\Actions\Marketing\Product\StoreProduct;
 use App\Actions\Marketing\Product\UpdateProduct;
+use App\Actions\Marketing\ProductCategory\StoreProductCategory;
+use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\ShippingZone\StoreShippingZone;
 use App\Actions\Marketing\ShippingZone\UpdateShippingZone;
 use App\Actions\Marketing\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Marketing\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
-use App\Actions\Marketing\TradeUnit\StoreTradeUnit;
-use App\Actions\Marketing\TradeUnit\UpdateTradeUnit;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Models\Goods\TradeUnit;
 use App\Models\Marketing\Offer;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;
-use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Product;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\ShippingZone;
 use App\Models\Marketing\ShippingZoneSchema;
 use App\Models\Marketing\Shop;
-use App\Models\Marketing\TradeUnit;
 use App\Models\Tenancy\Tenant;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));

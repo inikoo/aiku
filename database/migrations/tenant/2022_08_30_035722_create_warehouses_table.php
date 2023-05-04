@@ -19,8 +19,6 @@ return new class () extends Migration {
             $table->string('name');
             $table->jsonb('settings');
             $table->jsonb('data');
-            $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('media');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedSmallInteger('source_id')->nullable()->unique();

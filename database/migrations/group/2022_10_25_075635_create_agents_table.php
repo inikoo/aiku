@@ -25,6 +25,7 @@ return new class () extends Migration {
             $table->string('contact_name', 256)->nullable()->index();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
+            $table->boolean('is_private')->default(true);
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');

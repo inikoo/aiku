@@ -10,14 +10,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('warehouse_areas', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->unsignedSmallInteger('warehouse_id')->index();
-            $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('media');
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->string('code')->index();
             $table->string('name');
@@ -28,7 +26,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('warehouse_areas');
     }

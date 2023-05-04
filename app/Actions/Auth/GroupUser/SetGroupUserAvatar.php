@@ -8,7 +8,8 @@
 namespace App\Actions\Auth\GroupUser;
 
 use App\Models\Auth\GroupUser;
-use App\Models\Central\CentralMedia;
+use App\Models\Media\GroupMedia;
+use App\Models\Tenancy\Group;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,39 +18,46 @@ class SetGroupUserAvatar
 {
     use AsAction;
 
-    public string $commandSignature = 'maintenance:reset-central-user-avatar {username}';
-
-
-
-    public function handle(GroupUser $centralUser): GroupUser
+    public function handle(GroupUser $groupUser): GroupUser
     {
         try {
-            $seed = $centralUser->id;
-            /** @var CentralMedia $centralMedia */
-            $centralMedia = $centralUser->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
+            $seed = $groupUser->id;
+            /** @var GroupMedia $groupMedia */
+            $groupMedia = $groupUser->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
                 ->preservingOriginal()
-                ->usingFileName($centralUser->username."-avatar.sgv")
-                ->toMediaCollection('profile', 'local');
+                ->usingFileName($groupUser->username."-avatar.sgv")
+                ->toMediaCollection('profile', 'group');
 
-            $avatarID = $centralMedia->id;
+            $avatarID = $groupMedia->id;
 
-            $centralUser->update(['media_id' => $avatarID]);
+            $groupUser->update(['media_id' => $avatarID]);
         } catch(Exception) {
             //
         }
-        return $centralUser;
+        return $groupUser;
     }
 
 
+    public string $commandSignature = 'maintenance:reset-central-user-avatar {group : Group slug} {username : GroupUser username}';
 
     public function asCommand(Command $command): int
     {
-        $centralUser = GroupUser::where('username', $command->argument('username'))->first();
-        if (!$centralUser) {
-            $command->error('User not found');
+
+        try {
+            $group=Group::where('slug', $command->argument('group'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error('Group not found');
+            return 1;
+        }
+
+        $group->owner->makeCurrent();
+
+        $groupUser = GroupUser::where('username', $command->argument('username'))->first();
+        if (!$groupUser) {
+            $command->error('GroupUser not found');
             return 1;
         } else {
-            $this->handle($centralUser);
+            $this->handle($groupUser);
         }
 
 

@@ -10,8 +10,9 @@ namespace App\Models\Marketing;
 use App\Enums\Marketing\Product\ProductStateEnum;
 use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
 use App\Enums\Marketing\Product\ProductTypeEnum;
+use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
-use App\Models\Media\Media;
+use App\Models\Media\GroupMedia;
 use App\Models\Sales\SalesStats;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
@@ -59,12 +60,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\HistoricProduct> $historicRecords
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, GroupMedia> $images
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, GroupMedia> $media
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\TradeUnit> $tradeUnits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Marketing\ProductFactory factory($count = null, $state = [])
  * @method static Builder|Product newModelQuery()
@@ -156,7 +157,7 @@ class Product extends Model implements HasMedia
 
     public function images(): BelongsToMany
     {
-        return $this->belongsToMany(Media::class, 'media_product')->withTimestamps()
+        return $this->belongsToMany(GroupMedia::class, 'media_product')->withTimestamps()
             ->withPivot(['public', 'owner_type', 'owner_id'])
             ->wherePivot('type', 'image');
     }
