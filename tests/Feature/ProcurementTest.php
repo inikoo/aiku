@@ -105,16 +105,15 @@ test('create supplier product 2', function ($supplier) {
     $this->assertModelExists($supplierProduct);
 })->depends('create independent supplier');
 
-test('create purchase order 2', function ($supplier) {
-    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
-    $this->assertModelExists($purchaseOrder);
+test('create new purchase order', function ($supplier) {
+    expect(function () use ($supplier) {
+        StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+    })->toThrow(ValidationException::class);
 })->depends('create independent supplier');
 
-test('check has two purchase order', function ($supplier) {
-    $supplier = Supplier::find($supplier->id);
-
-    $this->assertEquals(2, $supplier->stats->number_products);
-    $this->assertEquals(2, $supplier->stats->number_purchase_orders);
+test('create new purchase order by force', function ($supplier) {
+    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition(), true);
+    $this->assertModelExists($purchaseOrder);
 })->depends('create independent supplier');
 
 test('check if agent match with tenant', function ($agent) {

@@ -158,26 +158,25 @@ const user = ref(usePage().props.auth.user);
                         </div>
 
                         <!-- Avatar Group -->
-                        <div class="flex items-center">
-                            <!-- Search Button -->
-                            <button v-on:click="showSearchDialog = !showSearchDialog"
-                                    class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                                <span class="sr-only">{{ trans('Search') }}</span>
-                                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg">
-                                </font-awesome-icon>
-                                <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false">
-                                </SearchBar>
-                            </button>
-
-                            <!-- Notifications -->
-                            <button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                                <span class="sr-only">{{ trans('View notifications') }}</span>
-                                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
-
-                            </button>
+                        <div class="flex items-center mr-6 space-x-3">
+                            <div class="flex">
+                                <!-- Search Button -->
+                                <button @click="showSearchDialog = !showSearchDialog"
+                                        class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                                    <span class="sr-only">{{ trans('Search') }}</span>
+                                    <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
+                                    <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false" />
+                                </button>
+    
+                                <!-- Notifications -->
+                                <button type="button" class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                                    <span class="sr-only">{{ trans('View notifications') }}</span>
+                                    <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
+                                </button>
+                            </div>
 
                             <!-- Avatar Button -->
-                            <Menu as="div" class="relative ml-3 mr-6 block">
+                            <Menu as="div" class="relative">
                                 <div>
                                     <MenuButton
                                         class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
@@ -185,7 +184,6 @@ const user = ref(usePage().props.auth.user);
                                         <img v-if="user.data.avatar" class="h-8 w-8 rounded-full"
                                              :src="route('media.group.show',user.data.avatar)"
                                              alt=""/>
-
                                     </MenuButton>
                                 </div>
                                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
@@ -230,7 +228,6 @@ const user = ref(usePage().props.auth.user);
                     <DisclosureButton v-for="item in navigation" :key="item.name" as="a" :href="item.href"
                                       :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block rounded-md px-3 py-2 text-base font-medium']"
                                       :aria-current="item.current ? 'page' : undefined">{{ item.name }}
-
                     </DisclosureButton>
                 </div>
                 <div class="border-t border-gray-700 pt-4 pb-3">
@@ -268,7 +265,7 @@ const user = ref(usePage().props.auth.user);
 
         <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
         <AppLeftSideBar v-if="!sidebarOpen" class="hidden md:block"/>
-        <AppLeftSideBar class="-left-64 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0px]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen" />
+        <AppLeftSideBar class="-left-64 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0px]': sidebarOpen }"/>
 
         <main class="relative flex flex-col pt-16 ml-0
             md:ml-11

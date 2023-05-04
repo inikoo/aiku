@@ -72,7 +72,7 @@ const currentModule = (route) => route.substring(0, route.indexOf('.'));
                 <AppShopNavigation />
             </div>
 
-            <div class="flex flex-grow flex-col">
+            <div class="flex flex-grow flex-col pb-8">
                 <nav class="flex-1 space-y-1 bg-white" aria-label="Sidebar">
                     <Link v-for="(item, itemKey) in layout.navigation"
                           :key="itemKey"
