@@ -7,6 +7,8 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
+use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
@@ -23,7 +25,10 @@ class StorePurchaseOrder
         /** @var PurchaseOrder $purchaseOrder */
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
-        //        $purchaseOrder->stats()->create();
+        if(class_basename($parent) == 'Supplier') {
+            SupplierHydrateSupplierProducts::dispatch($parent);
+        }
+
         return $purchaseOrder;
     }
 

@@ -10,6 +10,7 @@ namespace App\Actions\Tenancy\Tenant\Hydrators;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\Agent;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
@@ -32,6 +33,8 @@ class TenantHydrateProcurement implements ShouldBeUnique
             'number_active_agents'        => Agent::where('status', true)->count(),
 
             'number_products' => SupplierProduct::count(),
+
+            'number_purchase_orders' => PurchaseOrder::count()
         ];
 
 

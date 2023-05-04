@@ -90,13 +90,31 @@ test('create supplier product', function ($supplier) {
     $this->assertModelExists($supplierProduct);
 })->depends('create independent supplier');
 
-test('check supplier stats has one product', function () {
-    $this->assertEquals(2, $this->tenant->procurementStats->number_products);
-});
-
 test('create purchase order', function ($supplier) {
     $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
     $this->assertModelExists($purchaseOrder);
+})->depends('create independent supplier');
+
+test('check has one purchase order', function ($supplier) {
+    $this->assertEquals(1, $supplier->stats->number_products);
+    $this->assertEquals(1, $supplier->stats->number_purchase_orders);
+})->depends('create independent supplier');
+
+test('create supplier product 2', function ($supplier) {
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $this->assertModelExists($supplierProduct);
+})->depends('create independent supplier');
+
+test('create purchase order 2', function ($supplier) {
+    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+    $this->assertModelExists($purchaseOrder);
+})->depends('create independent supplier');
+
+test('check has two purchase order', function ($supplier) {
+    $supplier = Supplier::find($supplier->id);
+
+    $this->assertEquals(2, $supplier->stats->number_products);
+    $this->assertEquals(2, $supplier->stats->number_purchase_orders);
 })->depends('create independent supplier');
 
 test('check if agent match with tenant', function ($agent) {
