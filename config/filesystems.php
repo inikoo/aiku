@@ -61,7 +61,11 @@ return [
             'throw'      => false,
         ],
 
-
+        'backups' => [
+            'driver' => 'local',
+            'root'   => storage_path('backups'),
+            'throw'  => false,
+        ],
 
         'r2' => [
             'driver'   => 's3',
