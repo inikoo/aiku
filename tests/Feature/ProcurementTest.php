@@ -13,6 +13,7 @@ use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Agent\UpdateAgentVisibility;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\SubmitPurchaseOrder;
 use App\Actions\Procurement\Supplier\GetSupplier;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
@@ -134,6 +135,11 @@ test('delete purchase order when items 0', function ($purchaseOrder) {
     expect(function () use ($purchaseOrder) {
         DeletePurchaseOrder::make()->action($purchaseOrder);
     })->toThrow(ValidationException::class);
+})->depends('create new purchase order by force');
+
+test('submit purchase order', function ($purchaseOrder) {
+    $purchaseOrder = SubmitPurchaseOrder::make()->action($purchaseOrder);
+    $this->assertModelExists($purchaseOrder);
 })->depends('create new purchase order by force');
 
 test('check if agent not match with tenant', function ($agent) {

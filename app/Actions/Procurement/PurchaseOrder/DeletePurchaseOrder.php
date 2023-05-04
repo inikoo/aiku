@@ -10,11 +10,10 @@ namespace App\Actions\Procurement\PurchaseOrder;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrder;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrder;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Validation\ValidationException;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -28,7 +27,7 @@ class DeletePurchaseOrder
      */
     public function handle(PurchaseOrder $purchaseOrder): bool
     {
-        if(($purchaseOrder->items()->count() > 0) && ($purchaseOrder->status == PurchaseOrderStatusEnum::PROCESSING)) {
+        if(($purchaseOrder->items()->count() > 0) && (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::SUBMITTED]))) {
             $purchaseOrder->delete();
 
             $parent = $purchaseOrder->provider;
