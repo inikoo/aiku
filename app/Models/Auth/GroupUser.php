@@ -39,7 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read CentralMedia|null $avatar
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read \Spatie\Multitenancy\TenantCollection<int, Tenant> $tenants
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Auth\User> $users
  * @method static Builder|GroupUser newModelQuery()

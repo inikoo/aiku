@@ -39,7 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property int|null $image_id
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read \App\Models\Auth\User|null $user
  * @method static \Database\Factories\Auth\GuestFactory factory($count = null, $state = [])
  * @method static Builder|Guest newModelQuery()

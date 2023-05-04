@@ -7,9 +7,12 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
+use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -18,12 +21,23 @@ class StorePurchaseOrder
     use AsAction;
     use WithAttributes;
 
+    private bool $force;
+    /**
+     * @var \App\Models\Procurement\Agent|\App\Models\Procurement\Supplier
+     */
+    private Supplier|Agent $parent;
+
     public function handle(Agent|Supplier $parent, array $modelData): PurchaseOrder
     {
         /** @var PurchaseOrder $purchaseOrder */
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
-        //        $purchaseOrder->stats()->create();
+        if(class_basename($parent) == 'Supplier') {
+            SupplierHydrateSupplierProducts::dispatch($parent);
+        }
+
+        TenantHydrateProcurement::dispatch(app('currentTenant'));
+
         return $purchaseOrder;
     }
 
@@ -39,8 +53,19 @@ class StorePurchaseOrder
         ];
     }
 
-    public function action(Agent|Supplier $parent, array $objectData): PurchaseOrder
+     public function afterValidator(Validator $validator): void
+     {
+         $purchaseOrder = $this->parent->purchaseOrders()->count();
+
+         if(!$this->force && $purchaseOrder>= 1) {
+            $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
+         }
+     }
+
+    public function action(Agent|Supplier $parent, array $objectData, bool $force = false): PurchaseOrder
     {
+        $this->parent = $parent;
+        $this->force = $force;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 

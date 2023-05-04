@@ -39,7 +39,7 @@ class StoreImage
                 ->withCustomProperties(['checksum' => $checksum])
                 ->usingName($filename)
                 ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
-                ->toMediaCollection($collection, 'tenant');
+                ->toMediaCollection($collection, 'group');
         }
         return $subject;
     }

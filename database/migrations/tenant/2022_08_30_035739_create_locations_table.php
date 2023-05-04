@@ -11,7 +11,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('locations', function (Blueprint $table) {
             $table->increments('id');
@@ -19,8 +19,6 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->unsignedSmallInteger('warehouse_area_id')->nullable()->index();
-            $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('media');
             $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
             $table->string('status')->index()->default(LocationStatusEnum::OPERATIONAL->value);
             $table->string('code', 64);
@@ -34,7 +32,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('locations');
     }

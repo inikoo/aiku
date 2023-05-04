@@ -7,13 +7,13 @@
 
 namespace App\Models\Media;
 
+use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Media\Media
+ * App\Models\GroupMedia\GroupMedia
  *
  * @property int $id
  * @property string $model_type
@@ -36,14 +36,14 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $model
  * @method static MediaCollection<int, static> all($columns = ['*'])
  * @method static MediaCollection<int, static> get($columns = ['*'])
- * @method static Builder|Media newModelQuery()
- * @method static Builder|Media newQuery()
- * @method static Builder|Media ordered()
- * @method static Builder|Media query()
+ * @method static Builder|GroupMedia newModelQuery()
+ * @method static Builder|GroupMedia newQuery()
+ * @method static Builder|GroupMedia ordered()
+ * @method static Builder|GroupMedia query()
  * @mixin \Eloquent
  */
-class Media extends BaseMedia
+class GroupMedia extends BaseMedia
 {
-    use UsesTenantConnection;
-    protected $table = 'media';
+    use UsesGroupConnection;
+    protected $table = 'group_media';
 }

@@ -10,14 +10,13 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('media_stock', function (Blueprint $table) {
             $table->unsignedInteger('stock_id')->index();
             $table->string('type')->index();
             $table->foreign('stock_id')->references('id')->on('stocks');
             $table->unsignedBigInteger('media_id')->index();
-            $table->foreign('media_id')->references('id')->on('media');
             $table->unique(['stock_id', 'media_id']);
             $table->string('owner_type')->index();
             $table->unsignedInteger('owner_id');
@@ -29,7 +28,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('media_stock');
     }

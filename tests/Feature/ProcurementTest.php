@@ -90,12 +90,29 @@ test('create supplier product', function ($supplier) {
     $this->assertModelExists($supplierProduct);
 })->depends('create independent supplier');
 
-test('check supplier stats has one product', function () {
-    $this->assertEquals(2, $this->tenant->procurementStats->number_products);
-});
-
 test('create purchase order', function ($supplier) {
     $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+    $this->assertModelExists($purchaseOrder);
+})->depends('create independent supplier');
+
+test('check has one purchase order', function ($supplier) {
+    $this->assertEquals(1, $supplier->stats->number_products);
+    $this->assertEquals(1, $supplier->stats->number_purchase_orders);
+})->depends('create independent supplier');
+
+test('create supplier product 2', function ($supplier) {
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $this->assertModelExists($supplierProduct);
+})->depends('create independent supplier');
+
+test('create new purchase order', function ($supplier) {
+    expect(function () use ($supplier) {
+        StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+    })->toThrow(ValidationException::class);
+})->depends('create independent supplier');
+
+test('create new purchase order by force', function ($supplier) {
+    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition(), true);
     $this->assertModelExists($purchaseOrder);
 })->depends('create independent supplier');
 

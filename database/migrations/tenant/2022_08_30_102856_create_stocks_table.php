@@ -41,7 +41,6 @@ return new class () extends Migration {
             $table->float('available_forecast')->nullable()->comment('days');
             $table->decimal('value', 16)->nullable();
             $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('media');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();

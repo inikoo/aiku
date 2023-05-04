@@ -93,6 +93,7 @@ const initialiseApp = () => {
             }
         }
 
+
         if (usePage().props.layoutShopsList) {
             layout.shops = usePage().props.layoutShopsList;
         }
@@ -181,7 +182,7 @@ const user = ref(usePage().props.auth.user);
                                         class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                         <span class="sr-only">{{ trans('Open user menu') }}</span>
                                         <img v-if="user.data.avatar" class="h-8 w-8 rounded-full"
-                                             :src="route('media.central.show',user.data.avatar)"
+                                             :src="route('media.group.show',user.data.avatar)"
                                              alt=""/>
                                     </MenuButton>
                                 </div>
@@ -216,6 +217,9 @@ const user = ref(usePage().props.auth.user);
                             </Menu>
                         </div>
                     </div>
+
+
+
                 </div>
             </div>
 
@@ -258,7 +262,7 @@ const user = ref(usePage().props.auth.user);
                 </div>
             </DisclosurePanel>
         </Disclosure>
-        
+
         <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
         <AppLeftSideBar v-if="!sidebarOpen" class="hidden md:block"/>
         <AppLeftSideBar class="-left-64 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0px]': sidebarOpen }"/>

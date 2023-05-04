@@ -44,7 +44,7 @@ class UpdateProfile
             $user->addMedia($avatar)
                 ->preservingOriginal()
                 ->usingFileName(Str::orderedUuid().'.'.$avatar->extension())
-                ->toMediaCollection('profile');
+                ->toMediaCollection('profile', 'group');
         }
 
         return $user;

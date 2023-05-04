@@ -23,6 +23,7 @@ class SupplierHydrateSupplierProducts implements ShouldBeUnique
     {
         $stats = [
             'number_products' => $supplier->products->count(),
+            'number_purchase_orders' => $supplier->purchaseOrders->count(),
         ];
 
         $stateCounts = SupplierProduct::where('supplier_id', $supplier->id)
@@ -42,7 +43,6 @@ class SupplierHydrateSupplierProducts implements ShouldBeUnique
         foreach (SupplierProductQuantityStatusEnum::cases() as $stockQuantityStatus) {
             $stats['number_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
         }
-
 
         $supplier->stats->update($stats);
     }

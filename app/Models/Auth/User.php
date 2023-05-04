@@ -10,7 +10,9 @@ namespace App\Models\Auth;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasRoles;
+use Database\Factories\Auth\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -18,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Arr;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -48,7 +51,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \App\Models\Auth\UserStats|null $stats
  * @property-read Tenant $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
- * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
+ * @method static UserFactory factory($count = null, $state = [])
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User onlyTrashed()
@@ -109,6 +112,7 @@ class User extends Authenticatable
 
     public function parent(): MorphTo
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->morphTo()->withTrashed();
     }
 
@@ -130,5 +134,12 @@ class User extends Authenticatable
     public function getRouteKeyName(): string
     {
         return 'username';
+    }
+
+    protected function avatar(): Attribute
+    {
+        return new Attribute(
+            get: fn () => Arr::get($this->data, 'avatar')
+        );
     }
 }
