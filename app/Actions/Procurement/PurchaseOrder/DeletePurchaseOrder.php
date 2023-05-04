@@ -7,6 +7,9 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
+use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrder;
+use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrder;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
@@ -26,7 +29,17 @@ class DeletePurchaseOrder
     public function handle(PurchaseOrder $purchaseOrder): bool
     {
         if(($purchaseOrder->items()->count() > 0) && ($purchaseOrder->status == PurchaseOrderStatusEnum::PROCESSING)) {
-            return $purchaseOrder->delete();
+            $purchaseOrder->delete();
+
+            $parent = $purchaseOrder->provider;
+
+            if (class_basename($parent) == 'Supplier') {
+                SupplierHydratePurchaseOrder::dispatch($parent);
+            } else {
+                AgentHydratePurchaseOrder::dispatch($parent);
+            }
+
+            TenantHydrateProcurement::dispatch(app('currentTenant'));
         }
 
         throw ValidationException::withMessages(['purchase_order' => 'You can not delete this purchase order']);
