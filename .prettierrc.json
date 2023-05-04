@@ -1,3 +1,12 @@
 {
-    "phpVersion":"8.2"
+    "arrowParens": "always",
+    "semi": false,
+    "tabWidth": 4,
+    "vueIndentScriptAndStyle": false,
+    "bracketSpacing": true,
+    "bracketSameLine": true,
+    "singleAttributePerLine": false,
+    "trailingComma": "es5",
+    "printWidth": 100,
+    "useTabs": true
 }
