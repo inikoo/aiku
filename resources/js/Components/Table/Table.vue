@@ -512,7 +512,7 @@ function header(key) {
             ref="tableFieldset"
             :key="`table-${name}`"
             :dusk="`table-${name}`"
-            class="min-w-0"
+            class="min-w-0  overflow-hidden"
             :class="{'opacity-75': isVisiting}"
         >
             <div class="flex flex-row flex-wrap sm:flex-nowrap justify-start px-4 sm:px-0">

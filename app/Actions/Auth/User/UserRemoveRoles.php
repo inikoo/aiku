@@ -17,7 +17,7 @@ use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UserAddRoles
+class UserRemoveRoles
 {
     use AsAction;
     use WithActionUpdate;
@@ -26,15 +26,12 @@ class UserAddRoles
 
     public function handle(User $user, array $roles): User
     {
-
-
         foreach ($roles as $role) {
-            $user->assignDirectRole($role);
+            $user->removeRole($role);
         }
 
         return $user;
     }
-
 
     public function authorize(ActionRequest $request): bool
     {
@@ -110,6 +107,7 @@ class UserAddRoles
 
 
         $tenant->makeCurrent();
+
 
         try {
             $user = User::where('username', $command->argument('user'))->firstOrFail();

@@ -11,6 +11,9 @@ use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\Auth\User\UpdateUser;
+use App\Actions\Auth\User\UserAddRoles;
+use App\Actions\Auth\User\UserRemoveRoles;
+use App\Actions\Auth\User\UserSyncRoles;
 use App\Actions\fromIris;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
@@ -107,3 +110,21 @@ test('attaching existing group user to another tenant guest', function () {
 
     return $user;
 })->depends('update user password');
+
+test('add user roles', function ($user) {
+    $addRole = UserAddRoles::make()->action($user, ['super-admin', 'system-admin']);
+
+    $this->assertModelExists($addRole);
+})->depends('create user for guest');
+
+test('remove user roles', function ($user) {
+    $addRole = UserRemoveRoles::make()->action($user, ['super-admin', 'system-admin']);
+
+    $this->assertModelExists($addRole);
+})->depends('create user for guest');
+
+test('sync user roles', function ($user) {
+    $addRole = UserSyncRoles::make()->action($user, ['super-admin', 'system-admin']);
+
+    $this->assertModelExists($addRole);
+})->depends('create user for guest');
