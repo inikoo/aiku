@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -25,6 +26,8 @@ class StoreGroup
 
     public function handle(array $modelData): Group
     {
+        $modelData['ulid'] = Str::ulid();
+
         /** @var Group $group */
         $group = Group::create($modelData);
 

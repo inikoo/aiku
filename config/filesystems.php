@@ -41,8 +41,6 @@ return [
         ],
 
 
-
-
         'public' => [
             'driver'     => 'local',
             'root'       => storage_path('app/public/central'),
@@ -50,18 +48,20 @@ return [
             'visibility' => 'public',
             'throw'      => false,
         ],
-        'tenant' => [
+        'group' => [
             'driver' => 'local',
-            'root'   => storage_path('app/tenant'),
+            'root'   => env('FILESYSTEM_GROUP_ROOT', storage_path('app/group')),
             'throw'  => false,
         ],
-        'tenant_public' => [
+        'group_public' => [
             'driver'     => 'local',
-            'root'       => storage_path('app/public/central'),
-            'url'        => env('APP_URL').'/storage',
+            'root'       => env('FILESYSTEM_GROUP_PUBLIC_ROOT', storage_path('app/public/group')),
+            'url'        => env('APP_URL').'/group/storage',
             'visibility' => 'public',
             'throw'      => false,
         ],
+
+
 
         'r2' => [
             'driver'   => 's3',

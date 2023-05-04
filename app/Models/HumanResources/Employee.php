@@ -16,6 +16,7 @@ use App\Models\Helpers\Issue;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\HumanResources\EmployeeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -59,10 +60,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read UniversalSearch|null $universalSearch
  * @property-read User|null $user
- * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])
+ * @method static EmployeeFactory factory($count = null, $state = [])
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
  * @method static Builder|Employee onlyTrashed()
@@ -115,7 +116,7 @@ class Employee extends Model implements HasMedia
     }
 
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::updated(function (Employee $employee) {
             if (!$employee->wasRecentlyCreated) {

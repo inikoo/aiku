@@ -8,7 +8,7 @@
 namespace App\Tasks;
 
 use App\Models\Central\CentralMedia;
-use App\Models\Media\Media;
+use App\Models\Media\GroupMedia;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Multitenancy\Models\Tenant;
 use Spatie\Multitenancy\Tasks\SwitchTenantTask;
@@ -32,25 +32,25 @@ class SetupFilesystemsTask implements SwitchTenantTask
 
 
         if ($tenant) {
-            config()->set('media-library.media_model', Media::class);
+            config()->set('media-library.media_model', GroupMedia::class);
 
             config()->set(
-                'filesystems.disks.tenant.root',
-                storage_path('app/tenant/'.$tenant->slug)
+                'filesystems.disks.group.root',
+                storage_path('app/group/'.$tenant->group->slug)
             );
             config()->set(
-                'filesystems.disks.tenant_public.root',
-                storage_path('app/public/tenant/'.$tenant->slug)
+                'filesystems.disks.group_public.root',
+                storage_path('app/public/group/'.$tenant->group->slug)
             );
         } else {
             config()->set('media-library.media_model', CentralMedia::class);
 
             config()->set(
-                'filesystems.disks.tenant.root',
+                'filesystems.disks.group.root',
                 storage_path('app/central')
             );
             config()->set(
-                'filesystems.disks.tenant_public.root',
+                'filesystems.disks.group_public.root',
                 storage_path('app/public/central')
             );
         }

@@ -18,8 +18,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('media');
+
 
             $table->unsignedInteger('customer_client_id')->nullable()->index();
             $table->foreign('customer_client_id')->references('id')->on('customer_clients');

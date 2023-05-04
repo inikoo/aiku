@@ -34,7 +34,6 @@ return new class () extends Migration {
             $table->unsignedDecimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
             $table->unsignedInteger('available')->default(0)->nullable();
             $table->unsignedBigInteger('image_id')->nullable();
-            $table->foreign('image_id')->references('id')->on('media');
 
             $table->jsonb('settings');
             $table->jsonb('data');

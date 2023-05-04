@@ -33,13 +33,13 @@ class SetAvatarFromImage
                 ->withCustomProperties(['checksum' => $checksum])
                 ->usingName($filename)
                 ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
-                ->toMediaCollection('profile');
+                ->toMediaCollection('profile', 'group');
 
 
             $user->update(
                 [
                     'data->profile_url'    => $user->refresh()->getFirstMediaUrl('profile'),
-                    'data->profile_source' => 'Media'
+                    'data->profile_source' => 'GroupMedia'
                 ]
             );
         }
