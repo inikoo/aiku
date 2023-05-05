@@ -1,8 +1,8 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 26 Apr 2023 12:12:30 Central European Summer Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Fri, 05 May 2023 16:55:25 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace Tests\Feature;
@@ -33,15 +33,11 @@ beforeEach(function () {
     $tenant->makeCurrent();
 });
 
-test('create shop', function () {
+test('create order', function () {
     $shop = StoreShop::make()->action(Shop::factory()->definition());
     $this->assertModelExists($shop);
     expect($shop->serialReferences()->count())->toBe(2);
 
-    return $shop;
-});
-
-test('create customer', function ($shop) {
     $customer = StoreCustomer::make()->action(
         $shop,
         Customer::factory()->definition(),
@@ -51,20 +47,14 @@ test('create customer', function ($shop) {
     expect($customer->reference)->toBe('000001')
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
 
+    $billingAddress = Address::first();
+    $shipmentAddress = Address::latest()->first();
+    $order = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
 
-    return $customer;
-})->depends('create shop');
+    $this->assertModelExists($order);
 
-test('create other customer', function ($shop) {
-    $customer = StoreCustomer::make()->action(
-        $shop,
-        Customer::factory()->definition(),
-        Address::factory()->definition()
-    );
-    expect($customer->reference)->toBe('000002');
-
-    return $customer;
-})->depends('create shop');
+    return $order;
+});
 
 test('create transaction', function ($order) {
     $transaction = StoreTransaction::make()->action($order, Transaction::factory()->definition());
