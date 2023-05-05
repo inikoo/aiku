@@ -27,8 +27,8 @@ class DeletePurchaseOrder
      */
     public function handle(PurchaseOrder $purchaseOrder): bool
     {
-        if(($purchaseOrder->items()->count() > 0) && (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::SUBMITTED]))) {
-            $purchaseOrder->delete();
+        if(($purchaseOrder->items()->count() > 0) && (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING->value, PurchaseOrderStateEnum::SUBMITTED->value]))) {
+            $purchaseOrderDeleted = $purchaseOrder->delete();
 
             $parent = $purchaseOrder->provider;
 
@@ -39,6 +39,8 @@ class DeletePurchaseOrder
             }
 
             TenantHydrateProcurement::dispatch(app('currentTenant'));
+
+            return $purchaseOrderDeleted;
         }
 
         throw ValidationException::withMessages(['purchase_order' => 'You can not delete this purchase order']);
