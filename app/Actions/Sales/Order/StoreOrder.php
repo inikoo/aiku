@@ -10,7 +10,9 @@ namespace App\Actions\Sales\Order;
 
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\Sales\Order\Hydrators\OrderHydrateUniversalSearch;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Customer;
@@ -44,7 +46,6 @@ class StoreOrder
         $order = $parent->shop->orders()->create($modelData);
         $order->stats()->create();
 
-
         $billingAddress  = StoreHistoricAddress::run($seedBillingAddress);
         $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
 
@@ -53,8 +54,10 @@ class StoreOrder
 
         HydrateOrder::make()->originalItems($order);
 
-        OrderHydrateUniversalSearch::dispatch($order);
+        TenantHydrateOrders::run(app('currentTenant'));
+        ShopHydrateOrders::run($parent->shop);
 
+        OrderHydrateUniversalSearch::dispatch($order);
 
         return $order;
     }
