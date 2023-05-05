@@ -158,6 +158,11 @@ test('submit purchase order', function ($purchaseOrder) {
     $this->assertModelExists($purchaseOrder);
 })->depends('create new purchase order by force');
 
+test('un submit purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UnSubmitPurchaseOrder::make()->action($purchaseOrder);
+    $this->assertModelExists($purchaseOrder);
+})->depends('create new purchase order by force');
+
 test('check if agent not match with tenant', function ($agent) {
     $agent = $agent->where('owner_id', $this->tenant2->id)->first();
 
