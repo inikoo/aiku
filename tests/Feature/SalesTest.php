@@ -9,7 +9,10 @@ namespace Tests\Feature;
 
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Sales\Customer\StoreCustomer;
+use App\Actions\Sales\Order\DeleteOrder;
 use App\Actions\Sales\Order\StoreOrder;
+use App\Actions\Sales\Order\SubmitOrder;
+use App\Actions\Sales\Order\UnSubmitOrder;
 use App\Actions\Sales\Order\UpdateOrder;
 use App\Actions\Sales\Transaction\StoreTransaction;
 use App\Actions\Sales\Transaction\UpdateTransaction;
@@ -90,3 +93,21 @@ test('update transaction', function ($transaction) {
 
     $this->assertModelExists($order);
 })->depends('create transaction');
+
+test('submit order', function ($order) {
+    $order = SubmitOrder::make()->action($order);
+
+    $this->assertModelExists($order);
+})->depends('create order');
+
+test('un submit order', function ($order) {
+    $order = UnSubmitOrder::make()->action($order);
+
+    $this->assertModelExists($order);
+})->depends('create order');
+
+test('delete order', function ($order) {
+    $order = DeleteOrder::run($order);
+
+    $this->assertModelExists($order);
+})->depends('create order');

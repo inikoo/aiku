@@ -74,7 +74,6 @@ const initialiseApp = () => {
         loadLanguageAsync(usePage().props.language);
     }
     watchEffect(() => {
-
         if (usePage().props.layout) {
             layout.navigation = usePage().props.layout.navigation ?? null;
             layout.actions = usePage().props.layout.actions ?? null;
@@ -82,7 +81,6 @@ const initialiseApp = () => {
                 layout.shopsInDropDown = usePage().props.layout.shopsInDropDown.data ??
                     {};
             }
-
         }
 
         if (usePage().props.layoutCurrentShopSlug) {
@@ -93,12 +91,9 @@ const initialiseApp = () => {
             }
         }
 
-
         if (usePage().props.layoutShopsList) {
             layout.shops = usePage().props.layoutShopsList;
         }
-
-
 
         layout.currentShopData = layout.shops[layout.currentShopSlug] ?? {
             slug: null,
@@ -128,6 +123,7 @@ import {useLayoutStore} from '@/Stores/layout';
 const showSearchDialog = ref(false);
 
 const user = ref(usePage().props.auth.user);
+console.log(usePage())
 </script>
 
 <template>
@@ -265,15 +261,13 @@ const user = ref(usePage().props.auth.user);
 
         <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
         <AppLeftSideBar v-if="!sidebarOpen" class="hidden md:block"/>
-        <AppLeftSideBar class="-left-64 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0px]': sidebarOpen }"/>
+        <AppLeftSideBar class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0]': sidebarOpen }"/>
 
         <main class="relative flex flex-col pt-16 ml-0
-            md:ml-11
-            lg:ml-10
-            xl:ml-40
-            2xl:ml-56"
+            md:ml-10
+            xl:ml-56"
         >
-            <Breadcrumbs class="fixed top-10 md:top-11 lg:top-10 z-10 w-full bg-white" :breadcrumbs="$page.props.breadcrumbs??[]"/>
+            <Breadcrumbs class="fixed top-11 lg:top-10 z-10 w-full" :breadcrumbs="$page.props.breadcrumbs??[]"/>
             <slot/>
         </main>
     </div>

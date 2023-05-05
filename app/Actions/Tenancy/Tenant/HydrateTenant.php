@@ -12,6 +12,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Actions\Traits\WithNormalise;
@@ -47,6 +48,7 @@ class HydrateTenant extends HydrateModel
         TenantHydrateUsers::run($tenant);
         TenantHydrateAccounting::run($tenant);
         TenantHydrateCustomers::run($tenant);
+        TenantHydrateOrders::run($tenant);
     }
 
     public function fulfilmentStats()
