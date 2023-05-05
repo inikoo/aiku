@@ -8,9 +8,10 @@
 namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\AgentResource;
-use App\Models\Procurement\Agent;
+use App\Models\AgentTenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -22,7 +23,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexAgents extends InertiaAction
 {
-    use HasUIAgents;
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -34,11 +34,12 @@ class IndexAgents extends InertiaAction
 
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS->value);
 
-        return QueryBuilder::for(Agent::class)
+        return QueryBuilder::for(AgentTenant::class)
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug'])
+            ->leftJoin('agents', 'agents.id', 'agent_tenant.agent_id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
-            ->allowedSorts(['code', 'name'])
+            ->where('agent_tenant.tenant_id', app('currentTenant')->id)
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -108,5 +109,25 @@ class IndexAgents extends InertiaAction
                 'data'      => AgentResource::collection($agents),
             ]
         )->table($this->tableStructure($parent));
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return
+            array_merge(
+                ProcurementDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'procurement.agents.index'
+                            ],
+                            'label' => __('agents'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            );
     }
 }

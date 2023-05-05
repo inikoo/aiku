@@ -8,12 +8,14 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\AgentTenant;
 use App\Models\Assets\Currency;
 use App\Models\Central\CentralDomain;
 use App\Models\Central\CentralMedia;
 use App\Models\Inventory\Stock;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use App\Models\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,7 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Tenancy\TenantAccountingStats|null $accountingStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $myAgents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CentralDomain> $centralDomains
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, CentralMedia> $centralMedia
  * @property-read Currency $currency
@@ -164,15 +166,26 @@ class Tenant extends SpatieTenant
         return $this->hasMany(CentralDomain::class);
     }
 
-    public function suppliers(): MorphMany
+    public function mySuppliers(): MorphMany
     {
         return $this->morphMany(Supplier::class, 'owner');
     }
 
-    public function agents(): HasMany
+    public function suppliers(): BelongsToMany
+    {
+        return $this->belongsToMany(Supplier::class)->using(SupplierTenant::class)->withTimestamps();
+    }
+
+    public function myAgents(): HasMany
     {
         return $this->hasMany(Agent::class, 'owner_id');
     }
+
+    public function agents(): BelongsToMany
+    {
+        return $this->belongsToMany(Agent::class)->using(AgentTenant::class)->withTimestamps();
+    }
+
 
     public function stocks(): MorphMany
     {

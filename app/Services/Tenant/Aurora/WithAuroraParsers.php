@@ -8,7 +8,6 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchAgents;
 use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedEmployees;
@@ -73,7 +72,7 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                                         != '' && $value != '0000-00-00 00:00:00'
+        return ($value                                                                                                                                                          != '' && $value != '0000-00-00 00:00:00'
                                                                                                                                                                      && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
@@ -321,12 +320,7 @@ trait WithAuroraParsers
 
     public function parseAgent($source_id): ?Agent
     {
-        $agent = Agent::where('source_id', $source_id)->first();
-        if (!$agent) {
-            $agent = FetchAgents::run($this->tenantSource, $source_id);
-        }
-
-        return $agent;
+        return Agent::where('source_id', $source_id)->where('source_type', app('currentTenant')->slug)->first();
     }
 
     public function parseStock($source_id): ?Stock

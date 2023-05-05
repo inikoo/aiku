@@ -19,17 +19,24 @@ class FetchAuroraSupplier extends FetchAurora
             ->select('Agent Supplier Agent Key')
             ->where('Agent Supplier Supplier Key', $this->auroraModelData->{'Supplier Key'})->first();
 
-        $type                      = 'supplier';
-        $this->parsedData['owner'] = app('currentTenant');
-        $agentId                   = null;
 
         if ($agentData) {
-            $this->parsedData['owner'] = $this->parseAgent($agentData->{'Agent Supplier Agent Key'});
-            if (!$this->parsedData['owner']) {
-                print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
+
+
+            $agent=$this->parseAgent($agentData->{'Agent Supplier Agent Key'});
+            if(!$agent) {
+                //print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
+                return;
             }
-            $agentId = $this->parsedData['owner']->id;
-            $type    = 'sub-supplier';
+
+            $this->parsedData['owner'] = $agent;
+            $agentId                   = $this->parsedData['owner']->id;
+            $type                      = 'sub-supplier';
+        } else {
+            $type                      = 'supplier';
+            $this->parsedData['owner'] = app('currentTenant');
+            $agentId                   = null;
+
         }
 
         $deleted_at = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});

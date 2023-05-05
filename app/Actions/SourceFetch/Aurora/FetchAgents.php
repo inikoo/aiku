@@ -10,34 +10,41 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
+use App\Actions\Tenancy\Tenant\AttachAgent;
 use App\Models\Procurement\Agent;
+use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\SourceTenantService;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchAgents extends FetchAction
 {
-    public string $commandSignature = 'fetch:agents {tenants?*} {--s|source_id=}';
-
-
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Agent
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Agent
     {
         if ($agentData = $tenantSource->fetchAgent($tenantSourceId)) {
-            $owner=app('currentTenant');
+            $tenant = app('currentTenant');
 
-            if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])
-                ->first()) {
+            if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->where('source_type', $tenant->slug)->first()) {
                 $agent = UpdateAgent::run($agent, $agentData['agent']);
                 UpdateAddress::run($agent->getAddress('contact'), $agentData['address']);
                 $agent->location = $agent->getLocation();
                 $agent->save();
             } else {
-                $agent = StoreAgent::run(
-                    owner:       $owner,
-                    modelData:   $agentData['agent'],
-                    addressData: $agentData['address']
-                );
+                $agent = Agent::withTrashed()->where('code', $agentData['agent']['code'])->first();
+                if ($agent) {
+                    AttachAgent::run($tenant, $agent, ['source_id' => $agentData['agent']['source_id']]);
+                } else {
+                    $agentData['agent']['source_type'] = $tenant->slug;
+                    $agent                             = StoreAgent::run(
+                        owner: $tenant,
+                        modelData: $agentData['agent'],
+                        addressData: $agentData['address']
+                    );
+
+                    $tenant->agents()->updateExistingPivot($agent, ['source_id' => $agentData['agent']['source_id']]);
+                }
             }
 
             return $agent;
@@ -63,4 +70,40 @@ class FetchAgents extends FetchAction
             ->where('aiku_ignore', 'No')
             ->count();
     }
+
+    public string $commandSignature = 'fetch:agents {owner : tenant owner} {--s|source_id= : aurora agent id (owner)}';
+
+
+    public function asCommand(Command $command): int
+    {
+        try {
+            $tenant = Tenant::where('slug', $command->argument('owner'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Invalid owner');
+
+            return 1;
+        }
+
+        $tenant->makeCurrent();
+
+        try {
+            $tenantSource = $this->getTenantSource($tenant);
+        } catch (Exception $exception) {
+            $command->error($exception->getMessage());
+
+            return 1;
+        }
+        $tenantSource->initialisation($tenant);
+
+
+        if ($command->option('source_id')) {
+            $this->handle($tenantSource, $command->option('source_id'));
+        } else {
+            $this->fetchAll($tenantSource, $command);
+        }
+
+        return 0;
+    }
+
+
 }
