@@ -22,7 +22,7 @@ class ShopHydrateOrders implements ShouldBeUnique
 
     public function handle(Shop $shop): void
     {
-        $stats       = [
+        $stats = [
             'number_orders' => $shop->orders->count(),
         ];
 
@@ -33,8 +33,9 @@ class ShopHydrateOrders implements ShouldBeUnique
 
 
         foreach (OrderStateEnum::cases() as $orderState) {
-            $stats['number_orders_state_'.$orderState->snake()] = Arr::get($stateCounts, $orderState->value, 0);
+            $stats['number_orders_state_' . $orderState->snake()] = Arr::get($stateCounts, $orderState->value, 0);
         }
+
         $shop->stats->update($stats);
     }
 
