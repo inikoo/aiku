@@ -7,13 +7,10 @@
 
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -28,15 +25,12 @@ class TenantHydrateProcurement implements ShouldBeUnique
     public function handle(Tenant $tenant): void
     {
         $stats = [
-            'number_suppliers'        => Supplier::where('type', 'supplier')->count(),
-            'number_active_suppliers' => Supplier::where('type', 'supplier')->where('status', true)->count(),
-
-            'number_agents'               => Agent::count(),
-            'number_active_agents'        => Agent::where('status', true)->count(),
-
-            'number_products' => SupplierProduct::count(),
-
-            'number_purchase_orders' => PurchaseOrder::count()
+            'number_suppliers'        => $tenant->suppliers()->count(),
+            'number_active_suppliers' => $tenant->suppliers()->where('status', true)->count(),
+            'number_agents'           => $tenant->agents()->count(),
+            'number_active_agents'    => $tenant->agents()->where('status', true)->count(),
+            'number_products'         => SupplierProduct::count(),
+            'number_purchase_orders'  => PurchaseOrder::count()
         ];
 
         $stateCounts = SupplierProduct::selectRaw('state, count(*) as total')

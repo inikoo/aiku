@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\AgentResource;
-use App\Models\Procurement\Agent;
+use App\Models\AgentTenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -34,11 +34,12 @@ class IndexAgents extends InertiaAction
 
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS->value);
 
-        return QueryBuilder::for(Agent::class)
+        return QueryBuilder::for(AgentTenant::class)
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug'])
+            ->leftJoin('agents', 'agents.id', 'agent_tenant.agent_id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
-            ->allowedSorts(['code', 'name'])
+            ->where('agent_tenant.tenant_id', app('currentTenant')->id)
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),

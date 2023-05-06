@@ -24,20 +24,21 @@ class StoreAgent
     public function handle(Tenant $owner, array $modelData, array $addressData = []): Agent
     {
         /** @var Agent $agent */
-        $agent = $owner->agents()->create($modelData);
+        $agent = $owner->myAgents()->create($modelData);
         $agent->stats()->create();
+
+        $owner->agents()->attach($agent);
+
         SetCurrencyHistoricFields::run($agent->currency, $agent->created_at);
 
         StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
         $agent->location = $agent->getLocation();
         $agent->save();
 
-        foreach($owner->group->tenants as $tenant) {
-            $tenant->execute(function () use ($agent) {
-                TenantHydrateProcurement::dispatch(app('currentTenant'));
-                AgentHydrateUniversalSearch::dispatch($agent);
-            });
-        }
+
+        TenantHydrateProcurement::dispatch(app('currentTenant'));
+        AgentHydrateUniversalSearch::dispatch($agent);
+
 
 
         return $agent;

@@ -8,6 +8,7 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\AgentTenant;
 use App\Models\Assets\Currency;
 use App\Models\Central\CentralDomain;
 use App\Models\Central\CentralMedia;
@@ -49,7 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Tenancy\TenantAccountingStats|null $accountingStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $myAgents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CentralDomain> $centralDomains
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, CentralMedia> $centralMedia
  * @property-read Currency $currency
@@ -173,6 +174,12 @@ class Tenant extends SpatieTenant
     {
         return $this->hasMany(Agent::class, 'owner_id');
     }
+
+    public function agents(): BelongsToMany
+    {
+        return $this->belongsToMany(Agent::class)->using(AgentTenant::class)->withTimestamps();
+    }
+
 
     public function stocks(): MorphMany
     {
