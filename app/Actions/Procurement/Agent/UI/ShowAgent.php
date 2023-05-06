@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\Agent\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\AgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
@@ -24,7 +25,6 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowAgent extends InertiaAction
 {
-    use HasUIAgent;
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.agents.edit');
@@ -108,4 +108,33 @@ class ShowAgent extends InertiaAction
      {
          return new AgentResource($this->agent);
      }
+
+    public function getBreadcrumbs(Agent $agent, $suffix = null): array
+    {
+        return array_merge(
+            (new ProcurementDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name' => 'procurement.agents.index',
+                            ],
+                            'label' => __('agent')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'procurement.agents.show',
+                                'parameters' => [$agent->slug]
+                            ],
+                            'label' => $agent->code,
+                        ],
+                    ],
+                    'suffix' => $suffix,
+
+                ],
+            ]
+        );
+    }
 }

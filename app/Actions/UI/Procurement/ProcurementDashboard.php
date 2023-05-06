@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Procurement;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Auth\User;
 use App\Models\Tenancy\Tenant;
@@ -75,7 +76,7 @@ class ProcurementDashboard
                             'icon'  => ['fal', 'fa-parachute-box'],
                             'href'  => ['procurement.supplier-products.index'],
                             'index' => [
-                                'number' => $this->tenant->procurementStats->number_active_global_agents
+                                'number' => $this->tenant->procurementStats->number_products
                             ]
 
                         ],
@@ -86,14 +87,24 @@ class ProcurementDashboard
         );
     }
 
-
     public function getBreadcrumbs(): array
     {
-        return [
-            'procurement.dashboard' => [
-                'route' => 'procurement.dashboard',
-                'name'  => __('procurement'),
-            ]
-        ];
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'procurement.dashboard'
+                            ],
+                            'label' => __('procurement'),
+                        ]
+                    ]
+                ]
+            );
     }
+
+
 }

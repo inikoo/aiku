@@ -31,8 +31,15 @@ class StoreAgent
         StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
         $agent->location = $agent->getLocation();
         $agent->save();
-        TenantHydrateProcurement::dispatch(app('currentTenant'));
-        AgentHydrateUniversalSearch::dispatch($agent);
+
+        foreach($owner->group->tenants as $tenant) {
+            $tenant->execute(function () use ($agent) {
+                TenantHydrateProcurement::dispatch(app('currentTenant'));
+                AgentHydrateUniversalSearch::dispatch($agent);
+            });
+        }
+
+
         return $agent;
     }
 

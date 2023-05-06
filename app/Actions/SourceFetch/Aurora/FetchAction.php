@@ -12,6 +12,7 @@ use App\Actions\WithTenantSource;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\SourceTenantService;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
@@ -64,23 +65,13 @@ class FetchAction
         });
     }
 
-    public function fetchSome(SourceTenantService $tenantSource, array $tenantIds): void
-    {
-        foreach ($tenantIds as $sourceId) {
-            $this->handle($tenantSource, $sourceId);
-        }
-    }
-
     public function count(): ?int
     {
         return null;
     }
 
 
-    /**
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     * @throws \Exception
-     */
+
     public function asCommand(Command $command): int
     {
         $tenants  = $this->getTenants($command);
@@ -105,7 +96,12 @@ class FetchAction
                 }
 
 
-                $tenantSource =$this->getTenantSource($tenant);
+                try {
+                    $tenantSource = $this->getTenantSource($tenant);
+                } catch (Exception $exception) {
+                    $command->error($exception->getMessage());
+                    return 1;
+                }
                 $tenantSource->initialisation(app('currentTenant'));
                 $command->info('');
 
@@ -129,6 +125,7 @@ class FetchAction
                     $this->fetchAll($tenantSource, $command);
                     $this->progressBar?->finish();
                 }
+                return 0;
             });
 
             if ($result !== 0) {
@@ -139,33 +136,6 @@ class FetchAction
         return $exitCode;
     }
 
-    /*
-    public function asJob(SourceTenantService $tenantSource, ?array $tenantIds = null): void
-    {
-        if (is_array($tenantIds)) {
-            $this->fetchSome($tenantSource, $tenantIds);
-        } else {
-            $this->getModelsQuery()
-                ->chunk(100, function ($tenantIds) use ($tenantSource) {
-                    $this->dispatch($tenantSource, $tenantIds->pluck('source_id')->all());
-                });
-        }
-    }
-
-    public function getJobMiddleware(): array
-    {
-        return [new InitialiseSourceTenant('currentTenant')];
-    }
-
-    public function configureJob(JobDecorator $job): void
-    {
-        $job->onQueue('fetches')
-            ->setTries(5)
-            ->setMaxExceptions(3)
-            ->setTimeout(1800);
-    }
-
-    */
 
     public function authorize(ActionRequest $request): bool
     {

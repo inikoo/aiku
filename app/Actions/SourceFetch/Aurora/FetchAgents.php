@@ -11,17 +11,16 @@ use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Models\Procurement\Agent;
+use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\SourceTenantService;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchAgents extends FetchAction
 {
-    public string $commandSignature = 'fetch:agents {tenants?*} {--s|source_id=}';
-
-
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Agent
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Agent
     {
         if ($agentData = $tenantSource->fetchAgent($tenantSourceId)) {
             $owner=app('currentTenant');
@@ -63,4 +62,42 @@ class FetchAgents extends FetchAction
             ->where('aiku_ignore', 'No')
             ->count();
     }
+
+    public string $commandSignature = 'fetch:agents {owner : tenant owner} {--s|source_id= : aurora agent id (owner)}';
+
+
+    public function asCommand(Command $command): int
+    {
+        try {
+            $owner=Tenant::where('slug', $command->argument('owner'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Invalid owner');
+            return 1;
+        }
+
+        $owner->makeCurrent();
+
+        try {
+            $tenantSource = $this->getTenantSource($owner);
+        } catch (Exception $exception) {
+            $command->error($exception->getMessage());
+            return 1;
+        }
+        $tenantSource->initialisation($owner);
+
+
+        if ($command->option('source_id')) {
+            $this->handle($tenantSource, $command->option('source_id'));
+        } else {
+            $this->fetchAll($tenantSource, $command);
+        }
+
+        return 0;
+
+    }
+
+
+
+
+
 }

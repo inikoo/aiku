@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
@@ -22,7 +23,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexAgents extends InertiaAction
 {
-    use HasUIAgents;
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -108,5 +108,25 @@ class IndexAgents extends InertiaAction
                 'data'      => AgentResource::collection($agents),
             ]
         )->table($this->tableStructure($parent));
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return
+            array_merge(
+                ProcurementDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'procurement.agents.index'
+                            ],
+                            'label' => __('agents'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            );
     }
 }
