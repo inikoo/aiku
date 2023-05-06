@@ -21,6 +21,9 @@ class StoreHistoricAddress
             return $foundAddress;
         }
 
+        if($addressExist = Address::where('checksum', $address->getChecksum())->first()) {
+            return UpdateAddress::run($addressExist, ['historic' => true]);
+        }
 
         return StoreAddress::run(array_merge($address->toArray(), ['historic' => true]));
     }
