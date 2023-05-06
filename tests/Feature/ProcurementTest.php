@@ -11,14 +11,17 @@ use App\Actions\Procurement\Agent\ChangeAgentOwner;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Agent\UpdateAgentVisibility;
+use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\SubmitPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UnSubmitPurchaseOrder;
 use App\Actions\Procurement\Supplier\GetSupplier;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
+use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
@@ -95,6 +98,8 @@ test('create supplier product', function ($supplier) {
 test('create purchase order', function ($supplier) {
     $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
     $this->assertModelExists($purchaseOrder);
+
+    return $purchaseOrder;
 })->depends('create independent supplier');
 
 test('check has one purchase order', function ($supplier) {
@@ -126,16 +131,27 @@ test('check if agent match with tenant', function ($agent) {
     $this->assertModelExists($agent);
 })->depends('create agent');
 
+test('delete purchase order when items 0', function ($purchaseOrder) {
+    expect(function () use ($purchaseOrder) {
+        DeletePurchaseOrder::make()->action($purchaseOrder->first());
+    })->toThrow(ValidationException::class);
+})->depends('create new purchase order by force');
+
+test('add items to purchase order', function ($purchaseOrder) {
+    $items = AddItemPurchaseOrder::make()->action($purchaseOrder, PurchaseOrderItem::factory()->definition());
+    $this->assertModelExists($items);
+})->depends('create new purchase order by force');
+
+test('delete purchase order', function ($purchaseOrder) {
+    $purchaseOrder = DeletePurchaseOrder::make()->action($purchaseOrder->fresh());
+
+    expect($purchaseOrder)->toBeTrue();
+})->depends('create new purchase order by force');
+
 test('create purchase order by agent', function ($agent) {
     $purchaseOrder = StorePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());
     $this->assertModelExists($purchaseOrder);
 })->depends('create agent');
-
-test('delete purchase order when items 0', function ($purchaseOrder) {
-    expect(function () use ($purchaseOrder) {
-        DeletePurchaseOrder::make()->action($purchaseOrder);
-    })->toThrow(ValidationException::class);
-})->depends('create new purchase order by force');
 
 test('submit purchase order', function ($purchaseOrder) {
     $purchaseOrder = SubmitPurchaseOrder::make()->action($purchaseOrder);
