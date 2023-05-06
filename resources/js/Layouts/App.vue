@@ -163,7 +163,7 @@ const user = ref(usePage().props.auth.user);
                                     <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
                                     <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false" />
                                 </button>
-    
+
                                 <!-- Notifications -->
                                 <button type="button" class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                                     <span class="sr-only">{{ trans('View notifications') }}</span>
@@ -172,8 +172,8 @@ const user = ref(usePage().props.auth.user);
                             </div>
 
                             <!-- Avatar Button -->
-                            <Menu as="div" class="relative">
-                                <div>
+                            <Menu as="div" class="relative" >
+
                                     <MenuButton
                                         class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                         <span class="sr-only">{{ trans('Open user menu') }}</span>
@@ -181,13 +181,13 @@ const user = ref(usePage().props.auth.user);
                                              :src="route('media.group.show',user.data.avatar)"
                                              alt=""/>
                                     </MenuButton>
-                                </div>
+
                                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
                                             leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                                     <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                                         <div class="py-1">
-                                            <MenuItem v-slot="{ active }">
-                                                <Link as="ul" type="button" :href="route('profile.show')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
+                                            <MenuItem v-slot="{ active,close }"   >
+                                                <Link as="ul" type="button" :href="route('profile.show')"  @click="close"  :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
                                                     {{ trans('View profile') }}
                                                 </Link>
                                             </MenuItem>
