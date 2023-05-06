@@ -64,7 +64,7 @@ class ProcurementDashboard
                         ],
                         [
                             'name'  => __('suppliers'),
-                            'icon'  => ['fal', 'fa-users'],
+                            'icon'  => ['fal', 'fa-person-dolly'],
                             'href'  => ['procurement.suppliers.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_active_suppliers

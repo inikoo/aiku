@@ -59,28 +59,27 @@ class ShowAgent extends InertiaAction
                     ] : false,
                     'meta'  => [
                         [
-                            'name'     => trans_choice('supplier|suppliers', $this->agent->stats->number_active_suppliers),
-                            'number'   => $this->agent->stats->number_active_suppliers,
+                            'name'     => trans_choice('supplier|suppliers', $this->agent->stats->number_suppliers),
+                            'number'   => $this->agent->stats->number_suppliers,
                             'href'     => [
                                 'procurement.agents.show.suppliers.index',
                                 $this->agent->slug
                             ],
                             'leftIcon' => [
-                                'icon'    => 'fal fa-map-signs',
+                                'icon'    => 'fal fa-person-dolly',
                                 'tooltip' => __('suppliers')
                             ]
                         ],
-                        // TODO ShowSupplierProducts
                         [
-                            'name'     => trans_choice('supplier|suppliers', $this->agent->stats->number_active_suppliers),
-                            'number'   => $this->agent->stats->number_active_suppliers,
+                            'name'     => trans_choice('product|products', $this->agent->stats->number_products),
+                            'number'   => $this->agent->stats->number_products,
                             'href'     => [
                                 'procurement.agents.show.suppliers.index',
                                 $this->agent->slug
                             ],
                             'leftIcon' => [
-                                'icon'    => 'fal fa-map-signs',
-                                'tooltip' => __('suppliers')
+                                'icon'    => 'fal fa-parachute-box',
+                                'tooltip' => __('products')
                             ]
                         ]
                     ]

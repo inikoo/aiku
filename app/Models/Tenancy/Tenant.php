@@ -15,6 +15,7 @@ use App\Models\Central\CentralMedia;
 use App\Models\Inventory\Stock;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use App\Models\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -165,12 +166,17 @@ class Tenant extends SpatieTenant
         return $this->hasMany(CentralDomain::class);
     }
 
-    public function suppliers(): MorphMany
+    public function mySuppliers(): MorphMany
     {
         return $this->morphMany(Supplier::class, 'owner');
     }
 
-    public function agents(): HasMany
+    public function suppliers(): BelongsToMany
+    {
+        return $this->belongsToMany(Supplier::class)->using(SupplierTenant::class)->withTimestamps();
+    }
+
+    public function myAgents(): HasMany
     {
         return $this->hasMany(Agent::class, 'owner_id');
     }

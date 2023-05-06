@@ -25,13 +25,18 @@ class StoreSupplier
 
     public function handle(Tenant|Agent $owner, array $modelData, array $addressData = []): Supplier
     {
+        /** @var Supplier $supplier*/
         if (class_basename($owner) == 'Agent') {
             $modelData['owner_type'] = 'Agent';
             $modelData['owner_id']   = $owner->id;
+            $supplier                = $owner->suppliers()->create($modelData);
+
+        } else {
+            $supplier = $owner->mySuppliers()->create($modelData);
+            $owner->suppliers()->attach($supplier);
         }
 
-        /** @var Supplier $supplier */
-        $supplier = $owner->suppliers()->create($modelData);
+
         $supplier->stats()->create();
         SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 

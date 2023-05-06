@@ -22,14 +22,15 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
-    suppliers: object
-    supplier_products: object,
+    suppliers?: object
+    supplier_products?: object,
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faInventory,
     faWarehouse,
-    faMapSigns,
+    faPersonDolly,
+    faParachuteBox,
     faTruck,
     faTerminal,
     faCameraRetro
@@ -38,7 +39,8 @@ import {
 library.add(
     faInventory,
     faWarehouse,
-    faMapSigns,
+    faPersonDolly,
+    faParachuteBox,
     faTruck,
     faTerminal,
     faCameraRetro

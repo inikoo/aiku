@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasProcurementStats;
 
-    public function up()
+    public function up(): void
     {
         Schema::create('agent_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
@@ -31,7 +31,7 @@ return new class () extends Migration {
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('agent_stats');
     }

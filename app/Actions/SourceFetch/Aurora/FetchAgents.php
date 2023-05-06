@@ -24,36 +24,27 @@ class FetchAgents extends FetchAction
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Agent
     {
         if ($agentData = $tenantSource->fetchAgent($tenantSourceId)) {
-            $tenant=app('currentTenant');
+            $tenant = app('currentTenant');
 
             if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->where('source_type', $tenant->slug)->first()) {
-
                 $agent = UpdateAgent::run($agent, $agentData['agent']);
                 UpdateAddress::run($agent->getAddress('contact'), $agentData['address']);
                 $agent->location = $agent->getLocation();
                 $agent->save();
-
-
             } else {
-
-                $agent=Agent::withTrashed()->where('code', $agentData['agent']['code'])->first();
-                if($agent) {
-                    AttachAgent::run($tenant, $agent, ['source_id'=>$agentData['agent']['source_id']]);
+                $agent = Agent::withTrashed()->where('code', $agentData['agent']['code'])->first();
+                if ($agent) {
+                    AttachAgent::run($tenant, $agent, ['source_id' => $agentData['agent']['source_id']]);
                 } else {
                     $agentData['agent']['source_type'] = $tenant->slug;
                     $agent                             = StoreAgent::run(
-                        owner:       $tenant,
-                        modelData:   $agentData['agent'],
+                        owner: $tenant,
+                        modelData: $agentData['agent'],
                         addressData: $agentData['address']
                     );
 
                     $tenant->agents()->updateExistingPivot($agent, ['source_id' => $agentData['agent']['source_id']]);
-
-
                 }
-
-
-
             }
 
             return $agent;
@@ -86,9 +77,10 @@ class FetchAgents extends FetchAction
     public function asCommand(Command $command): int
     {
         try {
-            $tenant=Tenant::where('slug', $command->argument('owner'))->firstOrFail();
+            $tenant = Tenant::where('slug', $command->argument('owner'))->firstOrFail();
         } catch (Exception) {
             $command->error('Invalid owner');
+
             return 1;
         }
 
@@ -98,6 +90,7 @@ class FetchAgents extends FetchAction
             $tenantSource = $this->getTenantSource($tenant);
         } catch (Exception $exception) {
             $command->error($exception->getMessage());
+
             return 1;
         }
         $tenantSource->initialisation($tenant);
@@ -110,11 +103,7 @@ class FetchAgents extends FetchAction
         }
 
         return 0;
-
     }
-
-
-
 
 
 }

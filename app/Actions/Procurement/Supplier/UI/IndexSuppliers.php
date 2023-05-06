@@ -8,6 +8,8 @@
 namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Agent\UI\ShowAgent;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
@@ -24,8 +26,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSuppliers extends InertiaAction
 {
-    use HasUISuppliers;
-
     private Agent|Tenant $parent;
     public function handle($parent): LengthAwarePaginator
     {
@@ -41,13 +41,20 @@ class IndexSuppliers extends InertiaAction
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
             ->select(['code', 'slug', 'name'])
-            ->where('suppliers.type', 'supplier')
+            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
+
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
+                    $query->where('suppliers.owner_type', 'Agent');
                     $query->where('suppliers.owner_id', $parent->id);
+                } else {
+                    $query ->leftJoin('supplier_tenant', 'suppliers.id', 'supplier_tenant.supplier_id');
+
+                    $query->where('suppliers.type', 'supplier');
+                    $query->where('supplier_tenant.tenant_id', app('currentTenant')->id);
+
                 }
             })
-            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate(
@@ -105,7 +112,10 @@ class IndexSuppliers extends InertiaAction
         return Inertia::render(
             'Procurement/Suppliers',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __('suppliers'),
                 'pageHead'    => [
                     'title'   => __('suppliers'),
@@ -122,5 +132,50 @@ class IndexSuppliers extends InertiaAction
 
             ]
         )->table($this->tableStructure($parent));
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('suppliers'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'procurement.suppliers.index'            =>
+            array_merge(
+                ProcurementDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'=> 'procurement.suppliers.index',
+                        null
+                    ]
+                ),
+            ),
+
+
+            'procurement.agents.show.suppliers.index' =>
+            array_merge(
+                (new ShowAgent())->getBreadcrumbs($routeParameters['agent']),
+                $headCrumb(
+                    [
+                        'name'      => 'procurement.agents.show.suppliers.index',
+                        'parameters'=>
+                            [
+                                $routeParameters['agent']->slug
+                            ]
+                    ]
+                )
+            ),
+            default => []
+        };
     }
 }
