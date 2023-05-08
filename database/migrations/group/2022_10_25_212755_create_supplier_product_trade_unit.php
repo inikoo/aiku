@@ -13,6 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('supplier_product_trade_unit', function (Blueprint $table) {
+            $table->increments('id');
             $table->unsignedInteger('supplier_product_id')->nullable();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->unsignedInteger('trade_unit_id')->nullable();
