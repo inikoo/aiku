@@ -84,6 +84,10 @@ class ShowProfile
                             'title'=> __('Workplaces'),
                             'icon' => 'fa-light fa-clone',
 
+                        ],
+                        'appearance'=> [
+                            'title'=> __('Appearance'),
+                            'icon' => 'fa-light fa-paint-brush',
                         ]
                     ]
                 ]
