@@ -11,11 +11,13 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
+use App\Models\SupplierProductTradeUnit;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
 use Database\Factories\Procurement\SupplierProductFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -135,9 +137,16 @@ class SupplierProduct extends Model
         return $this->supplier->belongsToTenant($tenant);
     }
 
+    protected function weight(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->tradeUnits()->sum('gross_weight')
+        );
+    }
+
     public function tradeUnits(): BelongsToMany
     {
-        return $this->belongsToMany(TradeUnit::class)->withPivot(['quantity','notes'])->withTimestamps();
+        return $this->belongsToMany(TradeUnit::class)->using(SupplierProductTradeUnit::class)->withTimestamps();
     }
 
 
