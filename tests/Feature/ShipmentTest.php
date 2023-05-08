@@ -46,9 +46,9 @@ test('create shop, customer, order', function () {
     expect($customer->reference)->toBe('000001')
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
 
-    $billingAddress = Address::first();
+    $billingAddress  = Address::first();
     $shipmentAddress = Address::latest()->first();
-    $order = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
+    $order           = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
 
     $stock = StoreStock::run(app('currentTenant'), Stock::factory()->definition());
 
@@ -59,11 +59,11 @@ test('create shop, customer, order', function () {
     $deliveryNote = StoreDeliveryNote::make()->action($order, DeliveryNote::factory()->definition(), $address);
 
     return [
-        'shop' => $shop,
-        'customer' => $customer,
-        'order' => $order,
-        'stock' => $stock,
-        'transaction' => $transaction,
+        'shop'          => $shop,
+        'customer'      => $customer,
+        'order'         => $order,
+        'stock'         => $stock,
+        'transaction'   => $transaction,
         'delivery_note' => $deliveryNote
     ];
 });

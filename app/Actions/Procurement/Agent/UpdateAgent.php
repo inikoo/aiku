@@ -31,7 +31,9 @@ class UpdateAgent
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->action = true) return true;
+        if($this->action = true) {
+            return true;
+        }
 
         return $request->user()->hasPermissionTo("procurement.edit");
     }
@@ -46,7 +48,7 @@ class UpdateAgent
 
     public function action(Agent $agent, $objectData): Agent
     {
-        $this->agent=$agent;
+        $this->agent  =$agent;
         $this->action = true;
 
         $this->setRawAttributes($objectData);

@@ -16,7 +16,6 @@ use App\Actions\Sales\Order\StoreOrder;
 use App\Actions\Sales\Transaction\StoreTransaction;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
-use App\Models\Dispatch\Shipment;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\Shop;
@@ -25,7 +24,7 @@ use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
 use App\Models\Tenancy\Tenant;
 
-beforeAll(fn() => loadDB('d3_with_tenants.dump'));
+beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();
@@ -45,19 +44,19 @@ test('create shop, customer, order', function () {
     expect($customer->reference)->toBe('000001')
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
 
-    $billingAddress = Address::first();
+    $billingAddress  = Address::first();
     $shipmentAddress = Address::latest()->first();
-    $order = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
+    $order           = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
 
     $stock = StoreStock::run(app('currentTenant'), Stock::factory()->definition());
 
     $transaction = StoreTransaction::make()->action($order, Transaction::factory()->definition());
 
     return [
-        'shop' => $shop,
-        'customer' => $customer,
-        'order' => $order,
-        'stock' => $stock,
+        'shop'        => $shop,
+        'customer'    => $customer,
+        'order'       => $order,
+        'stock'       => $stock,
         'transaction' => $transaction
     ];
 });
@@ -80,7 +79,7 @@ test('update delivery note', function ($deliveryNote) {
 
 test('create delivery note item', function ($deliveryNote, $stock) {
     $shipment = StoreDeliveryNoteItem::make()->action($deliveryNote, [
-        'stock_id' => $stock['stock']->id,
+        'stock_id'       => $stock['stock']->id,
         'transaction_id' => $stock['transaction']->id
     ]);
 

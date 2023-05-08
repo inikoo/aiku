@@ -8,16 +8,10 @@
 namespace App\Actions\Sales\Order;
 
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateOrders;
-use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrder;
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrder;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\WithActionUpdate;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Sales\Order\OrderStateEnum;
-use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Sales\OrderResource;
-use App\Models\Procurement\PurchaseOrder;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 

@@ -7,7 +7,6 @@
 
 namespace App\Actions\Procurement\Agent;
 
-use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
@@ -33,7 +32,7 @@ class UpdateAgentVisibility
     public function authorize(ActionRequest $request): bool
     {
         return true;
-//        return $request->user()->hasPermissionTo("procurement.edit");
+        //        return $request->user()->hasPermissionTo("procurement.edit");
     }
 
     /**

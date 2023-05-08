@@ -9,7 +9,6 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
-use App\Models\Procurement\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -30,8 +29,8 @@ class AddItemPurchaseOrder
     {
         return [
             'supplier_product_id' => ['required', 'exists:group.supplier_products,id'],
-            'unit_price' => ['required', 'numeric', 'gt:0'],
-            'unit_quantity' => ['required', 'numeric', 'gt:0']
+            'unit_price'          => ['required', 'numeric', 'gt:0'],
+            'unit_quantity'       => ['required', 'numeric', 'gt:0']
         ];
     }
 
