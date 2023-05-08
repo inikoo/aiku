@@ -17,16 +17,21 @@ trait HasProcurementStats
 {
     public function procurementStats(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_products')->default(0)->comment('all excluding discontinued');
+        $table->unsignedInteger('number_supplier_products')->default(0)->comment('Number supplier products (all excluding discontinued)');
+        $table->unsignedInteger('supplier_products_count')->default(0)->comment('Number supplier products');
+
+
         foreach (SupplierProductStateEnum::cases() as $productState) {
-            $table->unsignedBigInteger('number_products_state_'.$productState->snake())->default(0);
+            $table->unsignedBigInteger('number_supplier_products_state_'.$productState->snake())->default(0);
         }
 
         foreach (SupplierProductQuantityStatusEnum::cases() as $productStockQuantityStatus) {
-            $table->unsignedBigInteger('number_products_stock_quantity_status_'.$productStockQuantityStatus->snake())->default(0);
+            $table->unsignedBigInteger('number_supplier_products_stock_quantity_status_'.$productStockQuantityStatus->snake())->default(0);
         }
 
-        $table->unsignedInteger('number_purchase_orders')->default(0);
+        $table->unsignedInteger('number_purchase_orders')->default(0)->comment('Number purchase orders (except cancelled and failed) ');
+        $table->unsignedInteger('number_open_purchase_orders')->default(0)->comment('Number purchase orders (except creating, settled)');
+
 
         foreach (PurchaseOrderStateEnum::cases() as $purchaseOrderState) {
             $table->unsignedInteger('number_purchase_orders_state_'.$purchaseOrderState->snake())->default(0);
@@ -37,7 +42,7 @@ trait HasProcurementStats
             $table->unsignedInteger('number_purchase_orders_status_'.$purchaseOrderStatus->snake())->default(0);
         }
 
-        $table->unsignedInteger('number_deliveries')->default(0);
+        $table->unsignedInteger('number_deliveries')->default(0)->comment('Number supplier deliveries (except cancelled)');
 
         return $table;
     }

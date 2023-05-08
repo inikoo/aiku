@@ -10,12 +10,16 @@ namespace App\Models\Procurement;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
+use App\Models\Goods\TradeUnit;
+use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
+use Database\Factories\Procurement\SupplierProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,15 +51,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_type
  * @property int|null $source_id
  * @property SupplierProductQuantityStatusEnum $quantity_status
  * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\HistoricSupplierProduct> $historicRecords
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrderItem> $purchaseOrderItems
  * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
  * @property-read \App\Models\Procurement\Supplier|null $supplier
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Procurement\SupplierProductFactory factory($count = null, $state = [])
+ * @method static SupplierProductFactory factory($count = null, $state = [])
  * @method static Builder|SupplierProduct newModelQuery()
  * @method static Builder|SupplierProduct newQuery()
  * @method static Builder|SupplierProduct onlyTrashed()
@@ -123,9 +127,18 @@ class SupplierProduct extends Model
         return $this->belongsTo(Agent::class);
     }
 
-    public function purchaseOrderItems(): HasMany
+    protected function belongsToTenant(?Tenant $tenant): bool
     {
-        return $this->hasMany(PurchaseOrderItem::class);
+        if(!$tenant) {
+            $tenant=app('currentTenant');
+        }
+        return $this->supplier->belongsToTenant($tenant);
     }
+
+    public function tradeUnits(): BelongsToMany
+    {
+        return $this->belongsToMany(TradeUnit::class)->withPivot(['quantity','notes'])->withTimestamps();
+    }
+
 
 }

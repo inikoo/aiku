@@ -16,7 +16,6 @@ use App\Models\Helpers\Issue;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\HumanResources\EmployeeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -63,7 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read UniversalSearch|null $universalSearch
  * @property-read User|null $user
- * @method static EmployeeFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
  * @method static Builder|Employee onlyTrashed()

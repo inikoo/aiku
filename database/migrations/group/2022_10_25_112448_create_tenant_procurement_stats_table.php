@@ -20,11 +20,14 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('public.tenants')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedInteger('number_suppliers')->default(0);
-            $table->unsignedInteger('number_active_suppliers')->default(0);
+            $table->unsignedInteger('number_suppliers')->default(0)->comment('Number of active suppliers');
+            $table->unsignedInteger('number_agents')->default(0)->comment('Number of active agents');
 
-            $table->unsignedSmallInteger('number_agents')->default(0);
-            $table->unsignedSmallInteger('number_active_agents')->default(0);
+
+            $table->unsignedInteger('suppliers_count')->default(0)->comment('Total number of suppliers records attached to tenant');
+            $table->unsignedInteger('agents_count')->default(0)->comment('Total number of agents records attached to tenant');
+
+
 
             $table = $this->procurementStats($table);
 

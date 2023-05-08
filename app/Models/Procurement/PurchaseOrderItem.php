@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $deleted_at
  * @property-read \App\Models\Procurement\PurchaseOrder $purchaseOrder
  * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct
+ * @method static \Database\Factories\Procurement\PurchaseOrderItemFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrderItem newModelQuery()
  * @method static Builder|PurchaseOrderItem newQuery()
  * @method static Builder|PurchaseOrderItem query()

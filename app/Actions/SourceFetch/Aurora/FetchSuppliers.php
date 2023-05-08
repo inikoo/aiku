@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchSuppliers extends FetchAction
 {
-    public string $commandSignature = 'fetch:suppliers {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:suppliers {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Supplier
@@ -31,7 +31,7 @@ class FetchSuppliers extends FetchAction
             return null;
         }
 
-        // print_r($supplierData);
+
         if ($supplierData['supplier']['type'] == 'sub-supplier') {
             if ($supplierData['owner']->owner_id == app('currentTenant')->id) {
                 $supplier = $this->processAgentSupplier($supplierData);

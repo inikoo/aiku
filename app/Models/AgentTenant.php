@@ -10,6 +10,20 @@ namespace App\Models;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
+/**
+ * App\Models\AgentTenant
+ *
+ * @property int $id
+ * @property int $agent_id
+ * @property int $tenant_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $source_id
+ * @method static \Illuminate\Database\Eloquent\Builder|AgentTenant newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AgentTenant newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AgentTenant query()
+ * @mixin \Eloquent
+ */
 class AgentTenant extends Pivot
 {
     use UsesGroupConnection;

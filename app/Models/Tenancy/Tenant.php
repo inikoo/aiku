@@ -15,6 +15,8 @@ use App\Models\Central\CentralMedia;
 use App\Models\Inventory\Stock;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use App\Models\Procurement\SupplierProduct;
+use App\Models\SupplierProductTenant;
 use App\Models\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,7 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Tenancy\TenantAccountingStats|null $accountingStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $myAgents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CentralDomain> $centralDomains
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, CentralMedia> $centralMedia
  * @property-read Currency $currency
@@ -60,11 +62,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Tenancy\TenantInventoryStats|null $inventoryStats
  * @property-read \App\Models\Tenancy\TenantMailStats|null $mailStats
  * @property-read \App\Models\Tenancy\TenantMarketingStats|null $marketingStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $myAgents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $mySuppliers
  * @property-read \App\Models\Tenancy\TenantProcurementStats|null $procurementStats
  * @property-read \App\Models\Tenancy\TenantProductionStats|null $productionStats
  * @property-read \App\Models\Tenancy\TenantSalesStats|null $salesStats
  * @property-read \App\Models\Tenancy\TenantStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read SysUser|null $sysUser
  * @method static TenantCollection<int, static> all($columns = ['*'])
@@ -173,7 +178,10 @@ class Tenant extends SpatieTenant
 
     public function suppliers(): BelongsToMany
     {
-        return $this->belongsToMany(Supplier::class)->using(SupplierTenant::class)->withTimestamps();
+        return $this->belongsToMany(Supplier::class)
+            ->using(SupplierTenant::class)
+            ->withPivot(['source_id'])
+            ->withTimestamps();
     }
 
     public function myAgents(): HasMany
@@ -183,9 +191,19 @@ class Tenant extends SpatieTenant
 
     public function agents(): BelongsToMany
     {
-        return $this->belongsToMany(Agent::class)->using(AgentTenant::class)->withTimestamps();
+        return $this->belongsToMany(Agent::class)
+            ->using(AgentTenant::class)
+            ->withPivot(['source_id'])
+            ->withTimestamps();
     }
 
+    public function supplierProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(SupplierProduct::class)
+            ->using(SupplierProductTenant::class)
+            ->withPivot(['source_id'])
+            ->withTimestamps();
+    }
 
     public function stocks(): MorphMany
     {

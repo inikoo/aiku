@@ -42,21 +42,19 @@ class FetchTenants
     }
 
 
-    public string $commandSignature = 'fetch:tenants';
+    public string $commandSignature = 'fetch:tenants  {--d|db_suffix=}';
 
     public function asCommand(Command $command): int
     {
-
         Tenant::all()->eachCurrent(function (Tenant $tenant) use ($command) {
             $tenantSource = $this->getTenantSource($tenant);
-            $tenantSource->initialisation(app('currentTenant'));
+            $tenantSource->initialisation(app('currentTenant'), $command->option('db_suffix') ?? '');
             $tenant = $this->handle($tenantSource, $tenant);
             if ($tenant->created_at->lt($tenant->group->created_at)) {
-                $tenant->group->created_at=$tenant->created_at;
+                $tenant->group->created_at = $tenant->created_at;
                 $tenant->group->save();
             }
         });
-
 
 
         return 0;

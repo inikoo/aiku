@@ -8,11 +8,14 @@
 namespace App\Actions\Procurement\SupplierProduct\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Procurement\Agent;
-use App\Models\Procurement\SupplierProduct;
+use App\Models\Procurement\Supplier;
+use App\Models\SupplierProductTenant;
+use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSupplierProducts extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle(Tenant|Agent|Supplier $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -33,17 +36,22 @@ class IndexSupplierProducts extends InertiaAction
             });
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value);
-
-        return QueryBuilder::for(SupplierProduct::class)
+        ;
+        return QueryBuilder::for(SupplierProductTenant::class)
             ->defaultSort('supplier_products.code')
             ->select(['code', 'slug', 'name'])
-            ->where('supplier_products.slug', 'supplier_products', 'supplier_products.id')
+
+            ->leftJoin('supplier_products', 'supplier_products.id', 'supplier_product_tenant.supplier_product_id')
+
+            ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
+
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
                     $query->where('supplier_products.current_historic_supplier_product_id', $parent->id);
+                } elseif (class_basename($parent) == 'Tenant') {
+                    $query->where('supplier_product_tenant.tenant_id', $parent->id);
                 }
             })
-            ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate(
@@ -79,8 +87,6 @@ class IndexSupplierProducts extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
-        $request->validate();
         return $this->handle(app('currentTenant'));
     }
 
@@ -102,7 +108,10 @@ class IndexSupplierProducts extends InertiaAction
         return Inertia::render(
             'Procurement/SupplierProducts',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __('supplier_products'),
                 'pageHead'    => [
                     'title' => __('supplier products'),
@@ -115,18 +124,49 @@ class IndexSupplierProducts extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(): array
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
-            [
-                'procurement.supplier-products.index' => [
-                    'route'      => 'procurement.supplier-products.index',
-                    'modelLabel' => [
-                        'label' => __('supplier_products')
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('supplier products'),
+                        'icon'  => 'fal fa-bars'
                     ],
                 ],
-            ]
-        );
+            ];
+        };
+
+        return match ($routeName) {
+            'procurement.supplier-products.index'            =>
+            array_merge(
+                ProcurementDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'=> 'procurement.supplier-products.index',
+                        null
+                    ]
+                ),
+            ),
+
+
+            'procurement.agents.show.supplier-products.index' =>
+            array_merge(
+                (new ShowAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
+                $headCrumb(
+                    [
+                        'name'      => 'procurement.agents.show.supplier-products.index',
+                        'parameters'=>
+                            [
+                                $routeParameters['supplierProduct']->slug
+                            ]
+                    ]
+                )
+            ),
+            default => []
+        };
     }
 }

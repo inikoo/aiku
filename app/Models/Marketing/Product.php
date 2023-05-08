@@ -16,6 +16,7 @@ use App\Models\Media\GroupMedia;
 use App\Models\Sales\SalesStats;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Marketing\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -65,9 +66,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SalesStats|null $salesStats
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Marketing\ProductFactory factory($count = null, $state = [])
+ * @method static ProductFactory factory($count = null, $state = [])
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
  * @method static Builder|Product onlyTrashed()
@@ -137,7 +138,7 @@ class Product extends Model implements HasMedia
 
     public function tradeUnits(): BelongsToMany
     {
-        return $this->belongsToMany(TradeUnit::class)->withPivot('quantity')->withTimestamps();
+        return $this->belongsToMany(TradeUnit::class)->withPivot(['quantity','notes'])->withTimestamps();
     }
 
     public function salesStats(): MorphOne

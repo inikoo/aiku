@@ -24,6 +24,11 @@ class AttachSupplier
             TenantHydrateProcurement::dispatch($tenant);
             SupplierHydrateUniversalSearch::dispatch($supplier);
 
+            foreach ($supplier->products as $product) {
+                AttachSupplierProduct::run($tenant, $product);
+            }
+
+
             return $tenant;
         });
     }

@@ -12,6 +12,7 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierProduct;
+use App\Models\SupplierProductTenant;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
@@ -25,19 +26,27 @@ class TenantHydrateProcurement implements ShouldBeUnique
     public function handle(Tenant $tenant): void
     {
         $stats = [
-            'number_suppliers'        => $tenant->suppliers()->count(),
-            'number_active_suppliers' => $tenant->suppliers()->where('status', true)->count(),
-            'number_agents'           => $tenant->agents()->count(),
-            'number_active_agents'    => $tenant->agents()->where('status', true)->count(),
-            'number_products'         => SupplierProduct::count(),
-            'number_purchase_orders'  => PurchaseOrder::count()
+            'suppliers_count'          => $tenant->suppliers()->count(),
+            'number_suppliers'         => $tenant->suppliers()->where('status', true)->count(),
+            'agents_count'             => $tenant->agents()->count(),
+            'number_agents'            => $tenant->agents()->where('status', true)->count(),
+
+            'supplier_products_count'  => SupplierProductTenant::where('tenant_id', $tenant->id)->count(),
+            'number_supplier_products' => SupplierProductTenant::where('tenant_id', $tenant->id)
+                ->leftJoin('supplier_products', 'supplier_products.id', '=', 'supplier_product_tenant.supplier_product_id')
+                ->where('supplier_products.state', '!=', SupplierProductStateEnum::DISCONTINUED)
+                ->count(),
+
+            'number_purchase_orders' => PurchaseOrder::count()
         ];
+
+
 
         $stateCounts = SupplierProduct::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
         foreach (SupplierProductStateEnum::cases() as $productState) {
-            $stats['number_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
+            $stats['number_supplier_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
         }
 
         $stockQuantityStatusCounts = SupplierProduct::selectRaw('stock_quantity_status, count(*) as total')
@@ -45,7 +54,7 @@ class TenantHydrateProcurement implements ShouldBeUnique
             ->pluck('total', 'stock_quantity_status')->all();
 
         foreach (SupplierProductQuantityStatusEnum::cases() as $stockQuantityStatus) {
-            $stats['number_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
+            $stats['number_supplier_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
         }
 
         $purchaseOrderStatusCounts = PurchaseOrder::selectRaw('status, count(*) as total')

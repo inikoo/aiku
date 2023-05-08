@@ -27,7 +27,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property int $warehouse_id
- * @property int|null $image_id
  * @property string $code
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at

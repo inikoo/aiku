@@ -23,6 +23,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int|null $owner_id Tenant who owns this model
+ * @property string $ulid
  * @property string $slug
  * @property string $code
  * @property string $name

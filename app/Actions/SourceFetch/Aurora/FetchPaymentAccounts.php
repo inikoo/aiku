@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchPaymentAccounts extends FetchAction
 {
-    public string $commandSignature = 'fetch:payment-accounts {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:payment-accounts {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?PaymentAccount

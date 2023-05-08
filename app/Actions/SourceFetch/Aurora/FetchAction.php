@@ -102,7 +102,9 @@ class FetchAction
                     $command->error($exception->getMessage());
                     return 1;
                 }
-                $tenantSource->initialisation(app('currentTenant'));
+
+
+                $tenantSource->initialisation(app('currentTenant'), $command->option('db_suffix')??'');
                 $command->info('');
 
                 if ($command->option('source_id')) {

@@ -19,7 +19,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchEmployees extends FetchAction
 {
-    public string $commandSignature = 'fetch:employees {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:employees {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Employee
     {

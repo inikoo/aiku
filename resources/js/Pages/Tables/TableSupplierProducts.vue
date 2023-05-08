@@ -18,11 +18,11 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
     switch (route().current()) {
         case 'procurement.supplierProducts.index':
             return route(
-                'procurement.supplierProducts.show',
+                'procurement.supplier-products.show',
                 [supplierProduct.slug, supplierProduct.slug]);
         default:
             return route(
-                'supplierProducts.show',
+                'procurement.supplier-products.show',
                 [supplierProduct.slug]);
     }
 }
