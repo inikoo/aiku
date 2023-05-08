@@ -34,5 +34,4 @@ Route::get('/agents/{agent}/suppliers', [IndexSuppliers::class, 'inAgent'])->nam
 Route::get('/agents/{agent}/suppliers/{supplier}', [ShowSupplier::class, 'inAgent'])->name('agents.show.suppliers.show');
 
 Route::get('/supplier-products', IndexSupplierProducts::class)->name('supplier-products.index');
-Route::get('/supplier-products', IndexSupplierProducts::class)->name('supplier-products.index');
 Route::get('/supplier-products/{supplierProduct}', ShowSupplierProduct::class)->name('supplier-products.show');

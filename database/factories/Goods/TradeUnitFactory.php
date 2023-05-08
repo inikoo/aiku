@@ -1,6 +1,11 @@
 <?php
+/*
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Mon, 08 May 2023 09:18:52 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
-namespace Database\Factories\Marketing;
+namespace Database\Factories\Goods;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 

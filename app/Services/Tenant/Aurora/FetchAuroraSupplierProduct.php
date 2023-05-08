@@ -14,8 +14,19 @@ class FetchAuroraSupplierProduct extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $this->parsedData['supplier'] = $this->parseSupplier($this->auroraModelData->{'Supplier Part Supplier Key'});
 
+
+
+        $supplier = $this->parseSupplier($this->auroraModelData->{'Supplier Part Supplier Key'});
+
+        if(!$supplier) {
+            return;
+        }
+
+        $this->parsedData['trade_unit']=$this->parseTradeUnit($this->auroraModelData->{'Supplier Part Part SKU'});
+
+
+        $this->parsedData['supplier'] =$supplier;
 
         $sharedData = [];
         $settings   = [];

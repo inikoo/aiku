@@ -15,7 +15,6 @@ use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use App\Models\Traits\HasOrder;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Sales\OrderFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,7 +33,6 @@ use Spatie\Sluggable\HasSlug;
  * @property string $slug
  * @property int $shop_id
  * @property int $customer_id
- * @property int|null $image_id
  * @property int|null $customer_client_id
  * @property string|null $number
  * @property string|null $customer_number Customers own order number
@@ -72,7 +70,7 @@ use Spatie\Sluggable\HasSlug;
  * @property-read \App\Models\Sales\OrderStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Transaction> $transactions
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static OrderFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Sales\OrderFactory factory($count = null, $state = [])
  * @method static Builder|Order newModelQuery()
  * @method static Builder|Order newQuery()
  * @method static Builder|Order onlyTrashed()

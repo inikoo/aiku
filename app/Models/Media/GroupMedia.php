@@ -38,7 +38,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @method static MediaCollection<int, static> get($columns = ['*'])
  * @method static Builder|GroupMedia newModelQuery()
  * @method static Builder|GroupMedia newQuery()
- * @method static Builder|GroupMedia ordered()
+ * @method static Builder|Media ordered()
  * @method static Builder|GroupMedia query()
  * @mixin \Eloquent
  */

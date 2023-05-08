@@ -11,9 +11,11 @@ use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Actions\Tenancy\Tenant\AttachSupplierProduct;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
+use App\Models\Tenancy\Tenant;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -41,8 +43,28 @@ class StoreSupplierProduct
 
         SupplierHydrateSupplierProducts::dispatch($supplier);
         AgentHydrateSuppliers::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent);
-
         SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
+
+        AttachSupplierProduct::run(
+            app('currentTenant'),
+            $supplierProduct,
+            [
+            'source_id'=> Arr::get($modelData, 'source_id', null),
+        ]
+        );
+        if ($supplier->type = 'supplier') {
+            $tenantIds = $supplier->tenantIds();
+        } else {
+            $tenantIds = $supplier->agent->tenantIds();
+        }
+
+        foreach ($tenantIds as $tenantId) {
+            if ($tenantId == app('currentTenant')->id) {
+                AttachSupplierProduct::run(Tenant::find($tenantId), $supplierProduct);
+            }
+        }
+
+
         return $supplierProduct;
     }
 

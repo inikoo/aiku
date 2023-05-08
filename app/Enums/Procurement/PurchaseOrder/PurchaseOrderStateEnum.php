@@ -9,9 +9,6 @@ namespace App\Enums\Procurement\PurchaseOrder;
 
 use App\Enums\EnumHelperTrait;
 
-//        //enum('Cancelled','NoReceived','InProcess',
-//'Submitted','Confirmed','Manufactured','QC_Pass','Inputted','Dispatched','Received','Checked','Placed','Costing','InvoiceChecked')
-
 enum PurchaseOrderStateEnum: string
 {
     use EnumHelperTrait;

@@ -14,7 +14,6 @@ use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowSupplierProduct extends InertiaAction
@@ -41,9 +40,9 @@ class ShowSupplierProduct extends InertiaAction
     public function htmlResponse(SupplierProduct $supplierProduct): Response
     {
         return Inertia::render(
-            'Procurement/Supplier',
+            'Procurement/SupplierProduct',
             [
-                'title'       => __('supplier'),
+                'title'       => __('supplier product'),
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'pageHead'    => [
                     'title' => $supplierProduct->name,
@@ -62,7 +61,7 @@ class ShowSupplierProduct extends InertiaAction
     }
 
 
-    #[Pure] public function jsonResponse(Supplier $supplier): SupplierResource
+    public function jsonResponse(Supplier $supplier): SupplierResource
     {
         return new SupplierResource($supplier);
     }

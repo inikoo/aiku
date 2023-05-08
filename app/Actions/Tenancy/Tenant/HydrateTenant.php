@@ -13,6 +13,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Actions\Traits\WithNormalise;
@@ -42,13 +43,13 @@ class HydrateTenant extends HydrateModel
         $this->guestsStats();
         TenantHydrateWarehouse::run($tenant);
         TenantHydrateInventory::run($tenant);
-        $this->procurementStats();
         $this->marketingStats();
         $this->fulfilmentStats();
         TenantHydrateUsers::run($tenant);
         TenantHydrateAccounting::run($tenant);
         TenantHydrateCustomers::run($tenant);
         TenantHydrateOrders::run($tenant);
+        TenantHydrateProcurement::run($tenant);
     }
 
     public function fulfilmentStats()
@@ -108,7 +109,7 @@ class HydrateTenant extends HydrateModel
         $tenant->marketingStats->update($stats);
     }
 
-    public function guestsStats()
+    public function guestsStats(): void
     {
         /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant = app('currentTenant');
@@ -130,12 +131,6 @@ class HydrateTenant extends HydrateModel
         $tenant->stats->update($stats);
     }
 
-
-    public function procurementStats()
-    {
-        /** @var \App\Models\Tenancy\Tenant $tenant */
-        $tenant = app('currentTenant');
-    }
 
     protected function getAllModels(): Collection
     {

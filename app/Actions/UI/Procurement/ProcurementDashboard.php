@@ -58,7 +58,7 @@ class ProcurementDashboard
                             'icon'  => ['fal', 'fa-people-arrows'],
                             'href'  => ['procurement.agents.index'],
                             'index' => [
-                                'number' => $this->tenant->procurementStats->number_active_agents
+                                'number' => $this->tenant->procurementStats->number_agents
                             ]
 
                         ],
@@ -67,7 +67,7 @@ class ProcurementDashboard
                             'icon'  => ['fal', 'fa-person-dolly'],
                             'href'  => ['procurement.suppliers.index'],
                             'index' => [
-                                'number' => $this->tenant->procurementStats->number_active_suppliers
+                                'number' => $this->tenant->procurementStats->number_suppliers
                             ]
 
                         ],
@@ -76,11 +76,24 @@ class ProcurementDashboard
                             'icon'  => ['fal', 'fa-parachute-box'],
                             'href'  => ['procurement.supplier-products.index'],
                             'index' => [
-                                'number' => $this->tenant->procurementStats->number_products
+                                'number' => $this->tenant->procurementStats->number_supplier_products
+                            ]
+
+                        ],
+                    ],
+                    /*
+                    [
+                        [
+                            'name'  => __('purchase orders'),
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'href'  => ['procurement.purchase-orders.index'],
+                            'index' => [
+                                'number' => $this->tenant->procurementStats->number_purchase_orders
                             ]
 
                         ],
                     ]
+                    */
                 ]
 
             ]
