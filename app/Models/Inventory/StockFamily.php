@@ -28,7 +28,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property StockFamilyStateEnum $state
  * @property string|null $name
  * @property string|null $description
- * @property int|null $image_id
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

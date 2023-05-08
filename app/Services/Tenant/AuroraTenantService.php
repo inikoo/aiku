@@ -69,10 +69,10 @@ use Illuminate\Support\Facades\DB;
  */
 #[AllowDynamicProperties] class AuroraTenantService implements SourceTenantService
 {
-    public function initialisation(Tenant $tenant)
+    public function initialisation(Tenant $tenant, string $databaseSuffix = ''): void
     {
         $database_settings = data_get(config('database.connections'), 'aurora');
-        data_set($database_settings, 'database', Arr::get($tenant->source, 'db_name'));
+        data_set($database_settings, 'database', Arr::get($tenant->source, 'db_name').$databaseSuffix);
         config(['database.connections.aurora' => $database_settings]);
         DB::connection('aurora');
         DB::purge('aurora');
@@ -82,8 +82,9 @@ use Illuminate\Support\Facades\DB;
 
     public function fetchTenant(Tenant $tenant): ?array
     {
-        return (new FetchAuroraTenant($this))->fetch($tenant);
+        return (new FetchAuroraTenant($this))->fetch();
     }
+
     public function fetchUser($id): ?array
     {
         return (new FetchAuroraUser($this))->fetch($id);
@@ -273,10 +274,12 @@ use Illuminate\Support\Facades\DB;
     {
         return (new FetchAuroraDeletedSupplier($this))->fetch($id);
     }
+
     public function fetchDeletedEmployee($id): ?array
     {
         return (new FetchAuroraDeletedEmployee($this))->fetch($id);
     }
+
     public function fetchDeletedSupplierProduct($id): ?array
     {
         return (new FetchAuroraDeletedSupplierProduct($this))->fetch($id);
@@ -291,6 +294,7 @@ use Illuminate\Support\Facades\DB;
     {
         return (new FetchAuroraPaymentAccount($this))->fetch($id);
     }
+
     public function fetchPayment($id): ?array
     {
         return (new FetchAuroraPayment($this))->fetch($id);

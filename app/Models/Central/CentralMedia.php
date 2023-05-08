@@ -7,7 +7,6 @@
 
 namespace App\Models\Central;
 
-use App\Models\Media\GroupMedia;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -42,7 +41,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @method static MediaCollection<int, static> get($columns = ['*'])
  * @method static Builder|CentralMedia newModelQuery()
  * @method static Builder|CentralMedia newQuery()
- * @method static Builder|GroupMedia ordered()
+ * @method static Builder|Media ordered()
  * @method static Builder|CentralMedia query()
  * @mixin \Eloquent
  */

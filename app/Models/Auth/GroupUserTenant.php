@@ -19,6 +19,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $group_user_id
  * @property int $tenant_id
  * @property int|null $user_id
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Auth\User|null $user

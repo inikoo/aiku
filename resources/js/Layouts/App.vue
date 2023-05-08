@@ -123,7 +123,7 @@ import {useLayoutStore} from '@/Stores/layout';
 const showSearchDialog = ref(false);
 
 const user = ref(usePage().props.auth.user);
-console.log(usePage())
+// console.log(usePage())
 </script>
 
 <template>
@@ -163,7 +163,7 @@ console.log(usePage())
                                     <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
                                     <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false" />
                                 </button>
-    
+
                                 <!-- Notifications -->
                                 <button type="button" class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                                     <span class="sr-only">{{ trans('View notifications') }}</span>
@@ -172,8 +172,8 @@ console.log(usePage())
                             </div>
 
                             <!-- Avatar Button -->
-                            <Menu as="div" class="relative">
-                                <div>
+                            <Menu as="div" class="relative" >
+
                                     <MenuButton
                                         class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                         <span class="sr-only">{{ trans('Open user menu') }}</span>
@@ -181,13 +181,13 @@ console.log(usePage())
                                              :src="route('media.group.show',user.data.avatar)"
                                              alt=""/>
                                     </MenuButton>
-                                </div>
+
                                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
                                             leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                                     <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                                         <div class="py-1">
-                                            <MenuItem v-slot="{ active }">
-                                                <Link as="ul" type="button" :href="route('profile.show')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
+                                            <MenuItem v-slot="{ active,close }"   >
+                                                <Link as="ul" type="button" :href="route('profile.show')"  @click="close"  :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
                                                     {{ trans('View profile') }}
                                                 </Link>
                                             </MenuItem>
@@ -261,12 +261,9 @@ console.log(usePage())
 
         <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
         <AppLeftSideBar v-if="!sidebarOpen" class="hidden md:block"/>
-        <AppLeftSideBar class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0]': sidebarOpen }"/>
+        <AppLeftSideBar class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen"/>
 
-        <main class="relative flex flex-col pt-16 ml-0
-            md:ml-10
-            xl:ml-56"
-        >
+        <main class="relative flex flex-col pt-20 ml-0 md:ml-10 xl:ml-56">
             <Breadcrumbs class="fixed top-11 lg:top-10 z-10 w-full" :breadcrumbs="$page.props.breadcrumbs??[]"/>
             <slot/>
         </main>

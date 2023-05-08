@@ -27,7 +27,7 @@ class DeleteOrder
      */
     public function handle(Order $order, array $deletedData = []): Order
     {
-        if (($order->transactions()->count() > 0) && (in_array($order->state, [OrderStateEnum::CREATING, OrderStateEnum::SUBMITTED]))) {
+        if (in_array($order->state, [OrderStateEnum::CREATING, OrderStateEnum::SUBMITTED])) {
             $order->delete();
 
             $order = $this->update($order, $deletedData, ['data']);

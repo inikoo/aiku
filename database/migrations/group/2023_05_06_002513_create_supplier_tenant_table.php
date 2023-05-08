@@ -13,13 +13,14 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('supplier_tenant', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->increments('id');
             $table->unsignedSmallInteger('supplier_id');
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('public.tenants');
             $table->timestampsTz();
             $table->unsignedInteger('source_id')->index()->nullable();
+            $table->index(['tenant_id','source_id']);
 
         });
     }

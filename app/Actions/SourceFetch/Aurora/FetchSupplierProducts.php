@@ -8,6 +8,7 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
+use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
 use App\Actions\Procurement\SupplierProduct\UpdateSupplierProduct;
 use App\Models\Procurement\SupplierProduct;
 use App\Services\Tenant\SourceTenantService;
@@ -17,12 +18,37 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchSupplierProducts extends FetchAction
 {
-    public string $commandSignature = 'fetch:supplier-products {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:supplier-products {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?SupplierProduct
     {
         if ($supplierProductData = $tenantSource->fetchSupplierProduct($tenantSourceId)) {
+
+
+
+            $supplier=$supplierProductData['supplier'];
+
+            if(!$supplier) {
+                return null;
+            }
+
+            if($supplier->type=='supplier') {
+                if($supplier->owner_id!=app('currentTenant')->id) {
+                    return null;
+                }
+            } else {
+
+                if(!$supplier->owner) {
+                    return null;
+                }
+
+                if($supplier->owner->owner_id!=app('currentTenant')->id) {
+                    return null;
+                }
+
+            }
+
             if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierProductData['supplierProduct']['source_id'])
                 ->first()) {
                 $supplierProduct = UpdateSupplierProduct::run(
@@ -37,6 +63,14 @@ class FetchSupplierProducts extends FetchAction
                     skipHistoric: true
                 );
             }
+
+            $tradeUnit = $supplierProductData['trade_unit'];
+
+            SyncSupplierProductTradeUnits::run($supplierProduct, [
+                $tradeUnit->id => [
+                    'quantity' => $supplierProductData['supplierProduct']['units_per_pack']
+                ]
+            ]);
 
             return $supplierProduct;
         }

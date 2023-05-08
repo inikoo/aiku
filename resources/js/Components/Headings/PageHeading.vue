@@ -24,14 +24,14 @@ const locale = useLocaleStore();
 
 </script>
 <template>
-    <div class="m-4  lg:flex lg:items-center lg:justify-between">
-        <div class="min-w-0 flex-1">
+    <div class="m-4 grid grid-flow-col justify-between items-center">
+        <!-- Page Title Group -->
+        <div class="">
             <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight capitalize">
                 <FontAwesomeIcon v-if="data.icon" :title="data.icon.tooltip" aria-hidden="true" :icon="data.icon" size="xs" class="pr-2"/>
                 {{ data.title }}
             </h2>
             <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
-
                 <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
                     <div v-for="item in data.meta" :key="item.name"
                          class="mt-2 flex items-center text-sm text-gray-500">
@@ -55,13 +55,12 @@ const locale = useLocaleStore();
                         <span v-else><span v-if="item.number">{{ locale.number(item.number) }}</span> {{ item.name }} </span>
                     </div>
                 </div>
-
-
             </div>
         </div>
-        <div class="mt-5 flex lg:mt-0 lg:ml-4">
-
-             <span v-if="data['edit']"  class="hidden sm:block">
+        
+        <!-- Button Add -->
+        <div class="">
+             <span v-if="data['edit']"  class="">
                 <Link :href="route(data['edit']['route']['name'],data['edit']['route']['parameters'])">
                 <Button type="button"
                         class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -70,7 +69,8 @@ const locale = useLocaleStore();
                 </Button>
                 </Link>
             </span>
-            <span v-if="data['create']" class="hidden sm:block">
+            
+            <span v-if="data['create']" class="">
                 <Link :href="route(data['create']['route']['name'],data['create']['route']['parameters'])">
                 <Button type='secondary' action="create" class="capitalize">
                  {{data['create']['label']}}
@@ -78,7 +78,7 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
-            <span v-if="data['cancelCreate']" class="hidden sm:block">
+            <span v-if="data['cancelCreate']" class="">
                 <Link :href="route(data['cancelCreate']['route']['name'],data['cancelCreate']['route']['parameters'])">
                 <Button type='secondary' action="cancel" class="capitalize">
                    {{ trans('Cancel') }}
@@ -86,8 +86,7 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
-
-            <span v-if="data['exitEdit']"  class="hidden sm:block">
+            <span v-if="data['exitEdit']"  class="">
                 <Link :href="route(data['exitEdit']['route']['name'],data['exitEdit']['route']['parameters'])">
                 <Button type="button"
                         class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -97,9 +96,8 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
-
             <!-- Dropdown -->
-            <Menu as="div" class="relative ml-3 sm:hidden">
+            <!-- <Menu as="div" class="relative ml-3 sm:hidden">
                 <MenuButton
                     class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     More
@@ -109,7 +107,7 @@ const locale = useLocaleStore();
 
                 <transition enter-active-class="transition ease-out duration-200" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
                             leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                    <MenuItems class="absolute right-0 z-10 mt-2 -mr-1 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <MenuItems class="absolute left-0 z-10 mt-2 -mr-1 w-48 origin-top-left rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <MenuItem v-slot="{ active }">
                             <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Edit</a>
                         </MenuItem>
@@ -118,7 +116,7 @@ const locale = useLocaleStore();
                         </MenuItem>
                     </MenuItems>
                 </transition>
-            </Menu>
+            </Menu> -->
         </div>
     </div>
 </template>

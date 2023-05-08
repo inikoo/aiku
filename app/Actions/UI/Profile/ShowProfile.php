@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Profile;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
@@ -83,6 +84,10 @@ class ShowProfile
                             'title'=> __('Workplaces'),
                             'icon' => 'fa-light fa-clone',
 
+                        ],
+                        'appearance'=> [
+                            'title'=> __('Appearance'),
+                            'icon' => 'fa-light fa-paint-brush',
                         ]
                     ]
                 ]
@@ -93,14 +98,22 @@ class ShowProfile
 
     public function getBreadcrumbs(): array
     {
-        return array_merge(
-            [
-                'profile.show' => [
-                    'route' => 'profile.show',
-                    'name'  => __('my profile'),
-
-                ],
-            ]
-        );
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'profile.show'
+                            ],
+                            'label' => __('my profile'),
+                        ]
+                    ]
+                ]
+            );
     }
+
+
 }

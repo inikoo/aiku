@@ -8,6 +8,7 @@
 namespace App\Models\Procurement;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Models\AgentTenant;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Tenancy\Tenant;
@@ -15,7 +16,6 @@ use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\AgentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,6 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $contact_name
  * @property string|null $email
  * @property string|null $phone
+ * @property bool $is_private
  * @property int|null $address_id
  * @property array $location
  * @property int|null $image_id
@@ -51,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_type
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read Currency $currency
@@ -61,7 +63,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Procurement\AgentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\Supplier> $suppliers
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static AgentFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Procurement\AgentFactory factory($count = null, $state = [])
  * @method static Builder|Agent newModelQuery()
  * @method static Builder|Agent newQuery()
  * @method static Builder|Agent onlyTrashed()
@@ -148,10 +150,14 @@ class Agent extends Model implements HasMedia
     {
         return 'slug';
     }
-
     public function purchaseOrders(): MorphMany
     {
         return $this->morphMany(PurchaseOrder::class, 'provider');
+    }
+
+    public function tenantIds(): array
+    {
+        return  AgentTenant::where('agent_id', $this->id)->get()->pluck('tenant_id')->all();
     }
 
 }

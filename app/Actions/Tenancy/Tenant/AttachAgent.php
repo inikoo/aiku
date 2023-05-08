@@ -24,6 +24,10 @@ class AttachAgent
             TenantHydrateProcurement::dispatch($tenant);
             AgentHydrateUniversalSearch::dispatch($agent);
 
+            foreach ($agent->products as $product) {
+                AttachSupplierProduct::run($tenant, $product);
+            }
+
             return $tenant;
         });
     }

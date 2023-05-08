@@ -11,6 +11,8 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
+use App\Models\SupplierTenant;
+use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
@@ -54,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_type
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read \App\Models\Procurement\Agent|null $agent
@@ -125,6 +128,19 @@ class Supplier extends Model implements HasMedia
             ->saveSlugsTo('slug');
     }
 
+    public function belongsToTenant(?Tenant $tenant): bool
+    {
+        if(!$tenant) {
+            $tenant=app('currentTenant');
+        }
+
+        if($this->type == 'sub-supplier') {
+            return $this->agent->owner_id===$tenant->id;
+        } else {
+            return $this->owner_id===$tenant->id;
+        }
+    }
+
     public function stats(): HasOne
     {
         return $this->hasOne(SupplierStats::class);
@@ -149,9 +165,13 @@ class Supplier extends Model implements HasMedia
     {
         return $this->belongsTo(Currency::class);
     }
-
     public function purchaseOrders(): MorphMany
     {
         return $this->morphMany(PurchaseOrder::class, 'provider');
+    }
+
+    public function tenantIds(): array
+    {
+        return  SupplierTenant::where('supplier_id', $this->id)->get()->pluck('tenant_id')->all();
     }
 }

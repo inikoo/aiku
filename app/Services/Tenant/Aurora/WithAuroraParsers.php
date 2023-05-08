@@ -13,7 +13,6 @@ use App\Actions\SourceFetch\Aurora\FetchDeletedCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedEmployees;
 use App\Actions\SourceFetch\Aurora\FetchDeletedGuests;
 use App\Actions\SourceFetch\Aurora\FetchDeletedStocks;
-use App\Actions\SourceFetch\Aurora\FetchDeletedSuppliers;
 use App\Actions\SourceFetch\Aurora\FetchDispatchedEmails;
 use App\Actions\SourceFetch\Aurora\FetchEmployees;
 use App\Actions\SourceFetch\Aurora\FetchGuests;
@@ -32,7 +31,6 @@ use App\Actions\SourceFetch\Aurora\FetchServices;
 use App\Actions\SourceFetch\Aurora\FetchShippers;
 use App\Actions\SourceFetch\Aurora\FetchShops;
 use App\Actions\SourceFetch\Aurora\FetchStocks;
-use App\Actions\SourceFetch\Aurora\FetchSuppliers;
 use App\Actions\SourceFetch\Aurora\FetchTradeUnits;
 use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
@@ -62,6 +60,7 @@ use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
+use App\Models\SupplierTenant;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
@@ -72,8 +71,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                                                          != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                                                     && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                                                                                                                                                                           != '' && $value != '0000-00-00 00:00:00'
+                                                                                                                                                                                      && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 
@@ -307,15 +306,9 @@ trait WithAuroraParsers
 
     public function parseSupplier($source_id): ?Supplier
     {
-        $supplier = Supplier::withTrashed()->where('source_id', $source_id)->first();
-        if (!$supplier) {
-            $supplier = FetchSuppliers::run($this->tenantSource, $source_id);
-            if (!$supplier) {
-                $supplier = FetchDeletedSuppliers::run($this->tenantSource, $source_id);
-            }
-        }
+        $supplierTenant= SupplierTenant::where('source_id', $source_id)->where('tenant_id', app('currentTenant')->id)->first();
+        return $supplierTenant?->supplier;
 
-        return $supplier;
     }
 
     public function parseAgent($source_id): ?Agent

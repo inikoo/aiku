@@ -16,6 +16,7 @@ use App\Models\Media\GroupMedia;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -67,7 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\StockStats|null $stats
  * @property-read \App\Models\Inventory\StockFamily|null $stockFamily
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\StockMovement> $stockMovements
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Stock newModelQuery()
  * @method static Builder|Stock newQuery()
@@ -84,6 +85,7 @@ class Stock extends Model implements HasMedia
     use UsesTenantConnection;
     use HasUniversalSearch;
     use HasImages;
+    use HasFactory;
 
     protected $casts = [
         'data'                   => 'array',
@@ -114,7 +116,7 @@ class Stock extends Model implements HasMedia
 
     public function tradeUnits(): BelongsToMany
     {
-        return $this->belongsToMany(TradeUnit::class)->withPivot('quantity')->withTimestamps();
+        return $this->belongsToMany(TradeUnit::class)->withPivot(['quantity','notes'])->withTimestamps();
     }
 
     public function locations(): BelongsToMany

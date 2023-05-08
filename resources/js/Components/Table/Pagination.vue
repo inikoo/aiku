@@ -76,7 +76,7 @@ const perPage = computed(() => {
 
 <template>
     <nav
-        v-if="hasPagination"
+        v-if="hasPagination && props.meta.total > 15"
         class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
     >
         <p v-if="!hasData || pagination.total < 1">
@@ -116,7 +116,7 @@ const perPage = computed(() => {
                 </svg>
                 <span class="hidden sm:inline ml-2">{{ $t('previous') }}</span>
             </component>
-            <PerPageSelector
+            <PerPageSelector v-if="pagination.total > 15"
                 dusk="per-page-mobile"
                 :value="perPage"
                 :options="perPageOptions"
@@ -157,7 +157,7 @@ const perPage = computed(() => {
             class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
         >
             <div class="flex flex-row space-x-4 items-center flex-grow">
-                <PerPageSelector
+                <PerPageSelector v-if="pagination.total > 15"
                     dusk="per-page-full"
                     :value="perPage"
                     :options="perPageOptions"
@@ -166,10 +166,10 @@ const perPage = computed(() => {
 
                 <p class="hidden lg:block text-sm text-gray-700 flex-grow">
                     <template v-if="perPage<=pagination.total">
-                    <span class="font-medium">{{ pagination.from }}</span>
-                    {{ $t('to') }}
-                    <span class="font-medium">{{ pagination.to }}</span>
-                    {{ $t('of') }}
+                        <span class="font-medium">{{ pagination.from }}</span>
+                        {{ $t('to') }}
+                        <span class="font-medium">{{ pagination.to }}</span>
+                        {{ $t('of ') }}
                     </template>
                     <span class="font-medium">{{ pagination.total }}</span>
                     {{ $t('results') }}
