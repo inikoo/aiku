@@ -41,6 +41,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $cancelled_at
  * @property int $currency_id
  * @property string $exchange
+ * @property int $number_of_items
+ * @property float|null $total_weight
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
