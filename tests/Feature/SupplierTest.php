@@ -18,7 +18,7 @@ use App\Models\Tenancy\Tenant;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 
-beforeAll(fn() => loadDB('d3_with_tenants.dump'));
+beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();

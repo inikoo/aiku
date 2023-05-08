@@ -7,7 +7,6 @@
 
 namespace Database\Factories\Procurement;
 
-use App\Models\Assets\Currency;
 use App\Models\Procurement\SupplierProduct;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -27,8 +26,8 @@ class PurchaseOrderItemFactory extends Factory
 
         return [
             'supplier_product_id' => $supplierProduct->id,
-            'unit_price' => fake()->numberBetween(100, 10000),
-            'unit_quantity' => fake()->numberBetween(1, 100)
+            'unit_price'          => fake()->numberBetween(100, 10000),
+            'unit_quantity'       => fake()->numberBetween(1, 100)
         ];
     }
 }

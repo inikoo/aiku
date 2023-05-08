@@ -25,9 +25,9 @@ class InertiaTable
     public function __construct(Request $request)
     {
         $this->request      = $request;
-        $this->columns      = new Collection;
-        $this->searchInputs = new Collection;
-        $this->filters      = new Collection;
+        $this->columns      = new Collection();
+        $this->searchInputs = new Collection();
+        $this->filters      = new Collection();
 
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);

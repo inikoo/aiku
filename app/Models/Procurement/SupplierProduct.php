@@ -15,7 +15,6 @@ use App\Models\SupplierProductTradeUnit;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\SupplierProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -60,8 +59,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\HistoricSupplierProduct> $historicRecords
  * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
  * @property-read \App\Models\Procurement\Supplier|null $supplier
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static SupplierProductFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Procurement\SupplierProductFactory factory($count = null, $state = [])
  * @method static Builder|SupplierProduct newModelQuery()
  * @method static Builder|SupplierProduct newQuery()
  * @method static Builder|SupplierProduct onlyTrashed()

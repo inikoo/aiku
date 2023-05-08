@@ -28,8 +28,8 @@ class StoreDeliveryNoteItem
     public function rules(): array
     {
         return [
-            'data' => ['sometimes', 'required', 'max:250', 'string'],
-            'stock_id' => ['required', 'exists:tenant.stocks,id'],
+            'data'           => ['sometimes', 'required', 'max:250', 'string'],
+            'stock_id'       => ['required', 'exists:tenant.stocks,id'],
             'transaction_id' => ['required', 'exists:tenant.transactions,id']
         ];
     }

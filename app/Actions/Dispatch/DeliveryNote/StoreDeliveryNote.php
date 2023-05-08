@@ -12,7 +12,6 @@ use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
-use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Order;

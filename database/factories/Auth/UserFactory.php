@@ -16,7 +16,7 @@ class UserFactory extends Factory
         return [
             'username'   => 'hello',
             'password'   => 'password',
-            'email'   => fake()->email,
+            'email'      => fake()->email,
             'language_id'=> 1,
             'timezone_id'=> 1
         ];

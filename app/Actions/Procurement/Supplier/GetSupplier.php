@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
@@ -13,7 +12,8 @@ use App\Models\Procurement\Agent;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GetSupplier {
+class GetSupplier
+{
     use AsAction;
 
     /**
@@ -24,7 +24,7 @@ class GetSupplier {
         $currentTenant = app('currentTenant');
         if($agent->where('owner_id', $currentTenant->id)->exists() && $agent->is_private) {
             return IndexSuppliers::run($agent);
-        } else if(!$agent->is_private) {
+        } elseif(!$agent->is_private) {
             return IndexSuppliers::run($agent);
         }
 

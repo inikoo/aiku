@@ -25,7 +25,7 @@ use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Validation\ValidationException;
 
-beforeAll(fn() => loadDB('d3_with_tenants.dump'));
+beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();

@@ -10,7 +10,7 @@ use App\Actions\Marketing\Shop\StoreShop;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 
-beforeAll(fn() => loadDB('d3_with_tenants.dump'));
+beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();
