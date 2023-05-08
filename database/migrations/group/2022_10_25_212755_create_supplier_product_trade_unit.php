@@ -16,12 +16,12 @@ return new class () extends Migration {
             $table->unsignedInteger('supplier_product_id')->nullable();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->unsignedInteger('trade_unit_id')->nullable();
-            $table->decimal('quantity', 12, 3);
+            $table->double('package_quantity')->default(1);
+            $table->double('carton_quantity')->nullable();
             $table->string('notes')->nullable();
             $table->timestampsTz();
         });
     }
-
 
     public function down(): void
     {
