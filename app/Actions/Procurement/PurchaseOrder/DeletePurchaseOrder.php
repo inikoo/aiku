@@ -28,9 +28,9 @@ class DeletePurchaseOrder
     public function handle(PurchaseOrder $purchaseOrder): bool
     {
         if(($purchaseOrder->items()->count() > 0) && (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING->value, PurchaseOrderStateEnum::SUBMITTED->value]))) {
-            $purchaseOrderDeleted = $purchaseOrder->delete();
-
             $parent = $purchaseOrder->provider;
+
+            $purchaseOrderDeleted = $purchaseOrder->delete();
 
             if (class_basename($parent) == 'Supplier') {
                 SupplierHydratePurchaseOrder::dispatch($parent);
