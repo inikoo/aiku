@@ -12,6 +12,7 @@ use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\SubmitPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UnSubmitPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderItemQuantity;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
@@ -68,6 +69,10 @@ test('create new purchase order by force', function ($supplier) {
     return $purchaseOrder;
 })->depends('create independent supplier');
 
+test('order', function ($supplier) {
+    $this->assertEquals(1, $supplier->stats->number_purchase_orders);
+})->depends('create independent supplier');
+
 test('create supplier product', function ($supplier) {
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
     $this->assertModelExists($supplierProduct);
@@ -80,18 +85,11 @@ test('delete purchase order when items 0', function ($purchaseOrder) {
 })->depends('create new purchase order by force');
 
 test('add items to purchase order', function ($purchaseOrder) {
-    $items = AddItemPurchaseOrder::make()->action($purchaseOrder, PurchaseOrderItem::factory()->definition());
-    $this->assertModelExists($items);
-
-    return $items->first();
-})->depends('create new purchase order by force');
-
-test('add more than 1 items to purchase order', function ($purchaseOrder) {
-    $i = 0;
+    $i = 1;
     do {
         $items = AddItemPurchaseOrder::make()->action($purchaseOrder, PurchaseOrderItem::factory()->definition());
         $i++;
-    } while ($i < 5);
+    } while ($i <= 5);
 
     $this->assertModelExists($items);
 
@@ -119,6 +117,11 @@ test('update quantity items in purchase order', function ($item) {
 
     $this->assertModelMissing($item);
 })->depends('add items to purchase order');
+
+test('update purchase order', function ($agent) {
+    $purchaseOrder = UpdatePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());
+    $this->assertModelExists($purchaseOrder);
+})->depends('create new purchase order by force');
 
 test('create purchase order by agent', function ($agent) {
     $purchaseOrder = StorePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());

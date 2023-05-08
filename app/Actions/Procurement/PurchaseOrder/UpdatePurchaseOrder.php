@@ -18,7 +18,10 @@ class UpdatePurchaseOrder
 
     public function handle(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrder
     {
-        return $this->update($purchaseOrder, $modelData, ['data']);
+        $purchaseOrder = $this->update($purchaseOrder, $modelData, ['data']);
+        HydratePurchaseOrder::dispatch($purchaseOrder);
+
+        return $purchaseOrder;
     }
 
 //    public function authorize(ActionRequest $request): bool
@@ -30,8 +33,6 @@ class UpdatePurchaseOrder
     {
         return [
             'number'        => ['required', 'numeric', 'unique:group.purchase_orders'],
-            'provider_id'   => ['required'],
-            'provider_type' => ['required'],
             'date'          => ['required', 'date'],
             'currency_id'   => ['required', 'exists:currencies,id'],
             'exchange'      => ['required', 'numeric']
