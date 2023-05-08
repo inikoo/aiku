@@ -7,6 +7,8 @@
 
 namespace Database\Factories\Dispatch;
 
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,8 +25,8 @@ class DeliveryNoteFactory extends Factory
     {
         return [
             'number' => fake()->numberBetween(100, 999),
-            'state'  => fake()->lexify,
-            'status' => fake()->boolean,
+            'state'  => DeliveryNoteStateEnum::PACKING,
+            'status' => DeliveryNoteStatusEnum::HANDLING,
             'email'  => fake()->email,
             'phone'  => fake()->phoneNumber,
             'date'   => fake()->date

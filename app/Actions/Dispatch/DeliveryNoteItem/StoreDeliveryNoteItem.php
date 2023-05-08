@@ -28,8 +28,9 @@ class StoreDeliveryNoteItem
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.delivery_note_items', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string']
+            'data' => ['sometimes', 'required', 'max:250', 'string'],
+            'stock_id' => ['required', 'exists:tenant.stocks,id'],
+            'transaction_id' => ['required', 'exists:tenant.transactions,id']
         ];
     }
 
