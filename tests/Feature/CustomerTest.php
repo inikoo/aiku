@@ -1,29 +1,17 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 26 Apr 2023 12:12:30 Central European Summer Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Mon, 08 May 2023 09:03:42 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace Tests\Feature;
 
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Sales\Customer\StoreCustomer;
-use App\Actions\Sales\Order\DeleteOrder;
-use App\Actions\Sales\Order\StoreOrder;
-use App\Actions\Sales\Order\SubmitOrder;
-use App\Actions\Sales\Order\UnSubmitOrder;
-use App\Actions\Sales\Order\UpdateOrder;
-use App\Actions\Sales\Transaction\StoreTransaction;
-use App\Actions\Sales\Transaction\UpdateTransaction;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
-use App\Enums\Sales\Order\OrderStateEnum;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
-use App\Models\Sales\Order;
-use App\Models\Sales\Transaction;
 use App\Models\Tenancy\Tenant;
 
 beforeAll(fn() => loadDB('d3_with_tenants.dump'));
@@ -65,18 +53,3 @@ test('create other customer', function ($shop) {
 
     return $customer;
 })->depends('create shop');
-
-test('create transaction', function ($order) {
-    $transaction = StoreTransaction::make()->action($order, Transaction::factory()->definition());
-
-    $this->assertModelExists($transaction);
-
-    return $transaction;
-})->depends('create order');
-
-test('update transaction', function ($transaction) {
-    $order = UpdateTransaction::make()->action($transaction, Transaction::factory()->definition());
-
-    $this->assertModelExists($order);
-})->depends('create transaction');
-

@@ -16,6 +16,7 @@ use App\Models\Media\GroupMedia;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -84,6 +85,7 @@ class Stock extends Model implements HasMedia
     use UsesTenantConnection;
     use HasUniversalSearch;
     use HasImages;
+    use HasFactory;
 
     protected $casts = [
         'data'                   => 'array',

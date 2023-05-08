@@ -10,9 +10,13 @@ namespace App\Actions\Dispatch\DeliveryNote;
 use App\Actions\Dispatch\DeliveryNote\Hydrators\DeliveryNoteHydrateUniversalSearch;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Sales\Order;
+use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -44,11 +48,11 @@ class StoreDeliveryNote
     {
         return [
             'number' => ['required', 'unique:tenant.delivery_notes', 'numeric'],
-            'state'  => ['required', 'max:250', 'string'],
-            'status' => ['required', 'boolean'],
+            'state'  => ['sometimes', 'required', new Enum(DeliveryNoteStateEnum::class)],
+            'status' => ['sometimes', 'required', new Enum(DeliveryNoteStatusEnum::class)],
             'email'  => ['required', 'string', 'email'],
             'phone'  => ['required', 'string'],
-            'date'   => ['required', 'date'],
+            'date'   => ['required', 'date']
         ];
     }
 

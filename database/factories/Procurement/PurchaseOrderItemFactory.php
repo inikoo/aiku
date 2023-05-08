@@ -28,7 +28,7 @@ class PurchaseOrderItemFactory extends Factory
         return [
             'supplier_product_id' => $supplierProduct->id,
             'unit_price' => fake()->numberBetween(100, 10000),
-            'unit_quantity' => fake()->numberBetween(0, 100)
+            'unit_quantity' => fake()->numberBetween(1, 100)
         ];
     }
 }

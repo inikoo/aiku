@@ -22,7 +22,7 @@ class UpdateTradeUnit
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:tenant.trade_units', 'between:2,9', 'alpha'],
+            'code'        => ['required', 'unique:group.trade_units', 'between:2,9', 'alpha'],
             'name'        => ['required', 'max:250', 'string'],
             'description' => ['sometimes', 'required'],
             'barcode'     => ['sometimes', 'required'],

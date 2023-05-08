@@ -11,7 +11,7 @@ use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Marketing\TradeUnitFactory;
+use Database\Factories\Goods\TradeUnitFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

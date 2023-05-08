@@ -9,7 +9,10 @@ namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\Dispatch\DeliveryNote\Hydrators\DeliveryNoteHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateDeliveryNote
 {
@@ -26,11 +29,11 @@ class UpdateDeliveryNote
     {
         return [
             'number' => ['required', 'unique:tenant.delivery_notes', 'numeric'],
-            'state'  => ['required', 'max:250', 'string'],
-            'status' => ['required', 'boolean'],
+            'state'  => ['sometimes', 'required', new Enum(DeliveryNoteStateEnum::class)],
+            'status' => ['sometimes', 'required', new Enum(DeliveryNoteStatusEnum::class)],
             'email'  => ['required', 'string', 'email'],
             'phone'  => ['required', 'string'],
-            'date'   => ['required', 'date'],
+            'date'   => ['required', 'date']
         ];
     }
 

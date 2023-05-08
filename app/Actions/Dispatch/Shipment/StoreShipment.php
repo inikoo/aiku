@@ -31,8 +31,7 @@ class StoreShipment
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.shipments', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string']
+            'code' => ['required', 'unique:tenant.shipments', 'between:2,9', 'alpha']
         ];
     }
 
