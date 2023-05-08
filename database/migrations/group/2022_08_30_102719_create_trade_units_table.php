@@ -19,8 +19,10 @@ return new class () extends Migration {
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
             $table->string('barcode')->index()->nullable();
-            $table->float('weight')->nullable()->comment('in kilograms');
+            $table->float('gross_weight')->nullable()->comment('in kilograms include packing');
+            $table->float('net_weight')->nullable()->comment('in kilograms');
             $table->jsonb('dimensions')->nullable();
+            $table->double('volume')->nullable()->comment('in cubic meters');
             $table->string('type')->default('piece')->index()->nullable()->comment('unit type');
             $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('data');
