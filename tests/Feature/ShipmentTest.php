@@ -54,31 +54,27 @@ test('create shop, customer, order', function () {
 
     $transaction = StoreTransaction::make()->action($order, Transaction::factory()->definition());
 
+    $address = Address::latest()->first();
+
+    $deliveryNote = StoreDeliveryNote::make()->action($order, DeliveryNote::factory()->definition(), $address);
+
     return [
         'shop' => $shop,
         'customer' => $customer,
         'order' => $order,
         'stock' => $stock,
-        'transaction' => $transaction
+        'transaction' => $transaction,
+        'delivery_note' => $deliveryNote
     ];
 });
 
-test('create delivery note', function ($order) {
-    $address = Address::latest()->first();
-
-    $deliveryNote = StoreDeliveryNote::make()->action($order['order'], DeliveryNote::factory()->definition(), $address);
-    $this->assertModelExists($deliveryNote);
-
-    return $deliveryNote;
-})->depends('create shop, customer, order');
-
 test('create shipment', function ($deliveryNote) {
-    $shipment = StoreShipment::make()->action($deliveryNote, Shipment::factory()->definition());
+    $shipment = StoreShipment::make()->action($deliveryNote['delivery_note'], Shipment::factory()->definition());
 
     $this->assertModelExists($shipment);
 
     return $shipment;
-})->depends('create delivery note');
+})->depends('create shop, customer, order');
 
 test('update shipment', function ($shipment) {
     $shipment = UpdateShipment::make()->action($shipment, Shipment::factory()->definition());
