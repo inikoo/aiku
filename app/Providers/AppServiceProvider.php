@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Lorisleiva\Actions\Facades\Actions;
+use Inertia\Response as InertiaResponse;
+use App\InertiaTable\InertiaTable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,6 +33,19 @@ class AppServiceProvider extends ServiceProvider
             Actions::registerCommands();
         }
 
+        InertiaResponse::macro('getQueryBuilderProps', function () {
+            return $this->props['queryBuilderProps'] ?? [];
+        });
+
+        InertiaResponse::macro('table', function (callable $withTableBuilder = null) {
+            $tableBuilder = new InertiaTable(request());
+
+            if ($withTableBuilder) {
+                $withTableBuilder($tableBuilder);
+            }
+
+            return $tableBuilder->applyTo($this);
+        });
 
         Request::macro('validatedShiftToArray', function ($map = []): array {
             /** @noinspection PhpUndefinedMethodInspection */
