@@ -21,7 +21,7 @@ class HydrateStock extends HydrateModel
     {
         $this->locations($stock);
         $this->quantity($stock);
-        StockInitialiseImageID::run($stock);
+        // StockInitialiseImageID::run($stock);
     }
 
     public function locations(Stock $stock): void

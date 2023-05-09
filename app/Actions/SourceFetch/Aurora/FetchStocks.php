@@ -18,7 +18,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchStocks extends FetchAction
 {
-    public string $commandSignature = 'fetch:stocks {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:stocks {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Stock
     {
