@@ -62,6 +62,8 @@ class EditUser extends InertiaAction
                     'blueprint' => [
                         [
                             'title'  => __('id'),
+                             'icon'   => 'fa-light fa-user',
+                             'current' => true,
                             'fields' => [
                                 'username' => [
                                     'type'  => 'input',
@@ -79,6 +81,7 @@ class EditUser extends InertiaAction
                         'password'   => [
                             'title'  => __('Password'),
                             'icon'   => 'fa-light fa-key',
+                            'current' => false,
                             'fields' => [
                                 'password' => [
                                     'type'  => 'password',
