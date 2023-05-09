@@ -7,11 +7,15 @@
 
 namespace App\Models\Procurement;
 
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -23,6 +27,22 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $provider_id
  * @property string $provider_type
  * @property string $number
+ * @property string $state
+ * @property string $status
+ * @property string $date latest relevant date
+ * @property string|null $dispatched_at
+ * @property string|null $received_at
+ * @property string|null $checked_at
+ * @property string|null $settled_at
+ * @property string|null $cancelled_at
+ * @property int $number_of_items
+ * @property float|null $total_weight
+ * @property string|null $cost_items
+ * @property string|null $cost_extra
+ * @property string|null $cost_shipping
+ * @property string|null $cost_duties
+ * @property string $cost_tax
+ * @property string $cost_total
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -38,10 +58,14 @@ use Spatie\Sluggable\SlugOptions;
 class SupplierDelivery extends Model
 {
     use UsesGroupConnection;
+    use SoftDeletes;
+    use HasAddress;
     use HasSlug;
 
     protected $casts = [
-        'data' => 'array',
+        'data'  => 'array',
+        'state' => SupplierDeliveryStateEnum::class,
+        'status'=> SupplierDeliveryStatusEnum::class,
     ];
 
     protected $attributes = [

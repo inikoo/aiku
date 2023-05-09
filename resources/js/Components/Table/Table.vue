@@ -8,11 +8,10 @@ import TableWrapper from "@/Components/Table/TableWrapper.vue"
 import {
 	TableAddSearchRow,
 	TableColumns,
-	// TableFilter,
-	// TableGlobalSearch,
+	TableFilter,
 	TableSearchRows,
 	TableReset,
-	// TableWrapper,
+
 } from "@protonemedia/inertiajs-tables-laravel-query-builder"
 
 import { computed, reactive, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from "vue"
@@ -135,6 +134,10 @@ const hasOnlyData = computed(() => {
 		return false
 	}
 
+	if (queryBuilderProps.value.filterCheck) {
+		return false
+	}
+
 	return !queryBuilderProps.value.globalSearch
 })
 
@@ -194,14 +197,6 @@ function disableSearchInput(key) {
 	changeSearchInputValue(key, null)
 }
 
-function hideCheckBox(key) {
-	forcedVisibleSearchInputs.value = forcedVisibleSearchInputs.value.filter(
-		(search) => search !== key
-	)
-
-	changeCheckBoxValue(key, null)
-}
-
 function showSearchInput(key) {
 	forcedVisibleSearchInputs.value.push(key)
 }
@@ -248,6 +243,10 @@ function resetQuery() {
 		queryBuilderData.value.searchInputs[key].value = null
 	})
 
+	forEach(queryBuilderData.value.filterCheck, (filter, key) => {
+		queryBuilderData.value.filterCheck[key].value = null
+	})
+
 	forEach(queryBuilderData.value.columns, (column, key) => {
 		queryBuilderData.value.columns[key].hidden = column.can_be_hidden
 			? !queryBuilderProps.value.defaultVisibleToggleableColumns.includes(column.key)
@@ -277,22 +276,6 @@ function changeSearchInputValue(key, value) {
 	}, props.inputDebounceMs)
 }
 
-function changeCheckBoxValue(key, value) {
-	clearTimeout(debounceTimeouts[key])
-
-	debounceTimeouts[key] = setTimeout(() => {
-		if (visitCancelToken.value && props.preventOverlappingRequests) {
-			visitCancelToken.value.cancel()
-		}
-
-		const intKey = findDataKey("searchInputs", key)
-
-		queryBuilderData.value.searchInputs[intKey].value = value
-		queryBuilderData.value.cursor = null
-		queryBuilderData.value.page = 1
-	}, props.inputDebounceMs)
-}
-
 function changeGlobalSearchValue(value) {
 	changeSearchInputValue("global", value)
 }
@@ -301,6 +284,14 @@ function changeFilterValue(key, value) {
 	const intKey = findDataKey("filters", key)
 
 	queryBuilderData.value.filters[intKey].value = value
+	queryBuilderData.value.cursor = null
+	queryBuilderData.value.page = 1
+}
+
+function onChangeCheckBoxValue(obj) {
+	console.log(obj);
+	const intKey = findDataKey("filterCheck", obj.key)
+	queryBuilderData.value.filterCheck[intKey].value = obj.value
 	queryBuilderData.value.cursor = null
 	queryBuilderData.value.page = 1
 }
@@ -646,27 +637,14 @@ function header(key) {
 					:on-change="changeSearchInputValue"
 					:on-remove="disableSearchInput" />
 			</slot>
+			<!-- filter checkbox-->
 			<slot
-				name="tableCheckFilters" 
+				name="tableFilterCheck" 
 				:has-shown="queryBuilderProps.hasShowCheck"
-				:on-click="changeCheckBoxValue">
+				:on-click="onChangeCheckBoxValue">
 				<TableFilterCheck
-					:on-click="changeCheckBoxValue"
-					:on-remove="hideCheckBox" />
+					:labels ="queryBuilderProps.filterCheck"/>
 			</slot>
-
-            <!-- Clicked Label -->
-            <div class="grid justify-items-center grid-flow-col auto-cols-auto divide-x-2 divide-gray-200 py-3">
-                <div v-for="(fakeLabel, index) of fakeLabels" :key="index" class="w-full" :class="{'bg-indigo-100': fakeLabel.checked}" >
-                    <div class="grid justify-center grid-flow-col items-center focus:bg-gray-800" >
-                        <label :for="(fakeLabel.title + index)" class="py-2 select-none cursor-pointer inline pr-2">
-                            {{ fakeLabel.title }} ({{ fakeLabel.total }})
-                        </label>
-                        <input :id="(fakeLabel.title + index)" :name="(fakeLabel.title + index)" class="cursor-pointer focus:ring-0" type="checkbox" v-model="fakeLabel.checked"/>
-                        
-                    </div>
-                </div>
-            </div>
 
             <!-- The Main Table -->
             <slot name="tableWrapper" :meta="resourceMeta">

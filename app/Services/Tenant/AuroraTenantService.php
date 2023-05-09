@@ -335,4 +335,9 @@ use Illuminate\Support\Facades\DB;
         return (new FetchAuroraPurchaseOrder($this))->fetch($id);
     }
 
+    public function fetchSupplierDelivery($id): ?array
+    {
+        return (new FetchAuroraSupplierDelivery($this))->fetch($id);
+    }
+
 }

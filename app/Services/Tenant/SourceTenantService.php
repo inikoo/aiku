@@ -117,4 +117,7 @@ interface SourceTenantService
 
     public function fetchPurchaseOrder($id);
 
+    public function fetchSupplierDelivery($id);
+
+
 }

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 17 Apr 2023 17:11:07 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 09 May 2023 14:50:49 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -9,23 +9,23 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
-use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
-use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
-use App\Models\Procurement\PurchaseOrder;
+use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
+use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
+use App\Models\Procurement\SupplierDelivery;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
-class FetchPurchaseOrders extends FetchAction
+class FetchSupplierDeliveries extends FetchAction
 {
-    public string $commandSignature = 'fetch:purchase-orders {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:supplier-deliveries {tenants?*} {--s|source_id=}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?PurchaseOrder
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?SupplierDelivery
     {
-        if ($orderData = $tenantSource->fetchPurchaseOrder($tenantSourceId)) {
-            if (!empty($orderData['purchase_order']['source_id']) and $order = PurchaseOrder::withTrashed()->where('source_id', $orderData['purchase_order']['source_id'])
+        if ($orderData = $tenantSource->fetchSupplierDelivery($tenantSourceId)) {
+            if (!empty($orderData['supplierDelivery']['source_id']) and $order = SupplierDelivery::withTrashed()->where('source_id', $orderData['supplierDelivery']['source_id'])
                     ->first()) {
-                $order = UpdatePurchaseOrder::run($order, $orderData['purchase_order']);
+                $order = UpdateSupplierDelivery::run($order, $orderData['supplierDelivery']);
 
                 $currentDeliveryAddress = $order->getAddress('delivery');
 
@@ -42,14 +42,14 @@ class FetchPurchaseOrders extends FetchAction
                 return $order;
             } else {
                 if ($orderData['parent']) {
-                    $order = StorePurchaseOrder::run($orderData['parent'], $orderData['purchase_order'], $orderData['delivery_address']);
+                    $order = StoreSupplierDelivery::run($orderData['parent'], $orderData['supplierDelivery'], $orderData['delivery_address']);
                     //  $this->fetchTransactions($tenantSource, $order);
                     $this->updateAurora($order);
 
 
                     return $order;
                 }
-                print "Warning purchase order $tenantSourceId do not have parent\n";
+                print "Warning Supplier Delivery $tenantSourceId do not have parent\n";
             }
         } else {
             print "Warning error fetching order $tenantSourceId\n";
@@ -78,28 +78,26 @@ class FetchPurchaseOrders extends FetchAction
     }
     */
 
-    public function updateAurora(PurchaseOrder $purchaseOrder): void
+    public function updateAurora(SupplierDelivery $SupplierDelivery): void
     {
-        DB::connection('aurora')->table('Purchase Order Dimension')
-            ->where('Purchase Order Key', $purchaseOrder->source_id)
-            ->update(['aiku_id' => $purchaseOrder->id]);
+        DB::connection('aurora')->table('Supplier Delivery Dimension')
+            ->where('Supplier Delivery Key', $SupplierDelivery->source_id)
+            ->update(['aiku_id' => $SupplierDelivery->id]);
     }
 
     public function getModelsQuery(): Builder
     {
         $query = DB::connection('aurora')
-            ->table('Purchase Order Dimension')
-            ->select('Purchase Order Key as source_id')
-            ->whereIn('Purchase Order Type', ['Parcel', 'Container']);
-        $query->orderBy('Purchase Order Date');
+            ->table('Supplier Delivery Dimension')
+            ->select('Supplier Delivery Key as source_id');
+        $query->orderBy('Supplier Delivery Date');
 
         return $query;
     }
 
     public function count(): ?int
     {
-        $query = DB::connection('aurora')->table('Purchase Order Dimension')
-            ->whereIn('Purchase Order Type', ['Parcel', 'Container']);
+        $query = DB::connection('aurora')->table('Supplier Delivery Dimension');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');

@@ -5,6 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,6 +20,27 @@ return new class () extends Migration {
             $table->unsignedInteger('provider_id')->index();
             $table->string('provider_type');
             $table->string('number');
+            $table->string('state')->index()->default(SupplierDeliveryStateEnum::CREATING->value);
+            $table->string('status')->index()->default(SupplierDeliveryStatusEnum::PROCESSING->value);
+            $table->dateTimeTz('date')->comment('latest relevant date');
+
+            $table->dateTimeTz('dispatched_at')->nullable();
+            $table->dateTimeTz('received_at')->nullable();
+            $table->dateTimeTz('checked_at')->nullable();
+            $table->dateTimeTz('settled_at')->nullable();
+            $table->dateTimeTz('cancelled_at')->nullable();
+
+
+            $table->smallInteger('number_of_items')->default(0);
+            $table->float('total_weight', 16)->default(null)->nullable();
+            $table->decimal('cost_items', 16)->default(null)->nullable();
+            $table->decimal('cost_extra', 16)->default(null)->nullable();
+
+            $table->decimal('cost_shipping', 16)->default(null)->nullable();
+            $table->decimal('cost_duties', 16)->default(null)->nullable();
+            $table->decimal('cost_tax', 16)->default(0);
+            $table->decimal('cost_total', 16)->default(0);
+
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
