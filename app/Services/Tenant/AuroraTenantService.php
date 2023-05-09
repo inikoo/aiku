@@ -250,6 +250,11 @@ use Illuminate\Support\Facades\DB;
         return (new FetchAuroraTradeUnit($this))->fetch($id);
     }
 
+    public function fetchTradeUnitImages($id): ?array
+    {
+        return (new FetchAuroraTradeUnitImages($this))->fetch($id);
+    }
+
     public function fetchLocationStocks($id): ?array
     {
         return (new FetchAuroraLocationStocks($this))->fetch($id);
