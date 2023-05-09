@@ -89,7 +89,10 @@ class IndexEmployees extends InertiaAction
         return Inertia::render(
             'HumanResources/Employees',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __('employees'),
                 'pageHead'    => [
                     'title'  => __('employees'),
@@ -115,7 +118,7 @@ class IndexEmployees extends InertiaAction
     }
 
 
-    public function getBreadcrumbs($suffix=null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
             (new HumanResourcesDashboard())->getBreadcrumbs(),
@@ -129,7 +132,6 @@ class IndexEmployees extends InertiaAction
                         'label' => __('employees'),
                         'icon'  => 'fal fa-bars',
                     ],
-                    'suffix'=> $suffix
 
                 ]
             ]

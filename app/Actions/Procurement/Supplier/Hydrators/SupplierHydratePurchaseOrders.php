@@ -14,7 +14,7 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SupplierHydratePurchaseOrder implements ShouldBeUnique
+class SupplierHydratePurchaseOrders implements ShouldBeUnique
 {
     use AsAction;
 

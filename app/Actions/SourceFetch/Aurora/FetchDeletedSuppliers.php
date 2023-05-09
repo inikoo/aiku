@@ -18,7 +18,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeletedSuppliers extends FetchAction
 {
-    public string $commandSignature = 'fetch:deleted-suppliers {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:deleted-suppliers {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Supplier

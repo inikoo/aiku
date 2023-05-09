@@ -7,6 +7,7 @@
 
 
 use App\Actions\Accounting\Payment\UpdatePayment;
+use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\UpdateUser;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -51,5 +52,7 @@ Route::patch('/supplier/{supplier}', UpdateSupplier::class)->name('supplier.upda
 Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');
 
 Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
+
+Route::patch('/guest/{guest}', UpdateGuest::class)->name('guest.update');
 
 Route::patch('/outbox/{outbox}', UpdateOutbox::class)->name('outbox.update');

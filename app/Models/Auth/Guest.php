@@ -8,6 +8,7 @@
 namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\HydrateTenant;
+use Database\Factories\Auth\GuestFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -40,7 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read \App\Models\Auth\User|null $user
- * @method static \Database\Factories\Auth\GuestFactory factory($count = null, $state = [])
+ * @method static GuestFactory factory($count = null, $state = [])
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest onlyTrashed()
@@ -103,13 +104,7 @@ class Guest extends Model implements HasMedia
                         );
                     }
                 }
-                if ($guest->wasChanged('name')) {
-                    $guest->user->update(
-                        [
-                            'name' => $guest->name
-                        ]
-                    );
-                }
+
             }
         });
     }

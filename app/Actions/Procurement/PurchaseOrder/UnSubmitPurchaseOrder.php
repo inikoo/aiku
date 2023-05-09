@@ -7,8 +7,8 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrder;
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrder;
+use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
+use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -30,9 +30,9 @@ class UnSubmitPurchaseOrder
         $parent = $purchaseOrder->provider;
 
         if (class_basename($parent) == 'Supplier') {
-            SupplierHydratePurchaseOrder::dispatch($parent);
+            SupplierHydratePurchaseOrders::dispatch($parent);
         } else {
-            AgentHydratePurchaseOrder::dispatch($parent);
+            AgentHydratePurchaseOrders::dispatch($parent);
         }
 
         TenantHydrateProcurement::dispatch(app('currentTenant'));

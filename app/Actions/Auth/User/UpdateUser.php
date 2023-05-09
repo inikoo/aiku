@@ -45,7 +45,8 @@ class UpdateUser
             return true;
         }
 
-        return false;
+        return  $request->user()->can('sysadmin.edit');
+        ;
     }
 
 
@@ -54,6 +55,7 @@ class UpdateUser
         return [
             'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username'],
             'password' => ['sometimes', 'required', app()->isLocal()  || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'email'    => 'sometimes|required|email|unique:App\Models\Auth\GroupUser,email'
         ];
     }
 
@@ -68,6 +70,7 @@ class UpdateUser
 
     public function asController(User $user, ActionRequest $request): User
     {
+        $request->validate();
         return $this->handle($user, $request->validated());
     }
 
@@ -83,6 +86,6 @@ class UpdateUser
 
     public function htmlResponse(User $user): RedirectResponse
     {
-        return Redirect::route('account.users.edit', $user->id);
+        return Redirect::route('sysadmin.users.edit', $user->username);
     }
 }

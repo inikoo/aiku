@@ -48,7 +48,7 @@ class ShowUser extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'title'     => '@'.$user->username,
+                    'title'     => $user->username,
                     'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),

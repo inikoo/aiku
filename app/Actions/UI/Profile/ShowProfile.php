@@ -47,31 +47,31 @@ class ShowProfile
                     'title' => __('My Profile'),
 
                 ],
-                'profile' => $user->only('username', 'email', 'avatar', 'about'),
-                'pageBody'=> [
-                    'current'=> 'profile',
-                    'layout' => [
-                        'profile'=> [
-                            'title'  => __('Profile'),
-                            'notes'  => __('This information will be synchronised in all your workspaces.'),
-                            'icon'   => 'fa-light fa-user-circle',
-                            'current'=> true,
-                            'fields' => [
+                'profile'     => $user->only('username', 'email', 'avatar', 'about'),
+                'pageBody'    => [
+                    'current' => 'profile',
+                    'layout'  => [
+                        'profile'    => [
+                            'title'   => __('Profile'),
+                            'notes'   => __('This information will be synchronised in all your workspaces.'),
+                            'icon'    => 'fa-light fa-user-circle',
+                            'current' => true,
+                            'fields'  => [
                                 'username' => [
                                     'label' => __('Username')
                                 ],
-                                'about' => [
+                                'about'    => [
                                     'label' => __('About'),
                                     'notes' => __('Brief description for your profile.')
                                 ],
-                                'photo' => [
+                                'photo'    => [
                                     'label' => __('Photo'),
                                     'info'  => __('user photo or icon'),
                                 ]
 
                             ]
                         ],
-                        'password'=> [
+                        'password'   => [
                             'title'  => __('Password'),
                             'icon'   => 'fa-light fa-key',
                             'fields' => [
@@ -80,15 +80,67 @@ class ShowProfile
                                 ]
                             ]
                         ],
-                        'workplaces'=> [
-                            'title'=> __('Workplaces'),
-                            'icon' => 'fa-light fa-clone',
+                        'workplaces' => [
+                            'title' => __('Workplaces'),
+                            'icon'  => 'fa-light fa-clone',
 
                         ],
-                        'appearance'=> [
-                            'title'=> __('Appearance'),
-                            'icon' => 'fa-light fa-paint-brush',
+                        'appearance' => [
+                            'title'  => __('Appearance'),
+                            'icon'   => 'fa-light fa-paint-brush',
+                            'fields' => [
+                                'darkMode' => [
+                                    'label' => __('Turn Dark Mode')
+                                ],
+                                'theme'    => [
+                                    'label' => __('Select Theme')
+                                ]
+                            ]
                         ]
+                    ]
+                ],
+
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'   => __('profile'),
+                            'icon'    => 'fa-light fa-user-circle',
+                            'notes'   => __('This information will be synchronised in all your workspaces.'),
+                            'current' => true,
+                            'fields'  => [
+                                'username' => [
+                                    'type'  => 'input',
+                                    'label' => __('username'),
+                                    'value' => $user->username
+                                ],
+                                'email'    => [
+                                    'type'  => 'input',
+                                    'label' => __('email'),
+                                    'value' => $user->email
+                                ],
+
+                            ]
+                        ],
+                        [
+                            'title'  => __('password'),
+                            'icon'   => 'fa-light fa-key',
+                            'fields' => [
+
+                                'password' => [
+                                    'type'  => 'password',
+                                    'label' => __('password'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ]
+
+                    ],
+                    'args'      => [
+                        'updateRoute' => [
+                            'name'       => 'models.user.update',
+                            'parameters' => $user->username
+
+                        ],
                     ]
                 ]
 

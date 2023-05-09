@@ -78,7 +78,7 @@ class FetchPurchaseOrders extends FetchAction
     }
     */
 
-    public function updateAurora(PurchaseOrder $purchaseOrder)
+    public function updateAurora(PurchaseOrder $purchaseOrder): void
     {
         DB::connection('aurora')->table('Purchase Order Dimension')
             ->where('Purchase Order Key', $purchaseOrder->source_id)
