@@ -79,7 +79,7 @@ class IndexPurchaseOrders extends InertiaAction
         return $this->handle(app('currentTenant'));
     }
 
-
+//
     public function jsonResponse(LengthAwarePaginator $purchaseOrders): AnonymousResourceCollection
     {
         return PurchaseOrderResource::collection($purchaseOrders);
