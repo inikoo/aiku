@@ -11,7 +11,6 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
-use App\Models\SupplierTenant;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasPhoto;

@@ -57,10 +57,10 @@ use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use App\Models\Procurement\SupplierTenant;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
-use App\Models\SupplierTenant;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
@@ -71,8 +71,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                                                                                                             != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                                                                                                                         && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                                                                                                                                                                                                                              != '' && $value != '0000-00-00 00:00:00'
+                                                                                                                                                                                                                                                          && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 

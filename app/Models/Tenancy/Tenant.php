@@ -8,17 +8,18 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\AgentTenant;
 use App\Models\Assets\Currency;
 use App\Models\Central\CentralDomain;
 use App\Models\Central\CentralMedia;
 use App\Models\Inventory\Stock;
 use App\Models\Procurement\Agent;
+use App\Models\Procurement\AgentTenant;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
-use App\Models\SupplierProductTenant;
-use App\Models\SupplierTenant;
+use App\Models\Procurement\SupplierProductTenant;
+use App\Models\Procurement\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
+use Database\Factories\Tenancy\TenantFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -73,7 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read SysUser|null $sysUser
  * @method static TenantCollection<int, static> all($columns = ['*'])
- * @method static \Database\Factories\Tenancy\TenantFactory factory($count = null, $state = [])
+ * @method static TenantFactory factory($count = null, $state = [])
  * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()
