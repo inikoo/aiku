@@ -81,8 +81,10 @@ class EditUser extends InertiaAction
                             'icon'   => 'fa-light fa-key',
                             'fields' => [
                                 'password' => [
-                                    'label' => __('Password')
-                                ]
+                                    'type'  => 'password',
+                                    'label' => __('password'),
+                                    'value' => ''
+                                ],
                             ]
                         ],
                     ],
