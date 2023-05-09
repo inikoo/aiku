@@ -107,7 +107,7 @@ const displayBreadcrumbs = computed(() => {
 						</template>
 						<template v-else-if="breadcrumb.type === 'creatingModel'">
 							<font-awesome-icon
-								class="flex-shrink-0 h-3.5 w-3.5 mr-1 text-yellow-500"
+								class="flex-shrink-0 h-3.5 w-3.5 mr-1 text-yellow-500 ml-2"
 								icon="fas fa-sparkles"
 								aria-hidden="true" />
 							<span class="capitalize text-yellow-600 opacity-75">

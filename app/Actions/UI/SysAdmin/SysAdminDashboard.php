@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\SysAdmin;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -60,13 +61,23 @@ class SysAdminDashboard
     }
 
 
+
     public function getBreadcrumbs(): array
     {
-        return [
-            'hr.dashboard' => [
-                'route' => 'sysadmin.dashboard',
-                'name'  => __('system administration'),
-            ]
-        ];
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'sysadmin.dashboard'
+                            ],
+                            'label'  => __('system administration'),
+                        ]
+                    ]
+                ]
+            );
     }
 }

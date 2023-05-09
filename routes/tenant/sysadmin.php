@@ -6,8 +6,10 @@
  */
 
 
-use App\Actions\Auth\Guest\IndexGuest;
-use App\Actions\Auth\Guest\ShowGuest;
+use App\Actions\Auth\Guest\UI\CreateGuest;
+use App\Actions\Auth\Guest\UI\EditGuest;
+use App\Actions\Auth\Guest\UI\IndexGuest;
+use App\Actions\Auth\Guest\UI\ShowGuest;
 use App\Actions\Auth\User\UI\CreateUser;
 use App\Actions\Auth\User\UI\EditUser;
 use App\Actions\Auth\User\UI\IndexUsers;
@@ -24,6 +26,9 @@ Route::get('/users/{user}', ShowUser::class)->name('users.show');
 Route::get('/users/{user}/edit', EditUser::class)->name('users.edit');
 
 Route::get('/guests', IndexGuest::class)->name('guests.index');
+Route::get('/guests/create', CreateGuest::class)->name('guests.create');
+
 Route::get('/guests/{guest}', ShowGuest::class)->name('guests.show');
+Route::get('/guests/{guest}/edit', EditGuest::class)->name('guests.edit');
 
 Route::get('/dashtv', DashTV::class)->name('dashtv');

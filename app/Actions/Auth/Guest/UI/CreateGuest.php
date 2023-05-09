@@ -1,18 +1,18 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 24 Apr 2023 20:23:18 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 09 May 2023 13:03:25 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\User\UI;
+namespace App\Actions\Auth\Guest\UI;
 
 use App\Actions\InertiaAction;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateUser extends InertiaAction
+class CreateGuest extends InertiaAction
 {
     public function handle(ActionRequest $request): Response
     {
@@ -23,14 +23,38 @@ class CreateUser extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('new user'),
+                'title'       => __('new guest'),
                 'pageHead'    => [
-                    'title'        => __('new user'),
+                    'title'        => __('new guest'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'sysadmin.users.index',
+                            'name'       => 'sysadmin.guests.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
+                    ]
+
+                ],
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('personal information'),
+                            'fields' => [
+
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('name'),
+                                    'value' => ''
+                                ],
+
+
+
+                            ]
+                        ]
+
+                    ],
+                    'route'      => [
+                        'name'       => 'models.guest.store',
+
                     ]
 
                 ],
@@ -56,7 +80,7 @@ class CreateUser extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexUsers::make()->getBreadcrumbs(
+            IndexGuest::make()->getBreadcrumbs(
                 routeName: preg_replace('/create$/', 'index', $routeName),
                 routeParameters: $routeParameters,
             ),

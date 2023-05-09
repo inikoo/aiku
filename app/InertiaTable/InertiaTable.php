@@ -16,6 +16,7 @@ class InertiaTable
     private Request $request;
     private Collection $columns;
     private Collection $searchInputs;
+    private Collection $checkBoxFilter;
     private Collection $filters;
     private string $defaultSort = '';
 
@@ -24,10 +25,12 @@ class InertiaTable
 
     public function __construct(Request $request)
     {
-        $this->request      = $request;
-        $this->columns      = new Collection();
-        $this->searchInputs = new Collection();
-        $this->filters      = new Collection();
+        $this->request        = $request;
+        $this->columns        = new Collection();
+        $this->searchInputs   = new Collection();
+        $this->checkBoxFilter = new Collection();
+        $this->filters        = new Collection();
+
 
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);
@@ -37,7 +40,8 @@ class InertiaTable
     /**
      * Set a default for global search.
      *
-     * @param bool|string $label
+     * @param  bool|string  $label
+     *
      * @return void
      */
     public static function defaultGlobalSearch(bool|string $label = 'Search...')
@@ -48,8 +52,9 @@ class InertiaTable
     /**
      * Retrieve a query string item from the request.
      *
-     * @param string $key
-     * @param mixed|null $default
+     * @param  string  $key
+     * @param  mixed|null  $default
+     *
      * @return mixed
      */
     private function query(string $key, $default = null)
@@ -63,7 +68,8 @@ class InertiaTable
     /**
      * Helper method to update the Spatie Query Builder parameter config.
      *
-     * @param string $name
+     * @param  string  $name
+     *
      * @return void
      */
     public static function updateQueryBuilderParameters(string $name)
@@ -82,7 +88,8 @@ class InertiaTable
     /**
      * Name for this table.
      *
-     * @param string $name
+     * @param  string  $name
+     *
      * @return self
      */
     public function name(string $name): self
@@ -95,7 +102,8 @@ class InertiaTable
     /**
      * Page name for this table.
      *
-     * @param string $pageName
+     * @param  string  $pageName
+     *
      * @return self
      */
     public function pageName(string $pageName): self
@@ -108,7 +116,8 @@ class InertiaTable
     /**
      * Per Page options for this table.
      *
-     * @param array $pageName
+     * @param  array  $pageName
+     *
      * @return self
      */
     public function perPageOptions(array $perPageOptions): self
@@ -121,7 +130,8 @@ class InertiaTable
     /**
      * Default sort for this table.
      *
-     * @param string $defaultSort
+     * @param  string  $defaultSort
+     *
      * @return self
      */
     public function defaultSort(string $defaultSort): self
@@ -155,14 +165,21 @@ class InertiaTable
             'hasSearchInputsWithValue'    => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
             'hasSearchInputsWithoutValue' => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
 
-            'globalSearch' => $this->searchInputs->firstWhere('key', 'global'),
-
+            'globalSearch'   => $this->searchInputs->firstWhere('key', 'global'),
             'cursor'         => $this->query('cursor'),
             'sort'           => $this->query('sort', $this->defaultSort) ?: null,
             'defaultSort'    => $this->defaultSort,
             'page'           => Paginator::resolveCurrentPage($this->pageName),
             'pageName'       => $this->pageName,
             'perPageOptions' => $this->perPageOptions,
+          //  'filterCheck'    => $this->checkBoxFilter
+            'filterCheck'=> collect(
+                [
+                    [
+                        'label'=> '...'
+                    ]
+                ]
+            )
         ];
     }
 
@@ -243,12 +260,13 @@ class InertiaTable
     /**
      * Add a column to the query builder.
      *
-     * @param string|null $key
-     * @param string|null $label
-     * @param bool $canBeHidden
-     * @param bool $hidden
-     * @param bool $sortable
-     * @param bool $searchable
+     * @param  string|null  $key
+     * @param  string|null  $label
+     * @param  bool  $canBeHidden
+     * @param  bool  $hidden
+     * @param  bool  $sortable
+     * @param  bool  $searchable
+     *
      * @return self
      */
     public function column(string $key = null, string $label = null, bool $canBeHidden = true, bool $hidden = false, bool $sortable = false, bool $searchable = false): self
@@ -258,14 +276,16 @@ class InertiaTable
 
         $this->columns = $this->columns->reject(function (Column $column) use ($key) {
             return $column->key === $key;
-        })->push($column = new Column(
-            key: $key,
-            label: $label,
-            canBeHidden: $canBeHidden,
-            hidden: $hidden,
-            sortable: $sortable,
-            sorted: false
-        ))->values();
+        })->push(
+            $column = new Column(
+                key: $key,
+                label: $label,
+                canBeHidden: $canBeHidden,
+                hidden: $hidden,
+                sortable: $sortable,
+                sorted: false
+            )
+        )->values();
 
         if ($searchable) {
             $this->searchInput($column->key, $column->label);
@@ -277,7 +297,8 @@ class InertiaTable
     /**
      * Helper method to add a global search input.
      *
-     * @param string|null $label
+     * @param  string|null  $label
+     *
      * @return self
      */
     public function withGlobalSearch(string $label = null): self
@@ -288,48 +309,58 @@ class InertiaTable
     /**
      * Add a search input to query builder.
      *
-     * @param string $key
-     * @param string|null $label
-     * @param string|null $defaultValue
+     * @param  string  $key
+     * @param  string|null  $label
+     * @param  string|null  $defaultValue
+     *
      * @return self
      */
     public function searchInput(string $key, string $label = null, string $defaultValue = null): self
     {
         $this->searchInputs = $this->searchInputs->reject(function (SearchInput $searchInput) use ($key) {
             return $searchInput->key === $key;
-        })->push(new SearchInput(
-            key: $key,
-            label: $label ?: Str::headline($key),
-            value: $defaultValue
-        ))->values();
+        })->push(
+            new SearchInput(
+                key: $key,
+                label: $label ?: Str::headline($key),
+                value: $defaultValue
+            )
+        )->values();
 
         return $this;
     }
 
+    public function addCheckfilter(object $obj)
+    {
+    }
+
     /**
-     * Add a select filter to the query builder.
+     * Add a checkbox filter to the query builder.
      *
-     * @param string $key
-     * @param array $options
-     * @param string|null $label
-     * @param string|null $defaultValue
-     * @param bool $noFilterOption
-     * @param string|null $noFilterOptionLabel
+     * @param  string  $key
+     * @param  array  $options
+     * @param  string|null  $label
+     * @param  string|null  $defaultValue
+     * @param  bool  $noFilterOption
+     * @param  string|null  $noFilterOptionLabel
+     *
      * @return self
      */
     public function selectFilter(string $key, array $options, string $label = null, string $defaultValue = null, bool $noFilterOption = true, string $noFilterOptionLabel = null): self
     {
         $this->filters = $this->filters->reject(function (Filter $filter) use ($key) {
             return $filter->key === $key;
-        })->push(new Filter(
-            key: $key,
-            label: $label ?: Str::headline($key),
-            options: $options,
-            value: $defaultValue,
-            noFilterOption: $noFilterOption,
-            noFilterOptionLabel: $noFilterOptionLabel ?: '-',
-            type: 'select'
-        ))->values();
+        })->push(
+            new Filter(
+                key: $key,
+                label: $label ?: Str::headline($key),
+                options: $options,
+                value: $defaultValue,
+                noFilterOption: $noFilterOption,
+                noFilterOptionLabel: $noFilterOptionLabel ?: '-',
+                type: 'select'
+            )
+        )->values();
 
         return $this;
     }
@@ -337,7 +368,8 @@ class InertiaTable
     /**
      * Give the query builder props to the given Inertia response.
      *
-     * @param \Inertia\Response $response
+     * @param  \Inertia\Response  $response
+     *
      * @return \Inertia\Response
      */
     public function applyTo(Response $response): Response

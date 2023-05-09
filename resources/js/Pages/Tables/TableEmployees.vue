@@ -40,5 +40,3 @@ function employeeRoute(employee: Employee) {
         </template>
     </Table>
 </template>
-
-

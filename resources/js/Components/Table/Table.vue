@@ -2,12 +2,13 @@
 import Pagination from "@/Components/Table/Pagination.vue"
 import HeaderCell from "@/Components/Table/HeaderCell.vue"
 import TableGlobalSearch from "@/Components/Table/TableGlobalSearch.vue"
+import TableFilterCheck from "@/Components/Table/TableFilterCheck.vue"
 import TableWrapper from "@/Components/Table/TableWrapper.vue"
 
 import {
 	TableAddSearchRow,
 	TableColumns,
-	TableFilter,
+	// TableFilter,
 	// TableGlobalSearch,
 	TableSearchRows,
 	TableReset,
@@ -193,6 +194,14 @@ function disableSearchInput(key) {
 	changeSearchInputValue(key, null)
 }
 
+function hideCheckBox(key) {
+	forcedVisibleSearchInputs.value = forcedVisibleSearchInputs.value.filter(
+		(search) => search !== key
+	)
+
+	changeCheckBoxValue(key, null)
+}
+
 function showSearchInput(key) {
 	forcedVisibleSearchInputs.value.push(key)
 }
@@ -253,6 +262,22 @@ function resetQuery() {
 const debounceTimeouts = {}
 
 function changeSearchInputValue(key, value) {
+	clearTimeout(debounceTimeouts[key])
+
+	debounceTimeouts[key] = setTimeout(() => {
+		if (visitCancelToken.value && props.preventOverlappingRequests) {
+			visitCancelToken.value.cancel()
+		}
+
+		const intKey = findDataKey("searchInputs", key)
+
+		queryBuilderData.value.searchInputs[intKey].value = value
+		queryBuilderData.value.cursor = null
+		queryBuilderData.value.page = 1
+	}, props.inputDebounceMs)
+}
+
+function changeCheckBoxValue(key, value) {
 	clearTimeout(debounceTimeouts[key])
 
 	debounceTimeouts[key] = setTimeout(() => {
@@ -621,9 +646,27 @@ function header(key) {
 					:on-change="changeSearchInputValue"
 					:on-remove="disableSearchInput" />
 			</slot>
+			<slot
+				name="tableCheckFilters" 
+				:has-shown="queryBuilderProps.hasShowCheck"
+				:on-click="changeCheckBoxValue">
+				<TableFilterCheck
+					:on-click="changeCheckBoxValue"
+					:on-remove="hideCheckBox" />
+			</slot>
 
             <!-- Clicked Label -->
-            
+            <div class="grid justify-items-center grid-flow-col auto-cols-auto divide-x-2 divide-gray-200 py-3">
+                <div v-for="(fakeLabel, index) of fakeLabels" :key="index" class="w-full" :class="{'bg-indigo-100': fakeLabel.checked}" >
+                    <div class="grid justify-center grid-flow-col items-center focus:bg-gray-800" >
+                        <label :for="(fakeLabel.title + index)" class="py-2 select-none cursor-pointer inline pr-2">
+                            {{ fakeLabel.title }} ({{ fakeLabel.total }})
+                        </label>
+                        <input :id="(fakeLabel.title + index)" :name="(fakeLabel.title + index)" class="cursor-pointer focus:ring-0" type="checkbox" v-model="fakeLabel.checked"/>
+                        
+                    </div>
+                </div>
+            </div>
 
             <!-- The Main Table -->
             <slot name="tableWrapper" :meta="resourceMeta">
