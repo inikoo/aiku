@@ -42,9 +42,10 @@ enum TabsAbbreviationEnum: string
     case DELIVERIES      = 'd';
     case IMAGES          = 'img';
 
-    case AGENTS       = 'ag';
-    case SYSTEM_USERS = 'syuser';
-
+    case AGENTS                             = 'ag';
+    case SYSTEM_USERS                       = 'syuser';
+    case MARKETPLACE_AGENTS                 = 'mpa';
+    case MARKETPLACE_SUPPLIERS              = 'mps';
     case PROSPECTS                          = 'pro';
     case EMPLOYEES                          = 'emp';
     case ITEMS                              = 'itms';

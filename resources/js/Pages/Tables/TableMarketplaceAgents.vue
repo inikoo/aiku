@@ -7,29 +7,29 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Agent} from "@/types/agent";
+import { MarketplaceAgent } from "@/types/marketplace-agent";
 
 const props = defineProps<{
     data: object
 }>()
 
 
-function agentRoute(agent: Agent) {
+function marketplacesAgentRoute(marketplaceAgent: MarketplaceAgent) {
     switch (route().current()) {
-        case 'procurement.agents.index':
+        case 'procurement.marketplace-agents.index':
             return route(
-                'procurement.agents.show',
-                [agent.slug]);
+                'procurement.marketplace-agents.show',
+                [marketplaceAgent.slug]);
     }
 }
 
 </script>
 
 <template>
-    <Table :resource="data" :name="'ag'" class="mt-5">
-        <template #cell(code)="{ item: agent }">
-            <Link :href="agentRoute(agent)">
-                {{ agent.slug }}
+    <Table :resource="data" :name="'mpa'" class="mt-5">
+        <template #cell(code)="{ item: marketplaceAgent }">
+            <Link :href="marketplacesAgentRoute(marketplaceAgent)">
+                {{ marketplaceAgent['code'] }}
             </Link>
         </template>
     </Table>

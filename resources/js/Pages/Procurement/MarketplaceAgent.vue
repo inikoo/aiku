@@ -22,8 +22,6 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
-    suppliers?: object
-    supplier_products?: object,
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -52,8 +50,6 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        suppliers: TableSuppliers,
-        supplier_products: TableSupplierProducts,
         details: ModelDetails,
         history: ModelChangelog
     };

@@ -7,33 +7,33 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Supplier} from "@/types/supplier";
+import { MarketplaceSupplier } from "@/types/marketplace-supplier";
 
 const props = defineProps<{
     data: object
 }>()
 
 
-function marketplaceSupplierRoute(supplier: Supplier) {
+function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
     switch (route().current()) {
         case 'procurement.marketplace-suppliers.index':
             return route(
                 'procurement.marketplace-suppliers.show',
-                [supplier.slug]);
+                [marketplaceSupplier.slug]);
         default:
             return route(
-                'procurement.suppliers.show',
-                [supplier.slug]);
+                'procurement.marketplace-suppliers.show',
+                [marketplaceSupplier.slug]);
     }
 }
 
 </script>
 
 <template>
-    <Table :resource="data" :name="'su'" class="mt-5">
-        <template #cell(code)="{ item: supplier }">
-            <Link :href="supplierRoute(supplier)">
-                {{ supplier['code'] }}
+    <Table :resource="data" :name="'mps'" class="mt-5">
+        <template #cell(code)="{ item: marketplaceSupplier }">
+            <Link :href="marketplaceSupplierRoute(marketplaceSupplier)">
+                {{ marketplaceSupplier['code'] }}
             </Link>
         </template>
     </Table>
