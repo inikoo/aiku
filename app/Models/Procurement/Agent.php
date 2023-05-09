@@ -8,7 +8,6 @@
 namespace App\Models\Procurement;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
-use App\Models\AgentTenant;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Tenancy\Tenant;
