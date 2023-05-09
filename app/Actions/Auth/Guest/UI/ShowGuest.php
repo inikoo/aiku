@@ -1,32 +1,33 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 24 Apr 2023 20:23:18 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 09 May 2023 12:42:37 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\User\UI;
+namespace App\Actions\Auth\Guest\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Enums\UI\UserTabsEnum;
-use App\Http\Resources\SysAdmin\UserResource;
-use App\Models\Auth\User;
+use App\Enums\UI\GuestTabsEnum;
+use App\Http\Resources\SysAdmin\GuestResource;
+use App\Models\Auth\Guest;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowUser extends InertiaAction
+class ShowGuest extends InertiaAction
 {
-    public function asController(User $user, ActionRequest $request): User
+    public function asController(Guest $guest, ActionRequest $request): Guest
     {
-        $this->initialisation($request)->withTab(UserTabsEnum::values());
-        return $user;
+        $this->initialisation($request)->withTab(GuestTabsEnum::values());
+
+        return $guest;
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(Guest $guest): GuestResource
     {
-        return new UserResource($user);
+        return new GuestResource($guest);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -35,32 +36,29 @@ class ShowUser extends InertiaAction
         return $request->user()->hasPermissionTo("sysadmin.view");
     }
 
-    public function htmlResponse(User $user, ActionRequest $request): Response
+    public function htmlResponse(Guest $guest, ActionRequest $request): Response
     {
-        $this->validateAttributes();
-
         return Inertia::render(
-            'SysAdmin/User',
+            'SysAdmin/Guest',
             [
-                'title'       => __('user'),
+                'title'       => __('guest'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'title'     => $user->username,
+                    'title'     => $guest->name,
                     'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-                    'capitalize'=> false
 
                 ],
-                'tabs'=> [
+                'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => UserTabsEnum::navigation()
+                    'navigation' => GuestTabsEnum::navigation()
                 ]
             ]
         );
@@ -68,8 +66,7 @@ class ShowUser extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-
-        $headCrumb = function (User $user, array $routeParameters, string $suffix) {
+        $headCrumb = function (Guest $guest, array $routeParameters, string $suffix) {
             return [
                 [
 
@@ -77,36 +74,36 @@ class ShowUser extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('users')
+                            'label' => __('guests')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $user->username,
+                            'label' => $guest->slug,
                         ],
 
                     ],
-                    'suffix'=> $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];
         };
 
         return match ($routeName) {
-            'sysadmin.users.show',
-            'sysadmin.users.edit' =>
+            'sysadmin.guests.show',
+            'sysadmin.guests.edit' =>
 
             array_merge(
                 SysAdminDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
-                    $routeParameters['user'],
+                    $routeParameters['guest'],
                     [
                         'index' => [
-                            'name'       => 'sysadmin.users.index',
+                            'name'       => 'sysadmin.guests.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'sysadmin.users.show',
-                            'parameters' => [$routeParameters['user']->username]
+                            'name'       => 'sysadmin.guests.show',
+                            'parameters' => [$routeParameters['guest']->slug]
                         ]
                     ],
                     $suffix
@@ -116,6 +113,7 @@ class ShowUser extends InertiaAction
 
             default => []
         };
-
     }
+
+
 }

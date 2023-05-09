@@ -57,7 +57,7 @@ const locale = useLocaleStore();
                 </div>
             </div>
         </div>
-        
+
         <!-- Button Add -->
         <div class="">
              <span v-if="data['edit']"  class="">
@@ -69,7 +69,7 @@ const locale = useLocaleStore();
                 </Button>
                 </Link>
             </span>
-            
+
             <span v-if="data['create']" class="">
                 <Link :href="route(data['create']['route']['name'],data['create']['route']['parameters'])">
                 <Button type='secondary' action="create" class="capitalize">
