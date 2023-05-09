@@ -26,23 +26,23 @@
   </template>
   
   <script setup>
-  defineProps({
-      label: {
-          type: String,
-          default: "Search...",
-          required: false,
-      },
-  
-      value: {
-          type: String,
-          default: "",
-          required: false,
-      },
-  
-      onChange: {
-          type: Function,
-          required: true,
-      },
-  });
+    defineProps({
+        label: {
+            type: String,
+            default: "Search...",
+            required: false,
+        },
+    
+        value: {
+            type: String,
+            default: "",
+            required: false,
+        },
+    
+        onChange: {
+            type: Function,
+            required: true,
+        },
+    });
   </script>
   

@@ -88,6 +88,14 @@ class ShowProfile
                         'appearance'=> [
                             'title'=> __('Appearance'),
                             'icon' => 'fa-light fa-paint-brush',
+                            'fields' => [
+                                'darkMode' => [
+                                    'label' => __('Turn Dark Mode')
+                                ],
+                                'theme' => [
+                                    'label' => __('Select Theme')
+                                ]
+                            ]
                         ]
                     ]
                 ]

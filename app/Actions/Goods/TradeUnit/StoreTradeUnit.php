@@ -24,15 +24,16 @@ class StoreTradeUnit
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:group.trade_units', 'between:2,9', 'alpha'],
-            'name'        => ['required', 'max:250', 'string'],
-            'description' => ['sometimes', 'required'],
-            'barcode'     => ['sometimes', 'required'],
-            'weight'      => ['sometimes', 'required', 'numeric'],
-            'dimensions'  => ['sometimes', 'required'],
-            'type'        => ['sometimes', 'required'],
-            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
-            'data'        => ['sometimes', 'required']
+            'code'         => ['required', 'unique:group.trade_units', 'between:2,9', 'alpha'],
+            'name'         => ['required', 'max:250', 'string'],
+            'description'  => ['sometimes', 'required'],
+            'barcode'      => ['sometimes', 'required'],
+            'gross_weight' => ['sometimes', 'required', 'numeric'],
+            'net_weight'   => ['sometimes', 'required', 'numeric'],
+            'dimensions'   => ['sometimes', 'required'],
+            'type'         => ['sometimes', 'required'],
+            'image_id'     => ['sometimes', 'required', 'exists:media,id'],
+            'data'         => ['sometimes', 'required']
         ];
     }
 

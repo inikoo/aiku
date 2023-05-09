@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
@@ -16,6 +17,8 @@ use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderItemQuantity;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
+use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
+use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
@@ -76,6 +79,8 @@ test('order', function ($supplier) {
 test('create supplier product', function ($supplier) {
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
     $this->assertModelExists($supplierProduct);
+
+    return $supplierProduct;
 })->depends('create independent supplier');
 
 test('delete purchase order when items 0', function ($purchaseOrder) {
@@ -117,6 +122,17 @@ test('update quantity items in purchase order', function ($item) {
 
     $this->assertModelMissing($item);
 })->depends('add items to purchase order');
+
+test('create trade unit', function () {
+    $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
+    $this->assertModelExists($tradeUnit);
+
+    return $tradeUnit;
+});
+test('sync supplier product and trade units', function ($supplier) {
+    $syncSupplierProductTradeUnit = SyncSupplierProductTradeUnits::run($supplier, [1]);
+    $this->assertModelExists($syncSupplierProductTradeUnit);
+})->depends('create supplier product');
 
 test('update purchase order', function ($agent) {
     $purchaseOrder = UpdatePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());

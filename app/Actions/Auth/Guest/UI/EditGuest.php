@@ -1,24 +1,24 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 24 Apr 2023 20:23:18 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 09 May 2023 12:47:08 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\User\UI;
+namespace App\Actions\Auth\Guest\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\SysAdmin\UserResource;
-use App\Models\Auth\User;
+use App\Http\Resources\SysAdmin\GuestResource;
+use App\Models\Auth\Guest;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditUser extends InertiaAction
+class EditGuest extends InertiaAction
 {
-    public function handle(User $user): User
+    public function handle(Guest $guest): Guest
     {
-        return $user;
+        return $guest;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -27,27 +27,29 @@ class EditUser extends InertiaAction
         return $request->user()->hasPermissionTo("sysadmin.view");
     }
 
-    public function asController(User $user, ActionRequest $request): User
+    public function asController(Guest $guest, ActionRequest $request): Guest
     {
         $this->initialisation($request);
 
-        return $this->handle($user);
+        return $this->handle($guest);
     }
 
 
 
-    public function htmlResponse(User $user, ActionRequest $request): Response
+    public function htmlResponse(Guest $guest, ActionRequest $request): Response
     {
+
+
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('user'),
+                'title'       => __('guest'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'title'     => $user->username,
+                    'title'     => $guest->name,
                     'exitEdit'  => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
@@ -55,37 +57,30 @@ class EditUser extends InertiaAction
                         ]
                     ],
 
-
                 ],
 
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title'  => __('personal information'),
                             'fields' => [
-                                'username' => [
+
+                                'name' => [
                                     'type'  => 'input',
-                                    'label' => __('username'),
-                                    'value' => $user->username
+                                    'label' => __('name'),
+                                    'value' => $guest->name
                                 ],
-                                'email' => [
-                                    'type'  => 'input',
-                                    'label' => __('email'),
-                                    'value' => $user->email
-                                ],
-                                'password' => [
-                                    'type'  => 'password',
-                                    'label' => __('password'),
-                                    'value' => ''
-                                ],
+
+
+
                             ]
                         ]
 
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.user.update',
-                            'parameters'=> $user->username
+                            'name'      => 'models.guest.update',
+                            'parameters'=> $guest->slug
 
                         ],
                     ]
@@ -94,14 +89,14 @@ class EditUser extends InertiaAction
         );
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(Guest $guest): GuestResource
     {
-        return new UserResource($user);
+        return new GuestResource($guest);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowUser::make()->getBreadcrumbs(
+        return ShowGuest::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'

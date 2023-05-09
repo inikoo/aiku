@@ -18,34 +18,12 @@ enum UserTabsEnum: string
     case SHOWCASE                       = 'showcase';
     case HISTORY                        = 'history';
     case DATA                           = 'data';
-    case TODAY_TIMESHEETS               = 'today_timesheets';
-    case TIMESHEETS                     = 'timesheets';
-    case ATTACHMENTS                    = 'attachments';
-    case IMAGES                         = 'images';
+
 
     public function blueprint(): array
     {
         return match ($this) {
-            UserTabsEnum::TODAY_TIMESHEETS => [
-                'title' => __('today timesheets'),
-                'icon'  => 'fal fa-database',
-            ],
-            UserTabsEnum::IMAGES => [
-                'title' => __('images'),
-                'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            UserTabsEnum::ATTACHMENTS => [
-                'title' => __('attachments'),
-                'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            UserTabsEnum::TIMESHEETS => [
-                'title' => __('timesheets'),
-                'icon'  => 'fal fa-database',
-            ],
+
             UserTabsEnum::DATA => [
                 'title' => __('database'),
                 'icon'  => 'fal fa-database',
@@ -59,7 +37,7 @@ enum UserTabsEnum: string
                 'align' => 'right',
             ],
             UserTabsEnum::SHOWCASE => [
-                'title' => __('employee'),
+                'title' => __('user'),
                 'icon'  => 'fas fa-info-circle',
             ],
         };

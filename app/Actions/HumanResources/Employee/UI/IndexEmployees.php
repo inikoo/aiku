@@ -32,14 +32,15 @@ class IndexEmployees extends InertiaAction
                     ->orWhere('employees.slug', 'LIKE', "%$value%");
             });
         });
+
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::EMPLOYEES->value);
 
         return QueryBuilder::for(Employee::class)
             ->defaultSort('employees.slug')
-            ->select(['slug', 'id', 'worker_number', 'name'])
+            ->select(['slug', 'id', 'worker_number', 'name','state'])
             ->with('jobPositions')
             ->allowedSorts(['slug', 'worker_number', 'name'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch, 'state'])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
@@ -57,7 +58,8 @@ class IndexEmployees extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: false, searchable: false)
+                ->column(key: 'state', label: __('state'), canBeHidden: true, sortable: false, searchable: false)
                 ->column(key: 'actions', label: __('actions'))
                 ->defaultSort('slug');
         };
@@ -88,7 +90,10 @@ class IndexEmployees extends InertiaAction
         return Inertia::render(
             'HumanResources/Employees',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __('employees'),
                 'pageHead'    => [
                     'title'  => __('employees'),
@@ -114,7 +119,7 @@ class IndexEmployees extends InertiaAction
     }
 
 
-    public function getBreadcrumbs($suffix=null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
             (new HumanResourcesDashboard())->getBreadcrumbs(),
@@ -128,7 +133,6 @@ class IndexEmployees extends InertiaAction
                         'label' => __('employees'),
                         'icon'  => 'fal fa-bars',
                     ],
-                    'suffix'=> $suffix
 
                 ]
             ]

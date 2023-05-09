@@ -5,19 +5,22 @@
   -->
 <script setup>
 import { Head } from "@inertiajs/vue3"
-const props = defineProps(["title", "pageHead", "profile", "pageBody"])
 import { trans } from "laravel-vue-i18n"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn } from "@/../private/pro-light-svg-icons"
-library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn)
-import Password from "@/Components/Password.vue"
+import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck } from "@/../private/pro-light-svg-icons"
+library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck)
+import Password from "@/Components/Auth/LoginPassword.vue"
+import Theme from "@/Components/Profile/Theme.vue"
+import DarkMode from "@/Components/Profile/DarkMode.vue"
+import FieldForm from '@/Components/Forms/FieldForm.vue'
 import { useForm } from "@inertiajs/vue3"
 import { ref } from "vue"
 import Form from "@/Components/Forms/Form.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { Switch } from '@headlessui/vue'
 
-const isDark = ref(false)
+
+const props = defineProps(["title", "pageHead", "profile", "pageBody"])
+
 const profileForm = useForm({
     username: props.profile.username,
     about: props.profile.about,
@@ -27,6 +30,8 @@ const profileForm = useForm({
 })
 
 const passwordForm = useForm({ password: "" })
+const darkModeForm = useForm({ darkMode: true })
+const themeForm = useForm({ theme: "theme-blue" })
 
 const current = ref(props["pageBody"].current)
 
@@ -38,14 +43,21 @@ const avatarUploaded = (file) => {
         props.profile.avatar = e.target.result
     }
 }
+
+const fakeDataFormField = {
+    'updateRoute': {
+        name: 'profilesss',
+        parameters: 'slugggg'
+    }
+}
 </script>
 
 <template layout="App">
     <Head :title="title" />
     <div class="ml-0 max-w-screen-xl">
         <div class="overflow-hidden rounded-lg bg-white shadow">
-            <div class="divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
-                <aside class="py-0 lg:col-span-3 lg:h-screen">
+            <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
+                <aside class="py-0 lg:col-span-3 lg:h-full">
                     <div>
                         <h2
                             class="py-3 pl-2 font-bold leading-7 text-gray-900 sm:truncate lg:text-2xl sm:tracking-tight capitalize">
@@ -162,9 +174,9 @@ const avatarUploaded = (file) => {
                 <Form v-show="current === 'password'" :form="passwordForm" :layout="pageBody.layout.password">
                     <div class="mt-6 grid grid-cols-12 gap-6">
                         <div class="col-span-12">
-                            <label for="email" class="block text-sm font-medium text-gray-700">{{
-                                pageBody.layout.password.fields.password.label
-                            }}</label>
+                            <label for="email" class="block text-sm font-medium text-gray-700">
+                                {{ pageBody.layout.password.fields.password.label }}
+                            </label>
                             <div class="mt-1 flex rounded-md shadow-sm">
                                 <Password id="password" name="password" v-model="passwordForm.password" />
                             </div>
@@ -174,44 +186,22 @@ const avatarUploaded = (file) => {
                         </div>
                     </div>
                 </Form>
-                <div v-show="current === 'workplaces'" class="divide-y divide-gray-200 lg:col-span-9"></div>
+                <div v-show="current === 'workplaces'" class="divide-y divide-gray-200 lg:col-span-9">Workplaces</div>
 
                 <!-- Appearance -->
-                <div v-show="current === 'appearance'" class="text-sm col-span-9">
-                    <div class="grid grid-flow-col pl-4 bg-gray-100">
-                        <div class="bg-red-500">Select Mode</div>
-                        <div class="bg-yellow-500">
-                            <Switch v-model="isDark"
-                                :class="[isDark ? 'bg-slate-800' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-1 focus:ring-slate-600 focus:ring-offset-2']">
-                                <span class="sr-only">Use setting</span>
-                                <span
-                                    :class="[isDark ? 'translate-x-5  bg-gray-100' : 'translate-x-0 bg-slate-800', 'pointer-events-none relative inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out']">
-                            
-                                    <!-- Light -->
-                                    <span
-                                        :class="[isDark ? 'opacity-0 duration-100 ease-out' : 'opacity-100 duration-200 ease-in', 'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity']"
-                                        aria-hidden="true">
-                                        <FontAwesomeIcon aria-hidden="true" icon="fa-light fa-moon-stars" class="text-xs text-gray-100"/>
-                                    </span>
-                            
-                                    <!-- Dark -->
-                                    <span
-                                        :class="[isDark ? 'opacity-100 duration-200 ease-in' : 'opacity-0 duration-100 ease-out', 'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity']"
-                                        aria-hidden="true">
-                                        <FontAwesomeIcon aria-hidden="true" icon="fa-light fa-lightbulb-on" class="text-xs text-slate-800"/>
-                                    </span>
-                                </span>
-                            </Switch>
-                        </div>
+                <div v-show="current === 'appearance'" class="text-sm col-span-9 select-none p-6">
+
+                    <!-- Turn on Dark Mode -->
+                    <div class="grid grid-flow-col pl-4 bg-gray-100 grid-cols-3 py-2">
+                        <div class="font-medium">Turn Dark Mode</div>
+                        <!-- <FieldForm class=" pt-4 sm:pt-5 px-6 " v-for="(appearance, index ) in pageBody.layout.appearance"
+                            field="appearance" args="" /> -->
                     </div>
-                    <div class="grid grid-flow-col pl-4">
-                        <div class="w-64">Select Theme</div>
-                        <div class="grid grid-flow-col gap-x-4">
-                            <div class="w-6 h-6 rounded-full bg-teal-400"></div>
-                            <div class="w-6 h-6 rounded-full bg-sky-400"></div>
-                            <div class="w-6 h-6 rounded-full bg-amber-400"></div>
-                            <div class="w-6 h-6 rounded-full bg-orange-400"></div>
-                        </div>
+
+                    <!-- Select Theme -->
+                    <div class="grid grid-flow-col pl-4 grid-cols-3 py-2">
+                        <div class="font-medium">Select Theme</div>
+                        <Theme class="col-span-2" />
                     </div>
                 </div>
             </div>

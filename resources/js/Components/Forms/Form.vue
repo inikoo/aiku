@@ -42,7 +42,7 @@ function submit() {
 <template>
     <form class="divide-y divide-gray-200 lg:col-span-9" @submit.prevent="submit">
 
-        <div class="py-6 px-4 sm:p-6 lg:pb-8">
+        <div class="p-6 lg:pb-8">
             <div>
                 <h2 class="text-lg font-medium leading-6 text-gray-900">{{ layout.title }}</h2>
                 <p v-if="layout.notes" class="mt-1 text-sm text-gray-500">{{ layout.notes }}</p>
