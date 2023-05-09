@@ -79,9 +79,9 @@ class PurchaseOrder extends Model
 
 
     protected $casts = [
-        'data'  => 'array',
-        'stata' => PurchaseOrderStateEnum::class,
-        'status'=> PurchaseOrderStatusEnum::class
+        'data' => 'array',
+        'state' => PurchaseOrderStateEnum::class,
+        'status' => PurchaseOrderStatusEnum::class
     ];
 
     protected $attributes = [

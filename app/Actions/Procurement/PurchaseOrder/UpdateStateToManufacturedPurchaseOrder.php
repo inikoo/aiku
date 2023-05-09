@@ -16,7 +16,7 @@ use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UnSubmitPurchaseOrder
+class UpdateStateToManufacturedPurchaseOrder
 {
     use WithActionUpdate;
     use AsAction;
