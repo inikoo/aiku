@@ -59,14 +59,14 @@ class StorePurchaseOrder
          $purchaseOrder = $this->parent->purchaseOrders()->count();
 
          if(!$this->force && $purchaseOrder>= 1) {
-            $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
+             $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
          }
      }
 
     public function action(Agent|Supplier $parent, array $objectData, bool $force = false): PurchaseOrder
     {
         $this->parent = $parent;
-        $this->force = $force;
+        $this->force  = $force;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 

@@ -29,8 +29,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property string|null $barcode
- * @property float|null $weight
+ * @property float|null $gross_weight in kilograms include packing
+ * @property float|null $net_weight in kilograms
  * @property array|null $dimensions
+ * @property float|null $volume in cubic meters
  * @property string|null $type unit type
  * @property int|null $image_id
  * @property array $data
@@ -41,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])
  * @method static Builder|TradeUnit newModelQuery()
  * @method static Builder|TradeUnit newQuery()
  * @method static Builder|TradeUnit onlyTrashed()

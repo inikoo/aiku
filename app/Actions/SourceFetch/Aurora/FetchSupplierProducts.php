@@ -68,7 +68,7 @@ class FetchSupplierProducts extends FetchAction
 
             SyncSupplierProductTradeUnits::run($supplierProduct, [
                 $tradeUnit->id => [
-                    'quantity' => $supplierProductData['supplierProduct']['units_per_pack']
+                    'package_quantity' => $supplierProductData['supplierProduct']['units_per_pack']
                 ]
             ]);
 

@@ -9,16 +9,10 @@ namespace Tests\Feature;
 
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Sales\Customer\StoreCustomer;
-use App\Actions\Sales\Order\DeleteOrder;
 use App\Actions\Sales\Order\StoreOrder;
-use App\Actions\Sales\Order\SubmitOrder;
-use App\Actions\Sales\Order\UnSubmitOrder;
-use App\Actions\Sales\Order\UpdateOrder;
 use App\Actions\Sales\Transaction\StoreTransaction;
 use App\Actions\Sales\Transaction\UpdateTransaction;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
-use App\Enums\Sales\Order\OrderStateEnum;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
@@ -26,7 +20,7 @@ use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
 use App\Models\Tenancy\Tenant;
 
-beforeAll(fn() => loadDB('d3_with_tenants.dump'));
+beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();
@@ -47,9 +41,9 @@ test('create order', function () {
     expect($customer->reference)->toBe('000001')
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
 
-    $billingAddress = Address::first();
+    $billingAddress  = Address::first();
     $shipmentAddress = Address::latest()->first();
-    $order = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
+    $order           = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
 
     $this->assertModelExists($order);
 
@@ -69,4 +63,3 @@ test('update transaction', function ($transaction) {
 
     $this->assertModelExists($order);
 })->depends('create transaction');
-

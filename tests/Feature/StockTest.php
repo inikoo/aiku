@@ -12,7 +12,7 @@ use App\Actions\Inventory\Stock\UpdateStock;
 use App\Models\Inventory\Stock;
 use App\Models\Tenancy\Tenant;
 
-beforeAll(fn() => loadDB('d3_with_tenants.dump'));
+beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();

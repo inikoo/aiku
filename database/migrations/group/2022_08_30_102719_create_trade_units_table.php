@@ -28,8 +28,8 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_type')->index()->nullable();
+            $table->unsignedInteger('source_id')->nullable();
         });
     }
 

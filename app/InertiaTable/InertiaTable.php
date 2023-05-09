@@ -306,7 +306,6 @@ class InertiaTable
 
         return $this;
     }
-
     public function addCheckfilter(Object $obj)
     {
         

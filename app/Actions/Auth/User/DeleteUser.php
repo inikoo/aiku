@@ -8,7 +8,6 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\WithActionUpdate;
-use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;

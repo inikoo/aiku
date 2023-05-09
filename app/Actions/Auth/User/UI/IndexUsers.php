@@ -8,20 +8,19 @@
 namespace App\Actions\Auth\User\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
+use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexUsers extends InertiaAction
 {
-    use HasUIUsers;
-
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -60,12 +59,15 @@ class IndexUsers extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $users)
+    public function htmlResponse(LengthAwarePaginator $users, ActionRequest $request)
     {
         return Inertia::render(
             'SysAdmin/Users',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __('users'),
                 'pageHead'    => [
                     'title'  => __('users'),
@@ -101,4 +103,37 @@ class IndexUsers extends InertiaAction
 
         return $this->handle();
     }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('users'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'sysadmin.users.index'            =>
+            array_merge(
+                SysAdminDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'=> 'sysadmin.users.index',
+                        null
+                    ]
+                ),
+            ),
+
+
+            default => []
+        };
+    }
+
 }

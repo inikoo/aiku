@@ -12,12 +12,10 @@ use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditUser extends InertiaAction
 {
-    use HasUIUser;
     public function handle(User $user): User
     {
         return $user;
@@ -38,13 +36,16 @@ class EditUser extends InertiaAction
 
 
 
-    public function htmlResponse(User $user): Response
+    public function htmlResponse(User $user, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('user'),
-                'breadcrumbs' => $this->getBreadcrumbs($user),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'title'     => $user->username,
                     'exitEdit'  => [
@@ -88,8 +89,17 @@ class EditUser extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(User $user): UserResource
+    public function jsonResponse(User $user): UserResource
     {
         return new UserResource($user);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowUser::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }

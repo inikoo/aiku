@@ -7,31 +7,28 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Goods\TradeUnit\StoreTradeUnit;
-use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
+use App\Actions\Utils\StoreImage;
 use App\Models\Goods\TradeUnit;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 
-class FetchTradeUnits extends FetchAction
+class FetchTradeUnitImages extends FetchAction
 {
-    public string $commandSignature = 'fetch:trade-units {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:trade-unit-images {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?TradeUnit
     {
         if ($tradeUnitData = $tenantSource->fetchTradeUnit($tenantSourceId)) {
-            if ($tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])
-                ->first()) {
-                $tradeUnit = UpdateTradeUnit::run(
-                    tradeUnit: $tradeUnit,
-                    modelData: $tradeUnitData['trade_unit'],
-                );
-            } else {
-                $tradeUnit = StoreTradeUnit::run(
-                    modelData: $tradeUnitData['trade_unit']
-                );
+            $tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])->first();
+
+            if ($tradeUnit) {
+                foreach ($tradeUnitData['images'] ?? [] as $imageData) {
+                    if (isset($imageData['image_path']) and isset($imageData['filename'])) {
+                        StoreImage::run($tradeUnit, $imageData['image_path'], $imageData['filename']);
+                    }
+                }
             }
 
             return $tradeUnit;
