@@ -40,7 +40,7 @@ class IndexEmployees extends InertiaAction
             ->select(['slug', 'id', 'worker_number', 'name','state'])
             ->with('jobPositions')
             ->allowedSorts(['slug', 'worker_number', 'name'])
-            ->allowedFilters([$globalSearch, 'state'])
+            ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
@@ -59,7 +59,6 @@ class IndexEmployees extends InertiaAction
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: false, searchable: false)
-                ->column(key: 'state', label: __('state'), canBeHidden: true, sortable: false, searchable: false)
                 ->column(key: 'actions', label: __('actions'))
                 ->defaultSort('slug');
         };

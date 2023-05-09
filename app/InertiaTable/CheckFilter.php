@@ -6,12 +6,12 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use App\Enums\HumanRecources\Employee\EmployeeStateEnum;
 
-class CheckOptions implements Arrayable
+class CheckFilter implements Arrayable
 {
     public function __construct(
         public string $label,
         public array $options,
-        public array $totals,
+        public int $count,
         public ?string $value = null,
         public bool $checked,
     ) {
@@ -28,7 +28,7 @@ class CheckOptions implements Arrayable
         return [
             'label'     => $this->label,
             'options'   => $this->options,
-            'totals'    => $this->totals,
+            'count'    => $this->count,
             'value'     => $this->value,
             'checked'    => $this->checked,
         ];
