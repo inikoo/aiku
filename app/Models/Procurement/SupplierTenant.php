@@ -1,20 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 05 May 2023 10:24:55 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 09 May 2023 16:09:05 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Procurement;
 
-use App\Models\Procurement\Supplier;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- * App\Models\SupplierTenant
+ * App\Models\Procurement\SupplierTenant
  *
  * @property int $id
  * @property int $supplier_id

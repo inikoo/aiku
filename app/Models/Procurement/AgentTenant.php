@@ -1,17 +1,18 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 05 May 2023 10:24:56 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 09 May 2023 16:09:05 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- * App\Models\AgentTenant
+ * App\Models\Procurement\AgentTenant
  *
  * @property int $id
  * @property int $agent_id
@@ -19,9 +20,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $source_id
- * @method static \Illuminate\Database\Eloquent\Builder|AgentTenant newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AgentTenant newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AgentTenant query()
+ * @method static Builder|AgentTenant newModelQuery()
+ * @method static Builder|AgentTenant newQuery()
+ * @method static Builder|AgentTenant query()
  * @mixin \Eloquent
  */
 class AgentTenant extends Pivot
