@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { each } from 'lodash'
+
 
 const props = defineProps<{
     labels: Array<{
@@ -12,6 +14,9 @@ const props = defineProps<{
 
 }>()
 const emit = defineEmits(['onChangeCheckBoxValue']);
+const handleClick = (lbls: any[]) => {
+    emit('onChangeCheckBoxValue', lbls);
+};
 </script>
 <template>
     <div class="grid justify-items-center grid-flow-col auto-cols-auto divide-x-2 divide-gray-200 py-3">
@@ -27,7 +32,7 @@ const emit = defineEmits(['onChangeCheckBoxValue']);
                     class="cursor-pointer focus:ring-0"
                     type="checkbox"
                     v-model="label.checked"
-                    @click="emit('onChangeCheckBoxValue', label)"
+                    @click="handleClick(labels)"
                 />
             </div>
         </div>

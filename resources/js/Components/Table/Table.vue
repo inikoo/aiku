@@ -288,10 +288,10 @@ function changeFilterValue(key, value) {
 	queryBuilderData.value.page = 1
 }
 
-function onChangeCheckBoxValue(obj) {
-	console.log(obj);
-	const intKey = findDataKey("filterCheck", obj.key)
-	queryBuilderData.value.filterCheck[intKey].value = obj.value
+function onChangeCheckBoxValue(arr) {
+	console.log(arr);
+	const intKey = findDataKey("filterCheck", arr.key)
+	queryBuilderData.value.filterCheck[intKey].value = arr.value
 	queryBuilderData.value.cursor = null
 	queryBuilderData.value.page = 1
 }
@@ -640,10 +640,11 @@ function header(key) {
 			<!-- filter checkbox-->
 			<slot
 				name="tableFilterCheck" 
-				:has-shown="queryBuilderProps.hasShowCheck"
-				:on-click="onChangeCheckBoxValue">
+				:has-shown="queryBuilderProps.hasShowCheck">
 				<TableFilterCheck
-					:labels ="queryBuilderProps.filterCheck"/>
+					:labels ="queryBuilderProps.filterCheck"
+					:on-click="onChangeCheckBoxValue"
+				/>
 			</slot>
 
             <!-- The Main Table -->
