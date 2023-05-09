@@ -288,8 +288,8 @@ function changeFilterValue(key, value) {
 	queryBuilderData.value.page = 1
 }
 
-function onChangeCheckBoxValue(labels, y) {
-	console.log( y);
+function onChangeCheckBoxValue(labels) {
+	console.log(labels);
 	// const intKey = findDataKey("filterCheck", labels.checked)
 	// console.log(intKey);
 	// queryBuilderData.value.filterCheck[intKey].value = arr.value
@@ -644,7 +644,7 @@ function header(key) {
 				:has-shown="queryBuilderProps.hasShowCheck">
 				<TableFilterCheck
 					:labels ="queryBuilderProps.filterCheck"
-					@click="onChangeCheckBoxValue"
+					@onChangeCheckBoxValue="onChangeCheckBoxValue"
 				/>
 			</slot>
 
