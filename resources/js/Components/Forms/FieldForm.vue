@@ -16,6 +16,7 @@ import Phone from '@/Components/Forms/Fields/Phone.vue';
 import Date from '@/Components/Forms/Fields/Date.vue';
 import Theme from '@/Components/Profile/Theme.vue';
 import DarkMode from '@/Components/Profile/DarkMode.vue';
+// import Avatar from '@/Components/Forms/Fields/Avatar.vue';
 import Password from '@/Components/Forms/Fields/Password.vue'
 
 
@@ -32,6 +33,7 @@ const getComponent = (componentName) => {
         'theme': Theme,
         'darkMode': DarkMode,
         'password': Password,
+        // 'avatar': Avatar
     };
     return components[componentName] ?? null;
 };
