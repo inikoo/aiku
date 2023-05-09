@@ -137,10 +137,17 @@ class SupplierProduct extends Model
         return $this->supplier->belongsToTenant($tenant);
     }
 
-    protected function weight(): Attribute
+    protected function grossWeight(): Attribute
     {
         return new Attribute(
             get: fn () => $this->tradeUnits()->sum('gross_weight')
+        );
+    }
+
+    protected function netWeight(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->tradeUnits()->sum('net_weight')
         );
     }
 

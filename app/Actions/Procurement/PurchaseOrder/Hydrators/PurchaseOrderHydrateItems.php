@@ -22,23 +22,37 @@ class PurchaseOrderHydrateItems implements ShouldBeUnique
         $stats = [
             'number_of_items' => $purchaseOrder->items()->count(),
             'cost_items'      => $this->getTotalCostItem($purchaseOrder),
-            'total_weight'    => $this->getTotalWeight($purchaseOrder)
+            'gross_weight'    => $this->getGrossWeight($purchaseOrder),
+            'net_weight'    => $this->getNetWeight($purchaseOrder)
         ];
 
         $purchaseOrder->update($stats);
     }
 
-    public function getTotalWeight(PurchaseOrder $purchaseOrder): float
+    public function getGrossWeight(PurchaseOrder $purchaseOrder): float
     {
-        $totalWeight = 0;
+        $grossWeight = 0;
 
         foreach ($purchaseOrder->items as $item) {
             foreach ($item->supplierProduct['tradeUnits'] as $tradeUnit) {
-                $totalWeight += $item->supplierProduct['weight'] * $tradeUnit->pivot->package_quantity;
+                $grossWeight += $item->supplierProduct['grossWeight'] * $tradeUnit->pivot->package_quantity;
             }
         }
 
-        return $totalWeight;
+        return $grossWeight;
+    }
+
+    public function getNetWeight(PurchaseOrder $purchaseOrder): float
+    {
+        $netWeight = 0;
+
+        foreach ($purchaseOrder->items as $item) {
+            foreach ($item->supplierProduct['tradeUnits'] as $tradeUnit) {
+                $netWeight += $item->supplierProduct['netWeight'] * $tradeUnit->pivot->package_quantity;
+            }
+        }
+
+        return $netWeight;
     }
 
     public function getTotalCostItem(PurchaseOrder $purchaseOrder): float
