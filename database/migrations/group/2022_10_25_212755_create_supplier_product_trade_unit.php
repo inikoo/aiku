@@ -17,6 +17,7 @@ return new class () extends Migration {
             $table->unsignedInteger('supplier_product_id')->nullable();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->unsignedInteger('trade_unit_id')->nullable();
+            $table->foreign('trade_unit_id')->references('id')->on('trade_units');
             $table->double('package_quantity')->default(1);
             $table->double('carton_quantity')->nullable();
             $table->string('notes')->nullable();

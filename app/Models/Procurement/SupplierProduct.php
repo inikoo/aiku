@@ -146,8 +146,9 @@ class SupplierProduct extends Model
 
     public function tradeUnits(): BelongsToMany
     {
-        return $this->belongsToMany(TradeUnit::class)->using(SupplierProductTradeUnit::class)->withTimestamps();
+        return $this->belongsToMany(TradeUnit::class)
+            ->using(SupplierProductTradeUnit::class)
+            ->withPivot('package_quantity')
+            ->withTimestamps();
     }
-
-
 }
