@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableMarketplaceSuppliers from "@/Pages/Tables/TableAgents.vue";
+import TableMarketplaceSuppliers from "@/Pages/Tables/TableMarketplaceSuppliers.vue";
 
 const props = defineProps <{
     pageHead: object

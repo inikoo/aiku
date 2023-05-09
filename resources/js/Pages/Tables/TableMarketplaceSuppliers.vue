@@ -14,11 +14,11 @@ const props = defineProps<{
 }>()
 
 
-function supplierRoute(supplier: Supplier) {
+function marketplaceSupplierRoute(supplier: Supplier) {
     switch (route().current()) {
-        case 'procurement.suppliers.index':
+        case 'procurement.marketplace-suppliers.index':
             return route(
-                'procurement.suppliers.show',
+                'procurement.marketplace-suppliers.show',
                 [supplier.slug]);
         default:
             return route(
