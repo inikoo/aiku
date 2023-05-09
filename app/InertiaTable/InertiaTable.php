@@ -16,6 +16,7 @@ class InertiaTable
     private Request $request;
     private Collection $columns;
     private Collection $searchInputs;
+    private Collection $checkBoxFilter;
     private Collection $filters;
     private string $defaultSort = '';
 
@@ -24,10 +25,11 @@ class InertiaTable
 
     public function __construct(Request $request)
     {
-        $this->request      = $request;
-        $this->columns      = new Collection;
-        $this->searchInputs = new Collection;
-        $this->filters      = new Collection;
+        $this->request          = $request;
+        $this->columns          = new Collection;
+        $this->searchInputs     = new Collection;
+        $this->checkBoxFilter   = new Collection;
+        $this->filters          = new Collection;
 
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);
@@ -156,7 +158,6 @@ class InertiaTable
             'hasSearchInputsWithoutValue' => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
 
             'globalSearch' => $this->searchInputs->firstWhere('key', 'global'),
-
             'cursor'         => $this->query('cursor'),
             'sort'           => $this->query('sort', $this->defaultSort) ?: null,
             'defaultSort'    => $this->defaultSort,
@@ -306,8 +307,13 @@ class InertiaTable
         return $this;
     }
 
+    public function addCheckfilter(Object $obj)
+    {
+        
+    }
+    
     /**
-     * Add a select filter to the query builder.
+     * Add a checkbox filter to the query builder.
      *
      * @param string $key
      * @param array $options
