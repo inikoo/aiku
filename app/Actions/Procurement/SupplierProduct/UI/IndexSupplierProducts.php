@@ -14,7 +14,7 @@ use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
-use App\Models\SupplierProductTenant;
+use App\Models\Procurement\SupplierProductTenant;
 use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

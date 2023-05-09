@@ -7,33 +7,33 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Supplier} from "@/types/supplier";
+import SupplierDeliveries from "@/Pages/Procurement/SupplierDeliveries.vue";
 
 const props = defineProps<{
     data: object
 }>()
 
 
-function supplierRoute(supplier: Supplier) {
+function supplierDeliveryRoute(supplierDelivery: SupplierDeliveries) {
     switch (route().current()) {
-        case 'procurement.suppliers.index':
+        case 'procurement.supplier-deliveries.index':
             return route(
-                'procurement.suppliers.show',
-                [supplier.slug]);
+                'procurement.supplier-deliveries.show',
+                [supplierDelivery.slug]);
         default:
             return route(
                 'procurement.suppliers.show',
-                [supplier.slug]);
+                [supplierDelivery.slug]);
     }
 }
 
 </script>
 
 <template>
-    <Table :resource="data" :name="'su'" class="mt-5">
-        <template #cell(code)="{ item: supplier }">
-            <Link :href="supplierRoute(supplier)">
-                {{ supplier['code'] }}
+    <Table :resource="data" :name="'spd'" class="mt-5">
+        <template #cell(number)="{ item: supplierDelivery }">
+            <Link :href="supplierDeliveryRoute(supplierDelivery)">
+                {{ supplierDelivery['number'] }}
             </Link>
         </template>
     </Table>
