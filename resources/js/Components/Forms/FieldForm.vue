@@ -16,6 +16,7 @@ import Phone from '@/Components/Forms/Fields/Phone.vue';
 import Date from '@/Components/Forms/Fields/Date.vue';
 import Theme from '@/Components/Profile/Theme.vue';
 import DarkMode from '@/Components/Profile/DarkMode.vue';
+import Password from '@/Components/Forms/Fields/Password.vue'
 
 
 const props = defineProps(['fieldData', 'field', 'args']);
@@ -30,6 +31,7 @@ const getComponent = (componentName) => {
         'date': Date,
         'theme': Theme,
         'darkMode': DarkMode,
+        'password': Password,
     };
     return components[componentName] ?? null;
 };

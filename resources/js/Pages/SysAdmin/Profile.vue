@@ -9,7 +9,7 @@ import { trans } from "laravel-vue-i18n"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck } from "@/../private/pro-light-svg-icons"
 library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck)
-import Password from "@/Components/Password.vue"
+import Password from "@/Components/Auth/LoginPassword.vue"
 import Theme from "@/Components/Profile/Theme.vue"
 import DarkMode from "@/Components/Profile/DarkMode.vue"
 import FieldForm from '@/Components/Forms/FieldForm.vue'
@@ -175,7 +175,7 @@ const fakeDataFormField = {
                     <div class="mt-6 grid grid-cols-12 gap-6">
                         <div class="col-span-12">
                             <label for="email" class="block text-sm font-medium text-gray-700">
-                                {{ passwordForm }}
+                                {{ pageBody.layout.password.fields.password.label }}
                             </label>
                             <div class="mt-1 flex rounded-md shadow-sm">
                                 <Password id="password" name="password" v-model="passwordForm.password" />

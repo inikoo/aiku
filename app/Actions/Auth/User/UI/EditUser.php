@@ -73,6 +73,11 @@ class EditUser extends InertiaAction
                                     'label' => __('email'),
                                     'value' => $user->email
                                 ],
+                                'password' => [
+                                    'type'  => 'password',
+                                    'label' => __('password'),
+                                    'value' => ''
+                                ],
                             ]
                         ]
 

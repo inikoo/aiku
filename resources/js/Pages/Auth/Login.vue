@@ -1,6 +1,6 @@
 <script setup>
 import {Head, useForm} from '@inertiajs/vue3';
-import Password from '@/Components/Password.vue';
+import Password from '@/Components/Auth/LoginPassword.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import ValidationErrors from '@/Components/ValidationErrors.vue';
 import {trans} from 'laravel-vue-i18n';
