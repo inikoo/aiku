@@ -288,12 +288,13 @@ function changeFilterValue(key, value) {
 	queryBuilderData.value.page = 1
 }
 
-function onChangeCheckBoxValue(arr) {
-	console.log(arr);
-	const intKey = findDataKey("filterCheck", arr.key)
-	queryBuilderData.value.filterCheck[intKey].value = arr.value
-	queryBuilderData.value.cursor = null
-	queryBuilderData.value.page = 1
+function onChangeCheckBoxValue(labels, y) {
+	console.log( y);
+	// const intKey = findDataKey("filterCheck", labels.checked)
+	// console.log(intKey);
+	// queryBuilderData.value.filterCheck[intKey].value = arr.value
+	// queryBuilderData.value.cursor = null
+	// queryBuilderData.value.page = 1
 }
 
 function onPerPageChange(value) {
@@ -643,7 +644,7 @@ function header(key) {
 				:has-shown="queryBuilderProps.hasShowCheck">
 				<TableFilterCheck
 					:labels ="queryBuilderProps.filterCheck"
-					:on-click="onChangeCheckBoxValue"
+					@click="onChangeCheckBoxValue"
 				/>
 			</slot>
 

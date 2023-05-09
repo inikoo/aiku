@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { each } from 'lodash'
-
 
 const props = defineProps<{
     labels: Array<{
@@ -11,11 +9,11 @@ const props = defineProps<{
       count: bigint
 
     }>
-
 }>()
 const emit = defineEmits(['onChangeCheckBoxValue']);
-const handleClick = (lbls: any[]) => {
-    emit('onChangeCheckBoxValue', lbls);
+const handleClick = (lbl: any[]) => {
+    emit('onChangeCheckBoxValue', lbl);
+    console.log(lbl);
 };
 </script>
 <template>
