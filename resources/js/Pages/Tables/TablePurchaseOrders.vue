@@ -7,29 +7,29 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Agent} from "@/types/agent";
+import {PurchaseOrder} from "@/types/purchase-order";
 
 const props = defineProps<{
     data: object
 }>()
 
 
-function agentRoute(agent: Agent) {
+function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
     switch (route().current()) {
-        case 'procurement.agents.index':
+        case 'procurement.purchase-orders.index':
             return route(
-                'procurement.agents.show',
-                [agent.slug]);
+                'procurement.purchase-orders.show',
+                [purchaseOrder.slug]);
     }
 }
 
 </script>
 
 <template>
-    <Table :resource="data" :name="'ag'" class="mt-5">
-        <template #cell(code)="{ item: agent }">
-            <Link :href="agentRoute(agent)">
-                {{ agent.slug }}
+    <Table :resource="data" :name="'puord'" class="mt-5">
+        <template #cell(number)="{ item: purchaseOrder }">
+            <Link :href="PurchaseOrderRoute(purchaseOrder)">
+                {{ purchaseOrder['number'] }}
             </Link>
         </template>
     </Table>
