@@ -81,7 +81,7 @@ class ProcurementDashboard
 
                         ],
                     ],
-                    /*
+
                     [
                         [
                             'name'  => __('purchase orders'),
@@ -92,16 +92,16 @@ class ProcurementDashboard
                             ]
 
                         ],
-                        [
-                            'name'  => __('supplier deliveries'),
+                        ['name'     => __('supplier deliveries'),
                             'icon'  => ['fal', 'fa-people-arrows'],
-                            'href'  => ['procurement.suppliers-deliveries.index'],
+                            'href'  => ['procurement.supplier-deliveries.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_purchase_orders
                             ]
 
                         ],
                     ],
+
                     [
                         [
                             'name'  => __('marketplace agents'),
@@ -120,7 +120,7 @@ class ProcurementDashboard
                             ]
                         ],
                     ]
-                    */
+
 
                 ]
 
