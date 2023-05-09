@@ -10,8 +10,6 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
-import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
