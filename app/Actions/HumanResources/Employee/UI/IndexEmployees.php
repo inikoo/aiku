@@ -33,6 +33,12 @@ class IndexEmployees extends InertiaAction
             });
         });
 
+        $checkFilter = AllowedFilter::callback('check', function ($query, $values) {
+            $query->where(function ($query) use ($values) {
+                $query->whereIn('employees.state', $values);
+            });
+        });
+
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::EMPLOYEES->value);
 
         return QueryBuilder::for(Employee::class)
@@ -40,7 +46,7 @@ class IndexEmployees extends InertiaAction
             ->select(['slug', 'id', 'worker_number', 'name','state'])
             ->with('jobPositions')
             ->allowedSorts(['slug', 'worker_number', 'name'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch, $checkFilter])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'

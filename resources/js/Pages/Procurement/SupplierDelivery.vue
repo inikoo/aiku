@@ -10,6 +10,8 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
+import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
+import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -20,6 +22,8 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
+    suppliers?: object
+    supplier_products?: object,
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -48,6 +52,8 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        suppliers: TableSuppliers,
+        supplier_products: TableSupplierProducts,
         details: ModelDetails,
         history: ModelChangelog
     };

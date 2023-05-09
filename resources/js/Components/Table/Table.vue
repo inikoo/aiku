@@ -289,9 +289,10 @@ function changeFilterValue(key, value) {
 }
 
 function onChangeCheckBoxValue(labels) {
-	console.log(labels);
+	// console.log(labels.checked);
+	
 	// const intKey = findDataKey("filterCheck", labels.checked)
-	// console.log(intKey);
+	console.log(queryBuilderData.value.filterCheck);
 	// queryBuilderData.value.filterCheck[intKey].value = arr.value
 	// queryBuilderData.value.cursor = null
 	// queryBuilderData.value.page = 1

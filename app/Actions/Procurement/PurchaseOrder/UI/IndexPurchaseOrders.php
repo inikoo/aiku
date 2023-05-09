@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
-use App\Http\Resources\Procurement\AgentResource;
+use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\AgentTenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -27,23 +27,24 @@ class IndexPurchaseOrders extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('agents.code', 'LIKE', "$value%")
-                    ->orWhere('agents.name', 'LIKE', "%$value%");
+                $query->where('purchase_orders.number', 'LIKE', "$value%")
+                    ->orWhere('purchase_orders.state', 'LIKE', "%$value%")
+                    ->orWhere('purchase_orders.status', 'LIKE', "%$value%");
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS->value);
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PURCHASE_ORDERS->value);
 
         return QueryBuilder::for(AgentTenant::class)
-            ->defaultSort('agents.code')
-            ->select(['code', 'name', 'slug'])
-            ->leftJoin('agents', 'agents.id', 'agent_tenant.agent_id')
+            ->defaultSort('purchase_orders.number')
+            ->select(['number', 'state', 'slug', 'status'])
+            ->leftJoin('purchase_orders', 'purchase_orders.id', 'purchase_order_items.purchase_order_id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
             ->where('agent_tenant.tenant_id', app('currentTenant')->id)
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::AGENTS->value.'Page'
+                pageName: TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page'
             )
             ->withQueryString();
     }
@@ -52,8 +53,8 @@ class IndexPurchaseOrders extends InertiaAction
     {
         return function (InertiaTable $table) use ($parent) {
             $table
-                ->name(TabsAbbreviationEnum::AGENTS->value)
-                ->pageName(TabsAbbreviationEnum::AGENTS->value.'Page');
+                ->name(TabsAbbreviationEnum::PURCHASE_ORDERS->value)
+                ->pageName(TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page');
             $table
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -63,7 +64,7 @@ class IndexPurchaseOrders extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.agents.edit');
+        $this->canEdit = $request->user()->can('procurement.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -79,34 +80,34 @@ class IndexPurchaseOrders extends InertiaAction
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $agents): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $purchaseOrders): AnonymousResourceCollection
     {
-        return AgentResource::collection($agents);
+        return PurchaseOrderResource::collection($purchaseOrders);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $agents, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $purchaseOrders, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
-            'Procurement/Agents',
+            'Procurement/PurchaseOrders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->parameters(),
                     $parent
                 ),
-                'title'       => __('agents'),
+                'title'       => __('purchase orders'),
                 'pageHead'    => [
-                    'title'   => __('agents'),
-                    'create'  => $this->canEdit && $this->routeName=='procurement.agents.index' ? [
+                    'title'   => __('purchase orders'),
+                    'create'  => $this->canEdit && $this->routeName=='procurement.purchase-orders.index' ? [
                         'route' => [
-                            'name'       => 'procurement.agents.create',
+                            'name'       => 'procurement.purchase-orders.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('agent')
+                        'label'=> __('purchase orders')
                     ] : false,
                 ],
-                'data'      => AgentResource::collection($agents),
+                'data'      => PurchaseOrderResource::collection($purchaseOrders),
             ]
         )->table($this->tableStructure($parent));
     }
@@ -121,9 +122,9 @@ class IndexPurchaseOrders extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.agents.index'
+                                'name' => 'procurement.purchase-orders.index'
                             ],
-                            'label' => __('agents'),
+                            'label' => __('purchase orders'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]
