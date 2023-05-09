@@ -644,7 +644,7 @@ function header(key) {
 				:has-shown="queryBuilderProps.hasShowCheck">
 				<TableFilterCheck
 					:labels ="queryBuilderProps.filterCheck"
-					
+					@onChangeCheckBoxValue="onChangeCheckBoxValue"
 				/>
 			</slot>
 
