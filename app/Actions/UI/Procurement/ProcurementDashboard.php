@@ -50,7 +50,7 @@ class ProcurementDashboard
                 'pageHead'    => [
                     'title' => __('procurement'),
                 ],
-                'flatTreeMaps'    => [
+                'flatTreeMaps' => [
 
                     [
                         [
@@ -81,7 +81,6 @@ class ProcurementDashboard
 
                         ],
                     ],
-                    /*
                     [
                         [
                             'name'  => __('purchase orders'),
@@ -92,8 +91,36 @@ class ProcurementDashboard
                             ]
 
                         ],
+                        [
+                            'name'  => __('supplier deliveries'),
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'href'  => ['procurement.suppliers-deliveries.index'],
+                            'index' => [
+                                'number' => $this->tenant->procurementStats->number_purchase_orders
+                            ]
+
+                        ],
+                    ],
+                    [
+                        [
+                            'name'  => __('marketplace agents'),
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'href'  => ['procurement.marketplace-agents.index'],
+                            'index' => [
+                                'number' => $this->tenant->procurementStats->number_purchase_orders
+                            ]
+                        ],
+                        [
+                            'name'  => __('marketplace suppliers'),
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'href'  => ['procurement.marketplace-suppliers.index'],
+                            'index' => [
+                                'number' => $this->tenant->procurementStats->number_purchase_orders
+                            ]
+                        ],
                     ]
-                    */
+
+
                 ]
 
             ]

@@ -35,3 +35,6 @@ Route::get('/agents/{agent}/suppliers/{supplier}', [ShowSupplier::class, 'inAgen
 
 Route::get('/supplier-products', IndexSupplierProducts::class)->name('supplier-products.index');
 Route::get('/supplier-products/{supplierProduct}', ShowSupplierProduct::class)->name('supplier-products.show');
+
+Route::get('/purchase-orders', IndexPurchaseOrders::class)->name('purchase-orders.index');
+Route::get('/purchase-orders/{purchaseOrder}', ShowPurchaseOrder::class)->name('purchase-orders.show');
