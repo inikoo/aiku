@@ -24,12 +24,11 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSupplierDeliveries extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('supplier_deliveries.provider_type', 'LIKE', "$value%")
-                    ->orWhere('supplier_deliveries.number', 'LIKE', "%$value%");
+                $query->where('supplier_deliveries.number', 'LIKE', "$value%");
             });
         });
 
@@ -38,9 +37,8 @@ class IndexSupplierDeliveries extends InertiaAction
         return QueryBuilder::for(SupplierDelivery::class)
             ->defaultSort('supplier_deliveries.number')
             ->select(['slug', 'number'])
-            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
-            ->where('agent_tenant.tenant_id', app('currentTenant')->id)
-            ->allowedSorts(['name'])
+            ->leftJoin('supplier_deliveries', 'supplier_deliveries.id')
+            ->allowedSorts(['number'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
