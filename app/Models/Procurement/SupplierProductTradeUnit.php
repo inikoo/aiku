@@ -8,6 +8,7 @@
 namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -22,10 +23,10 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property string|null $notes
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Supplier $supplier
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductTradeUnit newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductTradeUnit newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductTradeUnit query()
+ * @property-read \App\Models\Procurement\Supplier $supplier
+ * @method static Builder|SupplierProductTradeUnit newModelQuery()
+ * @method static Builder|SupplierProductTradeUnit newQuery()
+ * @method static Builder|SupplierProductTradeUnit query()
  * @mixin \Eloquent
  */
 class SupplierProductTradeUnit extends Pivot

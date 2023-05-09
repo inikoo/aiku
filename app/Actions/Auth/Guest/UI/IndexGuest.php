@@ -92,7 +92,7 @@ class IndexGuest extends InertiaAction
                 ),
                 'title'       => __('guests'),
                 'pageHead'    => [
-                    'title' => __('guests'),
+                    'title'  => __('guests'),
                     'create' => $this->canEdit && $this->routeName == 'sysadmin.guests.index' ? [
                         'route' => [
                             'name'       => 'sysadmin.guests.create',
@@ -114,7 +114,7 @@ class IndexGuest extends InertiaAction
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters,$suffix=null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix=null): array
     {
         return array_merge(
             (new SysAdminDashboard())->getBreadcrumbs(),

@@ -3,8 +3,6 @@
 namespace App\InertiaTable;
 
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Support\Arr;
-use App\Enums\HumanRecources\Employee\EmployeeStateEnum;
 
 class CheckFilter implements Arrayable
 {

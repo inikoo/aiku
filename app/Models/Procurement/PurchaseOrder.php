@@ -11,7 +11,6 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\PurchaseOrderFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,8 +30,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $provider_type
  * @property string $number
  * @property array $data
- * @property string $state
- * @property string $status
+ * @property PurchaseOrderStateEnum $state
+ * @property PurchaseOrderStatusEnum $status
  * @property string $date latest relevant date
  * @property string|null $submitted_at
  * @property string|null $confirmed_at
@@ -45,7 +44,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property string $exchange
  * @property int $number_of_items
- * @property float|null $total_weight
+ * @property float|null $gross_weight
+ * @property float|null $net_weight
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
@@ -60,7 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
  * @property-read Model|\Eloquent $provider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
- * @method static PurchaseOrderFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrder newModelQuery()
  * @method static Builder|PurchaseOrder newQuery()
  * @method static Builder|PurchaseOrder onlyTrashed()
@@ -79,8 +79,8 @@ class PurchaseOrder extends Model
 
 
     protected $casts = [
-        'data' => 'array',
-        'state' => PurchaseOrderStateEnum::class,
+        'data'   => 'array',
+        'state'  => PurchaseOrderStateEnum::class,
         'status' => PurchaseOrderStatusEnum::class
     ];
 

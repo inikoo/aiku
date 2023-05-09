@@ -23,7 +23,7 @@ class PurchaseOrderHydrateItems implements ShouldBeUnique
             'number_of_items' => $purchaseOrder->items()->count(),
             'cost_items'      => $this->getTotalCostItem($purchaseOrder),
             'gross_weight'    => $this->getGrossWeight($purchaseOrder),
-            'net_weight'    => $this->getNetWeight($purchaseOrder)
+            'net_weight'      => $this->getNetWeight($purchaseOrder)
         ];
 
         $purchaseOrder->update($stats);

@@ -12,7 +12,8 @@ use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Procurement\PurchaseOrder;
 
-trait HasHydrators {
+trait HasHydrators
+{
     public function purchaseOrderHydrate(PurchaseOrder $purchaseOrder): void
     {
         $parent = $purchaseOrder->provider;

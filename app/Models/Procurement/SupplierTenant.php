@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $source_id
- * @property-read Supplier $supplier
+ * @property-read \App\Models\Procurement\Supplier $supplier
  * @method static Builder|SupplierTenant newModelQuery()
  * @method static Builder|SupplierTenant newQuery()
  * @method static Builder|SupplierTenant query()
