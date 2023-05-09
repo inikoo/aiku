@@ -7,8 +7,8 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
+use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
 
@@ -36,22 +36,22 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
         //print ">>".$this->auroraModelData->{'Purchase Order State'}."\n";
         $state = match ($this->auroraModelData->{'Purchase Order State'}) {
-            "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => PurchaseOrderStateEnum::SETTLED,
-            "InProcess" => PurchaseOrderStateEnum::CREATING,
-            "Confirmed" => PurchaseOrderStateEnum::CONFIRMED,
-            "Manufactured", "QC_Pass" => PurchaseOrderStateEnum::MANUFACTURED,
+            "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => PurchaseOrderItemStateEnum::SETTLED,
+            "InProcess" => PurchaseOrderItemStateEnum::CREATING,
+            "Confirmed" => PurchaseOrderItemStateEnum::CONFIRMED,
+            "Manufactured", "QC_Pass" => PurchaseOrderItemStateEnum::MANUFACTURED,
 
-            "Inputted", "Dispatched" => PurchaseOrderStateEnum::DISPATCHED,
-            "Received"  => PurchaseOrderStateEnum::RECEIVED,
-            "Checked"   => PurchaseOrderStateEnum::CHECKED,
-            "Submitted" => PurchaseOrderStateEnum::SUBMITTED,
+            "Inputted", "Dispatched" => PurchaseOrderItemStateEnum::DISPATCHED,
+            "Received"  => PurchaseOrderItemStateEnum::RECEIVED,
+            "Checked"   => PurchaseOrderItemStateEnum::CHECKED,
+            "Submitted" => PurchaseOrderItemStateEnum::SUBMITTED,
         };
 
         $status = match ($this->auroraModelData->{'Purchase Order State'}) {
-            "Placed", "Costing", "InvoiceChecked" => PurchaseOrderStatusEnum::PLACED,
-            "NoReceived" => PurchaseOrderStatusEnum::FAIL,
-            "Cancelled"  => PurchaseOrderStatusEnum::CANCELLED,
-            default      => PurchaseOrderStatusEnum::PROCESSING,
+            "Placed", "Costing", "InvoiceChecked" => PurchaseOrderItemStatusEnum::PLACED,
+            "NoReceived" => PurchaseOrderItemStatusEnum::FAIL,
+            "Cancelled"  => PurchaseOrderItemStatusEnum::CANCELLED,
+            default      => PurchaseOrderItemStatusEnum::PROCESSING,
         };
 
 

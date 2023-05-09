@@ -27,9 +27,10 @@ class DeletePurchaseOrder
      */
     public function handle(PurchaseOrder $purchaseOrder): bool
     {
-        if(($purchaseOrder->items()->count() > 0) && (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING->value, PurchaseOrderStateEnum::SUBMITTED->value]))) {
+        if((in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::SUBMITTED]))) {
             $parent = $purchaseOrder->provider;
 
+            $purchaseOrder->items()->delete();
             $purchaseOrderDeleted = $purchaseOrder->delete();
 
             if (class_basename($parent) == 'Supplier') {
@@ -46,11 +47,17 @@ class DeletePurchaseOrder
         throw ValidationException::withMessages(['purchase_order' => 'You can not delete this purchase order']);
     }
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function action(PurchaseOrder $purchaseOrder): bool
     {
         return $this->handle($purchaseOrder);
     }
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function asController(PurchaseOrder $purchaseOrder): bool
     {
         return $this->handle($purchaseOrder);
