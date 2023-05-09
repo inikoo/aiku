@@ -34,6 +34,8 @@ enum TabsAbbreviationEnum: string
 
     case WAREHOUSE = 'w';
 
+    case SUPPLIER_DELIVERIES = 'spd';
+
     case OUTBOXES        = 'out';
     case ISSUES          = 'iss';
     case PURCHASE_ORDERS = 'puord';
