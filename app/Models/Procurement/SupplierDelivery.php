@@ -27,8 +27,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $provider_id
  * @property string $provider_type
  * @property string $number
- * @property string $state
- * @property string $status
+ * @property SupplierDeliveryStateEnum $state
+ * @property SupplierDeliveryStatusEnum $status
  * @property string $date latest relevant date
  * @property string|null $dispatched_at
  * @property string|null $received_at
@@ -46,13 +46,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDeliveryItem> $items
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @method static Builder|SupplierDelivery newModelQuery()
  * @method static Builder|SupplierDelivery newQuery()
+ * @method static Builder|SupplierDelivery onlyTrashed()
  * @method static Builder|SupplierDelivery query()
+ * @method static Builder|SupplierDelivery withTrashed()
+ * @method static Builder|SupplierDelivery withoutTrashed()
  * @mixin \Eloquent
  */
 class SupplierDelivery extends Model
