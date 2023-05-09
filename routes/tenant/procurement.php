@@ -10,10 +10,18 @@ use App\Actions\Procurement\Agent\UI\CreateAgent;
 use App\Actions\Procurement\Agent\UI\EditAgent;
 use App\Actions\Procurement\Agent\UI\IndexAgents;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
+use App\Actions\Procurement\Marketplace\Agent\UI\IndexMarketplaceAgents;
+use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
+use App\Actions\Procurement\Marketplace\Supplier\UI\IndexMarketplaceSuppliers;
+use App\Actions\Procurement\Marketplace\Supplier\UI\ShowMarketplaceSupplier;
+use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
+use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
 use App\Actions\Procurement\Supplier\UI\CreateSupplier;
 use App\Actions\Procurement\Supplier\UI\EditSupplier;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Actions\Procurement\Supplier\UI\ShowSupplier;
+use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
+use App\Actions\Procurement\SupplierDelivery\UI\ShowSupplierDelivery;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\UI\ShowSupplierProduct;
 use App\Actions\UI\Procurement\ProcurementDashboard;
@@ -36,5 +44,14 @@ Route::get('/agents/{agent}/suppliers/{supplier}', [ShowSupplier::class, 'inAgen
 Route::get('/supplier-products', IndexSupplierProducts::class)->name('supplier-products.index');
 Route::get('/supplier-products/{supplierProduct}', ShowSupplierProduct::class)->name('supplier-products.show');
 
-//Route::get('/purchase-orders', IndexPurchaseOrders::class)->name('purchase-orders.index');
-//Route::get('/purchase-orders/{purchaseOrder}', ShowPurchaseOrder::class)->name('purchase-orders.show');
+Route::get('/purchase-orders', IndexPurchaseOrders::class)->name('purchase-orders.index');
+Route::get('/purchase-orders/{purchaseOrder}', ShowPurchaseOrder::class)->name('purchase-orders.show');
+
+Route::get('/supplier-deliveries', IndexSupplierDeliveries::class)->name('supplier-deliveries.index');
+Route::get('/supplier-deliveries/{supplierDelivery}', ShowSupplierDelivery::class)->name('supplier-deliveries.show');
+
+Route::get('/marketplace-agents', IndexMarketplaceAgents::class)->name('marketplace-agents.index');
+Route::get('/marketplace-agents/{marketplaceAgent}', ShowMarketplaceAgent::class)->name('marketplace-agents.show');
+
+Route::get('/marketplace-suppliers', IndexMarketplaceSuppliers::class)->name('marketplace-suppliers.index');
+Route::get('/marketplace-suppliers/{marketplaceSupplier}', ShowMarketplaceSupplier::class)->name('marketplace-suppliers.show');

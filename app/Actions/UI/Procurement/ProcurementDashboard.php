@@ -81,31 +81,31 @@ class ProcurementDashboard
 
                         ],
                     ],
-                    /*
+
                     [
                         [
                             'name'  => __('purchase orders'),
-                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'icon'  => ['fal', 'fa-box-full'],
                             'href'  => ['procurement.purchase-orders.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_purchase_orders
                             ]
 
                         ],
-                        [
-                            'name'  => __('supplier deliveries'),
-                            'icon'  => ['fal', 'fa-people-arrows'],
-                            'href'  => ['procurement.suppliers-deliveries.index'],
+                        ['name'     => __('supplier deliveries'),
+                            'icon'  => ['fal', 'fa-truck'],
+                            'href'  => ['procurement.supplier-deliveries.index'],
                             'index' => [
-                                'number' => $this->tenant->procurementStats->number_purchase_orders
+                                'number' => $this->tenant->procurementStats->number_deliveries
                             ]
 
                         ],
                     ],
+
                     [
                         [
                             'name'  => __('marketplace agents'),
-                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'icon'  => ['fal', 'fa-store'],
                             'href'  => ['procurement.marketplace-agents.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_purchase_orders
@@ -113,14 +113,14 @@ class ProcurementDashboard
                         ],
                         [
                             'name'  => __('marketplace suppliers'),
-                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'icon'  => ['fal', 'fa-building'],
                             'href'  => ['procurement.marketplace-suppliers.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_purchase_orders
                             ]
                         ],
                     ]
-                    */
+
 
                 ]
 
