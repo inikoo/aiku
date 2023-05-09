@@ -11,9 +11,9 @@ const props = defineProps<{
     }>
 }>()
 const emit = defineEmits(['onChangeCheckBoxValue']);
-const handleClick = (lbl: any[]) => {
-    emit('onChangeCheckBoxValue', lbl);
-    console.log(lbl);
+const handleClick = (checkedFilterCheckState: any[]) => {
+    emit('onChangeCheckBoxValue', checkedFilterCheckState);
+    console.log(checkedFilterCheckState);
 };
 </script>
 <template>
