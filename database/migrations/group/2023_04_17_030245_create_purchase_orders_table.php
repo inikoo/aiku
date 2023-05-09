@@ -5,8 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
+use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,8 +21,8 @@ return new class () extends Migration {
             $table->string('provider_type');
             $table->string('number');
             $table->jsonb('data');
-            $table->string('state')->index()->default(PurchaseOrderStateEnum::CREATING->value);
-            $table->string('status')->index()->default(PurchaseOrderStatusEnum::PROCESSING->value);
+            $table->string('state')->index()->default(PurchaseOrderItemStateEnum::CREATING->value);
+            $table->string('status')->index()->default(PurchaseOrderItemStatusEnum::PROCESSING->value);
 
 
 

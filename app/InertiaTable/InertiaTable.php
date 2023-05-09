@@ -28,7 +28,31 @@ class InertiaTable
         $this->request        = $request;
         $this->columns        = new Collection();
         $this->searchInputs   = new Collection();
-        $this->checkBoxFilter = new Collection();
+        $this->checkBoxFilter = collect(
+            [
+                [
+                    'key'=> 'hired',
+                    'label'=> "Hired",
+                    'count'=> 7,
+                    'checked'=> true,
+                    'value'=> 'hired',
+                ],
+                [
+                    'key'=> 'working',
+                    'label'=> "Working",
+                    'count'=> 15,
+                    'checked'=> true,
+                    'value'=> 'working',
+                ],
+                [
+                    'key'=> 'left',
+                    'label'=> "Left",
+                    'count'=> 46,
+                    'checked'=> true,
+                    'value'=> 'left',
+                ],
+            ]
+        );
         $this->filters        = new Collection();
 
 
@@ -172,14 +196,7 @@ class InertiaTable
             'page'           => Paginator::resolveCurrentPage($this->pageName),
             'pageName'       => $this->pageName,
             'perPageOptions' => $this->perPageOptions,
-          //  'filterCheck'    => $this->checkBoxFilter
-            'filterCheck'=> collect(
-                [
-                    [
-                        'label'=> '...'
-                    ]
-                ]
-            )
+            'filterCheck'    => $this->transformCheckboxs(), 
         ];
     }
 
@@ -232,6 +249,25 @@ class InertiaTable
             }
 
             return $filter;
+        });
+    }
+
+    protected function transformCheckboxs(): Collection
+    {
+        $checkBoxFilter = $this->checkBoxFilter;
+
+        $queryFilters = $this->query('filterCheck', []);
+
+        if (empty($queryFilters)) {
+            return $checkBoxFilter;
+        }
+
+        return $checkBoxFilter->map(function (CheckFilter $checkBoxFilter) use ($queryFilters) {
+            if (array_key_exists($checkBoxFilter->key, $queryFilters)) {
+                $checkBoxFilter->value = $queryFilters[$checkBoxFilter->key];
+            }
+
+            return $checkBoxFilter;
         });
     }
 
@@ -306,6 +342,7 @@ class InertiaTable
         return $this->searchInput('global', $label ?: __('Search...'));
     }
 
+
     /**
      * Add a search input to query builder.
      *
@@ -330,12 +367,8 @@ class InertiaTable
         return $this;
     }
 
-    public function addCheckfilter(object $obj)
-    {
-    }
-
     /**
-     * Add a checkbox filter to the query builder.
+     * Add a select filter to the query builder.
      *
      * @param  string  $key
      * @param  array  $options
