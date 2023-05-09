@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableAgents from "@/Pages/Tables/TableAgents.vue";
+import TableSupplierDeliveries from "@/Pages/Tables/TableAgents.vue";
 
 const props = defineProps <{
     pageHead: object
@@ -19,6 +19,6 @@ const props = defineProps <{
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableAgents :data="data" />
+    <TableSupplierDeliveries :data="data" />
 </template>
 
