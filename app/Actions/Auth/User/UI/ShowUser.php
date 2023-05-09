@@ -8,6 +8,7 @@
 namespace App\Actions\Auth\User\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\UserTabsEnum;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
@@ -17,9 +18,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowUser extends InertiaAction
 {
-    use HasUIUser;
-
-
     public function asController(User $user, ActionRequest $request): User
     {
         $this->initialisation($request)->withTab(UserTabsEnum::values());
@@ -37,7 +35,7 @@ class ShowUser extends InertiaAction
         return $request->user()->hasPermissionTo("sysadmin.view");
     }
 
-    public function htmlResponse(User $user): Response
+    public function htmlResponse(User $user, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -45,7 +43,10 @@ class ShowUser extends InertiaAction
             'SysAdmin/User',
             [
                 'title'       => __('user'),
-                'breadcrumbs' => $this->getBreadcrumbs($user),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'title'     => '@'.$user->username,
                     'edit'      => $this->canEdit ? [
@@ -63,5 +64,58 @@ class ShowUser extends InertiaAction
                 ]
             ]
         );
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
+    {
+
+        $headCrumb = function (User $user, array $routeParameters, string $suffix) {
+            return [
+                [
+
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('users')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $user->username,
+                        ],
+
+                    ],
+                    'suffix'=> $suffix
+
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'sysadmin.users.show',
+            'sysadmin.users.edit' =>
+
+            array_merge(
+                SysAdminDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $routeParameters['user'],
+                    [
+                        'index' => [
+                            'name'       => 'sysadmin.users.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'sysadmin.users.show',
+                            'parameters' => [$routeParameters['user']->username]
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+
+
+            default => []
+        };
+
     }
 }

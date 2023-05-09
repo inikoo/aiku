@@ -29,7 +29,7 @@ class CreateCustomer extends InertiaAction
                     'title'        => __('new customer'),
                     'cancelCreate' => [
                         'route' => [
-                            'name' => match ($this->routeName) {
+                            'name'       => match ($this->routeName) {
                                 'shops.show.customers.create' => 'customers.index',
                                 default                       => preg_replace('/create$/', 'index', $this->routeName)
                             },
@@ -48,7 +48,6 @@ class CreateCustomer extends InertiaAction
                 ]
 
 
-
             ]
         );
     }
@@ -63,6 +62,7 @@ class CreateCustomer extends InertiaAction
     public function asController(Shop $shop, ActionRequest $request): Response
     {
         $this->initialisation($request);
+
         return $this->handle($request);
     }
 
@@ -75,9 +75,9 @@ class CreateCustomer extends InertiaAction
             ),
             [
                 [
-                    'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('creating customer'),
+                    'type'          => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __('creating customer'),
                     ]
                 ]
             ]
