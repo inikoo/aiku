@@ -73,14 +73,18 @@ class EditUser extends InertiaAction
                                     'label' => __('email'),
                                     'value' => $user->email
                                 ],
-                                'password' => [
-                                    'type'  => 'password',
-                                    'label' => __('password'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ]
 
+                            ]
+                        ],
+                        'password'   => [
+                            'title'  => __('Password'),
+                            'icon'   => 'fa-light fa-key',
+                            'fields' => [
+                                'password' => [
+                                    'label' => __('Password')
+                                ]
+                            ]
+                        ],
                     ],
                     'args' => [
                         'updateRoute' => [
