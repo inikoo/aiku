@@ -81,6 +81,7 @@ class ProcurementDashboard
 
                         ],
                     ],
+                    /*
                     [
                         [
                             'name'  => __('purchase orders'),
@@ -119,7 +120,7 @@ class ProcurementDashboard
                             ]
                         ],
                     ]
-
+                    */
 
                 ]
 
