@@ -9,8 +9,8 @@ use App\Enums\HumanRecources\Employee\EmployeeStateEnum;
 class CheckFilter implements Arrayable
 {
     public function __construct(
+        public string $key,
         public string $label,
-        public array $options,
         public int $count,
         public ?string $value = null,
         public bool $checked,
@@ -19,18 +19,13 @@ class CheckFilter implements Arrayable
 
     public function toArray()
     {
-        $options = $this->options;
-
-        if ($this->show) {
-            $options = EmployeeStateEnum;
-        }
 
         return [
-            'label'     => $this->label,
-            'options'   => $this->options,
-            'count'    => $this->count,
-            'value'     => $this->value,
-            'checked'    => $this->checked,
+            'key'    => $this->key,
+            'label'  => $this->label,
+            'count'  => $this->count,
+            'value'  => $this->value,
+            'checked'=> $this->checked,
         ];
     }
 }
