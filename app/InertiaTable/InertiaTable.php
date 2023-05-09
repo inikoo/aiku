@@ -31,25 +31,25 @@ class InertiaTable
         $this->checkBoxFilter = collect(
             [
                 [
-                    'key'=> 'hired',
-                    'label'=> "Hired",
-                    'count'=> 7,
+                    'key'    => 'hired',
+                    'label'  => "Hired",
+                    'count'  => 7,
                     'checked'=> true,
-                    'value'=> 'hired',
+                    'value'  => 'hired',
                 ],
                 [
-                    'key'=> 'working',
-                    'label'=> "Working",
-                    'count'=> 15,
+                    'key'    => 'working',
+                    'label'  => "Working",
+                    'count'  => 15,
                     'checked'=> true,
-                    'value'=> 'working',
+                    'value'  => 'working',
                 ],
                 [
-                    'key'=> 'left',
-                    'label'=> "Left",
-                    'count'=> 46,
+                    'key'    => 'left',
+                    'label'  => "Left",
+                    'count'  => 46,
                     'checked'=> true,
-                    'value'=> 'left',
+                    'value'  => 'left',
                 ],
             ]
         );
@@ -196,7 +196,7 @@ class InertiaTable
             'page'           => Paginator::resolveCurrentPage($this->pageName),
             'pageName'       => $this->pageName,
             'perPageOptions' => $this->perPageOptions,
-            'filterCheck'    => $this->transformCheckboxs(), 
+            'filterCheck'    => $this->transformCheckboxs(),
         ];
     }
 
