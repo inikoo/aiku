@@ -16,6 +16,7 @@ import Phone from '@/Components/Forms/Fields/Phone.vue';
 import Date from '@/Components/Forms/Fields/Date.vue';
 import Theme from '@/Components/Profile/Theme.vue';
 import DarkMode from '@/Components/Profile/DarkMode.vue';
+// import Avatar from '@/Components/Forms/Fields/Avatar.vue';
 import Password from '@/Components/Forms/Fields/Password.vue'
 
 
@@ -32,6 +33,7 @@ const getComponent = (componentName) => {
         'theme': Theme,
         'darkMode': DarkMode,
         'password': Password,
+        // 'avatar': Avatar
     };
     return components[componentName] ?? null;
 };
@@ -69,7 +71,7 @@ form['type'] = 'edit';
         <dl class="divide-y divide-gray-200 max-w-2xl ">
             <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                 <dt class="text-sm font-medium text-gray-500 capitalize">
-                    {{ fieldData.label }}
+                    {{ field }}
                 </dt>
                 <dd class="sm:col-span-2  ">
                     <div class="mt-1 flex items-end text-sm text-gray-900 sm:mt-0">

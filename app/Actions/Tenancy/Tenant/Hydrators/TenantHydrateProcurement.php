@@ -7,7 +7,7 @@
 
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\PurchaseOrder;
@@ -61,7 +61,7 @@ class TenantHydrateProcurement implements ShouldBeUnique
             ->groupBy('status')
             ->pluck('total', 'status')->all();
 
-        foreach (PurchaseOrderStatusEnum::cases() as $purchaseOrderStatusEnum) {
+        foreach (PurchaseOrderItemStatusEnum::cases() as $purchaseOrderStatusEnum) {
             $stats['number_purchase_orders_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
         }
 
