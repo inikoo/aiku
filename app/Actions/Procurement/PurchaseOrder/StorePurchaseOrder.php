@@ -7,8 +7,8 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrder;
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrder;
+use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
+use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
@@ -23,9 +23,7 @@ class StorePurchaseOrder
     use WithAttributes;
 
     private bool $force;
-    /**
-     * @var \App\Models\Procurement\Agent|\App\Models\Procurement\Supplier
-     */
+
     private Supplier|Agent $parent;
 
     public function handle(Agent|Supplier $parent, array $modelData): PurchaseOrder
@@ -34,9 +32,9 @@ class StorePurchaseOrder
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
         if(class_basename($parent) == 'Supplier') {
-            SupplierHydratePurchaseOrder::dispatch($parent);
+            SupplierHydratePurchaseOrders::dispatch($parent);
         } else {
-            AgentHydratePurchaseOrder::dispatch($parent);
+            AgentHydratePurchaseOrders::dispatch($parent);
         }
 
         TenantHydrateProcurement::dispatch(app('currentTenant'));

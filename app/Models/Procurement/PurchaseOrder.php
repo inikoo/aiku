@@ -7,6 +7,8 @@
 
 namespace App\Models\Procurement;
 
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\UsesGroupConnection;
 use Database\Factories\Procurement\PurchaseOrderFactory;
@@ -77,7 +79,9 @@ class PurchaseOrder extends Model
 
 
     protected $casts = [
-        'data' => 'array',
+        'data'  => 'array',
+        'stata' => PurchaseOrderStateEnum::class,
+        'status'=> PurchaseOrderStatusEnum::class
     ];
 
     protected $attributes = [
