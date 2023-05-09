@@ -12,7 +12,7 @@ use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class PurchaseOrderHydrateItem implements ShouldBeUnique
+class PurchaseOrderHydrateItems implements ShouldBeUnique
 {
     use AsAction;
     use WithTenantJob;
