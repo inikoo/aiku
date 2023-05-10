@@ -196,7 +196,7 @@ class InertiaTable
             'page'           => Paginator::resolveCurrentPage($this->pageName),
             'pageName'       => $this->pageName,
             'perPageOptions' => $this->perPageOptions,
-            'filterCheck'    => $this->transformCheckboxs(),
+            'filterCheck'    => $this->checkBoxFilter = $this->transformCheckboxs(),
         ];
     }
 

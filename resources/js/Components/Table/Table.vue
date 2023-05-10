@@ -4,15 +4,11 @@ import HeaderCell from "@/Components/Table/HeaderCell.vue"
 import TableGlobalSearch from "@/Components/Table/TableGlobalSearch.vue"
 import TableFilterCheck from "@/Components/Table/TableFilterCheck.vue"
 import TableWrapper from "@/Components/Table/TableWrapper.vue"
-
-import {
-	TableAddSearchRow,
-	TableColumns,
-	TableFilter,
-	TableSearchRows,
-	TableReset,
-
-} from "@protonemedia/inertiajs-tables-laravel-query-builder"
+import TableAddSearchRow from  "@/Components/Table/TableAddSearchRow.vue"
+import TableColumns from "@/Components/Table/TableColumns.vue"
+import TableFilter from "@/Components/Table/TableFilter.vue"
+import TableSearchRows from "@/Components/Table/TableSearchRows.vue"
+import TableReset from "@/Components/Table/TableReset.vue"
 
 import { computed, reactive, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from "vue"
 import qs from "qs"
@@ -288,14 +284,13 @@ function changeFilterValue(key, value) {
 	queryBuilderData.value.page = 1
 }
 
-function onChangeCheckBoxValue(labels) {
-	// console.log(labels.checked);
-	
-	// const intKey = findDataKey("filterCheck", labels.checked)
-	console.log(queryBuilderData.value.filterCheck);
-	// queryBuilderData.value.filterCheck[intKey].value = arr.value
+function changeCheckboxValue(values) {
+	console.log(values);
+	// const intKey = findDataKey("filterCheck", key)
+	// queryBuilderData.value.filters[intKey].value = value
 	// queryBuilderData.value.cursor = null
 	// queryBuilderData.value.page = 1
+	// changeSearchInputValue("check", values)
 }
 
 function onPerPageChange(value) {
@@ -645,7 +640,7 @@ function header(key) {
 				:has-shown="queryBuilderProps.hasShowCheck">
 				<TableFilterCheck
 					:labels ="queryBuilderProps.filterCheck"
-					@onChangeCheckBoxValue="onChangeCheckBoxValue"
+					@changeCheckboxValue="changeCheckboxValue"
 				/>
 			</slot>
 

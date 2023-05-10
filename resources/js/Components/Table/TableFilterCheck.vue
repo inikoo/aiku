@@ -8,11 +8,18 @@ const props = defineProps<{
       value: string
       count: bigint
 
-    }>
+    }>,
 }>()
-const emit = defineEmits(['onChangeCheckBoxValue']);
+const emit = defineEmits(['changeCheckboxValue']);
 const handleClick = (checkedFilterCheckState: any[]) => {
-    emit('onChangeCheckBoxValue', checkedFilterCheckState);
+    let filterCheck ="";
+    checkedFilterCheckState.map(function(val) {
+        if (val.checked) {
+            filterCheck+= val.value + '|';
+        }
+    });
+    
+    emit('changeCheckboxValue', filterCheck);
 };
 </script>
 <template>
@@ -29,7 +36,7 @@ const handleClick = (checkedFilterCheckState: any[]) => {
                     class="cursor-pointer focus:ring-0"
                     type="checkbox"
                     v-model="label.checked"
-                    @click="handleClick(labels)"
+                    v-on:click="handleClick(labels)"
                 />
             </div>
         </div>
