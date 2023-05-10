@@ -134,6 +134,11 @@ class ShowProfile
                                 "label" => __("who are you?"),
                                 "value" => __("tell us do you offensive or not"),
                             ],
+                            "texteditor" => [
+                                "type"  => "texteditor",
+                                "label" => __("text editor"),
+                                "value" => __("this is text editor"),
+                            ],
                         ],
                     ],
                     [

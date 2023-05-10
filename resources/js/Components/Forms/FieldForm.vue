@@ -22,6 +22,7 @@ import Textarea from '@/Components/Forms/Fields/Textarea.vue'
 import Toggle from '@/Components/Forms/Fields/Toggle.vue'
 import Select from '@/Components/Forms/Fields/Select.vue'
 import Radio from '@/Components/Forms/Fields/Radio.vue'
+import TextEditor from '@/Components/Forms/Fields/TextEditor.vue'
 
 
 const props = defineProps<{
@@ -54,6 +55,7 @@ const components = {
     'toggle': Toggle,
     'select': Select,
     'radio': Radio,
+    'texteditor': TextEditor,
 };
 
 const getComponent = (componentName) => {
