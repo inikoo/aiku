@@ -128,7 +128,7 @@ class ShowProfile
                             "password" => [
                                 "type"  => "password",
                                 "label" => __("password"),
-                                "value" => "",
+                                "value" => "ddd",
                             ],
                         ],
                     ],

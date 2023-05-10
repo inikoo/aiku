@@ -16,7 +16,10 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck } from "@/../private/pro-light-svg-icons"
 library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck)
 
-const props = defineProps(['title', 'pageHead', 'formData']);
+const props = defineProps(['title', 'pageHead', 'formData', 'pageBody']);
+console.log("<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>")
+console.log(props.pageBody)
+console.log("<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>")
 const current = ref(0)
 </script>
 
