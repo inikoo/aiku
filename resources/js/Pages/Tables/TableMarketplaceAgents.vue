@@ -27,9 +27,9 @@ function marketplacesAgentRoute(marketplaceAgent: MarketplaceAgent) {
 
 <template>
     <Table :resource="data" :name="'mpa'" class="mt-5">
-        <template #cell(code)="{ item: marketplaceAgent }">
+        <template #cell(number)="{ item: marketplaceAgent }">
             <Link :href="marketplacesAgentRoute(marketplaceAgent)">
-                {{ marketplaceAgent['code'] }}
+                {{ marketplaceAgent['number'] }}
             </Link>
         </template>
     </Table>

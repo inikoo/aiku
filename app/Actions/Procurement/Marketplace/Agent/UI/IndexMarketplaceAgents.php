@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\AgentResource;
-use App\Models\Procurement\AgentTenant;
+use App\Models\Procurement\Agent;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -34,7 +34,7 @@ class IndexMarketplaceAgents extends InertiaAction
 
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS->value);
 
-        return QueryBuilder::for(AgentTenant::class)
+        return QueryBuilder::for(Agent::class)
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug'])
             ->allowedFilters([$globalSearch])
