@@ -119,7 +119,7 @@ class IndexSupplierDeliveries extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('suppliers'),
+                        'label' => __('supplier deliveries'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
@@ -127,12 +127,12 @@ class IndexSupplierDeliveries extends InertiaAction
         };
 
         return match ($routeName) {
-            'procurement.suppliers.index'            =>
+            'procurement.supplier-deliveries.index'            =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'=> 'procurement.suppliers.index',
+                        'name'=> 'procurement.supplier-deliveries.index',
                         null
                     ]
                 ),
