@@ -37,7 +37,6 @@ class IndexSupplierDeliveries extends InertiaAction
         return QueryBuilder::for(SupplierDelivery::class)
             ->defaultSort('supplier_deliveries.number')
             ->select(['slug', 'number'])
-            ->leftJoin('supplier_deliveries', 'supplier_deliveries.id')
             ->allowedSorts(['number'])
             ->allowedFilters([$globalSearch])
             ->paginate(
@@ -55,9 +54,8 @@ class IndexSupplierDeliveries extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::SUPPLIER_DELIVERIES->value.'Page');
             $table
                 ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('number');
         };
     }
     public function authorize(ActionRequest $request): bool
