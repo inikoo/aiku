@@ -14,7 +14,7 @@ use App\Models\Procurement\SupplierDelivery;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateStateToCreatingSupplierDelivery
+class UpdateStateToDispatchSupplierDelivery
 {
     use WithActionUpdate;
     use AsAction;
@@ -26,12 +26,14 @@ class UpdateStateToCreatingSupplierDelivery
     public function handle(SupplierDelivery $supplierDelivery): SupplierDelivery
     {
         $data = [
-            'state' => SupplierDeliveryStateEnum::CREATING,
+            'state' => SupplierDeliveryStateEnum::DISPATCHED,
         ];
 
-        if ($supplierDelivery->state == SupplierDeliveryStateEnum::DISPATCHED) {
-            $data[$supplierDelivery->state->value . '_at'] = null;
-            $data['creating_at'] = now();
+        if (in_array($supplierDelivery->state, [SupplierDeliveryStateEnum::CREATING, SupplierDeliveryStateEnum::RECEIVED])) {
+            if ($supplierDelivery->state !== SupplierDeliveryStateEnum::CREATING) {
+                $data[$supplierDelivery->state->value . '_at'] = null;
+            }
+            $data['dispatched_at'] = now();
 
             $supplierDelivery = $this->update($supplierDelivery, $data);
 
@@ -40,7 +42,7 @@ class UpdateStateToCreatingSupplierDelivery
             return $supplierDelivery;
         }
 
-        throw ValidationException::withMessages(['status' => 'You can not change the status to creating']);
+        throw ValidationException::withMessages(['status' => 'You can not change the status to dispatched']);
     }
 
     /**
