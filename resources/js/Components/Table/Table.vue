@@ -8,7 +8,7 @@ import TableAddSearchRow from  "@/Components/Table/TableAddSearchRow.vue"
 import TableColumns from "@/Components/Table/TableColumns.vue"
 import TableFilter from "@/Components/Table/TableFilter.vue"
 import TableSearchRows from "@/Components/Table/TableSearchRows.vue"
-import TableReset from "@/Components/Table/TableReset.vue"
+import SearchReset from "@/Components/Table/SearchReset.vue"
 
 import { computed, reactive, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from "vue"
 import qs from "qs"
@@ -326,6 +326,12 @@ function getFilterForQuery() {
 		}
 	})
 
+	// forEach(queryBuilderData.value.filterCheck, (filterCheck) => {
+	// 	if (filterCheck.value !== null) {
+	// 		filtersWithValue[filterCheck.key] = filterCheck.value
+	// 	}
+	// })
+
 	return filtersWithValue
 }
 
@@ -581,9 +587,9 @@ function header(key) {
                         </slot>
                     </div>
                     <!-- Reset Button (If already searching) -->
-                    <slot name="tableReset" can-be-reset="canBeReset" :on-click="resetQuery">
+                    <slot name="searchReset" can-be-reset="canBeReset" @resetSearch="()=> resetQuery()">
                         <div v-if="canBeReset" class="order-3">
-                            <TableReset :on-click="resetQuery" />
+                            <SearchReset @resetSearch="()=> resetQuery()"/>
                         </div>
                     </slot>
                     <!-- Code/Name Button -->

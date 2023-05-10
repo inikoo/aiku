@@ -1,3 +1,7 @@
+<script setup>
+const emit = defineEmits(['resetSearch']);
+</script>
+
 <template>
   <button
     ref="button"
@@ -5,7 +9,7 @@
     dusk="reset-table"
     class="w-full bg-white border rounded-md shadow-sm px-4 py-2 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 border-gray-300"
     aria-haspopup="true"
-    @click.prevent="onClick"
+    @click="emit('resetSearch', true)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -23,11 +27,4 @@
   </button>
 </template>
 
-<script setup>
-defineProps({
-    onClick: {
-        type: Function,
-        required: true
-    }
-});
-</script>
+

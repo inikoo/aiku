@@ -1,3 +1,24 @@
+<script setup>
+import ButtonWithDropdown from "./ButtonWithDropdown.vue";
+
+const props = defineProps({
+    columns: {
+        type: Object,
+        required: true,
+    },
+
+    hasHiddenColumns: {
+        type: Boolean,
+        required: true,
+    },
+
+    onChange: {
+        type: Function,
+        required: true,
+    },
+});
+</script>
+
 <template>
   <ButtonWithDropdown
     placement="bottom-end"
@@ -73,24 +94,3 @@
     </div>
   </ButtonWithDropdown>
 </template>
-
-<script setup>
-import ButtonWithDropdown from "./ButtonWithDropdown.vue";
-
-const props = defineProps({
-    columns: {
-        type: Object,
-        required: true,
-    },
-
-    hasHiddenColumns: {
-        type: Boolean,
-        required: true,
-    },
-
-    onChange: {
-        type: Function,
-        required: true,
-    },
-});
-</script>

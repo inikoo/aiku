@@ -27,22 +27,10 @@ class IndexEmployees extends InertiaAction
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            // $stateArray = array();
-            // if (str_contains($value, '|')) {
-            //     $stateArray = explode('|',$value);
-            //     $stateArray = array_filter($stateArray, fn($val) => !is_null($val) && $val !== '');
-            // }
-            // $stateArray
             $query->where(function ($query) use ($value) {
                 $query->where('employees.name', 'LIKE', "%$value%")
                     ->orWhere('employees.slug', 'LIKE', "%$value%");
                     // ->orWhereIn('employees.state', $stateArray);
-            });
-        });
-
-        $filterCheck = AllowedFilter::callback('check', function ($query, $values) {
-            $query->where(function ($query) use ($values) {
-                $query->whereIn('employees.state', $values);
             });
         });
 
@@ -53,7 +41,7 @@ class IndexEmployees extends InertiaAction
             ->select(['slug', 'id', 'worker_number', 'name','state'])
             ->with('jobPositions')
             ->allowedSorts(['slug', 'worker_number', 'name'])
-            ->allowedFilters([$globalSearch , $filterCheck])
+            ->allowedFilters([$globalSearch, 'state', 'slug','name'])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
@@ -69,7 +57,6 @@ class IndexEmployees extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page');
             $table
                 ->withGlobalSearch()
-                // ->withFilterCheck()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: false, searchable: false)
