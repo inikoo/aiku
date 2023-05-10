@@ -9,9 +9,7 @@ namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Supplier\UI\HasUISupplier;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Enums\UI\SupplierTabsEnum;
-use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Supplier;
 use Inertia\Inertia;
@@ -20,40 +18,40 @@ use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property Supplier $supplier
+ * @property Supplier $marketplaceSupplier
  */
 class ShowMarketplaceSupplier extends InertiaAction
 {
     use HasUISupplier;
-    public function handle(Supplier $supplier): Supplier
+    public function handle(Supplier $marketplaceSupplier): Supplier
     {
-        return $supplier;
+        return $marketplaceSupplier;
     }
 
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.suppliers.edit');
+        $this->canEdit = $request->user()->can('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(Supplier $supplier, ActionRequest $request): Supplier
+    public function asController(Supplier $marketplaceSupplier, ActionRequest $request): Supplier
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(SupplierTabsEnum::values());
-        return $this->handle($supplier);
+        return $this->handle($marketplaceSupplier);
     }
 
-    public function htmlResponse(Supplier $supplier): Response
+    public function htmlResponse(Supplier $marketplaceSupplier): Response
     {
         return Inertia::render(
-            'Procurement/Supplier',
+            'Procurement/MarketplaceSupplier',
             [
-                'title'       => __('supplier'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $supplier),
+                'title'       => __('marketplace supplier'),
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $marketplaceSupplier),
                 'pageHead'    => [
-                    'title' => $supplier->name,
+                    'title' => $marketplaceSupplier->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
@@ -66,17 +64,13 @@ class ShowMarketplaceSupplier extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => SupplierTabsEnum::navigation()
                 ],
-                SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->supplier))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->supplier))),
-
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure($supplier));
+        );
     }
 
 
-    #[Pure] public function jsonResponse(Supplier $supplier): SupplierResource
+    #[Pure] public function jsonResponse(Supplier $marketplaceSupplier): SupplierResource
     {
-        return new SupplierResource($supplier);
+        return new SupplierResource($marketplaceSupplier);
     }
 }
