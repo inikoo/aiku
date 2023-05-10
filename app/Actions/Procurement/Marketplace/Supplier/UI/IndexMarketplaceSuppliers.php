@@ -13,7 +13,7 @@ use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
-use App\Models\Procurement\SupplierTenant;
+use App\Models\Procurement\Supplier;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -36,7 +36,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
 
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIERS->value);
 
-        return QueryBuilder::for(SupplierTenant::class)
+        return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
             ->select(['code', 'slug', 'name'])
             ->allowedSorts(['code', 'name'])
