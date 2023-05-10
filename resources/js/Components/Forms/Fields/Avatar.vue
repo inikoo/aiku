@@ -1,7 +1,7 @@
 <template>
     <div class=" w-fit">
         <p class="text-sm font-medium text-gray-700" aria-hidden="true">
-            {{ pageBody.layout.profile.fields["photo"].label }}
+            <!-- {{ pageBody.layout.profile.fields["avatar"].label }} -->
         </p>
         <div class="mt-1 lg:hidden">
             <div class="flex items-center">
@@ -15,7 +15,7 @@
                             class="pointer-events-none relative text-sm font-medium leading-4 text-gray-700">
                             <span>{{ trans("Change") }}</span>
                             <span class="sr-only">
-                                {{ pageBody.layout.profile.fields["photo"].info }}
+                                <!-- {{ pageBody.layout.profile.fields["avatar"].info }} -->
                             </span>
                         </label>
                         <input id="mobile-user-photo" name="user-photo" type="file"
@@ -31,21 +31,21 @@
                 class="absolute inset-0 flex h-full w-full items-center justify-center bg-black bg-opacity-50 text-sm font-medium text-white opacity-0 hover:opacity-100">
                 <span>{{ trans("Change") }}</span>
                 <span class="sr-only">
-                    {{ pageBody.layout.profile.fields["photo"].info }}</span>
+                    <!-- {{ pageBody.layout.profile.fields["photo"].info }} -->
+                </span>
                 <input type="file" @input="avatarUploaded($event.target.files[0])" id="desktop-user-photo" name="user-photo"
                     class="absolute inset-0 h-full w-full cursor-pointer rounded-md border-gray-300 opacity-0" />
             </label>
         </div>
-        <div v-if="profileForm.errors.avatar" class="text-red-700">
+        <!-- <div v-if="profileForm.errors.avatar" class="text-red-700">
             {{ profileForm.errors.avatar }}
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script setup>
 import { trans } from "laravel-vue-i18n"
-const props = defineProps(['pageBody', 'profileForm', 'profile'])
-
+const props = defineProps(['form', 'fieldName', 'options'])
 const avatarUploaded = (file) => {
     props.profileForm.avatar = file
     const reader = new FileReader()

@@ -24,7 +24,9 @@ return new class () extends Migration {
             $table->string('status')->index()->default(SupplierDeliveryStatusEnum::PROCESSING->value);
             $table->dateTimeTz('date')->comment('latest relevant date');
 
+            $table->dateTimeTz('creating_at')->nullable();
             $table->dateTimeTz('dispatched_at')->nullable();
+
             $table->dateTimeTz('received_at')->nullable();
             $table->dateTimeTz('checked_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();

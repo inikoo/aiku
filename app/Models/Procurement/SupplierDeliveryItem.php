@@ -9,6 +9,7 @@ namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -34,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SupplierDeliveryItem extends Model
 {
     use UsesGroupConnection;
+    use HasFactory;
 
     protected $casts = [
         'data' => 'array',

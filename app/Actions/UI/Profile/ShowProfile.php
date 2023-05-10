@@ -60,8 +60,8 @@ class ShowProfile
                                 "label" => __("About"),
                                 "notes" => __("Brief description for your profile."),
                             ],
-                            "photo" => [
-                                "label" => __("Photo"),
+                            "avatar" => [
+                                "label" => __("avatar"),
                                 "info"  => __("user photo or icon"),
                             ],
                         ],
@@ -83,7 +83,7 @@ class ShowProfile
                         "title"  => __("Appearance"),
                         "icon"   => "fa-light fa-paint-brush",
                         "fields" => [
-                            "darkMode" => [
+                            "colormode" => [
                                 "label" => __("Turn Dark Mode"),
                             ],
                             "theme" => [
@@ -112,12 +112,32 @@ class ShowProfile
                             "about" => [
                                 "type"  => "textarea",
                                 "label" => __("about"),
-                                "value" => $user->about,
+                                "value" => __("This is a dummy data for About"),
                             ],
-                            "photo" => [
+                            "avatar" => [
                                 "type"  => "avatar",
                                 "label" => __("photo"),
-                                "value" => $user->photo,
+                                "value" => __(""),
+                            ],
+                            "toggle" => [
+                                "type"  => "toggle",
+                                "label" => __("toggle"),
+                                "value" => __("Use this toggle to on/off."),
+                            ],
+                            "select" => [
+                                "type"  => "select",
+                                "label" => __("select"),
+                                "value" => __("Select your option"),
+                            ],
+                            "radio" => [
+                                "type"  => "radio",
+                                "label" => __("who are you?"),
+                                "value" => __("tell us do you offensive or not"),
+                            ],
+                            "texteditor" => [
+                                "type"  => "texteditor",
+                                "label" => __("text editor"),
+                                "value" => __("this is text editor"),
                             ],
                         ],
                     ],
@@ -128,7 +148,7 @@ class ShowProfile
                             "password" => [
                                 "type"  => "password",
                                 "label" => __("password"),
-                                "value" => "",
+                                "value" => "asd",
                             ],
                         ],
                     ],
@@ -138,7 +158,7 @@ class ShowProfile
                         "fields" => [
                             "colorMode" => [
                                 "type"  => "colorMode",
-                                "label" => __("color mode"),
+                                "label" => __("turn dark mode"),
                                 "value" => "",
                             ],
                             "theme" => [

@@ -9,7 +9,10 @@ namespace App\Actions\Procurement\Supplier\Hydrators;
 
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Models\Procurement\Supplier;
+use App\Models\Procurement\SupplierDelivery;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -29,7 +32,7 @@ class SupplierHydrateSupplierDeliveries implements ShouldBeUnique
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (PurchaseOrderStateEnum::cases() as $productState) {
+        foreach (SupplierDeliveryStateEnum::cases() as $productState) {
             $stats['number_supplier_deliveries_state_'.$productState->snake()] = Arr::get($supplierDeliveryStateCounts, $productState->value, 0);
         }
 
@@ -38,7 +41,7 @@ class SupplierHydrateSupplierDeliveries implements ShouldBeUnique
             ->groupBy('status')
             ->pluck('total', 'status')->all();
 
-        foreach (PurchaseOrderStatusEnum::cases() as $supplierDeliveryStatusEnum) {
+        foreach (SupplierDeliveryStatusEnum::cases() as $supplierDeliveryStatusEnum) {
             $stats['number_supplier_deliveries_status_'.$supplierDeliveryStatusEnum->snake()] = Arr::get($supplierDeliveryStatusCounts, $supplierDeliveryStatusEnum->value, 0);
         }
 

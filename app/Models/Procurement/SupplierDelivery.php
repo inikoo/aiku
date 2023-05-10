@@ -12,9 +12,11 @@ use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -50,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDeliveryItem> $items
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\Agent, \App\Models\Procurement\Supplier> $provider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @method static Builder|SupplierDelivery newModelQuery()
  * @method static Builder|SupplierDelivery newQuery()
@@ -65,6 +68,7 @@ class SupplierDelivery extends Model
     use SoftDeletes;
     use HasAddress;
     use HasSlug;
+    use HasFactory;
 
     protected $casts = [
         'data'  => 'array',
@@ -99,5 +103,10 @@ class SupplierDelivery extends Model
     public function items(): HasMany
     {
         return $this->hasMany(SupplierDeliveryItem::class);
+    }
+
+    public function provider(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
@@ -58,6 +59,10 @@ class StorePurchaseOrder
 
          if(!$this->force && $purchaseOrder>= 1) {
              $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
+         }
+
+         if($this->parent->products->where('state', '<>',SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
+             $validator->errors()->add('purchase_order', 'You can not create purchase order');
          }
      }
 

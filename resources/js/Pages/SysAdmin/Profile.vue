@@ -15,8 +15,8 @@ import Form from "@/Components/Forms/Form.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import Password from "@/Components/Forms/Fields/Password.vue"
-import Theme from "@/Components/Profile/Theme.vue"
-import DarkMode from "@/Components/Profile/DarkMode.vue"
+import Theme from "@/Components/Forms/Fields/Theme.vue"
+import ColorMode from "@/Components/Forms/Fields/ColorMode.vue"
 import FieldForm from '@/Components/Forms/FieldForm.vue'
 import Avatar from '@/Components/Forms/Fields/Avatar.vue'
 
@@ -36,12 +36,12 @@ const themeForm = useForm({ theme: "theme-blue" })
 
 const current = ref(props["pageBody"].current)
 
-const fakeDataFormField = {
-    'updateRoute': {
-        name: 'profilesss',
-        parameters: 'slugggg'
-    }
-}
+// const fakeDataFormField = {
+//     'updateRoute': {
+//         name: 'profilesss',
+//         parameters: 'slugggg'
+//     }
+// }
 </script>
 
 <template layout="App">

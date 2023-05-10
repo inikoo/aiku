@@ -1,14 +1,36 @@
+<script setup>
+import PrimitiveTextarea from '@/Components/Elements/Fields/PrimitiveTextarea.vue';
+
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+import { faExclamationCircle ,faCheckCircle} from "../../../../private/pro-solid-svg-icons";
+import {library} from '@fortawesome/fontawesome-svg-core';
+library.add(faExclamationCircle,faCheckCircle);
+
+const props = defineProps(['form', 'fieldName','options']);
+
+const handleChange = (form) => {
+    if(form.type==='edit'){
+        form.clearErrors();
+    }
+}
+
+let type='text'
+if(props.options!==undefined && props.options.type ){
+    type=props.options.type;
+}
+</script>
+
+
 <template>
-    <div>
-        <label for="about" class="block text-sm font-medium text-gray-700">
-            <!-- {{ pageBody.layout.profile.fields.about.label }} -->
-        </label>
-        <div class="mt-1">
-            <textarea id="about" name="about" rows="3"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" />
+    <div class="mt-1 relative">
+        <PrimitiveTextarea v-model="form[fieldName]" showStats="true" />
+        <div v-if="form.errors[fieldName] || form.recentlySuccessful " class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500" aria-hidden="true" />
+            <FontAwesomeIcon icon="fas fa-check-circle" v-if="form.recentlySuccessful" class="mt-1.5  h-5 w-5 text-green-500" aria-hidden="true"/>
+
         </div>
-        <p class="mt-2 text-xs italic text-gray-500">
-            <!-- {{ pageBody.layout.profile.fields.about.notes }} -->
-        </p>
     </div>
+    <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
 </template>
+
+

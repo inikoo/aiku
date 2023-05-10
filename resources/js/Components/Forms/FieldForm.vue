@@ -14,17 +14,19 @@ library.add(faSave);
 import Input from '@/Components/Forms/Fields/Input.vue';
 import Phone from '@/Components/Forms/Fields/Phone.vue';
 import Date from '@/Components/Forms/Fields/Date.vue';
-import Theme from '@/Components/Profile/Theme.vue';
-import DarkMode from '@/Components/Profile/DarkMode.vue';
-// import Avatar from '@/Components/Forms/Fields/Avatar.vue';
+import Theme from '@/Components/Forms/Fields/Theme.vue';
+import ColorMode from '@/Components/Forms/Fields/ColorMode.vue';
+import Avatar from '@/Components/Forms/Fields/Avatar.vue';
 import Password from '@/Components/Forms/Fields/Password.vue'
-
-
-
+import Textarea from '@/Components/Forms/Fields/Textarea.vue'
+import Toggle from '@/Components/Forms/Fields/Toggle.vue'
+import Select from '@/Components/Forms/Fields/Select.vue'
+import Radio from '@/Components/Forms/Fields/Radio.vue'
+import TextEditor from '@/Components/Forms/Fields/TextEditor.vue'
 
 
 const props = defineProps<{
-    field:string,
+    field: string,
     fieldData: {
         type: string,
         label: string,
@@ -32,33 +34,37 @@ const props = defineProps<{
 
     },
     args: {
-        updateRoute:{
-            name:string,
-            parameters:string|string[]
+        updateRoute: {
+            name: string,
+            parameters: string | string[]
         }
     }
 }>()
 
 const updateRoute = props['fieldData']['updateRoute'] ?? props.args['updateRoute'];
 
+const components = {
+    'input': Input,
+    'phone': Phone,
+    'date': Date,
+    'theme': Theme,
+    'colorMode': ColorMode,
+    'password': Password,
+    'avatar': Avatar,
+    'textarea': Textarea,
+    'toggle': Toggle,
+    'select': Select,
+    'radio': Radio,
+    'texteditor': TextEditor,
+};
 
 const getComponent = (componentName) => {
-    const components = {
-        'input': Input,
-        'phone': Phone,
-        'date': Date,
-        'theme': Theme,
-        'darkMode': DarkMode,
-        'password': Password,
-        // 'avatar': Avatar
-    };
     return components[componentName] ?? null;
 };
 
 let formFields = {};
 
 if (props['fieldData']['type'] === 'address') {
-
     formFields['country_id'] = props.fieldData.value.country_id;
     formFields['administrative_area'] = props['fieldData'].value.administrative_area;
     formFields['dependant_locality'] = props['fieldData'].value.dependant_locality;
@@ -67,7 +73,6 @@ if (props['fieldData']['type'] === 'address') {
     formFields['sorting_code'] = props['fieldData'].value.sorting_code;
     formFields['address_line_2'] = props['fieldData'].value.address_line_2;
     formFields['address_line_1'] = props['fieldData'].value.address_line_1;
-
 } else {
     formFields = {
         [props['field']]: props['fieldData'].value,
@@ -77,7 +82,6 @@ if (props['fieldData']['type'] === 'address') {
         formFields[props['fieldData']['hasOther']['name']] = props['fieldData']['hasOther']['value'];
     }
 }
-
 const form = useForm(formFields);
 form['type'] = 'edit';
 
@@ -91,7 +95,7 @@ form['type'] = 'edit';
                     {{ field }}
                 </dt>
                 <dd class="sm:col-span-2  ">
-                    <div class="mt-1 flex items-end text-sm text-gray-900 sm:mt-0">
+                    <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">
                         <div class="relative  flex-grow">
                             <component :is="getComponent(fieldData['type'])" :form=form :fieldName=field
                                 :options="fieldData['options']">
