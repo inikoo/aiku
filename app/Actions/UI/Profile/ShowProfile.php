@@ -119,6 +119,16 @@ class ShowProfile
                                 "label" => __("photo"),
                                 "value" => $user->photo,
                             ],
+                            "avatar" => [
+                                "type"  => "avatar",
+                                "label" => __("photo"),
+                                "value" => $user->photo,
+                            ],
+                            "toggle" => [
+                                "type"  => "toggle",
+                                "label" => __("photo"),
+                                "value" => $user->photo,
+                            ],
                         ],
                     ],
                     [
@@ -128,7 +138,7 @@ class ShowProfile
                             "password" => [
                                 "type"  => "password",
                                 "label" => __("password"),
-                                "value" => "ddd",
+                                "value" => "asd",
                             ],
                         ],
                     ],

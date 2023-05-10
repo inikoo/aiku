@@ -19,6 +19,7 @@ import ColorMode from '@/Components/Forms/Fields/ColorMode.vue';
 import Avatar from '@/Components/Forms/Fields/Avatar.vue';
 import Password from '@/Components/Forms/Fields/Password.vue'
 import Textarea from '@/Components/Forms/Fields/Textarea.vue'
+import Toggle from '@/Components/Forms/Fields/Toggle.vue'
 
 
 
@@ -52,7 +53,8 @@ const getComponent = (componentName) => {
         'colorMode': ColorMode,
         'password': Password,
         'avatar': Avatar,
-        'textarea': Textarea
+        'textarea': Textarea,
+        'toggle': Toggle,
     };
     return components[componentName] ?? null;
 };
