@@ -4,32 +4,29 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
-<script>
+<script setup>
 import Multiselect from '@vueform/multiselect'
 
-export default {
-    components: {
-        Multiselect,
-    },
-    data() {
-        return {
-            value: null,
-            options: [
-                'Batman',
-                'Robin',
-                'Joker',
-            ]
-        }
-    }
-}
+const value = null
+const options = [
+    'Batman',
+    'Robin',
+    'Joker',
+    'Superman',
+    'Wonderwoman',
+    'Spiderman',
+    'Hulk',
+    'Iron Man',
+    'Dr. Strange',
+]
+
+const multiselectPlaceholder = "Select your option"
+
 </script>
 
 <template>
     <div>
-        <Multiselect
-            v-model="value"
-            :options="options"
-        />
+        <Multiselect v-model="value" :options="options" :placeholder="multiselectPlaceholder" />
     </div>
 </template>
 

@@ -119,15 +119,15 @@ class ShowProfile
                                 "label" => __("photo"),
                                 "value" => $user->photo,
                             ],
-                            "avatar" => [
-                                "type"  => "avatar",
-                                "label" => __("photo"),
-                                "value" => $user->photo,
-                            ],
                             "toggle" => [
                                 "type"  => "toggle",
-                                "label" => __("photo"),
-                                "value" => $user->photo,
+                                "label" => __("toggle"),
+                                "value" => $user->select,
+                            ],
+                            "select" => [
+                                "type"  => "select",
+                                "label" => __("select"),
+                                "value" => $user->select,
                             ],
                         ],
                     ],
