@@ -5,21 +5,21 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\PurchaseOrder\UI;
+namespace App\Actions\Procurement\SupplierDelivery\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Models\Procurement\PurchaseOrder;
+use App\Http\Resources\Procurement\SupplierDeliveryResource;
+use App\Models\Procurement\SupplierDelivery;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditPurchaseOrder extends InertiaAction
+class EditSupplierDelivery extends InertiaAction
 {
-    public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
+    public function handle(SupplierDelivery $supplierDelivery): SupplierDelivery
     {
-        return $purchaseOrder;
+        return $supplierDelivery;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -28,23 +28,23 @@ class EditPurchaseOrder extends InertiaAction
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
+    public function asController(SupplierDelivery $supplierDelivery, ActionRequest $request): SupplierDelivery
     {
         $this->initialisation($request);
 
-        return $this->handle($purchaseOrder);
+        return $this->handle($supplierDelivery);
     }
 
 
 
-    public function htmlResponse(PurchaseOrder $purchaseOrder): Response
+    public function htmlResponse(SupplierDelivery $supplierDelivery): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('purchase order'),
+                'title'       => __('supplier delivery'),
                 'pageHead'    => [
-                    'title'     => $purchaseOrder->number,
+                    'title'     => $supplierDelivery->number,
                     'exitEdit'  => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
@@ -63,7 +63,7 @@ class EditPurchaseOrder extends InertiaAction
                                 'number' => [
                                     'type'  => 'input',
                                     'label' => __('number'),
-                                    'value' => $purchaseOrder->number
+                                    'value' => $supplierDelivery->number
                                 ],
                             ]
                         ]
@@ -71,8 +71,8 @@ class EditPurchaseOrder extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.purchase-order.update',
-                            'parameters'=> $purchaseOrder->slug
+                            'name'      => 'models.supplier-delivery.update',
+                            'parameters'=> $supplierDelivery->slug
 
                         ],
                     ]
@@ -81,8 +81,8 @@ class EditPurchaseOrder extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(PurchaseOrder $purchaseOrder): PurchaseOrderResource
+    #[Pure] public function jsonResponse(SupplierDelivery $supplierDelivery): SupplierDeliveryResource
     {
-        return new PurchaseOrderResource($purchaseOrder);
+        return new SupplierDeliveryResource($supplierDelivery);
     }
 }

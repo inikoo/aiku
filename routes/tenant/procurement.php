@@ -23,6 +23,7 @@ use App\Actions\Procurement\Supplier\UI\EditSupplier;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Actions\Procurement\Supplier\UI\ShowSupplier;
 use App\Actions\Procurement\SupplierDelivery\UI\CreateSupplierDelivery;
+use App\Actions\Procurement\SupplierDelivery\UI\EditSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
 use App\Actions\Procurement\SupplierDelivery\UI\ShowSupplierDelivery;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
@@ -55,6 +56,7 @@ Route::get('/purchase-orders/{purchaseOrder}/edit', EditPurchaseOrder::class)->n
 Route::get('/supplier-deliveries', IndexSupplierDeliveries::class)->name('supplier-deliveries.index');
 Route::get('/supplier-deliveries/create', CreateSupplierDelivery::class)->name('supplier-deliveries.create');
 Route::get('/supplier-deliveries/{supplierDelivery}', ShowSupplierDelivery::class)->name('supplier-deliveries.show');
+Route::get('/supplier-deliveries/{supplierDelivery}/edit', EditSupplierDelivery::class)->name('supplier-deliveries.edit');
 
 Route::get('/marketplace-agents', IndexMarketplaceAgents::class)->name('marketplace-agents.index');
 Route::get('/marketplace-agents/{marketplaceAgent}', ShowMarketplaceAgent::class)->name('marketplace-agents.show');
