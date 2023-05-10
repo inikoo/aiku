@@ -46,9 +46,7 @@ class StoreSupplierDelivery
     {
         return [
             'number'        => ['required', 'numeric', 'unique:group.supplier_deliveries,number'],
-            'date'          => ['required', 'date'],
-            'currency_id'   => ['required', 'exists:currencies,id'],
-            'exchange'      => ['required', 'numeric']
+            'date'          => ['required', 'date']
         ];
     }
 
