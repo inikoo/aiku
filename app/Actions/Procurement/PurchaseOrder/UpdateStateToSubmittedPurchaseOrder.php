@@ -34,18 +34,17 @@ class UpdateStateToSubmittedPurchaseOrder
         ];
 
         if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::CONFIRMED])) {
-            $purchaseOrder = $this->update($purchaseOrder, $data);
             $purchaseOrder->items()->update($data);
 
-            $parent = $purchaseOrder->provider;
-
-            if (class_basename($parent) == 'Supplier') {
-                SupplierHydratePurchaseOrders::dispatch($parent);
-            } else {
-                AgentHydratePurchaseOrders::dispatch($parent);
+            if($purchaseOrder->state !== PurchaseOrderStateEnum::CREATING) {
+                $data[$purchaseOrder->state->value . '_at'] = null;
             }
 
-            TenantHydrateProcurement::dispatch(app('currentTenant'));
+            $data['submitted_at'] = now();
+
+            $purchaseOrder = $this->update($purchaseOrder, $data);
+
+            $this->purchaseOrderHydrate($purchaseOrder);
 
             return $purchaseOrder;
         }

@@ -26,10 +26,17 @@ class UpdateStateToManufacturedPurchaseOrder
      */
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
+        $data = [
+            'state' => PurchaseOrderStateEnum::MANUFACTURED
+        ];
+
         if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::DISPATCHED, PurchaseOrderStateEnum::CONFIRMED])) {
-            $purchaseOrder = $this->update($purchaseOrder, [
-                'state' => PurchaseOrderStateEnum::MANUFACTURED
-            ]);
+            $purchaseOrder->items()->update($data);
+
+            $data[$purchaseOrder->state->value . '_at'] = null;
+            $data['manufactured_at'] = now();
+
+            $purchaseOrder = $this->update($purchaseOrder, $data);
 
             $this->purchaseOrderHydrate($purchaseOrder);
 

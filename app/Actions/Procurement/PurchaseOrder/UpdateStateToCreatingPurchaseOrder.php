@@ -27,12 +27,15 @@ class UpdateStateToCreatingPurchaseOrder
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
         $data = [
-            'state' => PurchaseOrderStateEnum::CREATING
+            'state' => PurchaseOrderStateEnum::CREATING,
         ];
 
         if ($purchaseOrder->state == PurchaseOrderStateEnum::SUBMITTED) {
-            $purchaseOrder = $this->update($purchaseOrder, $data);
             $purchaseOrder->items()->update($data);
+
+            $data[$purchaseOrder->state->value . '_at'] = null;
+
+            $purchaseOrder = $this->update($purchaseOrder, $data);
 
             $this->purchaseOrderHydrate($purchaseOrder);
 

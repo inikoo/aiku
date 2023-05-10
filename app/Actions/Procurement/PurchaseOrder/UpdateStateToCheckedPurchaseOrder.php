@@ -27,12 +27,17 @@ class UpdateStateToCheckedPurchaseOrder
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
         $data = [
-            'state' => PurchaseOrderStateEnum::CHECKED
+            'state' => PurchaseOrderStateEnum::CHECKED,
         ];
 
         if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::RECEIVED, PurchaseOrderStateEnum::SETTLED])) {
-            $purchaseOrder = $this->update($purchaseOrder, $data);
+
             $purchaseOrder->items()->update($data);
+
+            $data[$purchaseOrder->state->value . '_at'] = null;
+            $data['checked_at'] = now();
+
+            $purchaseOrder = $this->update($purchaseOrder, $data);
 
             $this->purchaseOrderHydrate($purchaseOrder);
 
