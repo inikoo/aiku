@@ -14,10 +14,11 @@ library.add(faSave);
 import Input from '@/Components/Forms/Fields/Input.vue';
 import Phone from '@/Components/Forms/Fields/Phone.vue';
 import Date from '@/Components/Forms/Fields/Date.vue';
-import Theme from '@/Components/Profile/Theme.vue';
-import DarkMode from '@/Components/Profile/DarkMode.vue';
-// import Avatar from '@/Components/Forms/Fields/Avatar.vue';
+import Theme from '@/Components/Forms/Fields/Theme.vue';
+import ColorMode from '@/Components/Forms/Fields/ColorMode.vue';
+import Avatar from '@/Components/Forms/Fields/Avatar.vue';
 import Password from '@/Components/Forms/Fields/Password.vue'
+import Textarea from '@/Components/Forms/Fields/Textarea.vue'
 
 
 const props = defineProps(['fieldData', 'field', 'args']);
@@ -31,9 +32,10 @@ const getComponent = (componentName) => {
         'phone': Phone,
         'date': Date,
         'theme': Theme,
-        'darkMode': DarkMode,
+        'colorMode': ColorMode,
         'password': Password,
-        // 'avatar': Avatar
+        'avatar': Avatar,
+        'textarea': Textarea
     };
     return components[componentName] ?? null;
 };

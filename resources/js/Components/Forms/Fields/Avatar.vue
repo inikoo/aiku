@@ -1,7 +1,7 @@
 <template>
     <div class=" w-fit">
-        <p class="text-sm font-medium text-gray-700" aria-hidden="true">
-            {{ pageBody.layout.profile.fields["photo"].label }}
+        <!-- <p class="text-sm font-medium text-gray-700" aria-hidden="true">
+            {{ pageBody.layout.profile.fields["avatar"].label }}
         </p>
         <div class="mt-1 lg:hidden">
             <div class="flex items-center">
@@ -15,7 +15,7 @@
                             class="pointer-events-none relative text-sm font-medium leading-4 text-gray-700">
                             <span>{{ trans("Change") }}</span>
                             <span class="sr-only">
-                                {{ pageBody.layout.profile.fields["photo"].info }}
+                                {{ pageBody.layout.profile.fields["avatar"].info }}
                             </span>
                         </label>
                         <input id="mobile-user-photo" name="user-photo" type="file"
@@ -38,14 +38,16 @@
         </div>
         <div v-if="profileForm.errors.avatar" class="text-red-700">
             {{ profileForm.errors.avatar }}
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script setup>
 import { trans } from "laravel-vue-i18n"
-const props = defineProps(['pageBody', 'profileForm', 'profile'])
-
+const props = defineProps(['form', 'fieldName', 'option'])
+console.log(props.form)
+console.log(props.fieldName)
+console.log(props.option)
 const avatarUploaded = (file) => {
     props.profileForm.avatar = file
     const reader = new FileReader()

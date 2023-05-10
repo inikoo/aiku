@@ -60,8 +60,8 @@ class ShowProfile
                                 "label" => __("About"),
                                 "notes" => __("Brief description for your profile."),
                             ],
-                            "photo" => [
-                                "label" => __("Photo"),
+                            "avatar" => [
+                                "label" => __("avatar"),
                                 "info"  => __("user photo or icon"),
                             ],
                         ],
@@ -83,7 +83,7 @@ class ShowProfile
                         "title"  => __("Appearance"),
                         "icon"   => "fa-light fa-paint-brush",
                         "fields" => [
-                            "darkMode" => [
+                            "colormode" => [
                                 "label" => __("Turn Dark Mode"),
                             ],
                             "theme" => [
@@ -114,7 +114,7 @@ class ShowProfile
                                 "label" => __("about"),
                                 "value" => $user->about,
                             ],
-                            "photo" => [
+                            "avatar" => [
                                 "type"  => "avatar",
                                 "label" => __("photo"),
                                 "value" => $user->photo,
@@ -138,7 +138,7 @@ class ShowProfile
                         "fields" => [
                             "colorMode" => [
                                 "type"  => "colorMode",
-                                "label" => __("color mode"),
+                                "label" => __("turn dark mode"),
                                 "value" => "",
                             ],
                             "theme" => [

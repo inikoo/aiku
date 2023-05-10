@@ -4,11 +4,26 @@
             <!-- {{ pageBody.layout.profile.fields.about.label }} -->
         </label>
         <div class="mt-1">
-            <textarea id="about" name="about" rows="3"
+            <textarea id="about" name="about" rows="3" v-model.trim="textValue" placeholder="Tell us about yourself"
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" />
         </div>
-        <p class="mt-2 text-xs italic text-gray-500">
-            <!-- {{ pageBody.layout.profile.fields.about.notes }} -->
-        </p>
+        <div class="grid grid-flow-col text-xs italic text-gray-500 mt-2 space-x-12 justify-start">
+            <p class="">
+                <!-- {{ pageBody.layout.profile.fields.about.notes }} -->
+                Letters: {{ textValue.length }}
+            </p>
+            <p class="">
+                <!-- {{ pageBody.layout.profile.fields.about.notes }} -->
+                Words: {{ textValue.trim().split(/\s+/).filter(Boolean).length }}
+            </p>
+        </div>
     </div>
 </template>
+
+<script setup>
+import {ref} from 'vue'
+const props = defineProps(['pageBody'])
+
+const textValue = ref("")
+
+</script>
