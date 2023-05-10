@@ -29,8 +29,8 @@ class IndexEmployees extends InertiaAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('employees.name', 'LIKE', "%$value%")
-                    ->orWhere('employees.slug', 'LIKE', "%$value%");
-                    // ->orWhereIn('employees.state', $stateArray);
+                    ->orWhere('employees.slug', 'LIKE', "%$value%")
+                    ->orWhere('employees.state', 'LIKE', "%$value%");
             });
         });
 
@@ -40,8 +40,8 @@ class IndexEmployees extends InertiaAction
             ->defaultSort('employees.slug')
             ->select(['slug', 'id', 'worker_number', 'name','state'])
             ->with('jobPositions')
-            ->allowedSorts(['slug', 'worker_number', 'name'])
-            ->allowedFilters([$globalSearch, 'state', 'slug','name'])
+            ->allowedSorts(['slug', 'state', 'name'])
+            ->allowedFilters([$globalSearch, 'slug','name','state'])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'

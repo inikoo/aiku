@@ -34,21 +34,21 @@ class InertiaTable
                     'key'    => 'hired',
                     'label'  => "Hired",
                     'count'  => 7,
-                    'checked'=> true,
+                    'show'=> false,
                     'value'  => 'hired',
                 ],
                 [
-                    'key'    => 'working',
-                    'label'  => "Working",
+                    'key'    => 'xxx',
+                    'label'  => "xx",
                     'count'  => 15,
-                    'checked'=> true,
-                    'value'  => 'working',
+                    'show'=> false,
+                    'value'  => 'xx',
                 ],
                 [
                     'key'    => 'left',
                     'label'  => "Left",
                     'count'  => 46,
-                    'checked'=> true,
+                    'show'=> false,
                     'value'  => 'left',
                 ],
             ]
@@ -196,7 +196,7 @@ class InertiaTable
             'page'           => Paginator::resolveCurrentPage($this->pageName),
             'pageName'       => $this->pageName,
             'perPageOptions' => $this->perPageOptions,
-            'filterCheck'    => $this->checkBoxFilter = $this->transformCheckboxs(),
+            'filterCheck'    => $this->transformCheckboxs(),
         ];
     }
 

@@ -1,3 +1,24 @@
+<script setup>
+import ButtonWithDropdown from "./ButtonWithDropdown.vue";
+
+defineProps({
+    hasEnabledFilters: {
+        type: Boolean,
+        required: true,
+    },
+
+    filters: {
+        type: Object,
+        required: true,
+    },
+
+    onFilterChange: {
+        type: Function,
+        required: true,
+    },
+});
+</script>
+
 <template>
   <ButtonWithDropdown
     placement="bottom-end"
@@ -58,24 +79,5 @@
   </ButtonWithDropdown>
 </template>
 
-<script setup>
-import ButtonWithDropdown from "./ButtonWithDropdown.vue";
 
-defineProps({
-    hasEnabledFilters: {
-        type: Boolean,
-        required: true,
-    },
-
-    filters: {
-        type: Object,
-        required: true,
-    },
-
-    onFilterChange: {
-        type: Function,
-        required: true,
-    },
-});
-</script>
 

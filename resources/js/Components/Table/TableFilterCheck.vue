@@ -4,22 +4,14 @@ const props = defineProps<{
     labels: Array<{
         key: string
       label: string
-      checked: boolean
+      show: boolean
       value: string
       count: bigint
-
     }>,
 }>()
 const emit = defineEmits(['changeCheckboxValue']);
-const handleClick = (checkedFilterCheckState: any[]) => {
-    let filterCheck ="";
-    checkedFilterCheckState.map(function(val) {
-        if (val.checked) {
-            filterCheck+= val.value + '|';
-        }
-    });
-    
-    emit('changeCheckboxValue', filterCheck);
+const handleClick = (checkedFilterState: any[]) => {
+    emit('changeCheckboxValue', checkedFilterState);
 };
 </script>
 <template>
@@ -35,7 +27,7 @@ const handleClick = (checkedFilterCheckState: any[]) => {
                     :value="label.value"
                     class="cursor-pointer focus:ring-0"
                     type="checkbox"
-                    v-model="label.checked"
+                    v-model="label.show"
                     v-on:click="handleClick(labels)"
                 />
             </div>

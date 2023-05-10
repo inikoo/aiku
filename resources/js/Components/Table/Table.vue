@@ -265,7 +265,6 @@ function changeSearchInputValue(key, value) {
 		}
 
 		const intKey = findDataKey("searchInputs", key)
-
 		queryBuilderData.value.searchInputs[intKey].value = value
 		queryBuilderData.value.cursor = null
 		queryBuilderData.value.page = 1
@@ -284,13 +283,25 @@ function changeFilterValue(key, value) {
 	queryBuilderData.value.page = 1
 }
 
-function changeCheckboxValue(values) {
-	console.log(values);
-	// const intKey = findDataKey("filterCheck", key)
-	// queryBuilderData.value.filters[intKey].value = value
-	// queryBuilderData.value.cursor = null
-	// queryBuilderData.value.page = 1
-	// changeSearchInputValue("check", values)
+function changeCheckboxValue(dataY) {
+	let dataX=dataY;
+	console.log("=============")
+	console.log(dataX)
+	console.log("=============")
+	console.log(dataX[0])
+	console.log(dataX[1])
+	console.log(dataX[2])
+	console.log(dataX[0].key)
+	console.log(dataX[1].key)
+	console.log(dataX[2].key)
+	for (let i = 0; i < dataX.length; i++) {
+		//console.log(dataX)
+  		//console.log(dataX[i]);
+	} 
+
+	
+	queryBuilderData.value.filterCheck[0].checked=true
+
 }
 
 function onPerPageChange(value) {
@@ -393,15 +404,16 @@ function dataForNewQueryString() {
 
 function generateNewQueryString() {
 	const queryStringData = qs.parse(location.search.substring(1))
-
+	
 	const prefix = props.name === "default" ? "" : props.name + "_"
-
+	
 	forEach(["filter", "columns", "cursor", "sort"], (key) => {
 		delete queryStringData[prefix + key]
 	})
 
+	
 	delete queryStringData[pageName.value]
-
+	
 	forEach(dataForNewQueryString(), (value, key) => {
 		if (key === "page") {
 			queryStringData[pageName.value] = value
@@ -411,7 +423,7 @@ function generateNewQueryString() {
 			queryStringData[prefix + key] = value
 		}
 	})
-
+	console.log(queryStringData);
 	let query = qs.stringify(queryStringData, {
 		filter(prefix, value) {
 			if (typeof value === "object" && value !== null) {
@@ -592,7 +604,7 @@ function header(key) {
                             <SearchReset @resetSearch="()=> resetQuery()"/>
                         </div>
                     </slot>
-                    <!-- Code/Name Button -->
+                    <!-- Code/Name/State Button -->
                     <slot
                         name="tableAddSearchRow"
                         :has-search-inputs="queryBuilderProps.hasSearchInputs"
@@ -643,7 +655,9 @@ function header(key) {
 			<!-- filter checkbox-->
 			<slot
 				name="tableFilterCheck" 
-				:has-shown="queryBuilderProps.hasShowCheck">
+				:has-shown="queryBuilderProps.hasShowCheck"
+				:filters="queryBuilderProps.filterCheck"
+				>
 				<TableFilterCheck
 					:labels ="queryBuilderProps.filterCheck"
 					@changeCheckboxValue="changeCheckboxValue"
