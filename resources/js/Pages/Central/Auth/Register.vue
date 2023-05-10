@@ -1,6 +1,6 @@
 <script setup>
 import {Head, Link, useForm} from '@inertiajs/vue3';
-import Password from '@/Components/Password.vue';
+import Password from '@/Components/Auth/LoginPassword.vue';
 import ValidationErrors from '@/Components/ValidationErrors.vue';
 
 const form = useForm({
