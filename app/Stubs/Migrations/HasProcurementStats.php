@@ -9,6 +9,8 @@ namespace App\Stubs\Migrations;
 
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,11 +20,20 @@ trait HasProcurementStats
     public function procurementStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_supplier_products')->default(0)->comment('Number supplier products (all excluding discontinued)');
+        $table->unsignedInteger('number_supplier_deliveries')->default(0)->comment('Number supplier deliveries (all excluding discontinued)');
         $table->unsignedInteger('supplier_products_count')->default(0)->comment('Number supplier products');
 
 
         foreach (SupplierProductStateEnum::cases() as $productState) {
             $table->unsignedBigInteger('number_supplier_products_state_'.$productState->snake())->default(0);
+        }
+
+        foreach (SupplierDeliveryStateEnum::cases() as $supplierDeliveryState) {
+            $table->unsignedBigInteger('number_supplier_deliveries_state_'.$supplierDeliveryState->snake())->default(0);
+        }
+
+        foreach (SupplierDeliveryStatusEnum::cases() as $supplierDeliveryStatus) {
+            $table->unsignedBigInteger('number_supplier_deliveries_status_'.$supplierDeliveryStatus->snake())->default(0);
         }
 
         foreach (SupplierProductQuantityStatusEnum::cases() as $productStockQuantityStatus) {
