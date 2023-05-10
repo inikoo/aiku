@@ -27,9 +27,7 @@ class IndexPurchaseOrders extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('purchase_orders.number', 'LIKE', "$value%")
-                    ->orWhere('purchase_orders.state', 'LIKE', "%$value%")
-                    ->orWhere('purchase_orders.status', 'LIKE', "%$value%");
+                $query->where('purchase_orders.number', 'LIKE', "$value%");
             });
         });
 
@@ -37,7 +35,7 @@ class IndexPurchaseOrders extends InertiaAction
 
         return QueryBuilder::for(PurchaseOrder::class)
             ->defaultSort('purchase_orders.number')
-            ->select(['number', 'state', 'slug', 'status'])
+            ->select(['number', 'slug'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -55,8 +53,6 @@ class IndexPurchaseOrders extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('number');
         };
     }
