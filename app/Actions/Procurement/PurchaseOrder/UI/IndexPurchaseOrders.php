@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Models\Procurement\AgentTenant;
+use App\Models\Procurement\PurchaseOrder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -35,12 +35,9 @@ class IndexPurchaseOrders extends InertiaAction
 
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PURCHASE_ORDERS->value);
 
-        return QueryBuilder::for(AgentTenant::class)
+        return QueryBuilder::for(PurchaseOrder::class)
             ->defaultSort('purchase_orders.number')
             ->select(['number', 'state', 'slug', 'status'])
-            ->leftJoin('purchase_orders', 'purchase_orders.id', 'purchase_order_items.purchase_order_id')
-            ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
-            ->where('agent_tenant.tenant_id', app('currentTenant')->id)
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -57,9 +54,10 @@ class IndexPurchaseOrders extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page');
             $table
                 ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('number');
         };
     }
     public function authorize(ActionRequest $request): bool
