@@ -20,8 +20,11 @@ use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Product\UpdateProduct;
 use App\Actions\Procurement\Agent\UpdateAgent;
+use App\Actions\Procurement\Marketplace\Agent\UpdateMarketplaceAgent;
+use App\Actions\Procurement\Marketplace\Supplier\UpdateMarketplaceSupplier;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
+use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use Illuminate\Support\Facades\Route;
 
@@ -59,3 +62,9 @@ Route::patch('/guest/{guest}', UpdateGuest::class)->name('guest.update');
 Route::patch('/outbox/{outbox}', UpdateOutbox::class)->name('outbox.update');
 
 Route::patch('/purchase-order/{purchaseOrder}', UpdatePurchaseOrder::class)->name('purchase-order.update');
+
+Route::patch('/supplier-delivery/{supplierDelivery}', UpdateSupplierDelivery::class)->name('supplier-delivery.update');
+
+Route::patch('/marketplace-agent/{marketplaceAgent}', UpdateMarketplaceAgent::class)->name('marketplace-agent.update');
+
+Route::patch('/marketplace-supplier/{marketplaceSupplier}', UpdateMarketplaceSupplier::class)->name('marketplace-supplier.update');
