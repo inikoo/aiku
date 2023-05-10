@@ -40,7 +40,7 @@ class UpdateStateToSettledSupplierDelivery
             return $supplierDelivery;
         }
 
-        throw ValidationException::withMessages(['status' => 'You can not change the status to dispatched']);
+        throw ValidationException::withMessages(['status' => 'You can not change the status to settled']);
     }
 
     /**

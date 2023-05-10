@@ -20,6 +20,7 @@ use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Product\UpdateProduct;
 use App\Actions\Procurement\Agent\UpdateAgent;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use Illuminate\Support\Facades\Route;
@@ -56,3 +57,5 @@ Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
 Route::patch('/guest/{guest}', UpdateGuest::class)->name('guest.update');
 
 Route::patch('/outbox/{outbox}', UpdateOutbox::class)->name('outbox.update');
+
+Route::patch('/purchase-order/{purchaseOrder}', UpdatePurchaseOrder::class)->name('purchase-order.update');

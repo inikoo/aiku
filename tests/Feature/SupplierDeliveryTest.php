@@ -37,6 +37,7 @@ use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
@@ -52,11 +53,10 @@ test('create independent supplier', function () {
     return $supplier;
 });
 
-test('create purchase order', function ($supplier) {
-    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
-    $this->assertModelExists($purchaseOrder);
-
-    return $purchaseOrder;
+test('create purchase order while no products', function ($supplier) {
+    expect(function () use ($supplier) {
+        StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+    })->toThrow(ValidationException::class);
 })->depends('create independent supplier');
 
 test('create supplier product', function ($supplier) {
@@ -64,6 +64,13 @@ test('create supplier product', function ($supplier) {
     $this->assertModelExists($supplierProduct);
 
     return $supplierProduct;
+})->depends('create independent supplier');
+
+test('create purchase order', function ($supplier) {
+    $purchaseOrder = StorePurchaseOrder::make()->action($supplier->fresh(), PurchaseOrder::factory()->definition());
+    $this->assertModelExists($purchaseOrder);
+
+    return $purchaseOrder;
 })->depends('create independent supplier');
 
 test('create supplier delivery', function ($supplier) {
