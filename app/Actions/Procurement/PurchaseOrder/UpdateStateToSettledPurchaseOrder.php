@@ -31,8 +31,12 @@ class UpdateStateToSettledPurchaseOrder
         ];
 
         if ($purchaseOrder->state == PurchaseOrderStateEnum::CHECKED) {
-            $purchaseOrder = $this->update($purchaseOrder, $data);
             $purchaseOrder->items()->update($data);
+
+            $data[$purchaseOrder->state->value . '_at'] = null;
+            $data['settled_at'] = now();
+
+            $purchaseOrder = $this->update($purchaseOrder, $data);
 
             $this->purchaseOrderHydrate($purchaseOrder);
 

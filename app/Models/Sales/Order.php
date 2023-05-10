@@ -63,6 +63,7 @@ use Spatie\Sluggable\HasSlug;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\Sales\Customer $customer
+ * @property-read \App\Models\Dropshipping\CustomerClient $customerClient
  * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNote> $deliveryNotes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments

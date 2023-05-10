@@ -27,12 +27,16 @@ class UpdateStateToConfirmPurchaseOrder
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
         $data = [
-            'state' => PurchaseOrderStateEnum::CONFIRMED
+            'state' => PurchaseOrderStateEnum::CONFIRMED,
         ];
 
         if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::MANUFACTURED])) {
-            $purchaseOrder = $this->update($purchaseOrder, $data);
             $purchaseOrder->items()->update($data);
+
+            $data[$purchaseOrder->state->value . '_at'] = null;
+            $data['confirmed_at'] = now();
+
+            $purchaseOrder = $this->update($purchaseOrder, $data);
 
             $this->purchaseOrderHydrate($purchaseOrder);
 
