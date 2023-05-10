@@ -8,34 +8,30 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\AgentTabsEnum;
-use App\Http\Resources\Procurement\AgentResource;
-use App\Http\Resources\Procurement\SupplierProductResource;
-use App\Http\Resources\Procurement\SupplierResource;
-use App\Models\Procurement\Agent;
+use App\Enums\UI\PurchaseOrderTabsEnum;
+use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Models\Procurement\PurchaseOrder;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property Agent $agent
+ * @property PurchaseOrder $purchaseOrder
  */
 class ShowPurchaseOrder extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.agents.edit');
+        $this->canEdit = $request->user()->can('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(Agent $agent, ActionRequest $request): void
+    public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): void
     {
-        $this->initialisation($request)->withTab(AgentTabsEnum::values());
-        $this->agent    = $agent;
+        $this->initialisation($request)->withTab(PurchaseOrderTabsEnum::values());
+        $this->purchaseOrder = $purchaseOrder;
     }
 
     public function htmlResponse(): Response
@@ -44,71 +40,35 @@ class ShowPurchaseOrder extends InertiaAction
 
 
         return Inertia::render(
-            'Procurement/Agent',
+            'Procurement/PurchaseOrder',
             [
-                'title'       => __('agent'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->agent),
+                'title'       => __('purchase order'),
+                'breadcrumbs' => $this->getBreadcrumbs($this->purchaseOrder),
                 'pageHead'    => [
                     'icon'  => 'fal fa-agent',
-                    'title' => $this->agent->name,
+                    'title' => $this->purchaseOrder,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-                    'meta'  => [
-                        [
-                            'name'     => trans_choice('supplier|suppliers', $this->agent->stats->number_suppliers),
-                            'number'   => $this->agent->stats->number_suppliers,
-                            'href'     => [
-                                'procurement.agents.show.suppliers.index',
-                                $this->agent->slug
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-person-dolly',
-                                'tooltip' => __('suppliers')
-                            ]
-                        ],
-                        [
-                            'name'     => trans_choice('product|products', $this->agent->stats->number_products),
-                            'number'   => $this->agent->stats->number_products,
-                            'href'     => [
-                                'procurement.agents.show.suppliers.index',
-                                $this->agent->slug
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-parachute-box',
-                                'tooltip' => __('products')
-                            ]
-                        ]
-                    ]
 
                 ],
-                'tabs'=> [
+                'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => AgentTabsEnum::navigation()
+                    'navigation' => PurchaseOrderTabsEnum::navigation()
                 ],
-                AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
-                    fn () => SupplierResource::collection(IndexSuppliers::run($this->agent))
-                    : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run($this->agent))),
-
-                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->agent))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->agent))),
-
             ]
-        )->table(IndexSuppliers::make()->tableStructure($this->agent))
-            ->table(IndexSupplierProducts::make()->tableStructure($this->agent));
+        );
     }
 
+    public function jsonResponse(): PurchaseOrderResource
+    {
+        return new PurchaseOrderResource($this->purchaseOrder);
+    }
 
-     public function jsonResponse(): AgentResource
-     {
-         return new AgentResource($this->agent);
-     }
-
-    public function getBreadcrumbs(Agent $agent, $suffix = null): array
+    public function getBreadcrumbs(PurchaseOrder $purchaseOrder, $suffix = null): array
     {
         return array_merge(
             (new ProcurementDashboard())->getBreadcrumbs(),
@@ -118,16 +78,16 @@ class ShowPurchaseOrder extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'procurement.agents.index',
+                                'name' => 'procurement.purchase-orders.index',
                             ],
-                            'label' => __('agent')
+                            'label' => __('purchaseOrder')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'procurement.agents.show',
-                                'parameters' => [$agent->slug]
+                                'name'       => 'procurement.purchase-orders.show',
+                                'parameters' => [$purchaseOrder->slug]
                             ],
-                            'label' => $agent->code,
+                            'label' => $purchaseOrder->number,
                         ],
                     ],
                     'suffix' => $suffix,

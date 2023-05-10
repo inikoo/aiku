@@ -1,82 +1,99 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 15 Mar 2023 14:15:00 Central European Standard Time, Malaga, Spain
+ * Created: Wed, 15 Mar 2023 13:52:57 Central European Standard Time, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
 namespace App\Actions\Procurement\SupplierDelivery\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Supplier\UI\HasUISupplier;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Enums\UI\SupplierTabsEnum;
-use App\Http\Resources\Procurement\SupplierProductResource;
-use App\Http\Resources\Procurement\SupplierResource;
-use App\Models\Procurement\Supplier;
+use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Enums\UI\SupplierDeliveryTabsEnum;
+use App\Http\Resources\Procurement\SupplierDeliveryResource;
+use App\Models\Procurement\SupplierDelivery;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property Supplier $supplier
+ * @property SupplierDelivery $supplierDelivery
  */
 class ShowSupplierDelivery extends InertiaAction
 {
-    use HasUISupplier;
-    public function handle(Supplier $supplier): Supplier
-    {
-        return $supplier;
-    }
-
-
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.suppliers.edit');
+        $this->canEdit = $request->user()->can('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(Supplier $supplier, ActionRequest $request): Supplier
+    public function asController(SupplierDelivery $supplierDelivery, ActionRequest $request): void
     {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request)->withTab(SupplierTabsEnum::values());
-        return $this->handle($supplier);
+        $this->initialisation($request)->withTab(SupplierDeliveryTabsEnum::values());
+        $this->supplierDelivery    = $supplierDelivery;
     }
 
-    public function htmlResponse(Supplier $supplier): Response
+    public function htmlResponse(): Response
     {
+        $this->validateAttributes();
+
+
         return Inertia::render(
-            'Procurement/Supplier',
+            'Procurement/SupplierDelivery',
             [
-                'title'       => __('supplier'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $supplier),
+                'title'       => __('supplier delivery'),
+                'breadcrumbs' => $this->getBreadcrumbs($this->supplierDelivery),
                 'pageHead'    => [
-                    'title' => $supplier->name,
+                    'icon'  => 'fal fa-agent',
+                    'title' => $this->supplierDelivery->id,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
-                    'navigation' => SupplierTabsEnum::navigation()
+                    'navigation' => SupplierDeliveryTabsEnum::navigation()
                 ],
-                SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->supplier))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->supplier))),
-
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure($supplier));
+        );
     }
 
 
-    #[Pure] public function jsonResponse(Supplier $supplier): SupplierResource
+     public function jsonResponse(): SupplierDeliveryResource
+     {
+         return new SupplierDeliveryResource($this->supplierDelivery);
+     }
+
+    public function getBreadcrumbs(SupplierDelivery $supplierDelivery, $suffix = null): array
     {
-        return new SupplierResource($supplier);
+        return array_merge(
+            (new ProcurementDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name' => 'procurement.supplier-deliveries.index',
+                            ],
+                            'label' => __('supplier delivery')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'procurement.supplier-deliveries.show',
+                                'parameters' => [$supplierDelivery->slug]
+                            ],
+                            'label' => $supplierDelivery->number,
+                        ],
+                    ],
+                    'suffix' => $suffix,
+
+                ],
+            ]
+        );
     }
 }

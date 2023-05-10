@@ -22,7 +22,7 @@ function supplierDeliveryRoute(supplierDelivery: SupplierDeliveries) {
                 [supplierDelivery.slug]);
         default:
             return route(
-                'procurement.suppliers.show',
+                'procurement.supplier-deliveries.show',
                 [supplierDelivery.slug]);
     }
 }
