@@ -55,7 +55,7 @@ class StoreSupplierDelivery
          $supplierDelivery = $this->parent->SupplierDeliveries()->count();
 
          if(!$this->force && $supplierDelivery>= 1) {
-             $validator->errors()->add('purchase_order', 'Are you sure want to create new supplier delivery?');
+             $validator->errors()->add('supplier_delivery', 'Are you sure want to create new supplier delivery?');
          }
      }
 
