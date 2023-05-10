@@ -30,7 +30,7 @@ function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'mps'" class="mt-5">
+    <Table :resource="data" :name="'su'" class="mt-5">
         <template #cell(code)="{ item: marketplaceSupplier }">
             <Link :href="marketplaceSupplierRoute(marketplaceSupplier)">
                 {{ marketplaceSupplier['code'] }}

@@ -76,13 +76,13 @@ class IndexMarketplaceAgents extends InertiaAction
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $marketplaceAgents): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $agent): AnonymousResourceCollection
     {
-        return AgentResource::collection($marketplaceAgents);
+        return AgentResource::collection($agent);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $marketplaceAgents, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $agent, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
@@ -100,7 +100,7 @@ class IndexMarketplaceAgents extends InertiaAction
                         'label'=> __('marketplace agents')
                     ] : false,
                 ],
-                'data'      => AgentResource::collection($marketplaceAgents),
+                'data'      => AgentResource::collection($agent),
             ]
         )->table($this->tableStructure($parent));
     }
