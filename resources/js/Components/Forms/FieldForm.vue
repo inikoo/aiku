@@ -20,13 +20,12 @@ import Avatar from '@/Components/Forms/Fields/Avatar.vue';
 import Password from '@/Components/Forms/Fields/Password.vue'
 import Textarea from '@/Components/Forms/Fields/Textarea.vue'
 import Toggle from '@/Components/Forms/Fields/Toggle.vue'
-
-
-
+import Select from '@/Components/Forms/Fields/Select.vue'
+import Radio from '@/Components/Forms/Fields/Radio.vue'
 
 
 const props = defineProps<{
-    field:string,
+    field: string,
     fieldData: {
         type: string,
         label: string,
@@ -34,35 +33,36 @@ const props = defineProps<{
 
     },
     args: {
-        updateRoute:{
-            name:string,
-            parameters:string|string[]
+        updateRoute: {
+            name: string,
+            parameters: string | string[]
         }
     }
 }>()
 
 const updateRoute = props['fieldData']['updateRoute'] ?? props.args['updateRoute'];
 
+const components = {
+    'input': Input,
+    'phone': Phone,
+    'date': Date,
+    'theme': Theme,
+    'colorMode': ColorMode,
+    'password': Password,
+    'avatar': Avatar,
+    'textarea': Textarea,
+    'toggle': Toggle,
+    'select': Select,
+    'radio': Radio,
+};
 
 const getComponent = (componentName) => {
-    const components = {
-        'input': Input,
-        'phone': Phone,
-        'date': Date,
-        'theme': Theme,
-        'colorMode': ColorMode,
-        'password': Password,
-        'avatar': Avatar,
-        'textarea': Textarea,
-        'toggle': Toggle,
-    };
     return components[componentName] ?? null;
 };
 
 let formFields = {};
 
 if (props['fieldData']['type'] === 'address') {
-
     formFields['country_id'] = props.fieldData.value.country_id;
     formFields['administrative_area'] = props['fieldData'].value.administrative_area;
     formFields['dependant_locality'] = props['fieldData'].value.dependant_locality;
@@ -71,7 +71,6 @@ if (props['fieldData']['type'] === 'address') {
     formFields['sorting_code'] = props['fieldData'].value.sorting_code;
     formFields['address_line_2'] = props['fieldData'].value.address_line_2;
     formFields['address_line_1'] = props['fieldData'].value.address_line_1;
-
 } else {
     formFields = {
         [props['field']]: props['fieldData'].value,

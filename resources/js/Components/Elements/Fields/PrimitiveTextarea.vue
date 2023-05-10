@@ -16,7 +16,7 @@ const textareaValue = ref(props.modelValue ? props.modelValue : '')
         <div class="mt-1  rounded-md shadow-sm">
             <textarea id="about" name="about" rows="3" v-model.trim="textareaValue" @input="$emit('update:modelValue', textareaValue)"
                 placeholder="Tell us about yourself"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" />
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
         </div>
         <div v-if="showStats" class="grid grid-flow-col text-xs italic text-gray-500 mt-2 space-x-12 justify-start">
             <p class="">
