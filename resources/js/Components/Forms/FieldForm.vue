@@ -21,6 +21,7 @@ import Password from '@/Components/Forms/Fields/Password.vue'
 import Textarea from '@/Components/Forms/Fields/Textarea.vue'
 import Toggle from '@/Components/Forms/Fields/Toggle.vue'
 import Select from '@/Components/Forms/Fields/Select.vue'
+import Radio from '@/Components/Forms/Fields/Radio.vue'
 
 
 const props = defineProps<{
@@ -41,19 +42,21 @@ const props = defineProps<{
 
 const updateRoute = props['fieldData']['updateRoute'] ?? props.args['updateRoute'];
 
+const components = {
+    'input': Input,
+    'phone': Phone,
+    'date': Date,
+    'theme': Theme,
+    'colorMode': ColorMode,
+    'password': Password,
+    'avatar': Avatar,
+    'textarea': Textarea,
+    'toggle': Toggle,
+    'select': Select,
+    'radio': Radio,
+};
+
 const getComponent = (componentName) => {
-    const components = {
-        'input': Input,
-        'phone': Phone,
-        'date': Date,
-        'theme': Theme,
-        'colorMode': ColorMode,
-        'password': Password,
-        'avatar': Avatar,
-        'textarea': Textarea,
-        'toggle': Toggle,
-        'select': Select,
-    };
     return components[componentName] ?? null;
 };
 
