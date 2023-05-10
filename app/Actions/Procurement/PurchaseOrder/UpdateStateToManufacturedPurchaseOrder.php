@@ -7,44 +7,49 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Actions\Procurement\PurchaseOrder\Traits\HasHydrators;
 use App\Actions\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateStateToManufacturedPurchaseOrder
 {
     use WithActionUpdate;
     use AsAction;
+    use HasHydrators;
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
-        $purchaseOrder = $this->update($purchaseOrder, [
-            'state' => PurchaseOrderStateEnum::CREATING
-        ]);
+        if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::DISPATCHED, PurchaseOrderStateEnum::CONFIRMED])) {
+            $purchaseOrder = $this->update($purchaseOrder, [
+                'state' => PurchaseOrderStateEnum::MANUFACTURED
+            ]);
 
-        $parent = $purchaseOrder->provider;
+            $this->purchaseOrderHydrate($purchaseOrder);
 
-        if (class_basename($parent) == 'Supplier') {
-            SupplierHydratePurchaseOrders::dispatch($parent);
-        } else {
-            AgentHydratePurchaseOrders::dispatch($parent);
+            return $purchaseOrder;
         }
 
-        TenantHydrateProcurement::dispatch(app('currentTenant'));
-
-        return $purchaseOrder;
+        throw ValidationException::withMessages(['status' => 'You can not change the status to manufactured']);
     }
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function action(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
         return $this->handle($purchaseOrder);
     }
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function asController(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
         return $this->handle($purchaseOrder);
