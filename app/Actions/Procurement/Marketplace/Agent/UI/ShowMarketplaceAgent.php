@@ -8,13 +8,9 @@
 namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\AgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
-use App\Http\Resources\Procurement\SupplierProductResource;
-use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -27,7 +23,7 @@ class ShowMarketplaceAgent extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.agents.edit');
+        $this->canEdit = $request->user()->can('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -40,13 +36,10 @@ class ShowMarketplaceAgent extends InertiaAction
 
     public function htmlResponse(): Response
     {
-        $this->validateAttributes();
-
-
         return Inertia::render(
-            'Procurement/Agent',
+            'Procurement/MarketplaceAgent',
             [
-                'title'       => __('agent'),
+                'title'       => __('marketplace agent'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->agent),
                 'pageHead'    => [
                     'icon'  => 'fal fa-agent',
@@ -57,49 +50,13 @@ class ShowMarketplaceAgent extends InertiaAction
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-                    'meta'  => [
-                        [
-                            'name'     => trans_choice('supplier|suppliers', $this->agent->stats->number_suppliers),
-                            'number'   => $this->agent->stats->number_suppliers,
-                            'href'     => [
-                                'procurement.agents.show.suppliers.index',
-                                $this->agent->slug
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-person-dolly',
-                                'tooltip' => __('suppliers')
-                            ]
-                        ],
-                        [
-                            'name'     => trans_choice('product|products', $this->agent->stats->number_products),
-                            'number'   => $this->agent->stats->number_products,
-                            'href'     => [
-                                'procurement.agents.show.suppliers.index',
-                                $this->agent->slug
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-parachute-box',
-                                'tooltip' => __('products')
-                            ]
-                        ]
-                    ]
-
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
                     'navigation' => AgentTabsEnum::navigation()
                 ],
-                AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
-                    fn () => SupplierResource::collection(IndexSuppliers::run($this->agent))
-                    : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run($this->agent))),
-
-                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->agent))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->agent))),
-
             ]
-        )->table(IndexSuppliers::make()->tableStructure($this->agent))
-            ->table(IndexSupplierProducts::make()->tableStructure($this->agent));
+        );
     }
 
 
@@ -118,13 +75,13 @@ class ShowMarketplaceAgent extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'procurement.agents.index',
+                                'name' => 'procurement.marketplace-agents.index',
                             ],
-                            'label' => __('agent')
+                            'label' => __('marketplace agents')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'procurement.agents.show',
+                                'name'       => 'procurement.marketplace-agents.show',
                                 'parameters' => [$agent->slug]
                             ],
                             'label' => $agent->code,

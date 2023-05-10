@@ -37,9 +37,6 @@ class IndexMarketplaceAgents extends InertiaAction
         return QueryBuilder::for(AgentTenant::class)
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug'])
-            ->leftJoin('agents', 'agents.id', 'agent_tenant.agent_id')
-            ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
-            ->where('agent_tenant.tenant_id', app('currentTenant')->id)
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -63,7 +60,7 @@ class IndexMarketplaceAgents extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.agents.edit');
+        $this->canEdit = $request->user()->can('procurement.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -75,38 +72,35 @@ class IndexMarketplaceAgents extends InertiaAction
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
-        return $this->handle(app('currentTenant'));
+        return $this->handle();
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $agents): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $marketplaceAgents): AnonymousResourceCollection
     {
-        return AgentResource::collection($agents);
+        return AgentResource::collection($marketplaceAgents);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $agents, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $marketplaceAgents, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
-            'Procurement/Agents',
+            'Procurement/MarketplaceAgents',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters(),
-                    $parent
-                ),
-                'title'       => __('agents'),
+                'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __('marketplace agents'),
                 'pageHead'    => [
-                    'title'   => __('agents'),
-                    'create'  => $this->canEdit && $this->routeName=='procurement.agents.index' ? [
+                    'title'   => __('marketplace agents'),
+                    'create'  => $this->canEdit && $this->routeName=='procurement.marketplace-agents.index' ? [
                         'route' => [
-                            'name'       => 'procurement.agents.create',
+                            'name'       => 'procurement.marketplace-agents.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('agent')
+                        'label'=> __('marketplace agents')
                     ] : false,
                 ],
-                'data'      => AgentResource::collection($agents),
+                'data'      => AgentResource::collection($marketplaceAgents),
             ]
         )->table($this->tableStructure($parent));
     }
@@ -121,9 +115,9 @@ class IndexMarketplaceAgents extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.agents.index'
+                                'name' => 'procurement.marketplace-agents.index'
                             ],
-                            'label' => __('agents'),
+                            'label' => __('marketplace agents'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]
