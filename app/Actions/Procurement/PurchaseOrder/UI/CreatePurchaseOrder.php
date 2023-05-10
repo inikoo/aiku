@@ -41,7 +41,7 @@ class CreatePurchaseOrder extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('procurement.edit');
+        return $request->user()->can('procurement.view');
     }
 
 
