@@ -59,7 +59,7 @@ class StoreOrder
 
         OrderHydrateUniversalSearch::dispatch($order);
 
-        return $order;
+        return $order->fresh();
     }
 
     public function rules(): array

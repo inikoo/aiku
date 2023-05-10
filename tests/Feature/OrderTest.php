@@ -5,6 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+namespace Tests\Feature;
+
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Order\DeleteOrder;
@@ -12,6 +14,12 @@ use App\Actions\Sales\Order\StoreOrder;
 use App\Actions\Sales\Order\SubmitOrder;
 use App\Actions\Sales\Order\UnSubmitOrder;
 use App\Actions\Sales\Order\UpdateOrder;
+use App\Actions\Sales\Order\UpdateStateToCreatingOrder;
+use App\Actions\Sales\Order\UpdateStateToFinalizedOrder;
+use App\Actions\Sales\Order\UpdateStateToHandlingOrder;
+use App\Actions\Sales\Order\UpdateStateToPackedOrder;
+use App\Actions\Sales\Order\UpdateStateToSettledOrder;
+use App\Actions\Sales\Order\UpdateStateToSubmittedOrder;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Enums\Sales\Order\OrderStateEnum;
 use App\Models\Helpers\Address;
@@ -66,16 +74,65 @@ test('update order', function ($order) {
 
     $this->assertModelExists($order);
 })->depends('create order');
-test('submit order', function ($order) {
-    $order = SubmitOrder::make()->action($order);
+
+test('update state to submit from creating order', function ($order) {
+    $order = UpdateStateToSubmittedOrder::make()->action($order);
 
     expect($order->state)->toEqual(OrderStateEnum::SUBMITTED);
 })->depends('create order');
 
-test('un submit order', function ($order) {
-    $order = UnSubmitOrder::make()->action($order);
+test('update state to handling from submit order', function ($order) {
+    $order = UpdateStateToHandlingOrder::make()->action($order);
 
-    expect($order->state)->toBe(OrderStateEnum::CREATING);
+    expect($order->state)->toEqual(OrderStateEnum::HANDLING);
+})->depends('create order');
+
+test('update state to packed from handling', function ($order) {
+    $order = UpdateStateToPackedOrder::make()->action($order);
+
+    expect($order->state)->toBe(OrderStateEnum::PACKED);
+})->depends('create order');
+
+test('update state to finalized from handling', function ($order) {
+    $order = UpdateStateToFinalizedOrder::make()->action($order);
+
+    expect($order->state)->toBe(OrderStateEnum::FINALISED);
+})->depends('create order');
+
+test('update state to settled from finalized', function ($order) {
+    $order = UpdateStateToSettledOrder::make()->action($order);
+
+    expect($order->state)->toBe(OrderStateEnum::SETTLED);
+})->depends('create order');
+
+test('update state to finalized from settled', function ($order) {
+    $order = UpdateStateToFinalizedOrder::make()->action($order);
+
+    expect($order->state)->toBe(OrderStateEnum::FINALISED);
+})->depends('create order');
+
+test('update state to packed from finalized', function ($order) {
+    $order = UpdateStateToPackedOrder::make()->action($order);
+
+    expect($order->state)->toBe(OrderStateEnum::PACKED);
+})->depends('create order');
+
+test('update state to handling from packed', function ($order) {
+    $order = UpdateStateToHandlingOrder::make()->action($order);
+
+    expect($order->state)->toEqual(OrderStateEnum::HANDLING);
+})->depends('create order');
+
+test('update state to submit from handling', function ($order) {
+    $order = UpdateStateToSubmittedOrder::make()->action($order);
+
+    expect($order->state)->toEqual(OrderStateEnum::SUBMITTED);
+})->depends('create order');
+
+test('update state to creating from submitted', function ($order) {
+    $order = UpdateStateToCreatingOrder::make()->action($order);
+
+    expect($order->state)->toEqual(OrderStateEnum::CREATING);
 })->depends('create order');
 
 test('delete order', function ($order) {
