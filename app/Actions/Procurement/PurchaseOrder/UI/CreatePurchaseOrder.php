@@ -8,20 +8,17 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\HasUIAgents;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class CreatePurchaseOrder extends InertiaAction
 {
-    use HasUIAgents;
     public function handle(): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('new purchase order'),
                 'pageHead'    => [
                     'title'        => __('new purchase order'),
@@ -33,15 +30,31 @@ class CreatePurchaseOrder extends InertiaAction
                     ]
 
                 ],
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('purchase order'),
+                            'fields' => [
 
-
+                                'number' => [
+                                    'type'  => 'input',
+                                    'label' => __('number'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ]
+                    ],
+                    'route'      => [
+                        'name'       => 'models.purchase-order.update',
+                    ]
+                ],
             ]
         );
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('procurement.view');
+        return $request->user()->can('procurement.edit');
     }
 
 
