@@ -36,7 +36,7 @@ class CreateSupplierDelivery extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('supplier delivery'),
+                            'title'  => __(' create supplier delivery'),
                             'fields' => [
 
                                 'number' => [
