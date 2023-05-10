@@ -8,6 +8,7 @@
 namespace App\Models\Traits;
 
 use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,10 +26,14 @@ trait HasOrder
             ->saveSlugsTo('slug');
     }
 
-
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function customerClient(): BelongsTo
+    {
+        return $this->belongsTo(CustomerClient::class);
     }
 
     public function shop(): BelongsTo
