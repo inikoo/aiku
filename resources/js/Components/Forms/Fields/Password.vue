@@ -13,11 +13,6 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 library.add(faExclamationCircle, faCheckCircle, faEye, faEyeSlash);
 
 const props = defineProps(['form', 'fieldName', 'options']);
-console.log("=========================")
-console.log(props.form[props.fieldName])
-console.log(props.fieldName)
-console.log(props.options)
-console.log("=========================")
 
 const handleChange = (form) => {
     if (form.type === 'edit') {

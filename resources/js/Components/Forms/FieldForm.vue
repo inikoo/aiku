@@ -81,7 +81,6 @@ if (props['fieldData']['type'] === 'address') {
         formFields[props['fieldData']['hasOther']['name']] = props['fieldData']['hasOther']['value'];
     }
 }
-
 const form = useForm(formFields);
 form['type'] = 'edit';
 
