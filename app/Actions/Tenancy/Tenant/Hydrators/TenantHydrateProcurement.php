@@ -12,7 +12,7 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierProduct;
-use App\Models\SupplierProductTenant;
+use App\Models\Procurement\SupplierProductTenant;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;

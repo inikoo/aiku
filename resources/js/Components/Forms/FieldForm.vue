@@ -21,7 +21,24 @@ import Password from '@/Components/Forms/Fields/Password.vue'
 import Textarea from '@/Components/Forms/Fields/Textarea.vue'
 
 
-const props = defineProps(['fieldData', 'field', 'args']);
+
+
+
+const props = defineProps<{
+    field:string,
+    fieldData: {
+        type: string,
+        label: string,
+        value: any
+
+    },
+    args: {
+        updateRoute:{
+            name:string,
+            parameters:string|string[]
+        }
+    }
+}>()
 
 const updateRoute = props['fieldData']['updateRoute'] ?? props.args['updateRoute'];
 
@@ -44,7 +61,7 @@ let formFields = {};
 
 if (props['fieldData']['type'] === 'address') {
 
-    formFields['country_id'] = props['fieldData'].value.country_id;
+    formFields['country_id'] = props.fieldData.value.country_id;
     formFields['administrative_area'] = props['fieldData'].value.administrative_area;
     formFields['dependant_locality'] = props['fieldData'].value.dependant_locality;
     formFields['locality'] = props['fieldData'].value.locality;
