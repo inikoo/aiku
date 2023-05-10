@@ -7,6 +7,7 @@
 
 
 use App\Actions\Accounting\Payment\UpdatePayment;
+use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\UpdateUser;
 use App\Actions\HumanResources\Employee\StoreEmployee;
@@ -41,7 +42,7 @@ Route::post('/employee/', StoreEmployee::class)->name('employee.store');
 
 Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');
 
-Route::patch('/areas/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse_area.update');
+Route::patch('/areas/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse-area.update');
 
 Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');
 
@@ -54,6 +55,8 @@ Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
 Route::patch('/supplier/{supplier}', UpdateSupplier::class)->name('supplier.update');
 
 Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');
+
+Route::patch('/payment-account/{paymentAccount}', UpdatePaymentAccount::class)->name('payment-account.update');
 
 Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
 
