@@ -1,6 +1,4 @@
-
 <script setup>
-
 import PrimitiveTextarea from '@/Components/Elements/Fields/PrimitiveTextarea.vue';
 
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
@@ -20,10 +18,9 @@ let type='text'
 if(props.options!==undefined && props.options.type ){
     type=props.options.type;
 }
-
-
-
 </script>
+
+
 <template>
     <div class="mt-1 relative">
         <PrimitiveTextarea v-model="form[fieldName]" showStats="true" />
@@ -34,7 +31,6 @@ if(props.options!==undefined && props.options.type ){
         </div>
     </div>
     <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
-
 </template>
 
 
