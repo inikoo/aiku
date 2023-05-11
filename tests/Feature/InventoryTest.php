@@ -33,13 +33,11 @@ test('create warehouse', function () {
 });
 
 test('update warehouse', function ($warehouse) {
-    // $warehouse = Warehouse::find(1);
     $warehouse = UpdateWarehouse::make()->action($warehouse, ['name' => 'Pika Ltd']);
     expect($warehouse->name)->toBe('Pika Ltd');
 })->depends('create warehouse');
 
 test('create warehouse area', function ($warehouse) {
-    // $warehouse = Warehouse::factory()->create();
     $warehouseArea = StoreWarehouseArea::make()->action($warehouse, WarehouseArea::factory()->definition());
     $this->assertModelExists($warehouseArea);
     return $warehouseArea;
