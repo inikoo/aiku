@@ -41,9 +41,12 @@ const props = defineProps<{
     }
 }>()
 
+console.log(props.fieldData)
+
 const updateRoute = props['fieldData']['updateRoute'] ?? props.args['updateRoute'];
 
 const components = {
+    'select': Select,
     'input': Input,
     'phone': Phone,
     'date': Date,
@@ -53,7 +56,6 @@ const components = {
     'avatar': Avatar,
     'textarea': Textarea,
     'toggle': Toggle,
-    'select': Select,
     'radio': Radio,
     'texteditor': TextEditor,
 };

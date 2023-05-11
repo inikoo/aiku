@@ -16,6 +16,8 @@ use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 
 class StoreGuest
 {
@@ -107,6 +109,10 @@ class StoreGuest
 
 
         return 0;
+    }
+    public function htmlResponse(Guest $guest): RedirectResponse
+    {
+        return Redirect::route('sysadmin.guests.show', $guest->slug);
     }
 
 }

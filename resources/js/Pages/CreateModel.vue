@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import {Head, useForm} from '@inertiajs/vue3';
 
+import Select from '@/Components/Forms/Fields/Select.vue'
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 const props = defineProps<{
@@ -33,7 +34,7 @@ const getComponent = (componentName) => {
         'input': Input,
         'phone': Phone,
         'date': Date,
-
+        'select': Select,
     };
     return components[componentName] ?? null;
 
@@ -45,7 +46,6 @@ Object.entries(props.formData.blueprint).forEach(([, val]) => {
         fields[fieldName] = fieldData['value'];
     });
 });
-console.log(fields);
 
 const form = useForm(fields);
 
@@ -84,12 +84,13 @@ const handleFormSubmit = () => {
                             <dd class="sm:col-span-2  ">
                                 <div class="mt-1 flex text-sm text-gray-900 sm:mt-0">
                                     <div class=" relative  flex-grow">
+
+                                        <!-- Dynamic component -->
                                         <component
                                             :is="getComponent(fieldData['type'])"
                                             :form=form
                                             :fieldName=fieldName
                                             :options="fieldData['options']">
-
                                         </component>
                                     </div>
                                     <span class="ml-4 flex-shrink-0 w-5 ">

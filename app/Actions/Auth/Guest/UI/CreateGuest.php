@@ -17,7 +17,6 @@ class CreateGuest extends InertiaAction
 {
     public function handle(ActionRequest $request): Response
     {
-
         return Inertia::render(
             'CreateModel',
             [
@@ -41,33 +40,29 @@ class CreateGuest extends InertiaAction
                         [
                             'title'  => __('personal information'),
                             'fields' => [
-
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
                                     'value' => ''
                                 ],
-
-
-
+                                'email' => [
+                                    'type'  => 'input',
+                                    'label' => __('email'),
+                                    'value' => ''
+                                ],
                             ]
                         ],
                         [
                             'title'  => __('type'),
                             'fields' => [
-
                                 'type' => [
                                     'type'   => 'select',
                                     'label'  => __('type'),
                                     'value'  => '',
                                     'options'=> GuestTypeEnum::optionLabels()
                                 ],
-
-
-
                             ]
                         ]
-
                     ],
                     'route'      => [
                         'name'       => 'models.guest.store',
