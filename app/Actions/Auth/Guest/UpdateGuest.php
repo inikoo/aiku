@@ -40,7 +40,7 @@ class UpdateGuest
     {
         return [
             'name'                     => ['sometimes', 'required', 'string', 'max:255'],
-            'email'                    => ['sometimes', 'nullable', 'email'],
+            'email'                    => ['sometimes', 'nullable', 'email', 'max:255'],
             'phone'                    => ['sometimes', 'nullable', 'string'],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],

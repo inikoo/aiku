@@ -28,28 +28,7 @@ class InertiaTable
         $this->request      = $request;
         $this->columns      = new Collection();
         $this->searchInputs = new Collection();
-        $this->elements     = collect(
-            [
-                [
-                    'key'   => 'hired',
-                    'label' => "Hired",
-                    'count' => 7,
-                    'show'  => false,
-                ],
-                [
-                    'key'   => 'xxx',
-                    'label' => "xx",
-                    'count' => 15,
-                    'show'  => false,
-                ],
-                [
-                    'key'   => 'left',
-                    'label' => "Left",
-                    'count' => 46,
-                    'show'  => false,
-                ],
-            ]
-        );
+        $this->elements     = new Collection();
         $this->filters      = new Collection();
 
 
@@ -340,13 +319,7 @@ class InertiaTable
         return $this;
     }
 
-    /**
-     * Give the query builder props to the given Inertia response.
-     *
-     * @param  \Inertia\Response  $response
-     *
-     * @return \Inertia\Response
-     */
+
     public function applyTo(Response $response): Response
     {
         $props = array_merge($response->getQueryBuilderProps(), [

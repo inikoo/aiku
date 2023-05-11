@@ -11,6 +11,8 @@ use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Models\HumanResources\Employee;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -35,12 +37,13 @@ class StoreEmployee
         return $request->user()->hasPermissionTo("hr.edit");
     }
 
+
     public function rules(): array
     {
         return [
-            'name'          => ['required'],
-            'date_of_birth' => ['sometimes', 'date'],
-            'email'         => ['sometimes', 'email'],
+            'name'          => ['required', 'max:255'],
+            'date_of_birth' => ['nullable', 'date', 'before_or_equal:today'],
+            //   'email'         => ['sometimes', 'email'],
 
         ];
     }
@@ -50,5 +53,10 @@ class StoreEmployee
         $request->validate();
 
         return $this->handle($request->validated());
+    }
+
+    public function htmlResponse(Employee $employee): RedirectResponse
+    {
+        return Redirect::route('hr.employees.show', $employee->slug);
     }
 }
