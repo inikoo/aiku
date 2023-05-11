@@ -53,7 +53,7 @@ class CreateGuest extends InertiaAction
 
                     ],
                     'route'      => [
-                        'name'       => 'models.guest.store',
+                        'name'       => 'models.guest.update',
 
                     ]
 
