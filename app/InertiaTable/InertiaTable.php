@@ -340,13 +340,7 @@ class InertiaTable
         return $this;
     }
 
-    /**
-     * Give the query builder props to the given Inertia response.
-     *
-     * @param  \Inertia\Response  $response
-     *
-     * @return \Inertia\Response
-     */
+
     public function applyTo(Response $response): Response
     {
         $props = array_merge($response->getQueryBuilderProps(), [
