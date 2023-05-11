@@ -33,7 +33,6 @@ class SupplierDeliveriesHydrateItems implements ShouldBeUnique
         $items = $supplierDelivery->items()->count();
 
         if(($checkedItemsCount === $items) && ($items > 0)) {
-            dd('ok');
             $stats['state'] = SupplierDeliveryStateEnum::CHECKED;
             $stats['checked_at'] = now();
             $stats[$supplierDelivery->state->value . '_at'] = null;
