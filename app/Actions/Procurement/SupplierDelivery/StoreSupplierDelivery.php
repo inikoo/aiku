@@ -8,7 +8,9 @@
 namespace App\Actions\Procurement\SupplierDelivery;
 
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSupplierDeliveries;
+use App\Actions\Procurement\Supplier\Hydrators\HydrateSupplierDeliveries;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierDeliveries;
+use App\Actions\Procurement\SupplierDelivery\Traits\HasHydrators;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\SupplierDelivery;
@@ -21,6 +23,7 @@ class StoreSupplierDelivery
 {
     use AsAction;
     use WithAttributes;
+    use HasHydrators;
 
     private bool $force;
 
@@ -31,13 +34,7 @@ class StoreSupplierDelivery
         /** @var SupplierDelivery $supplierDelivery */
         $supplierDelivery = $parent->supplierDeliveries()->create($modelData);
 
-        if(class_basename($parent) == 'Supplier') {
-            SupplierHydrateSupplierDeliveries::dispatch($parent);
-        } else {
-            AgentHydrateSupplierDeliveries::dispatch($parent);
-        }
-
-        TenantHydrateProcurement::dispatch(app('currentTenant'));
+        $this->getHydrators($supplierDelivery);
 
         return $supplierDelivery;
     }

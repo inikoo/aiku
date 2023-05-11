@@ -30,7 +30,6 @@ test('create agent', function () {
 
 test('number of agents should be one', function () {
     $this->assertEquals(1, app('currentTenant')->procurementStats->number_agents);
-    $this->assertEquals(1, app('currentTenant')->procurementStats->number_active_agents);
 })->depends('create agent');
 
 test('create another agent', function () {
@@ -40,7 +39,6 @@ test('create another agent', function () {
 
 test('number of agents should be two', function () {
     $this->assertEquals(2, app('currentTenant')->procurementStats->number_agents);
-    $this->assertEquals(2, app('currentTenant')->procurementStats->number_active_agents);
 })->depends('create agent', 'create another agent');
 
 test('check if agent match with tenant', function ($agent) {

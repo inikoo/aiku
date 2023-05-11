@@ -40,8 +40,6 @@ class TenantHydrateProcurement implements ShouldBeUnique
             'number_purchase_orders' => PurchaseOrder::count()
         ];
 
-
-
         $stateCounts = SupplierProduct::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();

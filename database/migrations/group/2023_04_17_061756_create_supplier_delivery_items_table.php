@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +19,11 @@ return new class () extends Migration {
             $table->foreign('supplier_delivery_id')->references('id')->on('supplier_deliveries');
             $table->unsignedInteger('supplier_product_id')->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
+            $table->string('state')->index()->default(SupplierDeliveryStateEnum::CREATING->value);
+            $table->dateTimeTz('checked_at')->nullable();
             $table->jsonb('data');
             $table->decimal('unit_quantity');
+            $table->decimal('unit_quantity_checked')->default(0);
             $table->decimal('unit_price');
             $table->timestampsTz();
             $table->softDeletesTz();

@@ -18,11 +18,15 @@ class StoreShipment
     use AsAction;
     use WithAttributes;
 
-    public function handle(DeliveryNote $parent, array $modelData): Shipment
+    public function handle(DeliveryNote $deliveryNote,Shipper $shipper, array $modelData): Shipment
     {
-        /** @var Shipment $shipment */
-        $shipment = $parent->shipments()->create($modelData);
-
+        $type = 'apiCall';
+        $modelData['delivery_note_id'] = $deliveryNote->id;
+        $shipment=match($shipper->api_shipper) {
+            'apc-gb'=> CallApcgbShipperApi::run($deliveryNote,$shipper,$type),
+            'dpd-gb'=> CallDpdgbShipperApi::run($deliveryNote,$shipper,$type),
+            default => $shipper->shipments()->create($modelData),
+        };
         ShipmentHydrateUniversalSearch::dispatch($shipment);
 
         return $shipment;
@@ -35,11 +39,11 @@ class StoreShipment
         ];
     }
 
-    public function action(DeliveryNote $parent, array $objectData): Shipment
+    public function action(DeliveryNote $deliveryNote, array $objectData): Shipment
     {
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($parent, $validatedData);
+        return $this->handle($deliveryNote, $validatedData);
     }
 }
