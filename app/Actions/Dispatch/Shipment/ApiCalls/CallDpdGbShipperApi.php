@@ -12,7 +12,7 @@ use App\Models\Dispatch\Shipment;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class CallApcgbShipperApi
+class CallDpdGbShipperApi
 {
     use AsAction;
     use WithAttributes;
@@ -27,19 +27,7 @@ class CallApcgbShipperApi
             'GeoClient: account/'.$shipper->account_number
         ];
         $params = [];
-        $apiResponse = $this->callApi(
-            $this->api_url.'user?action=login', $headers, json_encode($params)
-        );
-
-        if ($apiResponse['status'] == 200 and !empty($apiResponse['data']['data']['geoSession'])) {
-            $shippingAccountData                   = $shipperAccount->data;
-            $shippingAccountData['geoSession']     = $apiResponse['data']['data']['geoSession'];
-            $shippingAccountData['geoSessionDate'] = gmdate('U');
-            $shipperAccount->data                  = $shippingAccountData;
-            $shipperAccount->save();
-
-        }
-        
+        $this->login($shipper);
         if ($type == 'apiCall') {
             $apiResponse =  $this->callApi($apiurl.'shipping/shipment',$header,json_encode($params));
         } else {
@@ -109,6 +97,29 @@ class CallApcgbShipperApi
         }
 
         return $response;
+    }
+
+    public function login($shipper)
+    {
+        $headers = [
+            "Authorization: Basic ".base64_encode($shipper->username.':'.$shipper->password),
+            "Content-Type: application/json",
+            "Accept: application/json",
+            'GeoClient: account/'.$shipper->account_number
+        ];
+        
+        $apiResponse = $this->callApi(
+            $this->api_url.'user?action=login', $headers, json_encode($params)
+        );
+
+        if ($apiResponse['status'] == 200 and !empty($apiResponse['data']['data']['geoSession'])) {
+            $shippingAccountData                   = $shipperAccount->data;
+            $shippingAccountData['geoSession']     = $apiResponse['data']['data']['geoSession'];
+            $shipper['geoSessionDate'] = gmdate('U');
+            $shipper->data                  = $shippingAccountData;
+            $shipper->save();
+
+        }
     }
     
 }

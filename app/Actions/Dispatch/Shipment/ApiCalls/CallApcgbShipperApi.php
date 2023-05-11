@@ -11,6 +11,7 @@ use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Illuminate\Support\Arr;
 
 class CallApcgbShipperApi
 {
@@ -32,6 +33,7 @@ class CallApcgbShipperApi
         if ($type == 'apiCall') {
             $apiResponse =  $this->callApi($apiurl.'Orders.json',$header,json_encode($params));
         } else {
+            $this-track($deliveryNote);
             $apiResponse =  $this->callApi($apiurl.'Tracks/'.$shipment->tracking.'.json?searchtype=CarrierWaybill&history=Yes',$header, "[]", 'GET');
         }
 
@@ -98,6 +100,35 @@ class CallApcgbShipperApi
         }
 
         return $response;
+    }
+
+    function track($shipment) {
+
+
+        if (!$shipment->tracking) {
+            return false;
+        }
+
+        $apiResponse = $this->callApi(
+            $this->api_url.'Tracks/'.$shipment->tracking.'.json?searchtype=CarrierWaybill&history=Yes', $this->getHeaders($shipment->shipperAccount), "[]", 'GET'
+        );
+
+
+        $boxes = Arr::get($apiResponse, 'data.Tracks.Track.ShipmentDetails.Items.0.Item');
+
+        if ($boxes != null) {
+            if (array_keys($boxes) !== range(0, count($boxes) - 1)) {
+                $this->track_box($shipment, $boxes);
+            } else {
+                foreach ($boxes as $box) {
+                    $this->track_box($shipment, $box);
+                }
+            }
+
+            $shipment->update_state();
+        }
+
+        return true;
     }
     
 }
