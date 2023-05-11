@@ -26,8 +26,11 @@ class StoreSupplierProduct
 
     public function handle(Supplier $supplier, array $modelData, bool $skipHistoric = false): SupplierProduct
     {
-        /** @var SupplierProduct $supplierProduct */
+        if($supplier->agent_id) {
+            $modelData['agent_id'] = $supplier->agent_id;
+        }
 
+        /** @var SupplierProduct $supplierProduct */
         $supplierProduct = $supplier->products()->create($modelData);
 
         $supplierProduct->stats()->create();
