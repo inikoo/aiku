@@ -40,10 +40,22 @@ class CreateCustomer extends InertiaAction
                 'formData'    => [
                     'blueprint' =>
                         [
-
+                            [
+                                'title' => __('contact'),
+                                'fields'=> [
+                                    'company_name'=> [
+                                        'type' => 'input',
+                                        'label'=> __('company')
+                                    ],
+                                    'contact_name'=> [
+                                        'type' => 'input',
+                                        'label'=> __('contact name')
+                                    ]
+                                ]
+                            ]
                         ],
                     'route'     => [
-                        'name' => ''
+                        'name' => 'models.customer.store'
                     ]
                 ]
 

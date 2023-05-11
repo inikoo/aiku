@@ -58,6 +58,13 @@ class StoreGuest
         ];
     }
 
+    public function asController(ActionRequest $request): Guest
+    {
+        $request->validate();
+
+        return $this->handle($request->validated());
+    }
+
 
     public function action(array $objectData): Guest
     {

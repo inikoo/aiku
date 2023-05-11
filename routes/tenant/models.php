@@ -8,6 +8,7 @@
 
 use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
+use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\UpdateUser;
 use App\Actions\HumanResources\Employee\StoreEmployee;
@@ -26,10 +27,12 @@ use App\Actions\Procurement\Marketplace\Supplier\UpdateMarketplaceSupplier;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
+use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
+Route::post('/customer/', StoreCustomer::class)->name('customer.store');
 
 Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');
 
@@ -61,6 +64,7 @@ Route::patch('/payment-account/{paymentAccount}', UpdatePaymentAccount::class)->
 Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
 
 Route::patch('/guest/{guest}', UpdateGuest::class)->name('guest.update');
+Route::post('/guest/', StoreGuest::class)->name('guest.store');
 
 Route::patch('/outbox/{outbox}', UpdateOutbox::class)->name('outbox.update');
 

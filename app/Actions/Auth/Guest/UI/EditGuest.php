@@ -70,8 +70,16 @@ class EditGuest extends InertiaAction
                                     'label' => __('name'),
                                     'value' => $guest->name
                                 ],
-
-
+                                'email' => [
+                                    'type'  => 'input',
+                                    'label' => __('email'),
+                                    'value' => $guest->email
+                                ],
+                                'phone' => [
+                                    'type'  => 'phone',
+                                    'label' => __('phone'),
+                                    'value' => $guest->phone
+                                ],
 
                             ]
                         ]
