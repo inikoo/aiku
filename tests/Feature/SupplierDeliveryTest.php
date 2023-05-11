@@ -20,7 +20,6 @@ use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItemBySele
 use App\Actions\Procurement\SupplierDeliveryItem\UpdateStateToCheckedSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
-use App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\Supplier;
@@ -31,7 +30,7 @@ use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
-beforeAll(fn () => loadDB('d3_with_tenants.dump'));
+beforeAll(fn() => loadDB('d3_with_tenants.dump'));
 
 beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();
@@ -94,7 +93,9 @@ test('add items to purchase order', function ($purchaseOrder) {
 test('create supplier delivery items by selected purchase order', function ($supplierDelivery, $items) {
     $supplier = StoreSupplierDeliveryItemBySelectedPurchaseOrderItem::
     run($supplierDelivery, $items->pluck('id')->toArray());
-    expect($supplier)->toBeTrue();
+    expect($supplier)->toBeArray();
+
+    return $supplier;
 })->depends('create supplier delivery', 'add items to purchase order');
 
 test('change state to dispatch from creating supplier delivery', function ($purchaseOrder) {
@@ -127,9 +128,18 @@ test('change state to received from checked supplier delivery', function ($purch
     expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::RECEIVED);
 })->depends('create supplier delivery');
 
-test('check supplier delivery items all correct', function ($supplierDeliveryItem) {
+test('check supplier delivery items not correct', function ($supplierDeliveryItem) {
     $supplierDeliveryItem = UpdateStateToCheckedSupplierDeliveryItem::make()->action($supplierDeliveryItem, [
         'unit_quantity_checked' => 2
     ]);
-    expect($supplierDeliveryItem->supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::CHECKED);
+    expect($supplierDeliveryItem->supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::RECEIVED);
 })->depends('create supplier delivery items');
+
+test('check supplier delivery items all correct', function ($supplierDeliveryItems) {
+    foreach ($supplierDeliveryItems as $supplierDeliveryItem) {
+        UpdateStateToCheckedSupplierDeliveryItem::make()->action($supplierDeliveryItem, [
+            'unit_quantity_checked' => 6
+        ]);
+    }
+    expect($supplierDeliveryItems[0]->supplierDelivery->fresh()->state)->toEqual(SupplierDeliveryStateEnum::CHECKED);
+})->depends('create supplier delivery items by selected purchase order');

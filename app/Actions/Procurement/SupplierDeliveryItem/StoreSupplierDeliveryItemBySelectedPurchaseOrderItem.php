@@ -15,18 +15,19 @@ class StoreSupplierDeliveryItemBySelectedPurchaseOrderItem
 {
     use AsAction;
 
-    public function handle(SupplierDelivery $supplierDelivery, array $purchaseOrderIds): bool
+    public function handle(SupplierDelivery $supplierDelivery, array $purchaseOrderIds): array
     {
+        $items = [];
         $purchaseOrderItems = PurchaseOrderItem::whereIn('purchase_order_id', $purchaseOrderIds)->get();
 
         foreach ($purchaseOrderItems as $item) {
-            StoreSupplierDeliveryItem::run($supplierDelivery, [
+            $items[] = StoreSupplierDeliveryItem::run($supplierDelivery, [
                 'supplier_product_id' => $item->supplier_product_id,
                 'unit_price' => $item->unit_price,
                 'unit_quantity' => $item->unit_quantity
             ]);
         }
 
-        return true;
+        return $items;
     }
 }
