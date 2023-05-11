@@ -34,7 +34,24 @@ class CreateLocation extends InertiaAction
                     ]
 
                 ],
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('create location'),
+                            'fields' => [
 
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ]
+                    ],
+                    'route'      => [
+                        'name'       => 'models.location.update',
+                    ]
+                ],
 
             ]
         );
@@ -42,7 +59,7 @@ class CreateLocation extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('inventory.locations.edit');
+        return $request->user()->can('inventory');
     }
 
 
