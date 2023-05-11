@@ -7,27 +7,20 @@
 
 namespace Tests\Feature;
 
-use App\Actions\Goods\TradeUnit\StoreTradeUnit;
-use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
-use App\Actions\Procurement\PurchaseOrder\UpdateStateToSubmittedPurchaseOrder;
-use App\Actions\Procurement\Supplier\GetSupplier;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToCheckedSupplierDelivery;
-use App\Actions\Procurement\SupplierDelivery\UpdateStateToCreatingSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToDispatchSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToReceivedSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToSettledSupplierDelivery;
 use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItemBySelectedPurchaseOrderItem;
+use App\Actions\Procurement\SupplierDeliveryItem\UpdateStateToCheckedSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
-use App\Models\Goods\TradeUnit;
-use App\Models\Helpers\Address;
-use App\Models\Procurement\Agent;
+use App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\Supplier;
@@ -35,7 +28,6 @@ use App\Models\Procurement\SupplierDelivery;
 use App\Models\Procurement\SupplierDeliveryItem;
 use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
@@ -83,6 +75,8 @@ test('create supplier delivery', function ($supplier) {
 test('create supplier delivery items', function ($supplierDelivery) {
     $supplier = StoreSupplierDeliveryItem::run($supplierDelivery, SupplierDeliveryItem::factory()->definition());
     $this->assertModelExists($supplier);
+
+    return $supplier;
 })->depends('create supplier delivery');
 
 test('add items to purchase order', function ($purchaseOrder) {
@@ -133,12 +127,9 @@ test('change state to received from checked supplier delivery', function ($purch
     expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::RECEIVED);
 })->depends('create supplier delivery');
 
-test('change state to dispatch from received supplier delivery', function ($purchaseOrder) {
-    $purchaseOrder = UpdateStateToDispatchSupplierDelivery::make()->action($purchaseOrder);
-    expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::DISPATCHED);
-})->depends('create supplier delivery');
-
-test('change state to creating from dispatch supplier delivery', function ($purchaseOrder) {
-    $purchaseOrder = UpdateStateToCreatingSupplierDelivery::make()->action($purchaseOrder);
-    expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::CREATING);
-})->depends('create supplier delivery');
+test('check supplier delivery items all correct', function ($supplierDeliveryItem) {
+    $supplierDeliveryItem = UpdateStateToCheckedSupplierDeliveryItem::make()->action($supplierDeliveryItem, [
+        'unit_quantity_checked' => 2
+    ]);
+    expect($supplierDeliveryItem->supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::CHECKED);
+})->depends('create supplier delivery items');

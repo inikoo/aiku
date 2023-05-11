@@ -21,9 +21,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $supplier_product_id
  * @property array $data
  * @property string $unit_quantity
+ * @property string $unit_quantity_checked
+ * @property \App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum $state
  * @property string $unit_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $checked_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Procurement\SupplierDelivery $supplierDelivery
  * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct

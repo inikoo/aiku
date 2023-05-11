@@ -8,6 +8,8 @@
 namespace App\Actions\Procurement\Supplier\Hydrators;
 
 use App\Actions\WithTenantJob;
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
+use App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierDelivery;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -26,6 +28,16 @@ class SupplierDeliveriesHydrateItems implements ShouldBeUnique
             'gross_weight'    => $this->getGrossWeight($supplierDelivery),
             'net_weight'      => $this->getNetWeight($supplierDelivery)
         ];
+
+        $checkedItemsCount = $supplierDelivery->items()->where('state', SupplierDeliveryItemStateEnum::CHECKED)->count();
+        $items = $supplierDelivery->items()->count();
+
+        if(($checkedItemsCount === $items) && ($items > 0)) {
+            dd('ok');
+            $stats['state'] = SupplierDeliveryStateEnum::CHECKED;
+            $stats['checked_at'] = now();
+            $stats[$supplierDelivery->state->value . '_at'] = null;
+        }
 
         $supplierDelivery->update($stats);
     }
