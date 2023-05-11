@@ -35,6 +35,34 @@ class CreatePaymentAccount extends InertiaAction
                     ]
 
                 ],
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('payment account'),
+                            'fields' => [
+
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'value' => ''
+                                ],
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('name'),
+                                    'value' => ''
+                                ],
+                                'slug' => [
+                                    'type'  => 'input',
+                                    'label' => __('slug'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ]
+                    ],
+                    'route'      => [
+                        'name'       => 'models.payment-account.update',
+                    ]
+                ],
 
 
             ]

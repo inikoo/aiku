@@ -10,8 +10,12 @@ use App\Actions\Procurement\Agent\UI\CreateAgent;
 use App\Actions\Procurement\Agent\UI\EditAgent;
 use App\Actions\Procurement\Agent\UI\IndexAgents;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
+use App\Actions\Procurement\Marketplace\Agent\UI\CreateMarketplaceAgent;
+use App\Actions\Procurement\Marketplace\Agent\UI\EditMarketplaceAgent;
 use App\Actions\Procurement\Marketplace\Agent\UI\IndexMarketplaceAgents;
 use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
+use App\Actions\Procurement\Marketplace\Supplier\UI\CreateMarketplaceSupplier;
+use App\Actions\Procurement\Marketplace\Supplier\UI\EditMarketplaceSupplier;
 use App\Actions\Procurement\Marketplace\Supplier\UI\IndexMarketplaceSuppliers;
 use App\Actions\Procurement\Marketplace\Supplier\UI\ShowMarketplaceSupplier;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
@@ -59,7 +63,11 @@ Route::get('/supplier-deliveries/{supplierDelivery}', ShowSupplierDelivery::clas
 Route::get('/supplier-deliveries/{supplierDelivery}/edit', EditSupplierDelivery::class)->name('supplier-deliveries.edit');
 
 Route::get('/marketplace-agents', IndexMarketplaceAgents::class)->name('marketplace-agents.index');
+Route::get('/marketplace-agents/create', CreateMarketplaceAgent::class)->name('marketplace-agents.create');
 Route::get('/marketplace-agents/{marketplaceAgent}', ShowMarketplaceAgent::class)->name('marketplace-agents.show');
+Route::get('/marketplace-agents/{marketplaceAgent}/edit', EditMarketplaceAgent::class)->name('marketplace-agents.edit');
 
 Route::get('/marketplace-suppliers', IndexMarketplaceSuppliers::class)->name('marketplace-suppliers.index');
+Route::get('/marketplace-suppliers/create', CreateMarketplaceSupplier::class)->name('marketplace-suppliers.create');
 Route::get('/marketplace-suppliers/{marketplaceSupplier}', ShowMarketplaceSupplier::class)->name('marketplace-suppliers.show');
+Route::get('/marketplace-suppliers/{marketplaceSupplier}/edit', EditMarketplaceSupplier::class)->name('marketplace-suppliers.edit');

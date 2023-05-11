@@ -76,7 +76,7 @@ class IndexUsers extends InertiaAction
                             'name'       => 'sysadmin.users.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('user')
+                        'label' => __('create user')
                     ] : false,
                 ],
                 'labels'      => [

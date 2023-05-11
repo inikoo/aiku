@@ -35,7 +35,34 @@ class CreateWarehouseArea extends InertiaAction
                     ]
 
                 ],
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('create warehouse'),
+                            'fields' => [
 
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'value' => ''
+                                ],
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('name'),
+                                    'value' => ''
+                                ],
+                                'locations' => [
+                                    'type'  => 'input',
+                                    'label' => __('locations'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ]
+                    ],
+                    'route'      => [
+                        'name'       => 'models.warehouse-area.update',
+                    ]
+                ],
 
             ]
         );

@@ -1,33 +1,30 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 10 May 2023 09:21:57 Central European Summer Time, Malaga, Spain
+ * Created: Tue, 14 Mar 2023 09:31:03 Central European Standard Time, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\SupplierDelivery\UI;
+namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\HasUIAgents;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateSupplierDelivery extends InertiaAction
+class CreateMarketplaceAgent extends InertiaAction
 {
-    use HasUIAgents;
     public function handle(): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('new supplier delivery'),
+                'title'       => __('new marketplace agent'),
                 'pageHead'    => [
-                    'title'        => __('new supplier delivery'),
+                    'title'        => __('new marketplace agent'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'procurement.supplier-deliveries.index',
+                            'name'       => 'procurement.marketplace-agents.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -36,23 +33,26 @@ class CreateSupplierDelivery extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __(' create supplier delivery'),
+                            'title'  => __('marketplace agent'),
                             'fields' => [
 
-                                'number' => [
+                                'code' => [
                                     'type'  => 'input',
-                                    'label' => __('number'),
+                                    'label' => __('code'),
+                                    'value' => ''
+                                ],
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('name'),
                                     'value' => ''
                                 ],
                             ]
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.supplier-delivery.update',
+                        'name'       => 'models.marketplace-agent.update',
                     ]
                 ],
-
-
             ]
         );
     }

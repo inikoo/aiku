@@ -34,6 +34,34 @@ class CreateUser extends InertiaAction
                     ]
 
                 ],
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('create marketplace agent'),
+                            'fields' => [
+
+                                'username' => [
+                                    'type'  => 'input',
+                                    'label' => __('username'),
+                                    'value' => ''
+                                ],
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('name'),
+                                    'value' => ''
+                                ],
+                                'type' => [
+                                    'type'  => 'input',
+                                    'label' => __('type'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ]
+                    ],
+                    'route'      => [
+                        'name'       => 'models.user.update',
+                    ]
+                ],
 
 
             ]
