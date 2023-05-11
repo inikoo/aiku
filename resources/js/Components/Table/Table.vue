@@ -2,7 +2,7 @@
 import Pagination from "@/Components/Table/Pagination.vue"
 import HeaderCell from "@/Components/Table/HeaderCell.vue"
 import TableGlobalSearch from "@/Components/Table/TableGlobalSearch.vue"
-import TableFilterCheck from "@/Components/Table/TableFilterCheck.vue"
+import TableElements from "@/Components/Table/TableElements.vue"
 import TableWrapper from "@/Components/Table/TableWrapper.vue"
 import TableAddSearchRow from  "@/Components/Table/TableAddSearchRow.vue"
 import TableColumns from "@/Components/Table/TableColumns.vue"
@@ -10,7 +10,7 @@ import TableFilter from "@/Components/Table/TableFilter.vue"
 import TableSearchRows from "@/Components/Table/TableSearchRows.vue"
 import SearchReset from "@/Components/Table/SearchReset.vue"
 
-import { computed, reactive, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from "vue"
+import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from "vue"
 import qs from "qs"
 import clone from "lodash-es/clone"
 import filter from "lodash-es/filter"
@@ -130,7 +130,7 @@ const hasOnlyData = computed(() => {
 		return false
 	}
 
-	if (queryBuilderProps.value.filterCheck) {
+	if (queryBuilderProps.value.elements) {
 		return false
 	}
 
@@ -239,8 +239,8 @@ function resetQuery() {
 		queryBuilderData.value.searchInputs[key].value = null
 	})
 
-	forEach(queryBuilderData.value.filterCheck, (filter, key) => {
-		queryBuilderData.value.filterCheck[key].value = null
+	forEach(queryBuilderData.value.elements, (filter, key) => {
+		queryBuilderData.value.elements[key].value = null
 	})
 
 	forEach(queryBuilderData.value.columns, (column, key) => {
@@ -283,24 +283,11 @@ function changeFilterValue(key, value) {
 	queryBuilderData.value.page = 1
 }
 
-function changeCheckboxValue(dataY) {
-	let dataX=dataY;
-	console.log("=============")
-	console.log(dataX)
-	console.log("=============")
-	console.log(dataX[0])
-	console.log(dataX[1])
-	console.log(dataX[2])
-	console.log(dataX[0].key)
-	console.log(dataX[1].key)
-	console.log(dataX[2].key)
-	for (let i = 0; i < dataX.length; i++) {
-		//console.log(dataX)
-  		//console.log(dataX[i]);
-	} 
+function changeElements(dataY) {
 
-	
-	queryBuilderData.value.filterCheck[0].checked=true
+    console.log(dataY)
+
+	//queryBuilderData.value.elements[0].checked=true
 
 }
 
@@ -337,11 +324,7 @@ function getFilterForQuery() {
 		}
 	})
 
-	// forEach(queryBuilderData.value.filterCheck, (filterCheck) => {
-	// 	if (filterCheck.value !== null) {
-	// 		filtersWithValue[filterCheck.key] = filterCheck.value
-	// 	}
-	// })
+
 
 	return filtersWithValue
 }
@@ -404,16 +387,16 @@ function dataForNewQueryString() {
 
 function generateNewQueryString() {
 	const queryStringData = qs.parse(location.search.substring(1))
-	
+
 	const prefix = props.name === "default" ? "" : props.name + "_"
-	
+
 	forEach(["filter", "columns", "cursor", "sort"], (key) => {
 		delete queryStringData[prefix + key]
 	})
 
-	
+
 	delete queryStringData[pageName.value]
-	
+
 	forEach(dataForNewQueryString(), (value, key) => {
 		if (key === "page") {
 			queryStringData[pageName.value] = value
@@ -654,13 +637,11 @@ function header(key) {
 			</slot>
 			<!-- filter checkbox-->
 			<slot
-				name="tableFilterCheck" 
-				:has-shown="queryBuilderProps.hasShowCheck"
-				:filters="queryBuilderProps.filterCheck"
+				name="tableElements"
 				>
-				<TableFilterCheck
-					:labels ="queryBuilderProps.filterCheck"
-					@changeCheckboxValue="changeCheckboxValue"
+				<TableElements
+					:labels ="queryBuilderProps.elements"
+					@changeElements="changeElements"
 				/>
 			</slot>
 

@@ -16,7 +16,7 @@ class InertiaTable
     private Request $request;
     private Collection $columns;
     private Collection $searchInputs;
-    private Collection $checkBoxFilter;
+    private Collection $elements;
     private Collection $filters;
     private string $defaultSort = '';
 
@@ -25,35 +25,32 @@ class InertiaTable
 
     public function __construct(Request $request)
     {
-        $this->request        = $request;
-        $this->columns        = new Collection();
-        $this->searchInputs   = new Collection();
-        $this->checkBoxFilter = collect(
+        $this->request      = $request;
+        $this->columns      = new Collection();
+        $this->searchInputs = new Collection();
+        $this->elements     = collect(
             [
                 [
-                    'key'    => 'hired',
-                    'label'  => "Hired",
-                    'count'  => 7,
-                    'show'=> false,
-                    'value'  => 'hired',
+                    'key'   => 'hired',
+                    'label' => "Hired",
+                    'count' => 7,
+                    'show'  => false,
                 ],
                 [
-                    'key'    => 'xxx',
-                    'label'  => "xx",
-                    'count'  => 15,
-                    'show'=> false,
-                    'value'  => 'xx',
+                    'key'   => 'xxx',
+                    'label' => "xx",
+                    'count' => 15,
+                    'show'  => false,
                 ],
                 [
-                    'key'    => 'left',
-                    'label'  => "Left",
-                    'count'  => 46,
-                    'show'=> false,
-                    'value'  => 'left',
+                    'key'   => 'left',
+                    'label' => "Left",
+                    'count' => 46,
+                    'show'  => false,
                 ],
             ]
         );
-        $this->filters        = new Collection();
+        $this->filters      = new Collection();
 
 
         if (static::$defaultGlobalSearch !== false) {
@@ -61,61 +58,36 @@ class InertiaTable
         }
     }
 
-    /**
-     * Set a default for global search.
-     *
-     * @param  bool|string  $label
-     *
-     * @return void
-     */
-    public static function defaultGlobalSearch(bool|string $label = 'Search...')
+
+    public static function defaultGlobalSearch(bool|string $label = 'Search...'): void
     {
         static::$defaultGlobalSearch = $label !== false ? __($label) : false;
     }
 
-    /**
-     * Retrieve a query string item from the request.
-     *
-     * @param  string  $key
-     * @param  mixed|null  $default
-     *
-     * @return mixed
-     */
-    private function query(string $key, $default = null)
+
+    private function query(string $key, mixed $default = null): string|array|null
     {
         return $this->request->query(
-            $this->name === 'default' ? $key : "{$this->name}_{$key}",
+            $this->name === 'default' ? $key : "{$this->name}_$key",
             $default
         );
     }
 
-    /**
-     * Helper method to update the Spatie Query Builder parameter config.
-     *
-     * @param  string  $name
-     *
-     * @return void
-     */
-    public static function updateQueryBuilderParameters(string $name)
+
+    public static function updateQueryBuilderParameters(string $name): void
     {
         if (empty(static::$defaultQueryBuilderConfig)) {
             static::$defaultQueryBuilderConfig = config('query-builder.parameters');
         }
 
         $newConfig = collect(static::$defaultQueryBuilderConfig)->map(function ($value) use ($name) {
-            return "{$name}_{$value}";
+            return "{$name}_$value";
         })->all();
 
         config(['query-builder.parameters' => $newConfig]);
     }
 
-    /**
-     * Name for this table.
-     *
-     * @param  string  $name
-     *
-     * @return self
-     */
+
     public function name(string $name): self
     {
         $this->name = $name;
@@ -123,13 +95,7 @@ class InertiaTable
         return $this;
     }
 
-    /**
-     * Page name for this table.
-     *
-     * @param  string  $pageName
-     *
-     * @return self
-     */
+
     public function pageName(string $pageName): self
     {
         $this->pageName = $pageName;
@@ -137,13 +103,7 @@ class InertiaTable
         return $this;
     }
 
-    /**
-     * Per Page options for this table.
-     *
-     * @param  array  $pageName
-     *
-     * @return self
-     */
+
     public function perPageOptions(array $perPageOptions): self
     {
         $this->perPageOptions = $perPageOptions;
@@ -151,13 +111,7 @@ class InertiaTable
         return $this;
     }
 
-    /**
-     * Default sort for this table.
-     *
-     * @param  string  $defaultSort
-     *
-     * @return self
-     */
+
     public function defaultSort(string $defaultSort): self
     {
         $this->defaultSort = $defaultSort;
@@ -196,15 +150,11 @@ class InertiaTable
             'page'           => Paginator::resolveCurrentPage($this->pageName),
             'pageName'       => $this->pageName,
             'perPageOptions' => $this->perPageOptions,
-            'filterCheck'    => $this->transformCheckboxs(),
+            'elements'       => $this->transformElements(),
         ];
     }
 
-    /**
-     * Transform the columns collection so it can be used in the Inertia front-end.
-     *
-     * @return \Illuminate\Support\Collection
-     */
+
     protected function transformColumns(): Collection
     {
         $columns = $this->query('columns', []);
@@ -220,7 +170,7 @@ class InertiaTable
 
             if ($sort === $key) {
                 $column->sorted = 'asc';
-            } elseif ($sort === "-{$key}") {
+            } elseif ($sort === "-$key") {
                 $column->sorted = 'desc';
             }
 
@@ -228,11 +178,7 @@ class InertiaTable
         });
     }
 
-    /**
-     * Transform the search collection so it can be used in the Inertia front-end.
-     *
-     * @return \Illuminate\Support\Collection
-     */
+
     protected function transformFilters(): Collection
     {
         $filters = $this->filters;
@@ -252,30 +198,26 @@ class InertiaTable
         });
     }
 
-    protected function transformCheckboxs(): Collection
+    protected function transformElements(): Collection
     {
-        $checkBoxFilter = $this->checkBoxFilter;
+        $elements = $this->elements;
 
-        $queryFilters = $this->query('filterCheck', []);
+        $queryElements = $this->query('elements', []);
 
-        if (empty($queryFilters)) {
-            return $checkBoxFilter;
+        if (empty($queryElements)) {
+            return $elements;
         }
 
-        return $checkBoxFilter->map(function (CheckFilter $checkBoxFilter) use ($queryFilters) {
-            if (array_key_exists($checkBoxFilter->key, $queryFilters)) {
-                $checkBoxFilter->value = $queryFilters[$checkBoxFilter->key];
+        return $elements->map(function (CheckFilter $elements) use ($queryElements) {
+            if (array_key_exists($elements->key, $queryElements)) {
+                $elements->value = $queryElements[$elements->key];
             }
 
-            return $checkBoxFilter;
+            return $elements;
         });
     }
 
-    /**
-     * Transform the filters collection so it can be used in the Inertia front-end.
-     *
-     * @return \Illuminate\Support\Collection
-     */
+
     protected function transformSearchInputs(): Collection
     {
         $filters = $this->query('filter', []);
