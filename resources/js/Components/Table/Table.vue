@@ -4,7 +4,7 @@ import HeaderCell from "@/Components/Table/HeaderCell.vue"
 import TableGlobalSearch from "@/Components/Table/TableGlobalSearch.vue"
 import TableElements from "@/Components/Table/TableElements.vue"
 import TableWrapper from "@/Components/Table/TableWrapper.vue"
-import TableAddSearchRow from  "@/Components/Table/TableAddSearchRow.vue"
+import TableAddSearchRow from "@/Components/Table/TableAddSearchRow.vue"
 import TableColumns from "@/Components/Table/TableColumns.vue"
 import TableFilter from "@/Components/Table/TableFilter.vue"
 import TableSearchRows from "@/Components/Table/TableSearchRows.vue"
@@ -21,6 +21,9 @@ import map from "lodash-es/map"
 import pickBy from "lodash-es/pickBy"
 
 const props = defineProps({
+	changeElements: {
+		type: Object
+	},
 	inertia: {
 		type: Object,
 		default: () => {
@@ -285,7 +288,8 @@ function changeFilterValue(key, value) {
 
 function changeElements(dataY) {
 
-    console.log(dataY)
+	console.log("From table.vue")
+	console.log(dataY)
 
 	//queryBuilderData.value.elements[0].checked=true
 
@@ -522,160 +526,131 @@ function header(key) {
 	return columnData
 }
 
+const fakeElements = ref([
+    {
+        key: 0,
+        label: 'hello',
+        show: true,
+        count: 5,
+    },
+    {
+        key: 1,
+        label: 'world',
+        show: false,
+        count: 13,
+    },
+    {
+        key: 2,
+        label: 'bye',
+        show: true,
+        count: 23,
+    },
+])
+const compFakeElements = computed(() => {
+    return fakeElements.value.filter((i) => 
+        i.show == false
+    )
+})
+
 </script>
 <template>
 	<Transition>
-		<fieldset
-			ref="tableFieldset"
-			:key="`table-${name}`"
-			:dusk="`table-${name}`"
-			class="min-w-0 overflow-x-hidden pt-2"
+		<fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0 overflow-x-hidden pt-2"
 			:class="{ 'opacity-75': isVisiting }">
 
-            <!-- Wrapper -->
+			<!-- Wrapper -->
 			<div class="grid grid-flow-col space-around flex-nowrap px-4">
-                <!-- Result Number -->
-                <div class="text-gray-600 cursor-default rounded grid items-center justify-start px-3 text-md font-medium" title="Results">
-                    {{ resourceMeta.total }} {{ $t(' results') }}
-                </div>
+				<!-- Result Number -->
+				<div class="text-gray-600 cursor-default rounded grid items-center justify-start px-3 text-md font-medium"
+					title="Results">
+					{{ resourceMeta.total }} {{ $t(' results') }}
+				</div>
 
-                <!-- Search Group -->
+				<!-- Search Group -->
 				<div class="flex flex-row justify-end items-start flex-nowrap space-x-2">
-                    <div class="order-2 sm:order-1 mr-2 sm:mr-4"
-                        v-if="queryBuilderProps.hasFilters">
-                        <slot
-                            name="tableFilter"
-                            :has-filters="queryBuilderProps.hasFilters"
-                            :has-enabled-filters="queryBuilderProps.hasEnabledFilters"
-                            :filters="queryBuilderProps.filters"
-                            :on-filter-change="changeFilterValue">
-                            <TableFilter
-                                :has-enabled-filters="queryBuilderProps.hasEnabledFilters"
-                                :filters="queryBuilderProps.filters"
-                                :on-filter-change="changeFilterValue" />
-                        </slot>
-                    </div>
-                    <!-- Search Input Button -->
-                    <div
-                        v-if="queryBuilderProps.globalSearch"
-                        class="flex flex-row w-44 order-1 md:order-2 focus-within:w-64 md:focus-within:w-80 transition-all ease-in-out duration-100">
-                        <slot
-                            name="tableGlobalSearch"
-                            :has-global-search="queryBuilderProps.globalSearch"
-                            :label="
-                                queryBuilderProps.globalSearch
-                                    ? queryBuilderProps.globalSearch.label
-                                    : null
-                            "
-                            :value="
-                                queryBuilderProps.globalSearch
-                                    ? queryBuilderProps.globalSearch.value
-                                    : null
-                            "
-                            :on-change="changeGlobalSearchValue">
-                            <TableGlobalSearch
-                                v-if="queryBuilderProps.globalSearch"
-                                class="flex-grow"
-                                :label="queryBuilderProps.globalSearch.label"
-                                :value="queryBuilderProps.globalSearch.value"
-                                :on-change="changeGlobalSearchValue" />
-                        </slot>
-                    </div>
-                    <!-- Reset Button (If already searching) -->
-                    <slot name="searchReset" can-be-reset="canBeReset" @resetSearch="()=> resetQuery()">
-                        <div v-if="canBeReset" class="order-3">
-                            <SearchReset @resetSearch="()=> resetQuery()"/>
-                        </div>
-                    </slot>
-                    <!-- Code/Name/State Button -->
-                    <slot
-                        name="tableAddSearchRow"
-                        :has-search-inputs="queryBuilderProps.hasSearchInputs"
-                        :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
-                        :search-inputs="queryBuilderProps.searchInputsWithoutGlobal"
-                        :on-add="showSearchInput">
-                        <TableAddSearchRow
-                            v-if="queryBuilderProps.hasSearchInputs"
-                            class="order-4"
-                            :search-inputs="queryBuilderProps.searchInputsWithoutGlobal"
-                            :has-search-inputs-without-value="
-                                queryBuilderProps.hasSearchInputsWithoutValue
-                            "
-                            :on-add="showSearchInput" />
-                    </slot>
-                    <slot
-                        name="tableColumns"
-                        :has-columns="queryBuilderProps.hasToggleableColumns"
-                        :columns="queryBuilderProps.columns"
-                        :has-hidden-columns="queryBuilderProps.hasHiddenColumns"
-                        :on-change="changeColumnStatus">
-                        <TableColumns
-                            v-if="queryBuilderProps.hasToggleableColumns"
-                            class="order-4 mr-4 sm:mr-0 sm:order-5"
-                            :columns="queryBuilderProps.columns"
-                            :has-hidden-columns="queryBuilderProps.hasHiddenColumns"
-                            :on-change="changeColumnStatus" />
-                    </slot>
-                </div>
+					<div class="order-2 sm:order-1 mr-2 sm:mr-4" v-if="queryBuilderProps.hasFilters">
+						<slot name="tableFilter" :has-filters="queryBuilderProps.hasFilters"
+							:has-enabled-filters="queryBuilderProps.hasEnabledFilters" :filters="queryBuilderProps.filters"
+							:on-filter-change="changeFilterValue">
+							<TableFilter :has-enabled-filters="queryBuilderProps.hasEnabledFilters"
+								:filters="queryBuilderProps.filters" :on-filter-change="changeFilterValue" />
+						</slot>
+					</div>
+					<!-- Search Input Button -->
+					<div v-if="queryBuilderProps.globalSearch"
+						class="flex flex-row w-44 order-1 md:order-2 focus-within:w-64 md:focus-within:w-80 transition-all ease-in-out duration-100">
+						<slot name="tableGlobalSearch" :has-global-search="queryBuilderProps.globalSearch" :label="queryBuilderProps.globalSearch
+								? queryBuilderProps.globalSearch.label
+								: null
+								" :value="queryBuilderProps.globalSearch
+									? queryBuilderProps.globalSearch.value
+									: null
+								" :on-change="changeGlobalSearchValue">
+							<TableGlobalSearch v-if="queryBuilderProps.globalSearch" class="flex-grow"
+								:label="queryBuilderProps.globalSearch.label" :value="queryBuilderProps.globalSearch.value"
+								:on-change="changeGlobalSearchValue" />
+						</slot>
+					</div>
+					<!-- Reset Button (If already searching) -->
+					<slot name="searchReset" can-be-reset="canBeReset" @resetSearch="() => resetQuery()">
+						<div v-if="canBeReset" class="order-3">
+							<SearchReset @resetSearch="() => resetQuery()" />
+						</div>
+					</slot>
+					<!-- Code/Name/State Button -->
+					<slot name="tableAddSearchRow" :has-search-inputs="queryBuilderProps.hasSearchInputs"
+						:has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
+						:search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :on-add="showSearchInput">
+						<TableAddSearchRow v-if="queryBuilderProps.hasSearchInputs" class="order-4"
+							:search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue
+								" :on-add="showSearchInput" />
+					</slot>
+					<slot name="tableColumns" :has-columns="queryBuilderProps.hasToggleableColumns"
+						:columns="queryBuilderProps.columns" :has-hidden-columns="queryBuilderProps.hasHiddenColumns"
+						:on-change="changeColumnStatus">
+						<TableColumns v-if="queryBuilderProps.hasToggleableColumns" class="order-4 mr-4 sm:mr-0 sm:order-5"
+							:columns="queryBuilderProps.columns" :has-hidden-columns="queryBuilderProps.hasHiddenColumns"
+							:on-change="changeColumnStatus" />
+					</slot>
+				</div>
 			</div>
 
-			<slot
-				name="tableSearchRows"
-				:has-search-rows-with-value="queryBuilderProps.hasSearchInputsWithValue"
+			<slot name="tableSearchRows" :has-search-rows-with-value="queryBuilderProps.hasSearchInputsWithValue"
 				:search-inputs="queryBuilderProps.searchInputsWithoutGlobal"
-				:forced-visible-search-inputs="forcedVisibleSearchInputs"
-				:on-change="changeSearchInputValue">
-				<TableSearchRows
-					v-if="
-						queryBuilderProps.hasSearchInputsWithValue ||
-						forcedVisibleSearchInputs.length > 0
-					"
-					:search-inputs="queryBuilderProps.searchInputsWithoutGlobal"
-					:forced-visible-search-inputs="forcedVisibleSearchInputs"
-					:on-change="changeSearchInputValue"
+				:forced-visible-search-inputs="forcedVisibleSearchInputs" :on-change="changeSearchInputValue">
+				<TableSearchRows v-if="queryBuilderProps.hasSearchInputsWithValue ||
+					forcedVisibleSearchInputs.length > 0
+					" :search-inputs="queryBuilderProps.searchInputsWithoutGlobal"
+					:forced-visible-search-inputs="forcedVisibleSearchInputs" :on-change="changeSearchInputValue"
 					:on-remove="disableSearchInput" />
 			</slot>
 			<!-- filter checkbox-->
-			<slot
-				name="tableElements"
-				>
-				<TableElements
-					:labels ="queryBuilderProps.elements"
-					@changeElements="changeElements"
-				/>
-			</slot>
-
-            <!-- The Main Table -->
-            <slot name="tableWrapper" :meta="resourceMeta">
+			<!-- {{ compFakeElements }} -->
+			<TableElements :elements="fakeElements" v-model="fakeElements" />
+			
+			<!-- The Main Table -->
+			<slot name="tableWrapper" :meta="resourceMeta">
 				<TableWrapper :class="{ 'mt--3': !hasOnlyData }">
 					<slot name="table">
 						<table class="min-w-full divide-y divide-gray-200 bg-white">
 							<thead class="bg-gray-50">
 								<tr class="border-t border-gray-200">
-									<HeaderCell
-										v-for="column in queryBuilderProps.columns"
-										:key="`table-${name}-header-${column.key}`"
-										:cell="header(column.key)"
+									<HeaderCell v-for="column in queryBuilderProps.columns"
+										:key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
 										:type="columnsType[column.key]" />
 								</tr>
 							</thead>
 
 							<tbody class="bg-white divide-y divide-gray-200">
 								<slot name="body" :show="show">
-									<tr
-										v-for="(item, key) in resourceData"
-										:key="`table-${name}-row-${key}`"
-										class=""
+									<tr v-for="(item, key) in resourceData" :key="`table-${name}-row-${key}`" class=""
 										:class="{
 											'bg-gray-50': striped && key % 2,
 											'hover:bg-gray-100': striped,
 											'hover:bg-gray-50': !striped,
 										}">
-										<td
-											v-for="column in queryBuilderProps.columns"
-											v-show="show(column.key)"
-											:key="`table-${name}-row-${key}-column-${column.key}`"
-											:class="[
+										<td v-for="column in queryBuilderProps.columns" v-show="show(column.key)"
+											:key="`table-${name}-row-${key}-column-${column.key}`" :class="[
 												columnsType[column.key] === 'number'
 													? 'text-right'
 													: '',
@@ -691,19 +666,10 @@ function header(key) {
 						</table>
 					</slot>
 
-					<slot
-						name="pagination"
-						:on-click="visit"
-						:has-data="hasData"
-						:meta="resourceMeta"
-						:per-page-options="queryBuilderProps.perPageOptions"
-						:on-per-page-change="onPerPageChange">
-						<Pagination
-							:on-click="visit"
-							:has-data="hasData"
-							:meta="resourceMeta"
-							:per-page-options="queryBuilderProps.perPageOptions"
-							:on-per-page-change="onPerPageChange" />
+					<slot name="pagination" :on-click="visit" :has-data="hasData" :meta="resourceMeta"
+						:per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange">
+						<Pagination :on-click="visit" :has-data="hasData" :meta="resourceMeta"
+							:per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange" />
 					</slot>
 				</TableWrapper>
 			</slot>
