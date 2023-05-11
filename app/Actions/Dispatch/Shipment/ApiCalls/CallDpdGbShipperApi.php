@@ -19,22 +19,33 @@ class CallApcgbShipperApi
     public function handle(DeliveryNote $deliveryNote, Shipper $shipper, $type): Shipment
     {
         $password="";
-        $apiUrl = "https://apc.hypaship.com/api/3.0/";
-        $header = [
-            "remote-user: Basic ".base64_encode($shipper->email.':'.$password),
-            "Content-Type: application/json"
+        $apiUrl = "https://api.dpd.co.uk/";
+        $headers = [
+            "Authorization: Basic ".base64_encode($shipper->username.':'.$shipper->password),
+            "Content-Type: application/json",
+            "Accept: application/json",
+            'GeoClient: account/'.$shipper->account_number
         ];
-        $params = array(
-            'Orders' => [
-                'Order' => json_encode($deliveryNote)
-            ]
+        $params = [];
+        $apiResponse = $this->callApi(
+            $this->api_url.'user?action=login', $headers, json_encode($params)
         );
+
+        if ($apiResponse['status'] == 200 and !empty($apiResponse['data']['data']['geoSession'])) {
+            $shippingAccountData                   = $shipperAccount->data;
+            $shippingAccountData['geoSession']     = $apiResponse['data']['data']['geoSession'];
+            $shippingAccountData['geoSessionDate'] = gmdate('U');
+            $shipperAccount->data                  = $shippingAccountData;
+            $shipperAccount->save();
+
+        }
+        
         if ($type == 'apiCall') {
-            $apiResponse =  $this->callApi($apiurl.'Orders.json',$header,json_encode($params));
+            $apiResponse =  $this->callApi($apiurl.'shipping/shipment',$header,json_encode($params));
         } else {
             $apiResponse =  $this->callApi($apiurl.'Tracks/'.$shipment->tracking.'.json?searchtype=CarrierWaybill&history=Yes',$header, "[]", 'GET');
         }
-
+        
         return $apiResponse;
     }
 
