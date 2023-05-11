@@ -34,7 +34,8 @@ return new class () extends Migration {
 
 
             $table->smallInteger('number_of_items')->default(0);
-            $table->float('total_weight', 16)->default(null)->nullable();
+            $table->float('gross_weight', 16)->default(null)->nullable();
+            $table->float('net_weight', 16)->default(null)->nullable();
             $table->decimal('cost_items', 16)->default(null)->nullable();
             $table->decimal('cost_extra', 16)->default(null)->nullable();
 

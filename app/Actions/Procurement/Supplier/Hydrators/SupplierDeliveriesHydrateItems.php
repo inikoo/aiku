@@ -21,17 +21,20 @@ class SupplierDeliveriesHydrateItems implements ShouldBeUnique
     public function handle(SupplierDelivery $supplierDelivery): void
     {
         $stats = [
-            'number_of_items' => $supplierDelivery->items()->count()
+            'number_of_items' => $supplierDelivery->items()->count(),
+            'cost_items'      => $this->getTotalCostItem($supplierDelivery),
+            'gross_weight'    => $this->getGrossWeight($supplierDelivery),
+            'net_weight'      => $this->getNetWeight($supplierDelivery)
         ];
 
         $supplierDelivery->update($stats);
     }
 
-    public function getGrossWeight(PurchaseOrder $purchaseOrder): float
+    public function getGrossWeight(SupplierDelivery $supplierDelivery): float
     {
         $grossWeight = 0;
 
-        foreach ($purchaseOrder->items as $item) {
+        foreach ($supplierDelivery->items as $item) {
             foreach ($item->supplierProduct['tradeUnits'] as $tradeUnit) {
                 $grossWeight += $item->supplierProduct['grossWeight'] * $tradeUnit->pivot->package_quantity;
             }
@@ -40,11 +43,11 @@ class SupplierDeliveriesHydrateItems implements ShouldBeUnique
         return $grossWeight;
     }
 
-    public function getNetWeight(PurchaseOrder $purchaseOrder): float
+    public function getNetWeight(SupplierDelivery $supplierDelivery): float
     {
         $netWeight = 0;
 
-        foreach ($purchaseOrder->items as $item) {
+        foreach ($supplierDelivery->items as $item) {
             foreach ($item->supplierProduct['tradeUnits'] as $tradeUnit) {
                 $netWeight += $item->supplierProduct['netWeight'] * $tradeUnit->pivot->package_quantity;
             }
@@ -53,11 +56,11 @@ class SupplierDeliveriesHydrateItems implements ShouldBeUnique
         return $netWeight;
     }
 
-    public function getTotalCostItem(PurchaseOrder $purchaseOrder): float
+    public function getTotalCostItem(SupplierDelivery $supplierDelivery): float
     {
         $costItems = 0;
 
-        foreach ($purchaseOrder->items as $item) {
+        foreach ($supplierDelivery->items as $item) {
             $costItems += $item->unit_price * $item->supplierProduct['cost'];
         }
 
