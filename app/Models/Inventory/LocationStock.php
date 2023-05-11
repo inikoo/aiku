@@ -56,7 +56,7 @@ class LocationStock extends Pivot
 
     protected $guarded = [];
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::created(
             function (LocationStock $locationStock) {
