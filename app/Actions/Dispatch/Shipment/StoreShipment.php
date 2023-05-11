@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dispatch\Shipment;
+namespace App\Actions\Dispatch\Shipment\ApiCalls;
 
 use App\Actions\Dispatch\Shipment\Hydrators\ShipmentHydrateUniversalSearch;
 use App\Models\Dispatch\DeliveryNote;
