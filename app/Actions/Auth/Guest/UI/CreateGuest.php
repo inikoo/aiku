@@ -8,7 +8,6 @@
 namespace App\Actions\Auth\Guest\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\Auth\GuestTypeEnum;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -65,7 +64,7 @@ class CreateGuest extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.guest.store',
+                        'name'       => 'models.guest.update',
 
                     ]
 

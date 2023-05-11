@@ -19,6 +19,8 @@ return new class () extends Migration {
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->string('code')->index();
             $table->string('name');
+            $table->decimal('unit_quantity')->default(0);
+            $table->decimal('value')->default(0);
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedSmallInteger('source_id')->nullable()->unique();
