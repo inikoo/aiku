@@ -22,6 +22,15 @@ class HydrateWarehouse extends HydrateModel
         $this->locations($warehouse);
     }
 
+    public function stock(Warehouse $warehouse): void
+    {
+        $warehouse->stats->update(
+            [
+                'stock_value' => '' // TODO: calculate this
+            ]
+        );
+    }
+
     public function warehouseAreas(Warehouse $warehouse): void
     {
         $warehouse->stats->update(

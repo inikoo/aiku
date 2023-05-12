@@ -1,7 +1,7 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 02 Apr 2023 21:13:56 Malaysia Time, Sanur, Bali, Indonesia
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Fri, 12 May 2023 15:16:28 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -10,13 +10,13 @@ namespace App\Actions\Inventory\Stock;
 use App\Models\Inventory\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SyncStockTradeUnits
+class RemoveStockTradeUnits
 {
     use AsAction;
 
     public function handle(Stock $stock, array $tradeUnitsData): Stock
     {
-        $stock->tradeUnits()->sync($tradeUnitsData);
+        $stock->tradeUnits()->detach($tradeUnitsData);
 
         return $stock;
     }
