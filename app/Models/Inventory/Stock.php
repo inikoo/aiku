@@ -15,7 +15,6 @@ use App\Models\Helpers\Barcode;
 use App\Models\Media\GroupMedia;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Inventory\StockFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -71,7 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\StockMovement> $stockMovements
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static StockFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Inventory\StockFactory factory($count = null, $state = [])
  * @method static Builder|Stock newModelQuery()
  * @method static Builder|Stock newQuery()
  * @method static Builder|Stock onlyTrashed()

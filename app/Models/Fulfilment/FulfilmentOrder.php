@@ -39,6 +39,7 @@ use Spatie\Sluggable\HasSlug;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\Sales\Customer $customer
+ * @property-read \App\Models\Dropshipping\CustomerClient|null $customerClient
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNote> $deliveryNotes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentOrderItem> $items
  * @property-read \App\Models\Marketing\Shop $shop

@@ -58,6 +58,7 @@ const handleFormSubmit = () => {
 
 <template layout="App">
     <Head :title="title"/>
+    {{ props.formData.route.name }}
     <PageHeading :data="pageHead"></PageHeading>
 
 
@@ -88,8 +89,8 @@ const handleFormSubmit = () => {
                                         <!-- Dynamic component -->
                                         <component
                                             :is="getComponent(fieldData['type'])"
-                                            :form=form
-                                            :fieldName=fieldName
+                                            :form="form"
+                                            :fieldName="fieldName"
                                             :options="fieldData['options']">
                                         </component>
                                     </div>

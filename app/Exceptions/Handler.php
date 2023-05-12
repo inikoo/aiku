@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
+use App\Actions\UI\GetFirstLoadProps;
+use App\Http\Resources\UI\LoggedUserResource;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -61,31 +63,46 @@ class Handler extends ExceptionHandler
 
 
         if (!app()->environment(['local', 'testing']) && in_array($response->status(), [500, 503, 404, 403, 422])) {
+
+            $errorData=match ($response->status()) {
+                403 => [
+                    'status'      => $response->status(),
+                    'title'       => __('Forbidden'),
+                    'description' => __('Sorry, you are forbidden from accessing this page.')
+                ],
+                404 => [
+                    'status'      => $response->status(),
+                    'title'       => __('Page Not Found'),
+                    'description' => __('Sorry, the page you are looking for could not be found.')
+                ],
+                422 => [
+                    'status'      => $response->status(),
+                    'title'       => __('Unprocessable request'),
+                    'description' => __('Sorry, is impossible to process this page.')
+                ],
+                503 => [
+                    'status'      => $response->status(),
+                    'title'       => __('Service Unavailable'),
+                    'description' => __('Sorry, we are doing some maintenance. Please check back soon.')
+                ],
+                default => $this->getExceptionInfo()
+            };
+            $user=$request->user();
+            if(Auth::check()) {
+                $errorData= array_merge(
+                    GetFirstLoadProps::run($user),
+                    $errorData,
+                    [
+                    'auth'          => [
+                        'user' => $request->user() ? new LoggedUserResource($user) : null,
+                    ],
+               ]
+                );
+            }
+
             return Inertia::render(
                 Auth::check() ? 'Utils/ErrorInApp' : 'Utils/Error',
-                match ($response->status()) {
-                    403 => [
-                        'status'      => $response->status(),
-                        'title'       => __('Forbidden'),
-                        'description' => __('Sorry, you are forbidden from accessing this page.')
-                    ],
-                    404 => [
-                        'status'      => $response->status(),
-                        'title'       => __('Page Not Found'),
-                        'description' => __('Sorry, the page you are looking for could not be found.')
-                    ],
-                    422 => [
-                        'status'      => $response->status(),
-                        'title'       => __('Unprocessable request'),
-                        'description' => __('Sorry, is impossible to process this page.')
-                    ],
-                    503 => [
-                        'status'      => $response->status(),
-                        'title'       => __('Service Unavailable'),
-                        'description' => __('Sorry, we are doing some maintenance. Please check back soon.')
-                    ],
-                    default => $this->getExceptionInfo($e)
-                }
+                $errorData
             )
                 ->toResponse($request)
                 ->setStatusCode($response->status());
@@ -98,7 +115,7 @@ class Handler extends ExceptionHandler
         return $response;
     }
 
-    public function getExceptionInfo($e): array
+    public function getExceptionInfo(): array
     {
         return [
             'status'      => 500,

@@ -31,6 +31,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $warehouse_area_id
  * @property LocationStatusEnum $status
  * @property string $code
+ * @property string $unit_quantity
+ * @property string $value
  * @property bool $is_empty
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $audited_at
