@@ -8,15 +8,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\UI\GetCurrentShopSlug;
-use App\Actions\UI\GetLayout;
-use App\Actions\UI\GetShops;
+use App\Actions\UI\GetFirstLoadProps;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\Marketing\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
@@ -40,6 +36,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+
         /** @var \App\Models\Auth\User $user */
         $user = $request->user();
 
@@ -47,37 +44,7 @@ class HandleInertiaRequests extends Middleware
 
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
-            $firstLoadOnlyProps = [
-
-                'tenant'   => app('currentTenant') ? app('currentTenant')->only('name', 'code') : null,
-                'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
-
-
-                'layoutCurrentShopSlug'   => function () use ($user) {
-                    if ($user) {
-                        return GetCurrentShopSlug::run($user);
-                    } else {
-                        return null;
-                    }
-                },
-
-
-                'layoutShopsList'   => function () use ($user) {
-                    if ($user) {
-                        return GetShops::run($user);
-                    } else {
-                        return [];
-                    }
-                },
-
-                'layout'   => function () use ($user) {
-                    if ($user) {
-                        return GetLayout::run($user);
-                    } else {
-                        return [];
-                    }
-                }
-            ];
+            $firstLoadOnlyProps =GetFirstLoadProps::run($user);
 
             if (Session::get('reloadLayout') == 'remove') {
                 Session::forget('reloadLayout');
