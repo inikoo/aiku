@@ -13,11 +13,11 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Illuminate\Support\Arr;
 
-class CallApcgbShipperApi
+class CallApcGbShipperApi
 {
     use AsAction;
     use WithAttributes;
-    public function handle(DeliveryNote $deliveryNote, Shipper $shipper, $type): Shipment
+    public function handle(DeliveryNote $deliveryNote, Shipper $shipper): array
     {
         $password="";
         $apiUrl = "https://apc.hypaship.com/api/3.0/";
@@ -27,23 +27,16 @@ class CallApcgbShipperApi
         ];
         $params = array(
             'Orders' => [
-                'Order' => json_encode($deliveryNote)
+                'Order' => $deliveryNote
             ]
         );
-        if ($type == 'apiCall') {
-            $apiResponse =  $this->callApi($apiurl.'Orders.json',$header,json_encode($params));
-        } else {
-            $this-track($deliveryNote);
-            $apiResponse =  $this->callApi($apiurl.'Tracks/'.$shipment->tracking.'.json?searchtype=CarrierWaybill&history=Yes',$header, "[]", 'GET');
-        }
 
-        return $apiResponse;
+        return $this->callApi($apiUrl.'Orders.json',$header,json_encode($params));
     }
 
     public function callApi ($url, $headers, $params, $method = 'POST', $result_encoding = 'json')
     {
         $curl = curl_init();
-
 
         curl_setopt_array(
             $curl, array(
@@ -59,7 +52,6 @@ class CallApcgbShipperApi
                      CURLOPT_HTTPHEADER     => $headers,
                  )
         );
-
 
         $raw_response = curl_exec($curl);
 
@@ -101,33 +93,4 @@ class CallApcgbShipperApi
 
         return $response;
     }
-
-    function track($shipment) {
-
-        if (!$shipment->tracking) {
-            return false;
-        }
-
-        $apiResponse = $this->callApi(
-            $this->api_url.'Tracks/'.$shipment->tracking.'.json?searchtype=CarrierWaybill&history=Yes', $this->getHeaders($shipment->shipperAccount), "[]", 'GET'
-        );
-
-
-        $boxes = Arr::get($apiResponse, 'data.Tracks.Track.ShipmentDetails.Items.0.Item');
-
-        if ($boxes != null) {
-            if (array_keys($boxes) !== range(0, count($boxes) - 1)) {
-                $this->track_box($shipment, $boxes);
-            } else {
-                foreach ($boxes as $box) {
-                    $this->track_box($shipment, $box);
-                }
-            }
-
-            $shipment->update_state();
-        }
-
-        return true;
-    }
-    
 }
