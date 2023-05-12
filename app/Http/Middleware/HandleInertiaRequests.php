@@ -61,7 +61,7 @@ class HandleInertiaRequests extends Middleware
             $firstLoadOnlyProps,
             [
                 'auth'          => [
-                    'user' => $request->user() ? new LoggedUserResource($request->user()) : null,
+                    'user' => $request->user() ? LoggedUserResource::make($request->user())->getArray() : null,
                 ],
                 'flash'         => [
                     'notification' => fn () => $request->session()->get('notification')

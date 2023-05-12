@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\UI;
 
+use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
@@ -17,6 +18,8 @@ use Illuminate\Support\Arr;
  */
 class LoggedUserResource extends JsonResource
 {
+    use HasSelfCall;
+
     public function toArray($request): array
     {
         return [
