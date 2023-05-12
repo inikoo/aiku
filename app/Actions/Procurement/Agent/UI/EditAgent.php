@@ -73,7 +73,21 @@ class EditAgent extends InertiaAction
                                     'value' => $agent->name
                                 ],
                             ]
+                        ],
+                        [
+                        'title'  => __('contact'),
+                        'fields' => [
+                            'email' => [
+                                'type'   => 'input',
+                                'label'  => __('email'),
+                                'value'  => $agent->email,
+                                'options'=> [
+                                    'inputType'=> 'email'
+                                ]
+                            ],
+
                         ]
+                    ]
 
                     ],
                     'args' => [
