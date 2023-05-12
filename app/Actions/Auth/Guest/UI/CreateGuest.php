@@ -43,7 +43,10 @@ class CreateGuest extends InertiaAction
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
-                                    'value' => ''
+                                    'value' => '',
+                                    'options'=> [
+                                        'counter'=> true
+                                    ]
                                 ],
                                 'email' => [
                                     'type'  => 'input',
@@ -59,13 +62,14 @@ class CreateGuest extends InertiaAction
                                     'type'   => 'select',
                                     'label'  => __('type'),
                                     'value'  => '',
+                                    'placeholder'  => 'select your options',
                                     'options'=> GuestTypeEnum::optionLabels()
                                 ],
                             ]
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.guest.update',
+                        'name'       => 'models.guest.store',
 
                     ]
 
