@@ -9,11 +9,16 @@ namespace Tests\Feature;
 
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
+use App\Actions\Inventory\Stock\StoreStock;
+use App\Actions\Inventory\Stock\SyncLocationStock;
+use App\Actions\Inventory\StockFamily\StoreStockFamily;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Stock;
+use App\Models\Inventory\StockFamily;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Tenancy\Tenant;
@@ -23,7 +28,6 @@ beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 beforeEach(function () {
     $tenant = Tenant::where('slug', 'agb')->first();
     $tenant->makeCurrent();
-
 });
 
 test('create warehouse', function () {
@@ -48,7 +52,6 @@ test('update warehouse area', function ($warehouseArea) {
     expect($warehouseArea->name)->toBe('Pika Ltd');
 })->depends('create warehouse area');
 
-
 test('create location in warehouse', function ($warehouse) {
     $location = StoreLocation::make()->action($warehouse, Location::factory()->definition());
     $this->assertModelExists($location);
@@ -60,9 +63,32 @@ test('create location in warehouse area', function ($warehouseArea) {
     return $location;
 })->depends('create warehouse area');
 
-
 test('update location', function ($location) {
     $location = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
     expect($location->code)->toBe('AE-3');
 
 })->depends('create location in warehouse area');
+
+test('create stock families', function () {
+    $stockFamily = StoreStockFamily::make()->action(StockFamily::factory()->definition());
+    $this->assertModelExists($stockFamily);
+
+    return $stockFamily;
+});
+
+test('create stock', function () {
+    $stock = StoreStock::make()->action(app('currentTenant'), Stock::factory()->definition());
+    $this->assertModelExists($stock);
+
+    return $stock->fresh();
+});
+
+test('sync location with stock', function ($location, $stock) {
+    $location = SyncLocationStock::run($location, $stock);
+    $this->assertModelExists($location);
+})->depends('create location in warehouse area', 'create stock');
+
+//test('add quantity product to stock', function ($location, $stock) {
+//    $stock = SyncLocationStock::run($location, $stock);
+//    $this->assertModelExists($stock);
+//});
