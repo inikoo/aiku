@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
@@ -25,6 +26,7 @@ class EditAgent extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.agents.edit');
+
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
@@ -36,11 +38,8 @@ class EditAgent extends InertiaAction
     }
 
 
-
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
-
-        $address=$agent->getAddress('contact');
 
         return Inertia::render(
             'EditModel',
@@ -51,8 +50,8 @@ class EditAgent extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'title'     => $agent->code,
-                    'exitEdit'  => [
+                    'title'    => $agent->code,
+                    'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
@@ -65,9 +64,9 @@ class EditAgent extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'   => __('id'),
-                            'icon'    => 'fa-light fa-user',
-                            'fields'  => [
+                            'title'  => __('id'),
+                            'icon'   => 'fa-light fa-user',
+                            'fields' => [
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
@@ -81,38 +80,35 @@ class EditAgent extends InertiaAction
                             ]
                         ],
                         [
-                        'title'   => __('contact'),
-                        'icon'    => 'fa-light fa-phone',
-                        'fields'  => [
-                            'email' => [
-                                'type'   => 'input',
-                                'label'  => __('email'),
-                                'value'  => $agent->email,
-                                'options'=> [
-                                    'inputType'=> 'email'
-                                ]
-                            ],
-                            'address'        => [
-                                'type'    => 'address',
-                                'label'   => __('Address'),
-                                'value'   =>
-                                    [
-                                        'countryID' => $address->country_id
-                                    ],
-                                'options' => [
-                                    'countriesAddressData' => GetAddressData::run()
+                            'title'  => __('contact'),
+                            'icon'   => 'fa-light fa-phone',
+                            'fields' => [
+                                'email'   => [
+                                    'type'    => 'input',
+                                    'label'   => __('email'),
+                                    'value'   => $agent->email,
+                                    'options' => [
+                                        'inputType' => 'email'
+                                    ]
+                                ],
+                                'address' => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressResource::make($agent->getAddress('contact'))->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
 
-                                ]
-                            ],
+                                    ]
+                                ],
 
+                            ]
                         ]
-                    ]
 
                     ],
-                    'args' => [
+                    'args'      => [
                         'updateRoute' => [
-                            'name'      => 'models.agent.update',
-                            'parameters'=> $agent->slug
+                            'name'       => 'models.agent.update',
+                            'parameters' => $agent->slug
 
                         ],
                     ]
