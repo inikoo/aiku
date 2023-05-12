@@ -16,9 +16,9 @@ const props = defineProps<{
     options: any
 }>()
 
+console.log(props.fieldName)
 
-let addressValues=props.form[props['fieldName']];
-
+let addressValues=props.form[props.fieldName];
 
 
 

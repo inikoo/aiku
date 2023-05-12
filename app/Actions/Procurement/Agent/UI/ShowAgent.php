@@ -20,11 +20,13 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Agent $agent
- */
 class ShowAgent extends InertiaAction
 {
+    public function handle(Agent $agent): Agent
+    {
+        return $agent;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.agents.edit');
@@ -32,13 +34,13 @@ class ShowAgent extends InertiaAction
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(Agent $agent, ActionRequest $request): void
+    public function asController(Agent $agent, ActionRequest $request): Agent
     {
         $this->initialisation($request)->withTab(AgentTabsEnum::values());
-        $this->agent    = $agent;
+        return $this->handle($agent);
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -47,10 +49,13 @@ class ShowAgent extends InertiaAction
             'Procurement/Agent',
             [
                 'title'       => __('agent'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->agent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'icon'  => 'fal fa-agent',
-                    'title' => $this->agent->name,
+                    'title' => $agent->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
@@ -59,11 +64,11 @@ class ShowAgent extends InertiaAction
                     ] : false,
                     'meta'  => [
                         [
-                            'name'     => trans_choice('supplier|suppliers', $this->agent->stats->number_suppliers),
-                            'number'   => $this->agent->stats->number_suppliers,
+                            'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),
+                            'number'   => $agent->stats->number_suppliers,
                             'href'     => [
                                 'procurement.agents.show.suppliers.index',
-                                $this->agent->slug
+                                $agent->slug
                             ],
                             'leftIcon' => [
                                 'icon'    => 'fal fa-person-dolly',
@@ -71,11 +76,11 @@ class ShowAgent extends InertiaAction
                             ]
                         ],
                         [
-                            'name'     => trans_choice('product|products', $this->agent->stats->number_products),
-                            'number'   => $this->agent->stats->number_products,
+                            'name'     => trans_choice('product|products', $agent->stats->number_products),
+                            'number'   => $agent->stats->number_products,
                             'href'     => [
                                 'procurement.agents.show.suppliers.index',
-                                $this->agent->slug
+                                $agent->slug
                             ],
                             'leftIcon' => [
                                 'icon'    => 'fal fa-parachute-box',
@@ -90,25 +95,25 @@ class ShowAgent extends InertiaAction
                     'navigation' => AgentTabsEnum::navigation()
                 ],
                 AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
-                    fn () => SupplierResource::collection(IndexSuppliers::run($this->agent))
-                    : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run($this->agent))),
+                    fn () => SupplierResource::collection(IndexSuppliers::run($agent))
+                    : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run($agent))),
 
                 AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->agent))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->agent))),
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($agent))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($agent))),
 
             ]
-        )->table(IndexSuppliers::make()->tableStructure($this->agent))
-            ->table(IndexSupplierProducts::make()->tableStructure($this->agent));
+        )->table(IndexSuppliers::make()->tableStructure($agent))
+            ->table(IndexSupplierProducts::make()->tableStructure($agent));
     }
 
 
-     public function jsonResponse(): AgentResource
+     public function jsonResponse(Agent $agent): AgentResource
      {
-         return new AgentResource($this->agent);
+         return new AgentResource($agent);
      }
 
-    public function getBreadcrumbs(Agent $agent, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
         return array_merge(
             (new ProcurementDashboard())->getBreadcrumbs(),
@@ -125,9 +130,9 @@ class ShowAgent extends InertiaAction
                         'model' => [
                             'route' => [
                                 'name'       => 'procurement.agents.show',
-                                'parameters' => [$agent->slug]
+                                'parameters' => [$routeParameters['agent']->slug]
                             ],
-                            'label' => $agent->code,
+                            'label' => $routeParameters['agent']->code,
                         ],
                     ],
                     'suffix' => $suffix,

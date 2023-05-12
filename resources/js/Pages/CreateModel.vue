@@ -27,6 +27,7 @@ import Input from '@/Components/Forms/Fields/Input.vue';
 import Phone from '@/Components/Forms/Fields/Phone.vue';
 import Date from '@/Components/Forms/Fields/Date.vue';
 import {trans} from "laravel-vue-i18n";
+import Address from "@/Components/Forms/Fields/Address.vue";
 
 const getComponent = (componentName) => {
 
@@ -35,6 +36,7 @@ const getComponent = (componentName) => {
         'phone': Phone,
         'date': Date,
         'select': Select,
+        'address':Address
     };
     return components[componentName] ?? null;
 

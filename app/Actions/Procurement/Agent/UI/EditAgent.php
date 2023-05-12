@@ -7,17 +7,16 @@
 
 namespace App\Actions\Procurement\Agent\UI;
 
+use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditAgent extends InertiaAction
 {
-    use HasUIAgent;
     public function handle(Agent $agent): Agent
     {
         return $agent;
@@ -38,13 +37,16 @@ class EditAgent extends InertiaAction
 
 
 
-    public function htmlResponse(Agent $agent): Response
+    public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('agent'),
-                'breadcrumbs' => $this->getBreadcrumbs($agent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'title'     => $agent->code,
                     'exitEdit'  => [
@@ -60,8 +62,9 @@ class EditAgent extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
-                            'fields' => [
+                            'title'   => __('id'),
+                            'icon'    => 'fa-light fa-user',
+                            'fields'  => [
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
@@ -75,14 +78,24 @@ class EditAgent extends InertiaAction
                             ]
                         ],
                         [
-                        'title'  => __('contact'),
-                        'fields' => [
+                        'title'   => __('contact'),
+                        'icon'    => 'fa-light fa-phone',
+                        'fields'  => [
                             'email' => [
                                 'type'   => 'input',
                                 'label'  => __('email'),
                                 'value'  => $agent->email,
                                 'options'=> [
                                     'inputType'=> 'email'
+                                ]
+                            ],
+                            'address'        => [
+                                'type'    => 'address',
+                                'label'   => __('Address'),
+                                'value'   => ['countryID' => app('currentTenant')->country_id],
+                                'options' => [
+                                    'countriesAddressData' => GetAddressData::run()
+
                                 ]
                             ],
 
@@ -102,8 +115,17 @@ class EditAgent extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Agent $agent): AgentResource
+    public function jsonResponse(Agent $agent): AgentResource
     {
         return new AgentResource($agent);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowAgent::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }

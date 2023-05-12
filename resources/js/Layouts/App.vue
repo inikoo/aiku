@@ -122,8 +122,6 @@ import {useLayoutStore} from '@/Stores/layout';
 
 const showSearchDialog = ref(false);
 
-console.log(usePage().props)
-
 const user = ref(usePage().props.auth.user);
 </script>
 
