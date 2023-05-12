@@ -39,6 +39,9 @@ class EditAgent extends InertiaAction
 
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
+
+        $address=$agent->getAddress('contact');
+
         return Inertia::render(
             'EditModel',
             [
@@ -92,7 +95,10 @@ class EditAgent extends InertiaAction
                             'address'        => [
                                 'type'    => 'address',
                                 'label'   => __('Address'),
-                                'value'   => ['countryID' => app('currentTenant')->country_id],
+                                'value'   =>
+                                    [
+                                        'countryID' => $address->country_id
+                                    ],
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
 
