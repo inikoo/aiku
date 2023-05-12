@@ -17,10 +17,12 @@ use App\Models\Tenancy\Tenant;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreStock
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(Tenant|Customer $owner, $modelData): Stock
     {
@@ -44,9 +46,14 @@ class StoreStock
             'code' => [
                 'required',
                 Rule::unique('stocks', 'code')->where(
-                    fn ($query) => $query->where('owner_type', 'Customer')->where('owner_id', $request->user()->customer->id)
+                    fn ($query) => $query->where('owner_type', 'Customer')->where('owner_id', $request->user()?->customer->id)
                 )
             ],
         ];
+    }
+
+    public function action(Tenant|Customer $owner, $objectData): Stock
+    {
+        return $this->handle($owner, $objectData);
     }
 }
