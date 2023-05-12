@@ -8,10 +8,10 @@ import { Head } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck } from "@/../private/pro-light-svg-icons"
 library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck)
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { useForm } from "@inertiajs/vue3"
 import { ref } from "vue"
 import Form from "@/Components/Forms/Form.vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import Password from "@/Components/Forms/Fields/Password.vue"
 import Theme from "@/Components/Forms/Fields/Theme.vue"

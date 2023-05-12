@@ -59,6 +59,13 @@ class ProcurementDashboard
                             'href'  => ['procurement.agents.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_agents
+                            ],
+                            'rightSubLink'=>[
+                                'tooltip'  => __('marketplace agents'),
+                                'label'=>'M',
+                                'labelStyle'=>'bordered',
+                                'href'  => ['procurement.marketplace-agents.index'],
+                               
                             ]
 
                         ],
@@ -68,6 +75,13 @@ class ProcurementDashboard
                             'href'  => ['procurement.suppliers.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_suppliers
+                            ],
+                            'rightSubLink'=>[
+                                'tooltip'  => __('marketplace suppliers'),
+                                'label'=>'M',
+                                'labelStyle'=>'bordered',
+                                'href'  => ['procurement.marketplace-suppliers.index'],
+                               
                             ]
 
                         ],
