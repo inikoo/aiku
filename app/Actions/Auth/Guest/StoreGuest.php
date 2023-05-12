@@ -51,7 +51,7 @@ class StoreGuest
     {
         return [
             'name'                     => ['required', 'string', 'max:255'],
-            'email'                    => ['nullable', 'email'],
+            'email'                    => ['nullable', 'email', 'required'],
             'phone'                    => ['nullable'],
             'identity_document_number' => ['nullable', 'string'],
             'identity_document_type'   => ['nullable', 'string'],

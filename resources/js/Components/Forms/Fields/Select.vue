@@ -6,15 +6,15 @@
 
 <script setup>
 import Multiselect from '@vueform/multiselect'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faExclamationCircle, faCheckCircle } from "../../../../private/pro-solid-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faExclamationCircle, faCheckCircle);
 const props = defineProps(['form', 'fieldName', 'options'])
-console.log(props.form)
-console.log(props.fieldName)
-console.log(props.options)
+// console.log(props.form)
+// console.log(props.fieldName)
+// console.log(props.options)
 const value = ref(null)
 // const options = [
 //     'Batman',
@@ -29,19 +29,24 @@ const value = ref(null)
 // ]
 
 const multiselectPlaceholder = "Select your option"
+const compForm = computed(() => {
+    props.form
+})
 
 </script>
 
 <template>
-    <div>
-        {{ value }}
-        <Multiselect v-model="form[fieldName]" :options="props.options" :placeholder="multiselectPlaceholder" />
-        <div v-if="form.errors[fieldName] || form.recentlySuccessful"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500"
-                aria-hidden="true" />
-            <FontAwesomeIcon icon="fas fa-check-circle" v-if="form.recentlySuccessful"
-                class="mt-1.5  h-5 w-5 text-green-500" aria-hidden="true" />
+    <div class="">
+        <pre>{{ compForm }}</pre>
+        <div class="relative">
+            <Multiselect :class="{'pr-8': form.errors[fieldName] || form.recentlySuccessful}" v-model="form[fieldName]" :options="props.options" :placeholder="multiselectPlaceholder" />
+            <div v-if="form.errors[fieldName] || form.recentlySuccessful"
+                class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">
+                <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500"
+                    aria-hidden="true" />
+                <FontAwesomeIcon icon="fas fa-check-circle" v-if="form.recentlySuccessful"
+                    class="mt-1.5  h-5 w-5 text-green-500" aria-hidden="true" />
+            </div>
         </div>
         <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
     </div>
