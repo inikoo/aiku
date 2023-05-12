@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
-use App\Http\Resources\Procurement\SupplierResource;
+use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Closure;
@@ -38,8 +38,9 @@ class IndexMarketplaceSuppliers extends InertiaAction
 
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
-            ->select(['code', 'slug', 'name'])
-            ->allowedSorts(['code', 'name'])
+            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
+            ->select(['code', 'slug', 'name', 'number_supplier_products', 'number_purchase_orders'])
+            ->allowedSorts(['code', 'name', 'number_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -58,6 +59,8 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
@@ -86,7 +89,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $suppliers): AnonymousResourceCollection
     {
-        return SupplierResource::collection($suppliers);
+        return MarketplaceSupplierResource::collection($suppliers);
     }
 
 
@@ -100,18 +103,18 @@ class IndexMarketplaceSuppliers extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('marketplace suppliers'),
+                'title'       => __("supplier's marketplace"),
                 'pageHead'    => [
-                    'title'   => __('marketplace suppliers'),
+                    'title'   => __("supplier's marketplace"),
                     'create'  => $this->canEdit && $this->routeName=='procurement.marketplace-suppliers.index' ? [
                         'route' => [
                             'name'       => 'procurement.marketplace-suppliers.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('marketplace suppliers')
+                        'label'=> __('supplier')
                     ] : false,
                 ],
-                'data'   => SupplierResource::collection($suppliers),
+                'data'   => MarketplaceSupplierResource::collection($suppliers),
 
 
             ]
@@ -126,7 +129,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('marketplace supplier'),
+                        'label' => __("supplier's marketplace"),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
