@@ -17,8 +17,7 @@ const props = defineProps<{
 }>()
 
 
-let addressValues=props.form[props['fieldName']];
-
+let addressValues=props.form[props.fieldName];
 
 
 
@@ -32,7 +31,6 @@ const administrativeAreas = (countryID) => props.options.countriesAddressData[co
 const inAdministrativeAreas = (administrativeArea, countryID) => !!props.options.countriesAddressData[countryID]['administrativeAreas'].find(c => c.name === administrativeArea);
 
 const addressFields = (countryID) => {
-    console.log(countryID)
     return props.options.countriesAddressData[countryID]['fields'];
 }
 
@@ -44,15 +42,15 @@ const handleChange = () => props.form.clearErrors();
 <template>
     <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2 sm:col-span-1">
-            <Multiselect :options="countries" v-model="addressValues['countryID']"/>
+            <Multiselect :options="countries" v-model="addressValues['country_id']"/>
         </div>
-        <template v-for="(addressFieldData,addressField) in addressFields(addressValues['countryID'])" :key="addressField">
+        <template v-for="(addressFieldData,addressField) in addressFields(addressValues['country_id'])" :key="addressField">
             <div class="flex col-span-2">
                 <div class="w-full">
                     <div v-if="addressField==='administrative_area'" >
                         <label for="administrative_area" class="capitalize block text-sm font-medium text-gray-700">{{ addressFieldData.label }}</label>
-                        <Multiselect v-if="administrativeAreas(addressValues['countryID']).length && (!addressValues['administrative_area'] || inAdministrativeAreas(addressValues['administrative_area'],addressValues['countryID']))"
-                                :options="administrativeAreas(addressValues['countryID'])" :label="'name'" :value-prop="'name'"
+                        <Multiselect v-if="administrativeAreas(addressValues['country_id']).length && (!addressValues['administrative_area'] || inAdministrativeAreas(addressValues['administrative_area'],addressValues['country_id']))"
+                                :options="administrativeAreas(addressValues['country_id'])" :label="'name'" :value-prop="'name'"
                                 v-model="addressValues['administrative_area']"/>
                         <input v-else v-model="addressValues['administrative_area']" type="text" name="administrative_area" id="administrative_area" autocomplete="password"
                                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"/>

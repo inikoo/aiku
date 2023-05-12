@@ -62,6 +62,7 @@ const props = defineProps({
 		required: false,
 	},
 
+	// The main source of data
 	resource: {
 		type: Object,
 		default: () => {
@@ -111,6 +112,8 @@ const queryBuilderProps = computed(() => {
 })
 
 const queryBuilderData = ref(queryBuilderProps.value)
+console.log("??????????????????????")
+console.log(queryBuilderData.value)
 
 const pageName = computed(() => {
 	return queryBuilderProps.value.pageName
@@ -140,6 +143,7 @@ const hasOnlyData = computed(() => {
 	return !queryBuilderProps.value.globalSearch
 })
 
+// Data of list users
 const resourceData = computed(() => {
 	if (Object.keys(props.resource).length === 0) {
 		return props.data
@@ -152,6 +156,7 @@ const resourceData = computed(() => {
 	return props.resource
 })
 
+// Meta Page (Previous/next link, current page, data per page)
 const resourceMeta = computed(() => {
 	if (Object.keys(props.resource).length === 0) {
 		return props.meta
@@ -624,8 +629,9 @@ const compFakeElements = computed(() => {
 					:forced-visible-search-inputs="forcedVisibleSearchInputs" :on-change="changeSearchInputValue"
 					:on-remove="disableSearchInput" />
 			</slot>
-			<!-- filter checkbox-->
-			<!-- {{ compFakeElements }} -->
+
+			<!-- Filter Checkbox-->
+			<div class="text-xs">{{ compFakeElements }}</div>
 			<TableElements :elements="fakeElements" v-model="fakeElements" />
 			
 			<!-- The Main Table -->

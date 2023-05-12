@@ -41,9 +41,11 @@ use Spatie\Sluggable\HasSlug;
  * @property string $date
  * @property string|null $submitted_at
  * @property string|null $in_warehouse_at
+ * @property string|null $handling_at
  * @property string|null $packed_at
  * @property string|null $finalised_at
  * @property string|null $dispatched_at
+ * @property string|null $settled_at
  * @property string|null $cancelled_at
  * @property bool $is_invoiced
  * @property bool|null $is_picking_on_hold
@@ -63,7 +65,7 @@ use Spatie\Sluggable\HasSlug;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\Sales\Customer $customer
- * @property-read \App\Models\Dropshipping\CustomerClient $customerClient
+ * @property-read \App\Models\Dropshipping\CustomerClient|null $customerClient
  * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNote> $deliveryNotes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments

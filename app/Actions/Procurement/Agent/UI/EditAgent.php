@@ -7,17 +7,17 @@
 
 namespace App\Actions\Procurement\Agent\UI;
 
+use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditAgent extends InertiaAction
 {
-    use HasUIAgent;
     public function handle(Agent $agent): Agent
     {
         return $agent;
@@ -26,6 +26,7 @@ class EditAgent extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.agents.edit');
+
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
@@ -37,17 +38,20 @@ class EditAgent extends InertiaAction
     }
 
 
-
-    public function htmlResponse(Agent $agent): Response
+    public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('agent'),
-                'breadcrumbs' => $this->getBreadcrumbs($agent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
-                    'title'     => $agent->code,
-                    'exitEdit'  => [
+                    'title'    => $agent->code,
+                    'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
@@ -61,6 +65,7 @@ class EditAgent extends InertiaAction
                     'blueprint' => [
                         [
                             'title'  => __('id'),
+                            'icon'   => 'fa-light fa-user',
                             'fields' => [
                                 'code' => [
                                     'type'  => 'input',
@@ -73,13 +78,37 @@ class EditAgent extends InertiaAction
                                     'value' => $agent->name
                                 ],
                             ]
+                        ],
+                        [
+                            'title'  => __('contact'),
+                            'icon'   => 'fa-light fa-phone',
+                            'fields' => [
+                                'email'   => [
+                                    'type'    => 'input',
+                                    'label'   => __('email'),
+                                    'value'   => $agent->email,
+                                    'options' => [
+                                        'inputType' => 'email'
+                                    ]
+                                ],
+                                'address' => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressResource::make($agent->getAddress('contact'))->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+
+                                    ]
+                                ],
+
+                            ]
                         ]
 
                     ],
-                    'args' => [
+                    'args'      => [
                         'updateRoute' => [
-                            'name'      => 'models.agent.update',
-                            'parameters'=> $agent->slug
+                            'name'       => 'models.agent.update',
+                            'parameters' => $agent->slug
 
                         ],
                     ]
@@ -88,8 +117,17 @@ class EditAgent extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Agent $agent): AgentResource
+    public function jsonResponse(Agent $agent): AgentResource
     {
         return new AgentResource($agent);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowAgent::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }

@@ -16,6 +16,8 @@ use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 
 class StoreGuest
 {
@@ -49,7 +51,7 @@ class StoreGuest
     {
         return [
             'name'                     => ['required', 'string', 'max:255'],
-            'email'                    => ['nullable', 'email'],
+            'email'                    => ['nullable', 'email', 'required'],
             'phone'                    => ['nullable'],
             'identity_document_number' => ['nullable', 'string'],
             'identity_document_type'   => ['nullable', 'string'],
@@ -107,6 +109,10 @@ class StoreGuest
 
 
         return 0;
+    }
+    public function htmlResponse(Guest $guest): RedirectResponse
+    {
+        return Redirect::route('sysadmin.guests.show', $guest->slug);
     }
 
 }

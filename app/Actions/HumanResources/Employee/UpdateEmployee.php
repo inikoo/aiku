@@ -34,8 +34,8 @@ class UpdateEmployee
     public function rules(): array
     {
         return [
-            'name' => ['sometimes','required'],
-            'date' => ['sometimes','date'],
+            'name'          => ['sometimes','required'],
+            'date_of_birth' => ['sometimes','date'],
 
         ];
     }

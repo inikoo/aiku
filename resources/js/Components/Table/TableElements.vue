@@ -44,18 +44,17 @@ const doubleClick = (elementKey) => {
 
 <template>
     <div class="grid justify-items-center grid-flow-col auto-cols-auto divide-x-2 divide-gray-200 py-3">
-        <label :for="(element.label + element.key)" v-for="(element, index) of data" :key="index"
-            class="w-full cursor-pointer hover:bg-indigo-300"
-            :class="{ 'bg-indigo-200': element.show }"
-            @dblclick="doubleClick(element.key)"
-        >
+        <div v-for="(element, index) of data" :key="index" class="relative w-full cursor-pointer hover:bg-indigo-300"
+            :class="{ 'bg-indigo-200': element.show }" @dblclick="doubleClick(element.key)">
+            <label :for="(element.label + element.key)" class="absolute w-full h-full cursor-pointer"></label>
             <div class="grid justify-center grid-flow-col items-center">
                 <label class="py-2 select-none cursor-pointer inline pr-2">
                     {{ element.label }} ({{ element.count }})
                 </label>
                 <input ref="inputButton" :id="(element.label + element.key)" :name="(element.label + element.key)"
-                    class="cursor-pointer focus:ring-0" type="checkbox" :checked="element.show" v-model="element.show" />
+                    class="sr-only cursor-pointer focus:ring-0" type="checkbox" :checked="element.show"
+                    v-model="element.show" />
             </div>
-        </label>
+        </div>
     </div>
 </template>

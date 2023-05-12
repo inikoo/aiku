@@ -29,6 +29,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $warehouse_id
  * @property string $code
  * @property string $name
+ * @property string $unit_quantity
+ * @property string $value
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

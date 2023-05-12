@@ -32,13 +32,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property SupplierDeliveryStateEnum $state
  * @property SupplierDeliveryStatusEnum $status
  * @property string $date latest relevant date
+ * @property string|null $creating_at
  * @property string|null $dispatched_at
  * @property string|null $received_at
  * @property string|null $checked_at
  * @property string|null $settled_at
  * @property string|null $cancelled_at
  * @property int $number_of_items
- * @property float|null $total_weight
+ * @property float|null $gross_weight
+ * @property float|null $net_weight
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
@@ -52,8 +54,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDeliveryItem> $items
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\Agent, \App\Models\Procurement\Supplier> $provider
+ * @property-read Model|\Eloquent $provider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
+ * @method static \Database\Factories\Procurement\SupplierDeliveryFactory factory($count = null, $state = [])
  * @method static Builder|SupplierDelivery newModelQuery()
  * @method static Builder|SupplierDelivery newQuery()
  * @method static Builder|SupplierDelivery onlyTrashed()

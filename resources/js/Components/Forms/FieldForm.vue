@@ -6,10 +6,11 @@
 
 <script setup lang="ts">
 
-import { useForm } from '@inertiajs/vue3';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faSave } from '@/../private/pro-light-svg-icons';
-import { library } from '@fortawesome/fontawesome-svg-core';
+import {useForm} from '@inertiajs/vue3';
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+import {faSave} from '@/../private/pro-light-svg-icons';
+import {library} from '@fortawesome/fontawesome-svg-core';
+
 library.add(faSave);
 import Input from '@/Components/Forms/Fields/Input.vue';
 import Phone from '@/Components/Forms/Fields/Phone.vue';
@@ -23,6 +24,7 @@ import Toggle from '@/Components/Forms/Fields/Toggle.vue'
 import Select from '@/Components/Forms/Fields/Select.vue'
 import Radio from '@/Components/Forms/Fields/Radio.vue'
 import TextEditor from '@/Components/Forms/Fields/TextEditor.vue'
+import Address from "@/Components/Forms/Fields/Address.vue";
 
 
 const props = defineProps<{
@@ -41,9 +43,11 @@ const props = defineProps<{
     }
 }>()
 
+
 const updateRoute = props['fieldData']['updateRoute'] ?? props.args['updateRoute'];
 
 const components = {
+    'select': Select,
     'input': Input,
     'phone': Phone,
     'date': Date,
@@ -53,9 +57,9 @@ const components = {
     'avatar': Avatar,
     'textarea': Textarea,
     'toggle': Toggle,
-    'select': Select,
     'radio': Radio,
     'texteditor': TextEditor,
+    'address': Address
 };
 
 const getComponent = (componentName) => {
@@ -64,6 +68,7 @@ const getComponent = (componentName) => {
 
 let formFields = {};
 
+/*
 if (props['fieldData']['type'] === 'address') {
     formFields['country_id'] = props.fieldData.value.country_id;
     formFields['administrative_area'] = props['fieldData'].value.administrative_area;
@@ -74,6 +79,8 @@ if (props['fieldData']['type'] === 'address') {
     formFields['address_line_2'] = props['fieldData'].value.address_line_2;
     formFields['address_line_1'] = props['fieldData'].value.address_line_1;
 } else {
+
+ */
     formFields = {
         [props['field']]: props['fieldData'].value,
     };
@@ -81,7 +88,7 @@ if (props['fieldData']['type'] === 'address') {
     if (props['fieldData']['hasOther']) {
         formFields[props['fieldData']['hasOther']['name']] = props['fieldData']['hasOther']['value'];
     }
-}
+//}
 const form = useForm(formFields);
 form['type'] = 'edit';
 
@@ -98,14 +105,14 @@ form['type'] = 'edit';
                     <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">
                         <div class="relative  flex-grow">
                             <component :is="getComponent(fieldData['type'])" :form=form :fieldName=field
-                                :options="fieldData['options']">
+                                       :options="fieldData['options']">
                             </component>
                         </div>
 
                         <span class="ml-2 flex-shrink-0">
                             <button class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
                                 <FontAwesomeIcon icon="fal fa-save" class="h-8 "
-                                    :class="form.isDirty ? 'text-indigo-500' : 'text-gray-200'" aria-hidden="true" />
+                                                 :class="form.isDirty ? 'text-indigo-500' : 'text-gray-200'" aria-hidden="true"/>
                             </button>
                         </span>
                     </div>

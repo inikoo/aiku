@@ -7,17 +7,17 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Models\Inventory\Stock;
+use App\Models\Inventory\Location;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SyncStockTradeUnits
+class AttachStockToLocation
 {
     use AsAction;
 
-    public function handle(Stock $stock, array $tradeUnitsData): Stock
+    public function handle(Location $location, $stockIds): Location
     {
-        $stock->tradeUnits()->sync($tradeUnitsData);
+        $location->stocks()->attach($stockIds);
 
-        return $stock;
+        return $location;
     }
 }

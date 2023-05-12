@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
-            $table->string('state')->index();
+            $table->string('state')->default(StockFamilyStateEnum::IN_PROCESS->value)->index();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
             $table->jsonb('data');

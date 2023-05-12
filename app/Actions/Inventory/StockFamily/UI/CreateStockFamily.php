@@ -34,7 +34,34 @@ class CreateStockFamily extends InertiaAction
                     ]
 
                 ],
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('create stock family'),
+                            'fields' => [
 
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'value' => ''
+                                ],
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('name'),
+                                    'value' => ''
+                                ],
+                                'skus' => [
+                                    'type'  => 'input',
+                                    'label' => __('skus'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ]
+                    ],
+                    'route'      => [
+                        'name'       => 'models.stock-family.update',
+                    ]
+                ],
 
             ]
         );

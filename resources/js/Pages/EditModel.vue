@@ -13,9 +13,9 @@ import FieldForm from '@/Components/Forms/FieldForm.vue';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck } from "@/../private/pro-light-svg-icons"
+import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck,faPhone } from "@/../private/pro-light-svg-icons"
 
-library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck)
+library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck,faPhone)
 
 const props = defineProps<{
     title: string,

@@ -11,6 +11,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -50,6 +51,7 @@ class StockFamily extends Model
     use SoftDeletes;
     use UsesTenantConnection;
     use HasUniversalSearch;
+    use HasFactory;
 
     protected $casts = [
         'data'  => 'array',

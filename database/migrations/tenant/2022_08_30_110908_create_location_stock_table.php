@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +19,8 @@ return new class () extends Migration {
             $table->foreign('stock_id')->references('id')->on('stocks');
             $table->unsignedInteger('location_id')->index();
             $table->foreign('location_id')->references('id')->on('locations');
-            $table->decimal('quantity', 16, 3);
-            $table->string('type')->index();
+            $table->decimal('quantity', 16, 3)->default(0);
+            $table->string('type')->index()->default(LocationStockTypeEnum::PICKING->value);
             $table->smallInteger('picking_priority')->nullable()->index();
             $table->string('notes')->nullable();
             $table->jsonb('data');
