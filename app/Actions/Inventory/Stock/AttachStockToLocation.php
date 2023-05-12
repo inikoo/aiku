@@ -8,22 +8,15 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Models\Inventory\Location;
-use App\Models\Inventory\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SyncLocationStock
+class AttachStockToLocation
 {
     use AsAction;
 
-    public function handle(Location $location, Stock $stock): Location
+    public function handle(Location $location, $stockIds): Location
     {
-        $stocks = [];
-
-        $stocks[$stock->id] = [
-            'quantity' => $stock->quantity,
-        ];
-
-        $location->stocks()->sync($stocks);
+        $location->stocks()->attach($stockIds);
 
         return $location;
     }
