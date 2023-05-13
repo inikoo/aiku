@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Models\Procurement\Supplier;
@@ -44,7 +44,7 @@ class FetchDeletedSuppliers extends FetchAction
 
                             $contactAddress = $supplier->getAddress('contact');
                             if ($contactAddress) {
-                                UpdateAddress::run($supplier->getAddress('contact'), $deletedSupplierData['address']);
+                                UpdateGroupAddress::run($supplier->getAddress('contact'), $deletedSupplierData['address']);
                                 $supplier->location = $supplier->getLocation();
                                 $supplier->save();
                             }
