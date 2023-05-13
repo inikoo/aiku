@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Tenancy\Tenant\AttachAgent;
@@ -28,7 +28,7 @@ class FetchAgents extends FetchAction
 
             if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->where('source_type', $tenant->slug)->first()) {
                 $agent = UpdateAgent::run($agent, $agentData['agent']);
-                UpdateAddress::run($agent->getAddress('contact'), $agentData['address']);
+                UpdateGroupAddress::run($agent->getAddress('contact'), $agentData['address']);
                 $agent->location = $agent->getLocation();
                 $agent->save();
             } else {

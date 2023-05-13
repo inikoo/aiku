@@ -31,7 +31,7 @@ return new class () extends Migration {
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->unsignedInteger('address_id')->nullable()->index();
-            $table->foreign('address_id')->references('id')->on('addresses');
+            $table->foreign('address_id')->references('id')->on('group_addresses');
             $table->jsonb('location');
 
             $table->unsignedSmallInteger('currency_id');

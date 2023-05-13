@@ -11,7 +11,7 @@ use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
-use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -59,7 +59,7 @@ class CustomerClient extends Model
 {
     use SoftDeletes;
     use HasSlug;
-    use HasAddress;
+    use HasTenantAddress;
     use UsesTenantConnection;
     use HasUniversalSearch;
     use HasFactory;

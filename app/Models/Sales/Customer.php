@@ -21,7 +21,7 @@ use App\Models\Helpers\TaxNumber;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
-use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\WebUser;
@@ -92,7 +92,7 @@ class Customer extends Model implements HasMedia
 {
     use UsesTenantConnection;
     use SoftDeletes;
-    use HasAddress;
+    use HasTenantAddress;
     use HasSlug;
     use HasUniversalSearch;
     use HasPhoto;

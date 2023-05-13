@@ -12,10 +12,11 @@ use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Tenancy\Tenant;
-use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasGroupAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
+use Database\Factories\Procurement\SupplierFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -67,7 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Procurement\SupplierFactory factory($count = null, $state = [])
+ * @method static SupplierFactory factory($count = null, $state = [])
  * @method static Builder|Supplier newModelQuery()
  * @method static Builder|Supplier newQuery()
  * @method static Builder|Supplier onlyTrashed()
@@ -80,7 +81,7 @@ class Supplier extends Model implements HasMedia
 {
     use UsesGroupConnection;
     use SoftDeletes;
-    use HasAddress;
+    use HasGroupAddress;
     use HasSlug;
     use HasUniversalSearch;
     use HasPhoto;

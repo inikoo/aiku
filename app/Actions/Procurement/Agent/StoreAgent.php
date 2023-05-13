@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Procurement\Agent;
@@ -31,7 +31,7 @@ class StoreAgent
 
         SetCurrencyHistoricFields::run($agent->currency, $agent->created_at);
 
-        StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
+        StoreGroupAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
         $agent->location = $agent->getLocation();
         $agent->save();
 

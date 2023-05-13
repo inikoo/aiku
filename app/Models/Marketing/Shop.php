@@ -25,7 +25,7 @@ use App\Models\Mail\Outbox;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Sales\PaymentAccountShop;
-use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasTenantAddress;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -103,7 +103,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Shop extends Model
 {
-    use HasAddress;
+    use HasTenantAddress;
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
