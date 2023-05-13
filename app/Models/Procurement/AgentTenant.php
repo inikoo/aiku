@@ -9,6 +9,7 @@ namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $source_id
+ * @property-read \App\Models\Procurement\Agent $agent
  * @method static Builder|AgentTenant newModelQuery()
  * @method static Builder|AgentTenant newQuery()
  * @method static Builder|AgentTenant query()
@@ -31,5 +33,9 @@ class AgentTenant extends Pivot
     protected $table = 'agent_tenant';
 
 
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
+    }
 
 }
