@@ -18,9 +18,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property numeric $number_suppliers
  * @property numeric $number_supplier_products
  * @property mixed $location
+ * @property mixed $adoption
  */
 class MarketplaceAgentResource extends JsonResource
 {
+    private function getAdoption($value): string
+    {
+        if ($value === null) {
+            return 'available';
+        }
+
+        return $value ? 'adopted' : 'removed';
+    }
+
     public function toArray($request): array
     {
         return [
@@ -30,6 +40,7 @@ class MarketplaceAgentResource extends JsonResource
             'location'                 => $this->location,
             'number_suppliers'         => $this->number_suppliers,
             'number_supplier_products' => $this->number_supplier_products,
+            'adoption'                 => $this->getAdoption($this->adoption)
 
         ];
     }

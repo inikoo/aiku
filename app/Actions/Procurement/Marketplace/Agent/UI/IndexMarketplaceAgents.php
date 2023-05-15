@@ -12,6 +12,7 @@ use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\MarketplaceAgentResource;
 use App\Models\Procurement\Agent;
+use App\Models\Procurement\AgentTenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -35,9 +36,17 @@ class IndexMarketplaceAgents extends InertiaAction
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS->value);
 
         return QueryBuilder::for(Agent::class)
+
             ->leftJoin('agent_stats', 'agent_stats.agent_id', '=', 'agents.id')
+           // ->leftJoin('agent_tenant','agent_tenant.agent_id','=','agents.id')
+           // ->where('agent_tenant.tenant_id',app('currentTenant')->id)
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug', 'number_suppliers', 'number_supplier_products', 'location'])
+            ->addSelect(['adoption' => AgentTenant::select('agent_tenant.status')
+                ->whereColumn('agent_tenant.agent_id', 'agents.id')
+                ->where('agent_tenant.tenant_id', app('currentTenant')->id)
+                ->limit(1)
+            ])
             ->allowedFilters([$globalSearch])
             ->allowedSorts(['code', 'name', 'number_suppliers', 'number_supplier_products'])
             ->paginate(
@@ -55,9 +64,10 @@ class IndexMarketplaceAgents extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::AGENTS->value.'Page');
             $table
                 ->withGlobalSearch()
+                ->column(key: 'adoption', label: 'z', canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'location', label: __('location'), canBeHidden: false, sortable: false, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'number_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
