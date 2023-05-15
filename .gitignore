@@ -30,3 +30,5 @@ prod-diff.sh
 /hash
 /aurora_migration.sh
 /migrate_aurora.sh
+export_thin_au.sh
+import_thin_au.sh
