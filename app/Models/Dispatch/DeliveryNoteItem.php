@@ -9,10 +9,13 @@ namespace App\Models\Dispatch;
 
 use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+//use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -30,18 +33,18 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $quantity_packed
  * @property string|null $quantity_dispatched
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Picking> $pickings
+ * @property-read Collection<int, Picking> $pickings
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()
  * @method static Builder|DeliveryNoteItem onlyTrashed()
  * @method static Builder|DeliveryNoteItem query()
  * @method static Builder|DeliveryNoteItem withTrashed()
  * @method static Builder|DeliveryNoteItem withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class DeliveryNoteItem extends Model
 {
@@ -63,8 +66,8 @@ class DeliveryNoteItem extends Model
 
     protected $guarded = [];
 
-    public function pickings(): BelongsToMany
-    {
-        return $this->belongsToMany(Picking::class)->withTimestamps();
-    }
+//    public function pickings(): BelongsToMany
+//    {
+//        return $this->belongsToMany(Picking::class)->withTimestamps();
+//    }
 }

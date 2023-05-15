@@ -8,12 +8,16 @@
 namespace App\Models\Dispatch;
 
 use App\Models\Helpers\Issue;
+use Database\Factories\Dispatch\ShipperFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -34,20 +38,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $website
  * @property string|null $tracking_url
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\Shipment> $shipments
- * @method static \Database\Factories\Dispatch\ShipperFactory factory($count = null, $state = [])
+ * @property-read Collection<int, Issue> $issues
+ * @property-read Collection<int, Shipment> $shipments
+ * @method static ShipperFactory factory($count = null, $state = [])
  * @method static Builder|Shipper newModelQuery()
  * @method static Builder|Shipper newQuery()
  * @method static Builder|Shipper onlyTrashed()
  * @method static Builder|Shipper query()
  * @method static Builder|Shipper withTrashed()
  * @method static Builder|Shipper withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Shipper extends Model
 {

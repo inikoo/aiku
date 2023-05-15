@@ -19,7 +19,7 @@ class StoreDeliveryNoteItem
 
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNoteItem
     {
-        /** @var \App\Models\Dispatch\DeliveryNoteItem $deliveryNoteItem */
+        /** @var DeliveryNoteItem $deliveryNoteItem */
         $deliveryNoteItem = $deliveryNote->deliveryNoteItems()->create($modelData);
 
         return $deliveryNoteItem;
@@ -28,9 +28,9 @@ class StoreDeliveryNoteItem
     public function rules(): array
     {
         return [
-            'data'           => ['sometimes', 'required', 'max:250', 'string'],
-            'stock_id'       => ['required', 'exists:tenant.stocks,id'],
-            'transaction_id' => ['required', 'exists:tenant.transactions,id']
+            'delivery_note_id'  => ['required', 'numeric'],
+            'stock_id'          => ['required', 'exists:tenant.stocks,id'],
+            'transaction_id'    => ['required', 'exists:tenant.transactions,id']
         ];
     }
 
