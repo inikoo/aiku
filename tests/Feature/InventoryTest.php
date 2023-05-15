@@ -135,7 +135,7 @@ test('update location', function ($location) {
 
 })->depends('create location in warehouse area');
 
-test('audit location', function ($location) {
+test('audit stock in location', function ($location) {
     $location = AuditLocation::run($location);
     expect($location->audited_at)->not->toBeNull();
 })->depends('create location in warehouse area');
