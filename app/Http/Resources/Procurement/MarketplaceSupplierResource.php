@@ -18,6 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property numeric $number_suppliers_deliveries
  * @property numeric $number_supplier_products
  * @property numeric $number_purchase_orders
+ * @property mixed $adoption
  */
 class MarketplaceSupplierResource extends JsonResource
 {
@@ -30,6 +31,7 @@ class MarketplaceSupplierResource extends JsonResource
             'number_suppliers_deliveries'   => $this->number_suppliers_deliveries,
             'number_supplier_products'      => $this->number_supplier_products,
             'number_purchase_orders'        => $this->number_purchase_orders,
+            'adoption'                      => $this->adoption??'available'
 
         ];
     }

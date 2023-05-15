@@ -14,6 +14,7 @@ use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use App\Models\Procurement\SupplierTenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -40,6 +41,12 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ->defaultSort('suppliers.code')
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
             ->select(['code', 'slug', 'name', 'number_supplier_products'])
+            ->addSelect([
+                'adoption' => SupplierTenant::select('supplier_tenant.status')
+                    ->whereColumn('supplier_tenant.supplier_id', 'suppliers.id')
+                    ->where('supplier_tenant.tenant_id', app('currentTenant')->id)
+                    ->limit(1)
+            ])
             ->allowedSorts(['code', 'name', 'number_supplier_products'])
             ->allowedFilters([$globalSearch])
             ->paginate(
@@ -57,6 +64,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page');
             $table
                 ->withGlobalSearch()
+                ->column(key: 'adoption', label: 'z', canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
