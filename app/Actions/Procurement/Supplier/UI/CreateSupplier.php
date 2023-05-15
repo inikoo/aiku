@@ -77,10 +77,7 @@ class CreateSupplier extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexSuppliers::make()->getBreadcrumbs(
-                $this->routeName,
-                $this->originalParameters
-            ),
+            IndexSuppliers::make()->getBreadcrumbs(),
             [
                 [
                     'type'         => 'creatingModel',

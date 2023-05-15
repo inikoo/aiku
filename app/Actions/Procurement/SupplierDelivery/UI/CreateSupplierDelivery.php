@@ -69,4 +69,19 @@ class CreateSupplierDelivery extends InertiaAction
 
         return $this->handle();
     }
+
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            IndexSupplierDeliveries::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating supplier deliveries'),
+                    ]
+                ]
+            ]
+        );
+    }
 }
