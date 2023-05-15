@@ -13,20 +13,21 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property string $name
  * @property string $slug
- * @property string $created_at
- * @property string $updated_at
+ * @property mixed $location
+ * @property numeric $number_suppliers
+ * @property numeric $number_supplier_products
  */
 class AgentResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
-            'code'       => $this->code,
-            'name'       => $this->name,
-            'slug'       => $this->slug,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-
+            'slug'                     => $this->slug,
+            'code'                     => $this->code,
+            'name'                     => $this->name,
+            'location'                 => json_decode($this->location),
+            'number_suppliers'         => $this->number_suppliers,
+            'number_supplier_products' => $this->number_supplier_products,
         ];
     }
 }

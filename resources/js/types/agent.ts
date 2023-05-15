@@ -16,5 +16,6 @@ export interface Agent {
     updated_at: string
     email: string
     phone: string
+    location: string[]
 
 }
