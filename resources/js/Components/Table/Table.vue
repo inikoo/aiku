@@ -94,9 +94,6 @@ const props = defineProps({
 		},
 		required: false,
 	},
-	dataFilter: {
-		type: Array,
-	}
 })
 
 const app = getCurrentInstance()
@@ -295,10 +292,7 @@ function changeFilterValue(key, value) {
 }
 
 function changeElements(dataY) {
-
-	console.log("From table.vue")
 	console.log(dataY)
-
 	//queryBuilderData.value.elements[0].checked=true
 
 }
@@ -534,31 +528,31 @@ function header(key) {
 	return columnData
 }
 
-// const fakeElements = ref([
-//     {
-//         key: 0,
-//         label: 'hello',
-//         show: true,
-//         count: 5,
-//     },
-//     {
-//         key: 1,
-//         label: 'world',
-//         show: false,
-//         count: 13,
-//     },
-//     {
-//         key: 2,
-//         label: 'bye',
-//         show: true,
-//         count: 23,
-//     },
-// ])
-// const compFakeElements = computed(() => {
-//     return fakeElements.value.filter((i) => 
-//         i.show == false
-//     )
-// })
+const fakeElements = ref([
+    {
+        key: 0,
+        label: 'hello',
+        show: true,
+        count: 5,
+    },
+    {
+        key: 1,
+        label: 'world',
+        show: false,
+        count: 13,
+    },
+    {
+        key: 2,
+        label: 'bye',
+        show: true,
+        count: 23,
+    },
+])
+const compFakeElements = computed(() => {
+    return fakeElements.value.filter((i) => 
+        i.show == false
+    )
+})
 
 </script>
 <template>
@@ -635,7 +629,7 @@ function header(key) {
 
 			<!-- Filter Checkbox-->
 			<!-- <div class="text-xs">{{ compFakeElements }}</div> -->
-			<TableElements :elements="dataFilter" />
+			<TableElements :elements="fakeElements" v-model="fakeElements" @elementChange="(dataFilter) => changeElements(dataFilter)" />
 			
 			<!-- The Main Table -->
 			<slot name="tableWrapper" :meta="resourceMeta">
