@@ -36,7 +36,7 @@ class HydrateStock extends HydrateModel
     public function locations(Stock $stock): void
     {
         $numberLocations = $stock->locations->count();
-        $stats           = [
+        $stats = [
             'number_locations' => $numberLocations
         ];
 
@@ -46,9 +46,9 @@ class HydrateStock extends HydrateModel
     public function quantity(Stock $stock): void
     {
         $stock->update([
-                           'quantity' =>
-                               $stock->locations->sum('pivot.quantity')
-                       ]);
+            'quantity' =>
+                $stock->locations->sum('pivot.quantity')
+        ]);
     }
 
 

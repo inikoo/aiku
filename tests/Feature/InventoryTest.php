@@ -70,12 +70,6 @@ test('create location in warehouse area', function ($warehouseArea) {
     return $location;
 })->depends('create warehouse area');
 
-test('update location', function ($location) {
-    $location = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
-    expect($location->code)->toBe('AE-3');
-
-})->depends('create location in warehouse area');
-
 test('create stock families', function () {
     $stockFamily = StoreStockFamily::make()->action(StockFamily::factory()->definition());
     $this->assertModelExists($stockFamily);
@@ -114,7 +108,7 @@ test('add trade unit to stock', function ($stock, $tradeUnit) {
     $this->assertModelExists($stock);
 })->depends('create stock', 'create trade unit');
 
-test('remove trade unit to stock', function ($stock, $tradeUnit) {
+test('remove trade unit from stock', function ($stock, $tradeUnit) {
     $stock = RemoveStockTradeUnits::run($stock, [$tradeUnit->id]);
     $this->assertModelExists($stock);
 })->depends('create stock', 'create trade unit');
@@ -133,3 +127,9 @@ test('move stock location', function () {
     ]);
     $this->assertModelExists($stock);
 });
+
+test('update location', function ($location) {
+    $location = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
+    expect($location->code)->toBe('AE-3');
+
+})->depends('create location in warehouse area');

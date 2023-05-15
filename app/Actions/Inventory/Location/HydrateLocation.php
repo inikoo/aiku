@@ -25,7 +25,6 @@ class HydrateLocation extends HydrateModel
 
     public function value(Location $location): void
     {
-        // TODO still not working, need to fix
         $stockValue = $location->stocks->sum('value');
 
         $location->stats->update([
