@@ -12,6 +12,7 @@ use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use App\Models\Procurement\Agent;
 use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,7 +29,10 @@ class StoreAgent
         $agent = $owner->myAgents()->create($modelData);
         $agent->stats()->create();
 
-        $owner->agents()->attach($agent, ['is_owner' => true]);
+        $owner->agents()->attach(
+            $agent,
+            ['status' => AgentTenantStatusEnum::OWNER]
+        );
 
         SetCurrencyHistoricFields::run($agent->currency, $agent->created_at);
 

@@ -7,6 +7,7 @@
 
 namespace App\Models\Procurement;
 
+use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,7 +32,14 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class AgentTenant extends Pivot
 {
     use UsesGroupConnection;
+
     protected $table = 'agent_tenant';
+
+    protected $casts = [
+        'status' => AgentTenantStatusEnum::class
+    ];
+
+    protected $guarded = [];
 
 
     public function agent(): BelongsTo

@@ -7,6 +7,7 @@
 
 namespace App\Models\Procurement;
 
+use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,10 @@ class SupplierTenant extends Pivot
     use UsesGroupConnection;
 
     protected $table = 'supplier_tenant';
+
+    protected $casts = [
+        'status' => SupplierTenantStatusEnum::class
+    ];
 
 
     protected $guarded = [];

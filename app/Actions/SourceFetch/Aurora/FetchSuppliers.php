@@ -13,6 +13,7 @@ use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Tenancy\Tenant\AttachSupplier;
 use App\Actions\Utils\StoreImage;
+use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use App\Models\Procurement\Supplier;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -57,7 +58,14 @@ class FetchSuppliers extends FetchAction
         } else {
             $supplier = Supplier::withTrashed()->where('code', $supplierData['supplier']['code'])->first();
             if ($supplier) {
-                AttachSupplier::run($tenant, $supplier, ['source_id' => $supplierData['supplier']['source_id']]);
+                AttachSupplier::run(
+                    $tenant,
+                    $supplier,
+                    [
+                        'source_id' => $supplierData['supplier']['source_id'],
+                        'status'    => SupplierTenantStatusEnum::ADOPTED
+                    ]
+                );
             } else {
                 $supplierData['supplier']['source_type'] = $tenant->slug;
                 $supplier                                = StoreSupplier::run(
@@ -97,7 +105,8 @@ class FetchSuppliers extends FetchAction
                     $supplier,
                     [
                         'type'      => 'sub-supplier',
-                        'source_id' => $supplierData['supplier']['source_id']
+                        'source_id' => $supplierData['supplier']['source_id'],
+                        'status'    => SupplierTenantStatusEnum::ADOPTED
                     ]
                 );
             } else {

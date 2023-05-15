@@ -11,6 +11,7 @@ use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Tenancy\Tenant\AttachAgent;
+use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use App\Models\Procurement\Agent;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -34,7 +35,14 @@ class FetchAgents extends FetchAction
             } else {
                 $agent = Agent::withTrashed()->where('code', $agentData['agent']['code'])->first();
                 if ($agent) {
-                    AttachAgent::run($tenant, $agent, ['source_id' => $agentData['agent']['source_id']]);
+                    AttachAgent::run(
+                        $tenant,
+                        $agent,
+                        [
+                            'source_id' => $agentData['agent']['source_id'],
+                            'status'    => AgentTenantStatusEnum::ADOPTED
+                        ]
+                    );
                 } else {
                     $agentData['agent']['source_type'] = $tenant->slug;
                     $agent                             = StoreAgent::run(
@@ -70,8 +78,6 @@ class FetchAgents extends FetchAction
             ->where('aiku_ignore', 'No')
             ->count();
     }
-
-
 
 
 }

@@ -19,8 +19,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('public.tenants');
             $table->enum('type', ['supplier', 'sub-supplier'])->default('supplier')->index()->comment('sub-supplier: agents supplier');
-            $table->boolean('status')->default(true);
-            $table->boolean('is_owner')->default(false);
+            $table->string('status');
             $table->timestampsTz();
             $table->unsignedInteger('source_id')->index()->nullable();
             $table->index(['tenant_id','source_id']);

@@ -14,6 +14,7 @@ use App\Actions\Tenancy\Tenant\AttachSupplier;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
+use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use App\Models\Tenancy\Tenant;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -37,13 +38,18 @@ class StoreSupplier
                 tenant: app('currentTenant'),
                 supplier: $supplier,
                 pivotData: [
-                    'type'     => 'sub-supplier',
-                    'is_owner' => true
+                    'type'   => 'sub-supplier',
+                    'status' => SupplierTenantStatusEnum::OWNER
                 ]
             );
         } else {
             $supplier = $owner->mySuppliers()->create($modelData);
-            $owner->suppliers()->attach($supplier, ['is_owner' => true]);
+            $owner->suppliers()->attach(
+                $supplier,
+                [
+                    'status' => SupplierTenantStatusEnum::OWNER
+                ]
+            );
         }
 
 
