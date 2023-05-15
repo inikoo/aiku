@@ -14,6 +14,7 @@ use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use App\Models\Procurement\SupplierTenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -39,8 +40,14 @@ class IndexMarketplaceSuppliers extends InertiaAction
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
-            ->select(['code', 'slug', 'name', 'number_supplier_products', 'number_purchase_orders'])
-            ->allowedSorts(['code', 'name', 'number_supplier_products', 'number_purchase_orders'])
+            ->select(['code', 'slug', 'name', 'number_supplier_products', 'location'])
+            ->addSelect([
+                'adoption' => SupplierTenant::select('supplier_tenant.status')
+                    ->whereColumn('supplier_tenant.supplier_id', 'suppliers.id')
+                    ->where('supplier_tenant.tenant_id', app('currentTenant')->id)
+                    ->limit(1)
+            ])
+            ->allowedSorts(['code', 'name', 'number_supplier_products'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -57,10 +64,11 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page');
             $table
                 ->withGlobalSearch()
+                ->column(key: 'adoption', label: 'z', canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }

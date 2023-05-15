@@ -64,4 +64,19 @@ class CreatePurchaseOrder extends InertiaAction
 
         return $this->handle();
     }
+
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            IndexPurchaseOrders::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating purchase orders'),
+                    ]
+                ]
+            ]
+        );
+    }
 }

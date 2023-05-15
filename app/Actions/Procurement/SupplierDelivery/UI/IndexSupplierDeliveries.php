@@ -8,7 +8,6 @@
 namespace App\Actions\Procurement\SupplierDelivery\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierDeliveryResource;
@@ -111,48 +110,23 @@ class IndexSupplierDeliveries extends InertiaAction
         )->table($this->tableStructure($parent));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
-        $headCrumb = function (array $routeParameters = []) {
-            return [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => $routeParameters,
-                        'label' => __('supplier deliveries'),
-                        'icon'  => 'fal fa-bars'
-                    ],
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'procurement.supplier-deliveries.index'            =>
+        return
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
+                [
                     [
-                        'name'=> 'procurement.supplier-deliveries.index',
-                        null
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'procurement.supplier-deliveries.index'
+                            ],
+                            'label' => __('supplier deliveries'),
+                            'icon'  => 'fal fa-bars'
+                        ]
                     ]
-                ),
-            ),
-
-
-            'procurement.agents.show.suppliers.index' =>
-            array_merge(
-                (new ShowAgent())->getBreadcrumbs($routeParameters['agent']),
-                $headCrumb(
-                    [
-                        'name'      => 'procurement.agents.show.suppliers.index',
-                        'parameters'=>
-                            [
-                                $routeParameters['agent']->slug
-                            ]
-                    ]
-                )
-            ),
-            default => []
-        };
+                ]
+            );
     }
 }
