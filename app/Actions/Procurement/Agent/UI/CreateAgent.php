@@ -71,4 +71,19 @@ class CreateAgent extends InertiaAction
 
         return $this->handle();
     }
+
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            IndexAgents::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating agent'),
+                    ]
+                ]
+            ]
+        );
+    }
 }
