@@ -50,8 +50,6 @@ const fakeData = ref([
 </script>
 
 <template>
-			<div class="text-xs">{{ fakeData }}dsadsadsa</div>
-
     <Table :resource="data" :name="'emp'" class="mt-5" :dataFilter="fakeData">
         <template #cell(slug)="{ item: employee }">
             <Link :href="employeeRoute(employee)">
