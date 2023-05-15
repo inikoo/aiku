@@ -36,7 +36,7 @@ class IndexAgents extends InertiaAction
 
         return QueryBuilder::for(AgentTenant::class)
             ->defaultSort('agents.code')
-            ->select(['code', 'name', 'slug', 'location'])
+            ->select(['code', 'name', 'slug', 'location', 'number_suppliers', 'number_purchase_orders'])
             ->leftJoin('agents', 'agents.id', 'agent_tenant.agent_id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
             ->where('agent_tenant.tenant_id', app('currentTenant')->id)
@@ -58,6 +58,8 @@ class IndexAgents extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->defaultSort('code');
         };
