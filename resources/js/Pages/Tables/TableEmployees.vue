@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+import {ref} from 'vue'
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Employee} from "@/types/employee";
@@ -25,11 +26,33 @@ function employeeRoute(employee: Employee) {
     }
 }
 
+const fakeData = ref([
+    {
+        key: 0,
+        label: 'Terima Kasih',
+        show: false,
+        count: 11,
+    },
+    {
+        key: 1,
+        label: 'Selamat Tinggal',
+        show: true,
+        count: 7,
+    },
+    {
+        key: 2,
+        label: 'Welcome',
+        show: true,
+        count: 23,
+    },
+])
+
 </script>
 
 <template>
+			<div class="text-xs">{{ fakeData }}dsadsadsa</div>
 
-    <Table :resource="data" :name="'emp'" class="mt-5">
+    <Table :resource="data" :name="'emp'" class="mt-5" :dataFilter="fakeData">
         <template #cell(slug)="{ item: employee }">
             <Link :href="employeeRoute(employee)">
                 {{ employee['slug'] }}
