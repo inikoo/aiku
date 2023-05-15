@@ -60,8 +60,8 @@ const current = ref(0)
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
 
-
-    <div class="overflow-hidden rounded-lg bg-white shadow">
+    <!-- If overflow-hidden, affect to Multiselect on Address -->
+    <div class="rounded-lg bg-white shadow">
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
             <aside class="py-0 lg:col-span-3 lg:h-full">
                 <!-- <div>
