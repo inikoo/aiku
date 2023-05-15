@@ -20,13 +20,19 @@ class HydrateWarehouse extends HydrateModel
     {
         $this->warehouseAreas($warehouse);
         $this->locations($warehouse);
+        $this->stock($warehouse);
     }
 
     public function stock(Warehouse $warehouse): void
     {
+        $stockValue = 0;
+        foreach ($warehouse->locations as $location) {
+            $stockValue =+ $location->stocks()->sum('value');
+        }
+
         $warehouse->stats->update(
             [
-                'stock_value' => '' // TODO: calculate this
+                'stock_value' => $stockValue
             ]
         );
     }

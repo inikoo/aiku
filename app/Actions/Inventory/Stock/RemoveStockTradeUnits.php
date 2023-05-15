@@ -18,6 +18,8 @@ class RemoveStockTradeUnits
     {
         $stock->tradeUnits()->detach($tradeUnitsData);
 
+        HydrateStock::run($stock);
+
         return $stock;
     }
 }

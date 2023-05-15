@@ -35,6 +35,7 @@ class StoreStock
             StockFamilyHydrateStocks::dispatch($stock->stockFamily);
         }
         StockHydrateUniversalSearch::dispatch($stock);
+        HydrateStock::run($stock);
 
         return $stock;
     }

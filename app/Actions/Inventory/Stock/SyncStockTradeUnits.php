@@ -18,6 +18,8 @@ class SyncStockTradeUnits
     {
         $stock->tradeUnits()->sync($tradeUnitsData);
 
+        HydrateStock::run($stock);
+
         return $stock;
     }
 }

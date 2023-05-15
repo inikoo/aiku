@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
+use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Location;
@@ -28,6 +29,8 @@ class MoveStockLocation
         $this->update($targetLocationStock, [
             'quantity' => (float) $targetLocationStock->quantity + (float) $modelData['quantity'],
         ]);
+
+        HydrateWarehouse::run($currentLocationStock->location->warehouse);
 
         return $currentLocationStock;
     }
