@@ -64,7 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Tenancy\TenantMarketingStats|null $marketingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $myAgents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $mySuppliers
- * @property-read \App\Models\Tenancy\TenantProcurementStats|null $supplierProductsStats
+ * @property-read \App\Models\Tenancy\TenantProcurementStats|null $procurementStats
  * @property-read \App\Models\Tenancy\TenantProductionStats|null $productionStats
  * @property-read \App\Models\Tenancy\TenantSalesStats|null $salesStats
  * @property-read \App\Models\Tenancy\TenantStats|null $stats
@@ -193,7 +193,7 @@ class Tenant extends SpatieTenant
     {
         return $this->belongsToMany(Agent::class)
             ->using(AgentTenant::class)
-            ->withPivot(['source_id'])
+            ->withPivot(['source_id','is_owner'])
             ->withTimestamps();
     }
 
@@ -201,7 +201,7 @@ class Tenant extends SpatieTenant
     {
         return $this->belongsToMany(SupplierProduct::class)
             ->using(SupplierProductTenant::class)
-            ->withPivot(['source_id'])
+            ->withPivot(['source_id','is_owner'])
             ->withTimestamps();
     }
 

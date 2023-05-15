@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->mediumIncrements('id');
             $table->unsignedInteger('supplier_id')->index();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
+            $table = $this->supplierProductsStats($table);
             $table = $this->purchaseOrdersStats($table);
             $table = $this->supplierDeliveriesStats($table);
             $table->timestampsTz();

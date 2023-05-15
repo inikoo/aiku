@@ -29,6 +29,7 @@ class FetchSupplierProducts extends FetchAction
 
             $supplier=$supplierProductData['supplier'];
 
+
             if(!$supplier) {
                 return null;
             }
@@ -48,6 +49,8 @@ class FetchSupplierProducts extends FetchAction
                 }
 
             }
+
+
 
             if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierProductData['supplierProduct']['source_id'])
                 ->first()) {

@@ -7,9 +7,9 @@
 
 namespace App\Models\Procurement;
 
+use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Assets\Currency;
-use App\Models\Helpers\Address;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasGroupAddress;
 use App\Models\Traits\HasPhoto;
@@ -54,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_type
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\GroupAddress> $addresses
  * @property-read Currency $currency
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read Tenant $owner
@@ -108,6 +108,7 @@ class Agent extends Model implements HasMedia
             if (!$agent->wasRecentlyCreated) {
                 if ($agent->wasChanged('status')) {
                     TenantHydrateProcurement::dispatch(app('currentTenant'));
+                    GroupHydrateProcurement::run(app('currentTenant')->group);
                 }
             }
         });

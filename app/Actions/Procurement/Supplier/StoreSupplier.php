@@ -24,7 +24,7 @@ class StoreSupplier
 
     public function handle(Tenant|Agent $owner, array $modelData, array $addressData = []): Supplier
     {
-        /** @var Supplier $supplier*/
+        /** @var Supplier $supplier */
         if (class_basename($owner) == 'Agent') {
             $modelData['owner_type'] = 'Agent';
             $modelData['owner_id']   = $owner->id;
@@ -32,7 +32,7 @@ class StoreSupplier
 
         } else {
             $supplier = $owner->mySuppliers()->create($modelData);
-            $owner->suppliers()->attach($supplier);
+            $owner->suppliers()->attach($supplier, ['is_owner' => true]);
         }
 
 
@@ -46,6 +46,8 @@ class StoreSupplier
         $supplier->save();
 
         TenantHydrateProcurement::dispatch(app('currentTenant'));
+        GroupHydrateProcurement::run(app('currentTenant')->group);
+
         if ($supplier->agent_id) {
             AgentHydrateSuppliers::dispatch($supplier->agent);
         }
@@ -72,6 +74,7 @@ class StoreSupplier
     {
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
+
         return $this->handle($owner, $validatedData);
     }
 }

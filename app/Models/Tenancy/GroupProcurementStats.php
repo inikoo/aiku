@@ -1,22 +1,23 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 12:07:51 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 15 May 2023 17:09:29 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Procurement;
+namespace App\Models\Tenancy;
 
 use App\Models\Traits\UsesGroupConnection;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Procurement\AgentStats
+ * App\Models\Tenancy\GroupProcurementStats
  *
  * @property int $id
- * @property int $agent_id
+ * @property int $group_id
+ * @property int $number_agents Number of active agents
+ * @property int $agents_count Total number of agents records attached to tenant
  * @property int $number_suppliers Number of active suppliers
  * @property int $suppliers_count Total number of suppliers records attached to tenant
  * @property int $number_supplier_products Number supplier products (all excluding discontinued)
@@ -57,22 +58,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_supplier_deliveries_status_settled_cancelled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Procurement\Agent $agent
- * @method static Builder|AgentStats newModelQuery()
- * @method static Builder|AgentStats newQuery()
- * @method static Builder|AgentStats query()
+ * @property-read \App\Models\Tenancy\Group $group
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupProcurementStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupProcurementStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupProcurementStats query()
  * @mixin \Eloquent
  */
-class AgentStats extends Model
+class GroupProcurementStats extends Model
 {
     use UsesGroupConnection;
 
-    protected $table = 'agent_stats';
+    protected $table = 'group_procurement_stats';
 
     protected $guarded = [];
 
-    public function agent(): BelongsTo
+    public function group(): BelongsTo
     {
-        return $this->belongsTo(Agent::class);
+        return $this->belongsTo(Group::class);
     }
 }

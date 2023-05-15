@@ -19,6 +19,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('public.tenants');
             $table->boolean('status')->default(true);
+            $table->boolean('is_owner')->default(false);
+            ;
+
             $table->timestampsTz();
             $table->unsignedInteger('source_id')->index()->nullable();
 

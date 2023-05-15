@@ -11,6 +11,7 @@ use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
+use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\Tenancy\Tenant\AttachSupplierProduct;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
@@ -29,6 +30,7 @@ class StoreSupplierProduct
         if($supplier->agent_id) {
             $modelData['agent_id'] = $supplier->agent_id;
         }
+
 
         /** @var SupplierProduct $supplierProduct */
         $supplierProduct = $supplier->products()->create($modelData);
@@ -52,7 +54,7 @@ class StoreSupplierProduct
             app('currentTenant'),
             $supplierProduct,
             [
-            'source_id'=> Arr::get($modelData, 'source_id', null),
+                'source_id'=> Arr::get($modelData, 'source_id'),
         ]
         );
         if ($supplier->type = 'supplier') {
@@ -67,7 +69,7 @@ class StoreSupplierProduct
             }
         }
 
-
+        GroupHydrateProcurement::run(app('currentTenant')->group);
         return $supplierProduct;
     }
 

@@ -36,16 +36,14 @@ class IndexMarketplaceAgents extends InertiaAction
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS->value);
 
         return QueryBuilder::for(Agent::class)
-
             ->leftJoin('agent_stats', 'agent_stats.agent_id', '=', 'agents.id')
-           // ->leftJoin('agent_tenant','agent_tenant.agent_id','=','agents.id')
-           // ->where('agent_tenant.tenant_id',app('currentTenant')->id)
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug', 'number_suppliers', 'number_supplier_products', 'location'])
-            ->addSelect(['adoption' => AgentTenant::select('agent_tenant.status')
-                ->whereColumn('agent_tenant.agent_id', 'agents.id')
-                ->where('agent_tenant.tenant_id', app('currentTenant')->id)
-                ->limit(1)
+            ->addSelect([
+                'adoption' => AgentTenant::select('agent_tenant.status')
+                    ->whereColumn('agent_tenant.agent_id', 'agents.id')
+                    ->where('agent_tenant.tenant_id', app('currentTenant')->id)
+                    ->limit(1)
             ])
             ->allowedFilters([$globalSearch])
             ->allowedSorts(['code', 'name', 'number_suppliers', 'number_supplier_products'])
