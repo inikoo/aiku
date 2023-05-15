@@ -64,7 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Tenancy\TenantMarketingStats|null $marketingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $myAgents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $mySuppliers
- * @property-read \App\Models\Tenancy\TenantProcurementStats|null $procurementStats
+ * @property-read \App\Models\Tenancy\TenantProcurementStats|null $supplierProductsStats
  * @property-read \App\Models\Tenancy\TenantProductionStats|null $productionStats
  * @property-read \App\Models\Tenancy\TenantSalesStats|null $salesStats
  * @property-read \App\Models\Tenancy\TenantStats|null $stats

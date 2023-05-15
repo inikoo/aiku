@@ -17,17 +17,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $updated_at
  * @property numeric $number_suppliers
  * @property numeric $number_supplier_products
+ * @property mixed $location
  */
 class MarketplaceAgentResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
-            'code'                    => $this->code,
-            'name'                    => $this->name,
-            'slug'                    => $this->slug,
-            'number_suppliers'        => $this->number_suppliers,
-            'number_supplier_products'=> $this->number_supplier_products,
+            'slug'                     => $this->slug,
+            'code'                     => $this->code,
+            'name'                     => $this->name,
+            'location'                 => $this->location,
+            'number_suppliers'         => $this->number_suppliers,
+            'number_supplier_products' => $this->number_supplier_products,
 
         ];
     }

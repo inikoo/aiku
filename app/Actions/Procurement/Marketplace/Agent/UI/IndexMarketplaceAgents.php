@@ -37,9 +37,9 @@ class IndexMarketplaceAgents extends InertiaAction
         return QueryBuilder::for(Agent::class)
             ->leftJoin('agent_stats', 'agent_stats.agent_id', '=', 'agents.id')
             ->defaultSort('agents.code')
-            ->select(['code', 'name', 'slug','number_suppliers','number_supplier_products'])
+            ->select(['code', 'name', 'slug', 'number_suppliers', 'number_supplier_products', 'location'])
             ->allowedFilters([$globalSearch])
-            ->allowedSorts(['code', 'name', 'number_suppliers','number_supplier_products'])
+            ->allowedSorts(['code', 'name', 'number_suppliers', 'number_supplier_products'])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::AGENTS->value.'Page'
@@ -57,15 +57,17 @@ class IndexMarketplaceAgents extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false, sortable: false, searchable: true)
                 ->column(key: 'number_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
-
                 ->defaultSort('code');
         };
     }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -77,6 +79,7 @@ class IndexMarketplaceAgents extends InertiaAction
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
+
         return $this->handle();
     }
 
@@ -90,22 +93,23 @@ class IndexMarketplaceAgents extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $agent, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Procurement/MarketplaceAgents',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __("agent's marketplace"),
                 'pageHead'    => [
-                    'title'   => __("agent's marketplace"),
-                    'create'  => $this->canEdit && $this->routeName=='procurement.marketplace-agents.index' ? [
+                    'title'  => __("agent's marketplace"),
+                    'create' => $this->canEdit && $this->routeName == 'procurement.marketplace-agents.index' ? [
                         'route' => [
                             'name'       => 'procurement.marketplace-agents.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('agent')
+                        'label' => __('agent')
                     ] : false,
                 ],
-                'data'      => MarketplaceAgentResource::collection($agent),
+                'data'        => MarketplaceAgentResource::collection($agent),
             ]
         )->table($this->tableStructure($parent));
     }

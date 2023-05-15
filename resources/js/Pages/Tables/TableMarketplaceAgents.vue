@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import { MarketplaceAgent } from "@/types/marketplace-agent";
+import AddressLocation from "@/Components/DataDisplay/AddressLocation.vue";
 
 const props = defineProps<{
     data: object
@@ -23,14 +24,20 @@ function marketplacesAgentRoute(marketplaceAgent: MarketplaceAgent) {
     }
 }
 
+
+
+
 </script>
 
 <template>
     <Table :resource="data" :name="'ag'" class="mt-5">
-        <template #cell(code)="{ item: marketplaceAgent }">
-            <Link :href="marketplacesAgentRoute(marketplaceAgent)">
-                {{ marketplaceAgent['code'] }}
+        <template #cell(code)="{ item: agent }">
+            <Link :href="marketplacesAgentRoute(agent)">
+                {{ agent['code'] }}
             </Link>
+        </template>
+        <template #cell(location)="{ item: agent }">
+            <AddressLocation :data="agent['location']"/>
         </template>
     </Table>
 </template>
