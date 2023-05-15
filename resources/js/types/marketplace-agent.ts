@@ -5,14 +5,14 @@
  */
 
 export interface MarketplaceAgent {
-    slug:string,
+    slug: string,
     provider_id: string,
     provider_type: string,
     number: string
     status: string
     created_at: string
     updated_at: string
-
+    location: string[]
 
 
 }

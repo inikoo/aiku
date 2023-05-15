@@ -17,7 +17,23 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasProcurementStats
 {
-    public function procurementStats(Blueprint $table): Blueprint
+    public function agentStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_agents')->default(0)->comment('Number of active agents');
+        $table->unsignedInteger('agents_count')->default(0)->comment('Total number of agents records attached to tenant');
+
+        return $table;
+    }
+
+    public function suppliersStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_suppliers')->default(0)->comment('Number of active suppliers');
+        $table->unsignedInteger('suppliers_count')->default(0)->comment('Total number of suppliers records attached to tenant');
+
+        return $table;
+    }
+
+    public function supplierProductsStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_supplier_products')->default(0)->comment('Number supplier products (all excluding discontinued)');
         $table->unsignedInteger('number_supplier_deliveries')->default(0)->comment('Number supplier deliveries (all excluding discontinued)');
@@ -28,18 +44,17 @@ trait HasProcurementStats
             $table->unsignedBigInteger('number_supplier_products_state_'.$productState->snake())->default(0);
         }
 
-        foreach (SupplierDeliveryStateEnum::cases() as $supplierDeliveryState) {
-            $table->unsignedBigInteger('number_supplier_deliveries_state_'.$supplierDeliveryState->snake())->default(0);
-        }
-
-        foreach (SupplierDeliveryStatusEnum::cases() as $supplierDeliveryStatus) {
-            $table->unsignedBigInteger('number_supplier_deliveries_status_'.$supplierDeliveryStatus->snake())->default(0);
-        }
 
         foreach (SupplierProductQuantityStatusEnum::cases() as $productStockQuantityStatus) {
             $table->unsignedBigInteger('number_supplier_products_stock_quantity_status_'.$productStockQuantityStatus->snake())->default(0);
         }
 
+
+        return $table;
+    }
+
+    public function purchaseOrdersStats(Blueprint $table): Blueprint
+    {
         $table->unsignedInteger('number_purchase_orders')->default(0)->comment('Number purchase orders (except cancelled and failed) ');
         $table->unsignedInteger('number_open_purchase_orders')->default(0)->comment('Number purchase orders (except creating, settled)');
 
@@ -53,8 +68,24 @@ trait HasProcurementStats
             $table->unsignedInteger('number_purchase_orders_status_'.$purchaseOrderStatus->snake())->default(0);
         }
 
-        $table->unsignedInteger('number_deliveries')->default(0)->comment('Number supplier deliveries (except cancelled)');
 
         return $table;
     }
+
+    public function supplierDeliveriesStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_deliveries')->default(0)->comment('Number supplier deliveries (except cancelled)');
+
+        foreach (SupplierDeliveryStateEnum::cases() as $supplierDeliveryState) {
+            $table->unsignedBigInteger('number_supplier_deliveries_state_'.$supplierDeliveryState->snake())->default(0);
+        }
+
+        foreach (SupplierDeliveryStatusEnum::cases() as $supplierDeliveryStatus) {
+            $table->unsignedBigInteger('number_supplier_deliveries_status_'.$supplierDeliveryStatus->snake())->default(0);
+        }
+
+        return $table;
+    }
+
+
 }
