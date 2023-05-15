@@ -8,6 +8,7 @@
 namespace Tests\Feature;
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Inventory\Location\AuditLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\DetachStockFromLocation;
@@ -132,4 +133,9 @@ test('update location', function ($location) {
     $location = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
     expect($location->code)->toBe('AE-3');
 
+})->depends('create location in warehouse area');
+
+test('audit location', function ($location) {
+    $location = AuditLocation::run($location);
+    expect($location->audited_at)->not->toBeNull();
 })->depends('create location in warehouse area');
