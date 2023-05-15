@@ -14,7 +14,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Illuminate\Support\Arr;
 
-class DpdGbCallShipperApi
+class WhistlGbCallShipperApi
 {
     use AsAction;
     use WithAttributes;

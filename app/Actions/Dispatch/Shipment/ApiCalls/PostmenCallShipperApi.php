@@ -16,7 +16,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use SoapClient;
 
-class GlsSkCallShipperApi
+class PostmenCallShipperApi
 {
     use AsAction;
     use WithAttributes;

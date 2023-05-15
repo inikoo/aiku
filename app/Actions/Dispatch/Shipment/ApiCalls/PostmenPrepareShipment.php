@@ -12,7 +12,7 @@ use stdClass;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class GlsSkPrepareShipment
+class PostmenPrepareShipment
 {
     use AsAction;
     use WithAttributes;

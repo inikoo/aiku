@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class PostmentShipmentParameters
+class PostmenShipmentParameters
 {
     use AsAction;
     use WithAttributes;

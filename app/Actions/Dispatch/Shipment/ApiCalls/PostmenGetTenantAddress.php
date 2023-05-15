@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class PostmenCreateShipperAccount
+class PostmenGetTenantAddress
 {
     use AsAction;
     use WithAttributes;

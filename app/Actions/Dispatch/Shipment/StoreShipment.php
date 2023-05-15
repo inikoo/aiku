@@ -5,11 +5,17 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dispatch\Shipment\ApiCalls;
+namespace App\Actions\Dispatch\Shipment;
 
+use App\Actions\Dispatch\Shipment\ApiCalls\ApcGbCallShipperApi;
+use App\Actions\Dispatch\Shipment\ApiCalls\DpdGbCallShipperApi;
+use App\Actions\Dispatch\Shipment\ApiCalls\DpdSkCallShipperApi;
+use App\Actions\Dispatch\Shipment\ApiCalls\PostmenCallShipperApi;
+use App\Actions\Dispatch\Shipment\ApiCalls\WhistlGbCallShipperApi;
 use App\Actions\Dispatch\Shipment\Hydrators\ShipmentHydrateUniversalSearch;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
+use App\Models\Dispatch\Shipper;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -23,8 +29,11 @@ class StoreShipment
         $type = 'apiCall';
         $modelData['delivery_note_id'] = $deliveryNote->id;
         $shipment=match($shipper->api_shipper) {
-            'apc-gb'=> CallApcgbShipperApi::run($deliveryNote,$shipper,$type),
-            'dpd-gb'=> CallDpdgbShipperApi::run($deliveryNote,$shipper,$type),
+            'apc-gb'=> ApcGbCallShipperApi::run($deliveryNote,$shipper,$type),
+            'dpd-gb'=> DpdGbCallShipperApi::run($deliveryNote,$shipper,$type),
+            'dpd-sk'=> DpdSkCallShipperApi::run($deliveryNote,$shipper,$type),
+            'pst-mn'=> PostmenCallShipperApi::run($deliveryNote,$shipper,$type),
+            'whl-gb'=> WhistlGbCallShipperApi::run($deliveryNote,$shipper,$type),
             default => $shipper->shipments()->create($modelData),
         };
         ShipmentHydrateUniversalSearch::dispatch($shipment);
@@ -39,11 +48,11 @@ class StoreShipment
         ];
     }
 
-    public function action(DeliveryNote $deliveryNote, array $objectData): Shipment
+    public function action(DeliveryNote $deliveryNote, Shipper $shipper,array $objectData): Shipment
     {
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($deliveryNote, $validatedData);
+        return $this->handle($deliveryNote, $shipper, $validatedData);
     }
 }

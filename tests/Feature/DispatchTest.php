@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Actions\Dispatch\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatch\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Dispatch\DeliveryNoteItem\StoreDeliveryNoteItem;
-//use App\Actions\Dispatch\Shipment\StoreShipment;
 use App\Actions\Dispatch\Shipper\StoreShipper;
 use App\Actions\Dispatch\Shipper\UpdateShipper;
 use App\Actions\Inventory\Stock\StoreStock;
@@ -13,12 +12,9 @@ use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Order\StoreOrder;
 use App\Actions\Sales\Transaction\StoreTransaction;
-use App\Actions\Tenancy\Group\StoreGroup;
-use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
-//use App\Models\Dispatch\Shipment;
 use App\Models\Dispatch\Shipper;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
@@ -108,20 +104,3 @@ test('create delivery note item', function ($deliveryNote) {
     return $deliveryNoteItem;
 })->depends('create delivery note');
 
-//test('delete delivery note item', function ($deliveryNote) {
-//    $delnote = DeleteDeliveryNote::run($deliveryNote);
-//    $this->assertModelExists($delnote);
-//})->depends('create delivery note');
-
-//test('create shipment', function ($deliveryNote) {
-//    $shipper = StoreShipper::make()->action(Shipper::factory()->definition());
-//    $shipment = StoreShipment::make()->action($deliveryNote, $shipper,Shipment::factory()->definition());
-//    $this->assertModelExists($shipment);
-//    return $shipment;
-//})->depends('create delivery note');
-
-//test('update shipment', function () {
-//    $shipper = Shipper::latest()->first();
-//    $shipper = UpdateShipper::run($shipper, Shipper::factory()->definition());
-//    $this->assertModelExists($shipper);
-//});

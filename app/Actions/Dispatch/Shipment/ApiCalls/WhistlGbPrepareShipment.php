@@ -12,7 +12,7 @@ use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class PostmenPrepareShipment
+class WhistlGbPrepareShipment
 {
     use AsAction;
     use WithAttributes;

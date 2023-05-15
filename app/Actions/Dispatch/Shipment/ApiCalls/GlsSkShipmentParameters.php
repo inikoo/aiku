@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DpdSkShipmentParameters
+class GlsSkShipmentParameters
 {
     use AsAction;
     use WithAttributes;

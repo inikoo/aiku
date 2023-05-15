@@ -45,7 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Shipment withoutTrashed()
  * @mixin Eloquent
  */
-class Shipment extends Model
+class PdfLabel extends Model
 {
     use SoftDeletes;
     use HasSlug;
@@ -73,11 +73,6 @@ class Shipment extends Model
     public function shipper(): BelongsTo
     {
         return $this->belongsTo(Shipper::class);
-    }
-
-    public function update_state()
-    {
-        //
     }
 
 }
