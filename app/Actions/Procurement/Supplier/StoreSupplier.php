@@ -8,6 +8,9 @@
 namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
+use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
+use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\Tenancy\Tenant\AttachSupplier;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
@@ -30,6 +33,14 @@ class StoreSupplier
             $modelData['owner_id']   = $owner->id;
             $supplier                = $owner->suppliers()->create($modelData);
 
+            AttachSupplier::run(
+                tenant: app('currentTenant'),
+                supplier: $supplier,
+                pivotData: [
+                    'type'     => 'sub-supplier',
+                    'is_owner' => true
+                ]
+            );
         } else {
             $supplier = $owner->mySuppliers()->create($modelData);
             $owner->suppliers()->attach($supplier, ['is_owner' => true]);

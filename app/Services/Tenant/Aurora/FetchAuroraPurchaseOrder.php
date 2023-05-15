@@ -26,6 +26,8 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         };
 
 
+
+
         //enum('Cancelled','NoReceived','InProcess','Submitted',
         //'Confirmed','Manufactured','QC_Pass','Inputted','Dispatched','Received',
         //'Checked','Placed','Costing','InvoiceChecked')
