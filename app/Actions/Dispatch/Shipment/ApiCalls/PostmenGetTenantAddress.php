@@ -21,6 +21,7 @@ class PostmenGetTenantAddress
     use WithAttributes;
     public function handle(Request $request, Shipper $shipper): Shipper
     {
+        $apiUrl = "https://api.mygls.sk/ParcelService.svc?singleWsdl";
         $headers = [
             "content-type: application/json",
             "postmen-api-key: ".$shipper->data['api_key']
@@ -49,7 +50,7 @@ class PostmenGetTenantAddress
             'credentials' => $credentials
         ];
 
-        $response = $this->callApi($this->api_url.'shipper-accounts', $this->headers, json_encode($params));
+        $response = ProsesApiCalls::run($apiUrl.'shipper-accounts', $headers, json_encode($params));
 
         if ($response['status'] != 200) {
             $this->errors = [Arr::get($response, 'errors')];
