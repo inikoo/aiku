@@ -1,3 +1,4 @@
-*
-!public/
-!.gitignore
+public/flags/*.gif
+group/
+tenants/
+
