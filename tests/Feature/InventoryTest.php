@@ -11,6 +11,7 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\DetachStockFromLocation;
+use App\Actions\Inventory\Stock\MoveStockLocation;
 use App\Actions\Inventory\Stock\RemoveStockTradeUnits;
 use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Inventory\Stock\AttachStockToLocation;
@@ -22,6 +23,7 @@ use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\LocationStock;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
 use App\Models\Inventory\Warehouse;
@@ -121,3 +123,13 @@ test('detach stock from location', function ($location, $stock) {
     $stock = DetachStockFromLocation::run($location, $stock);
     $this->assertModelExists($stock);
 })->depends('create location in warehouse area', 'create stock');
+
+test('move stock location', function () {
+    $currentLocation = LocationStock::first();
+    $targetLocation  = LocationStock::latest()->first();
+
+    $stock = MoveStockLocation::make()->action($currentLocation, $targetLocation, [
+        'quantity' => 1
+    ]);
+    $this->assertModelExists($stock);
+});
