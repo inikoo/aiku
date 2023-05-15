@@ -40,7 +40,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
-            ->select(['code', 'slug', 'name', 'number_supplier_products'])
+            ->select(['code', 'slug', 'name', 'number_supplier_products', 'location'])
             ->addSelect([
                 'adoption' => SupplierTenant::select('supplier_tenant.status')
                     ->whereColumn('supplier_tenant.supplier_id', 'suppliers.id')
@@ -67,6 +67,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 ->column(key: 'adoption', label: 'z', canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
