@@ -10,6 +10,7 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Employee} from "@/types/employee";
 import JobPositionBadges from "@/Components/Elements/Badges/JobPositionBadges.vue";
+import TableElements from "@/Components/Table/TableElements.vue";
 
 const props = defineProps<{
     data: object
@@ -26,7 +27,7 @@ function employeeRoute(employee: Employee) {
     }
 }
 
-const fakeData = ref([
+const fakeElements = [
     {
         key: 0,
         label: 'Terima Kasih',
@@ -45,12 +46,12 @@ const fakeData = ref([
         show: true,
         count: 23,
     },
-])
-
+];
+//@elementChange="(dataFilter) => changeElements(dataFilter)"
 </script>
 
 <template>
-    <Table :resource="data" :name="'emp'" class="mt-5" :dataFilter="fakeData">
+    <Table :resource="data" :name="'emp'" class="mt-5"  :elements="fakeElements"  >
         <template #cell(slug)="{ item: employee }">
             <Link :href="employeeRoute(employee)">
                 {{ employee['slug'] }}
@@ -59,5 +60,7 @@ const fakeData = ref([
         <template #cell(job_positions)="{ item: employee }">
             <job-position-badges :job_positions="employee['job_positions']"/>
         </template>
+
+
     </Table>
 </template>
