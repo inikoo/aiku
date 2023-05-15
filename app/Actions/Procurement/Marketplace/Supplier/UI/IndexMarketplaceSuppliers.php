@@ -39,8 +39,8 @@ class IndexMarketplaceSuppliers extends InertiaAction
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
-            ->select(['code', 'slug', 'name', 'number_supplier_products', 'number_purchase_orders'])
-            ->allowedSorts(['code', 'name', 'number_supplier_products', 'number_purchase_orders'])
+            ->select(['code', 'slug', 'name', 'number_supplier_products'])
+            ->allowedSorts(['code', 'name', 'number_supplier_products'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -60,7 +60,6 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }

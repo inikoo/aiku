@@ -69,4 +69,18 @@ class CreateMarketplaceAgent extends InertiaAction
 
         return $this->handle();
     }
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            IndexMarketplaceAgents::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __("creating agent's marketplace"),
+                    ]
+                ]
+            ]
+        );
+    }
 }
