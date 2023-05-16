@@ -11,8 +11,10 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Inventory\Location\AuditLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
+use App\Actions\Inventory\Stock\AddLostAndFoundStock;
 use App\Actions\Inventory\Stock\DetachStockFromLocation;
 use App\Actions\Inventory\Stock\MoveStockLocation;
+use App\Actions\Inventory\Stock\RemoveLostAndFoundStock;
 use App\Actions\Inventory\Stock\RemoveStockTradeUnits;
 use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Inventory\Stock\AttachStockToLocation;
@@ -22,9 +24,11 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
+use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationStock;
+use App\Models\Inventory\LostAndFoundStock;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
 use App\Models\Inventory\Warehouse;
@@ -139,3 +143,31 @@ test('audit stock in location', function ($location) {
     $location = AuditLocation::run($location);
     expect($location->audited_at)->not->toBeNull();
 })->depends('create location in warehouse area');
+
+test('add found stock', function ($location) {
+    $lostAndFound = AddLostAndFoundStock::make()->action($location, array_merge(LostAndFoundStock::factory()->definition(), [
+        'type' => LostAndFoundStockStateEnum::FOUND->value
+    ]));
+    $this->assertModelExists($lostAndFound);
+
+    return $lostAndFound;
+})->depends('create location in warehouse area');
+
+test('add lost stock', function ($location) {
+    $lostAndFound = AddLostAndFoundStock::make()->action($location, array_merge(LostAndFoundStock::factory()->definition(), [
+        'type' => LostAndFoundStockStateEnum::LOST->value
+    ]));
+    $this->assertModelExists($lostAndFound);
+
+    return $lostAndFound;
+})->depends('create location in warehouse area');
+
+test('remove lost stock', function ($lostAndFoundStock) {
+    $lostAndFound = RemoveLostAndFoundStock::make()->action($lostAndFoundStock, 2);
+    expect($lostAndFound->quantity)->toBe(2.0);
+})->depends('add lost stock');
+
+test('remove found stock', function ($lostAndFoundStock) {
+    $lostAndFound = RemoveLostAndFoundStock::make()->action($lostAndFoundStock, 2);
+    expect($lostAndFound->quantity)->toBe(2.0);
+})->depends('add found stock');
