@@ -16,8 +16,8 @@ enum MarketplaceAgentTabsEnum: string
     use HasTabs;
 
     case SHOWCASE            = 'SHOWCASE';
-
-    case ITEMS               = 'items';
+    case  SUPPLIERS          = 'suppliers';
+    case SUPPLIER_PRODUCTS   = 'supplier_products';
 
     case HISTORY             = 'history';
 
@@ -36,20 +36,25 @@ enum MarketplaceAgentTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            MarketplaceAgentTabsEnum::ITEMS  => [
-                'title' => __('items'),
-                'icon'  => 'fal fa-bars',
-            ],
-            MarketplaceAgentTabsEnum::SHOWCASE => [
-                'title' => __('Marketplace Agent'),
-                'icon'  => 'fal fa-info-circle',
-            ],
             MarketplaceAgentTabsEnum::HISTORY     => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
+            MarketplaceAgentTabsEnum::SUPPLIERS  => [
+                'title' => __('suppliers'),
+                'icon'  => 'fal fa-store-alt',
+            ],
+            MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS => [
+                'title' => __('supplier products'),
+                'icon'  => 'fal fa-cube',
+            ],
+            MarketplaceAgentTabsEnum::SHOWCASE => [
+                'title' => __('Agent'),
+                'icon'  => 'fas fa-info-circle',
+            ],
+
         };
     }
 }
