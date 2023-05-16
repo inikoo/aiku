@@ -7,7 +7,10 @@
 
 namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
+use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Http\Resources\Helpers\AddressResource;
+use App\Models\Helpers\Address;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -50,6 +53,37 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'label' => __('name'),
                                     'value' => ''
                                 ],
+                            ]
+                        ],
+                        [
+                            'title'  => __('contact'),
+                            'icon'   => 'fa-light fa-phone',
+                            'fields' => [
+                                'email'   => [
+                                    'type'    => 'input',
+                                    'label'   => __('email'),
+                                    'value'   => '',
+                                    'options' => [
+                                        'inputType' => 'email'
+                                    ]
+                                ],
+                                'address' => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressResource::make(
+                                        new Address(
+                                            [
+                                                'country_id' => app('currentTenant')->country_id,
+
+                                            ]
+                                        )
+                                    )->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+
+                                    ]
+                                ],
+
                             ]
                         ]
                     ],

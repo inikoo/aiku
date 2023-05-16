@@ -7,8 +7,12 @@
 
 namespace App\Models\Helpers;
 
+use App\Models\Assets\Country;
+use App\Models\Traits\IsAddress;
 use App\Models\Traits\UsesGroupConnection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * App\Models\Helpers\GroupAddress
@@ -29,14 +33,34 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read string $formatted_address
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $owner
- * @method static \Illuminate\Database\Eloquent\Builder|GroupAddress newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupAddress newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupAddress query()
+ * @property-read Model|\Eloquent $owner
+ * @method static Builder|GroupAddress newModelQuery()
+ * @method static Builder|GroupAddress newQuery()
+ * @method static Builder|GroupAddress query()
  * @mixin \Eloquent
  */
-class GroupAddress extends BaseAddress
+class GroupAddress extends Model
 {
     use UsesGroupConnection;
     use HasFactory;
+    use IsAddress;
+
+    protected $table ='group_addresses';
+
+    protected $guarded = [];
+
+    protected static function booted(): void
+    {
+        static::created(
+            function (GroupAddress $address) {
+                if ($country = (new Country())->firstWhere('id', $address->country_id)) {
+                    $address->country_code = $country->code;
+
+                    $address->checksum = $address->getChecksum();
+                    $address->save();
+                }
+            }
+        );
+    }
+
 }

@@ -9,7 +9,22 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * @property float $quantity
+ * App\Models\Inventory\LostAndFoundStock
+ *
+ * @property int $id
+ * @property int $stock_id
+ * @property string $quantity
+ * @property string $stock_value
+ * @property string $type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property LostAndFoundStockStateEnum $state
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Inventory\LostAndFoundStockFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|LostAndFoundStock newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LostAndFoundStock newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LostAndFoundStock query()
+ * @mixin \Eloquent
  */
 
 class LostAndFoundStock extends Model

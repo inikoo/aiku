@@ -5,9 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Helpers;
+namespace App\Models\Traits;
 
 use App\Models\Assets\Country;
+use App\Models\Helpers\BaseAddress;
 use CommerceGuys\Addressing\Address as Adr;
 use CommerceGuys\Addressing\AddressFormat\AddressFormatRepository;
 use CommerceGuys\Addressing\Country\CountryRepository;
@@ -18,33 +19,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-/**
- * App\Models\Helpers\Address
- *
- * @property-read string $formatted_address
- * @property-read Model|\Eloquent $owner
- * @method static Builder|BaseAddress newModelQuery()
- * @method static Builder|BaseAddress newQuery()
- * @method static Builder|BaseAddress query()
- * @mixin \Eloquent
- */
-class BaseAddress extends Model
+
+trait IsAddress
 {
-    protected $guarded = [];
 
-    protected static function booted()
-    {
-        static::created(
-            function (BaseAddress $address) {
-                if ($country = (new Country())->firstWhere('id', $address->country_id)) {
-                    $address->country_code = $country->code;
 
-                    $address->checksum = $address->getChecksum();
-                    $address->save();
-                }
-            }
-        );
-    }
+
+
 
     private function getAdr(): ImmutableAddressInterface|Adr
     {

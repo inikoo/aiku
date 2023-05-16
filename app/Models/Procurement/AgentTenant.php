@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $id
  * @property int $agent_id
  * @property int $tenant_id
- * @property bool $status
+ * @property AgentTenantStatusEnum $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $source_id
