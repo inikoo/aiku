@@ -649,7 +649,7 @@ const handleElementsChange = function(data) {
                     </slot>
 
                     <slot name="pagination" :on-click="visit" :has-data="hasData" :meta="resourceMeta"
-                          :per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange">
+                        v-if="resourceMeta.total > 15"  :per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange">
                         <Pagination :on-click="visit" :has-data="hasData" :meta="resourceMeta"
                                     :per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange"/>
                     </slot>
