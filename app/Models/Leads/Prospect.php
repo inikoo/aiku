@@ -10,15 +10,21 @@ namespace App\Models\Leads;
 use App\Actions\Helpers\ReadableRandomStringGenerator;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\Leads\Prospect\ProspectStateEnum;
+use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Leads\ProspectFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -39,22 +45,22 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $location
  * @property ProspectStateEnum $state
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
+ * @property-read Collection<int, Address> $addresses
  * @property-read Customer|null $customer
  * @property-read Shop $shop
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Leads\ProspectFactory factory($count = null, $state = [])
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static ProspectFactory factory($count = null, $state = [])
  * @method static Builder|Prospect newModelQuery()
  * @method static Builder|Prospect newQuery()
  * @method static Builder|Prospect onlyTrashed()
  * @method static Builder|Prospect query()
  * @method static Builder|Prospect withTrashed()
  * @method static Builder|Prospect withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Prospect extends Model
 {
@@ -78,7 +84,7 @@ class Prospect extends Model
     ];
 
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::creating(
             function (Prospect $prospect) {
