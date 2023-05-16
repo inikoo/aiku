@@ -10,6 +10,7 @@ namespace Tests\Feature;
 use App\Actions\Dispatch\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatch\Shipment\StoreShipment;
 use App\Actions\Dispatch\Shipment\UpdateShipment;
+use App\Actions\Dispatch\Shipper\StoreShipper;
 use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Sales\Customer\StoreCustomer;
@@ -68,13 +69,23 @@ test('create shop, customer, order', function () {
     ];
 });
 
-test('create shipment', function ($deliveryNote) {
-    $shipment = StoreShipment::make()->action($deliveryNote['delivery_note'], Shipment::factory()->definition());
+test('create shipper', function () {
+    $shipper = StoreShipper::make()->action([
+        'code' => fake()->lexify,
+        'name' => fake()->name
+    ]);
+    $this->assertModelExists($shipper);
+
+    return $shipper;
+});
+
+test('create shipment', function ($deliveryNote, $shipper) {
+    $shipment = StoreShipment::make()->action($deliveryNote['delivery_note'], $shipper, Shipment::factory()->definition());
 
     $this->assertModelExists($shipment);
 
     return $shipment;
-})->depends('create shop, customer, order');
+})->depends('create shop, customer, order', 'create shipper');
 
 test('update shipment', function ($shipment) {
     $shipment = UpdateShipment::make()->action($shipment, Shipment::factory()->definition());

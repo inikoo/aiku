@@ -18,7 +18,9 @@
         </svg>
         <span class="hidden sm:inline ml-2">{{ translations.previous }}</span>
       </component>
+
       <PerPageSelector dusk="per-page-mobile" :value="perPage" :options="perPageOptions" :on-change="onPerPageChange" />
+      
       <component :is="nextPageUrl ? 'a' : 'div'" :class="{
         'cursor-not-allowed text-gray-400': !nextPageUrl,
         'text-gray-700 hover:text-gray-500': nextPageUrl
@@ -33,7 +35,7 @@
       </component>
     </div>
 
-    <!-- full pagination -->
+    <!-- Full pagination -->
     <div v-if="hasData && hasLinks" class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
       <div class="flex flex-row space-x-4 items-center flex-grow">
 
@@ -42,7 +44,7 @@
           :on-change="onPerPageChange" />
 
         <!-- Counts per page -->
-        <p v-if="pagination.total > 15" class="hidden lg:block text-sm text-gray-700 flex-grow">
+        <p v-if="pagination.total > 15" class="hidden md:block text-sm text-gray-700 flex-grow">
           <span class="font-medium">{{ pagination.from }}</span>
           {{ translations.to }}
           <span class="font-medium">{{ pagination.to }}</span>
@@ -58,7 +60,7 @@
           <!-- Button Page: Back -->
           <component :is="previousPageUrl ? 'a' : 'div'" :class="{
             'cursor-not-allowed text-gray-400': !previousPageUrl,
-            'text-gray-500 hover:bg-gray-50': previousPageUrl
+            'text-gray-500 hover:bg-gray-300': previousPageUrl
           }" :href="previousPageUrl" :dusk="previousPageUrl ? 'pagination-previous' : null"
             class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium"
             @click.prevent="onClick(previousPageUrl)">
@@ -71,15 +73,15 @@
           </component>
 
           <!-- Number of pagination -->
-          <div v-for="(link, key) in pagination.links" :key="key">
+          <div v-for="(link, key) in pagination.links" :key="key" class="">
             <slot name="link">
               <component :is="link.url ? 'a' : 'div'" v-if="!isNaN(link.label) || link.label === '...'
                 " :href="link.url" :dusk="link.url ? `pagination-${link.label}` : null"
-                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700"
                 :class="{
                   'cursor-not-allowed': !link.url,
-                  'hover:bg-gray-50': link.url,
-                  'bg-gray-100': link.active,
+                  'hover:bg-gray-300': link.url,
+                  'bg-gray-200': link.active,
                 }" @click.prevent="onClick(link.url)">
                 {{ link.label }}
               </component>
@@ -89,7 +91,7 @@
           <!-- Button Page: Next -->
           <component :is="nextPageUrl ? 'a' : 'div'" :class="{
             'cursor-not-allowed text-gray-400': !nextPageUrl,
-            'text-gray-500 hover:bg-gray-50': nextPageUrl
+            'text-gray-500 hover:bg-gray-300': nextPageUrl
           }" :href="nextPageUrl" :dusk="nextPageUrl ? 'pagination-next' : null"
             class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium"
             @click.prevent="onClick(nextPageUrl)">

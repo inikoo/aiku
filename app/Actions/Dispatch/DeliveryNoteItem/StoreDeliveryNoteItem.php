@@ -28,7 +28,6 @@ class StoreDeliveryNoteItem
     public function rules(): array
     {
         return [
-            'delivery_note_id'  => ['required', 'numeric'],
             'stock_id'          => ['required', 'exists:tenant.stocks,id'],
             'transaction_id'    => ['required', 'exists:tenant.transactions,id']
         ];
