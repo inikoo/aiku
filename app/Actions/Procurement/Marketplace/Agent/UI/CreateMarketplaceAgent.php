@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Enums\Procurement\AgentTenant\AgentTypeEnum;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Helpers\Address;
 use Inertia\Inertia;
@@ -172,16 +173,17 @@ class CreateMarketplaceAgent extends InertiaAction
                         [
                             'title'  => __('terms and conditions'),
                             'fields' => [
-
                                 't&c' => [
                                     'type'  => 'input',
                                     'label' => __('t&c'),
                                     'value' => ''
                                 ],
                                 'include general t&c' => [
-                                    'type'  => 'input',
-                                    'label' => __('include general t&c'),
-                                    'value' => ''
+                                    'type'         => 'select',
+                                    'label'        => __('include general t&c'),
+                                    'value'        => '',
+                                    'placeholder'  => 'select your options',
+                                    'options'      => AgentTypeEnum::optionLabels()
                                 ],
                             ]
                         ],
