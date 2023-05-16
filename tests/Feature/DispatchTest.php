@@ -105,7 +105,4 @@ test('create delivery note item', function ($deliveryNote) {
     return $deliveryNoteItem;
 })->depends('create delivery note');
 
-test('delete delivery note', fun($deliveryNote){
-
-})->depends('create delivery note','create delivery note item');
 
