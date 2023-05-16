@@ -24,7 +24,7 @@ class StoreShipment
     use AsAction;
     use WithAttributes;
 
-    public function handle(DeliveryNote $deliveryNote,Shipper $shipper, array $modelData): Shipment
+    public function handle(DeliveryNote $deliveryNote, Shipper $shipper, array $modelData): Shipment
     {
         $type = 'apiCall';
         $modelData['delivery_note_id'] = $deliveryNote->id;
