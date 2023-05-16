@@ -51,6 +51,11 @@ class CreateMarketplaceAgent extends InertiaAction
                                     'label' => __('name'),
                                     'value' => ''
                                 ],
+                                'company name' => [
+                                    'type'  => 'input',
+                                    'label' => __('company name'),
+                                    'value' => ''
+                                ],
                             ]
                         ],
                         [
