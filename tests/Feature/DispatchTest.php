@@ -135,21 +135,11 @@ test('update shipment', function () {
     $this->assertModelExists($shipment);
 })->depends('create shipment');
 
-test('apc gb call shipper api', function ($deliveryNote, $shipper) {
-    $responseJson = ApcGbCallShipperApi::make()->action($deliveryNote,$shipper);
-    return $responseJson['data'];
-})->depends('create delivery note','create shipper');
-
-//test('process api calls', function ($apiUrl, $header,$method = 'POST', $result_encoding = 'json') {
-//    $responseJson = Http::fake([
-//        // Stub a JSON response for GitHub endpoints...
-//        'https://apc.hypaship.com/api/3.0/*' => Http::response(['data' => []], 200, $headers),
-//
-//        // Stub a string response for Google endpoints...
-//        'https://api.dpd.co.uk/*' => Http::response(['data' => []], 200, $headers),
-//    ]);
+//test('apc gb call shipper api', function ($deliveryNote, $shipper) {
+//    $responseJson = ApcGbCallShipperApi::make()->action($deliveryNote,$shipper);
 //    return $responseJson['data'];
-//})->depends('apc gb call shipper api');
+//})->depends('create delivery note','create shipper');
+
 
 
 
