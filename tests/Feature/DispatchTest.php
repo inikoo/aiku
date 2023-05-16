@@ -24,7 +24,6 @@ use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
 use App\Models\Tenancy\Tenant;
 use Throwable;
-use function Clue\StreamFilter\fun;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
