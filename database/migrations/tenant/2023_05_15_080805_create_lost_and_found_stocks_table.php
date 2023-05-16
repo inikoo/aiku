@@ -16,8 +16,9 @@ return new class extends Migration
     {
         Schema::create('lost_and_found_stocks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('stock_id')->index();
-            $table->foreign('stock_id')->references('id')->on('stocks');
+            $table->unsignedInteger('location_id')->index();
+            $table->foreign('location_id')->references('id')->on('locations');
+            $table->string('code');
             $table->decimal('quantity', 16, 3)->default(0);
             $table->decimal('stock_value', 16)->default(0);
             $table->string('type')->index()->default(LostAndFoundStockStateEnum::LOST->value);

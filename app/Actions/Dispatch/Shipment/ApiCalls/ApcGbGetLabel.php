@@ -15,7 +15,7 @@ class ApcGbGetLabel
 {
     use AsAction;
     use WithAttributes;
-    public function handle($labelID, Shipper $shipper, $output = ''): false|string
+    public function handle($labelID, Shipper $shipper): false|string
     {
         $headers = [
         "remote-user: Basic ".base64_encode($shipper->email.':'.$shipper->code),
