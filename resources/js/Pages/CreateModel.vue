@@ -73,9 +73,9 @@ const handleFormSubmit = () => {
                     {{ sectionData['subtitle'] }}
                 </p>
             </div>
-            <div class="mt-6 pt-4 sm:pt-5 ">
+            <div class="mt-2 pt-4 sm:pt-5 ">
 
-                <div v-for="(fieldData,fieldName ) in sectionData.fields" class="mt-10 divide-y divide-red-200">
+                <div v-for="(fieldData,fieldName ) in sectionData.fields" class="mt-1 divide-y divide-red-200">
                     <dl class="divide-y divide-green-200  ">
                         <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                             <dt class="text-sm font-medium text-gray-500 capitalize">
