@@ -24,6 +24,7 @@ use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
 use App\Models\Tenancy\Tenant;
 use Throwable;
+use function Clue\StreamFilter\fun;
 
 beforeAll(fn () => loadDB('d3_with_tenants.dump'));
 
@@ -103,4 +104,8 @@ test('create delivery note item', function ($deliveryNote) {
     $this->assertModelExists($deliveryNoteItem);
     return $deliveryNoteItem;
 })->depends('create delivery note');
+
+test('delete delivery note', fun($deliveryNote){
+
+})->depends('create delivery note','create delivery note item');
 
