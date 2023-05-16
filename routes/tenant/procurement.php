@@ -71,7 +71,7 @@ Route::get('/marketplace-agents/{agent}/suppliers/create', [CreateMarketplaceSup
 Route::get('/marketplace-agents/{agent}/suppliers/{supplier}', [ShowMarketplaceSupplier::class, 'inAgent'])->name('marketplace-agents.show.suppliers.show');
 
 Route::get('/marketplace-agents/{agent}/supplier-products', [IndexMarketplaceSupplierProducts::class, 'inAgent'])->name('marketplace-agents.show.supplier-products.index');
-Route::get('/marketplace-agents/{agent}/supplier-products/{supplierProducts}', [CreateMarketplaceSupplierProduct::class, 'inAgent'])->name('marketplace-agents.show.supplier-products.create');
+Route::get('/marketplace-agents/{agent}/supplier-products/{supplierProducts}', [ShowMarketplaceSupplierProduct::class, 'inAgent'])->name('marketplace-agents.show.supplier-products.show');
 
 
 Route::get('/marketplace-suppliers', IndexMarketplaceSuppliers::class)->name('marketplace-suppliers.index');
