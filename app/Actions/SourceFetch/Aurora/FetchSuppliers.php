@@ -7,12 +7,13 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
-use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
+use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Tenancy\Tenant\AttachSupplier;
 use App\Actions\Utils\StoreImage;
+use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use App\Models\Procurement\Supplier;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -51,13 +52,20 @@ class FetchSuppliers extends FetchAction
 
         if ($supplier = Supplier::withTrashed()->where('source_id', $supplierData['supplier']['source_id'])->where('source_type', $tenant->slug)->first()) {
             $supplier = UpdateSupplier::run($supplier, $supplierData['supplier']);
-            UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
+            UpdateGroupAddress::run($supplier->getAddress('contact'), $supplierData['address']);
             $supplier->location = $supplier->getLocation();
             $supplier->save();
         } else {
             $supplier = Supplier::withTrashed()->where('code', $supplierData['supplier']['code'])->first();
             if ($supplier) {
-                AttachSupplier::run($tenant, $supplier, ['source_id' => $supplierData['supplier']['source_id']]);
+                AttachSupplier::run(
+                    $tenant,
+                    $supplier,
+                    [
+                        'source_id' => $supplierData['supplier']['source_id'],
+                        'status'    => SupplierTenantStatusEnum::ADOPTED
+                    ]
+                );
             } else {
                 $supplierData['supplier']['source_type'] = $tenant->slug;
                 $supplier                                = StoreSupplier::run(
@@ -75,23 +83,40 @@ class FetchSuppliers extends FetchAction
 
     public function processAgentSupplier($supplierData): Supplier
     {
+        $tenant = app('currentTenant');
+
         if ($supplier = Supplier::withTrashed()->where('source_id', $supplierData['supplier']['source_id'])
             ->first()) {
             $supplier = UpdateSupplier::run($supplier, $supplierData['supplier']);
 
             if ($supplier->getAddress('contact')) {
-                UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
+                UpdateGroupAddress::run($supplier->getAddress('contact'), $supplierData['address']);
             } else {
-                StoreAddressAttachToModel::run($supplier, $supplierData['address'], ['scope' => 'contact']);
+                StoreGroupAddressAttachToModel::run($supplier, $supplierData['address'], ['scope' => 'contact']);
             }
             $supplier->location = $supplier->getLocation();
             $supplier->save();
         } else {
-            $supplier = StoreSupplier::run(
-                owner: $supplierData['owner'],
-                modelData: $supplierData['supplier'],
-                addressData: $supplierData['address']
-            );
+            $supplier = Supplier::withTrashed()->where('code', $supplierData['supplier']['code'])->first();
+
+            if ($supplier) {
+                AttachSupplier::run(
+                    $tenant,
+                    $supplier,
+                    [
+                        'type'      => 'sub-supplier',
+                        'source_id' => $supplierData['supplier']['source_id'],
+                        'status'    => SupplierTenantStatusEnum::ADOPTED
+                    ]
+                );
+            } else {
+                $supplier = StoreSupplier::run(
+                    owner: $supplierData['owner'],
+                    modelData: $supplierData['supplier'],
+                    addressData: $supplierData['address']
+                );
+                $tenant->suppliers()->updateExistingPivot($supplier, ['source_id' => $supplierData['supplier']['source_id']]);
+            }
         }
 
 

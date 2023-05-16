@@ -37,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\StockFamilyStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Stock> $stocks
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Inventory\StockFamilyFactory factory($count = null, $state = [])
  * @method static Builder|StockFamily newModelQuery()
  * @method static Builder|StockFamily newQuery()
  * @method static Builder|StockFamily onlyTrashed()

@@ -9,6 +9,7 @@ namespace App\Actions\Inventory\Location;
 
 use App\Actions\HydrateModel;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Stock;
 use Illuminate\Support\Collection;
 
 class HydrateLocation extends HydrateModel
@@ -19,6 +20,16 @@ class HydrateLocation extends HydrateModel
     public function handle(Location $location): void
     {
         $this->stocks($location);
+        $this->value($location);
+    }
+
+    public function value(Location $location): void
+    {
+        $stockValue = $location->stocks->sum('value');
+
+        $location->stats->update([
+            'stock_value' => $stockValue
+        ]);
     }
 
     public function stocks(Location $location): void

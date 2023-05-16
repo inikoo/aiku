@@ -45,6 +45,8 @@ class StoreGroup
         Artisan::call("migrate:fresh --force --path=database/migrations/group --database=group");
 
 
+        $group->procurementStats()->create();
+
         return $group;
     }
 

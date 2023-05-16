@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\Location;
 
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
+use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -26,7 +27,10 @@ class StoreLocation
     {
         if (class_basename($parent::class) == 'WarehouseArea') {
             $modelData['warehouse_id'] = $parent->warehouse_id;
+        } else {
+            HydrateWarehouse::run($parent);
         }
+
         /** @var Location $location */
         $location = $parent->locations()->create($modelData);
         $location->stats()->create();

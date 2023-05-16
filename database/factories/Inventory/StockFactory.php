@@ -10,6 +10,8 @@ class StockFactory extends Factory
     {
         return [
             'code' => fake()->lexify(),
+            'value' => rand(100, 1000),
+            'quantity' => rand(10, 100),
         ];
     }
 }

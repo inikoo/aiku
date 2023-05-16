@@ -14,7 +14,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateAgent extends InertiaAction
 {
-    use HasUIAgents;
     public function handle(): Response
     {
         return Inertia::render(
@@ -52,7 +51,7 @@ class CreateAgent extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.agent.update',
+                        'name'       => 'models.agent.store',
                     ]
                 ],
             ]
@@ -61,8 +60,9 @@ class CreateAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('procurement.agents.edit');
+        return $request->user()->can('procurement.edit');
     }
+
 
 
     public function asController(ActionRequest $request): Response
@@ -70,5 +70,20 @@ class CreateAgent extends InertiaAction
         $this->initialisation($request);
 
         return $this->handle();
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            IndexAgents::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating agent'),
+                    ]
+                ]
+            ]
+        );
     }
 }

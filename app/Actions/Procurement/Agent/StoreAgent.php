@@ -8,9 +8,11 @@
 namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
+use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use App\Models\Procurement\Agent;
 use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,18 +29,20 @@ class StoreAgent
         $agent = $owner->myAgents()->create($modelData);
         $agent->stats()->create();
 
-        $owner->agents()->attach($agent);
+        $owner->agents()->attach(
+            $agent,
+            ['status' => AgentTenantStatusEnum::OWNER]
+        );
 
         SetCurrencyHistoricFields::run($agent->currency, $agent->created_at);
 
-        StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
+        StoreGroupAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
         $agent->location = $agent->getLocation();
         $agent->save();
 
-
-        TenantHydrateProcurement::dispatch(app('currentTenant'));
+        GroupHydrateProcurement::run(app('currentTenant')->group);
         AgentHydrateUniversalSearch::dispatch($agent);
-
+        TenantHydrateProcurement::dispatch(app('currentTenant'));
 
 
         return $agent;

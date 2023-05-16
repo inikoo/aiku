@@ -8,10 +8,13 @@
 namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
+use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
+use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\Tenancy\Tenant\AttachSupplier;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
+use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use App\Models\Tenancy\Tenant;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -25,15 +28,28 @@ class StoreSupplier
 
     public function handle(Tenant|Agent $owner, array $modelData, array $addressData = []): Supplier
     {
-        /** @var Supplier $supplier*/
+        /** @var Supplier $supplier */
         if (class_basename($owner) == 'Agent') {
             $modelData['owner_type'] = 'Agent';
             $modelData['owner_id']   = $owner->id;
             $supplier                = $owner->suppliers()->create($modelData);
 
+            AttachSupplier::run(
+                tenant: app('currentTenant'),
+                supplier: $supplier,
+                pivotData: [
+                    'type'   => 'sub-supplier',
+                    'status' => SupplierTenantStatusEnum::OWNER
+                ]
+            );
         } else {
             $supplier = $owner->mySuppliers()->create($modelData);
-            $owner->suppliers()->attach($supplier);
+            $owner->suppliers()->attach(
+                $supplier,
+                [
+                    'status' => SupplierTenantStatusEnum::OWNER
+                ]
+            );
         }
 
 
@@ -41,12 +57,14 @@ class StoreSupplier
         SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
 
-        StoreAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
+        StoreGroupAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
 
         $supplier->location = $supplier->getLocation();
         $supplier->save();
 
         TenantHydrateProcurement::dispatch(app('currentTenant'));
+        GroupHydrateProcurement::run(app('currentTenant')->group);
+
         if ($supplier->agent_id) {
             AgentHydrateSuppliers::dispatch($supplier->agent);
         }
@@ -73,6 +91,7 @@ class StoreSupplier
     {
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
+
         return $this->handle($owner, $validatedData);
     }
 }

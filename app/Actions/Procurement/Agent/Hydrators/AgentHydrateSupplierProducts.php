@@ -23,7 +23,7 @@ class AgentHydrateSupplierProducts implements ShouldBeUnique
     public function handle(Agent $agent): void
     {
         $stats         = [
-            'number_products' => $agent->products->count(),
+            'number_supplier_products' => $agent->products->count(),
         ];
 
         $stateCounts   =SupplierProduct::where('agent_id', $agent->id)
@@ -31,7 +31,7 @@ class AgentHydrateSupplierProducts implements ShouldBeUnique
             ->groupBy('state')
             ->pluck('total', 'state')->all();
         foreach (SupplierProductStateEnum::cases() as $productState) {
-            $stats['number_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
+            $stats['number_supplier_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
         }
 
         $stockQuantityStatusCounts = SupplierProduct::where('agent_id', $agent->id)
@@ -40,7 +40,7 @@ class AgentHydrateSupplierProducts implements ShouldBeUnique
             ->pluck('total', 'stock_quantity_status')->all();
 
         foreach (SupplierProductQuantityStatusEnum::cases() as $stockQuantityStatus) {
-            $stats['number_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
+            $stats['number_supplier_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
         }
         $agent->stats->update($stats);
     }

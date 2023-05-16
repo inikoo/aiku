@@ -7,8 +7,10 @@
 
 namespace App\Models\Procurement;
 
+use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use App\Models\Traits\UsesGroupConnection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
@@ -17,9 +19,11 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $id
  * @property int $agent_id
  * @property int $tenant_id
+ * @property bool $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $source_id
+ * @property-read \App\Models\Procurement\Agent $agent
  * @method static Builder|AgentTenant newModelQuery()
  * @method static Builder|AgentTenant newQuery()
  * @method static Builder|AgentTenant query()
@@ -28,8 +32,19 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class AgentTenant extends Pivot
 {
     use UsesGroupConnection;
+
     protected $table = 'agent_tenant';
 
+    protected $casts = [
+        'status' => AgentTenantStatusEnum::class
+    ];
 
+    protected $guarded = [];
+
+
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
+    }
 
 }

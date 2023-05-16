@@ -22,13 +22,15 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Dispatch\Event
- * @property integer  $id
- * @property integer  $shipment_id
- * @property string   $box
- * @property string   $type
- * @property string   $code
- * @property array    $data
- * @property Shipment $shipment
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
+ * @property-read \App\Models\Dispatch\Shipment $shipment
+ * @method static \Illuminate\Database\Eloquent\Builder|Event newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Event newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Event onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Event query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Event withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Event withoutTrashed()
  * @mixin Eloquent
  */
 class Event extends Model
@@ -47,7 +49,7 @@ class Event extends Model
 
     protected $guarded = [];
 
-    protected static function booted() :void
+    protected static function booted(): void
     {
         static::created(
             function (event $event) {

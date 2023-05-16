@@ -21,13 +21,22 @@ class HydrateStock extends HydrateModel
     {
         $this->locations($stock);
         $this->quantity($stock);
-        // StockInitialiseImageID::run($stock);
+        $this->value($stock);
+    }
+
+    public function value(Stock $stock): void
+    {
+        $numberLocations = $stock->locations->count();
+
+        $stock->stats->update([
+            'stock_value' => $stock->value * $numberLocations
+        ]);
     }
 
     public function locations(Stock $stock): void
     {
         $numberLocations = $stock->locations->count();
-        $stats           = [
+        $stats = [
             'number_locations' => $numberLocations
         ];
 
@@ -37,9 +46,9 @@ class HydrateStock extends HydrateModel
     public function quantity(Stock $stock): void
     {
         $stock->update([
-                           'quantity' =>
-                               $stock->locations->sum('pivot.quantity')
-                       ]);
+            'quantity' =>
+                $stock->locations->sum('pivot.quantity')
+        ]);
     }
 
 

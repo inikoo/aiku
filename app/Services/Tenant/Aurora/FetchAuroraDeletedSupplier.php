@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Models\Procurement\AgentTenant;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedSupplier extends FetchAurora
@@ -33,8 +34,14 @@ class FetchAuroraDeletedSupplier extends FetchAurora
             ->select('Agent Supplier Agent Key')
             ->where('Agent Supplier Supplier Key', $auroraDeletedData->{'Supplier Key'})->first();
 
+
         if ($agentData) {
-            $this->parsedData['owner'] = $this->parseAgent($agentData->{'Agent Supplier Agent Key'});
+
+            $agentTenant=AgentTenant::where('source_id', $agentData->{'Agent Supplier Agent Key'})
+                ->where('tenant_id', app('currentTenant')->id)->first();
+
+            $this->parsedData['owner']=$agentTenant->agent;
+
             if (!$this->parsedData['owner']) {
                 print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
             }

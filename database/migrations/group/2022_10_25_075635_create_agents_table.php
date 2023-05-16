@@ -27,7 +27,7 @@ return new class () extends Migration {
             $table->string('phone')->nullable();
             $table->boolean('is_private')->default(true);
             $table->unsignedInteger('address_id')->nullable()->index();
-            $table->foreign('address_id')->references('id')->on('addresses');
+            $table->foreign('address_id')->references('id')->on('group_addresses');
             $table->jsonb('location');
             $table->unsignedBigInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('group_media');

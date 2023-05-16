@@ -193,7 +193,7 @@ class Tenant extends SpatieTenant
     {
         return $this->belongsToMany(Agent::class)
             ->using(AgentTenant::class)
-            ->withPivot(['source_id'])
+            ->withPivot(['source_id','status'])
             ->withTimestamps();
     }
 
@@ -201,7 +201,7 @@ class Tenant extends SpatieTenant
     {
         return $this->belongsToMany(SupplierProduct::class)
             ->using(SupplierProductTenant::class)
-            ->withPivot(['source_id'])
+            ->withPivot(['source_id','status'])
             ->withTimestamps();
     }
 

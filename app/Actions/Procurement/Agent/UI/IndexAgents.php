@@ -36,7 +36,7 @@ class IndexAgents extends InertiaAction
 
         return QueryBuilder::for(AgentTenant::class)
             ->defaultSort('agents.code')
-            ->select(['code', 'name', 'slug'])
+            ->select(['code', 'name', 'slug', 'location', 'number_suppliers', 'number_purchase_orders', 'number_supplier_products'])
             ->leftJoin('agents', 'agents.id', 'agent_tenant.agent_id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
             ->where('agent_tenant.tenant_id', app('currentTenant')->id)
@@ -58,12 +58,18 @@ class IndexAgents extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->defaultSort('code');
         };
     }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.agents.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -75,7 +81,8 @@ class IndexAgents extends InertiaAction
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
-        return $this->handle(app('currentTenant'));
+
+        return $this->handle();
     }
 
 
@@ -88,6 +95,7 @@ class IndexAgents extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $agents, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Procurement/Agents',
             [
@@ -97,16 +105,16 @@ class IndexAgents extends InertiaAction
                 ),
                 'title'       => __('agents'),
                 'pageHead'    => [
-                    'title'   => __('agents'),
-                    'create'  => $this->canEdit && $this->routeName=='procurement.agents.index' ? [
+                    'title'  => __('agents'),
+                    'create' => $this->canEdit && $this->routeName == 'procurement.agents.index' ? [
                         'route' => [
                             'name'       => 'procurement.agents.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('agent')
+                        'label' => __('agent')
                     ] : false,
                 ],
-                'data'      => AgentResource::collection($agents),
+                'data'        => AgentResource::collection($agents),
             ]
         )->table($this->tableStructure($parent));
     }

@@ -60,12 +60,12 @@ class ProcurementDashboard
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_agents
                             ],
-                            'rightSubLink'=>[
-                                'tooltip'  => __('marketplace agents'),
-                                'label'=>'M',
-                                'labelStyle'=>'bordered',
-                                'href'  => ['procurement.marketplace-agents.index'],
-                               
+                            'rightSubLink'=> [
+                                'tooltip'   => __('marketplace agents'),
+                                'label'     => 'M',
+                                'labelStyle'=> 'bordered',
+                                'href'      => ['procurement.marketplace-agents.index'],
+
                             ]
 
                         ],
@@ -76,12 +76,12 @@ class ProcurementDashboard
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_suppliers
                             ],
-                            'rightSubLink'=>[
-                                'tooltip'  => __('marketplace suppliers'),
-                                'label'=>'M',
-                                'labelStyle'=>'bordered',
-                                'href'  => ['procurement.marketplace-suppliers.index'],
-                               
+                            'rightSubLink'=> [
+                                'tooltip'   => __('marketplace suppliers'),
+                                'label'     => 'M',
+                                'labelStyle'=> 'bordered',
+                                'href'      => ['procurement.marketplace-suppliers.index'],
+
                             ]
 
                         ],
@@ -122,7 +122,7 @@ class ProcurementDashboard
                             'icon'  => ['fal', 'fa-store'],
                             'href'  => ['procurement.marketplace-agents.index'],
                             'index' => [
-                                'number' => $this->tenant->procurementStats->number_purchase_orders
+                                'number' => $this->tenant->group->procurementStats->number_agents
                             ]
                         ],
                         [
@@ -130,7 +130,7 @@ class ProcurementDashboard
                             'icon'  => ['fal', 'fa-building'],
                             'href'  => ['procurement.marketplace-suppliers.index'],
                             'index' => [
-                                'number' => $this->tenant->procurementStats->number_purchase_orders
+                                'number' => $this->tenant->group->procurementStats->number_suppliers
                             ]
                         ],
                     ]

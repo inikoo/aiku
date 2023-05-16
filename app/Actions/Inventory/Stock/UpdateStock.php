@@ -21,6 +21,7 @@ class UpdateStock
     {
         $stock = $this->update($stock, $modelData, ['data', 'settings']);
         StockHydrateUniversalSearch::dispatch($stock);
+        HydrateStock::run($stock);
 
         return $stock;
     }

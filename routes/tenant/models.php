@@ -21,6 +21,7 @@ use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Product\UpdateProduct;
+use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Marketplace\Agent\UpdateMarketplaceAgent;
 use App\Actions\Procurement\Marketplace\Supplier\UpdateMarketplaceSupplier;
@@ -54,6 +55,7 @@ Route::patch('/stock/{stock}', UpdateStock::class)->name('stock.update');
 Route::patch('/stock-family/{stockFamily:slug}', UpdateStockFamily::class)->name('stock-family.update');
 
 Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
+Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
 Route::patch('/supplier/{supplier}', UpdateSupplier::class)->name('supplier.update');
 

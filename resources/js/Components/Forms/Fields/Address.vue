@@ -4,6 +4,8 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
+
+import {computed} from 'vue'
 import Multiselect from '@vueform/multiselect';
 
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
@@ -24,7 +26,13 @@ let addressValues=props.form[props.fieldName];
 const countries = {};
 for (const item in props.options.countriesAddressData) {
     countries[item] = props.options.countriesAddressData[item]['label'];
+    // console.log("-------------------------------")
+    // console.log(countries)
 }
+
+const comptCountries = computed(() => {
+    return countries.sort()
+})
 
 const administrativeAreas = (countryID) => props.options.countriesAddressData[countryID]['administrativeAreas'];
 
@@ -41,12 +49,12 @@ const handleChange = () => props.form.clearErrors();
 
 <template>
     <div class="grid grid-cols-2 gap-3">
-        <div class="col-span-2 sm:col-span-1">
-            <Multiselect :options="countries" v-model="addressValues['country_id']"/>
+        <div class="col-span-2">
+            <Multiselect :options="countries" v-model="addressValues['country_id']" searchable />
         </div>
         <template v-for="(addressFieldData,addressField) in addressFields(addressValues['country_id'])" :key="addressField">
-            <div class="flex col-span-2">
-                <div class="w-full">
+            <div class="grid col-span-2">
+                <div class="w-full ">
                     <div v-if="addressField==='administrative_area'" >
                         <label for="administrative_area" class="capitalize block text-sm font-medium text-gray-700">{{ addressFieldData.label }}</label>
                         <Multiselect v-if="administrativeAreas(addressValues['country_id']).length && (!addressValues['administrative_area'] || inAdministrativeAreas(addressValues['administrative_area'],addressValues['country_id']))"

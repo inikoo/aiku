@@ -8,7 +8,6 @@
 namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierResource;
@@ -38,7 +37,7 @@ class IndexSuppliers extends InertiaAction
 
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
-            ->select(['code', 'slug', 'name'])
+            ->select(['code', 'slug', 'name', 'number_supplier_products', 'number_purchase_orders'])
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
 
             ->when($parent, function ($query) use ($parent) {
@@ -53,7 +52,7 @@ class IndexSuppliers extends InertiaAction
 
                 }
             })
-            ->allowedSorts(['code', 'name'])
+            ->allowedSorts(['code', 'name', 'number_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -72,6 +71,8 @@ class IndexSuppliers extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
@@ -132,48 +133,23 @@ class IndexSuppliers extends InertiaAction
         )->table($this->tableStructure($parent));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
-        $headCrumb = function (array $routeParameters = []) {
-            return [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => $routeParameters,
-                        'label' => __('suppliers'),
-                        'icon'  => 'fal fa-bars'
-                    ],
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'procurement.suppliers.index'            =>
+        return
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
+                [
                     [
-                        'name'=> 'procurement.suppliers.index',
-                        null
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'procurement.suppliers.index'
+                            ],
+                            'label' => __('suppliers'),
+                            'icon'  => 'fal fa-bars'
+                        ]
                     ]
-                ),
-            ),
-
-
-            'procurement.agents.show.suppliers.index' =>
-            array_merge(
-                (new ShowAgent())->getBreadcrumbs($routeParameters['agent']),
-                $headCrumb(
-                    [
-                        'name'      => 'procurement.agents.show.suppliers.index',
-                        'parameters'=>
-                            [
-                                $routeParameters['agent']->slug
-                            ]
-                    ]
-                )
-            ),
-            default => []
-        };
+                ]
+            );
     }
 }

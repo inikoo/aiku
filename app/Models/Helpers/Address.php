@@ -7,6 +7,7 @@
 
 namespace App\Models\Helpers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -31,9 +32,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read string $formatted_address
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $owner
  * @method static \Database\Factories\Helpers\AddressFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Address newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Address newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Address query()
+ * @method static Builder|Address newModelQuery()
+ * @method static Builder|Address newQuery()
+ * @method static Builder|Address query()
  * @mixin \Eloquent
  */
 class Address extends BaseAddress

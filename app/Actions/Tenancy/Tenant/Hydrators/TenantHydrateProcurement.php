@@ -27,9 +27,9 @@ class TenantHydrateProcurement implements ShouldBeUnique
     {
         $stats = [
             'suppliers_count'          => $tenant->suppliers()->count(),
-            'number_suppliers'         => $tenant->suppliers()->where('status', true)->count(),
+            'number_suppliers'         => $tenant->suppliers()->where('suppliers.status', true)->count(),
             'agents_count'             => $tenant->agents()->count(),
-            'number_agents'            => $tenant->agents()->where('status', true)->count(),
+            'number_agents'            => $tenant->agents()->where('agents.status', true)->count(),
 
             'supplier_products_count'  => SupplierProductTenant::where('tenant_id', $tenant->id)->count(),
             'number_supplier_products' => SupplierProductTenant::where('tenant_id', $tenant->id)

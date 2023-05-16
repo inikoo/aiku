@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
@@ -34,6 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Currency $currency
  * @property-read \App\Models\Tenancy\Tenant|null $owner
+ * @property-read \App\Models\Tenancy\GroupProcurementStats|null $procurementStats
  * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Tenancy\Tenant> $tenants
  * @method static \Database\Factories\Tenancy\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
@@ -70,6 +72,10 @@ class Group extends Model
         return 'aiku_grp_'.preg_replace('/-/', '_', $this->slug);
     }
 
+    public function procurementStats(): HasOne
+    {
+        return $this->hasOne(GroupProcurementStats::class);
+    }
 
     public function tenants(): HasMany
     {

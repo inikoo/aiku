@@ -12,7 +12,7 @@ use App\Actions\Utils\Abbreviate;
 use App\Enums\Leads\Prospect\ProspectStateEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
-use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -60,7 +60,7 @@ class Prospect extends Model
 {
     use UsesTenantConnection;
     use SoftDeletes;
-    use HasAddress;
+    use HasTenantAddress;
     use HasSlug;
     use HasUniversalSearch;
     use HasFactory;

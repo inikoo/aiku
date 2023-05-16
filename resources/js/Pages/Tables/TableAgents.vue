@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Agent} from "@/types/agent";
+import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 
 const props = defineProps<{
     data: object
@@ -29,8 +30,11 @@ function agentRoute(agent: Agent) {
     <Table :resource="data" :name="'ag'" class="mt-5">
         <template #cell(code)="{ item: agent }">
             <Link :href="agentRoute(agent)">
-                {{ agent.slug }}
+                {{ agent['code'] }}
             </Link>
+        </template>
+        <template #cell(location)="{ item: agent }">
+            <AddressLocation :data="agent['location']"/>
         </template>
     </Table>
 </template>

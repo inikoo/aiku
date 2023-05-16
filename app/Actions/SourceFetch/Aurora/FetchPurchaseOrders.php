@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchPurchaseOrders extends FetchAction
 {
-    public string $commandSignature = 'fetch:purchase-orders {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:purchase-orders {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?PurchaseOrder
     {

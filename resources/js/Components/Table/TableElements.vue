@@ -1,40 +1,20 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref } from 'vue'
 const props = defineProps<{
     elements: Array<{
         key: number
         label: string
         show: boolean
         count: number
-    }>,
+    }>
 }>()
 
-const data = ref(props.elements);
-// const emit = defineEmits(['update:modelValue']);
-// const delayClick = ref(500)
-// const isClick = ref(false)
-// const timer: any = ref()
+const emits = defineEmits(['changed'])
 
-// const times = ref(0)
-// const handleClick = () => {
-//     console.log("Single Click")
-//     isClick.value = true
-
-//     if (isClick.value) {
-//         timer.value = setTimeout(() => {
-//             isClick.value ? emit('update:modelValue', data) : ''
-//         }, 200)
-//     } else {
-//         clearTimeout(timer.value)
-//     }
-
-//     // emit('update:modelValue', data)
-// }
-const inputButton = ref()
+const dataFilter = ref(props.elements);
 const doubleClick = (elementKey) => {
-    let showHelper = data.value[elementKey].show
-    data.value.forEach(i => {
-        // console.log(i.show, showHelper)
+    let showHelper = dataFilter.value[elementKey].show
+    dataFilter.value.forEach(i => {
         i.show = !showHelper
     })
 }
@@ -43,17 +23,18 @@ const doubleClick = (elementKey) => {
 
 
 <template>
+
     <div class="grid justify-items-center grid-flow-col auto-cols-auto divide-x-2 divide-gray-200 py-3">
-        <div v-for="(element, index) of data" :key="index" class="relative w-full cursor-pointer hover:bg-indigo-300"
-            :class="{ 'bg-indigo-200': element.show }" @dblclick="doubleClick(element.key)">
-            <label :for="(element.label + element.key)" class="absolute w-full h-full cursor-pointer"></label>
+        <div v-for="(filter, index) of dataFilter" :key="index" class="relative w-full cursor-pointer hover:bg-indigo-300"
+            :class="{ 'bg-indigo-200': filter.show }" @dblclick="doubleClick(filter.key)">
+            <label :for="(filter.label + filter.key)" class="absolute w-full h-full cursor-pointer" @click="emits('changed', dataFilter)"></label>
             <div class="grid justify-center grid-flow-col items-center">
-                <label class="py-2 select-none cursor-pointer inline pr-2">
-                    {{ element.label }} ({{ element.count }})
+                <label class="py-2 select-none cursor-pointer inline pr-2 text-sm">
+                    {{ filter.label }} ({{ filter.count }})
                 </label>
-                <input ref="inputButton" :id="(element.label + element.key)" :name="(element.label + element.key)"
-                    class="sr-only cursor-pointer focus:ring-0" type="checkbox" :checked="element.show"
-                    v-model="element.show" />
+                <input :id="(filter.label + filter.key)" :name="(filter.label + filter.key)"
+                    class="sr-only cursor-pointer focus:ring-0" type="checkbox" :checked="filter.show"
+                    v-model="filter.show" />
             </div>
         </div>
     </div>

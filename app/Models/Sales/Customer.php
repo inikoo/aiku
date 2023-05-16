@@ -21,10 +21,11 @@ use App\Models\Helpers\TaxNumber;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
-use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\WebUser;
+use Database\Factories\Sales\CustomerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -79,7 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read TaxNumber|null $taxNumber
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
- * @method static \Database\Factories\Sales\CustomerFactory factory($count = null, $state = [])
+ * @method static CustomerFactory factory($count = null, $state = [])
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static Builder|Customer onlyTrashed()
@@ -92,7 +93,7 @@ class Customer extends Model implements HasMedia
 {
     use UsesTenantConnection;
     use SoftDeletes;
-    use HasAddress;
+    use HasTenantAddress;
     use HasSlug;
     use HasUniversalSearch;
     use HasPhoto;
@@ -127,7 +128,7 @@ class Customer extends Model implements HasMedia
         return 'slug';
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::creating(
             function (Customer $customer) {
