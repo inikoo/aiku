@@ -7,51 +7,31 @@
 
 namespace App\Actions\Dispatch\Shipment\ApiCalls;
 
-use App\Models\Dispatch\DeliveryNote;
-use App\Models\Dispatch\Shipment;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Illuminate\Support\Arr;
 
-class CallApcGbShipperApi
+class ProsesApiCalls
 {
     use AsAction;
     use WithAttributes;
-    public function handle(DeliveryNote $deliveryNote, Shipper $shipper): array
-    {
-        $password="";
-        $apiUrl = "https://apc.hypaship.com/api/3.0/";
-        $header = [
-            "remote-user: Basic ".base64_encode($shipper->email.':'.$password),
-            "Content-Type: application/json"
-        ];
-        $params = array(
-            'Orders' => [
-                'Order' => $deliveryNote
-            ]
-        );
-
-        return $this->callApi($apiUrl.'Orders.json',$header,json_encode($params));
-    }
-
-    public function callApi ($url, $headers, $params, $method = 'POST', $result_encoding = 'json')
+    public function handle($url, $headers, $params, $method = 'POST', $result_encoding = 'json'): array
     {
         $curl = curl_init();
-
         curl_setopt_array(
             $curl, array(
-                     CURLOPT_URL            => $url,
-                     CURLOPT_RETURNTRANSFER => true,
-                     CURLOPT_ENCODING       => "",
-                     CURLOPT_MAXREDIRS      => 10,
-                     CURLOPT_TIMEOUT        => 0,
-                     CURLOPT_FOLLOWLOCATION => true,
-                     CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-                     CURLOPT_CUSTOMREQUEST  => $method,
-                     CURLOPT_POSTFIELDS     => $params,
-                     CURLOPT_HTTPHEADER     => $headers,
-                 )
+                CURLOPT_URL            => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING       => "",
+                CURLOPT_MAXREDIRS      => 10,
+                CURLOPT_TIMEOUT        => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST  => $method,
+                CURLOPT_POSTFIELDS     => $params,
+                CURLOPT_HTTPHEADER     => $headers,
+            )
         );
+
 
         $raw_response = curl_exec($curl);
 
@@ -92,5 +72,10 @@ class CallApcGbShipperApi
         }
 
         return $response;
+    }
+
+    public function action($url, $headers, $params, $method = 'POST', $result_encoding = 'json'): array
+    {
+        return $this->handle($url, $headers, $params, $method, $result_encoding);
     }
 }
