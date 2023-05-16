@@ -62,7 +62,7 @@ class ProcurementDashboard
                             ],
                             'rightSubLink'=> [
                                 'tooltip'   => __('marketplace agents'),
-                                'icon'     => ['fal', 'fa-star'],
+                                'icon'      => ['fal', 'fa-store'],
                                 'labelStyle'=> 'bordered',
                                 'href'      => ['procurement.marketplace-agents.index'],
 
@@ -78,7 +78,7 @@ class ProcurementDashboard
                             ],
                             'rightSubLink'=> [
                                 'tooltip'   => __('marketplace suppliers'),
-                                'icon'     => ['fal', 'fa-wrench'],
+                                'icon'      => ['fal', 'fa-store'],
                                 'labelStyle'=> 'bordered',
                                 'href'      => ['procurement.marketplace-suppliers.index'],
 
