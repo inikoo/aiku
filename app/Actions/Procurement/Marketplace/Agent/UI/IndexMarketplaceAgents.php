@@ -125,7 +125,7 @@ class IndexMarketplaceAgents extends InertiaAction
         )->table($this->tableStructure($parent));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
         return
             array_merge(

@@ -14,14 +14,18 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateMarketplaceSupplier extends InertiaAction
 {
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'title'       => __('new marketplace supplier'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'title'       => __('new supplier'),
                 'pageHead'    => [
-                    'title'        => __('new marketplace supplier'),
+                    'title'        => __('new supplier'),
                     'cancelCreate' => [
                         'route' => [
                             'name'       => 'procurement.marketplace-suppliers.index',
@@ -33,7 +37,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('marketplace agent'),
+                            'title'  => __('id'),
                             'fields' => [
 
                                 'code' => [
@@ -50,7 +54,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.marketplace-supplier.update',
+                        'name'       => 'models.supplier.store',
                     ]
                 ],
 
@@ -68,6 +72,24 @@ class CreateMarketplaceSupplier extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle();
+        return $this->handle($request);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return array_merge(
+            IndexMarketplaceSuppliers::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __("creating supplier"),
+                    ]
+                ]
+            ]
+        );
     }
 }

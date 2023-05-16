@@ -14,15 +14,12 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateMarketplaceAgent extends InertiaAction
 {
-    public function handle(ActionRequest $request): Response
+    public function handle(): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('new agent'),
                 'pageHead'    => [
                     'title'        => __('new agent'),
@@ -71,15 +68,13 @@ class CreateMarketplaceAgent extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle();
     }
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+
+    public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexMarketplaceAgents::make()->getBreadcrumbs(
-                routeName: preg_replace('/create$/', 'index', $routeName),
-                routeParameters: $routeParameters,
-            ),
+            IndexMarketplaceAgents::make()->getBreadcrumbs(),
             [
                 [
                     'type'         => 'creatingModel',
