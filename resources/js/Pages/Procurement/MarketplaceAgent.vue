@@ -21,6 +21,8 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
+    suppliers?: object
+    supplier_products?: object,
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -32,6 +34,8 @@ import {
     faTerminal,
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
+import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
+import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 
 library.add(
     faInventory,
@@ -49,6 +53,8 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        suppliers: TableSuppliers,
+        supplier_products: TableSupplierProducts,
         details: ModelDetails,
         history: ModelChangelog
     };
