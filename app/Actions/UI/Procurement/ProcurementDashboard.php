@@ -115,7 +115,7 @@ class ProcurementDashboard
 
                         ],
                     ],
-
+                    /*
                     [
                         [
                             'name'  => __('marketplace agents'),
@@ -134,7 +134,7 @@ class ProcurementDashboard
                             ]
                         ],
                     ]
-
+                    */
 
                 ]
 
