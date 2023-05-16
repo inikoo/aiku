@@ -105,7 +105,10 @@ class IndexMarketplaceAgents extends InertiaAction
         return Inertia::render(
             'Procurement/MarketplaceAgents',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __("agent's marketplace"),
                 'pageHead'    => [
                     'title'  => __("agent's marketplace"),
@@ -122,7 +125,7 @@ class IndexMarketplaceAgents extends InertiaAction
         )->table($this->tableStructure($parent));
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return
             array_merge(

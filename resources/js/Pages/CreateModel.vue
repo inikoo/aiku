@@ -60,9 +60,7 @@ const handleFormSubmit = () => {
 
 <template layout="App">
     <Head :title="title"/>
-    {{ props.formData.route.name }}
     <PageHeading :data="pageHead"></PageHeading>
-
 
     <form class="space-y-8 pb-32 px-5" @submit.prevent="handleFormSubmit">
 

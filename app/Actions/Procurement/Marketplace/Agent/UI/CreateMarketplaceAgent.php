@@ -14,14 +14,18 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateMarketplaceAgent extends InertiaAction
 {
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'title'       => __('new marketplace agent'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'title'       => __('new agent'),
                 'pageHead'    => [
-                    'title'        => __('new marketplace agent'),
+                    'title'        => __('new agent'),
                     'cancelCreate' => [
                         'route' => [
                             'name'       => 'procurement.marketplace-agents.index',
@@ -33,7 +37,7 @@ class CreateMarketplaceAgent extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('marketplace agent'),
+                            'title'  => __('id'),
                             'fields' => [
 
                                 'code' => [
@@ -50,7 +54,7 @@ class CreateMarketplaceAgent extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.marketplace-agent.update',
+                        'name'       => 'models.agent.store',
                     ]
                 ],
             ]
@@ -67,17 +71,20 @@ class CreateMarketplaceAgent extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle();
+        return $this->handle($request);
     }
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexMarketplaceAgents::make()->getBreadcrumbs(),
+            IndexMarketplaceAgents::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
             [
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __("creating agent's marketplace"),
+                        'label'=> __("creating agent"),
                     ]
                 ]
             ]
