@@ -24,6 +24,7 @@ class ApcGbPrepareShipment
         try {
             $pickup_date = new Carbon(Arr::get($pickUp, 'date'));
         } catch (Exception $e) {
+            echo $e->getMessage();
             $pickup_date = new Carbon();
         }
 
@@ -59,15 +60,13 @@ class ApcGbPrepareShipment
 
         $items = [];
         foreach ($parcelsData as $parcelData) {
-            array_push(
-                $items, [
-                    'Type'   => 'ALL',
-                    'Weight' => $parcelData['weight'],
-                    'Length' => $parcelData['depth'],
-                    'Width'  => $parcelData['width'],
-                    'Height' => $parcelData['height']
-                ]
-            );
+            $items[] = [
+                'Type' => 'ALL',
+                'Weight' => $parcelData['weight'],
+                'Length' => $parcelData['depth'],
+                'Width' => $parcelData['width'],
+                'Height' => $parcelData['height']
+            ];
 
         }
 

@@ -26,14 +26,14 @@ class StoreShipment
 
     public function handle(DeliveryNote $deliveryNote,Shipper $shipper, array $modelData): Shipment
     {
-        $type = 'apiCall';
-        $modelData['delivery_note_id'] = $deliveryNote->id;
+        $modelData['shipper_id'] = $shipper->id;
+        $modelData['data'] = $deliveryNote;
         $shipment=match($shipper->api_shipper) {
-            'apc-gb'=> ApcGbCallShipperApi::run($deliveryNote,$shipper,$type),
-            'dpd-gb'=> DpdGbCallShipperApi::run($deliveryNote,$shipper,$type),
-            'dpd-sk'=> DpdSkCallShipperApi::run($deliveryNote,$shipper,$type),
-            'pst-mn'=> PostmenCallShipperApi::run($deliveryNote,$shipper,$type),
-            'whl-gb'=> WhistlGbCallShipperApi::run($deliveryNote,$shipper,$type),
+            'apc-gb'=> ApcGbCallShipperApi::run($deliveryNote,$shipper),
+            'dpd-gb'=> DpdGbCallShipperApi::run($deliveryNote,$shipper),
+            'dpd-sk'=> DpdSkCallShipperApi::run($deliveryNote,$shipper),
+            'pst-mn'=> PostmenCallShipperApi::run($deliveryNote,$shipper),
+            'whl-gb'=> WhistlGbCallShipperApi::run($deliveryNote,$shipper),
             default => $shipper->shipments()->create($modelData),
         };
         ShipmentHydrateUniversalSearch::dispatch($shipment);
