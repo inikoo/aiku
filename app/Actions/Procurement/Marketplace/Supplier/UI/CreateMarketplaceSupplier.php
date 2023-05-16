@@ -9,8 +9,10 @@ namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Helpers\Address;
+use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,14 +32,25 @@ class CreateMarketplaceSupplier extends InertiaAction
                 'pageHead'    => [
                     'title'        => __('new supplier'),
                     'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'procurement.marketplace-suppliers.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                        'route' => match ($request->route()->getName()) {
+                            'procurement.marketplace-agents.show.suppliers.create' =>
+                            [
+                                'name'       => 'procurement.marketplace-agents.show',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            default => [
+                                'name'       => 'procurement.marketplace-suppliers.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        }
+
+
+
+
                     ]
 
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
                             'title'  => __('type'),
@@ -66,7 +79,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                             'title'  => __('contact'),
                             'icon'   => 'fa-light fa-phone',
                             'fields' => [
-                                'email' => [
+                                'email'   => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
                                     'value'   => '',
@@ -75,9 +88,9 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     ]
                                 ],
                                 'address' => [
-                                    'type'  => 'address',
-                                    'label' => __('Address'),
-                                    'value' => AddressResource::make(
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressResource::make(
                                         new Address(
                                             [
                                                 'country_id' => app('currentTenant')->country_id,
@@ -97,7 +110,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                             'title'  => __('telephones'),
                             'fields' => [
 
-                                'mobile' => [
+                                'mobile'    => [
                                     'type'  => 'input',
                                     'label' => __('mobile'),
                                     'value' => ''
@@ -107,7 +120,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'label' => __('telephone'),
                                     'value' => ''
                                 ],
-                                'fax' => [
+                                'fax'       => [
                                     'type'  => 'input',
                                     'label' => __('fax'),
                                     'value' => ''
@@ -118,7 +131,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                             'title'  => __("supplier's products settings"),
                             'fields' => [
 
-                                'allow on demand' => [
+                                'allow on demand'              => [
                                     'type'  => 'input',
                                     'label' => __('allow on demand'),
                                     'value' => ''
@@ -145,12 +158,12 @@ class CreateMarketplaceSupplier extends InertiaAction
                             'title'  => __('payment'),
                             'fields' => [
 
-                                'incoterm' => [
+                                'incoterm'      => [
                                     'type'  => 'input',
                                     'label' => __('incoterm'),
                                     'value' => ''
                                 ],
-                                'currency' => [
+                                'currency'      => [
                                     'type'  => 'input',
                                     'label' => __('currency'),
                                     'value' => ''
@@ -166,7 +179,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                             'title'  => __('terms and conditions'),
                             'fields' => [
 
-                                't&c' => [
+                                't&c'                 => [
                                     'type'  => 'input',
                                     'label' => __('t&c'),
                                     'value' => ''
@@ -181,7 +194,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                         [
                             'title'  => __('purchase order settings'),
                             'fields' => [
-                                'minimum order' => [
+                                'minimum order'                 => [
                                     'type'  => 'input',
                                     'label' => __('minimum order (EUR)'),
                                     'value' => ''
@@ -192,7 +205,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'value' => ''
                                 ],
 
-                                'order number format' => [
+                                'order number format'           => [
                                     'type'  => 'input',
                                     'label' => __('order number format'),
                                     'value' => ''
@@ -205,8 +218,8 @@ class CreateMarketplaceSupplier extends InertiaAction
                             ]
                         ],
                     ],
-                    'route'      => [
-                        'name'       => 'models.supplier.store',
+                    'route'     => [
+                        'name' => 'models.supplier.store',
                     ]
                 ],
 
@@ -227,18 +240,40 @@ class CreateMarketplaceSupplier extends InertiaAction
         return $this->handle($request);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inAgent(Agent $agent, ActionRequest $request): Response
+    {
+        $this->initialisation($request);
+
+        return $this->handle($request);
+    }
+
+
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexMarketplaceSuppliers::make()->getBreadcrumbs(
-                routeName: preg_replace('/create$/', 'index', $routeName),
-                routeParameters: $routeParameters,
-            ),
+            match ($routeName) {
+                'procurement.marketplace-agents.show.suppliers.create' =>
+                ShowMarketplaceAgent::make()->getBreadcrumbs(
+                    routeName: 'procurement.marketplace-agents.show',
+                    routeParameters: $routeParameters,
+                ),
+                default => IndexMarketplaceSuppliers::make()->getBreadcrumbs(
+                    routeName: preg_replace('/create$/', 'index', $routeName),
+                    routeParameters: $routeParameters,
+                ),
+            },
             [
                 [
-                    'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __("creating supplier"),
+                    'type'          => 'creatingModel',
+                    'creatingModel' => [
+
+
+                        'label' => match ($routeName) {
+                            'procurement.marketplace-agents.show.suppliers.create' => __("creating agent's supplier"),
+                            default                                                => __("creating supplier")
+                        }
+
                     ]
                 ]
             ]
