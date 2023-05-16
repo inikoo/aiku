@@ -7,7 +7,10 @@
 
 namespace App\Models\Dispatch;
 
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Dispatch\ShipmentFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,16 +33,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Dispatch\Shipper|null $shipper
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Dispatch\ShipmentFactory factory($count = null, $state = [])
+ * @property-read Shipper|null $shipper
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static ShipmentFactory factory($count = null, $state = [])
  * @method static Builder|Shipment newModelQuery()
  * @method static Builder|Shipment newQuery()
  * @method static Builder|Shipment onlyTrashed()
  * @method static Builder|Shipment query()
  * @method static Builder|Shipment withTrashed()
  * @method static Builder|Shipment withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Shipment extends Model
 {

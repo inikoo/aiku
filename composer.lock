@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2717b1ce74dd81aa9aee673519bd0138",
+    "content-hash": "9b9f12305a52921839765a3ab337c0be",
     "packages": [
         {
             "name": "amrshawky/currency",
@@ -14366,9 +14366,10 @@
         "ext-mbstring": "*",
         "ext-pdo": "*",
         "ext-pgsql": "*",
+        "ext-simplexml": "*",
         "ext-soap": "*",
         "ext-zlib": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

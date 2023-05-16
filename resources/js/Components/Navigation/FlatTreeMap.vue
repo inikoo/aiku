@@ -6,22 +6,22 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faEmptySet } from '@/../private/pro-light-svg-icons';
-library.add(faEmptySet);
-defineProps(['nodes']);
+import { faEmptySet, faStar, faWrench } from '@/../private/pro-light-svg-icons';
+library.add(faEmptySet, faStar, faWrench);
 import { useLocaleStore } from '@/Stores/locale.js';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+const props = defineProps(['nodes']);
+
 const locale = useLocaleStore();
-
-const dummyLink = "procurement.supplier-deliveries.index"
-
 </script>
 
 <template>
+    <!-- {{ nodes[0] }} -->
     <nav aria-label="Progress">
         <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 sm:flex sm:divide-y-0">
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative sm:flex sm:flex-1 items-center">
-
+                <!-- Main Tree -->
                 <Link :href="route(node.href[0], node.href[1])" class="group flex-1 items-center">
                     <span class="grid grid-flow-col justify-between items-center px-6 py-4 text-lg font-medium">
                         <div>
@@ -42,14 +42,12 @@ const dummyLink = "procurement.supplier-deliveries.index"
                 </Link>
 
                 <!-- Sublink on right each section -->
-                <div class="pr-4">
-                    <a @click.prevent="() => { $inertia.visit(route(dummyLink)) }"
+                <div v-if="node.rightSubLink" class="pr-4 abc" :title="node.rightSubLink.tooltip">
+                    <!-- {{ importIcon(node.rightSubLink.icon) }} -->
+                    <Link :href="route(node.rightSubLink.href[0])"
                         class="w-8 h-8 grid justify-center items-center border-2 text-indigo-500 border-indigo-500 rounded-lg cursor-pointer hover:bg-indigo-500 hover:text-white transition-all duration-75 ease-in-out">
-                        <FontAwesomeIcon size="md" :icon="node.icon" class="flex-shrink-0 " aria-hidden="true" />
-                    </a>
-                    <!-- <div @click.prevent="" class="absolute py-1 px-2 text-[5px] inline bg-red-500">
-                            This is a button for {{ node.name }}
-                        </div> -->
+                        <FontAwesomeIcon :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" />
+                    </Link>
                 </div>
 
                 <template v-if="nodeIdx !== nodes.length - 1">
@@ -66,3 +64,8 @@ const dummyLink = "procurement.supplier-deliveries.index"
     </nav>
 </template>
 
+<style scoped>
+.abc {
+    text-transform: capitalize;
+}
+</style>

@@ -15,6 +15,7 @@
         "ext-mbstring": "*",
         "ext-pdo": "*",
         "ext-pgsql": "*",
+        "ext-simplexml": "*",
         "ext-soap": "*",
         "ext-zlib": "*",
         "amrshawky/laravel-currency": "^6.0",
@@ -41,7 +42,6 @@
         "phlak/semver": "^4.0",
         "predis/predis": "^2.1",
         "propaganistas/laravel-phone": "^5.0",
-
         "sentry/sentry-laravel": "^3.2",
         "spatie/laravel-backup": "^8.1",
         "spatie/laravel-medialibrary": "^10.0.0",
