@@ -15,6 +15,9 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use App\Models\Procurement\Agent;
 use App\Models\Tenancy\Tenant;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -48,6 +51,7 @@ class StoreAgent
         return $agent;
     }
 
+
     public function rules(): array
     {
         return [
@@ -66,5 +70,17 @@ class StoreAgent
         $validatedData = $this->validateAttributes();
 
         return $this->handle($owner, $validatedData, $addressData);
+    }
+
+    public function asController(ActionRequest $request): Agent
+    {
+        $request->validate();
+
+        return $this->handle(app('currentTenant'), $request->validated());
+    }
+
+    public function htmlResponse(Agent $agent): RedirectResponse
+    {
+        return Redirect::route('procurement.marketplace-agents.show', $agent->slug);
     }
 }

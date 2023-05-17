@@ -64,10 +64,17 @@ Route::get('/supplier-deliveries/{supplierDelivery}/edit', EditSupplierDelivery:
 
 Route::get('/marketplace-agents', IndexMarketplaceAgents::class)->name('marketplace-agents.index');
 Route::get('/marketplace-agents/create', CreateMarketplaceAgent::class)->name('marketplace-agents.create');
-Route::get('/marketplace-agents/{marketplaceAgent}', ShowMarketplaceAgent::class)->name('marketplace-agents.show');
-Route::get('/marketplace-agents/{marketplaceAgent}/edit', EditMarketplaceAgent::class)->name('marketplace-agents.edit');
+Route::get('/marketplace-agents/{agent}', ShowMarketplaceAgent::class)->name('marketplace-agents.show');
+Route::get('/marketplace-agents/{agent}/edit', EditMarketplaceAgent::class)->name('marketplace-agents.edit');
+Route::get('/marketplace-agents/{agent}/suppliers', [IndexMarketplaceSuppliers::class, 'inAgent'])->name('marketplace-agents.show.suppliers.index');
+Route::get('/marketplace-agents/{agent}/suppliers/create', [CreateMarketplaceSupplier::class, 'inAgent'])->name('marketplace-agents.show.suppliers.create');
+Route::get('/marketplace-agents/{agent}/suppliers/{supplier}', [ShowMarketplaceSupplier::class, 'inAgent'])->name('marketplace-agents.show.suppliers.show');
+
+Route::get('/marketplace-agents/{agent}/supplier-products', [IndexMarketplaceSupplierProducts::class, 'inAgent'])->name('marketplace-agents.show.supplier-products.index');
+Route::get('/marketplace-agents/{agent}/supplier-products/{supplierProducts}', [ShowMarketplaceSupplierProduct::class, 'inAgent'])->name('marketplace-agents.show.supplier-products.show');
+
 
 Route::get('/marketplace-suppliers', IndexMarketplaceSuppliers::class)->name('marketplace-suppliers.index');
 Route::get('/marketplace-suppliers/create', CreateMarketplaceSupplier::class)->name('marketplace-suppliers.create');
-Route::get('/marketplace-suppliers/{marketplaceSupplier}', ShowMarketplaceSupplier::class)->name('marketplace-suppliers.show');
-Route::get('/marketplace-suppliers/{marketplaceSupplier}/edit', EditMarketplaceSupplier::class)->name('marketplace-suppliers.edit');
+Route::get('/marketplace-suppliers/{supplier}', ShowMarketplaceSupplier::class)->name('marketplace-suppliers.show');
+Route::get('/marketplace-suppliers/{supplier}/edit', EditMarketplaceSupplier::class)->name('marketplace-suppliers.edit');

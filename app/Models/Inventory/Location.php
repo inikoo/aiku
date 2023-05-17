@@ -41,9 +41,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
  * @property-read \App\Models\Inventory\LocationStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Stock> $stocks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea

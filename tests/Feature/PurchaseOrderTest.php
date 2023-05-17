@@ -61,7 +61,7 @@ test('create supplier with agent', function ($agent) {
     $supplier = StoreSupplier::make()->action($agent, Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
     $this->assertModelExists($supplier);
 
-    return $supplier;
+    return $supplier->fresh();
 })->depends('create agent');
 
 test('create supplier product', function ($supplier) {

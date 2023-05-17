@@ -8,19 +8,25 @@
 namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\AgentTabsEnum;
+use App\Enums\UI\MarketplaceAgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
+use App\Http\Resources\Procurement\SupplierProductResource;
+use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Agent $agent
- */
 class ShowMarketplaceAgent extends InertiaAction
 {
+    public function handle(Agent $agent): Agent
+    {
+        return $agent;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.edit');
@@ -28,44 +34,64 @@ class ShowMarketplaceAgent extends InertiaAction
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(Agent $agent, ActionRequest $request): void
+    public function asController(Agent $agent, ActionRequest $request): Agent
     {
-        $this->initialisation($request)->withTab(AgentTabsEnum::values());
-        $this->agent    = $agent;
+        $this->initialisation($request)->withTab(MarketplaceAgentTabsEnum::values());
+        return $this->handle($agent);
+
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
         return Inertia::render(
             'Procurement/MarketplaceAgent',
             [
                 'title'       => __('marketplace agent'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->agent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'icon'  => 'fal fa-agent',
-                    'title' => $this->agent->name,
+                    'title' => $agent->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
+                    'create'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.marketplace-agents.show.suppliers.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('supplier')
+                    ] : false,
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
-                    'navigation' => AgentTabsEnum::navigation()
+                    'navigation' => MarketplaceAgentTabsEnum::navigation()
                 ],
+                MarketplaceAgentTabsEnum::SUPPLIERS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIERS->value ?
+                    fn () => SupplierResource::collection(IndexSuppliers::run($agent))
+                    : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run($agent))),
+
+                MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value ?
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($agent))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($agent))),
+
             ]
-        );
+        )->table(IndexSuppliers::make()->tableStructure($agent))
+            ->table(IndexSupplierProducts::make()->tableStructure($agent));
     }
 
 
-     public function jsonResponse(): AgentResource
+     public function jsonResponse(Agent $agent): AgentResource
      {
-         return new AgentResource($this->agent);
+         return new AgentResource($agent);
      }
 
-    public function getBreadcrumbs(Agent $agent, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
         return array_merge(
             (new ProcurementDashboard())->getBreadcrumbs(),
@@ -77,14 +103,14 @@ class ShowMarketplaceAgent extends InertiaAction
                             'route' => [
                                 'name' => 'procurement.marketplace-agents.index',
                             ],
-                            'label' => __('marketplace agents')
+                            'label' => __("agent's marketplace"),
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'procurement.marketplace-agents.show',
-                                'parameters' => [$agent->slug]
+                                'parameters' => [$routeParameters['agent']->slug]
                             ],
-                            'label' => $agent->code,
+                            'label' => $routeParameters['agent']->code,
                         ],
                     ],
                     'suffix' => $suffix,

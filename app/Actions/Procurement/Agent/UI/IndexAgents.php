@@ -100,12 +100,13 @@ class IndexAgents extends InertiaAction
             'Procurement/Agents',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters(),
-                    $parent
+                    $request->route()->getName(),
+                    $request->route()->parameters
                 ),
                 'title'       => __('agents'),
                 'pageHead'    => [
                     'title'  => __('agents'),
+                    /*
                     'create' => $this->canEdit && $this->routeName == 'procurement.agents.index' ? [
                         'route' => [
                             'name'       => 'procurement.agents.create',
@@ -113,13 +114,14 @@ class IndexAgents extends InertiaAction
                         ],
                         'label' => __('agent')
                     ] : false,
+                    */
                 ],
                 'data'        => AgentResource::collection($agents),
             ]
         )->table($this->tableStructure($parent));
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return
             array_merge(

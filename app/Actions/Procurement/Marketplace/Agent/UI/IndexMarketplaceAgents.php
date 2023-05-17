@@ -105,7 +105,10 @@ class IndexMarketplaceAgents extends InertiaAction
         return Inertia::render(
             'Procurement/MarketplaceAgents',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __("agent's marketplace"),
                 'pageHead'    => [
                     'title'  => __("agent's marketplace"),

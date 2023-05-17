@@ -18,6 +18,9 @@ use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use App\Models\Tenancy\Tenant;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -93,5 +96,29 @@ class StoreSupplier
         $validatedData = $this->validateAttributes();
 
         return $this->handle($owner, $validatedData);
+    }
+
+    public function asController(ActionRequest $request): Supplier
+    {
+        $request->validate();
+
+        return $this->handle(app('currentTenant'), $request->validated());
+    }
+
+    public function inAgent(Agent $agent, ActionRequest $request): Supplier
+    {
+        $request->validate();
+
+        return $this->handle($agent, $request->validated());
+    }
+
+    public function htmlResponse(Supplier $supplier): RedirectResponse
+    {
+        if($supplier->owner_type=='Agent') {
+            return Redirect::route('procurement.marketplace-agents.show.suppliers.index', $supplier->owner->slug);
+
+        }
+
+        return Redirect::route('procurement.marketplace-suppliers.show', $supplier->slug);
     }
 }

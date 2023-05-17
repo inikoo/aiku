@@ -11,7 +11,6 @@ use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 //use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,7 +36,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read Collection<int, Picking> $pickings
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()
  * @method static Builder|DeliveryNoteItem onlyTrashed()
@@ -66,8 +64,8 @@ class DeliveryNoteItem extends Model
 
     protected $guarded = [];
 
-//    public function pickings(): BelongsToMany
-//    {
-//        return $this->belongsToMany(Picking::class)->withTimestamps();
-//    }
+    //    public function pickings(): BelongsToMany
+    //    {
+    //        return $this->belongsToMany(Picking::class)->withTimestamps();
+    //    }
 }

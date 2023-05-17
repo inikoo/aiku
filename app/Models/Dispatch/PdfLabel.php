@@ -9,14 +9,12 @@ namespace App\Models\Dispatch;
 
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Dispatch\ShipmentFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -24,25 +22,14 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * App\Models\Dispatch\Shipment
  *
- * @property int $id
- * @property string $slug
- * @property string|null $code
- * @property int|null $shipper_id
- * @property string|null $tracking
- * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property int|null $source_id
- * @property-read Shipper|null $shipper
+ * @property-read \App\Models\Dispatch\Shipper|null $shipper
  * @property-read UniversalSearch|null $universalSearch
- * @method static ShipmentFactory factory($count = null, $state = [])
- * @method static Builder|Shipment newModelQuery()
- * @method static Builder|Shipment newQuery()
- * @method static Builder|Shipment onlyTrashed()
- * @method static Builder|Shipment query()
- * @method static Builder|Shipment withTrashed()
- * @method static Builder|Shipment withoutTrashed()
+ * @method static Builder|PdfLabel newModelQuery()
+ * @method static Builder|PdfLabel newQuery()
+ * @method static Builder|PdfLabel onlyTrashed()
+ * @method static Builder|PdfLabel query()
+ * @method static Builder|PdfLabel withTrashed()
+ * @method static Builder|PdfLabel withoutTrashed()
  * @mixin Eloquent
  */
 class PdfLabel extends Model

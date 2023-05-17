@@ -25,7 +25,6 @@ const locale = useLocaleStore();
 </script>
 <template>
     <div class="m-4 grid grid-flow-col justify-between items-center">
-        <!-- Page Title Group -->
         <div class="">
             <h2 class="font-bold text-gray-900 text-3xl tracking-tight capitalize">
                 <FontAwesomeIcon v-if="data.icon" :title="data.icon.tooltip" aria-hidden="true" :icon="data.icon" size="xs" class="pr-2"/>
