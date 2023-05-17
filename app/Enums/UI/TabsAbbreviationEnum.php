@@ -15,7 +15,7 @@ enum TabsAbbreviationEnum: string
     case LOCATIONS         = 'loc';
     case PAYMENT_ACCOUNTS  = 'pa';
     case PAYMENTS          = 'p';
-    case PORTFOLIO         = 'po';
+    case PORTFOLIO         = 'portfolio';
     case PRODUCTS          = 'prod';
     case ORDERS            = 'o';
     case SALES             = 'sales';
@@ -38,7 +38,7 @@ enum TabsAbbreviationEnum: string
 
     case OUTBOXES        = 'out';
     case ISSUES          = 'iss';
-    case PURCHASE_ORDERS = 'puord';
+    case PURCHASE_ORDERS = 'po';
     case DELIVERIES      = 'd';
     case IMAGES          = 'img';
 
@@ -101,9 +101,9 @@ enum TabsAbbreviationEnum: string
     case GUEST                              = 'gue';
     case USER                               = 'usr';
 
-    case SHOPS                              = 'shps';
+    case SHOPS                              = 'shop';
 
     case ANALYTICS                          = 'ana';
 
-    case USERS                              = 'usrs';
+    case USERS                              = 'user';
 }
