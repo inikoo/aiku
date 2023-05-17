@@ -101,7 +101,7 @@ enum TabsAbbreviationEnum: string
     case GUEST                              = 'gue';
     case USER                               = 'usr';
 
-    case SHOPS                              = 'shop';
+    case SHOPS                              = 'shops';
 
     case ANALYTICS                          = 'ana';
 
