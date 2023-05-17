@@ -26,7 +26,7 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'puord'" class="mt-5">
+    <Table :resource="data" :name="'po'" class="mt-5">
         <template #cell(number)="{ item: purchaseOrder }">
             <Link :href="PurchaseOrderRoute(purchaseOrder)">
                 {{ purchaseOrder['number'] }}

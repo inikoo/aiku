@@ -25,13 +25,11 @@ class CreateBackup
         $fileName .= '.zip';
         $path = 'storage/backups/aiku';
         if ($fileName != null) {
-            $command->call('backup:run', [
-                '--filename' => $fileName
-            ]);
+            $command->call('backup:run', ['--filename' => $fileName]);
             $command->info('Backup Successfully at '. $path . '/' .$fileName);
         }else{
             $command->call('backup:run');
-            $command->info('File Backup at '. $path . ' folder');
+            $command->info('Backup Successfully at '. $path . ' folder');
         }
         return 0;
     }

@@ -13,6 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $number
  * @property string $created_at
  * @property string $updated_at
+ * @property string $slug
  */
 class PurchaseOrderResource extends JsonResource
 {
@@ -20,6 +21,7 @@ class PurchaseOrderResource extends JsonResource
     {
         return [
             'number'     => $this->number,
+            'slug'       => $this->slug,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
