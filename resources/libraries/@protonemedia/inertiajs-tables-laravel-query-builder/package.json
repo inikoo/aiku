@@ -1,0 +1,40 @@
+{
+  "name": "@protonemedia/inertiajs-tables-laravel-query-builder",
+  "version": "2.2.0",
+  "description": "Inertia.js Front-end Components for Spatie's Laravel Query Builder",
+  "private": false,
+  "author": "Pascal Baljet <pascal@protone.media>",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/inertiajs-tables-laravel-query-builder.umd.js",
+  "module": "./dist/inertiajs-tables-laravel-query-builder.es.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/inertiajs-tables-laravel-query-builder.es.js",
+      "require": "./dist/inertiajs-tables-laravel-query-builder.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "eslint": "./node_modules/.bin/eslint app/resources/js/ js/ --ext .js,.vue --fix"
+  },
+  "peerDependencies": {
+    "@inertiajs/vue3": "^1.0.2",
+    "vue": "^3.2.37"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.5",
+    "lodash-es": "^4.17.21",
+    "qs": "^6.10.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^3.0",
+    "eslint": "^8.18.0",
+    "eslint-plugin-vue": "^9.1.1",
+    "vite": "^3.0"
+  }
+}
