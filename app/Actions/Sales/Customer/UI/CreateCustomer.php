@@ -74,7 +74,8 @@ class CreateCustomer extends InertiaAction
                             ]
                         ],
                     'route'     => [
-                        'name' => 'models.shop.customer.store'
+                        'name'     => 'models.shop.customer.store',
+                        'arguments'=> [$shop->slug]
                     ]
                 ]
 

@@ -17,9 +17,11 @@ use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -37,6 +39,7 @@ class StoreCustomer
      */
     public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
     {
+
 
 
         data_fill(
@@ -101,10 +104,10 @@ class StoreCustomer
         ];
     }
 
-    public function afterValidator(Validator $validator): void
+    public function afterValidator(ActionRequest $request, Validator $validator): void
     {
-        if (!$this->get('contact_name') and !$this->get('company_name')) {
-            $validator->errors()->add('contact_name', 'contact name required x');
+        if (!$request->get('contact_name') and !$request->get('company_name')) {
+            $validator->errors()->add('company_name', 'contact name or company name required');
         }
     }
 
@@ -113,6 +116,11 @@ class StoreCustomer
         $request->validate();
 
         return $this->handle($shop, $request->validated());
+    }
+
+    public function htmlResponse(Customer $customer): RedirectResponse
+    {
+        return Redirect::route('shops.show.customers.show', [$customer->shop->slug,$customer->slug]);
     }
 
 

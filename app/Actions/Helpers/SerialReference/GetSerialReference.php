@@ -27,8 +27,8 @@ class GetSerialReference
             $res = DB::connection('group')->table('serial_references')->select('serial')
                 ->where('id', $serialReference->id)->first();
 
-
-            $serial = $res->serial + 1;
+            /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+            $serial = (int) $res->serial + 1;
 
 
             DB::connection('group')->table('serial_references')

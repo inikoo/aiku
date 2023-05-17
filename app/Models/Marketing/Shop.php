@@ -28,6 +28,7 @@ use App\Models\Sales\Order;
 use App\Models\Sales\PaymentAccountShop;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Web\Website;
+use Database\Factories\Marketing\ShopFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -95,7 +96,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read Website|null $website
- * @method static \Database\Factories\Marketing\ShopFactory factory($count = null, $state = [])
+ * @method static ShopFactory factory($count = null, $state = [])
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop onlyTrashed()
@@ -214,10 +215,10 @@ class Shop extends Model
         return $this->morphMany(ProductCategory::class, 'parent');
     }
 
-//    public function families(): HasMany
-//    {
-//        return $this->hasMany(Family::class);
-//    }
+    //    public function families(): HasMany
+    //    {
+    //        return $this->hasMany(Family::class);
+    //    }
 
     public function payments(): HasMany
     {
@@ -277,6 +278,6 @@ class Shop extends Model
 
     public function serialReferences(): MorphMany
     {
-        return $this->morphMany(SerialReference::class, 'container');
+        return $this->morphMany(SerialReference::class, 'container')->where('tenant_id', app('currentTenant')->id);
     }
 }
