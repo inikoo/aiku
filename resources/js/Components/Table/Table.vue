@@ -611,7 +611,7 @@ const handleElementsChange = function (data) {
             <slot name="tableWrapper" :meta="resourceMeta">
                 <TableWrapper :class="{ 'mt-0': !hasOnlyData }">
                     <slot name="table">
-                        <table class="divide-y divide-gray-200 bg-white">
+                        <table class="divide-y divide-gray-200 bg-white w-full">
                             <thead class="bg-gray-50">
                                 <tr class="border-t border-gray-200">
                                     <HeaderCell v-for="column in queryBuilderProps.columns"
@@ -633,7 +633,7 @@ const handleElementsChange = function (data) {
                                                 columnsType[column.key] === 'number'
                                                     ? 'text-right'
                                                     : '',
-                                                'text-sm py-4 px-6 text-gray-500 whitespace-normal min-w-[250px]',
+                                                'text-sm py-4 px-6 text-gray-500 whitespace-normal min-w-fit max-w-[450px]',
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
                                                 {{ item[column.key] }}
