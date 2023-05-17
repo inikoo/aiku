@@ -45,8 +45,6 @@ class CreateMarketplaceSupplier extends InertiaAction
                         }
 
 
-
-
                     ]
 
                 ],
@@ -57,9 +55,10 @@ class CreateMarketplaceSupplier extends InertiaAction
                             'fields' => [
 
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => ''
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => '',
+                                    'required' => true,
                                 ],
                             ]
                         ],
@@ -74,6 +73,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                 ],
                             ]
                         ],
+                        /*
                         [
                             'title'  => __('our id in supplier records'),
                             'fields' => [
@@ -85,14 +85,15 @@ class CreateMarketplaceSupplier extends InertiaAction
                                 ],
                             ]
                         ],
+                        */
 
                         [
                             'title'  => __('contact'),
                             'icon'   => 'fa-light fa-phone',
                             'fields' => [
-                                'name' => [
+                                'contact_name' => [
                                     'type'  => 'input',
-                                    'label' => __('name'),
+                                    'label' => __('contact name'),
                                     'value' => ''
                                 ],
                                 'company_name' => [
@@ -100,7 +101,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'label' => __('company name'),
                                     'value' => ''
                                 ],
-                                'email'   => [
+                                'email'        => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
                                     'value'   => '',
@@ -108,7 +109,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                         'inputType' => 'email'
                                     ]
                                 ],
-                                'address' => [
+                                'address'      => [
                                     'type'    => 'address',
                                     'label'   => __('Address'),
                                     'value'   => AddressResource::make(
@@ -148,6 +149,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                 ],
                             ]
                         ],
+                        /*
                         [
                             'title'  => __("supplier's products settings"),
                             'fields' => [
@@ -236,6 +238,21 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'label' => __('last incremental order number'),
                                     'value' => ''
                                 ],
+                            ]
+
+                        ],
+                        */
+
+                        [
+                            'title'  => __('xxxx'),
+                            'fields' => [
+
+                                'currency_id'    => [
+                                    'type'  => 'currencies',
+                                    'label' => __('currency'),
+                                    'value' => ''
+                                ],
+
                             ]
                         ],
                     ],

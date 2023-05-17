@@ -93,10 +93,10 @@ class StoreSupplier
         ];
     }
 
-    public function afterValidator(Validator $validator): void
+    public function afterValidator(ActionRequest $request, Validator $validator): void
     {
-        if (!$this->get('contact_name') and !$this->get('company_name')) {
-            $validator->errors()->add('contact_name', 'contact name required x');
+        if (!$request->get('contact_name') and !$request->get('company_name')) {
+            $validator->errors()->add('contact_name', 'contact name or company name is required');
         }
     }
 
