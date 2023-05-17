@@ -78,7 +78,7 @@ class ProcurementDashboard
                             ],
                             'rightSubLink'=> [
                                 'tooltip'   => __('marketplace suppliers'),
-                                'icon'      => ['fal', 'fa-store'],
+                                'icon'      => ['fal', 'fa-warehouse'],
                                 'labelStyle'=> 'bordered',
                                 'href'      => ['procurement.marketplace-suppliers.index'],
 
