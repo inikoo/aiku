@@ -23,6 +23,7 @@ class UpdateProspect
     {
         $prospect = $this->update($prospect, $modelData, ['data']);
         ProspectHydrateUniversalSearch::dispatch($prospect);
+
         return $prospect;
     }
 
