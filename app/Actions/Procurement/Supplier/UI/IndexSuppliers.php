@@ -118,13 +118,6 @@ class IndexSuppliers extends InertiaAction
                 'title'       => __('suppliers'),
                 'pageHead'    => [
                     'title'   => __('suppliers'),
-                    'create'  => $this->canEdit && $this->routeName=='procurement.suppliers.index' ? [
-                        'route' => [
-                            'name'       => 'procurement.suppliers.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label'=> __('supplier')
-                    ] : false,
                 ],
                 'data'   => SupplierResource::collection($suppliers),
 

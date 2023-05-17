@@ -54,7 +54,7 @@ class CreateSupplier extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.supplier.update',
+                        'name'       => 'models.supplier.store',
                     ]
                 ],
             ]
