@@ -16,7 +16,9 @@ use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\UpdateStock;
 use App\Actions\Inventory\StockFamily\UpdateStockFamily;
+use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
+use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
@@ -45,7 +47,10 @@ Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.upda
 Route::post('/employee/', StoreEmployee::class)->name('employee.store');
 
 
+Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
 Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');
+
+Route::post('/warehouse/{warehouse}/areas/', StoreWarehouseArea::class)->name('warehouse.warehouse-area.store');
 
 Route::patch('/areas/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse-area.update');
 

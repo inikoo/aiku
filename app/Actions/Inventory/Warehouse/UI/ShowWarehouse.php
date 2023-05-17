@@ -55,6 +55,8 @@ class ShowWarehouse extends InertiaAction
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
+
+
                     'meta' => [
                         [
                             'name'   => trans_choice('warehouse area|warehouse areas', $this->warehouse->stats->number_warehouse_areas),

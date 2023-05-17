@@ -35,7 +35,7 @@ class CreateWarehouseArea extends InertiaAction
                     ]
 
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
                             'title'  => __('create warehouse'),
@@ -51,16 +51,13 @@ class CreateWarehouseArea extends InertiaAction
                                     'label' => __('name'),
                                     'value' => ''
                                 ],
-                                'locations' => [
-                                    'type'  => 'input',
-                                    'label' => __('locations'),
-                                    'value' => ''
-                                ],
+
                             ]
                         ]
                     ],
-                    'route'      => [
-                        'name'       => 'models.warehouse-area.update',
+                    'route'     => [
+                        'name'      => 'models.warehouse.warehouse-area.store',
+                        'arguments' => [$request->route()->parameters['warehouse']->slug]
                     ]
                 ],
 
@@ -77,8 +74,11 @@ class CreateWarehouseArea extends InertiaAction
     public function asController(Warehouse $warehouse, ActionRequest $request): Response
     {
         $this->initialisation($request);
+
         return $this->handle($request);
     }
+
+
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
@@ -89,9 +89,9 @@ class CreateWarehouseArea extends InertiaAction
             ),
             [
                 [
-                    'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('creating warehouse areas'),
+                    'type'          => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __('creating warehouse areas'),
                     ]
                 ]
             ]

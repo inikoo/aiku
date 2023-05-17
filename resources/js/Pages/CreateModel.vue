@@ -52,7 +52,10 @@ Object.entries(props.formData.blueprint).forEach(([, val]) => {
 const form = useForm(fields);
 
 const handleFormSubmit = () => {
-    form.post(route(props.formData.route.name));
+    form.post(route(
+        props.formData.route.name,
+        props.formData.route.arguments
+));
 };
 
 

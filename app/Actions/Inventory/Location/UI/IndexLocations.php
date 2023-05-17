@@ -111,6 +111,7 @@ class IndexLocations extends InertiaAction
     public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle(parent: $warehouseArea);
     }
 
@@ -150,13 +151,13 @@ class IndexLocations extends InertiaAction
                         $this->routeName == 'inventory.warehouses.show.locations.index' or
                         $this->routeName == 'inventory.warehouses.show.warehouse-areas.show.locations.index'
                     )
-                            ? [
-                        'route' => [
-                            'name'       => 'inventory.locations.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('locations')
-                    ] : false,
+                        ? [
+                            'route' => [
+                                'name'       => 'inventory.locations.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'label' => __('locations')
+                        ] : false,
                 ],
                 'data'        => LocationResource::collection($locations),
 
@@ -169,23 +170,24 @@ class IndexLocations extends InertiaAction
     {
         $headCrumb = function (array $routeParameters = []) {
             return [
-                 [
-                     'type'   => 'simple',
-                     'simple' => [
-                         'route' => $routeParameters,
-                         'label' => __('locations'),
-                         'icon'  => 'fal fa-bars'
-                     ],
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('locations'),
+                        'icon'  => 'fal fa-bars'
+                    ],
                 ],
             ];
         };
+
         return match ($routeName) {
             'inventory.locations.index' =>
             array_merge(
                 (new InventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'=> 'inventory.locations.index',
+                        'name' => 'inventory.locations.index',
                         null
                     ]
                 )
@@ -194,8 +196,8 @@ class IndexLocations extends InertiaAction
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb([
-                    'name'      => 'inventory.warehouses.show.locations.index',
-                    'parameters'=>
+                    'name'       => 'inventory.warehouses.show.locations.index',
+                    'parameters' =>
                         [
                             $routeParameters['warehouse']->slug
                         ]
@@ -206,12 +208,12 @@ class IndexLocations extends InertiaAction
                 (new ShowWarehouseArea())->getBreadcrumbs(
                     'inventory.warehouse-areas.show',
                     [
-                      'warehouseArea' => $routeParameters['warehouseArea']
+                        'warehouseArea' => $routeParameters['warehouseArea']
                     ]
                 ),
                 $headCrumb([
-                    'name'      => 'inventory.warehouse-areas.show.locations.index',
-                    'parameters'=>
+                    'name'       => 'inventory.warehouse-areas.show.locations.index',
+                    'parameters' =>
                         [
                             $routeParameters['warehouse']->slug
                         ]
@@ -227,11 +229,14 @@ class IndexLocations extends InertiaAction
                     ]
                 ),
                 $headCrumb([
-                    'name'      => 'inventory.warehouses.show.warehouse-areas.show.locations.index',
-                    'parameters'=>
+                    'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.index',
+                    'parameters' =>
                         [
-                            $routeParameters['warehouse']->slug
-                        ]                ])
+                            $routeParameters['warehouse']->slug,
+                            $routeParameters['warehouseArea']->slug,
+
+                        ]
+                ])
             ),
 
             default => []

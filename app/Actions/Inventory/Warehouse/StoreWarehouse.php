@@ -10,6 +10,8 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Models\Inventory\Warehouse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -58,6 +60,22 @@ class StoreWarehouse
 
         return $this->handle($validatedData);
     }
+
+
+    public function asController(ActionRequest $request): Warehouse
+    {
+        $request->validate();
+
+        return $this->handle($request->validated());
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function htmlResponse(Warehouse $warehouse): RedirectResponse
+    {
+        return Redirect::route('inventory.warehouses.index');
+    }
+
+
 
 
 }

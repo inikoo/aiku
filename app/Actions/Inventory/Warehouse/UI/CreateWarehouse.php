@@ -47,21 +47,12 @@ class CreateWarehouse extends InertiaAction
                                     'label' => __('name'),
                                     'value' => ''
                                 ],
-                                'warehouseAreas' => [
-                                    'type'  => 'input',
-                                    'label' => __('warehouse areas'),
-                                    'value' => ''
-                                ],
-                                'locations' => [
-                                    'type'  => 'input',
-                                    'label' => __('locations'),
-                                    'value' => ''
-                                ],
+
                             ]
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.warehouse.update',
+                        'name'       => 'models.warehouse.store',
                     ]
                 ],
 

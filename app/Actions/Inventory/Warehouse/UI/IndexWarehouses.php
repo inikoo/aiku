@@ -114,7 +114,7 @@ class IndexWarehouses extends InertiaAction
                         'label'=> __('warehouse')
                     ] : false,
                 ],
-                'warehouses'  => WarehouseResource::collection($warehouses),
+                'data'  => WarehouseResource::collection($warehouses),
 
 
             ]

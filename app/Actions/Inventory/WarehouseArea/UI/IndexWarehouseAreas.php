@@ -128,12 +128,12 @@ class IndexWarehouseAreas extends InertiaAction
                 'title'       => __('warehouse areas'),
                 'pageHead'    => [
                     'title'  => __('warehouse areas'),
-                    'create' => $this->canEdit && $this->routeName == 'inventory.warehouse-areas.index' ? [
+                    'create' => $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
                         'route' => [
-                            'name'       => 'inventory.warehouse-areas.create',
+                            'name'       => 'inventory.warehouses.show.warehouse-areas.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('warehouse areas')
+                        'label' => __('warehouse area')
                     ] : false,
                 ],
                 'data'        => [
@@ -144,6 +144,9 @@ class IndexWarehouseAreas extends InertiaAction
             ]
         )->table($this->tableStructure());
     }
+
+
+
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
