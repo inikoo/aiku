@@ -22,12 +22,13 @@ class CreateBackup
     public function asCommand(Command $command): int
     {
         $fileName = $command->option('name');
+        $fileName .= '.zip';
         $path = 'storage/backups/aiku';
         if ($fileName != null) {
             $command->call('backup:run', [
                 '--filename' => $fileName
             ]);
-            $command->info('Backup Successfully at '. $path . '/' .$fileName. '.zip');
+            $command->info('Backup Successfully at '. $path . '/' .$fileName);
         }else{
             $command->call('backup:run');
             $command->info('File Backup at '. $path . ' folder');
