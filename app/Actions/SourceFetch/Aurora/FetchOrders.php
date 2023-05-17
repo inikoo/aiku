@@ -21,7 +21,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchOrders extends FetchAction
 {
-    public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
     {
@@ -126,7 +126,7 @@ class FetchOrders extends FetchAction
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
 
-    public function updateAurora(Order $order)
+    public function updateAurora(Order $order): void
     {
         DB::connection('aurora')->table('Order Dimension')
             ->where('Order Key', $order->source_id)

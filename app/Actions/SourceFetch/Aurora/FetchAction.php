@@ -51,6 +51,7 @@ class FetchAction
     {
         return null;
     }
+
     public function fetchAll(SourceTenantService $tenantSource, Command $command = null): void
     {
         $this->getModelsQuery()->chunk(10000, function ($chunkedData) use ($command, $tenantSource) {
@@ -71,7 +72,6 @@ class FetchAction
     }
 
 
-
     public function asCommand(Command $command): int
     {
         $tenants  = $this->getTenants($command);
@@ -85,7 +85,15 @@ class FetchAction
                 }
 
 
-                if (in_array($command->getName(), ['fetch:stocks','fetch:orders', 'fetch:invoices', 'fetch:customers', 'fetch:delivery-notes'])) {
+                if (in_array($command->getName(), [
+                    'fetch:stocks',
+                    'fetch:orders',
+                    'fetch:invoices',
+                    'fetch:customers',
+                    'fetch:delivery-notes',
+                    'fetch:purchase-orders'
+
+                ])) {
                     $this->onlyNew = (bool)$command->option('only_new');
                 }
 
@@ -100,11 +108,12 @@ class FetchAction
                     $tenantSource = $this->getTenantSource($tenant);
                 } catch (Exception $exception) {
                     $command->error($exception->getMessage());
+
                     return 1;
                 }
 
 
-                $tenantSource->initialisation(app('currentTenant'), $command->option('db_suffix')??'');
+                $tenantSource->initialisation(app('currentTenant'), $command->option('db_suffix') ?? '');
                 $command->info('');
 
                 if ($command->option('source_id')) {
@@ -127,6 +136,7 @@ class FetchAction
                     $this->fetchAll($tenantSource, $command);
                     $this->progressBar?->finish();
                 }
+
                 return 0;
             });
 

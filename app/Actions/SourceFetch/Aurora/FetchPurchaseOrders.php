@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchPurchaseOrders extends FetchAction
 {
-    public string $commandSignature = 'fetch:purchase-orders {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:purchase-orders {tenants?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?PurchaseOrder
     {
@@ -49,7 +49,7 @@ class FetchPurchaseOrders extends FetchAction
 
                     return $order;
                 }
-                print "Warning purchase order $tenantSourceId do not have parent\n";
+                print "Warning purchase order ".$orderData['purchase_order']['number']."  Id:$tenantSourceId do not have parent\n";
             }
         } else {
             print "Warning error fetching order $tenantSourceId\n";
@@ -91,6 +91,10 @@ class FetchPurchaseOrders extends FetchAction
             ->table('Purchase Order Dimension')
             ->select('Purchase Order Key as source_id')
             ->whereIn('Purchase Order Type', ['Parcel', 'Container']);
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
         $query->orderBy('Purchase Order Date');
 
         return $query;

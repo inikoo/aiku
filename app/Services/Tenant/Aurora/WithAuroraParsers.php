@@ -56,6 +56,7 @@ use App\Models\Marketing\HistoricProduct;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use App\Models\Procurement\Agent;
+use App\Models\Procurement\AgentTenant;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierTenant;
 use App\Models\Sales\Customer;
@@ -71,7 +72,7 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                                                                                                                                                                                 != '' && $value != '0000-00-00 00:00:00'
+        return ($value                                                                                                                                                                                                                                                                                                  != '' && $value != '0000-00-00 00:00:00'
                                                                                                                                                                                                                                                                                                              && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
@@ -313,7 +314,8 @@ trait WithAuroraParsers
 
     public function parseAgent($source_id): ?Agent
     {
-        return Agent::where('source_id', $source_id)->where('source_type', app('currentTenant')->slug)->first();
+        $agentTenant= AgentTenant::where('source_id', $source_id)->where('tenant_id', app('currentTenant')->id)->first();
+        return Agent::withTrashed()->find($agentTenant?->agent_id);
     }
 
     public function parseStock($source_id): ?Stock
