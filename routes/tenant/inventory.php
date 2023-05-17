@@ -42,7 +42,6 @@ Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inTenant'])->na
 Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inTenant'])->name('warehouse-areas.edit');
 
 Route::get('/locations', [IndexLocations::class, 'inTenant'])->name('locations.index');
-Route::get('/locations/create', CreateLocation::class)->name('locations.create');
 Route::get('/locations/{location}', [ShowLocation::class, 'inTenant'])->name('locations.show');
 Route::get('/locations/{location}/edit', [EditLocation::class, 'inTenant'])->name('locations.edit');
 

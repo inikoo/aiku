@@ -7,12 +7,14 @@
 
 namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
+use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Agent\UI\ShowAgent;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditMarketplaceAgent extends InertiaAction
@@ -35,14 +37,16 @@ class EditMarketplaceAgent extends InertiaAction
         return $this->handle($agent);
     }
 
-
-
-    public function htmlResponse(Agent $agent): Response
+    public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('edit marketplace agent'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'title'     => $agent->code,
                     'exitEdit'  => [
@@ -74,6 +78,30 @@ class EditMarketplaceAgent extends InertiaAction
                         ]
 
                     ],
+                    [
+                        'title'  => __('contact'),
+                        'icon'   => 'fa-light fa-phone',
+                        'fields' => [
+                            'email'   => [
+                                'type'    => 'input',
+                                'label'   => __('email'),
+                                'value'   => $agent->email,
+                                'options' => [
+                                    'inputType' => 'email'
+                                ]
+                            ],
+                            'address' => [
+                                'type'    => 'address',
+                                'label'   => __('Address'),
+                                'value'   => AddressResource::make($agent->getAddress('contact'))->getArray(),
+                                'options' => [
+                                    'countriesAddressData' => GetAddressData::run()
+
+                                ]
+                            ],
+
+                        ]
+                    ],
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'models.marketplace-agent.update',
@@ -86,8 +114,17 @@ class EditMarketplaceAgent extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Agent $agent): AgentResource
+    public function jsonResponse(Agent $agent): AgentResource
     {
         return new AgentResource($agent);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowAgent::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }

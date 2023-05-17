@@ -13,6 +13,7 @@ use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\UpdateUser;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\UpdateStock;
 use App\Actions\Inventory\StockFamily\UpdateStockFamily;
@@ -50,11 +51,14 @@ Route::post('/employee/', StoreEmployee::class)->name('employee.store');
 Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
 Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');
 
-Route::post('/warehouse/{warehouse}/areas/', StoreWarehouseArea::class)->name('warehouse.warehouse-area.store');
+Route::post('/warehouse/{warehouse}/area/', StoreWarehouseArea::class)->name('warehouse.warehouse-area.store');
 
-Route::patch('/areas/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse-area.update');
+Route::patch('/area/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse-area.update');
 
 Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');
+
+Route::post('/warehouse/{warehouse}/location', StoreLocation::class)->name('warehouse.location.store');
+Route::post('/area/{warehouseArea}/location', [StoreLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.store');
 
 Route::patch('/stock/{stock}', UpdateStock::class)->name('stock.update');
 

@@ -12,6 +12,8 @@ use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -52,6 +54,37 @@ class StoreLocation
         return [
             'code'         => ['required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash'],
         ];
+    }
+
+    public function asController(Warehouse $warehouse, ActionRequest $request): Location
+    {
+        $request->validate();
+
+        return $this->handle($warehouse, $request->validated());
+    }
+
+
+    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): Location
+    {
+        $request->validate();
+
+        return $this->handle($warehouseArea, $request->validated());
+    }
+
+    public function htmlResponse(Location $location): RedirectResponse
+    {
+        if(!$location->warehouse_area_id) {
+            return Redirect::route('inventory.warehouses.show.locations.show', [
+                $location->warehouse->slug,
+                $location->slug
+            ]);
+        } else {
+            return Redirect::route('inventory.warehouses.show.warehouse-areas.show.locations.show', [
+                $location->warehouse->slug,
+                $location->warehouseArea->slug,
+                $location->slug
+            ]);
+        }
     }
 
     public function action(WarehouseArea|Warehouse $parent, array $objectData): Location

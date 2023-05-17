@@ -8,6 +8,9 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\InertiaAction;
+use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -48,9 +51,20 @@ class CreateLocation extends InertiaAction
                             ]
                         ]
                     ],
-                    'route'      => [
-                        'name'       => 'models.location.update',
+                    'route'      => match ($request->route()->getName()) {
+                'inventory.warehouses.show.locations.create' => [
+                    'name' => 'models.warehouse.location.store',
+                    'arguments' => [
+                        $request->route()->parameter('warehouse')->slug
                     ]
+                ],
+                        'inventory.warehouses.show.warehouse-areas.show.locations.create' => [
+                            'name' => 'models.warehouse-area.location.store',
+                            'arguments' => [
+                                $request->route()->parameter('warehouseArea')->slug
+                            ]
+                        ]
+                    }
                 ],
 
             ]
@@ -63,12 +77,21 @@ class CreateLocation extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): Response
+    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): Response
     {
         $this->initialisation($request);
 
         return $this->handle($request);
     }
+
+
+    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): Response
+    {
+        $this->initialisation($request);
+
+        return $this->handle($request);
+    }
+
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
