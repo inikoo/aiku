@@ -53,10 +53,21 @@ class CreateMarketplaceSupplier extends InertiaAction
                 'formData'    => [
                     'blueprint' => [
                         [
+                            'title'  => __('id'),
+                            'fields' => [
+
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ],
+                        [
                             'title'  => __('type'),
                             'fields' => [
 
-                                'delivery type' => [
+                                'delivery_type' => [
                                     'type'  => 'input',
                                     'label' => __('delivery type'),
                                     'value' => ''
@@ -79,6 +90,16 @@ class CreateMarketplaceSupplier extends InertiaAction
                             'title'  => __('contact'),
                             'icon'   => 'fa-light fa-phone',
                             'fields' => [
+                                'name' => [
+                                    'type'  => 'input',
+                                    'label' => __('name'),
+                                    'value' => ''
+                                ],
+                                'company_name' => [
+                                    'type'  => 'input',
+                                    'label' => __('company name'),
+                                    'value' => ''
+                                ],
                                 'email'   => [
                                     'type'    => 'input',
                                     'label'   => __('email'),

@@ -20,6 +20,7 @@ use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -33,6 +34,7 @@ class StoreSupplier
     {
         /** @var Supplier $supplier */
         if (class_basename($owner) == 'Agent') {
+            $modelData['type']       = 'sub-supplier';
             $modelData['owner_type'] = 'Agent';
             $modelData['owner_id']   = $owner->id;
             $supplier                = $owner->suppliers()->create($modelData);
@@ -46,7 +48,9 @@ class StoreSupplier
                 ]
             );
         } else {
-            $supplier = $owner->mySuppliers()->create($modelData);
+            $modelData['type']       = 'supplier';
+            $modelData['owner_type'] = 'Agent';
+            $supplier                = $owner->mySuppliers()->create($modelData);
             $owner->suppliers()->attach(
                 $supplier,
                 [
@@ -80,14 +84,20 @@ class StoreSupplier
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:group.agents', 'between:2,9', 'alpha'],
-            'name'         => ['required', 'max:250', 'string'],
-            'company_name' => ['sometimes', 'required'],
-            'contact_name' => ['sometimes', 'required'],
-            'email'        => ['sometimes', 'required'],
-            'currency_id'  => ['required', 'exists:currencies,id'],
-            'type'         => ['required', 'in:supplier,sub-supplier']
+            'code'                      => ['required', 'unique:group.agents', 'between:2,9', 'alpha'],
+            'contact_name'              => ['nullable', 'string', 'max:255'],
+            'company_name'              => ['nullable', 'string', 'max:255'],
+            'email'                     => ['nullable', 'email'],
+            'phone'                     => ['nullable', 'string'],
+            'currency_id'               => ['required', 'exists:currencies,id'],
         ];
+    }
+
+    public function afterValidator(Validator $validator): void
+    {
+        if (!$this->get('contact_name') and !$this->get('company_name')) {
+            $validator->errors()->add('contact_name', 'contact name required x');
+        }
     }
 
     public function action(Tenant|Agent $owner, $objectData): Supplier

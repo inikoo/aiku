@@ -112,10 +112,19 @@ class Supplier extends Model implements HasMedia
 
     protected static function booted(): void
     {
+        static::creating(
+            function (Supplier $supplier) {
+                $supplier->name = $supplier->company_name == '' ? $supplier->contact_name : $supplier->company_name;
+            }
+        );
+
         static::updated(function (Supplier $supplier) {
             if (!$supplier->wasRecentlyCreated) {
                 if ($supplier->wasChanged('status')) {
                     TenantHydrateProcurement::dispatch(app('currentTenant'));
+                }
+                if ($supplier->wasChanged(['contact_name', 'company_name'])) {
+                    $supplier->name = $supplier->company_name == '' ? $supplier->contact_name : $supplier->company_name;
                 }
             }
         });
