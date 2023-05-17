@@ -12,7 +12,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * App\Models\Inventory\LostAndFoundStock
  *
  * @property int $id
- * @property int $stock_id
+ * @property int $location_id
+ * @property string $code
  * @property string $quantity
  * @property string $stock_value
  * @property string $type

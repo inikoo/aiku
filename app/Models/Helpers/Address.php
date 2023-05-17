@@ -9,7 +9,6 @@ namespace App\Models\Helpers;
 
 use App\Models\Assets\Country;
 use App\Models\Traits\IsAddress;
-use Database\Factories\Helpers\AddressFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -35,7 +34,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read string $formatted_address
  * @property-read Model|\Eloquent $owner
- * @method static AddressFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Helpers\AddressFactory factory($count = null, $state = [])
  * @method static Builder|Address newModelQuery()
  * @method static Builder|Address newQuery()
  * @method static Builder|Address query()

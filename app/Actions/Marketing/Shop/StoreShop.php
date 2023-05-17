@@ -27,7 +27,7 @@ class StoreShop
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
     public function handle(array $modelData): Shop
     {
@@ -39,30 +39,30 @@ class StoreShop
         $shop->mailStats()->create();
         $shop->serialReferences()->create(
             [
-                'model'    => SerialReferenceModelEnum::CUSTOMER,
-                'tenant_id'=> $tenant->id,
+                'model'     => SerialReferenceModelEnum::CUSTOMER,
+                'tenant_id' => $tenant->id,
             ]
         );
         $shop->serialReferences()->create(
             [
-                'model'    => SerialReferenceModelEnum::ORDER,
-                'tenant_id'=> $tenant->id,
+                'model'     => SerialReferenceModelEnum::ORDER,
+                'tenant_id' => $tenant->id,
             ]
         );
 
 
         SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
 
-        $paymentAccount = StorePaymentAccount::run($tenant->accountsServiceProvider(), [
-            'code' => 'accounts-' . $shop->slug,
-            'name' => 'Accounts ' . $shop->code,
+        $paymentAccount       = StorePaymentAccount::run($tenant->accountsServiceProvider(), [
+            'code' => 'accounts-'.$shop->slug,
+            'name' => 'Accounts '.$shop->code,
             'data' => [
                 'service-code' => 'accounts'
             ]
         ]);
-        $paymentAccount->slug = 'accounts-' . $shop->slug;
+        $paymentAccount->slug = 'accounts-'.$shop->slug;
         $paymentAccount->save();
-        $shop=AttachPaymentAccountToShop::run($shop, $paymentAccount);
+        $shop = AttachPaymentAccountToShop::run($shop, $paymentAccount);
 
         foreach (OutboxTypeEnum::cases() as $case) {
             if ($case->scope() == 'shop') {
@@ -86,9 +86,10 @@ class StoreShop
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("shops.edit");
     }
 
@@ -105,6 +106,7 @@ class StoreShop
             'identity_document_type'   => ['nullable', 'string'],
             'type'                     => ['required', Rule::in(ShopTypeEnum::values())],
             'subtype'                  => ['required', Rule::in(ShopSubtypeEnum::values())],
+            'country_id'               => ['required', 'exists:central.countries,id'],
             'currency_id'              => ['required', 'exists:central.currencies,id'],
             'language_id'              => ['required', 'exists:central.languages,id'],
             'timezone_id'              => ['required', 'exists:central.timezones,id'],
@@ -130,7 +132,7 @@ class StoreShop
 
     public function action(array $objectData): Shop
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 

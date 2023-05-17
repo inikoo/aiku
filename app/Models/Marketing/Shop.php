@@ -14,6 +14,7 @@ use App\Enums\Marketing\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
@@ -62,6 +63,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property ShopSubtypeEnum|null $subtype
  * @property string|null $open_at
  * @property string|null $closed_at
+ * @property int $country_id
  * @property int $language_id
  * @property int $currency_id
  * @property int $timezone_id
@@ -73,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Marketing\ShopAccountingStats|null $accountingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
+ * @property-read Country $country
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\ProductCategory> $departments
@@ -224,6 +227,11 @@ class Shop extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
     }
 
     public function paymentAccounts(): BelongsToMany

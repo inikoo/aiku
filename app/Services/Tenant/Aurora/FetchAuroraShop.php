@@ -26,13 +26,10 @@ class FetchAuroraShop extends FetchAurora
         $auroraSettings = json_decode($this->auroraModelData->{'Store Settings'}, true);
 
 
-
-
         $this->parsedData['tax_number'] = $this->parseTaxNumber(
             number: $this->auroraModelData->{'Store VAT Number'},
             countryID: $this->parseCountryID($auroraSettings['tax_country_code'])
         );
-
 
         $this->parsedData['shop'] = [
 
@@ -51,7 +48,7 @@ class FetchAuroraShop extends FetchAurora
 
             'identity_document_number' => $this->auroraModelData->{'Store Company Number'},
 
-
+            'country_id'  => $this->parseCountryID($this->auroraModelData->{'Store Home Country Code 2 Alpha'}),
             'language_id' => $this->parseLanguageID($this->auroraModelData->{'Store Locale'}),
             'currency_id' => $this->parseCurrencyID($this->auroraModelData->{'Store Currency Code'}),
             'timezone_id' => $this->parseTimezoneID($this->auroraModelData->{'Store Timezone'}),

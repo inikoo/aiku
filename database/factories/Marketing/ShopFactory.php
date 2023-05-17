@@ -26,6 +26,7 @@ class ShopFactory extends Factory
             'identity_document_type'   => 'passport',
             'type'                     => ShopTypeEnum::SHOP->value,
             'subtype'                  => ShopSubtypeEnum::B2B->value,
+            'country_id'               => 1,
             'currency_id'              => 1,
             'language_id'              => 1,
             'timezone_id'              => 1,

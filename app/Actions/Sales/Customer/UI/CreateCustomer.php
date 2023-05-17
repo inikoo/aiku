@@ -7,7 +7,10 @@
 
 namespace App\Actions\Sales\Customer\UI;
 
+use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Http\Resources\Helpers\AddressResource;
+use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateCustomer extends InertiaAction
 {
-    public function handle(ActionRequest $request): Response
+    public function handle(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -41,21 +44,37 @@ class CreateCustomer extends InertiaAction
                     'blueprint' =>
                         [
                             [
-                                'title' => __('contact'),
-                                'fields'=> [
-                                    'company_name'=> [
-                                        'type' => 'input',
-                                        'label'=> __('company')
+                                'title'  => __('contact'),
+                                'fields' => [
+                                    'company_name' => [
+                                        'type'  => 'input',
+                                        'label' => __('company')
                                     ],
-                                    'contact_name'=> [
-                                        'type' => 'input',
-                                        'label'=> __('contact name')
-                                    ]
+                                    'contact_name' => [
+                                        'type'  => 'input',
+                                        'label' => __('contact name')
+                                    ],
+                                    'address'      => [
+                                        'type'    => 'address',
+                                        'label'   => __('Address'),
+                                        'value'   => AddressResource::make(
+                                            new Address(
+                                                [
+                                                    'country_id' => $shop->country_id,
+
+                                                ]
+                                            )
+                                        )->getArray(),
+                                        'options' => [
+                                            'countriesAddressData' => GetAddressData::run()
+
+                                        ]
+                                    ],
                                 ]
                             ]
                         ],
                     'route'     => [
-                        'name' => 'models.customer.store'
+                        'name' => 'models.shop.customer.store'
                     ]
                 ]
 
@@ -70,12 +89,11 @@ class CreateCustomer extends InertiaAction
     }
 
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Shop $shop, ActionRequest $request): Response
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle($shop, $request);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

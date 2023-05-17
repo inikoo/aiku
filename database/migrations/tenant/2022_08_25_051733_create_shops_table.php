@@ -32,6 +32,8 @@ return new class () extends Migration {
             $table->string('subtype')->nullable();
             $table->date('open_at')->nullable();
             $table->date('closed_at')->nullable();
+            $table->unsignedSmallInteger('country_id');
+            $table->foreign('country_id')->references('id')->on('public.countries');
             $table->unsignedSmallInteger('language_id');
             $table->foreign('language_id')->references('id')->on('public.languages');
             $table->unsignedSmallInteger('currency_id');

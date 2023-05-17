@@ -37,7 +37,7 @@ use App\Actions\Sales\Customer\UpdateCustomer;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
-Route::post('/customer/', StoreCustomer::class)->name('customer.store');
+Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('store.customer.store');
 
 Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');
 

@@ -108,6 +108,14 @@ class StoreCustomer
         }
     }
 
+    public function asController(Shop $shop, ActionRequest $request): Customer
+    {
+        $request->validate();
+
+        return $this->handle($shop, $request->validated());
+    }
+
+
     /**
      * @throws \Throwable
      */
