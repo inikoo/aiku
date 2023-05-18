@@ -53,13 +53,14 @@ class ShowSupplier extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $supplier),
                 'pageHead'    => [
                     'title' => $supplier->name,
+                    /*
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-
+                    */
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,

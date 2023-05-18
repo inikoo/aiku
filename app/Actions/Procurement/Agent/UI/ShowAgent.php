@@ -56,12 +56,14 @@ class ShowAgent extends InertiaAction
                 'pageHead'    => [
                     'icon'  => 'fal fa-agent',
                     'title' => $agent->name,
+                    /*
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
+                    */
                     'meta'  => [
                         [
                             'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),
