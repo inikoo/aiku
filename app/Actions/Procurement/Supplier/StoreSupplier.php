@@ -29,6 +29,8 @@ class StoreSupplier
 {
     use AsAction;
     use WithAttributes;
+    private bool $asAction=false;
+
 
     public function handle(Tenant|Agent $owner, array $modelData, array $addressData = []): Supplier
     {
@@ -93,15 +95,16 @@ class StoreSupplier
         ];
     }
 
-    public function afterValidator(ActionRequest $request, Validator $validator): void
+    public function afterValidator(Validator $validator): void
     {
-        if (!$request->get('contact_name') and !$request->get('company_name')) {
+        if (!$this->get('contact_name') and !$this->get('company_name')) {
             $validator->errors()->add('contact_name', 'contact name or company name is required');
         }
     }
 
     public function action(Tenant|Agent $owner, $objectData): Supplier
     {
+        $this->asAction=true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
@@ -110,6 +113,7 @@ class StoreSupplier
 
     public function asController(ActionRequest $request): Supplier
     {
+        $this->fillFromRequest($request);
         $request->validate();
 
         return $this->handle(app('currentTenant'), $request->validated());

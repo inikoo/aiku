@@ -104,15 +104,16 @@ class StoreCustomer
         ];
     }
 
-    public function afterValidator(ActionRequest $request, Validator $validator): void
+    public function afterValidator(Validator $validator): void
     {
-        if (!$request->get('contact_name') and !$request->get('company_name')) {
+        if (!$this->get('contact_name') and !$this->get('company_name')) {
             $validator->errors()->add('company_name', 'contact name or company name required');
         }
     }
 
     public function asController(Shop $shop, ActionRequest $request): Customer
     {
+        $this->fillFromRequest($request);
         $request->validate();
 
         return $this->handle($shop, $request->validated());
