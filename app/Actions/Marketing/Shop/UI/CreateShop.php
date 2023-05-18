@@ -7,8 +7,11 @@
 
 namespace App\Actions\Marketing\Shop\UI;
 
+use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\StockFamily\UI\HasUIStockFamilies;
+use App\Http\Resources\Helpers\AddressResource;
+use App\Models\Helpers\Address;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,7 +32,7 @@ class CreateShop extends InertiaAction
                     'title'        => __('new shop'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'inventory.stock-families.index',
+                            'name'       => 'shops.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -38,7 +41,7 @@ class CreateShop extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('create shop'),
+                            'title'  => __('id'),
                             'fields' => [
 
                                 'code' => [
@@ -51,16 +54,89 @@ class CreateShop extends InertiaAction
                                     'label' => __('name'),
                                     'value' => ''
                                 ],
-                                'skus' => [
+                            ]
+                        ],
+                        [
+                            'title'  => __('localization'),
+                            'icon'   => 'fa-light fa-phone',
+                            'fields' => [
+                                'language' => [
+                                    'type'    => 'input',
+                                    'label'   => __('language'),
+                                    'value'   => '',
+                                ],
+                                'currency' => [
+                                    'type'    => 'input',
+                                    'label'   => __('currency'),
+                                    'value'   => '',
+                                ],
+                                'timezone' => [
+                                    'type'    => 'input',
+                                    'label'   => __('timezone'),
+                                    'value'   => '',
+                                ],
+
+                            ]
+                        ],
+                        [
+                            'title'  => __('contact/details'),
+                            'fields' => [
+
+                                'email' => [
+                                    'type'    => 'input',
+                                    'label'   => __('email'),
+                                    'value'   => '',
+                                    'options' => [
+                                        'inputType' => 'email'
+                                    ]
+                                ],
+                                'telephone' => [
                                     'type'  => 'input',
-                                    'label' => __('skus'),
+                                    'label' => __('telephone'),
+                                    'value' => ''
+                                ],
+                                'address' => [
+                                    'type'  => 'address',
+                                    'label' => __('Address'),
+                                    'value' => AddressResource::make(
+                                        new Address(
+                                            [
+                                                'country_id' => app('currentTenant')->country_id,
+
+                                            ]
+                                        )
+                                    )->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+
+                                    ]
+                                ],
+                                'companyName' => [
+                                    'type'  => 'input',
+                                    'label' => __('company name'),
+                                    'value' => ''
+                                ],
+                                'website' => [
+                                    'type'  => 'input',
+                                    'label' => __('website URL'),
+                                    'value' => ''
+                                ],
+                                'companyNumber' => [
+                                    'type'  => 'input',
+                                    'label' => __('company number'),
+                                    'value' => ''
+                                ],
+                                'vat' => [
+                                    'type'  => 'input',
+                                    'label' => __('VAT number'),
                                     'value' => ''
                                 ],
                             ]
-                        ]
+                        ],
+
                     ],
-                    'route'      => [
-                        'name'       => 'models.shop.store',
+                    'route' => [
+                        'name' => 'models.agent.store',
                     ]
                 ],
 
