@@ -7,18 +7,15 @@
 
 namespace App\Actions\Dispatch\Shipment\ApiCalls;
 
-use App\Models\Assets\Country;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-use \stdClass;
+use stdClass;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use ReflectionException;
 use Yasumi\Yasumi;
 
-class GLSsKPrepareShipment
+class GlsSkPrepareShipment
 {
     use AsAction;
     use WithAttributes;
@@ -95,11 +92,12 @@ class GLSsKPrepareShipment
             $holidays = Yasumi::create('Slovakia', $date->format('Y'));
             foreach ($holidays as $day) {
                 if ($day == $formatted_date and in_array(
-                        $day->getType(), [
+                    $day->getType(),
+                    [
                             'bank',
                             'official'
                         ]
-                    )) {
+                )) {
                     return true;
                 }
             }
