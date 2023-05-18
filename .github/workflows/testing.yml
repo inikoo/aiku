@@ -1,14 +1,12 @@
-name: Laravel Test On Push To Main
+name: Backend Tests
 
 on:
   push:
     branches: [ "main" ]
 
-
 jobs:
   laravel-tests:
-    name: Run tests 🧪
-
+    name: Run backend tests 🧪
     runs-on: [ self-hosted, linux, x64,testing ]
     steps:
       - name: Checkout repo

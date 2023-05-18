@@ -16,6 +16,7 @@ use App\Models\Sales\Customer;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Leads\ProspectFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -52,7 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Customer|null $customer
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Leads\ProspectFactory factory($count = null, $state = [])
+ * @method static ProspectFactory factory($count = null, $state = [])
  * @method static Builder|Prospect newModelQuery()
  * @method static Builder|Prospect newQuery()
  * @method static Builder|Prospect onlyTrashed()
@@ -71,15 +72,15 @@ class Prospect extends Model
     use HasFactory;
 
     protected $casts = [
-        'data'            => 'array',
-        'location'        => 'array',
-        'state'           => ProspectStateEnum::class
+        'data'     => 'array',
+        'location' => 'array',
+        'state'    => ProspectStateEnum::class
 
     ];
 
     protected $attributes = [
-        'data'            => '{}',
-        'location'        => '{}',
+        'data'     => '{}',
+        'location' => '{}',
     ];
 
 
@@ -90,7 +91,6 @@ class Prospect extends Model
                 $prospect->name = $prospect->company_name == '' ? $prospect->contact_name : $prospect->company_name;
             }
         );
-
 
 
         static::updated(function (Prospect $prospect) {
@@ -106,10 +106,11 @@ class Prospect extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                $name=$this->company_name == '' ? $this->contact_name : $this->company_name;
-                if ($name!='') {
+                $name = $this->company_name == '' ? $this->contact_name : $this->company_name;
+                if ($name != '') {
                     return Abbreviate::run($name);
                 }
+
                 return ReadableRandomStringGenerator::run();
             })
             ->saveSlugsTo('slug')

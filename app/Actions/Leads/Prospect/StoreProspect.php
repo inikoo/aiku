@@ -11,7 +11,6 @@ use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Leads\Prospect\Hydrators\ProspectHydrateUniversalSearch;
 use App\Models\Leads\Prospect;
 use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -23,9 +22,9 @@ class StoreProspect
 
     private bool $asAction=false;
 
-    public function handle(Shop $shop, $customer, array $modelData, array $addressesData = []): Prospect
+    public function handle(Shop $shop, array $modelData, array $addressesData = []): Prospect
     {
-        $modelData['state'] = $customer->state;
+        /** @var Prospect $prospect */
         $prospect = $shop->prospects()->create($modelData);
         StoreAddressAttachToModel::run($prospect, $addressesData, ['scope' => 'contact']);
 
@@ -52,13 +51,13 @@ class StoreProspect
         ];
     }
 
-    public function action(Shop $shop, Customer $customer, array $objectData, array $addressesData): Prospect
+    public function action(Shop $shop, array $objectData, array $addressesData): Prospect
     {
         $this->asAction=true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($shop, $customer, $validatedData, $addressesData);
+        return $this->handle($shop, $validatedData, $addressesData);
     }
 
 }
