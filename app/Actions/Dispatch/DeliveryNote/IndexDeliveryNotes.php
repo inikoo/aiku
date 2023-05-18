@@ -8,9 +8,10 @@
 namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
@@ -20,7 +21,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 

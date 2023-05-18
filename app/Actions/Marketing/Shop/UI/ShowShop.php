@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 17:04:31 Central European Summer Time, Benalmádena, Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Thu, 18 May 2023 14:27:38 Central European Summer Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Marketing\Shop;
+namespace App\Actions\Marketing\Shop\UI;
 
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;

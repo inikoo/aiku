@@ -8,9 +8,10 @@
 namespace App\Actions\Leads\Prospect;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Lead\ProspectResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Leads\Prospect;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
@@ -19,7 +20,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 

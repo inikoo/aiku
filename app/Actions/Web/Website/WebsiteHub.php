@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Actions\Web\Webpage\IndexWebpages;

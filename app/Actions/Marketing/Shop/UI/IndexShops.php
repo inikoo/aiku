@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 16:30:07 Central European Summer Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Thu, 18 May 2023 14:27:33 Central European Summer Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Marketing\Shop;
+namespace App\Actions\Marketing\Shop\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Dashboard\Dashboard;
@@ -92,6 +92,13 @@ class IndexShops extends InertiaAction
                 'title'       => __('shops'),
                 'pageHead'    => [
                     'title' => __('shops'),
+                    'create'  => $this->canEdit && $this->routeName=='shops.index' ? [
+                        'route' => [
+                            'name'       => 'shops.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'=> __('shop')
+                    ] : false,
                 ],
                 'data'       => ShopResource::collection($shops),
 

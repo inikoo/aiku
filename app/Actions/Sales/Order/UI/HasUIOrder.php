@@ -7,7 +7,7 @@
 
 namespace App\Actions\Sales\Order\UI;
 
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\Sales\Customer\UI\ShowCustomer;
 
 trait HasUIOrder

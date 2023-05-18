@@ -7,7 +7,7 @@
 
 namespace App\Actions\Marketing\Product\UI;
 
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;

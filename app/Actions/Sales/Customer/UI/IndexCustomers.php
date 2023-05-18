@@ -8,10 +8,11 @@
 namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\CustomerResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Closure;
@@ -19,7 +20,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 

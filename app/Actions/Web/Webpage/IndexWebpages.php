@@ -8,18 +8,18 @@
 namespace App\Actions\Web\Webpage;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Http\Resources\Marketing\WebpageResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Web\Webpage;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 

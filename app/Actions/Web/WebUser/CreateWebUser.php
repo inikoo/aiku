@@ -8,7 +8,7 @@
 namespace App\Actions\Web\WebUser;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Enums\Web\WebUser\WebUserTypeEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;

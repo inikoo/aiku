@@ -8,11 +8,9 @@
 namespace App\Actions\UI\Accounting;
 
 use App\Actions\InertiaAction;
-
-use App\Actions\Marketing\Shop\ShowShop;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\CatalogueTabsEnum;
-
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\ActionRequest;
 

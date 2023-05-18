@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\IndexShops;
+use App\Actions\Marketing\Shop\UI\IndexShops;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Enums\UI\InvoiceTabsEnum;
