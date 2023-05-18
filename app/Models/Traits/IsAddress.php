@@ -8,25 +8,16 @@
 namespace App\Models\Traits;
 
 use App\Models\Assets\Country;
-use App\Models\Helpers\BaseAddress;
 use CommerceGuys\Addressing\Address as Adr;
 use CommerceGuys\Addressing\AddressFormat\AddressFormatRepository;
 use CommerceGuys\Addressing\Country\CountryRepository;
 use CommerceGuys\Addressing\Formatter\DefaultFormatter;
 use CommerceGuys\Addressing\ImmutableAddressInterface;
 use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-
 
 trait IsAddress
 {
-
-
-
-
-
     private function getAdr(): ImmutableAddressInterface|Adr
     {
         $address = new Adr();
