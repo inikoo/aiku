@@ -131,4 +131,19 @@ class CreateShop extends InertiaAction
 
         return $this->handle();
     }
+
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            IndexShops::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'          => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __("creating shop"),
+                    ]
+                ]
+            ]
+        );
+    }
 }
