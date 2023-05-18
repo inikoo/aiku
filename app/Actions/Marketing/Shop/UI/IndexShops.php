@@ -67,6 +67,8 @@ class IndexShops extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('shops');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -91,7 +93,7 @@ class IndexShops extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('shops'),
                 'pageHead'    => [
-                    'title' => __('shops'),
+                    'title'   => __('shops'),
                     'create'  => $this->canEdit && $this->routeName=='shops.index' ? [
                         'route' => [
                             'name'       => 'shops.create',
