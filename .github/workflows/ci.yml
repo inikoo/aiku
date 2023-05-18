@@ -9,7 +9,7 @@ jobs:
   laravel-tests:
     name: Run tests 🧪
 
-    runs-on: testing
+    runs-on: [ self-hosted, linux, x64,testing ]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
