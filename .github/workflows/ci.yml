@@ -27,3 +27,5 @@ jobs:
           done
       - name: Install composer dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Prepare environment
+        run:  ln -s ../../../../env.testing .env.testing
