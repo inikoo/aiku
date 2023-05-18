@@ -2,7 +2,7 @@ name: Laravel Test On Push To Main
 
 on:
   push:
-    branches: [ "experimental" ]
+    branches: [ "main" ]
 
 
 jobs:
