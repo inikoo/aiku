@@ -7,11 +7,8 @@
 
 namespace App\Actions\Marketing\Shop\UI;
 
-use App\Actions\Assets\Country\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\StockFamily\UI\HasUIStockFamilies;
-use App\Http\Resources\Helpers\AddressResource;
-use App\Models\Helpers\Address;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -60,19 +57,24 @@ class CreateShop extends InertiaAction
                             'title'  => __('localization'),
                             'icon'   => 'fa-light fa-phone',
                             'fields' => [
-                                'language' => [
+                                'language_id' => [
                                     'type'    => 'input',
                                     'label'   => __('language'),
                                     'value'   => '',
                                 ],
-                                'currency' => [
+                                'currency_id' => [
                                     'type'    => 'input',
                                     'label'   => __('currency'),
                                     'value'   => '',
                                 ],
-                                'timezone' => [
+                                'timezone_id' => [
                                     'type'    => 'input',
                                     'label'   => __('timezone'),
+                                    'value'   => '',
+                                ],
+                                'country_id' => [
+                                    'type'    => 'input',
+                                    'label'   => __('country'),
                                     'value'   => '',
                                 ],
 
@@ -81,7 +83,16 @@ class CreateShop extends InertiaAction
                         [
                             'title'  => __('contact/details'),
                             'fields' => [
-
+                                'contact_name' => [
+                                    'type'    => 'input',
+                                    'label'   => __('contact name'),
+                                    'value'   => '',
+                                ],
+                                'company_name' => [
+                                    'type'    => 'input',
+                                    'label'   => __('company name'),
+                                    'value'   => '',
+                                ],
                                 'email' => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
@@ -90,45 +101,9 @@ class CreateShop extends InertiaAction
                                         'inputType' => 'email'
                                     ]
                                 ],
-                                'telephone' => [
+                                'phone' => [
                                     'type'  => 'input',
                                     'label' => __('telephone'),
-                                    'value' => ''
-                                ],
-                                'address' => [
-                                    'type'  => 'address',
-                                    'label' => __('Address'),
-                                    'value' => AddressResource::make(
-                                        new Address(
-                                            [
-                                                'country_id' => app('currentTenant')->country_id,
-
-                                            ]
-                                        )
-                                    )->getArray(),
-                                    'options' => [
-                                        'countriesAddressData' => GetAddressData::run()
-
-                                    ]
-                                ],
-                                'companyName' => [
-                                    'type'  => 'input',
-                                    'label' => __('company name'),
-                                    'value' => ''
-                                ],
-                                'website' => [
-                                    'type'  => 'input',
-                                    'label' => __('website URL'),
-                                    'value' => ''
-                                ],
-                                'companyNumber' => [
-                                    'type'  => 'input',
-                                    'label' => __('company number'),
-                                    'value' => ''
-                                ],
-                                'vat' => [
-                                    'type'  => 'input',
-                                    'label' => __('VAT number'),
                                     'value' => ''
                                 ],
                             ]
