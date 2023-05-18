@@ -10,8 +10,6 @@ use Tests\TestCase;
 
 uses(TestCase::class)->in('Feature');
 
-
-
 function loadDB($dumpName): void
 {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../', '.env.testing');
@@ -20,6 +18,7 @@ function loadDB($dumpName): void
         [
             __DIR__.'/../devops/devel/reset_test_database.sh',
             env('DB_DATABASE_TEST', 'aiku_test'),
+            env('DB_PORT'),
             env('DB_USERNAME'),
             env('DB_PASSWORD'),
             $dumpName
