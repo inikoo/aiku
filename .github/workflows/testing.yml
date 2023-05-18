@@ -28,3 +28,5 @@ jobs:
           ln -s ../../../../env.testing .env
       - name: Generate database dumps 📚
         run: ./generate_testing_db_dumps.sh ${{vars.TESTING_DB_PORT}}
+      - name: Run test
+        run: vendor/bin/pest
