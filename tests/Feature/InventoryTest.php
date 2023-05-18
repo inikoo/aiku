@@ -97,13 +97,14 @@ test('create another stock', function () {
 });
 
 test('attach stock to location', function ($location) {
-    $stocks = Stock::all();
+    $stocks   = Stock::all();
     $location = AttachStockToLocation::run($location, $stocks->pluck('id'));
     $this->assertModelExists($location);
 })->depends('create location in warehouse area');
 
 test('create trade unit', function () {
     $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
+    $this->assertModelExists($tradeUnit);
 
     return $tradeUnit->fresh();
 });
