@@ -6,8 +6,6 @@
  */
 
 
-use App\Actions\Procurement\Agent\UI\CreateAgent;
-use App\Actions\Procurement\Agent\UI\EditAgent;
 use App\Actions\Procurement\Agent\UI\IndexAgents;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\Procurement\Marketplace\Agent\UI\CreateMarketplaceAgent;
@@ -22,8 +20,6 @@ use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
-use App\Actions\Procurement\Supplier\UI\CreateSupplier;
-use App\Actions\Procurement\Supplier\UI\EditSupplier;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Actions\Procurement\Supplier\UI\ShowSupplier;
 use App\Actions\Procurement\SupplierDelivery\UI\CreateSupplierDelivery;
@@ -65,6 +61,7 @@ Route::get('/marketplace-agents/{agent}/edit', EditMarketplaceAgent::class)->nam
 Route::get('/marketplace-agents/{agent}/suppliers', [IndexMarketplaceSuppliers::class, 'inAgent'])->name('marketplace-agents.show.suppliers.index');
 Route::get('/marketplace-agents/{agent}/suppliers/create', [CreateMarketplaceSupplier::class, 'inAgent'])->name('marketplace-agents.show.suppliers.create');
 Route::get('/marketplace-agents/{agent}/suppliers/{supplier}', [ShowMarketplaceSupplier::class, 'inAgent'])->name('marketplace-agents.show.suppliers.show');
+Route::get('/marketplace-agents/{agent}/suppliers/{supplier}/edit', [EditMarketplaceSupplier::class, 'inAgent'])->name('marketplace-agents.show.suppliers.edit');
 
 //Route::get('/marketplace-agents/{agent}/supplier-products', [IndexMarketplaceSupplierProducts::class, 'inAgent'])->name('marketplace-agents.show.supplier-products.index');
 //Route::get('/marketplace-agents/{agent}/supplier-products/{supplierProducts}', [ShowMarketplaceSupplierProduct::class, 'inAgent'])->name('marketplace-agents.show.supplier-products.show');

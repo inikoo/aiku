@@ -13,6 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property string $name
  * @property string $slug
+ * @property string $agent_slug
  * @property string $created_at
  * @property string $updated_at
  * @property numeric $number_suppliers_deliveries
@@ -29,6 +30,7 @@ class MarketplaceSupplierResource extends JsonResource
             'code'                          => $this->code,
             'name'                          => $this->name,
             'slug'                          => $this->slug,
+            'agent_slug'                    => 'awindia',//$this->agent_slug,
             'location'                      => $this->location,
             'number_suppliers_deliveries'   => $this->number_suppliers_deliveries,
             'number_supplier_products'      => $this->number_supplier_products,

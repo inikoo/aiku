@@ -25,22 +25,6 @@ function warehouseRoute(warehouse: Warehouse) {
 }
 
 
-function warehouseAreaRoute(warehouse: Warehouse) {
-    switch (route().current()) {
-
-        case 'inventory.warehouses.index':
-        case 'inventory.warehouses.show.warehouse-areas.index':
-            return route(
-                'inventory.warehouses.show.warehouse-areas.show.locations.index',
-                [warehouseArea.warehouse_slug, warehouseArea.slug]);
-        case 'inventor.warehouse-areas.index':
-        default:
-            return route(
-                'inventory.warehouse-areas.show.locations.index',
-                [warehouseArea.slug]);
-    }
-
-}
 
 </script>
 
@@ -49,7 +33,7 @@ function warehouseAreaRoute(warehouse: Warehouse) {
     <Table :resource="data" :name="'w'" class="mt-5">
         <template #cell(code)="{ item: warehouse }">
             <Link :href="warehouseRoute(warehouse)">
-                {{ warehouse.code }}
+                {{ warehouse['code'] }}
             </Link>
         </template>
         <template #cell(number_warehouse_areas)="{ item: warehouse }">

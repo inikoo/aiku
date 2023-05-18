@@ -28,7 +28,6 @@ class IndexMarketplaceSuppliers extends InertiaAction
 {
     public function handle($parent): LengthAwarePaginator
     {
-
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('suppliers.code', 'LIKE', "$value%")

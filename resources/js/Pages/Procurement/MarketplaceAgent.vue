@@ -34,7 +34,7 @@ import {
     faTerminal,
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
-import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
+import TableMarketplaceSuppliers from "@/Pages/Tables/TableMarketplaceSuppliers.vue";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 
 library.add(
@@ -53,7 +53,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        suppliers: TableSuppliers,
+        suppliers: TableMarketplaceSuppliers,
         supplier_products: TableSupplierProducts,
         details: ModelDetails,
         history: ModelChangelog

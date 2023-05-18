@@ -22,6 +22,11 @@ function marketplacesAgentRoute(marketplaceAgent: MarketplaceAgent) {
             return route(
                 'procurement.marketplace-agents.show',
                 [marketplaceAgent.slug]);
+        case 'procurement.marketplace-agents.show.suppliers.index':
+            return route(
+                'procurement.marketplace-agents.show.suppliers.show',
+                [marketplaceAgent.slug]
+            )
     }
 }
 

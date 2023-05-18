@@ -5,6 +5,7 @@
  */
 
 export interface MarketplaceSupplier {
+    agent_slug:string,
     slug:string,
     provider_id: string,
     provider_type: string,

@@ -8,7 +8,6 @@
 namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Supplier\UI\HasUISupplier;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Supplier;
 use Inertia\Inertia;
@@ -18,7 +17,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditMarketplaceSupplier extends InertiaAction
 {
-    use HasUISupplier;
     public function handle(Supplier $supplier): Supplier
     {
         return $supplier;

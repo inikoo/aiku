@@ -23,7 +23,6 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowSupplier extends InertiaAction
 {
-    use HasUISupplier;
     public function handle(Supplier $supplier): Supplier
     {
         return $supplier;
