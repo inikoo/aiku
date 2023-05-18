@@ -9,10 +9,7 @@ jobs:
   laravel-tests:
     name: Run tests 🧪
 
-    runs-on: self-hosted
-    defaults:
-      run:
-        working-directory: testing
+    runs-on: testing
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
