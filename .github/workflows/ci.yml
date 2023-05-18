@@ -11,6 +11,9 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install npm
+        run: npm ci
+      - name: file changes
+        uses: trilom/file-changes-action@v1.2.4
