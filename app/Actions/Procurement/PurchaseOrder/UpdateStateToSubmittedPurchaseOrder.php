@@ -26,7 +26,6 @@ class UpdateStateToSubmittedPurchaseOrder
      */
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
-        dd($purchaseOrder);
         $data = [
             'state' => PurchaseOrderStateEnum::SUBMITTED
         ];
