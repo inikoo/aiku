@@ -33,8 +33,8 @@ class GroupUserHydrateTenants implements ShouldBeUnique
 
         $groupUser->update(
             [
-                'number_users'        => $groupUser->users()->count(),
-                'number_active_users' => $groupUser->users()->where('status', true)->count(),
+                'number_users'        => $groupUser->tenants()->count(),
+                'number_active_users' => $groupUser->tenants()->where('status', true)->count(),
                 'data->names'         => $userNameInfo
             ]
         );
