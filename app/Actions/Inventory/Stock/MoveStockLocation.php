@@ -7,27 +7,24 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\WithActionUpdate;
-use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationStock;
-use App\Models\Inventory\Stock;
 use Lorisleiva\Actions\ActionRequest;
 
 class MoveStockLocation
 {
     use WithActionUpdate;
 
-    public function handle(LocationStock $currentLocationStock, LocationStock $targetLocationStock, array $modelData): LocationStock
+    public function handle(LocationStock $currentLocationStock, Location $targetLocation, array $movementData): LocationStock
     {
         $this->update($currentLocationStock, [
-            'quantity' => $currentLocationStock->quantity - $modelData['quantity'],
+            'quantity' => $currentLocationStock->quantity - $movementData['quantity'],
         ]);
 
-        $this->update($targetLocationStock, [
-            'quantity' => (float) $targetLocationStock->quantity + (float) $modelData['quantity'],
+        $this->update($targetLocation, [
+            'quantity' => (float) $targetLocation->quantity + (float) $movementData['quantity'],
         ]);
 
         HydrateWarehouse::run($currentLocationStock->location->warehouse);
@@ -42,17 +39,17 @@ class MoveStockLocation
         ];
     }
 
-    public function action(LocationStock $currentLocationStock, LocationStock $targetLocationStock, $objectData): LocationStock
+    public function action(LocationStock $currentLocationStock, LocationStock $targetLocation, $objectData): LocationStock
     {
         $this->setRawAttributes($objectData);
         $this->validateAttributes();
 
-        return $this->handle($currentLocationStock, $targetLocationStock, $objectData);
+        return $this->handle($currentLocationStock, $targetLocation, $objectData);
     }
 
-    public function asController(LocationStock $currentLocationStock, LocationStock $targetLocationStock, ActionRequest $request): LocationStock
+    public function asController(LocationStock $currentLocationStock, LocationStock $targetLocation, ActionRequest $request): LocationStock
     {
         $request->validate();
-        return $this->handle($currentLocationStock, $targetLocationStock, $request->all());
+        return $this->handle($currentLocationStock, $targetLocation, $request->all());
     }
 }

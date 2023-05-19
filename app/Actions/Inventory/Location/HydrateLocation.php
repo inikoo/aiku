@@ -9,7 +9,6 @@ namespace App\Actions\Inventory\Location;
 
 use App\Actions\HydrateModel;
 use App\Models\Inventory\Location;
-use App\Models\Inventory\Stock;
 use Illuminate\Support\Collection;
 
 class HydrateLocation extends HydrateModel
@@ -34,7 +33,7 @@ class HydrateLocation extends HydrateModel
 
     public function stocks(Location $location): void
     {
-        $numberStockSlots = $location->stocks->count();
+        $numberStockSlots = $location->stocks()->count();
         $stats            = [
             'number_stock_slots' => $numberStockSlots,
         ];

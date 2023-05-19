@@ -30,7 +30,6 @@ class StoreWarehouse
         $warehouse = Warehouse::create($modelData);
         $warehouse->stats()->create();
         TenantHydrateWarehouse::run(app('currentTenant'));
-
         WarehouseHydrateUniversalSearch::dispatch($warehouse);
 
         return $warehouse;

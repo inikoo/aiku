@@ -7,21 +7,22 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Actions\Inventory\Location\HydrateLocation;
-use App\Actions\Inventory\Warehouse\HydrateWarehouse;
+use App\Actions\Inventory\Location\Hydrators\LocationHydrateStocks;
+use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class AttachStockToLocation
 {
     use AsAction;
 
-    public function handle(Location $location, $stockIds): Location
+    public function handle(Location $location, Stock $stock): Location
     {
-        $location->stocks()->attach($stockIds);
+        $location->stocks()->attach([$stock->id]);
 
-        HydrateWarehouse::run($location->warehouse);
-        HydrateLocation::run($location);
+        LocationHydrateStocks::dispatch($location);
+        LocationHydrateStockValue::dispatch($location);
 
         return $location;
     }

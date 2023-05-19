@@ -8,27 +8,23 @@
 use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
+use App\Stubs\Migrations\HasLocationsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasLocationsStats;
+
     public function up(): void
     {
         Schema::create('tenant_inventory_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('public.tenants')->onUpdate('cascade')->onDelete('cascade');
-
             $table->unsignedSmallInteger('number_warehouses')->default(0);
-
             $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
-
-            $table->unsignedInteger('number_locations')->default(0);
-            $table->unsignedInteger('number_locations_state_operational')->default(0);
-            $table->unsignedInteger('number_locations_state_broken')->default(0);
-            $table->unsignedSmallInteger('number_empty_locations')->default(0);
-
+            $table = $this->locationsStats($table);
 
             $table->unsignedBigInteger('number_stock_families')->default(0);
 

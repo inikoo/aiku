@@ -24,7 +24,7 @@ class StockFamilyHydrateStocks implements ShouldBeUnique
     public function handle(StockFamily $stockFamily): void
     {
         $stats = [
-            'number_stocks' => $stockFamily->stocks->count(),
+            'number_stocks' => $stockFamily->stocks()->count(),
         ];
 
         $stateCounts = Stock::where('stock_family_id', $stockFamily->id)

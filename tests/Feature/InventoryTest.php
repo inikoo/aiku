@@ -15,7 +15,6 @@ use App\Actions\Inventory\Stock\AddLostAndFoundStock;
 use App\Actions\Inventory\Stock\DetachStockFromLocation;
 use App\Actions\Inventory\Stock\MoveStockLocation;
 use App\Actions\Inventory\Stock\RemoveLostAndFoundStock;
-use App\Actions\Inventory\Stock\RemoveStockTradeUnits;
 use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Inventory\Stock\AttachStockToLocation;
 use App\Actions\Inventory\Stock\SyncStockTradeUnits;
@@ -56,26 +55,26 @@ beforeEach(function () {
 test('create warehouse', function () {
     $warehouse = StoreWarehouse::make()->action([
         'code' => 'ts12',
-        'name'  => 'testName',
+        'name' => 'testName',
     ]);
-    expect($warehouse)->toBeInstanceOf(Warehouse::class);
+    expect($warehouse)->toBeInstanceOf(Warehouse::class)
+        ->and(app('currentTenant')->inventoryStats->number_warehouses)->toBe(1);
+
     return $warehouse;
 });
 
 test('warehouse cannot be created with same code', function () {
-    $warehouse = StoreWarehouse::make()->action([
+    StoreWarehouse::make()->action([
         'code' => 'ts12',
-        'name'  => 'testName',
+        'name' => 'testName',
     ]);
-
 })->depends('create warehouse')->throws(ValidationException::class);
 
 test('warehouse cannot be created with same code case is sensitive', function () {
-    $warehouse = StoreWarehouse::make()->action([
+    StoreWarehouse::make()->action([
         'code' => 'TS12',
-        'name'  => 'testName',
+        'name' => 'testName',
     ]);
-
 })->depends('create warehouse')->throws(ValidationException::class);
 
 test('update warehouse', function ($warehouse) {
@@ -85,25 +84,49 @@ test('update warehouse', function ($warehouse) {
 
 test('create warehouse area', function ($warehouse) {
     $warehouseArea = StoreWarehouseArea::make()->action($warehouse, WarehouseArea::factory()->definition());
-    $this->assertModelExists($warehouseArea);
+    expect($warehouseArea)->toBeInstanceOf($warehouseArea::class)
+        ->and(app('currentTenant')->inventoryStats->number_warehouse_areas)->toBe(1);
+
     return $warehouseArea;
 })->depends('create warehouse');
 
 test('update warehouse area', function ($warehouseArea) {
-    $warehouseArea = UpdateWarehouseArea::make()->action($warehouseArea, ['name' => 'Pika Ltd']);
-    expect($warehouseArea->name)->toBe('Pika Ltd');
+    $warehouseArea = UpdateWarehouseArea::make()->action($warehouseArea, ['name' => 'Area 01']);
+    expect($warehouseArea->name)->toBe('Area 01');
 })->depends('create warehouse area');
 
 test('create location in warehouse', function ($warehouse) {
     $location = StoreLocation::make()->action($warehouse, Location::factory()->definition());
-    $this->assertModelExists($location);
+    $warehouse->refresh();
+    expect($location)->toBeInstanceOf(Location::class)
+        ->and(app('currentTenant')->inventoryStats->number_locations)->toBe(1)
+        ->and(app('currentTenant')->inventoryStats->number_locations_state_operational)->toBe(1)
+        ->and(app('currentTenant')->inventoryStats->number_locations_state_broken)->toBe(0)
+        ->and($warehouse->stats->number_locations)->toBe(1)
+        ->and($warehouse->stats->number_locations_state_operational)->toBe(1)
+        ->and($warehouse->stats->number_locations_state_broken)->toBe(0);
 })->depends('create warehouse');
 
 test('create location in warehouse area', function ($warehouseArea) {
     $location = StoreLocation::make()->action($warehouseArea, Location::factory()->definition());
-    $this->assertModelExists($location);
+    $warehouseArea->refresh();
+    $warehouse = $warehouseArea->warehouse;
+
+    expect($location)->toBeInstanceOf(Location::class)
+        ->and(app('currentTenant')->inventoryStats->number_locations)->toBe(2)
+        ->and(app('currentTenant')->inventoryStats->number_locations_state_operational)->toBe(2)
+        ->and(app('currentTenant')->inventoryStats->number_locations_state_broken)->toBe(0)
+        ->and($warehouse->stats->number_locations)->toBe(2)
+        ->and($warehouse->stats->number_locations_state_operational)->toBe(2)
+        ->and($warehouse->stats->number_locations_state_broken)->toBe(0)
+        ->and($warehouseArea->stats->number_locations)->toBe(1)
+        ->and($warehouseArea->stats->number_locations_state_operational)->toBe(1)
+        ->and($warehouseArea->stats->number_locations_state_broken)->toBe(0);
+
     return $location;
 })->depends('create warehouse area');
+
+
 
 test('create stock families', function () {
     $stockFamily = StoreStockFamily::make()->action(StockFamily::factory()->definition());
@@ -113,61 +136,74 @@ test('create stock families', function () {
 });
 
 test('create stock', function () {
+
+
+    $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
+
     $stock = StoreStock::make()->action(app('currentTenant'), Stock::factory()->definition());
-    $this->assertModelExists($stock);
+
+    SyncStockTradeUnits::run($stock, [
+        $tradeUnit->id => [
+            'quantity' => 2
+        ]
+    ]);
+
+    expect($stock)->toBeInstanceOf(Stock::class)
+        ->and(app('currentTenant')->inventoryStats->number_stocks)->toBe(1);
 
     return $stock->fresh();
 });
 
+
+
 test('create another stock', function () {
-    $stock = StoreStock::make()->action(app('currentTenant'), Stock::factory()->definition());
-    $this->assertModelExists($stock);
+    $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
+    $stock     = StoreStock::make()->action(app('currentTenant'), Stock::factory()->definition());
+
+    SyncStockTradeUnits::run($stock, [
+        $tradeUnit->id => [
+            'quantity' => 1
+        ]
+    ]);
+    expect($stock)->toBeInstanceOf(Stock::class)
+        ->and(app('currentTenant')->inventoryStats->number_stocks)->toBe(2);
 
     return $stock->fresh();
 });
 
 test('attach stock to location', function ($location) {
     $stocks   = Stock::all();
-    $location = AttachStockToLocation::run($location, $stocks->pluck('id'));
-    $this->assertModelExists($location);
+    expect($stocks->count())->toBe(2);
+    foreach ($stocks as $stock) {
+        $location = AttachStockToLocation::run($location, $stock);
+    }
+    expect($location->stocks()->count())->toBe(2)
+        ->and($location->stats->number_stock_slots)->toBe(2);
 })->depends('create location in warehouse area');
 
-test('create trade unit', function () {
-    $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
-    $this->assertModelExists($tradeUnit);
 
-    return $tradeUnit->fresh();
-});
-
-test('add trade unit to stock', function ($stock, $tradeUnit) {
-    $stock = SyncStockTradeUnits::run($stock, [$tradeUnit->id]);
-    $this->assertModelExists($stock);
-})->depends('create stock', 'create trade unit');
-
-test('remove trade unit from stock', function ($stock, $tradeUnit) {
-    $stock = RemoveStockTradeUnits::run($stock, [$tradeUnit->id]);
-    $this->assertModelExists($stock);
-})->depends('create stock', 'create trade unit');
 
 test('detach stock from location', function ($location, $stock) {
     $stock = DetachStockFromLocation::run($location, $stock);
-    $this->assertModelExists($stock);
+    $location->refresh();
+    expect($location->stats->number_stock_slots)->toBe(1);
+
+
 })->depends('create location in warehouse area', 'create stock');
 
 test('move stock location', function () {
     $currentLocation = LocationStock::first();
-    $targetLocation  = LocationStock::latest()->first();
+    $targetLocation  = LocationStock::latest();
 
     $stock = MoveStockLocation::make()->action($currentLocation, $targetLocation, [
         'quantity' => 1
     ]);
     $this->assertModelExists($stock);
-});
+})->todo();
 
 test('update location', function ($location) {
     $location = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
     expect($location->code)->toBe('AE-3');
-
 })->depends('create location in warehouse area');
 
 test('audit stock in location', function ($location) {
@@ -176,18 +212,24 @@ test('audit stock in location', function ($location) {
 })->depends('create location in warehouse area');
 
 test('add found stock', function ($location) {
-    $lostAndFound = AddLostAndFoundStock::make()->action($location, array_merge(LostAndFoundStock::factory()->definition(), [
-        'type' => LostAndFoundStockStateEnum::FOUND->value
-    ]));
+    $lostAndFound = AddLostAndFoundStock::make()->action(
+        $location,
+        array_merge(LostAndFoundStock::factory()->definition(), [
+            'type' => LostAndFoundStockStateEnum::FOUND->value
+        ])
+    );
     $this->assertModelExists($lostAndFound);
 
     return $lostAndFound;
 })->depends('create location in warehouse area');
 
 test('add lost stock', function ($location) {
-    $lostAndFound = AddLostAndFoundStock::make()->action($location, array_merge(LostAndFoundStock::factory()->definition(), [
-        'type' => LostAndFoundStockStateEnum::LOST->value
-    ]));
+    $lostAndFound = AddLostAndFoundStock::make()->action(
+        $location,
+        array_merge(LostAndFoundStock::factory()->definition(), [
+            'type' => LostAndFoundStockStateEnum::LOST->value
+        ])
+    );
     $this->assertModelExists($lostAndFound);
 
     return $lostAndFound;

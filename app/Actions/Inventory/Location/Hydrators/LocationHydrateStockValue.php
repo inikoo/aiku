@@ -1,0 +1,34 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 19 May 2023 22:57:07 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Inventory\Location\Hydrators;
+
+use App\Actions\WithTenantJob;
+use App\Models\Inventory\Location;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+class LocationHydrateStockValue implements ShouldBeUnique
+{
+    use AsAction;
+    use WithTenantJob;
+
+    public function handle(Location $location): void
+    {
+        $stockValue = $location->stocks()->sum('value');
+
+        $location->stats->update([
+            'stock_value' => $stockValue
+        ]);
+
+    }
+
+    public function getJobUniqueId(Location $location): int
+    {
+        return $location->id;
+    }
+}
