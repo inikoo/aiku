@@ -1,0 +1,339 @@
+<?php
+/*
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Mon, 08 May 2023 09:03:42 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Procurement\Agent\ChangeAgentOwner;
+use App\Actions\Procurement\Agent\StoreAgent;
+use App\Actions\Procurement\Agent\UpdateAgent;
+use App\Actions\Procurement\Agent\UpdateAgentVisibility;
+use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderItemQuantity;
+use App\Actions\Procurement\PurchaseOrder\UpdateStateToCheckedPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdateStateToConfirmPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdateStateToCreatingPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdateStateToDispatchedPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdateStateToManufacturedPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdateStateToReceivedPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdateStateToSettledPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdateStateToSubmittedPurchaseOrder;
+use App\Actions\Procurement\Supplier\GetSupplier;
+use App\Actions\Procurement\Supplier\StoreSupplier;
+use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
+use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
+use App\Actions\Tenancy\Group\StoreGroup;
+use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Models\Goods\TradeUnit;
+use App\Models\Helpers\Address;
+use App\Models\Procurement\Agent;
+use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\PurchaseOrderItem;
+use App\Models\Procurement\Supplier;
+use App\Models\Procurement\SupplierProduct;
+use App\Models\Tenancy\Group;
+use App\Models\Tenancy\Tenant;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
+
+beforeAll(function () {
+    loadDB('test_base_database.dump');
+});
+
+
+beforeEach(function () {
+    $tenant = Tenant::first();
+    if (!$tenant) {
+        $group = StoreGroup::make()->asAction(
+            array_merge(
+                Group::factory()->definition(),
+                [
+                    'code' => 'ACME'
+                ]
+            )
+        );
+        $tenant = StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code' => 'AGB'
+                ]
+            )
+        );
+        StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code' => 'AUS'
+                ]
+            )
+        );
+    }
+    $tenant->makeCurrent();
+});
+
+test('create agent', function () {
+    $agent = StoreAgent::make()->action(app('currentTenant'), Agent::factory()->definition(), Address::factory()->definition());
+    $this->assertModelExists($agent);
+    return $agent;
+});
+
+test('number of agents should be one', function () {
+    $this->assertEquals(1, app('currentTenant')->procurementStats->number_agents);
+})->depends('create agent');
+
+test('create another agent', function () {
+    $agent = StoreAgent::make()->action(app('currentTenant'), Agent::factory()->definition(), Address::factory()->definition());
+    $this->assertModelExists($agent);
+});
+
+test('number of agents should be two', function () {
+    $this->assertEquals(2, app('currentTenant')->procurementStats->number_agents);
+})->depends('create agent', 'create another agent');
+
+test('check if agent match with tenant', function ($agent) {
+    $agent = $agent->where('owner_id', app('currentTenant')->id)->first();
+
+    $this->assertModelExists($agent);
+})->depends('create agent');
+
+test('check if agent not match with tenant', function ($agent) {
+    $tenant2 = Tenant::where('slug', 'aus')->first();
+    $tenant2->makeCurrent();
+
+    $agent = $agent->where('owner_id', app('currentTenant')->id)->first();
+
+    expect($agent)->toBeNull();
+})->depends('create agent');
+
+test('cant change agent visibility to private', function ($agent) {
+    expect(function () use ($agent) {
+        UpdateAgentVisibility::make()->action($agent, false);
+    })->toThrow(ValidationException::class);
+})->depends('create agent');
+
+test('change agent visibility to public', function ($agent) {
+    $agent = UpdateAgentVisibility::make()->action($agent->first(), false);
+
+    $this->assertModelExists($agent);
+})->depends('create agent');
+
+test('change agent owner', function ($agent) {
+    $agent = ChangeAgentOwner::run($agent, app('currentTenant'));
+
+    $this->assertModelExists($agent);
+})->depends('create agent');
+
+test('check if last tenant cant update', function ($agent) {
+    $tenant2 = Tenant::where('slug', 'aus')->first();
+    $tenant2->makeCurrent();
+
+    expect(function () use ($agent) {
+        UpdateAgent::make()->action($agent, Agent::factory()->definition());
+    })->toThrow(ValidationException::class);
+})->depends('create agent');
+
+test('create independent supplier', function () {
+    $supplier = StoreSupplier::make()->action(app('currentTenant'), Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
+    $this->assertModelExists($supplier);
+
+    return $supplier;
+});
+
+test('number independent supplier should be one', function () {
+    $this->assertEquals(1, app('currentTenant')->procurementStats->number_suppliers);
+});
+
+test('create independent supplier 2', function () {
+    $supplier = StoreSupplier::make()->action(app('currentTenant'), Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
+    $this->assertModelExists($supplier);
+
+    return $supplier;
+});
+
+test('number independent supplier should be two', function () {
+    $this->assertEquals(2, app('currentTenant')->procurementStats->number_suppliers);
+});
+
+test('create supplier in agent', function ($agent) {
+    expect($agent->stats->number_suppliers)->toBe(0);
+    $supplier = StoreSupplier::make()->action($agent, Arr::prepend(Supplier::factory()->definition(), 'sub-supplier', 'type'));
+    $agent->refresh();
+    expect($supplier)->toBeInstanceOf(Supplier::class)
+        ->and($agent->stats->number_suppliers)->toBe(1);
+    return $supplier;
+})->depends('create agent');
+
+test('create supplier product independent supplier', function ($supplier) {
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $this->assertModelExists($supplierProduct);
+
+    return $supplierProduct;
+})->depends('create independent supplier');
+
+test('create supplier product independent supplier 2', function ($supplier) {
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $this->assertModelExists($supplierProduct);
+
+    return $supplierProduct;
+})->depends('create independent supplier');
+
+test('create supplier product in agent supplier', function ($supplier) {
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $this->assertModelExists($supplierProduct);
+})->depends('create supplier in agent');
+
+test('others tenant can view supplier', function ($agent) {
+    $tenant = Tenant::where('slug', 'aus')->first();
+    $tenant->makeCurrent();
+
+    $supplier = GetSupplier::run($agent);
+
+    expect($supplier)->toBeInstanceOf(LengthAwarePaginator::class);
+})->depends('create agent');
+
+test('create trade unit', function () {
+    $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
+    $this->assertModelExists($tradeUnit);
+
+    return $tradeUnit;
+});
+
+test('create purchase order independent supplier', function ($supplier) {
+    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+    $this->assertModelExists($purchaseOrder);
+    expect($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class)
+        ->and($supplier->stats->number_purchase_orders)->toBe(1);
+    return $purchaseOrder;
+})->depends('create independent supplier');
+
+test('add items to purchase order', function ($purchaseOrder) {
+    $i = 1;
+    do {
+        $items = AddItemPurchaseOrder::make()->action($purchaseOrder, PurchaseOrderItem::factory()->definition());
+        $i++;
+    } while ($i <= 5);
+
+    $this->assertModelExists($items);
+
+    return $items->first();
+})->depends('create purchase order independent supplier');
+
+test('delete purchase order', function ($purchaseOrder) {
+    $supplier = $purchaseOrder->provider;
+    expect($supplier)->toBeInstanceOf(Supplier::class);
+    $purchaseOrder = DeletePurchaseOrder::make()->action($purchaseOrder->fresh());
+
+    expect($purchaseOrder)->toBeTrue()->and($supplier->stats->number_purchase_orders)->toBe(0);
+})->depends('create purchase order independent supplier');
+
+test('update quantity items to 0 in purchase order', function ($item) {
+    $item = UpdatePurchaseOrderItemQuantity::make()->action($item, [
+        'unit_quantity' => 0
+    ]);
+
+    $this->assertModelMissing($item);
+})->depends('add items to purchase order');
+
+test('update quantity items in purchase order', function ($item) {
+    $item = UpdatePurchaseOrderItemQuantity::make()->action($item, [
+        'unit_quantity' => 12
+    ]);
+
+    $this->assertModelMissing($item);
+})->depends('add items to purchase order');
+
+test('sync supplier product and trade units', function ($supplier) {
+    $syncSupplierProductTradeUnit = SyncSupplierProductTradeUnits::run($supplier, [1]);
+    $this->assertModelExists($syncSupplierProductTradeUnit);
+})->depends('create supplier product independent supplier');
+
+test('update purchase order', function ($agent) {
+    $purchaseOrder = UpdatePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());
+    $this->assertModelExists($purchaseOrder);
+})->depends('create purchase order independent supplier');
+
+test('create purchase order by agent', function ($agent) {
+    $purchaseOrder = StorePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());
+    $this->assertModelExists($purchaseOrder);
+})->depends('create agent');
+
+test('change state to submit purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToSubmittedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SUBMITTED);
+})->depends('create purchase order independent supplier');
+
+test('change state to confirm purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToConfirmPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CONFIRMED);
+})->depends('create purchase order independent supplier');
+
+test('change state to manufactured purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToManufacturedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::MANUFACTURED);
+})->depends('create purchase order independent supplier');
+
+test('change state to dispatched from manufacture purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToDispatchedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::DISPATCHED);
+})->depends('create purchase order independent supplier');
+
+test('change state to received from dispatch purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToReceivedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::RECEIVED);
+})->depends('create purchase order independent supplier');
+
+test('change state to checked from received purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToCheckedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CHECKED);
+})->depends('create purchase order independent supplier');
+
+test('change state to settled from checked purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToSettledPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SETTLED);
+})->depends('create purchase order independent supplier');
+
+test('change state to checked from settled purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToCheckedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CHECKED);
+})->depends('create purchase order independent supplier');
+
+test('change state to received from checked purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToReceivedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::RECEIVED);
+})->depends('create purchase order independent supplier');
+
+test('change state to dispatched from received purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToDispatchedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::DISPATCHED);
+})->depends('create purchase order independent supplier');
+
+test('change state to manufactured from dispatched purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToManufacturedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::MANUFACTURED);
+})->depends('create purchase order independent supplier');
+
+test('change state to confirmed from manufactured purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToConfirmPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CONFIRMED);
+})->depends('create purchase order independent supplier');
+
+test('change state to submitted from confirmed purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToSubmittedPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SUBMITTED);
+})->depends('create purchase order independent supplier');
+
+test('change state to creating from submitted purchase order', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToCreatingPurchaseOrder::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CREATING);
+})->depends('create purchase order independent supplier');
