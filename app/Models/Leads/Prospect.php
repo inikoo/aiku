@@ -75,12 +75,12 @@ class Prospect extends Model
         'data'     => 'array',
         'location' => 'array',
         'state'    => ProspectStateEnum::class
-
     ];
 
     protected $attributes = [
         'data'     => '{}',
         'location' => '{}',
+        'state'    => 'registered'
     ];
 
 

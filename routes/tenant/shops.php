@@ -11,6 +11,7 @@ use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
 use App\Actions\Leads\Prospect\IndexProspects;
 use App\Actions\Marketing\Shop\UI\CreateShop;
+use App\Actions\Marketing\Shop\UI\EditShop;
 use App\Actions\Marketing\Shop\UI\IndexShops;
 use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\Web\Website\IndexWebsites;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', IndexShops::class)->name('index');
 Route::get('/create', CreateShop::class)->name('create');
 Route::get('/{shop}', ShowShop::class)->name('show');
+Route::get('/{shop}/edit', EditShop::class)->name('edit');
 
 Route::get('/{shop}/prospects', [IndexProspects::class, 'inShop'])->name('show.prospects.index');
 

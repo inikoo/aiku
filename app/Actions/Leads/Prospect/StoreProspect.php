@@ -9,6 +9,7 @@ namespace App\Actions\Leads\Prospect;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Leads\Prospect\Hydrators\ProspectHydrateUniversalSearch;
+use App\Enums\Leads\Prospect\ProspectStateEnum;
 use App\Models\Leads\Prospect;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\ActionRequest;
@@ -48,6 +49,7 @@ class StoreProspect
             'email'                     => ['required', 'nullable', 'email'],
             'phone'                     => ['required', 'nullable', 'string'],
             'website'                   => ['required', 'nullable', 'active_url'],
+//            'state'                     => ['required', 'nullable', 'string','max:255'],
         ];
     }
 
