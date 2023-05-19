@@ -37,6 +37,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
+use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
@@ -53,10 +54,29 @@ beforeEach(function () {
 });
 
 test('create warehouse', function () {
-    $warehouse = StoreWarehouse::make()->action(Warehouse::factory()->definition());
-    $this->assertModelExists($warehouse);
+    $warehouse = StoreWarehouse::make()->action([
+        'code' => 'ts12',
+        'name'  => 'testName',
+    ]);
+    expect($warehouse)->toBeInstanceOf(Warehouse::class);
     return $warehouse;
 });
+
+test('warehouse cannot be created with same code', function () {
+    $warehouse = StoreWarehouse::make()->action([
+        'code' => 'ts12',
+        'name'  => 'testName',
+    ]);
+
+})->depends('create warehouse')->throws(ValidationException::class);
+
+test('warehouse cannot be created with same code case is sensitive', function () {
+    $warehouse = StoreWarehouse::make()->action([
+        'code' => 'TS12',
+        'name'  => 'testName',
+    ]);
+
+})->depends('create warehouse')->throws(ValidationException::class);
 
 test('update warehouse', function ($warehouse) {
     $warehouse = UpdateWarehouse::make()->action($warehouse, ['name' => 'Pika Ltd']);
