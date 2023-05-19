@@ -271,4 +271,19 @@ class CreateStockFamily extends InertiaAction
 
         return $this->handle();
     }
+
+    public function getBreadcrumbs(): array
+    {
+        return array_merge(
+            IndexStockFamilies::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'          => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __("creating stock family"),
+                    ]
+                ]
+            ]
+        );
+    }
 }
