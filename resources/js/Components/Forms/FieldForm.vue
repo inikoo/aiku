@@ -6,10 +6,10 @@
 
 <script setup lang="ts">
 
-import {useForm} from '@inertiajs/vue3';
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
-import {faSave} from '@/../private/pro-light-svg-icons';
-import {library} from '@fortawesome/fontawesome-svg-core';
+import { useForm } from '@inertiajs/vue3';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faSave } from '@/../private/pro-light-svg-icons';
+import { library } from '@fortawesome/fontawesome-svg-core';
 
 library.add(faSave);
 import Input from '@/Components/Forms/Fields/Input.vue';
@@ -87,13 +87,13 @@ if (props['fieldData']['type'] === 'address') {
 } else {
 
  */
-    formFields = {
-        [props['field']]: props['fieldData'].value,
-    };
+formFields = {
+    [props['field']]: props['fieldData'].value,
+};
 
-    if (props['fieldData']['hasOther']) {
-        formFields[props['fieldData']['hasOther']['name']] = props['fieldData']['hasOther']['value'];
-    }
+if (props['fieldData']['hasOther']) {
+    formFields[props['fieldData']['hasOther']['name']] = props['fieldData']['hasOther']['value'];
+}
 //}
 const form = useForm(formFields);
 form['type'] = 'edit';
@@ -111,14 +111,14 @@ form['type'] = 'edit';
                     <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">
                         <div class="relative  flex-grow">
                             <component :is="getComponent(fieldData['type'])" :form=form :fieldName=field
-                                       :options="fieldData['options']">
+                                :options="fieldData['options']">
                             </component>
                         </div>
 
                         <span class="ml-2 flex-shrink-0">
                             <button class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
                                 <FontAwesomeIcon icon="fal fa-save" class="h-8 "
-                                                 :class="form.isDirty ? 'text-indigo-500' : 'text-gray-200'" aria-hidden="true"/>
+                                    :class="form.isDirty ? 'text-indigo-500' : 'text-gray-200'" aria-hidden="true" />
                             </button>
                         </span>
                     </div>
@@ -127,3 +127,22 @@ form['type'] = 'edit';
         </dl>
     </form>
 </template>
+
+<style>
+/* Style for multiselect globally */
+.multiselect-option.is-selected,
+.multiselect-option.is-selected.is-pointed {
+    background: var(--ms-option-bg-selected, #6366f1);
+    color: var(--ms-option-color-selected, #fff)
+}
+
+.multiselect-option.is-selected.is-disabled {
+    background: var(--ms-option-bg-selected-disabled, #c7d2fe);
+    color: var(--ms-option-color-selected-disabled, #818cf8)
+}
+
+.multiselect.is-active {
+    border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid var(--ms-border-color-active, var(--ms-border-color, #d1d5db));
+    box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(99, 102, 241, 0.188))
+}
+</style>
