@@ -12,6 +12,10 @@ use App\Actions\Dispatch\Shipment\UpdateShipment;
 use App\Actions\Dispatch\Shipper\StoreShipper;
 use App\Actions\Dispatch\Shipper\UpdateShipper;
 use App\Actions\Inventory\Stock\StoreStock;
+use App\Actions\Marketing\ShippingZone\StoreShippingZone;
+use App\Actions\Marketing\ShippingZone\UpdateShippingZone;
+use App\Actions\Marketing\ShippingZoneSchema\StoreShippingZoneSchema;
+use App\Actions\Marketing\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Order\StoreOrder;
@@ -20,11 +24,14 @@ use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
 use App\Models\Dispatch\Shipper;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
+use App\Models\Marketing\ShippingZone;
+use App\Models\Marketing\ShippingZoneSchema;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
@@ -149,3 +156,37 @@ test('update shipment', function () {
 //    $responseJson = ApcGbCallShipperApi::make()->action($deliveryNote,$shipper);
 //    return $responseJson['data'];
 //})->depends('create delivery note','create shipper');
+
+test('create shop', function () {
+    $shop = StoreShop::make()->action(Shop::factory()->definition());
+    $this->assertModelExists($shop);
+    expect($shop->paymentAccounts()->count())->toBe(1)
+        ->and($shop->outboxes()->count())->toBe(count(OutboxTypeEnum::values()));
+
+
+    return $shop;
+});
+
+test('create shipping zone schema', function ($shop) {
+    $shippingZoneSchema = StoreShippingZoneSchema::make()->action($shop, ShippingZoneSchema::factory()->definition());
+    $this->assertModelExists($shop);
+
+    return $shippingZoneSchema;
+})->depends('create shop');
+
+test('update shipping zone schema', function ($shippingZoneSchema) {
+    $shippingZoneSchema = UpdateShippingZoneSchema::make()->action($shippingZoneSchema, ShippingZoneSchema::factory()->definition());
+    $this->assertModelExists($shippingZoneSchema);
+})->depends('create shipping zone schema');
+
+test('create shipping zone', function ($shippingZoneSchema) {
+    $shippingZone = StoreShippingZone::make()->action($shippingZoneSchema, ShippingZone::factory()->definition());
+    $this->assertModelExists($shippingZoneSchema);
+
+    return $shippingZone;
+})->depends('create shipping zone schema');
+
+test('update shipping zone', function ($shippingZone) {
+    $shippingZone = UpdateShippingZone::make()->action($shippingZone, ShippingZone::factory()->definition());
+    $this->assertModelExists($shippingZone);
+})->depends('create shipping zone');
