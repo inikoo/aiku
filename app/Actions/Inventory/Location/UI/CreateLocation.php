@@ -25,12 +25,12 @@ class CreateLocation extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('new location'),
-                'pageHead'    => [
-                    'title'        => __('new location'),
+                'title' => __('new location'),
+                'pageHead' => [
+                    'title' => __('new location'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'inventory.warehouses.show.locations.index',
+                            'name' => 'inventory.warehouses.show.locations.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -39,78 +39,87 @@ class CreateLocation extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title' => __('id'),
                             'fields' => [
 
                                 'code' => [
-                                    'type'  => 'input',
+                                    'type' => 'input',
                                     'label' => __('code'),
                                     'value' => ''
                                 ],
                                 'flag' => [
-                                    'type'  => 'input',
+                                    'type' => 'input',
                                     'label' => __('flag'),
                                     'value' => ''
                                 ],
                             ]
                         ],
                         [
-                            'title'  => __('capacity'),
-                            'icon'   => 'fa-light fa-phone',
+                            'title' => __('capacity'),
+                            'icon' => 'fa-light fa-phone',
                             'fields' => [
                                 'quantity' => [
-                                    'type'    => 'input',
-                                    'label'   => __('quantity'),
-                                    'value'   => '',
+                                    'type' => 'input',
+                                    'label' => __('quantity'),
+                                    'value' => '',
                                 ],
                                 'max_weight' => [
-                                    'type'    => 'input',
-                                    'label'   => __('max weight (kg)'),
-                                    'value'   => '',
+                                    'type' => 'input',
+                                    'label' => __('max weight (kg)'),
+                                    'value' => '',
                                 ],
                                 'max_volume' => [
-                                    'type'    => 'input',
-                                    'label'   => __('max volume (m³)'),
-                                    'value'   => '',
+                                    'type' => 'input',
+                                    'label' => __('max volume (m³)'),
+                                    'value' => '',
                                 ],
                             ]
                         ],
                         [
-                            'title'  => __('warehouse area'),
+                            'title' => __('warehouse area'),
                             'fields' => [
                                 'warehouse_area_slug' => [
-                                    'type'    => 'input',
-                                    'label'   => __('area'),
-                                    'value'   => '',
+                                    'type' => 'input',
+                                    'label' => __('area'),
+                                    'value' => '',
                                 ],
                             ]
                         ],
                         [
-                            'title'  => __('picking pipelines'),
+                            'title' => __('picking pipelines'),
                             'fields' => [
                                 'dropshipping_area' => [
-                                    'type'    => 'input',
-                                    'label'   => __('DS'),
-                                    'value'   => '',
+                                    'type' => 'input',
+                                    'label' => __('DS'),
+                                    'value' => '',
                                 ],
                             ]
                         ],
                         [
-                            'title'  => __('operations'),
+                            'title' => __('operations'),
                             'fields' => [
                                 'delete_at' => [
-                                    'type'    => 'input',
-                                    'label'   => __('delete location'),
-                                    'value'   => '',
+                                    'type' => 'input',
+                                    'label' => __('delete location'),
+                                    'value' => '',
                                 ],
                             ]
                         ],
 
 
                     ],
-                    'route' => [
-                        'name' => 'models.location.store',
-                    ]
+                    'route' => match ($this->routeName) {
+                        'inventory.warehouses.show.locations.create' => [
+                            'name' => 'models.warehouse.location.store',
+                            'arguments' => [$request->route()->parameters['warehouse']->slug]
+                        ],
+                        default => [
+                            'name' => 'models.warehouse-area.location.store',
+                            'arguments' => [
+                                $request->route()->parameters['warehouseArea']->slug
+                            ]
+                        ]
+                    }
                 ],
 
             ]
@@ -148,9 +157,9 @@ class CreateLocation extends InertiaAction
             ),
             [
                 [
-                    'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('creating location'),
+                    'type' => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __('creating location'),
                     ]
                 ]
             ]
