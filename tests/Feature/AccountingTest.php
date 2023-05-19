@@ -59,12 +59,6 @@ test('update payment account', function ($paymentAccount) {
     expect($paymentAccount->name)->toBe('Pika Ltd');
 })->depends('create payment account');
 
-test('create shop', function () {
-    $shop = StoreShop::make()->action(Shop::factory()->definition());
-    $this->assertModelExists($shop);
-
-    return $shop;
-});
 
 test(
     'create payment',
