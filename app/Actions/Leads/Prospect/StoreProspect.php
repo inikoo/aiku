@@ -49,7 +49,6 @@ class StoreProspect
             'email'                     => ['required', 'nullable', 'email'],
             'phone'                     => ['required', 'nullable', 'string'],
             'website'                   => ['required', 'nullable', 'active_url'],
-//            'state'                     => ['required', 'nullable', 'string','max:255'],
         ];
     }
 

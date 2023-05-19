@@ -8,14 +8,19 @@
 namespace App\Models\Inventory;
 
 use App\Models\Helpers\Issue;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Inventory\WarehouseFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -29,23 +34,23 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property array $settings
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
- * @property-read \App\Models\Inventory\WarehouseStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
- * @method static \Database\Factories\Inventory\WarehouseFactory factory($count = null, $state = [])
+ * @property-read Collection<int, Issue> $issues
+ * @property-read Collection<int, Location> $locations
+ * @property-read WarehouseStats|null $stats
+ * @property-read UniversalSearch|null $universalSearch
+ * @property-read Collection<int, WarehouseArea> $warehouseAreas
+ * @method static WarehouseFactory factory($count = null, $state = [])
  * @method static Builder|Warehouse newModelQuery()
  * @method static Builder|Warehouse newQuery()
  * @method static Builder|Warehouse onlyTrashed()
  * @method static Builder|Warehouse query()
  * @method static Builder|Warehouse withTrashed()
  * @method static Builder|Warehouse withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Warehouse extends Model
 {
