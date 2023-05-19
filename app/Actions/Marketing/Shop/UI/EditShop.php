@@ -90,7 +90,7 @@ class EditShop extends InertiaAction
                                     'options'=> GetCurrenciesOptions::run()
                                 ],
                                 'language_id' => [
-                                    'type'   => 'language_id',
+                                    'type'   => 'language',
                                     'label'  => __('language'),
                                     'value'  => $shop->language_id,
                                     'options'=> GetLanguagesOptions::run()

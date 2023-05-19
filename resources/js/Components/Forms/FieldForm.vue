@@ -27,6 +27,7 @@ import TextEditor from '@/Components/Forms/Fields/TextEditor.vue'
 import Address from "@/Components/Forms/Fields/Address.vue";
 import Country from "@/Components/Forms/Fields/Country.vue";
 import Currency from "@/Components/Forms/Fields/Currency.vue";
+import Language from "@/Components/Forms/Fields/Language.vue";
 
 
 const props = defineProps<{
@@ -64,6 +65,7 @@ const components = {
     'address': Address,
     'country': Country,
     'currency': Currency,
+    'language': Language,
 };
 
 const getComponent = (componentName) => {

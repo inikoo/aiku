@@ -24,11 +24,11 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faExclamationCircle, faCheckCircle);
 
 const props = defineProps(['form', 'fieldName', 'options'])
-const multiselectPlaceholder = "Select your currency"
+const multiselectPlaceholder = "Select your language"
 
 // Note:
-// Value of the currency (form[fieldName]) is a number
-// The value of option Afghan Afghani (AFN) is 1
+// Value of the language (form[fieldName]) is a number
+// The value of option Abkhazian is 1
 </script>
   
 <style src="@vueform/multiselect/themes/default.css"></style>
