@@ -59,7 +59,7 @@ class CreateStockFamily extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.stock-family.update',
+                        'name'       => 'models.stock-family.store',
                     ]
                 ],
 

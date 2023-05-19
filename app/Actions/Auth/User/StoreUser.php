@@ -32,7 +32,6 @@ class StoreUser
 
     private ?GroupUser $groupUser;
 
-
     /**
      * @throws \Throwable
      */
@@ -61,6 +60,7 @@ class StoreUser
                         'name' => $parent->name,
                     ]
                 ]);
+
             $user->stats()->create();
 
             return $user;

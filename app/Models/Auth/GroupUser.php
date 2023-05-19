@@ -74,8 +74,11 @@ class GroupUser extends Model implements HasMedia
             ->saveSlugsTo('username');
     }
 
-    public function users(): HasMany
+    public function users(): BelongsToMany
     {
+        return $this->tenants();
+
+//        return $this->BelongsToMany(User::class)->using(GroupUserUser::class);
         return $this->hasMany(User::class);
     }
 

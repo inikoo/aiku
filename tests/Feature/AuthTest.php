@@ -46,6 +46,9 @@ test('create guest', function () {
 test('update guest', function ($guest) {
     $guest = UpdateGuest::make()->action($guest, ['name' => 'Pika']);
     expect($guest->name)->toBe('Pika');
+
+    $guest = UpdateGuest::make()->action($guest, ['name' => 'Aiku']);
+    expect($guest->name)->toBe('Aiku');
 })->depends('create guest');
 
 test('create user for guest', function ($guest) {
@@ -59,8 +62,8 @@ test('create user for guest', function ($guest) {
 
     $this->assertModelExists($user);
     expect($user->password)->toBe('1234567')
-        ->and($user->groupUser->password)->toBe('1234567');
-
+        ->and($user->groupUser->password)->toBe('1234567')
+        ->and($user->parent)->toBeInstanceOf(Guest::class);
     return $user;
 })->depends('create guest');
 
@@ -85,20 +88,20 @@ test('update user password', function ($user) {
 })->depends('create user for guest');
 
 test('update user username', function ($user) {
-    $userFactory = User::factory()->definition();
+    expect($user->username)->toBe('hello');
     $user        = UpdateUser::make()->action($user, [
-        'username' => $userFactory['username']
+        'username' => 'aiku'
     ]);
-    /** @var GroupUser $groupUser */
-    $groupUser = $user->groupUser()->first();
 
-    expect($user->username)->toBe($userFactory['username'])
-        ->and($groupUser->username)->toBe($userFactory['username']);
+    expect($user->username)->toBe('aiku')
+        ->and($user->groupUser->username)->toBe('aiku');
 
     return $user;
 })->depends('create user for guest');
 
-test('attaching existing group user to another tenant guest', function () {
+test('attaching existing group user to another tenant guest', function ($user) {
+    $groupUser = $user->groupUser;
+
     $tenant = Tenant::where('slug', 'aus')->first();
     $tenant->makeCurrent();
 
@@ -108,17 +111,15 @@ test('attaching existing group user to another tenant guest', function () {
         $guestData
     );
 
-    $groupUser = GroupUser::where('username', 'hello')->first();
-
     /** @noinspection PhpUnhandledExceptionInspection */
-    $user = StoreUser::make()->action($guest, $groupUser, []);
-    $this->assertModelExists($user);
+    $user2 = StoreUser::make()->action($guest, $groupUser, []);
+    $this->assertModelExists($user2);
+    $groupUser->fresh();
 
-    expect($user->groupUser->username)->toBe('hello');
+    expect($groupUser->tenants->count())->toBe(2);
 
     return $user;
-})->depends('update user password');
-
+})->depends('update user username');
 
 test('make sure a group user can be only attaches once in each tenant', function () {
     $tenant = Tenant::where('slug', 'aus')->first();
@@ -165,20 +166,20 @@ test('user change status if group user status is false  ', function ($user) {
     $this->assertModelExists($addRole);
 })->depends('create user for guest');
 
-test('group status change status', function () {
-    $groupUser = GroupUser::where('username', 'hello')->first();
+test('group status change status', function ($user) {
+    $groupUser = $user->groupUser;
 
     $status = UpdateGroupUserStatus::make()->action($groupUser, [
         'status' => false
     ]);
 
     $this->assertModelExists($status);
-});
+})->depends('update user password');
 
-test('delete group user', function () {
-    $groupUser = GroupUser::where('username', 'hello')->first();
+test('delete group user', function ($user) {
+    $groupUser = $user->groupUser;
 
     $deleteGroupUser = DeleteGroupUser::make()->action($groupUser);
 
     expect($deleteGroupUser)->toBe(true);
-});
+})->depends('update user password');
