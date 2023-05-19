@@ -24,9 +24,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Customer $customer
- */
 class ShowCustomer extends InertiaAction
 {
     public function handle(Customer $customer): Customer

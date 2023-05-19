@@ -10,8 +10,10 @@ namespace App\Actions\Marketing\Shop;
 use App\Actions\WithActionUpdate;
 use App\Enums\Marketing\Shop\ShopSubtypeEnum;
 use App\Enums\Marketing\Shop\ShopTypeEnum;
+use App\Http\Resources\Marketing\ShopResource;
 use App\Models\Marketing\Shop;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateShop
 {
@@ -41,6 +43,16 @@ class UpdateShop
         ];
     }
 
+    public function asController(Shop $shop, ActionRequest $request): Shop
+    {
+        $this->fillFromRequest($request);
+        return $this->handle(
+            shop:$shop,
+            modelData: $this->validateAttributes()
+        );
+    }
+
+
     public function action(Shop $shop, array $objectData): Shop
     {
         $this->setRawAttributes($objectData);
@@ -48,4 +60,10 @@ class UpdateShop
 
         return $this->handle($shop, $validatedData);
     }
+
+    public function jsonResponse(Shop $shop): ShopResource
+    {
+        return new ShopResource($shop);
+    }
+
 }

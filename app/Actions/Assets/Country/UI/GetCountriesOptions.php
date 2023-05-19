@@ -1,17 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 12 May 2023 11:55:53 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Fri, 19 May 2023 12:12:23 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Assets\Country;
+namespace App\Actions\Assets\Country\UI;
 
 use App\Models\Assets\Country;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class GetAddressData
+class GetCountriesOptions
 {
     use AsObject;
 
@@ -24,8 +23,6 @@ class GetAddressData
             $selectOptions[$country->id] =
                 [
                     'label'               => $country->name.' ('.$country->code.')',
-                    'fields'              => Arr::get($country->data, 'fields'),
-                    'administrativeAreas' => Arr::get($country->data, 'administrative_areas'),
                 ];
         }
 
