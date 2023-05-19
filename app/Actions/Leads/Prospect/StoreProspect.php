@@ -9,6 +9,7 @@ namespace App\Actions\Leads\Prospect;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Leads\Prospect\Hydrators\ProspectHydrateUniversalSearch;
+use App\Enums\Leads\Prospect\ProspectStateEnum;
 use App\Models\Leads\Prospect;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,6 +26,8 @@ class StoreProspect
     public function handle(Shop $shop, array $modelData, array $addressesData = []): Prospect
     {
         /** @var Prospect $prospect */
+        $modelData['state'] = ProspectStateEnum::REGISTERED;
+        $modelData['website'] = 'https://google.com';
         $prospect = $shop->prospects()->create($modelData);
         StoreAddressAttachToModel::run($prospect, $addressesData, ['scope' => 'contact']);
 

@@ -18,6 +18,7 @@ beforeEach(function () {
 });
 
 test('create shop', function () {
+
     $shop = StoreShop::make()->action(Shop::factory()->definition());
     $this->assertModelExists($shop);
     expect($shop->serialReferences()->count())->toBe(2);

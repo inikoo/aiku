@@ -74,7 +74,6 @@ class Prospect extends Model
     protected $casts = [
         'data'     => 'array',
         'location' => 'array',
-        'state'    => ProspectStateEnum::class
 
     ];
 
