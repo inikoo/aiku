@@ -4,37 +4,47 @@
     <div class="bg-white rounded border border-gray-400 focus:border-gray-300">
       <!-- Button Group -->
       <div class="bg-indigo-100 p-2 grid grid-flow-col space-around text-slate-800 select-none space-x-1 border border-gray-100">
-        <div class="grid grid-flow-col justify-start">
+        <div class="grid grid-flow-col justify-start space-x-1">
           <div :class="{ 'bg-indigo-400 text-white': editor.isActive('bold') }"
             class="rounded-sm grid justify-center items-center  border border-transparent active:border-indigo-700 box-content cursor-pointer px-1 py-0.5"
             @click="editor.chain().focus().toggleBold().run()">
-            <FontAwesomeIcon aria-hidden="true" icon="fad fa-bold" />
+            <FontAwesomeIcon aria-hidden="true" icon="far fa-bold" />
           </div>
           <div :class="{ 'bg-indigo-400 text-white': editor.isActive('italic') }"
             class="rounded-sm grid justify-center items-center  border border-transparent active:border-indigo-700 box-content cursor-pointer px-1 py-0.5"
             @click="editor.chain().focus().toggleItalic().run()">
-            <FontAwesomeIcon aria-hidden="true" icon="fad fa-italic" />
+            <FontAwesomeIcon aria-hidden="true" icon="far fa-italic" />
           </div>
           <div :class="{ 'bg-indigo-400 text-white': editor.isActive('underline') }"
-            class="rounded-sm grid justify-center items-center  border border-transparent active:border-indigo-700 box-content cursor-pointer px-1 py-0.5"
+            class="rounded-sm grid justify-center items-end  border border-transparent active:border-indigo-700 box-content cursor-pointer px-1 py-0.5"
             @click="editor.chain().focus().toggleUnderline().run()">
-            <FontAwesomeIcon aria-hidden="true" icon="fad fa-underline" />
+            <FontAwesomeIcon aria-hidden="true" icon="far fa-underline" />
           </div>
           <div :class="{ 'bg-indigo-400 text-white': editor.isActive('bulletList') }"
             class="rounded-sm grid justify-center items-center  border border-transparent active:border-indigo-700 box-content cursor-pointer px-1 py-0.5"
             @click="editor.chain().focus().toggleBulletList().run()">
-            <FontAwesomeIcon aria-hidden="true" icon="fad fa-list-ul" />
+            <FontAwesomeIcon aria-hidden="true" icon="far fa-list-ul" />
           </div>
           <div :class="{ 'bg-indigo-400 text-white': editor.isActive('orderedList') }"
             class="rounded-sm grid justify-center items-center  border border-transparent active:border-indigo-700 box-content cursor-pointer px-1 py-0.5"
             @click="editor.chain().focus().toggleOrderedList().run()">
-            <FontAwesomeIcon aria-hidden="true" icon="fad fa-list-ol" />
+            <FontAwesomeIcon aria-hidden="true" icon="far fa-list-ol" />
+          </div>
+          <div :class="{ 'bg-indigo-400 text-white': editor.isActive('orderedList') }"
+            class="rounded-sm grid justify-center items-center  border border-transparent active:border-indigo-700 box-content cursor-pointer px-1 py-0.5"
+            @click="editor.commands.undo()">
+            <FontAwesomeIcon aria-hidden="true" icon="far fa-undo" />
+          </div>
+          <div :class="{ 'bg-indigo-400 text-white': editor.isActive('orderedList') }"
+            class="rounded-sm grid justify-center items-center  border border-transparent active:border-indigo-700 box-content cursor-pointer px-1 py-0.5"
+            @click="editor.commands.redo()">
+            <FontAwesomeIcon aria-hidden="true" icon="far fa-redo" />
           </div>
         </div>
         <div
           class="w-min rounded-sm grid justify-end items-center place-self-end border border-transparent active:border-indigo-700 box-content cursor-pointer px-1 py-0.5"
           @click="editor.chain().focus().clearContent(true).run()">
-          <FontAwesomeIcon aria-hidden="true" icon="fad fa-trash-alt" />
+          <FontAwesomeIcon aria-hidden="true" icon="far fa-trash-alt" />
         </div>
       </div>
       <!-- The Editor -->
@@ -69,8 +79,8 @@ import { Editor, EditorContent } from '@tiptap/vue-3';
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBold, faItalic, faUnderline, faTrashAlt, faListUl, faListOl } from "@/../private/pro-duotone-svg-icons"
-library.add(faBold, faItalic, faUnderline, faTrashAlt, faListUl, faListOl)
+import { faBold, faItalic, faUnderline, faTrashAlt, faListUl, faListOl, faUndo, faRedo } from "@/../private/pro-regular-svg-icons"
+library.add(faBold, faItalic, faUnderline, faTrashAlt, faListUl, faListOl, faUndo, faRedo)
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 const props = defineProps(['modelValue', 'showStats', 'placeholder']);
