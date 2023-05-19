@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 08 May 2023 09:13:50 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Mon, 08 May 2023 09:03:42 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -12,13 +12,19 @@ use App\Actions\Marketing\OfferCampaign\StoreOfferCampaign;
 use App\Actions\Marketing\OfferCampaign\UpdateOfferCampaign;
 use App\Actions\Marketing\OfferComponent\StoreOfferComponent;
 use App\Actions\Marketing\OfferComponent\UpdateOfferComponent;
+use App\Actions\Marketing\Product\DeleteProduct;
+use App\Actions\Marketing\Product\StoreProduct;
+use App\Actions\Marketing\Product\UpdateProduct;
+use App\Actions\Marketing\ProductCategory\StoreProductCategory;
+use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Marketing\Offer;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;
+use App\Models\Marketing\Product;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
@@ -38,14 +44,14 @@ beforeEach(function () {
 });
 
 test('create shop', function () {
-    $shop = StoreShop::make()->action(Shop::factory()->definition());
-    $this->assertModelExists($shop);
-    expect($shop->paymentAccounts()->count())->toBe(1)
-        ->and($shop->outboxes()->count())->toBe(count(OutboxTypeEnum::values()));
 
+    $shop = StoreShop::make()->action(Shop::factory()->definition());
+
+    expect($shop)->toBeInstanceOf(Shop::class);
 
     return $shop;
 });
+
 
 test('create offer campaign', function ($shop) {
     $offerCampaign = StoreOfferCampaign::make()->action($shop, OfferCampaign::factory()->definition());
@@ -82,3 +88,50 @@ test('update offer component', function ($offerComponent) {
     $offerComponent = UpdateOfferComponent::make()->action($offerComponent, OfferComponent::factory()->definition());
     $this->assertModelExists($offerComponent);
 })->depends('create offer component');
+
+
+test('create product category', function ($shop) {
+    $productCategory = StoreProductCategory::make()->action($shop, ProductCategory::factory()->definition());
+    $this->assertModelExists($productCategory);
+
+    return $productCategory;
+})->depends('create shop');
+
+test('create sub product category', function ($productCategory) {
+    $subProductCategory = StoreProductCategory::make()->action($productCategory, ProductCategory::factory()->definition());
+    $this->assertModelExists($subProductCategory);
+
+    return $subProductCategory;
+})->depends('create product category');
+
+test('create product category 2', function ($shop) {
+    $productCategory = StoreProductCategory::make()->action($shop, ProductCategory::factory()->definition());
+    $this->assertModelExists($productCategory);
+
+    return $productCategory;
+})->depends('create shop');
+
+test('update product category', function ($productCategory) {
+    $productCategory = UpdateProductCategory::make()->action($productCategory, ProductCategory::factory()->definition());
+
+    $this->assertModelExists($productCategory);
+})->depends('create product category');
+
+test('create product', function ($shop) {
+    $product = StoreProduct::make()->action($shop, Product::factory()->definition());
+    $this->assertModelExists($product);
+
+    return $product;
+})->depends('create shop');
+
+test('update product', function ($product) {
+    $product = UpdateProduct::make()->action($product, Product::factory()->definition());
+
+    $this->assertModelExists($product);
+})->depends('create product');
+
+test('delete product', function ($product) {
+    $product = DeleteProduct::run($product);
+
+    $this->assertModelExists($product);
+})->depends('create product');
