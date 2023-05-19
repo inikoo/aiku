@@ -29,15 +29,39 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 
 beforeAll(function () {
-    loadDB('d1_fresh_with_assets.dump');
+    loadDB('test_base_database.dump');
 });
 
 
 beforeEach(function () {
     $tenant = Tenant::first();
     if (!$tenant) {
-        $group  = StoreGroup::make()->asAction(Group::factory()->definition());
-        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+        $group  = StoreGroup::make()->asAction(
+            array_merge(
+                Group::factory()->definition(),
+                [
+                    'code'=> 'ACME'
+                ]
+            )
+        );
+        $tenant = StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code'=> 'AGB'
+                ]
+            )
+        );
+        StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code'=> 'AUS'
+                ]
+            )
+        );
     }
     $tenant->makeCurrent();
 });

@@ -27,7 +27,7 @@ use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 
 beforeAll(function () {
-    loadDB('d1_fresh_with_assets.dump');
+    loadDB('test_base_database.dump');
 });
 
 

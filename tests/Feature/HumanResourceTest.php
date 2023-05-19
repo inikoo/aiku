@@ -16,7 +16,7 @@ use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 
 beforeAll(function () {
-    loadDB('d1_fresh_with_assets.dump');
+    loadDB('test_base_database.dump');
 });
 
 

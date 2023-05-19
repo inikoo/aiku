@@ -34,7 +34,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
-    loadDB('d1_fresh_with_assets.dump');
+    loadDB('test_base_database.dump');
 });
 
 
