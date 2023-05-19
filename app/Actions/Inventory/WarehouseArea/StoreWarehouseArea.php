@@ -47,7 +47,7 @@ class StoreWarehouseArea
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.warehouses', 'between:2,4', 'alpha', new CaseSensitive('warehouses')],
+            'code' => ['required', 'unique:tenant.warehouses', 'between:2,4', 'alpha', new CaseSensitive('warehouse_areas')],
             'name' => ['required', 'max:250', 'string'],
         ];
     }
