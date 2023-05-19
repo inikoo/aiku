@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Shop\UI;
 
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
+use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\InertiaAction;
 use App\Models\Marketing\Shop;
@@ -86,7 +87,7 @@ class EditShop extends InertiaAction
                                     'type'   => 'currency',
                                     'label'  => __('currency'),
                                     'value'  => $shop->currency_id,
-                                    'options'=> GetCountriesOptions::run()
+                                    'options'=> GetCurrenciesOptions::run()
                                 ],
                                 'language_id' => [
                                     'type'   => 'language_id',

@@ -26,6 +26,7 @@ import Radio from '@/Components/Forms/Fields/Radio.vue'
 import TextEditor from '@/Components/Forms/Fields/TextEditor.vue'
 import Address from "@/Components/Forms/Fields/Address.vue";
 import Country from "@/Components/Forms/Fields/Country.vue";
+import Currency from "@/Components/Forms/Fields/Currency.vue";
 
 
 const props = defineProps<{
@@ -61,7 +62,8 @@ const components = {
     'radio': Radio,
     'texteditor': TextEditor,
     'address': Address,
-    'country': Country
+    'country': Country,
+    'currency': Currency,
 };
 
 const getComponent = (componentName) => {
