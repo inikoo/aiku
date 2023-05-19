@@ -27,7 +27,6 @@ test('create prospect', function () {
     $shop = StoreShop::make()->action(Shop::factory()->definition());
     $prospect = StoreProspect::make()->action($shop, Prospect::factory()->definition(), Address::factory()->definition());
     $this->assertModelExists($prospect);
-
     return $prospect;
 });
 

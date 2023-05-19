@@ -26,8 +26,6 @@ class StoreProspect
     public function handle(Shop $shop, array $modelData, array $addressesData = []): Prospect
     {
         /** @var Prospect $prospect */
-        $modelData['state'] = ProspectStateEnum::REGISTERED;
-        $modelData['website'] = 'https://google.com';
         $prospect = $shop->prospects()->create($modelData);
         StoreAddressAttachToModel::run($prospect, $addressesData, ['scope' => 'contact']);
 
@@ -51,6 +49,7 @@ class StoreProspect
             'email'                     => ['required', 'nullable', 'email'],
             'phone'                     => ['required', 'nullable', 'string'],
             'website'                   => ['required', 'nullable', 'active_url'],
+//            'state'                     => ['required', 'nullable', 'string','max:255'],
         ];
     }
 
