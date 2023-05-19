@@ -25,7 +25,13 @@ beforeEach(function () {
 
 test('create prospect', function () {
     $shop = StoreShop::make()->action(Shop::factory()->definition());
-    $prospect = StoreProspect::make()->action($shop, Prospect::factory()->definition(), Address::factory()->definition());
+    $prospect = StoreProspect::make()->action($shop, [
+        'contact_name'  => 'check123',
+        'company_name'  => 'check123',
+        'email'         => 'test@gmail.com',
+        'phone'         => '+12345678',
+        'website'       => 'https://google.com'
+    ], Address::factory()->definition());
     $this->assertModelExists($prospect);
     return $prospect;
 });

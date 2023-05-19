@@ -24,6 +24,8 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
+use App\Actions\Tenancy\Group\StoreGroup;
+use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
@@ -33,20 +35,48 @@ use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
+use Illuminate\Validation\ValidationException;
 
-beforeAll(fn () => loadDB('d3_with_tenants.dump'));
+beforeAll(function () {
+    loadDB('test_base_database.dump');
+});
+
 
 beforeEach(function () {
-    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant = Tenant::first();
+    if (!$tenant) {
+        $group  = StoreGroup::make()->asAction(Group::factory()->definition());
+        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    }
     $tenant->makeCurrent();
 });
 
 test('create warehouse', function () {
-    $warehouse = StoreWarehouse::make()->action(Warehouse::factory()->definition());
-    $this->assertModelExists($warehouse);
+    $warehouse = StoreWarehouse::make()->action([
+        'code' => 'ts12',
+        'name'  => 'testName',
+    ]);
+    expect($warehouse)->toBeInstanceOf(Warehouse::class);
     return $warehouse;
 });
+
+test('warehouse cannot be created with same code', function () {
+    $warehouse = StoreWarehouse::make()->action([
+        'code' => 'ts12',
+        'name'  => 'testName',
+    ]);
+
+})->depends('create warehouse')->throws(ValidationException::class);
+
+test('warehouse cannot be created with same code case is sensitive', function () {
+    $warehouse = StoreWarehouse::make()->action([
+        'code' => 'TS12',
+        'name'  => 'testName',
+    ]);
+
+})->depends('create warehouse')->throws(ValidationException::class);
 
 test('update warehouse', function ($warehouse) {
     $warehouse = UpdateWarehouse::make()->action($warehouse, ['name' => 'Pika Ltd']);

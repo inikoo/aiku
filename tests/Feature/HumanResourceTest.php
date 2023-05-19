@@ -6,15 +6,26 @@
  */
 
 use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\Tenancy\Group\StoreGroup;
+use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use App\Models\HumanResources\Employee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 
-beforeAll(fn () => loadDB('d3_with_tenants.dump'));
+beforeAll(function () {
+    loadDB('test_base_database.dump');
+});
+
+
 beforeEach(function () {
-    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant = Tenant::first();
+    if (!$tenant) {
+        $group  = StoreGroup::make()->asAction(Group::factory()->definition());
+        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    }
     $tenant->makeCurrent();
 });
 

@@ -14,6 +14,8 @@ use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\Supplier\GetSupplier;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
+use App\Actions\Tenancy\Group\StoreGroup;
+use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
@@ -21,14 +23,46 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
+use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 
-beforeAll(fn () => loadDB('d3_with_tenants.dump'));
+beforeAll(function () {
+    loadDB('test_base_database.dump');
+});
+
 
 beforeEach(function () {
-    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant = Tenant::first();
+    if (!$tenant) {
+        $group  = StoreGroup::make()->asAction(
+            array_merge(
+                Group::factory()->definition(),
+                [
+                    'code'=> 'ACME'
+                ]
+            )
+        );
+        $tenant = StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code'=> 'AGB'
+                ]
+            )
+        );
+        StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code'=> 'AUS'
+                ]
+            )
+        );
+    }
     $tenant->makeCurrent();
 });
 

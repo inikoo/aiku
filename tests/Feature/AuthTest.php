@@ -17,18 +17,52 @@ use App\Actions\Auth\User\UpdateUserStatus;
 use App\Actions\Auth\User\UserAddRoles;
 use App\Actions\Auth\User\UserRemoveRoles;
 use App\Actions\Auth\User\UserSyncRoles;
+use App\Actions\Tenancy\Group\StoreGroup;
+use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
+use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
-beforeAll(fn () => loadDB('d3_with_tenants.dump'));
+beforeAll(function () {
+    loadDB('test_base_database.dump');
+});
+
 
 beforeEach(function () {
-    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant = Tenant::first();
+    if (!$tenant) {
+        $group  = StoreGroup::make()->asAction(
+            array_merge(
+                Group::factory()->definition(),
+                [
+                    'code'=> 'ACME'
+                ]
+            )
+        );
+        $tenant = StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code'=> 'AGB'
+                ]
+            )
+        );
+        StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code'=> 'AUS'
+                ]
+            )
+        );
+    }
     $tenant->makeCurrent();
 });
 
