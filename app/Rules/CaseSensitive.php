@@ -30,6 +30,7 @@ class CaseSensitive implements Rule
         $query = DB::connection('tenant')->table($this->tableName);
         $column = $query->getGrammar()->wrap($attribute);
         $this->message = $value . ' already exist table';
+
         return ! $query->whereRaw("lower({$column}) = lower(?)", [$value])->count();
     }
 

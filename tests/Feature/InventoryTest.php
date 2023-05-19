@@ -67,6 +67,7 @@ test('warehouse cannot be created with same code', function () {
         'code' => 'ts12',
         'name'  => 'testName',
     ]);
+
 })->depends('create warehouse')->throws(ValidationException::class);
 
 test('warehouse cannot be created with same code case is sensitive', function () {
@@ -74,6 +75,7 @@ test('warehouse cannot be created with same code case is sensitive', function ()
         'code' => 'TS12',
         'name'  => 'testName',
     ]);
+
 })->depends('create warehouse')->throws(ValidationException::class);
 
 test('update warehouse', function ($warehouse) {

@@ -33,7 +33,6 @@ class StoreWarehouse
 
         WarehouseHydrateUniversalSearch::dispatch($warehouse);
 
-
         return $warehouse;
     }
 
