@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
@@ -55,14 +56,18 @@ class StorePurchaseOrder
 
      public function afterValidator(Validator $validator): void
      {
-         $purchaseOrder = $this->parent->purchaseOrders()->count();
+         $numberPurchaseOrdersStateCreating = $this->parent->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
 
-         if(!$this->force && $purchaseOrder>= 1) {
+         if(!$this->force && $numberPurchaseOrdersStateCreating>= 1) {
              $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
          }
 
-         if($this->parent->products->where('state', '<>',SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
-             $validator->errors()->add('purchase_order', 'You can not create purchase order');
+         if($this->parent->products->where('state', '<>', SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
+             $message = match (class_basename($this->parent)) {
+                 'Agent'    => 'You can not create purchase order if the agent dont have any product',
+                 'Supplier' => 'You can not create purchase order if the supplier dont have any product',
+             };
+             $validator->errors()->add('purchase_order', $message);
          }
      }
 

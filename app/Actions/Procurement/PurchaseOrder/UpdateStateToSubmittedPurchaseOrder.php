@@ -7,10 +7,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\Traits\HasHydrators;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -29,6 +26,7 @@ class UpdateStateToSubmittedPurchaseOrder
      */
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
+        dd($purchaseOrder);
         $data = [
             'state' => PurchaseOrderStateEnum::SUBMITTED
         ];
@@ -36,7 +34,7 @@ class UpdateStateToSubmittedPurchaseOrder
         if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::CONFIRMED])) {
             $purchaseOrder->items()->update($data);
 
-            if($purchaseOrder->state !== PurchaseOrderStateEnum::CREATING) {
+            if ($purchaseOrder->state !== PurchaseOrderStateEnum::CREATING) {
                 $data[$purchaseOrder->state->value . '_at'] = null;
             }
 
@@ -49,7 +47,7 @@ class UpdateStateToSubmittedPurchaseOrder
             return $purchaseOrder;
         }
 
-        throw ValidationException::withMessages(['status' => 'You can not change the status to submitted']);
+        throw ValidationException::withMessages(['status' => 'You only can submit creating or confirmed orders, you have '. $purchaseOrder->state->value]);
     }
 
     /**
