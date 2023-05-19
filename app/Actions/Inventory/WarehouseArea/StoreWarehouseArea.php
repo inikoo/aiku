@@ -11,6 +11,7 @@ namespace App\Actions\Inventory\WarehouseArea;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\Warehouse;
+use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -46,7 +47,7 @@ class StoreWarehouseArea
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.warehouses', 'between:2,4', 'alpha'],
+            'code' => ['required', 'unique:tenant.warehouses', 'between:2,4', 'alpha', new CaseSensitive('warehouses')],
             'name' => ['required', 'max:250', 'string'],
         ];
     }

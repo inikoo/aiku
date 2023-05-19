@@ -12,6 +12,7 @@ use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -52,7 +53,7 @@ class StoreLocation
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash'],
+            'code'         => ['required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash', new CaseSensitive('locations')],
         ];
     }
 
