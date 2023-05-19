@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Shop\UI;
 
+use App\Actions\InertiaAction;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Marketing\ShopResource;
@@ -16,7 +17,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowShop
+class ShowShop extends InertiaAction
 {
     use AsAction;
     use WithInertia;
@@ -28,6 +29,8 @@ class ShowShop
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('shops.edit');
+
         return $request->user()->hasPermissionTo("shops.view");
     }
 
@@ -36,7 +39,7 @@ class ShowShop
         return $this->handle($shop);
     }
 
-    public function htmlResponse(Shop $shop): Response
+    public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -48,8 +51,12 @@ class ShowShop
                 'breadcrumbs' => $this->getBreadcrumbs($shop),
                 'pageHead'    => [
                     'title' => $shop->name,
-
-
+                    'edit'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ] : false,
                 ],
                 'shop'            => new ShopResource($shop),
                 'flatTreeMaps'    => [
@@ -80,6 +87,7 @@ class ShowShop
                                 'number' => $shop->stats->number_departments
                             ]
                         ],
+                        /*
                         [
                             'name'  => __('families'),
                             'icon'  => ['fal', 'fa-folder'],
@@ -88,6 +96,7 @@ class ShowShop
                                 'number' => $shop->stats->number_families
                             ]
                         ],
+                        */
                         [
                             'name'  => __('products'),
                             'icon'  => ['fal', 'fa-cube'],
@@ -142,7 +151,7 @@ class ShowShop
     }
 
 
-    public function getBreadcrumbs(Shop $shop): array
+    public function getBreadcrumbs(Shop $shop, $suffix = null): array
     {
         return
             array_merge(
@@ -169,7 +178,8 @@ class ShowShop
 
 
 
-                        ]
+                        ],
+                        'suffix' => $suffix,
                     ]
                 ]
             );

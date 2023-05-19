@@ -8,11 +8,9 @@
 namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditWarehouse extends InertiaAction
@@ -24,14 +22,12 @@ class EditWarehouse extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.warehouses.edit');
-        return $request->user()->hasPermissionTo("inventory.warehouses.view");
+        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
 
     public function asController(Warehouse $warehouse, ActionRequest $request): Warehouse
     {
         $this->initialisation($request);
-
         return $this->handle($warehouse);
     }
 
@@ -42,7 +38,7 @@ class EditWarehouse extends InertiaAction
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('warehouse'),
+                'title'       => __('edit warehouse'),
                 'breadcrumbs' => $this->getBreadcrumbs($warehouse),
                 'pageHead'    => [
                     'title'     => $warehouse->code,
@@ -87,10 +83,7 @@ class EditWarehouse extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Warehouse $warehouse): WarehouseResource
-    {
-        return new WarehouseResource($warehouse);
-    }
+
 
     public function getBreadcrumbs(Warehouse $warehouse): array
     {

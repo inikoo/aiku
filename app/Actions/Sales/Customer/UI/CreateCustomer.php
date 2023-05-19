@@ -7,7 +7,7 @@
 
 namespace App\Actions\Sales\Customer\UI;
 
-use App\Actions\Assets\Country\GetAddressData;
+use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Helpers\Address;

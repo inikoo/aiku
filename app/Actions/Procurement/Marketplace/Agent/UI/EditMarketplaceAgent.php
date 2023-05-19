@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
-use App\Actions\Assets\Country\GetAddressData;
+use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Http\Resources\Helpers\AddressResource;
