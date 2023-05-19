@@ -29,7 +29,9 @@ use App\Models\Sales\PaymentAccountShop;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Web\Website;
 use Database\Factories\Marketing\ShopFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -64,36 +67,36 @@ use Spatie\Sluggable\SlugOptions;
  * @property ShopSubtypeEnum|null $subtype
  * @property string|null $open_at
  * @property string|null $closed_at
- * @property int $country_id
+ * @property int|null $country_id
  * @property int $language_id
  * @property int $currency_id
  * @property int $timezone_id
  * @property array $data
  * @property array $settings
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Marketing\ShopAccountingStats|null $accountingStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
+ * @property-read ShopAccountingStats|null $accountingStats
+ * @property-read Collection<int, Address> $addresses
  * @property-read Country $country
  * @property-read Currency $currency
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\ProductCategory> $departments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentOrder> $fulfilmentOrders
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
- * @property-read \App\Models\Marketing\ShopMailStats|null $mailStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\OfferCampaign> $offerCampaigns
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Outbox> $outboxes
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Prospect> $prospects
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\ShippingZoneSchema> $shippingZoneSchemas
- * @property-read \App\Models\Marketing\ShopStats|null $stats
+ * @property-read Collection<int, Customer> $customers
+ * @property-read Collection<int, ProductCategory> $departments
+ * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
+ * @property-read Collection<int, Invoice> $invoices
+ * @property-read Collection<int, Issue> $issues
+ * @property-read ShopMailStats|null $mailStats
+ * @property-read Collection<int, OfferCampaign> $offerCampaigns
+ * @property-read Collection<int, Order> $orders
+ * @property-read Collection<int, Outbox> $outboxes
+ * @property-read Collection<int, PaymentAccount> $paymentAccounts
+ * @property-read Collection<int, Payment> $payments
+ * @property-read Collection<int, Product> $products
+ * @property-read Collection<int, Prospect> $prospects
+ * @property-read Collection<int, SerialReference> $serialReferences
+ * @property-read Collection<int, ShippingZoneSchema> $shippingZoneSchemas
+ * @property-read ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read Website|null $website
  * @method static ShopFactory factory($count = null, $state = [])
@@ -103,7 +106,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Shop query()
  * @method static Builder|Shop withTrashed()
  * @method static Builder|Shop withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Shop extends Model
 {

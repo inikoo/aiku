@@ -16,6 +16,8 @@ use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Order\StoreOrder;
 use App\Actions\Sales\Transaction\StoreTransaction;
+use App\Actions\Tenancy\Group\StoreGroup;
+use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
@@ -27,13 +29,21 @@ use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Sales\Transaction;
+use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Throwable;
 
-beforeAll(fn () => loadDB('d3_with_tenants.dump'));
+beforeAll(function () {
+    loadDB('test_base_database.dump');
+});
+
 
 beforeEach(function () {
-    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant = Tenant::first();
+    if (!$tenant) {
+        $group  = StoreGroup::make()->asAction(Group::factory()->definition());
+        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    }
     $tenant->makeCurrent();
 });
 
@@ -49,7 +59,7 @@ test('update shipper', function () {
     $this->assertModelExists($shipper);
 });
 
-test('create delivery note',function () {
+test('create delivery note', function () {
     try {
         $shop     = StoreShop::make()->action(Shop::factory()->definition());
         $customer = StoreCustomer::make()->action(
@@ -99,9 +109,9 @@ test('create delivery note item', function ($deliveryNote) {
             Address::make(),
             Address::make()
         );
-        $stock = StoreStock::make()->action($customer, Stock::factory()->definition());
-        $transaction = StoreTransaction::make()->action($order, Transaction::factory()->definition());
-        $deliveryNoteItem = StoreDeliveryNoteItem::make()->action($deliveryNote,[
+        $stock            = StoreStock::make()->action($customer, Stock::factory()->definition());
+        $transaction      = StoreTransaction::make()->action($order, Transaction::factory()->definition());
+        $deliveryNoteItem = StoreDeliveryNoteItem::make()->action($deliveryNote, [
             'delivery_note_id'  => $deliveryNote->id,
             'stock_id'          => $stock->id,
             'transaction_id'    => $transaction->id,
@@ -115,19 +125,19 @@ test('create delivery note item', function ($deliveryNote) {
 })->depends('create delivery note');
 
 
-test('remove delivery note',function($deliveryNote){
+test('remove delivery note', function ($deliveryNote) {
     $success = DeleteDeliveryNote::make()->handle($deliveryNote);
     $this->assertModelExists($deliveryNote);
     return $success;
-})->depends('create delivery note','create delivery note item');
+})->depends('create delivery note', 'create delivery note item');
 
 
-test('create shipment',function($deliveryNote, $shipper){
+test('create shipment', function ($deliveryNote, $shipper) {
     $shipper['api_shipper'] = '';
-    $shipment = StoreShipment::make()->action($deliveryNote, $shipper, Shipment::factory()->definition());
+    $shipment               = StoreShipment::make()->action($deliveryNote, $shipper, Shipment::factory()->definition());
     $this->assertModelExists($shipment);
     return $shipment;
-})->depends('create delivery note','create shipper');
+})->depends('create delivery note', 'create shipper');
 
 test('update shipment', function () {
     $shipment = Shipment::latest()->first();
@@ -139,8 +149,3 @@ test('update shipment', function () {
 //    $responseJson = ApcGbCallShipperApi::make()->action($deliveryNote,$shipper);
 //    return $responseJson['data'];
 //})->depends('create delivery note','create shipper');
-
-
-
-
-

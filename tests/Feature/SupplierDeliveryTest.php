@@ -19,6 +19,8 @@ use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItemBySelectedPurchaseOrderItem;
 use App\Actions\Procurement\SupplierDeliveryItem\UpdateStateToCheckedSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
+use App\Actions\Tenancy\Group\StoreGroup;
+use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
@@ -26,14 +28,22 @@ use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierDelivery;
 use App\Models\Procurement\SupplierDeliveryItem;
 use App\Models\Procurement\SupplierProduct;
+use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
-beforeAll(fn() => loadDB('d3_with_tenants.dump'));
+beforeAll(function () {
+    loadDB('test_base_database.dump');
+});
+
 
 beforeEach(function () {
-    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant = Tenant::first();
+    if (!$tenant) {
+        $group  = StoreGroup::make()->asAction(Group::factory()->definition());
+        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    }
     $tenant->makeCurrent();
 });
 
@@ -91,8 +101,7 @@ test('add items to purchase order', function ($purchaseOrder) {
 })->depends('create purchase order');
 
 test('create supplier delivery items by selected purchase order', function ($supplierDelivery, $items) {
-    $supplier = StoreSupplierDeliveryItemBySelectedPurchaseOrderItem::
-    run($supplierDelivery, $items->pluck('id')->toArray());
+    $supplier = StoreSupplierDeliveryItemBySelectedPurchaseOrderItem::run($supplierDelivery, $items->pluck('id')->toArray());
     expect($supplier)->toBeArray();
 
     return $supplier;

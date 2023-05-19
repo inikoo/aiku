@@ -5,17 +5,17 @@
   -->
 
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import {Head} from '@inertiajs/vue3';
+import {ref} from 'vue';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import FieldForm from '@/Components/Forms/FieldForm.vue';
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
-import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck,faPhone } from "@/../private/pro-light-svg-icons"
+import {faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint} from "@/../private/pro-light-svg-icons"
 
-library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck,faPhone)
+library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint)
 
 const props = defineProps<{
     title: string,
@@ -57,7 +57,7 @@ const current = ref(0)
 
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
 
     <!-- If overflow-hidden, affect to Multiselect on Address -->
@@ -83,9 +83,9 @@ const current = ref(0)
                                     ? 'text-teal-500 group-hover:text-teal-500'
                                     : 'text-gray-400 group-hover:text-gray-500',
                                 'flex-shrink-0 -ml-1 mr-3 h-6 w-6',
-                            ]" :icon="item.icon" />
+                            ]" :icon="item.icon"/>
 
-                            <span class="truncate">{{ item.title }}</span>
+                            <span class="capitalize truncate">{{ item.title }}</span>
                         </li>
                     </ul>
                 </nav>
@@ -94,7 +94,7 @@ const current = ref(0)
             <div class="px-4 sm:px-6 md:px-4 col-span-9">
                 <div class="pb-6">
                     <div class="mt-10 divide-y divide-grey-200" v-for="(sectionData, sectionIdx ) in formData['blueprint']"
-                        :key="sectionIdx">
+                         :key="sectionIdx">
                         <div class="space-y-1 mb-6 ">
                             <h3 class="text-lg leading-6 font-medium text-gray-900 capitalize">
                                 {{ sectionData.title }}
@@ -104,7 +104,7 @@ const current = ref(0)
                             </p>
                         </div>
                         <FieldForm class=" pt-4 sm:pt-5 px-6 " v-for="(fieldData, field ) in sectionData.fields"
-                            :field="field" :fieldData="fieldData" :args="formData['args']" />
+                                   :field="field" :fieldData="fieldData" :args="formData['args']"/>
                     </div>
                 </div>
             </div>

@@ -10,15 +10,49 @@ use App\Actions\Procurement\Agent\ChangeAgentOwner;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Agent\UpdateAgentVisibility;
+use App\Actions\Tenancy\Group\StoreGroup;
+use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
+use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Validation\ValidationException;
 
-beforeAll(fn () => loadDB('d3_with_tenants.dump'));
+beforeAll(function () {
+    loadDB('test_base_database.dump');
+});
+
 
 beforeEach(function () {
-    $tenant = Tenant::where('slug', 'agb')->first();
+    $tenant = Tenant::first();
+    if (!$tenant) {
+        $group  = StoreGroup::make()->asAction(
+            array_merge(
+                Group::factory()->definition(),
+                [
+                    'code'=> 'ACME'
+                ]
+            )
+        );
+        $tenant = StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code'=> 'AGB'
+                ]
+            )
+        );
+        StoreTenant::make()->action(
+            $group,
+            array_merge(
+                Tenant::factory()->definition(),
+                [
+                    'code'=> 'AUS'
+                ]
+            )
+        );
+    }
     $tenant->makeCurrent();
 });
 
