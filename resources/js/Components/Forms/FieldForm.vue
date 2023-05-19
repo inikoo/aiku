@@ -25,6 +25,7 @@ import Select from '@/Components/Forms/Fields/Select.vue'
 import Radio from '@/Components/Forms/Fields/Radio.vue'
 import TextEditor from '@/Components/Forms/Fields/TextEditor.vue'
 import Address from "@/Components/Forms/Fields/Address.vue";
+import Country from "@/Components/Forms/Fields/Country.vue";
 
 
 const props = defineProps<{
@@ -59,7 +60,8 @@ const components = {
     'toggle': Toggle,
     'radio': Radio,
     'texteditor': TextEditor,
-    'address': Address
+    'address': Address,
+    'country': Country
 };
 
 const getComponent = (componentName) => {
