@@ -24,6 +24,7 @@ import { useTabChange } from "@/Composables/tab-change";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
+import TableSupplierPurchaseOrders from "@/Pages/Tables/TableSupplierPurchaseOrders.vue";
 library.add(
     faInventory,
     faWarehouse,
@@ -62,7 +63,7 @@ const component = computed(() => {
         supplier_products: TableSupplierProducts,
         details: ModelDetails,
         history: ModelChangelog,
-        purchase_orders: TablePurchaseOrders
+        purchase_orders: TableSupplierPurchaseOrders
     };
     return components[currentTab.value];
 
