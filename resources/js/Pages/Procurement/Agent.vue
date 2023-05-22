@@ -26,6 +26,8 @@ const props = defineProps<{
     showcase?: object
     suppliers?: object
     supplier_products?: object,
+    purchase_orders?: object,
+    errors?: object
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -37,6 +39,7 @@ import {
     faTerminal,
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
+import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 
 library.add(
     faInventory,
@@ -57,12 +60,18 @@ const component = computed(() => {
         showcase: AgentShowcase,
         suppliers: TableSuppliers,
         supplier_products: TableSupplierProducts,
+        purchase_orders: TablePurchaseOrders,
         details: ModelDetails,
         history: ModelChangelog
     };
     return components[currentTab.value];
 
 });
+
+if(props.errors.purchase_orders) {
+    console.log(props.errors.purchase_orders);
+    confirm(props.errors.purchase_orders)
+}
 
 </script>
 

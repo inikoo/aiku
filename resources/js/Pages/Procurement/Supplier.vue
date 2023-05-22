@@ -49,7 +49,8 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    supplier_products?: object
+    supplier_products: object
+    purchase_orders: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -61,6 +62,7 @@ const component = computed(() => {
         supplier_products: TableSupplierProducts,
         details: ModelDetails,
         history: ModelChangelog,
+        purchase_orders: TablePurchaseOrders
     };
     return components[currentTab.value];
 

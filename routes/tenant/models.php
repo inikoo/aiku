@@ -79,6 +79,7 @@ Route::post('/agent/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inS
 
 Route::post('/supplier/', StoreSupplier::class)->name('supplier.store');
 Route::post('/agent/{agent}/supplier', [StoreSupplier::class,'inAgent'])->name('agent.supplier.store');
+Route::post('/supplier/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
 
 Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');
 
