@@ -8,8 +8,11 @@
 namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\SupplierTabsEnum;
+use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Supplier;
@@ -61,8 +64,43 @@ class ShowSupplier extends InertiaAction
                     fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->supplier))
                     : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->supplier))),
 
+                SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
+                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run())
+                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run())),
+
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure($supplier));
+        )->table(IndexSupplierProducts::make()->tableStructure($supplier))
+            ->table(IndexPurchaseOrders::make()->tableStructure($supplier));
+    }
+
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    {
+        return array_merge(
+            (new ProcurementDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name' => 'procurement.agents.index',
+                            ],
+                            'label' => __('agent')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'procurement.agents.show',
+                                'parameters' => [$routeParameters['agent']->slug]
+                            ],
+                            'label' => $routeParameters['agent']->code,
+                        ],
+                    ],
+                    'suffix' => $suffix,
+
+                ],
+            ]
+        );
     }
 
 
