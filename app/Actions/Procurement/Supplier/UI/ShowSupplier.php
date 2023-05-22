@@ -58,6 +58,11 @@ class ShowSupplier extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'                                 => [
+                    'icon'          =>
+                        [
+                            'icon'  => ['fal', 'person-dolly'],
+                            'title' => __('agent')
+                        ],
                     'title' => $supplier->name,
                 ],
                 'tabs'                                     => [

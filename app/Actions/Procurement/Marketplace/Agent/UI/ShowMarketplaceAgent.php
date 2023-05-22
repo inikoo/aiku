@@ -52,7 +52,7 @@ class ShowMarketplaceAgent extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'icon'  => 'fal fa-agent',
+                    'icon'  => 'fal people-arrows',
                     'title' => $agent->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
