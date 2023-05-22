@@ -17,10 +17,10 @@ class TenantFactory extends Factory
 {
     public function definition(): array
     {
-        $country  = Country::where('code', 'US')->firstOrFail();
+        $country  = Country::where('code', 'GB')->firstOrFail();
         $language = Language::where('code', fake()->languageCode)->firstOrFail();
-        $timezone = Timezone::where('name', fake()->timezone('USA'))->firstOrFail();
-        $currency = Currency::where('code', 'USD')->firstOrFail();
+        $timezone = Timezone::where('name', fake()->timezone('GB'))->firstOrFail();
+        $currency = Currency::where('code', 'GBP')->firstOrFail();
 
         return [
             'code'        => fake()->lexify(),
