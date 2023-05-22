@@ -66,13 +66,20 @@ const component = computed(() => {
         history: ModelChangelog,
         purchase_orders: TablePurchaseOrders
     };
+
     return components[currentTab.value];
 
 });
 
-if(props.errors.purchase_orders) {
-    console.log(props.errors.purchase_orders);
-    confirm(props.errors.purchase_orders)
+const getErrors = () => {
+    if(props.errors.purchase_order) {
+        let confirm = confirm(props.errors.purchase_order);
+
+        if(confirm) {
+            const formData = new FormData();
+            formData.append("force", true)
+        }
+    }
 }
 
 </script>
@@ -80,7 +87,8 @@ if(props.errors.purchase_orders) {
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    <div v-if="errors.purchase_order">{{ getErrors() }}</div>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>
 </template>
 
