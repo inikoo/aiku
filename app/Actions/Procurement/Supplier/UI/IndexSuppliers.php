@@ -91,7 +91,6 @@ class IndexSuppliers extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }
@@ -110,14 +109,14 @@ class IndexSuppliers extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request)
     {
-        $parent = $request->route()->parameters == [] ? app('currentTenant') : last($request->route()->paramenters());
+        $parent = $request->route()->parameters == []
+            ?
+            app('currentTenant') :
+            last($request->route()->parameters);
         return Inertia::render(
             'Procurement/Suppliers',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('suppliers'),
                 'pageHead'    => [
                     'title'   => __('suppliers'),
