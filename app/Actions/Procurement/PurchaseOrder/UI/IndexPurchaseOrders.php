@@ -11,7 +11,10 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\Supplier;
+use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPurchaseOrders extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle(Agent|Supplier|Tenant|null $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,6 +40,13 @@ class IndexPurchaseOrders extends InertiaAction
             ->defaultSort('purchase_orders.number')
             ->select(['number', 'slug'])
             ->allowedFilters([$globalSearch])
+
+            ->when($parent, function ($query) use ($parent) {
+                if(class_basename($parent) != 'Tenant' && $parent != null) {
+                    $query->where('provider_id', $parent->id);
+                }
+            })
+
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page'
