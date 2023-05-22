@@ -77,6 +77,14 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
+            <span v-if="data['create_direct']" class="">
+                <Link method="post" :href="route(data['create_direct']['route']['name'],data['create_direct']['route']['parameters'])">
+                <Button type='secondary' action="create" class="capitalize">
+                 {{data['create_direct']['label']}}
+                </Button>
+                </Link>
+            </span>
+
             <span v-if="data['cancelCreate']" class="">
                 <Link :href="route(data['cancelCreate']['route']['name'],data['cancelCreate']['route']['parameters'])">
                 <Button type='secondary' action="cancel" class="capitalize">

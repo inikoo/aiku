@@ -42,11 +42,11 @@ enum AgentTabsEnum: string
             ],
             AgentTabsEnum::SUPPLIERS  => [
                 'title' => __('suppliers'),
-                'icon'  => 'fal fa-store-alt',
+                'icon'  => 'fal fa-person-dolly',
             ],
             AgentTabsEnum::SUPPLIER_PRODUCTS => [
-                'title' => __('supplier products'),
-                'icon'  => 'fal fa-cube',
+                'title' => __('products'),
+                'icon'  => 'fal fa-parachute-box',
             ],
             AgentTabsEnum::PURCHASE_ORDERS     => [
                 'title' => __('purchase orders'),

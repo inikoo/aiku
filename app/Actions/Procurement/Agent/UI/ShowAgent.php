@@ -64,6 +64,13 @@ class ShowAgent extends InertiaAction
                         ]
                     ] : false,
                     */
+                    'create_direct' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'models.agent.purchase-order.store',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('purchase order')
+                    ] : false,
                     'meta'  => [
                         [
                             'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),
@@ -96,6 +103,11 @@ class ShowAgent extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => AgentTabsEnum::navigation()
                 ],
+
+                AgentTabsEnum::SHOWCASE->value => $this->tab == AgentTabsEnum::SHOWCASE->value ?
+                    fn () => $agent
+                    : Inertia::lazy(fn () => $agent),
+
                 AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
                     fn () => SupplierResource::collection(IndexSuppliers::run($agent))
                     : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run($agent))),

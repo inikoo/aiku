@@ -12,6 +12,7 @@ import ModelDetails from "@/Pages/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
+import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -22,6 +23,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
+    showcase?: object
     suppliers?: object
     supplier_products?: object,
 }>()
@@ -52,6 +54,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        showcase: AgentShowcase,
         suppliers: TableSuppliers,
         supplier_products: TableSupplierProducts,
         details: ModelDetails,
