@@ -15,7 +15,7 @@ library.add(faExclamationCircle, faCheckCircle);
 const props = defineProps(['form', 'fieldName', 'options']);
 
 import {VueTelInput} from 'vue-tel-input';
-import 'vue-tel-input/vue-tel-input.css';
+import 'vue-tel-input/dist/vue-tel-input.css';
 import {ref} from 'vue';
 
 let defaultCountry = null;

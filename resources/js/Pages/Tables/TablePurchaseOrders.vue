@@ -5,9 +5,9 @@
   -->
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import { PurchaseOrder } from "@/types/purchase-order";
+import {PurchaseOrder} from "@/types/purchase-order";
 
 const props = defineProps<{
     data: object
@@ -26,7 +26,6 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
 </script>
 
 <template>
-    From TablePurchaseOrders
     <Table :resource="data" :name="'po'" class="mt-5">
         <template #cell(number)="{ item: purchaseOrder }">
             <Link :href="PurchaseOrderRoute(purchaseOrder)">

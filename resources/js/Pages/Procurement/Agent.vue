@@ -40,7 +40,6 @@ import {
     faTerminal,
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
-import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 
 library.add(
     faInventory,
@@ -64,7 +63,6 @@ const component = computed(() => {
         purchase_orders: TablePurchaseOrders,
         details: ModelDetails,
         history: ModelChangelog,
-        purchase_orders: TablePurchaseOrders
     };
 
     return components[currentTab.value];
@@ -86,6 +84,7 @@ const getErrors = () => {
 
 <template layout="App">
     <Head :title="title" />
+    <!-- {{ typeof props.errors.purchase_orders }} -->
     <PageHeading :data="pageHead"></PageHeading>
     <div v-if="errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>

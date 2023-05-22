@@ -18,7 +18,7 @@ const props = defineProps <{
 
 <template layout="App">
     <Head :title="title"/>
-    {{ pageHead }}
+    <!-- {{ pageHead }} -->
     <PageHeading :data="pageHead"></PageHeading>
     <TablePurchaseOrders :data="data" />
 </template>

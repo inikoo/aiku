@@ -46,7 +46,7 @@ class ShowPurchaseOrder extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($this->purchaseOrder),
                 'pageHead'    => [
                     'icon'  => 'fal people-arrows',
-                    'title' => $this->purchaseOrder,
+                    'title' => $this->purchaseOrder->number,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
