@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
@@ -15,10 +16,10 @@ use App\Enums\UI\SupplierTabsEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
@@ -41,23 +42,39 @@ class ShowSupplier extends InertiaAction
 
     public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
-        $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(SupplierTabsEnum::values());
+
         return $this->handle($supplier);
     }
 
-    public function htmlResponse(Supplier $supplier): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
     {
+        $this->initialisation($request)->withTab(SupplierTabsEnum::values());
+
+        return $this->handle($supplier);
+    }
+
+    public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
+    {
+
         return Inertia::render(
             'Procurement/Supplier',
             [
-                'title'       => __('supplier'),
-                // 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $supplier),
-                'breadcrumbs' => [],
-                'pageHead'    => [
+                'title'                                    => __('supplier'),
+                'breadcrumbs'                              => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'pageHead'                                 => [
+                    'icon'          =>
+                        [
+                            'icon'  => ['fal', 'person-dolly'],
+                            'title' => __('agent')
+                        ],
                     'title' => $supplier->name,
                 ],
-                'tabs'=> [
+                'tabs'                                     => [
                     'current'    => $this->tab,
                     'navigation' => SupplierTabsEnum::navigation()
                 ],
@@ -75,38 +92,84 @@ class ShowSupplier extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
-            [
+        $headCrumb = function (supplier $supplier, array $routeParameters, string $suffix) {
+            return [
                 [
+
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
-                            'route' => [
-                                'name' => 'procurement.agents.index',
-                            ],
-                            'label' => __('agent')
+                            'route' => $routeParameters['index'],
+                            'label' => __('suppliers')
                         ],
                         'model' => [
-                            'route' => [
-                                'name'       => 'procurement.agents.show',
-                                'parameters' => [$routeParameters['agent']->slug]
-                            ],
-                            'label' => $routeParameters['agent']->code,
+                            'route' => $routeParameters['model'],
+                            'label' => $supplier->name,
                         ],
+
                     ],
-                    'suffix' => $suffix,
+                    'suffix'=> $suffix
 
                 ],
-            ]
-        );
+            ];
+        };
+
+        return match ($routeName) {
+            'procurement.suppliers.show' =>
+
+            array_merge(
+                ProcurementDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $routeParameters['supplier'],
+                    [
+                        'index' => [
+                            'name'       => 'procurement.suppliers.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'procurement.suppliers.show',
+                            'parameters' => [$routeParameters['supplier']->slug]
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+            'procurement.agents.show.suppliers.show' =>
+            array_merge(
+                (new ShowAgent())->getBreadcrumbs(
+                    'procurement.agent',
+                    ['agent'=> $routeParameters['agent']]
+                ),
+                $headCrumb(
+                    $routeParameters['supplier'],
+                    [
+                        'index' => [
+                            'name'       => 'procurement.agents.show.suppliers.index',
+                            'parameters' => [
+                                $routeParameters['agent']->slug,
+                            ]
+                        ],
+                        'model' => [
+                            'name'       => 'procurement.agents.show.suppliers.show',
+                            'parameters' => [
+                                $routeParameters['agent']->slug,
+                                $routeParameters['supplier']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
 
 
-    #[Pure] public function jsonResponse(Supplier $supplier): SupplierResource
-    {
-        return new SupplierResource($supplier);
-    }
+
+   public function jsonResponse(Supplier $supplier): SupplierResource
+   {
+       return new SupplierResource($supplier);
+   }
 }

@@ -6,7 +6,7 @@
 
 export interface Supplier {
     type: string,
-    agent_id: string,
+    agent_slug: string,
     slug: string,
     code: string
     owner_type: string

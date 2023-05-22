@@ -45,7 +45,7 @@ class ShowSupplierDelivery extends InertiaAction
                 'title'       => __('supplier delivery'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->supplierDelivery),
                 'pageHead'    => [
-                    'icon'  => 'fal fa-agent',
+                    'icon'  => 'fal people-arrows',
                     'title' => $this->supplierDelivery->id,
                     'edit'  => $this->canEdit ? [
                         'route' => [

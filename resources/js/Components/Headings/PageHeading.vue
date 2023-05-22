@@ -6,7 +6,6 @@
 
 <script setup>
 import {Link} from '@inertiajs/vue3';
-import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/vue';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faEmptySet} from '@/../private/pro-light-svg-icons';
 import {faPencil,faArrowLeft} from '@/../private/pro-regular-svg-icons';
@@ -27,7 +26,8 @@ const locale = useLocaleStore();
     <div class="m-4 grid grid-flow-col justify-between items-center">
         <div class="">
             <h2 class="font-bold text-gray-900 text-3xl tracking-tight capitalize">
-                <FontAwesomeIcon v-if="data.icon" :title="data.icon.tooltip" aria-hidden="true" :icon="data.icon" size="xs" class="pr-2"/>
+                <FontAwesomeIcon v-if="data.icon" :title="data.icon.title" aria-hidden="true"
+                                 :icon="data.icon.icon" size="xs" class="pr-2"/>
                 {{ data.title }}
             </h2>
             <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
@@ -78,7 +78,7 @@ const locale = useLocaleStore();
             </span>
 
             <span v-if="data['create_direct']" class="">
-                <Link method="post" :href="route(data['create_direct']['route']['name'],data['create_direct']['route']['parameters'])">
+                <Link as="button" method="post" :href="route(data['create_direct']['route']['name'],data['create_direct']['route']['parameters'])">
                 <Button type='secondary' action="create" class="capitalize">
                  {{data['create_direct']['label']}}
                 </Button>
