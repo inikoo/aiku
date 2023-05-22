@@ -9,12 +9,12 @@ namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Supplier\UI\IndexMarketplaceSuppliers;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
+use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\MarketplaceAgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
+use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
-use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -37,8 +37,8 @@ class ShowMarketplaceAgent extends InertiaAction
     public function asController(Agent $agent, ActionRequest $request): Agent
     {
         $this->initialisation($request)->withTab(MarketplaceAgentTabsEnum::values());
-        return $this->handle($agent);
 
+        return $this->handle($agent);
     }
 
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
@@ -46,29 +46,49 @@ class ShowMarketplaceAgent extends InertiaAction
         return Inertia::render(
             'Procurement/MarketplaceAgent',
             [
-                'title'       => __("Agent's marketplace"),
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'title'                                    => __("agent"),
+                'breadcrumbs'                              => $this->getBreadcrumbs(
                     $request->route()->parameters
                 ),
-                'pageHead'    => [
-                    'icon'  => 'fal people-arrows',
-                    'title' => $agent->name,
-                    'edit'  => $this->canEdit ? [
+                'pageHead'                                 => [
+                    'icon'   => 'fal people-arrows',
+                    'title'  => $agent->name,
+                    'edit'   => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-                    'create'  => $this->canEdit ? [
+                    'create' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'procurement.marketplace-agents.show.suppliers.create',
+                            'name'       => 'procurement.marketplace.agents.show.suppliers.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('supplier')
+                        'label' => __('supplier')
                     ] : false,
+                    'meta'   => [
+                        [
+                            'href'     => ['procurement.marketplace.agents.show.suppliers.index', $agent->slug],
+                            'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),
+                            'number'   => $agent->stats->number_suppliers,
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-person-dolly',
+                                'tooltip' => __('Suppliers'),
+                            ],
+                        ],
+                        [
+                            'href'     => ['procurement.marketplace.agents.show.supplier-products.index', $agent->slug],
+                            'name'     => trans_choice('product|products', $agent->stats->number_supplier_products),
+                            'number'   => $agent->stats->number_supplier_products,
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-parachute-box',
+                                'tooltip' => __('products'),
+                            ],
+                        ]
+                    ]
 
                 ],
-                'tabs'=> [
+                'tabs'                                     => [
                     'current'    => $this->tab,
                     'navigation' => MarketplaceAgentTabsEnum::navigation()
                 ],
@@ -77,19 +97,19 @@ class ShowMarketplaceAgent extends InertiaAction
                     : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(IndexMarketplaceSuppliers::run($agent))),
 
                 MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($agent))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($agent))),
+                    fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))
+                    : Inertia::lazy(fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))),
 
             ]
         )->table(IndexMarketplaceSuppliers::make()->tableStructure($agent))
-            ->table(IndexSupplierProducts::make()->tableStructure($agent));
+            ->table(IndexMarketplaceSupplierProducts::make()->tableStructure($agent));
     }
 
 
-     public function jsonResponse(Agent $agent): AgentResource
-     {
-         return new AgentResource($agent);
-     }
+    public function jsonResponse(Agent $agent): AgentResource
+    {
+        return new AgentResource($agent);
+    }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
@@ -101,19 +121,19 @@ class ShowMarketplaceAgent extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'procurement.marketplace-agents.index',
+                                'name' => 'procurement.marketplace.agents.index',
                             ],
                             'label' => __("agent's marketplace"),
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'procurement.marketplace-agents.show',
+                                'name'       => 'procurement.marketplace.agents.show',
                                 'parameters' => [$routeParameters['agent']->slug]
                             ],
                             'label' => $routeParameters['agent']->code,
                         ],
                     ],
-                    'suffix' => $suffix,
+                    'suffix'         => $suffix,
 
                 ],
             ]

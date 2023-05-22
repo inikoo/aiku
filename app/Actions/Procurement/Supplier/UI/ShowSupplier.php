@@ -70,7 +70,7 @@ class ShowSupplier extends InertiaAction
                     'icon'          =>
                         [
                             'icon'  => ['fal', 'person-dolly'],
-                            'title' => __('agent')
+                            'title' => __('supplier')
                         ],
                     'title' => $supplier->name,
                 ],

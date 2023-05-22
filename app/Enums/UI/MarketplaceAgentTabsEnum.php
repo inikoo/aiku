@@ -44,11 +44,11 @@ enum MarketplaceAgentTabsEnum: string
             ],
             MarketplaceAgentTabsEnum::SUPPLIERS  => [
                 'title' => __('suppliers'),
-                'icon'  => 'fal fa-store-alt',
+                'icon'  => 'fal fa-person-dolly',
             ],
             MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS => [
-                'title' => __('supplier products'),
-                'icon'  => 'fal fa-cube',
+                'title' => __('products'),
+                'icon'  => 'fal fa-parachute-box',
             ],
             MarketplaceAgentTabsEnum::SHOWCASE => [
                 'title' => __('Agent'),

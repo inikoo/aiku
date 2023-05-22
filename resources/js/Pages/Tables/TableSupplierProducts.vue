@@ -33,7 +33,7 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
     <Table :resource="data" :name="'sp'" class="mt-5">
         <template #cell(code)="{ item: supplier_product }">
             <Link :href="supplierProductRoute(supplier_product)">
-                {{ supplier_product.code }}
+                {{ supplier_product['code'] }}
             </Link>
         </template>
     </Table>

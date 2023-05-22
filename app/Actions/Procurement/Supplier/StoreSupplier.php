@@ -129,10 +129,10 @@ class StoreSupplier
     public function htmlResponse(Supplier $supplier): RedirectResponse
     {
         if($supplier->owner_type=='Agent') {
-            return Redirect::route('procurement.marketplace-agents.show.suppliers.index', $supplier->owner->slug);
+            return Redirect::route('procurement.marketplace.agents.show.suppliers.index', $supplier->owner->slug);
 
         }
 
-        return Redirect::route('procurement.marketplace-suppliers.show', $supplier->slug);
+        return Redirect::route('procurement.marketplace.suppliers.show', $supplier->slug);
     }
 }

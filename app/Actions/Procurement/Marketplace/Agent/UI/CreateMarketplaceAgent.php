@@ -30,7 +30,7 @@ class CreateMarketplaceAgent extends InertiaAction
                     'title'        => __('new agent'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'procurement.marketplace-agents.index',
+                            'name'       => 'procurement.marketplace.agents.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]

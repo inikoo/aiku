@@ -48,21 +48,16 @@ class IndexMarketplaceSuppliers extends InertiaAction
                     ->where('supplier_tenant.tenant_id', app('currentTenant')->id)
                     ->limit(1)
             ])
-
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
                     $query->where('suppliers.owner_type', 'Agent');
                     $query->where('suppliers.owner_id', $parent->id);
                     $query->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
                     $query->addSelect('agents.slug as agent_slug');
-
                 } else {
-
                     $query->where('suppliers.type', 'supplier');
-
                 }
             })
-
             ->allowedSorts(['code', 'name', 'number_supplier_products'])
             ->allowedFilters([$globalSearch])
             ->paginate(
@@ -88,9 +83,11 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 ->defaultSort('code');
         };
     }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -102,12 +99,14 @@ class IndexMarketplaceSuppliers extends InertiaAction
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
+
         return $this->handle(app('currentTenant'));
     }
 
     public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle($agent);
     }
 
@@ -119,13 +118,15 @@ class IndexMarketplaceSuppliers extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request)
     {
-        $parent = $request->route()->parameters == [] ?
-            app('currentTenant') :
+        $parent = $request->route()->parameters == []
+            ?
+            app('currentTenant')
+            :
             $request->route()->parameters['agent'];
 
-        $title=match(class_basename($parent)) {
-            'Agent'=> __('suppliers'),
-            default=> __("supplier's marketplace")
+        $title = match (class_basename($parent)) {
+            'Agent' => __('suppliers'),
+            default => __("supplier's marketplace")
         };
 
         return Inertia::render(
@@ -137,16 +138,26 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 ),
                 'title'       => $title,
                 'pageHead'    => [
-                    'title'   => $title,
-                    'create'  => $this->canEdit && $this->routeName=='procurement.marketplace-suppliers.index' ? [
-                        'route' => [
-                            'name'       => 'procurement.marketplace-suppliers.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label'=> __('supplier')
+                    'title'  => $title,
+                    'create' => $this->canEdit ? [
+                        'route' =>
+
+                            match(class_basename($parent)) {
+                                'Agent' => [
+                                    'name'       => 'procurement.marketplace.agents.show.suppliers.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                default => [
+                                    'name'       => 'procurement.marketplace.suppliers.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                            },
+
+
+                        'label' => __('supplier')
                     ] : false,
                 ],
-                'data'   => MarketplaceSupplierResource::collection($suppliers),
+                'data'        => MarketplaceSupplierResource::collection($suppliers),
 
 
             ]
@@ -169,28 +180,25 @@ class IndexMarketplaceSuppliers extends InertiaAction
         };
 
         return match ($routeName) {
-
-
-
-            'procurement.marketplace-suppliers.index'            =>
+            'procurement.marketplace.suppliers.index' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'=> 'procurement.marketplace-suppliers.index',
+                        'name' => 'procurement.marketplace.suppliers.index',
                         null
                     ]
                 ),
             ),
 
 
-            'procurement.marketplace-agents.show.suppliers.index' =>
+            'procurement.marketplace.agents.show.suppliers.index' =>
             array_merge(
                 (new ShowMarketplaceAgent())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'      => 'procurement.marketplace-agents.show.suppliers.index',
-                        'parameters'=>
+                        'name'       => 'procurement.marketplace.agents.show.suppliers.index',
+                        'parameters' =>
                             [
                                 $routeParameters['agent']->slug
                             ]

@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Procurement;
 
+use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -24,13 +25,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class MarketplaceSupplierResource extends JsonResource
 {
+    use HasSelfCall;
     public function toArray($request): array
     {
         return [
             'code'                          => $this->code,
             'name'                          => $this->name,
             'slug'                          => $this->slug,
-            'agent_slug'                    => 'awindia',//$this->agent_slug,
+            'agent_slug'                    => $this->agent_slug,
             'location'                      => $this->location,
             'number_suppliers_deliveries'   => $this->number_suppliers_deliveries,
             'number_supplier_products'      => $this->number_supplier_products,
