@@ -22,6 +22,7 @@ class TenantFactory extends Factory
         $timezone = Timezone::where('name', fake()->timezone('US'))->firstOrFail();
         $currency = Currency::where('code', 'USD')->firstOrFail();
 
+
         return [
             'code'        => fake()->lexify(),
             'name'        => fake()->company(),
