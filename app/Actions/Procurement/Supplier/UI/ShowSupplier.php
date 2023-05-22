@@ -16,6 +16,7 @@ use App\Enums\UI\SupplierTabsEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -41,7 +42,14 @@ class ShowSupplier extends InertiaAction
 
     public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
-        $this->routeName = $request->route()->getName();
+        $this->initialisation($request)->withTab(SupplierTabsEnum::values());
+
+        return $this->handle($supplier);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
+    {
         $this->initialisation($request)->withTab(SupplierTabsEnum::values());
 
         return $this->handle($supplier);
@@ -49,6 +57,7 @@ class ShowSupplier extends InertiaAction
 
     public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'Procurement/Supplier',
             [
@@ -127,7 +136,7 @@ class ShowSupplier extends InertiaAction
                     $suffix
                 ),
             ),
-            'procurement.agent.show.suppliers.show' =>
+            'procurement.agents.show.suppliers.show' =>
             array_merge(
                 (new ShowAgent())->getBreadcrumbs(
                     'procurement.agent',
@@ -137,13 +146,13 @@ class ShowSupplier extends InertiaAction
                     $routeParameters['supplier'],
                     [
                         'index' => [
-                            'name'       => 'procurement.agent.show.suppliers.index',
+                            'name'       => 'procurement.agents.show.suppliers.index',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'procurement.agent.show.suppliers.show',
+                            'name'       => 'procurement.agents.show.suppliers.show',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
                                 $routeParameters['supplier']->slug

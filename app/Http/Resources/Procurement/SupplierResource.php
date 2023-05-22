@@ -15,12 +15,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $slug
  * @property string $created_at
  * @property string $updated_at
+ * @property string $agent_slug
  */
 class SupplierResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
+            'agent_slug' => $this->agent_slug,
             'code'       => $this->code,
             'name'       => $this->name,
             'slug'       => $this->slug,

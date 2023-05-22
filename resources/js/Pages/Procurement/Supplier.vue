@@ -16,7 +16,8 @@ import {
     faMapSigns,
     faMoneyBill,
     faHandReceiving,
-    faPoop, faClipboard, faTruck, faCameraRetro, faPaperclip, faPaperPlane, faClock
+    faPoop, faClipboard, faTruck, faCameraRetro, faPaperclip, faPaperPlane, faClock,
+    faPersonDolly
 } from "@/../private/pro-light-svg-icons";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
@@ -36,6 +37,7 @@ library.add(
     faPaperclip,
     faPaperPlane,
     faClock,
+    faPersonDolly
 );
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
