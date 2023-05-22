@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 10 May 2023 09:21:57 Central European Summer Time, Malaga, Spain
+ * Created: Wed, 10 May 2023 09:21:57 Central European Summer, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
@@ -9,7 +9,6 @@ namespace App\Actions\Procurement\SupplierPurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Agent\UI\HasUIAgents;
-use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierPurchaseOrders;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -79,7 +78,7 @@ class CreateSupplierPurchaseOrder extends InertiaAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating supplier deliveries'),
+                        'label'=> __('creating supplier purchase order'),
                     ]
                 ]
             ]
