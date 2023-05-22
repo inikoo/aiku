@@ -52,7 +52,7 @@ class ShowSupplier extends InertiaAction
             'Procurement/Supplier',
             [
                 'title'       => __('supplier'),
-//                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $supplier),
+                // 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $supplier),
                 'breadcrumbs' => [],
                 'pageHead'    => [
                     'title' => $supplier->name,

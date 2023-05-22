@@ -34,13 +34,6 @@ const darkModeForm = useForm({ darkMode: true })
 const themeForm = useForm({ theme: "theme-blue" })
 
 const current = ref(props["pageBody"].current)
-
-// const fakeDataFormField = {
-//     'updateRoute': {
-//         name: 'profilesss',
-//         parameters: 'slugggg'
-//     }
-// }
 </script>
 
 <template layout="App">

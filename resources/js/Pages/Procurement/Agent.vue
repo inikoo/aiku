@@ -7,12 +7,13 @@
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import {computed, defineAsyncComponent, ref} from "vue";
+import { computed, defineAsyncComponent, ref } from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
-import {useTabChange} from "@/Composables/tab-change";
+import { useTabChange } from "@/Composables/tab-change";
 import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
+import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -27,7 +28,7 @@ const props = defineProps<{
     suppliers?: object
     supplier_products?: object,
 }>()
-import {library} from '@fortawesome/fontawesome-svg-core';
+import { library } from '@fortawesome/fontawesome-svg-core';
 import {
     faInventory,
     faWarehouse,
@@ -58,7 +59,8 @@ const component = computed(() => {
         suppliers: TableSuppliers,
         supplier_products: TableSupplierProducts,
         details: ModelDetails,
-        history: ModelChangelog
+        history: ModelChangelog,
+        purchase_orders: TablePurchaseOrders
     };
     return components[currentTab.value];
 
@@ -69,7 +71,7 @@ const component = computed(() => {
 <template layout="App">
     <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]"></component>
 </template>
 
