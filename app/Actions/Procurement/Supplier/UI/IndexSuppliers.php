@@ -37,13 +37,16 @@ class IndexSuppliers extends InertiaAction
 
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
-            ->select(['code', 'slug', 'name', 'number_supplier_products', 'number_purchase_orders'])
+            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'number_supplier_products', 'number_purchase_orders'])
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
 
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
                     $query->where('suppliers.owner_type', 'Agent');
                     $query->where('suppliers.owner_id', $parent->id);
+                    $query->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
+                    $query->addSelect('agents.slug as agent_slug');
+
                 } else {
                     $query ->leftJoin('supplier_tenant', 'suppliers.id', 'supplier_tenant.supplier_id');
 

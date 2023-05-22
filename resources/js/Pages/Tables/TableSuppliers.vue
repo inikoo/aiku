@@ -22,8 +22,11 @@ function supplierRoute(supplier: Supplier) {
                 [supplier.slug]);
         default:
             return route(
-                'procurement.suppliers.show',
-                [supplier.slug]);
+                'procurement.agents.show.suppliers.show',
+                [
+                    supplier.agent_slug,
+                    supplier.slug
+                ]);
     }
 }
 
