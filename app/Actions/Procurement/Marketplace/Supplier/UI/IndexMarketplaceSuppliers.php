@@ -15,6 +15,7 @@ use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierTenant;
+use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexMarketplaceSuppliers extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle(Agent|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -40,13 +41,28 @@ class IndexMarketplaceSuppliers extends InertiaAction
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
-            ->select(['code', 'slug', 'name', 'number_supplier_products', 'location'])
+            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'number_supplier_products', 'suppliers.location'])
             ->addSelect([
                 'adoption' => SupplierTenant::select('supplier_tenant.status')
                     ->whereColumn('supplier_tenant.supplier_id', 'suppliers.id')
                     ->where('supplier_tenant.tenant_id', app('currentTenant')->id)
                     ->limit(1)
             ])
+
+            ->when($parent, function ($query) use ($parent) {
+                if (class_basename($parent) == 'Agent') {
+                    $query->where('suppliers.owner_type', 'Agent');
+                    $query->where('suppliers.owner_id', $parent->id);
+                    $query->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
+                    $query->addSelect('agents.slug as agent_slug');
+
+                } else {
+
+                    $query->where('suppliers.type', 'supplier');
+
+                }
+            })
+
             ->allowedSorts(['code', 'name', 'number_supplier_products'])
             ->allowedFilters([$globalSearch])
             ->paginate(
@@ -103,7 +119,15 @@ class IndexMarketplaceSuppliers extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request)
     {
-        $parent = $request->route()->parameters == [] ? app('currentTenant') : last($request->route()->paramenters());
+        $parent = $request->route()->parameters == [] ?
+            app('currentTenant') :
+            $request->route()->parameters['agent'];
+
+        $title=match(class_basename($parent)) {
+            'Agent'=> __('suppliers'),
+            default=> __("supplier's marketplace")
+        };
+
         return Inertia::render(
             'Procurement/MarketplaceSuppliers',
             [
@@ -111,9 +135,9 @@ class IndexMarketplaceSuppliers extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __("supplier's marketplace"),
+                'title'       => $title,
                 'pageHead'    => [
-                    'title'   => __("supplier's marketplace"),
+                    'title'   => $title,
                     'create'  => $this->canEdit && $this->routeName=='procurement.marketplace-suppliers.index' ? [
                         'route' => [
                             'name'       => 'procurement.marketplace-suppliers.create',
@@ -145,6 +169,9 @@ class IndexMarketplaceSuppliers extends InertiaAction
         };
 
         return match ($routeName) {
+
+
+
             'procurement.marketplace-suppliers.index'            =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
@@ -157,12 +184,12 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ),
 
 
-            'procurement.marketplace-suppliers.show.marketplace-suppliers.index' =>
+            'procurement.marketplace-agents.show.suppliers.index' =>
             array_merge(
-                (new ShowMarketplaceAgent())->getBreadcrumbs($routeParameters['agent']),
+                (new ShowMarketplaceAgent())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'      => 'procurement.marketplace-agents.show.marketplace-suppliers.index',
+                        'name'      => 'procurement.marketplace-agents.show.suppliers.index',
                         'parameters'=>
                             [
                                 $routeParameters['agent']->slug

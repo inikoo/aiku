@@ -131,7 +131,6 @@ class ShowMarketplaceSupplier extends InertiaAction
             ),
             'procurement.marketplace-agents.show.suppliers.show' => array_merge(
                 (new ShowMarketplaceAgent())->getBreadcrumbs(
-                    'procurement.marketplace-agents.show.suppliers.show',
                     ['agent'   => $routeParameters['agent']]
                 ),
                 $headCrumb(
