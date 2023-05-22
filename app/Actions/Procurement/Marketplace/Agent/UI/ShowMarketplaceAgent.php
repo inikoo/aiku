@@ -46,9 +46,8 @@ class ShowMarketplaceAgent extends InertiaAction
         return Inertia::render(
             'Procurement/MarketplaceAgent',
             [
-                'title'       => __('marketplace agent'),
+                'title'       => __("Agent's marketplace"),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
@@ -92,7 +91,7 @@ class ShowMarketplaceAgent extends InertiaAction
          return new AgentResource($agent);
      }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
             (new ProcurementDashboard())->getBreadcrumbs(),

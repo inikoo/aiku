@@ -14,7 +14,7 @@ use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierProductTenant;
+use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -37,19 +37,22 @@ class IndexSupplierProducts extends InertiaAction
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value);
         ;
-        return QueryBuilder::for(SupplierProductTenant::class)
+        return QueryBuilder::for(SupplierProduct::class)
             ->defaultSort('supplier_products.code')
             ->select(['code', 'slug', 'name'])
-
-            ->leftJoin('supplier_products', 'supplier_products.id', 'supplier_product_tenant.supplier_product_id')
-
+            //->leftJoin('supplier_products', 'supplier_products.id', 'supplier_product_tenant.supplier_product_id')
             ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
 
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
-                    $query->where('supplier_products.current_historic_supplier_product_id', $parent->id);
+                    $query->where('supplier_products.agent_id', $parent->id);
                 } elseif (class_basename($parent) == 'Tenant') {
+
+                    $query->leftJoin('supplier_product_tenant', 'supplier_product_tenant.supplier_product_id', 'supplier_products.id');
                     $query->where('supplier_product_tenant.tenant_id', $parent->id);
+                } elseif (class_basename($parent) == 'Supplier') {
+
+                    $query->where('supplier_products.supplier_id', $parent->id);
                 }
             })
             ->allowedSorts(['code', 'name'])
@@ -90,10 +93,16 @@ class IndexSupplierProducts extends InertiaAction
         return $this->handle(app('currentTenant'));
     }
 
-    public function InAgent(Agent $agent): LengthAwarePaginator
+    public function inAgent(Agent $agent): LengthAwarePaginator
     {
         $this->validateAttributes();
         return $this->handle($agent);
+    }
+
+    public function inSupplier(Supplier $supplier): LengthAwarePaginator
+    {
+        $this->validateAttributes();
+        return $this->handle($supplier);
     }
 
     public function jsonResponse(LengthAwarePaginator $supplier_products): AnonymousResourceCollection

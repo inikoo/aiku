@@ -36,12 +36,13 @@ class ShowMarketplaceSupplier extends InertiaAction
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(Supplier $marketplaceSupplier, ActionRequest $request): Supplier
+    public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
         $this->initialisation($request)->withTab(SupplierTabsEnum::values());
-        return $this->handle($marketplaceSupplier);
+        return $this->handle($supplier);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
     {
         $this->initialisation($request)->withTab(SupplierTabsEnum::values());
@@ -50,6 +51,8 @@ class ShowMarketplaceSupplier extends InertiaAction
 
     public function htmlResponse(Supplier $marketplaceSupplier, ActionRequest $request): Response
     {
+
+
         return Inertia::render(
             'Procurement/MarketplaceSupplier',
             [
@@ -128,7 +131,6 @@ class ShowMarketplaceSupplier extends InertiaAction
             ),
             'procurement.marketplace-agents.show.suppliers.show' => array_merge(
                 (new ShowMarketplaceAgent())->getBreadcrumbs(
-                    'procurement.marketplace-agents.show.suppliers.show',
                     ['agent'   => $routeParameters['agent']]
                 ),
                 $headCrumb(
