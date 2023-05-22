@@ -37,26 +37,18 @@ enum SupplierTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            SupplierTabsEnum::DATA => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+
             SupplierTabsEnum::PURCHASES_SALES => [
                 'title' => __('purchases/sales'),
                 'icon'  => 'fal fa-money-bill',
             ],
             SupplierTabsEnum::SUPPLIER_PRODUCTS => [
-                'title' => __('supplier/products'),
-                'icon'  => 'fal fa-hand-receiving',
+                'title' => __('products'),
+                'icon'  => 'fal fa-parachute-box',
             ],
-            SupplierTabsEnum::ISSUES => [
-                'title' => __('issues'),
-                'icon'  => 'fal fa-poop',
-            ],
+
             SupplierTabsEnum::PURCHASE_ORDERS => [
-                'title' => __('purchase/orders'),
+                'title' => __('purchase orders'),
                 'icon'  => 'fal fa-clipboard',
             ],
             SupplierTabsEnum::DELIVERIES => [
@@ -64,6 +56,24 @@ enum SupplierTabsEnum: string
                 'icon'  => 'fal fa-truck',
             ],
 
+            SupplierTabsEnum::SHOWCASE => [
+                'title' => __('supplier'),
+                'icon'  => 'fas fa-info-circle',
+            ],
+
+            SupplierTabsEnum::DATA => [
+                'title' => __('data'),
+                'icon'  => 'fal fa-database',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+
+            SupplierTabsEnum::ISSUES => [
+                'title' => __('issues'),
+                'icon'  => 'fal fa-poop',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
             SupplierTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
@@ -87,10 +97,8 @@ enum SupplierTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right'
             ],
-            SupplierTabsEnum::SHOWCASE => [
-                'title' => __('supplier'),
-                'icon'  => 'fas fa-info-circle',
-            ],
+
+
         };
     }
 }
