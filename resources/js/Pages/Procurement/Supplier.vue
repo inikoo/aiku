@@ -21,7 +21,6 @@ import {
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
-import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 library.add(

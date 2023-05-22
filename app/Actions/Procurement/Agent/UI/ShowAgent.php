@@ -37,6 +37,7 @@ class ShowAgent extends InertiaAction
     public function asController(Agent $agent, ActionRequest $request): Agent
     {
         $this->initialisation($request)->withTab(AgentTabsEnum::values());
+
         return $this->handle($agent);
     }
 
@@ -54,8 +55,12 @@ class ShowAgent extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'icon'  => 'fal fa-agent',
-                    'title' => $agent->name,
+                    'icon'          =>
+                        [
+                            'icon'  => ['fal', 'people-arrows'],
+                            'title' => __('agent')
+                        ],
+                    'title'         => $agent->name,
                     /*
                     'edit'  => $this->canEdit ? [
                         'route' => [
@@ -71,7 +76,7 @@ class ShowAgent extends InertiaAction
                         ],
                         'label' => __('purchase order')
                     ] : false,
-                    'meta'  => [
+                    'meta'          => [
                         [
                             'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),
                             'number'   => $agent->stats->number_suppliers,
@@ -99,7 +104,7 @@ class ShowAgent extends InertiaAction
                     ]
 
                 ],
-                'tabs'=> [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => AgentTabsEnum::navigation()
                 ],
@@ -122,10 +127,10 @@ class ShowAgent extends InertiaAction
     }
 
 
-     public function jsonResponse(Agent $agent): AgentResource
-     {
-         return new AgentResource($agent);
-     }
+    public function jsonResponse(Agent $agent): AgentResource
+    {
+        return new AgentResource($agent);
+    }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
@@ -149,7 +154,7 @@ class ShowAgent extends InertiaAction
                             'label' => $routeParameters['agent']->code,
                         ],
                     ],
-                    'suffix' => $suffix,
+                    'suffix'         => $suffix,
 
                 ],
             ]

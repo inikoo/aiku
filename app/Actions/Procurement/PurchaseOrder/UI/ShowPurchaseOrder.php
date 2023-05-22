@@ -45,7 +45,7 @@ class ShowPurchaseOrder extends InertiaAction
                 'title'       => __('purchase order'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->purchaseOrder),
                 'pageHead'    => [
-                    'icon'  => 'fal fa-agent',
+                    'icon'  => 'fal people-arrows',
                     'title' => $this->purchaseOrder,
                     'edit'  => $this->canEdit ? [
                         'route' => [
