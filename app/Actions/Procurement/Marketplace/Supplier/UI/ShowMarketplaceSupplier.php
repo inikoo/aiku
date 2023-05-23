@@ -9,23 +9,23 @@ namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
+use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
+use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\SupplierTabsEnum;
-use App\Http\Resources\Procurement\SupplierResource;
+use App\Enums\UI\MarketplaceSupplierTabsEnum;
+use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
+use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Supplier $marketplaceSupplier
- */
 class ShowMarketplaceSupplier extends InertiaAction
 {
-    public function handle(Supplier $marketplaceSupplier): Supplier
+    public function handle(Supplier $supplier): Supplier
     {
-        return $marketplaceSupplier;
+        return $supplier;
     }
 
 
@@ -38,51 +38,83 @@ class ShowMarketplaceSupplier extends InertiaAction
 
     public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
-        $this->initialisation($request)->withTab(SupplierTabsEnum::values());
+        $this->initialisation($request)->withTab(MarketplaceSupplierTabsEnum::values());
+
         return $this->handle($supplier);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
     {
-        $this->initialisation($request)->withTab(SupplierTabsEnum::values());
+        $this->initialisation($request)->withTab(MarketplaceSupplierTabsEnum::values());
+
         return $this->handle($supplier);
     }
 
-    public function htmlResponse(Supplier $marketplaceSupplier, ActionRequest $request): Response
+    public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
-
-
         return Inertia::render(
             'Procurement/MarketplaceSupplier',
             [
-                'title'       => __('marketplace supplier'),
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'title'                                               => __('supplier'),
+                'breadcrumbs'                                         => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'pageHead'    => [
-                    'title' => $marketplaceSupplier->name,
+                'pageHead'                                            => [
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'person-dolly'],
+                            'title' => __('supplier')
+                        ],
+                    'title' => $supplier->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
+                    'meta'  => [
+                        [
+                            'href'     => match (true) {
+                                $supplier->agent_id > 0 => ['procurement.marketplace.agents.show.suppliers.show.supplier-products.index', $supplier->agent->slug, $supplier->slug],
+                                default                 => ['procurement.marketplace.suppliers.show.supplier-products.index', $supplier->slug],
+                            },
+                            'name'     => trans_choice('product|products', $supplier->stats->number_supplier_products),
+                            'number'   => $supplier->stats->number_supplier_products,
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-parachute-box',
+                                'tooltip' => __('products'),
+                            ],
+                        ]
+                    ]
 
                 ],
-                'tabs'=> [
+                'tabs'                                                => [
                     'current'    => $this->tab,
-                    'navigation' => SupplierTabsEnum::navigation()
+                    'navigation' => MarketplaceSupplierTabsEnum::navigation()
                 ],
+                MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
+                    fn () => MarketplaceSupplierResource::collection(IndexSupplierProducts::run($supplier))
+                    : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(IndexSupplierProducts::run($supplier))),
+
+                MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
+                    fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($supplier))
+                    : Inertia::lazy(fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($supplier))),
+
+                MarketplaceSupplierTabsEnum::SHOWCASE->value => $this->tab == MarketplaceSupplierTabsEnum::SHOWCASE->value ?
+                    fn () => MarketplaceSupplierResource::make($supplier)->getArray()
+                    : Inertia::lazy(fn () => MarketplaceSupplierResource::make($supplier)->getArray()),
+
             ]
-        );
+        )->table(IndexSupplierProducts::make()->tableStructure($supplier))
+            ->table(IndexMarketplaceSupplierProducts::make()->tableStructure($supplier));
     }
 
 
-    public function jsonResponse(Supplier $marketplaceSupplier): SupplierResource
+    public function jsonResponse(Supplier $supplier): MarketplaceSupplierResource
     {
-        return new SupplierResource($marketplaceSupplier);
+        return new MarketplaceSupplierResource($supplier);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
@@ -95,7 +127,7 @@ class ShowMarketplaceSupplier extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('suppliers')
+                            'label' => __("supplier's marketplace")
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -103,47 +135,45 @@ class ShowMarketplaceSupplier extends InertiaAction
                         ],
 
                     ],
-                    'suffix'=> $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];
         };
 
         return match ($routeName) {
-            'procurement.marketplace-suppliers.show' => array_merge(
-                (new ProcurementDashboard())->getBreadcrumbs(
-
-                ),
+            'procurement.marketplace.suppliers.show' => array_merge(
+                (new ProcurementDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['supplier'],
                     [
                         'index' => [
-                            'name'       => 'procurement.marketplace-suppliers.index',
+                            'name'       => 'procurement.marketplace.suppliers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'procurement.marketplace-suppliers.show',
+                            'name'       => 'procurement.marketplace.suppliers.show',
                             'parameters' => [$routeParameters['supplier']->slug]
                         ]
                     ],
                     $suffix
                 )
             ),
-            'procurement.marketplace-agents.show.suppliers.show' => array_merge(
+            'procurement.marketplace.agents.show.suppliers.show' => array_merge(
                 (new ShowMarketplaceAgent())->getBreadcrumbs(
-                    ['agent'   => $routeParameters['agent']]
+                    ['agent' => $routeParameters['agent']]
                 ),
                 $headCrumb(
                     $routeParameters['supplier'],
                     [
                         'index' => [
-                            'name'       => 'procurement.marketplace-agents.show.suppliers.index',
+                            'name'       => 'procurement.marketplace.agents.show.suppliers.index',
                             'parameters' => [
                                 $routeParameters['agent']->slug
                             ]
                         ],
                         'model' => [
-                            'name'       => 'procurement.marketplace-agents.show.suppliers.show',
+                            'name'       => 'procurement.marketplace.agents.show.suppliers.show',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
 

@@ -64,7 +64,7 @@ class ProcurementDashboard
                                 'tooltip'   => __('marketplace agents'),
                                 'icon'      => ['fal', 'fa-store'],
                                 'labelStyle'=> 'bordered',
-                                'href'      => ['procurement.marketplace-agents.index'],
+                                'href'      => ['procurement.marketplace.agents.index'],
 
                             ]
 
@@ -80,7 +80,7 @@ class ProcurementDashboard
                                 'tooltip'   => __('marketplace suppliers'),
                                 'icon'      => ['fal', 'fa-store'],
                                 'labelStyle'=> 'bordered',
-                                'href'      => ['procurement.marketplace-suppliers.index'],
+                                'href'      => ['procurement.marketplace.suppliers.index'],
 
                             ]
 
@@ -120,7 +120,7 @@ class ProcurementDashboard
                         [
                             'name'  => __('marketplace agents'),
                             'icon'  => ['fal', 'fa-store'],
-                            'href'  => ['procurement.marketplace-agents.index'],
+                            'href'  => ['procurement.marketplace.agents.index'],
                             'index' => [
                                 'number' => $this->tenant->group->procurementStats->number_agents
                             ]
@@ -128,7 +128,7 @@ class ProcurementDashboard
                         [
                             'name'  => __('marketplace suppliers'),
                             'icon'  => ['fal', 'fa-building'],
-                            'href'  => ['procurement.marketplace-suppliers.index'],
+                            'href'  => ['procurement.marketplace.suppliers.index'],
                             'index' => [
                                 'number' => $this->tenant->group->procurementStats->number_suppliers
                             ]

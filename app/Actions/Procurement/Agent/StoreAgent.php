@@ -81,6 +81,6 @@ class StoreAgent
 
     public function htmlResponse(Agent $agent): RedirectResponse
     {
-        return Redirect::route('procurement.marketplace-agents.show', $agent->slug);
+        return Redirect::route('procurement.marketplace.agents.show', $agent->slug);
     }
 }

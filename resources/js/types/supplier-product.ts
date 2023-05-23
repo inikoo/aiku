@@ -7,6 +7,8 @@
 export interface SupplierProduct {
     composition:string,
     slug: string,
+    agent_slug: string,
+    supplier_slug: string,
     current_historic_supplier_product_id: string,
     supplier_id: number
     agent_id: number

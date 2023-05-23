@@ -112,9 +112,9 @@ class IndexMarketplaceAgents extends InertiaAction
                 'title'       => __("agent's marketplace"),
                 'pageHead'    => [
                     'title'  => __("agent's marketplace"),
-                    'create' => $this->canEdit && $this->routeName == 'procurement.marketplace-agents.index' ? [
+                    'create' => $this->canEdit && $this->routeName == 'procurement.marketplace.agents.index' ? [
                         'route' => [
-                            'name'       => 'procurement.marketplace-agents.create',
+                            'name'       => 'procurement.marketplace.agents.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('agent')
@@ -135,7 +135,7 @@ class IndexMarketplaceAgents extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.marketplace-agents.index'
+                                'name' => 'procurement.marketplace.agents.index'
                             ],
                             'label' => __("agent's marketplace"),
                             'icon'  => 'fal fa-bars'

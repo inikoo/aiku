@@ -18,13 +18,13 @@ const props = defineProps<{
 
 function marketplacesAgentRoute(marketplaceAgent: MarketplaceAgent) {
     switch (route().current()) {
-        case 'procurement.marketplace-agents.index':
+        case 'procurement.marketplace.agents.index':
             return route(
-                'procurement.marketplace-agents.show',
+                'procurement.marketplace.agents.show',
                 [marketplaceAgent.slug]);
-        case 'procurement.marketplace-agents.show.suppliers.index':
+        case 'procurement.marketplace.agents.show.suppliers.index':
             return route(
-                'procurement.marketplace-agents.show.suppliers.show',
+                'procurement.marketplace.agents.show.suppliers.show',
                 [marketplaceAgent.slug]
             )
     }

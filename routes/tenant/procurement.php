@@ -8,14 +8,6 @@
 
 use App\Actions\Procurement\Agent\UI\IndexAgents;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
-use App\Actions\Procurement\Marketplace\Agent\UI\CreateMarketplaceAgent;
-use App\Actions\Procurement\Marketplace\Agent\UI\EditMarketplaceAgent;
-use App\Actions\Procurement\Marketplace\Agent\UI\IndexMarketplaceAgents;
-use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
-use App\Actions\Procurement\Marketplace\Supplier\UI\CreateMarketplaceSupplier;
-use App\Actions\Procurement\Marketplace\Supplier\UI\EditMarketplaceSupplier;
-use App\Actions\Procurement\Marketplace\Supplier\UI\IndexMarketplaceSuppliers;
-use App\Actions\Procurement\Marketplace\Supplier\UI\ShowMarketplaceSupplier;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
@@ -63,20 +55,12 @@ Route::get('/supplier-deliveries/create', CreateSupplierDelivery::class)->name('
 Route::get('/supplier-deliveries/{supplierDelivery}', ShowSupplierDelivery::class)->name('supplier-deliveries.show');
 Route::get('/supplier-deliveries/{supplierDelivery}/edit', EditSupplierDelivery::class)->name('supplier-deliveries.edit');
 
-Route::get('/marketplace-agents', IndexMarketplaceAgents::class)->name('marketplace-agents.index');
-Route::get('/marketplace-agents/create', CreateMarketplaceAgent::class)->name('marketplace-agents.create');
-Route::get('/marketplace-agents/{agent}', ShowMarketplaceAgent::class)->name('marketplace-agents.show');
-Route::get('/marketplace-agents/{agent}/edit', EditMarketplaceAgent::class)->name('marketplace-agents.edit');
-Route::get('/marketplace-agents/{agent}/suppliers', [IndexMarketplaceSuppliers::class, 'inAgent'])->name('marketplace-agents.show.suppliers.index');
-Route::get('/marketplace-agents/{agent}/suppliers/create', [CreateMarketplaceSupplier::class, 'inAgent'])->name('marketplace-agents.show.suppliers.create');
-Route::get('/marketplace-agents/{agent}/suppliers/{supplier}', [ShowMarketplaceSupplier::class, 'inAgent'])->name('marketplace-agents.show.suppliers.show');
-Route::get('/marketplace-agents/{agent}/suppliers/{supplier}/edit', [EditMarketplaceSupplier::class, 'inAgent'])->name('marketplace-agents.show.suppliers.edit');
 
-//Route::get('/marketplace-agents/{agent}/supplier-products', [IndexMarketplaceSupplierProducts::class, 'inAgent'])->name('marketplace-agents.show.supplier-products.index');
-//Route::get('/marketplace-agents/{agent}/supplier-products/{supplierProducts}', [ShowMarketplaceSupplierProduct::class, 'inAgent'])->name('marketplace-agents.show.supplier-products.show');
-
-
-Route::get('/marketplace-suppliers', IndexMarketplaceSuppliers::class)->name('marketplace-suppliers.index');
-Route::get('/marketplace-suppliers/create', CreateMarketplaceSupplier::class)->name('marketplace-suppliers.create');
-Route::get('/marketplace-suppliers/{supplier}', ShowMarketplaceSupplier::class)->name('marketplace-suppliers.show');
-Route::get('/marketplace-suppliers/{supplier}/edit', EditMarketplaceSupplier::class)->name('marketplace-suppliers.edit');
+Route::prefix("marketplace")
+    ->name("marketplace.")
+    ->group(
+        function () {
+            $parent='shop';
+            require __DIR__.'/procurement-marketplace.php';
+        }
+    );

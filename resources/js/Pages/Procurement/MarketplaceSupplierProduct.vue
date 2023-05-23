@@ -10,20 +10,6 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-
-
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
-
-const props = defineProps<{
-    title: string,
-    pageHead: object,
-    tabs: {
-        current: string;
-        navigation: object;
-    },
-    suppliers?: object
-    supplier_products?: object,
-}>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faInventory,
@@ -34,8 +20,19 @@ import {
     faTerminal,
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
-import TableMarketplaceSuppliers from "@/Pages/Tables/TableMarketplaceSuppliers.vue";
-import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
+
+const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+
+const props = defineProps<{
+    title: string,
+    pageHead: object,
+    tabs: {
+        current: string;
+        navigation: object;
+    },
+    supplier_products?: object,
+}>()
+
 
 library.add(
     faInventory,
@@ -53,8 +50,6 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        suppliers: TableMarketplaceSuppliers,
-        supplier_products: TableMarketplaceSupplierProducts,
         details: ModelDetails,
         history: ModelChangelog
     };

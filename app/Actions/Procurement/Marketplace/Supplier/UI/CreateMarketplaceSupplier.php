@@ -33,13 +33,13 @@ class CreateMarketplaceSupplier extends InertiaAction
                     'title'        => __('new supplier'),
                     'cancelCreate' => [
                         'route' => match ($request->route()->getName()) {
-                            'procurement.marketplace-agents.show.suppliers.create' =>
+                            'procurement.marketplace.agents.show.suppliers.create' =>
                             [
-                                'name'       => 'procurement.marketplace-agents.show',
+                                'name'       => 'procurement.marketplace.agents.show',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             default => [
-                                'name'       => 'procurement.marketplace-suppliers.index',
+                                'name'       => 'procurement.marketplace.suppliers.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         }
@@ -291,9 +291,8 @@ class CreateMarketplaceSupplier extends InertiaAction
     {
         return array_merge(
             match ($routeName) {
-                'procurement.marketplace-agents.show.suppliers.create' =>
+                'procurement.marketplace.agents.show.suppliers.create' =>
                 ShowMarketplaceAgent::make()->getBreadcrumbs(
-                    routeName: 'procurement.marketplace-agents.show',
                     routeParameters: $routeParameters,
                 ),
                 default => IndexMarketplaceSuppliers::make()->getBreadcrumbs(
@@ -308,7 +307,7 @@ class CreateMarketplaceSupplier extends InertiaAction
 
 
                         'label' => match ($routeName) {
-                            'procurement.marketplace-agents.show.suppliers.create' => __("creating agent's supplier"),
+                            'procurement.marketplace.agents.show.suppliers.create' => __("creating agent's supplier"),
                             default                                                => __("creating supplier")
                         }
 
