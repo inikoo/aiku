@@ -82,13 +82,19 @@ class CreatePaymentAccount extends InertiaAction
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant|PaymentServiceProvider $parent): array
+    public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexPaymentAccounts::make()->getBreadcrumbs($routeName, $parent),
+            IndexPaymentAccounts::make()->getBreadcrumbs(
+                $this->routeName,
+                $this->parent
+            ),
             [
                 [
-                    'suffix'=> __('creating payment account')
+                    'type'          => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __("creating payment account"),
+                    ]
                 ]
             ]
         );
