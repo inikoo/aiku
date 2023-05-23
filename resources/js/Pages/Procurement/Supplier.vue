@@ -24,7 +24,9 @@ import { useTabChange } from "@/Composables/tab-change";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableSupplierPurchaseOrders from "@/Pages/Tables/TableSupplierPurchaseOrders.vue";
+import TableSupplierDeliveries from "@/Pages/Tables/TableSupplierDeliveries.vue";
+import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
+import SupplierShowcase from "@/Pages/Procurement/SupplierShowcase.vue";
 library.add(
     faInventory,
     faWarehouse,
@@ -50,8 +52,12 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    supplier_products: object
-    purchase_orders: object
+    showcase?: object
+    sales?: object
+    supplier_products?: object,
+    purchase_orders?: object,
+    deliveries?:object,
+    errors?: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -60,10 +66,13 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        showcase: SupplierShowcase,
+        sales: TableSupplierProducts,
         supplier_products: TableSupplierProducts,
+        purchase_orders: TablePurchaseOrders,
+        deliveries: TableSupplierDeliveries,
         details: ModelDetails,
-        history: ModelChangelog,
-        purchase_orders: TableSupplierPurchaseOrders
+        history: ModelChangelog
     };
     return components[currentTab.value];
 

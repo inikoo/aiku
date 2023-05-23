@@ -10,10 +10,12 @@ namespace App\Actions\Procurement\Supplier\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
+use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\SupplierTabsEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Http\Resources\Procurement\SupplierDeliveryResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
@@ -57,38 +59,94 @@ class ShowSupplier extends InertiaAction
 
     public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
-
+        $this->validateAttributes();
         return Inertia::render(
             'Procurement/Supplier',
             [
-                'title'                                    => __('supplier'),
-                'breadcrumbs'                              => $this->getBreadcrumbs(
+                'title'       => __('supplier'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'pageHead'                                 => [
+                'pageHead'    => [
                     'icon'          =>
                         [
-                            'icon'  => ['fal', 'person-dolly'],
+                            'icon'  => 'fal fa-person-dolly',
                             'title' => __('supplier')
                         ],
-                    'title' => $supplier->name,
+                    'title'         => $supplier->name,
+                    /*
+                    'edit'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+                    ] : false,
+                    */
+                    'create_direct' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'models.supplier.purchase-order.store',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('purchase order')
+                    ] : false,
+                    'meta'          => [
+                        [
+                            'name'     => trans_choice('Purchases|Sales', $supplier->stats->number_open_purchase_orders),
+                            'number'   => $supplier->stats->number_open_purchase_orders,
+                            'href'     => [
+                                'procurement.supplier-products.show',
+                                $supplier->slug
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-person-dolly',
+                                'tooltip' => __('sales')
+                            ]
+                        ],
+                        [
+                            'name'     => trans_choice('product|products', $supplier->stats->number_supplier_products),
+                            'number'   => $supplier->stats->number_supplier_products,
+                            'href'     => [
+                                'procurement.supplier-products.show',
+                                $supplier->slug
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-parachute-box',
+                                'tooltip' => __('products')
+                            ]
+                        ],
+                    ]
+
                 ],
-                'tabs'                                     => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => SupplierTabsEnum::navigation()
                 ],
+
+                SupplierTabsEnum::SHOWCASE->value => $this->tab == SupplierTabsEnum::SHOWCASE->value ?
+                    fn () => $supplier
+                    : Inertia::lazy(fn () => $supplier),
+
+                SupplierTabsEnum::PURCHASES_SALES->value => $this->tab == SupplierTabsEnum::PURCHASES_SALES->value ?
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
+
                 SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
                     fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))
                     : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
 
                 SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
-                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run())
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run())),
+                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))
+                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))),
 
+                SupplierTabsEnum::DELIVERIES->value => $this->tab == SupplierTabsEnum::DELIVERIES->value ?
+                    fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($supplier))
+                    : Inertia::lazy(fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($supplier))),
             ]
         )->table(IndexSupplierProducts::make()->tableStructure($supplier))
-            ->table(IndexPurchaseOrders::make()->tableStructure($supplier));
+        ->table(IndexSupplierProducts::make()->tableStructure($supplier))
+        ->table(IndexPurchaseOrders::make()->tableStructure($supplier))
+        ->table(IndexSupplierDeliveries::make()->tableStructure($supplier));
     }
 
 
