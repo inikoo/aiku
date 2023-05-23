@@ -29,7 +29,7 @@ const props = defineProps<{
     purchase_orders?: object,
     errors?: object
 }>()
-import {library} from '@fortawesome/fontawesome-svg-core';
+import { library } from '@fortawesome/fontawesome-svg-core';
 import {
     faInventory,
     faWarehouse,
@@ -40,6 +40,7 @@ import {
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
 import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
+import {useForm} from "@inertiajs/vue3";
 
 library.add(
     faInventory,
@@ -68,16 +69,30 @@ const component = computed(() => {
 
 });
 
-if(props.errors.purchase_orders) {
-    console.log(props.errors.purchase_orders);
-    confirm(props.errors.purchase_orders)
+const getErrors = () => {
+    if (props.errors.purchase_order) {
+        if (confirm(props.errors.purchase_order)) {
+            let fields = {
+                force: true
+            };
+
+            const form = useForm(fields);
+
+            form.post(route(
+                props.pageHead.create_direct.route.name,
+                props.pageHead.create_direct.route.parameters
+            ));
+        }
+    }
 }
 
 </script>
 
 <template layout="App">
     <Head :title="title" />
+    <!-- {{ typeof props.errors.purchase_orders }} -->
     <PageHeading :data="pageHead"></PageHeading>
+    <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>
 </template>

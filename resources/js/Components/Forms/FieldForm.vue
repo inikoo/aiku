@@ -35,7 +35,8 @@ const props = defineProps<{
     fieldData: {
         type: string,
         label: string,
-        value: any
+        value: any,
+        required?: boolean
 
     },
     args: {
@@ -105,13 +106,13 @@ form['type'] = 'edit';
         <dl class="divide-y divide-gray-200 max-w-2xl ">
             <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                 <dt class="text-sm font-medium text-gray-500 capitalize">
-                    {{ field }}
+                    {{ field }}<span v-if="fieldData.required" class="text-xs text-red-600">*</span>
                 </dt>
                 <dd class="sm:col-span-2  ">
                     <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">
                         <div class="relative  flex-grow">
                             <component :is="getComponent(fieldData['type'])" :form=form :fieldName=field
-                                :options="fieldData['options']">
+                                :options="fieldData['options']" :required="fieldData.required">
                             </component>
                         </div>
 

@@ -20,6 +20,10 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
             return route(
                 'procurement.purchase-orders.show',
                 [purchaseOrder.slug]);
+        case 'procurement.agents.show':
+            return route(
+                'procurement.purchase-orders.show',
+                [purchaseOrder.slug]);
     }
 }
 
