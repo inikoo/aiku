@@ -181,29 +181,31 @@ class ShowWarehouseArea extends InertiaAction
     public function getPrevious(WarehouseArea $warehouseArea, ActionRequest $request): ?array
     {
         $previous = WarehouseArea::where('code', '<', $warehouseArea->code)->orderBy('code', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(WarehouseArea $warehouseArea, ActionRequest $request): ?array
     {
         $next = WarehouseArea::where('code', '>', $warehouseArea->code)->orderBy('code', 'desc')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?WarehouseArea $warehouseArea, string $routeName): ?array
     {
-        if(!$warehouseArea) {
+        if (!$warehouseArea) {
             return null;
         }
 
         return match ($routeName) {
-            'inventory.warehouses.show.warehouse-areas.show'=> [
-                'label'=> $warehouseArea->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'warehouseArea'=> $warehouseArea->slug
+            'inventory.warehouses.show.warehouse-areas.show' => [
+                'label' => $warehouseArea->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'warehouse'     => $warehouseArea->warehouse->slug,
+                        'warehouseArea' => $warehouseArea->slug
                     ]
 
                 ]
