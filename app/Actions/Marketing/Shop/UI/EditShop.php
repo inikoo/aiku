@@ -62,9 +62,10 @@ class EditShop extends InertiaAction
                             'icon'    => 'fa-light fa-id-card',
                             'fields'  => [
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $shop->code
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => $shop->code,
+                                    'required' => true
                                 ],
                                 'name' => [
                                     'type'  => 'input',
@@ -74,14 +75,16 @@ class EditShop extends InertiaAction
                             ]
                         ],
                         [
-                            'title'   => __('properties'),
-                            'icon'    => 'fa-light fa-fingerprint',
-                            'fields'  => [
-                                'country_id' => [
-                                    'type'   => 'country',
-                                    'label'  => __('country'),
-                                    'value'  => $shop->country_id,
-                                    'options'=> GetCountriesOptions::run()
+                            'title'  => __('properties'),
+                            'icon'   => 'fa-light fa-fingerprint',
+                            'fields' => [
+                                'country_id'  => [
+                                    'type'     => 'country',
+                                    'label'    => __('country'),
+                                    'value'    => $shop->country_id,
+                                    'options'  => GetCountriesOptions::run(),
+                                    'required' => true
+
                                 ],
                                 'currency_id' => [
                                     'type'   => 'currency',
