@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
+import TableSupplierPurchaseOrders from "@/Pages/Tables/TableSupplierPurchaseOrders.vue";
 
 const props = defineProps <{
     pageHead: object
@@ -19,6 +19,6 @@ const props = defineProps <{
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TablePurchaseOrders :data="data" />
+    <TableSupplierPurchaseOrders :data="data" />
 </template>
 

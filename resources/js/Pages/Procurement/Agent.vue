@@ -7,13 +7,12 @@
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import { computed, defineAsyncComponent, ref } from "vue";
+import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
-import { useTabChange } from "@/Composables/tab-change";
+import {useTabChange} from "@/Composables/tab-change";
 import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
-import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -30,7 +29,7 @@ const props = defineProps<{
     purchase_orders?: object,
     errors?: object
 }>()
-import { library } from '@fortawesome/fontawesome-svg-core';
+import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faInventory,
     faWarehouse,
@@ -40,6 +39,7 @@ import {
     faTerminal,
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
+import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 
 library.add(
     faInventory,
@@ -62,31 +62,22 @@ const component = computed(() => {
         supplier_products: TableSupplierProducts,
         purchase_orders: TablePurchaseOrders,
         details: ModelDetails,
-        history: ModelChangelog,
+        history: ModelChangelog
     };
-
     return components[currentTab.value];
 
 });
 
-const getErrors = () => {
-    if(props.errors.purchase_order) {
-        let confirm = confirm(props.errors.purchase_order);
-
-        if(confirm) {
-            const formData = new FormData();
-            formData.append("force", true)
-        }
-    }
+if(props.errors.purchase_orders) {
+    console.log(props.errors.purchase_orders);
+    confirm(props.errors.purchase_orders)
 }
 
 </script>
 
 <template layout="App">
     <Head :title="title" />
-    <!-- {{ typeof props.errors.purchase_orders }} -->
     <PageHeading :data="pageHead"></PageHeading>
-    <div v-if="errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>
 </template>

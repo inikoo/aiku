@@ -8,7 +8,9 @@
 namespace Tests\Feature;
 
 use App\Actions\Mail\DispatchedEmail\StoreDispatchEmail;
+use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Mail\Mailshot\StoreMailshot;
+use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
@@ -48,7 +50,10 @@ test('create mailshot', function ($outbox) {
 })->depends('get outbox from shop');
 
 test('update mailshot', function ($mailshot) {
-})->depends('create mailshot')->todo();
+    $mailshot = UpdateMailshot::make()->action($mailshot, Mailshot::factory()->definition());
+    $this->assertModelExists($mailshot);
+    return $mailshot;
+})->depends('create mailshot');
 
 test('create dispatched email in outbox', function ($outbox) {
     $dispatchedEmail = StoreDispatchEmail::make()->action(
@@ -72,4 +77,10 @@ test('create dispatched email in mailshot', function ($mailshot) {
 
 
 test('update dispatched email', function ($dispatchedEmail) {
-})->depends('create dispatched email in outbox')->todo();
+    $updatedDispatchEmail = UpdateDispatchedEmail::make()->action(
+        $dispatchedEmail,
+        []
+    );
+    $this->assertModelExists($updatedDispatchEmail);
+    return $updatedDispatchEmail;
+})->depends('create dispatched email in mailshot');

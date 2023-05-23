@@ -10,9 +10,11 @@ namespace App\Models\Inventory;
 use App\Actions\Inventory\Location\HydrateLocation;
 use App\Actions\Inventory\Stock\HydrateStock;
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -28,16 +30,16 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property array $data
  * @property array $settings
  * @property string|null $audited_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int|null $source_stock_id
  * @property int|null $source_location_id
- * @property-read \App\Models\Inventory\Location $location
- * @property-read \App\Models\Inventory\Stock $stock
+ * @property-read Location $location
+ * @property-read Stock $stock
  * @method static Builder|LocationStock newModelQuery()
  * @method static Builder|LocationStock newQuery()
  * @method static Builder|LocationStock query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class LocationStock extends Pivot
 {

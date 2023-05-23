@@ -1,17 +1,20 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 09 May 2023 09:25:51 Central European Summer Time, Malaga, Spain
+ * Created: Wed, 15 Mar 2023 14:14:56 Central European Standard Time, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\PurchaseOrder\UI;
+namespace App\Actions\Procurement\SupplierPurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\Supplier;
+use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -21,25 +24,38 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexPurchaseOrders extends InertiaAction
+class IndexSupplierPurchaseOrders extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle(Tenant|Agent|Supplier $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('purchase_orders.number', 'LIKE', "$value%");
+                $query->where('purchase_orders.number', 'LIKE', "$value%")
+                    ->orWhere('purchase_orders.status', 'LIKE', "%$value%");
             });
         });
-
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PURCHASE_ORDERS->value);
-
+        ;
         return QueryBuilder::for(PurchaseOrder::class)
             ->defaultSort('purchase_orders.number')
-            ->select(['number', 'slug'])
+            ->select(['number', 'slug', 'status'])
+            ->leftJoin('purchase_order_items', 'purchase_order_items.purchase_order_id', 'purchase_orders.id')
+
+            ->when($parent, function ($query) use ($parent) {
+                if (class_basename($parent) == 'Agent') {
+                    $query->where('purchase_orders.provider_id', $parent->id);
+                } elseif (class_basename($parent) == 'Tenant') {
+
+                    $query->where('supplier_product_tenant.tenant_id', $parent->id);
+                } elseif (class_basename($parent) == 'Supplier') {
+                    $query->where('supplier_products.supplier_id', $parent->id);
+                }
+            })
+            ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page'
+                pageName: TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page'
             )
             ->withQueryString();
     }
@@ -73,35 +89,38 @@ class IndexPurchaseOrders extends InertiaAction
         return $this->handle(app('currentTenant'));
     }
 
-//
-    public function jsonResponse(LengthAwarePaginator $purchaseOrders): AnonymousResourceCollection
+
+
+    public function jsonResponse(LengthAwarePaginator $suppliers): AnonymousResourceCollection
     {
-        return PurchaseOrderResource::collection($purchaseOrders);
+        return PurchaseOrderResource::collection($suppliers);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $purchaseOrders, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request)
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+        $parent = $request->route()->parameters == [] ? app('currentTenant') : last($request->route()->paramenters());
         return Inertia::render(
-            'Procurement/PurchaseOrders',
+            'Procurement/SupplierPurchaseOrders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters(),
-                    $parent
+                    $request->route()->getName(),
+                    $request->route()->parameters
                 ),
-                'title'       => __('purchase orders'),
+                'title'       => __('supplier purchase orders'),
                 'pageHead'    => [
-                    'title'   => __('purchase orders'),
-                    'create'  => $this->canEdit && $this->routeName=='procurement.purchase-orders.index' ? [
+                    'title'   => __('supplier purchase orders'),
+                    'create'  => $this->canEdit && $this->routeName=='procurement.supplier-purchase-orders.index' ? [
                         'route' => [
-                            'name'       => 'procurement.purchase-orders.create',
+                            'name'       => 'procurement.supplier-purchase-orders.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('purchase orders')
+                        'label'=> __('supplier deliveries')
                     ] : false,
                 ],
-                'data'      => PurchaseOrderResource::collection($purchaseOrders),
+                'data'   => PurchaseOrderResource::collection($suppliers),
+
+
             ]
         )->table($this->tableStructure($parent));
     }
@@ -116,9 +135,9 @@ class IndexPurchaseOrders extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.purchase-orders.index'
+                                'name' => 'procurement.supplier-purchase-orders.index'
                             ],
-                            'label' => __('purchase orders'),
+                            'label' => __('supplier purchase order'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

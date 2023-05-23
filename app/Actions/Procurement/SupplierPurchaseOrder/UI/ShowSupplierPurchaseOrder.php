@@ -5,21 +5,22 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\PurchaseOrder\UI;
+namespace App\Actions\Procurement\SupplierPurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\PurchaseOrderTabsEnum;
-use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Http\Resources\Procurement\SupplierDeliveryResource;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\SupplierDelivery;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property PurchaseOrder $purchaseOrder
+ * @property SupplierDelivery $supplierDelivery
  */
-class ShowPurchaseOrder extends InertiaAction
+class ShowSupplierPurchaseOrder extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -28,10 +29,10 @@ class ShowPurchaseOrder extends InertiaAction
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): void
+    public function asController(PurchaseOrder $supplierPurchaseOrder, ActionRequest $request): void
     {
         $this->initialisation($request)->withTab(PurchaseOrderTabsEnum::values());
-        $this->purchaseOrder = $purchaseOrder;
+        $this->supplierDelivery    = $supplierPurchaseOrder;
     }
 
     public function htmlResponse(): Response
@@ -40,22 +41,21 @@ class ShowPurchaseOrder extends InertiaAction
 
 
         return Inertia::render(
-            'Procurement/PurchaseOrder',
+            'Procurement/SupplierDelivery',
             [
-                'title'       => __('purchase order'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->purchaseOrder),
+                'title'       => __('supplier purchase order'),
+                'breadcrumbs' => $this->getBreadcrumbs($this->supplierDelivery),
                 'pageHead'    => [
                     'icon'  => 'fal people-arrows',
-                    'title' => $this->purchaseOrder,
+                    'title' => $this->supplierDelivery->id,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-
                 ],
-                'tabs' => [
+                'tabs'=> [
                     'current'    => $this->tab,
                     'navigation' => PurchaseOrderTabsEnum::navigation()
                 ],
@@ -63,12 +63,13 @@ class ShowPurchaseOrder extends InertiaAction
         );
     }
 
-    public function jsonResponse(): PurchaseOrderResource
-    {
-        return new PurchaseOrderResource($this->purchaseOrder);
-    }
 
-    public function getBreadcrumbs(PurchaseOrder $purchaseOrder, $suffix = null): array
+     public function jsonResponse(): SupplierDeliveryResource
+     {
+         return new SupplierDeliveryResource($this->supplierDelivery);
+     }
+
+    public function getBreadcrumbs(SupplierDelivery $supplierDelivery, $suffix = null): array
     {
         return array_merge(
             (new ProcurementDashboard())->getBreadcrumbs(),
@@ -78,16 +79,16 @@ class ShowPurchaseOrder extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'procurement.purchase-orders.index',
+                                'name' => 'procurement.supplier-deliveries.index',
                             ],
-                            'label' => __('purchaseOrder')
+                            'label' => __('supplier delivery')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'procurement.purchase-orders.show',
-                                'parameters' => [$purchaseOrder->slug]
+                                'name'       => 'procurement.supplier-deliveries.show',
+                                'parameters' => [$supplierDelivery->slug]
                             ],
-                            'label' => $purchaseOrder->number,
+                            'label' => $supplierDelivery->number,
                         ],
                     ],
                     'suffix' => $suffix,

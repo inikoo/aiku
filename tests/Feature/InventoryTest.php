@@ -193,13 +193,12 @@ test('detach stock from location', function ($location, $stock) {
 
 test('move stock location', function () {
     $currentLocation = LocationStock::first();
-    $targetLocation  = LocationStock::latest();
-
+    $targetLocation  = LocationStock::latest()->first();
     $stock = MoveStockLocation::make()->action($currentLocation, $targetLocation, [
         'quantity' => 1
     ]);
     $this->assertModelExists($stock);
-})->todo();
+})->depends('detach stock from location');
 
 test('update location', function ($location) {
     $location = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
