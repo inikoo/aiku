@@ -101,6 +101,13 @@ const props = defineProps(
             },
             required: false,
         },
+        modelOperations: {
+            type: Array,
+            default: () => {
+                return [];
+            },
+            required: false,
+        },
 
     });
 
@@ -118,6 +125,7 @@ const queryBuilderProps = computed(() => {
 
     return data;
 });
+
 
 const queryBuilderData = ref(queryBuilderProps.value);
 
@@ -409,7 +417,6 @@ function generateNewQueryString() {
             queryStringData[prefix + key] = value;
         }
     });
-    console.log(queryStringData);
     let query = qs.stringify(queryStringData, {
         filter(prefix, value) {
             if (typeof value === 'object' && value !== null) {
@@ -535,16 +542,17 @@ const handleElementsChange = function (data) {
 </script>
 <template>
     <Transition>
-        <fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0"
-            :class="{ 'opacity-75': isVisiting }">
-
+        <fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
+            <div class="border border-red-100 my-2">
             <!-- Wrapper -->
             <div class="grid grid-flow-col justify-between flex-nowrap px-4">
                 <!-- Result Number -->
-                <div class="bg-gray-200 text-gray-700 mr-2 cursor-not-allowed select-none cursor-default rounded grid justify-center items-center text-base font-normal "
+                <div class="border border-gray-300  mr-2 rounded grid justify-center items-center text-base font-normal "
                     title="Results">
                     <div class="px-2 ">{{ resourceMeta.total }} {{ $t(' results') }}</div>
                 </div>
+
+              {{queryBuilderProps.modelOperations}}
 
                 <!-- Search Group -->
                 <div class="flex flex-row justify-end items-start flex-nowrap space-x-2">
@@ -602,9 +610,9 @@ const handleElementsChange = function (data) {
                     :on-remove="disableSearchInput" />
             </slot>
 
-
+            </div>
             <slot name="elements" :changed="handleElementsChange">
-                <TableElements v-if="elements" :elements="elements" @changed="handleElementsChange" />
+                <TableElements v-if="elements.length" :elements="elements" @changed="handleElementsChange" />
             </slot>
 
             <!-- The Main Table -->

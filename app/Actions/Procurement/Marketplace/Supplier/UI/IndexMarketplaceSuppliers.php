@@ -67,13 +67,13 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(Tenant|Agent $parent, array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($parent, $modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::SUPPLIERS->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page');
-            $table
+                ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page')
+                ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'adoption', label: 'z', canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -142,7 +142,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
                     'create' => $this->canEdit ? [
                         'route' =>
 
-                            match(class_basename($parent)) {
+                            match (class_basename($parent)) {
                                 'Agent' => [
                                     'name'       => 'procurement.marketplace.agents.show.suppliers.create',
                                     'parameters' => array_values($this->originalParameters)
