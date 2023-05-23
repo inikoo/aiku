@@ -15,7 +15,6 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -30,14 +29,10 @@ class StorePurchaseOrder
 
     private Supplier|Agent $parent;
 
-    public function handle(Agent|Supplier $parent, array $modelData): PurchaseOrder
+    public function handle(Agent|Supplier $parent, array $modelData): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
         /** @var PurchaseOrder $purchaseOrder */
-        $purchaseOrder = $parent->purchaseOrders()->create([
-            'number' => rand(1111, 9999),
-            'date' => now(),
-            'currency_id' => $parent->currency_id
-        ]);
+        $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
         if(class_basename($parent) == 'Supplier') {
             SupplierHydratePurchaseOrders::dispatch($parent);
@@ -47,7 +42,6 @@ class StorePurchaseOrder
 
         TenantHydrateProcurement::dispatch(app('currentTenant'));
 
-//        return redirect()->route('procurement.purchase-orders.show', $purchaseOrder->slug);
         return $purchaseOrder;
     }
 
@@ -78,7 +72,7 @@ class StorePurchaseOrder
          }
      }
 
-    public function action(Agent|Supplier $parent, array $objectData, bool $force = false):  PurchaseOrder
+    public function action(Agent|Supplier $parent, array $objectData, bool $force = false):  \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
         $this->parent = $parent;
         $this->force  = $force;
@@ -88,21 +82,37 @@ class StorePurchaseOrder
         return $this->handle($parent, $validatedData);
     }
 
-    public function inAgent(Agent $agent, ActionRequest $request):  RedirectResponse|PurchaseOrder
+    public function inAgent(Agent $agent, ActionRequest $request):  \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
-        $this->force  = false;
+        $modelData = [
+            'number' => rand(1111, 9999),
+            'date' => now(),
+            'currency_id' => $agent->currency_id,
+        ];
+
+        $this->force  = $request->force ?? false;
         $this->parent = $agent;
         $request->validate();
 
-        return $this->handle($agent, $request->all());
+        $purchaseOrder = $this->handle($agent, $modelData);
+
+        return redirect()->route('procurement.purchase-orders.show', $purchaseOrder->slug);
     }
 
-    public function inSupplier(Supplier $supplier, ActionRequest $request):  RedirectResponse|PurchaseOrder
+    public function inSupplier(Supplier $supplier, ActionRequest $request):  \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
+        $modelData = [
+            'number' => rand(1111, 9999),
+            'date' => now(),
+            'currency_id' => $supplier->currency_id
+        ];
+
         $this->force  = false;
         $this->parent = $supplier;
         $request->validate();
 
-        return $this->handle($supplier, $request->all());
+        $purchaseOrder = $this->handle($supplier, $modelData);
+
+        return redirect()->route('procurement.purchase-orders.show', $purchaseOrder->slug);
     }
 }
