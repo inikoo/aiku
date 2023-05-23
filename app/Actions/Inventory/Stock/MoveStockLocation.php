@@ -17,7 +17,7 @@ class MoveStockLocation
 {
     use WithActionUpdate;
 
-    public function handle(LocationStock $currentLocationStock, Location $targetLocation, array $movementData): LocationStock
+    public function handle(LocationStock $currentLocationStock, LocationStock $targetLocation, array $movementData): LocationStock
     {
         $this->update($currentLocationStock, [
             'quantity' => $currentLocationStock->quantity - $movementData['quantity'],
