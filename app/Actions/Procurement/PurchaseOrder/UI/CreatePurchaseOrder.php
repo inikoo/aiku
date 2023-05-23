@@ -45,7 +45,7 @@ class CreatePurchaseOrder extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.purchase-order.update',
+                        'name'       => 'models.purchase-order.store',
                     ]
                 ],
             ]
@@ -71,9 +71,9 @@ class CreatePurchaseOrder extends InertiaAction
             IndexPurchaseOrders::make()->getBreadcrumbs(),
             [
                 [
-                    'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('creating purchase orders'),
+                    'type'          => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __("creating purchase order"),
                     ]
                 ]
             ]

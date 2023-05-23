@@ -317,7 +317,7 @@ const nextParams2 = computed(()=> {
 				</transition>
 			</Menu>
 		</nav>
-		
+
 		<!-- Button: Previous and Next page -->
 		<div class="grid grid-flow-col justify-end pr-4 space-x-2 pt-1 text-sm text-indigo-700 font-semibold">
         	<Link v-if="navigation.previous" :href="route(navigation.previous.route.name, [previousParams1, previousParams2])" class="group bg-indigo-100 rounded flex items-center pr-2 pl-4 py-0.5 space-x-2 hover:bg-indigo-200 hover:cursor-pointer hover:text-indigo-900">
@@ -329,9 +329,10 @@ const nextParams2 = computed(()=> {
 				<FontAwesomeIcon icon="fas fa-arrow-right" class="mr-1 group-hover:translate-x-1.5 transition duration-200 ease-in-out" aria-hidden="true" />
 			</Link>
 		</div>
+        <!--
 		<div class="bg-yellow-100 text-xs">
 			<pre>{{ props }}</pre>
 		</div>
-			
+        -->
 	</div>
 </template>
