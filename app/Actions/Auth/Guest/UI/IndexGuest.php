@@ -29,7 +29,7 @@ class IndexGuest extends InertiaAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('guest.name', 'LIKE', "%$value%")
-                ->orWhere('guest.slug', 'LIKE', "%$value%");
+                    ->orWhere('guest.slug', 'LIKE', "%$value%");
             });
         });
 
@@ -47,9 +47,9 @@ class IndexGuest extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) {
             $table
                 ->name(TabsAbbreviationEnum::GUEST->value)
                 ->pageName(TabsAbbreviationEnum::GUEST->value.'Page');
@@ -79,17 +79,13 @@ class IndexGuest extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $guests, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $guests)
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
             'SysAdmin/Guests',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('guests'),
                 'pageHead'    => [
                     'title'  => __('guests'),
@@ -101,9 +97,9 @@ class IndexGuest extends InertiaAction
                         'label' => __('guest')
                     ] : false,
                 ],
-                'data'       => GuestInertiaResource::collection($guests),
+                'data'        => GuestInertiaResource::collection($guests),
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
 
@@ -114,7 +110,7 @@ class IndexGuest extends InertiaAction
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix=null): array
+    public function getBreadcrumbs($suffix = null): array
     {
         return array_merge(
             (new SysAdminDashboard())->getBreadcrumbs(),
@@ -128,7 +124,7 @@ class IndexGuest extends InertiaAction
                         'label' => __('guests'),
                         'icon'  => 'fal fa-bars',
                     ],
-                    'suffix'=> $suffix
+                    'suffix' => $suffix
 
                 ]
             ]

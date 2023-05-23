@@ -130,6 +130,6 @@ class IndexStocks extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 }

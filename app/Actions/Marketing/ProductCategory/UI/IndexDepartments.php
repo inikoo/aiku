@@ -134,7 +134,7 @@ class IndexDepartments extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
 

@@ -9,17 +9,11 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\PurchaseOrderItem\UI\IndexPurchaseOrderItems;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\AgentTabsEnum;
 use App\Enums\UI\PurchaseOrderTabsEnum;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\PurchaseOrderItemResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Http\Resources\Procurement\SupplierResource;
-use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\PurchaseOrder;
-use Closure;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -75,7 +69,7 @@ class ShowPurchaseOrder extends InertiaAction
                     fn () => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($this->purchaseOrder))
                     : Inertia::lazy(fn () =>  PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($this->purchaseOrder))),
             ]
-        )->table(IndexPurchaseOrderItems::make()->tableStructure($this->purchaseOrder->items));
+        )->table(IndexPurchaseOrderItems::make()->tableStructure());
     }
 
     public function jsonResponse(): PurchaseOrderResource

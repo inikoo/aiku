@@ -36,7 +36,7 @@ class IndexSupplierProducts extends InertiaAction
             });
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value);
-        ;
+
         return QueryBuilder::for(SupplierProduct::class)
             ->defaultSort('supplier_products.code')
             ->select(['code', 'slug', 'name'])
@@ -64,14 +64,13 @@ class IndexSupplierProducts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(array $modelOperations=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page');
-
-            $table
+                ->pageName(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page')
+                ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
@@ -88,7 +87,7 @@ class IndexSupplierProducts extends InertiaAction
             );
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(): LengthAwarePaginator
     {
         return $this->handle(app('currentTenant'));
     }
@@ -129,7 +128,7 @@ class IndexSupplierProducts extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
 

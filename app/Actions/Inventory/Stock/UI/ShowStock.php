@@ -90,8 +90,8 @@ class ShowStock extends InertiaAction
 
 
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure($this->stock))
-            ->table(IndexProducts::make()->tableStructure($this->stock))
+        )->table(IndexSupplierProducts::make()->tableStructure())
+            ->table(IndexProducts::make()->tableStructure())
             ->table(IndexLocations::make()->tableStructure());
     }
 

@@ -120,12 +120,12 @@ class IndexUsers extends InertiaAction
         };
 
         return match ($routeName) {
-            'sysadmin.users.index'            =>
+            'sysadmin.users.index' =>
             array_merge(
                 SysAdminDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'=> 'sysadmin.users.index',
+                        'name' => 'sysadmin.users.index',
                         null
                     ]
                 ),

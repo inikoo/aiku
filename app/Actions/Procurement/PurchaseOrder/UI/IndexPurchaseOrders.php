@@ -40,13 +40,11 @@ class IndexPurchaseOrders extends InertiaAction
             ->defaultSort('purchase_orders.number')
             ->select(['number', 'slug'])
             ->allowedFilters([$globalSearch])
-
             ->when($parent, function ($query) use ($parent) {
-                if(class_basename($parent) != 'Tenant' && $parent != null) {
+                if (class_basename($parent) != 'Tenant' && $parent != null) {
                     $query->where('provider_id', $parent->id);
                 }
             })
-
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page'
@@ -54,21 +52,23 @@ class IndexPurchaseOrders extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(array $modelOperations=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::PURCHASE_ORDERS->value)
-                ->pageName(TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page');
-            $table
+                ->pageName(TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page')
                 ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('number');
         };
     }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -80,10 +80,11 @@ class IndexPurchaseOrders extends InertiaAction
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
+
         return $this->handle(app('currentTenant'));
     }
 
-//
+
     public function jsonResponse(LengthAwarePaginator $purchaseOrders): AnonymousResourceCollection
     {
         return PurchaseOrderResource::collection($purchaseOrders);
@@ -93,17 +94,18 @@ class IndexPurchaseOrders extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $purchaseOrders, ActionRequest $request)
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Procurement/PurchaseOrders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('purchase orders'),
                 'pageHead'    => [
-                    'title'   => __('purchase orders'),
+                    'title' => __('purchase orders'),
                 ],
-                'data'      => PurchaseOrderResource::collection($purchaseOrders),
+                'data'        => PurchaseOrderResource::collection($purchaseOrders),
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
     public function getBreadcrumbs(): array
