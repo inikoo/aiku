@@ -16,21 +16,13 @@ const props = defineProps<{
   data: object,
 }>()
 
-const copyText = () => {
-  const input = document.getElementById("company-name");
-  input.select();
-  input.setSelectionRange(0, 99999); // For mobile devices
-
-  try {
-    const successful = document.execCommand('copy');
-    if (successful) {
-      console.log('Copied to clipboard:', input.value);
-    } else {
-      console.error('Copy to clipboard failed.');
-    }
-  } catch (err) {
-    console.error('Unable to copy to clipboard:', err);
-  }
+const copyText2 = (abc) => {
+  const textarea = document.createElement('textarea')
+  textarea.value = abc
+  document.body.appendChild(textarea)
+  textarea.select()
+  document.execCommand('copy')
+  textarea.remove()
 }
 
 console.log(props.data)
@@ -40,41 +32,38 @@ console.log(props.data)
   <div class="grid grid-flow-col grid-cols-2 border-y-2 border-gray-200 divide-x-2 divide-gray-200">
 
     <!-- Section 1 -->
-    <div class=" bg-indigo-100/50 ">
-      <div class="flex">
-        <div class="grid justify-center">
-          <img class="rounded object-cover w-40 h-40 shadow" src="https://source.unsplash.com/featured/" alt="">
+    <div class="bg-gray-100/70 ">
+      <div class="flex items-center">
+        <div class="relative rounded w-40 h-40 shadow grid justify-center">
+          <img class=" object-contain" src="https://source.unsplash.com/featured/300x300" alt="">
+          <div class="absolute bottom-0 w-full h-2/6 bg-gradient-to-t from-gray-900 from-20% "></div>
+          <div class="absolute bottom-1.5 left-2 font-semibold text-white">{{ data.contact_name }}</div>
         </div>
         <div class="pt-4 pl-3">
-          <div class="grid font-semibold text-indigo-700">{{ data.contact_name }}</div>
-          <div class="grid grid-flow-col text-indigo-700 space-x-1 w-full">
-            <input class="font-extrabold text-2xl w-full bg-transparent focus:ring-0 focus:outline-none overflow-visible"
-              readonly :value="data.company_name" id="company-name">
-            <div class="cursor-pointer px-1 pt-1 grid justify-center text-lg" @click="copyText">
-              <FontAwesomeIcon icon="far fa-copy" class="mr-1" aria-hidden="true" />
+          <div class="grid grid-flow-col text-slate-800 space-x-1 w-full">
+            <div class="font-extrabold text-xl">
+              <p class="inline">{{ data.company_name }}</p>
+              <div class="cursor-pointer px-1.5 pt-1 inline justify-center text-xl text-slate-500 active:text-slate-700"
+                @click="copyText2(data.company_name)">
+                <FontAwesomeIcon icon="far fa-copy" class="mr-1" aria-hidden="true" />
+              </div>
             </div>
           </div>
-          <div class="grid text-sm font-medium text-indigo-500"></div>
-          
-          <!-- Contact Section -->
-          <div class="pt-4 flex flex-col ">
-            <!-- <div class="grid justify-center items-center mb-2 bg-gray-100 rounded-full w-16 h-16 p-4 place-self-center">
-              <FontAwesomeIcon icon="fas fa-layer-group" class="w-full h-auto text-indigo-700" aria-hidden="true" />
-            </div> -->
+          <div class="grid text-sm font-medium text-slate-500"></div>
 
-            <div class="text-lg text-gray-600 pb-2">
-              <div class="grid grid-flow-col  justify-start items-center">
-                <FontAwesomeIcon icon="fas fa-envelope" class="mr-2" aria-hidden="true" />
-                {{ data.email }}
-              </div>
-              <div class="grid grid-flow-col  justify-start items-center">
-                <FontAwesomeIcon icon="fas fa-phone" class="mr-2" aria-hidden="true" />
-                {{ data.phone }}
-              </div>
-              <div class="grid grid-flow-col  justify-start items-center">
-                <FontAwesomeIcon icon="fas fa-map-marker-alt" class="mr-2" aria-hidden="true" />
-                {{ data.location[2] }}, {{ data.location[1] }}
-              </div>
+          <!-- Contact Section -->
+          <div class="pt-4 flex flex-col text-slate-800 pb-2">
+            <div class="grid grid-flow-col justify-start items-center">
+              <FontAwesomeIcon icon="fas fa-envelope" class="mr-2" aria-hidden="true" />
+              {{ data.email }}
+            </div>
+            <div class="grid grid-flow-col justify-start items-center">
+              <FontAwesomeIcon icon="fas fa-phone" class="mr-2" aria-hidden="true" />
+              {{ data.phone }}
+            </div>
+            <div class="grid grid-flow-col justify-start items-center">
+              <FontAwesomeIcon icon="fas fa-map-marker-alt" class="mr-2" aria-hidden="true" />
+              {{ data.location[2] }}, {{ data.location[1] }}
             </div>
           </div>
         </div>
@@ -86,21 +75,26 @@ console.log(props.data)
     <div class="grid items-center px-8">
 
       <!-- Orders & Purchase -->
-      <div class="grid grid-flow-col text-gray-700 space-x-4">
-        <div class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-700 grid justify-center hover:bg-indigo-100 ">
+      <div class="grid grid-flow-col grid-cols-4 text-gray-700 space-x-4">
+        <div
+          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100 ">
           <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_purchase_orders }}</div>
           <div class="text-sm text-gray-400">Orders</div>
         </div>
-        <div class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-700 grid justify-center hover:bg-indigo-100">
+        <div
+          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
           <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_deliveries }}</div>
           <div class="text-sm text-gray-400">Purchase</div>
         </div>
-        <div class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-700 grid justify-center hover:bg-indigo-100">
+        <div
+          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
           <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.suppliers_count }}</div>
           <div class="text-sm text-gray-400">Suppliers</div>
         </div>
-        <div class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-700 grid justify-center hover:bg-indigo-100">
-          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_purchase_orders_status_settled_cancelled }}</div>
+        <div
+          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
+          <div class="grid justify-center text-2xl font-extrabold">{{
+            data.stats.number_purchase_orders_status_settled_cancelled }}</div>
           <div class="text-sm text-gray-400">Cancelled</div>
         </div>
       </div>
