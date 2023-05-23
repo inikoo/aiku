@@ -107,7 +107,6 @@ class ShowMarketplaceAgent extends InertiaAction
             ]
         )->table(
             IndexMarketplaceSuppliers::make()->tableStructure(
-                $agent,
                 [
                     'createLink' => $this->canEdit ? [
                         'route' => [
@@ -120,7 +119,6 @@ class ShowMarketplaceAgent extends InertiaAction
             )
         )
             ->table(IndexMarketplaceSupplierProducts::make()->tableStructure(
-                $agent,
                 [
                     'createLink' => $this->canEdit ? [
                         'route' => [

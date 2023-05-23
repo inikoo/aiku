@@ -72,9 +72,9 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(Tenant|Agent|Supplier $parent, array $modelOperations = null): Closure
+    public function tableStructure(array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value)
                 ->pageName(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page')
@@ -139,7 +139,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
 
