@@ -5,20 +5,25 @@
   -->
 
 <script setup lang="ts">
+import { faLayerGroup, faEnvelope, faPhone, faPersonDolly, faMapMarkerAlt } from '../../../../resources/private/pro-solid-svg-icons';
+import { faCopy } from '../../../../resources/private/pro-regular-svg-icons';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
+library.add(faLayerGroup, faEnvelope, faPhone, faPersonDolly, faCopy, faMapMarkerAlt);
 
 const props = defineProps<{
-    data: object,
+  data: object,
 
 }>()
 
 const copyText = (abc) => {
-    const textarea = document.createElement('textarea')
-    textarea.value = abc
-    document.body.appendChild(textarea)
-    textarea.select()
-    document.execCommand('copy')
-    textarea.remove()
+  const textarea = document.createElement('textarea')
+  textarea.value = abc
+  document.body.appendChild(textarea)
+  textarea.select()
+  document.execCommand('copy')
+  textarea.remove()
 }
 
 </script>
@@ -83,7 +88,8 @@ const copyText = (abc) => {
         </div>
         <div
           class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
-          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_purchase_orders_state_received }}</div>
+          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_purchase_orders_state_received }}
+          </div>
           <div class="text-sm text-gray-400">Purchase Order</div>
         </div>
         <div
