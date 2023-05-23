@@ -29,7 +29,7 @@ class StorePurchaseOrder
 
     private Supplier|Agent $parent;
 
-    public function handle(Agent|Supplier $parent, array $modelData): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function handle(Agent|Supplier $parent, array $modelData): PurchaseOrder
     {
         /** @var PurchaseOrder $purchaseOrder */
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
@@ -82,7 +82,7 @@ class StorePurchaseOrder
         return $this->handle($parent, $validatedData);
     }
 
-    public function inAgent(Agent $agent, ActionRequest $request):  \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function inAgent(Agent $agent, ActionRequest $request): \Illuminate\Http\RedirectResponse
     {
         $modelData = [
             'number' => rand(1111, 9999),

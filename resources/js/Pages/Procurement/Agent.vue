@@ -83,8 +83,6 @@ const getErrors = () => {
                 props.pageHead.create_direct.route.parameters
             ));
         }
-
-        location.reload();
     }
 }
 
