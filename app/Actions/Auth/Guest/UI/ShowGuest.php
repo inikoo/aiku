@@ -46,6 +46,10 @@ class ShowGuest extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($guest, $request),
+                    'next'     => $this->getNext($guest, $request),
+                ],
                 'pageHead'    => [
                     'title'     => $guest->name,
                     'edit'      => $this->canEdit ? [
@@ -115,5 +119,36 @@ class ShowGuest extends InertiaAction
         };
     }
 
+    public function getPrevious(Guest $guest, ActionRequest $request): ?array
+    {
+        $previous = Guest::where('slug', '<', $guest->slug)->orderBy('slug', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Guest $guest, ActionRequest $request): ?array
+    {
+        $next = Guest::where('slug', '>', $guest->slug)->orderBy('slug')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Guest $guest, string $routeName): ?array
+    {
+        if(!$guest) {
+            return null;
+        }
+        return match ($routeName) {
+            'sysadmin.guests.show'=> [
+                'label'=> $guest->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'guest'=> $guest->slug
+                    ]
+
+                ]
+            ]
+        };
+    }
 
 }

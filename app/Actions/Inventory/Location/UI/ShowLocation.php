@@ -260,7 +260,7 @@ class ShowLocation extends InertiaAction
                     break;
 
             }
-        })->orderBy('code', 'desc')->first();
+        })->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
