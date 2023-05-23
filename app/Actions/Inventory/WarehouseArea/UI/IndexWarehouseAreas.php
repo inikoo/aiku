@@ -38,7 +38,6 @@ class IndexWarehouseAreas extends InertiaAction
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WAREHOUSE_AREAS->value);
 
 
-
         return QueryBuilder::for(WarehouseArea::class)
             ->defaultSort('warehouse_areas.code')
             ->select(
@@ -67,13 +66,14 @@ class IndexWarehouseAreas extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure(?array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::WAREHOUSE_AREAS->value)
                 ->pageName(TabsAbbreviationEnum::WAREHOUSE_AREAS->value.'Page')
                 ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true)
