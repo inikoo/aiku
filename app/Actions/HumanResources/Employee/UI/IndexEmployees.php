@@ -54,8 +54,7 @@ class IndexEmployees extends InertiaAction
         return function (InertiaTable $table) use ($parent) {
             $table
                 ->name(TabsAbbreviationEnum::EMPLOYEES->value)
-                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page');
-            $table
+                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)

@@ -50,6 +50,22 @@ const props = defineProps<{
 		suffix?: string
 		options?: object
 	}>
+    navigation: {
+        next? :{
+            label?:string,
+            route?: {
+                name: string
+                parameters?: Array<string>
+            }
+        }
+        previous? :{
+            label?:string,
+            route?: {
+                name: string
+                parameters?: Array<string>
+            }
+        }
+    }
 }>()
 
 const displayBreadcrumbs = computed(() => {
@@ -281,7 +297,10 @@ const displayBreadcrumbs = computed(() => {
 					</MenuItems>
 				</transition>
 			</Menu>
+
+
 		</nav>
+        Navigation:{{navigation}}
 
 		<!-- <div
 			class="bg-teal-700 text-white px-4 py-1 fixed h-96 overflow-auto w-64 text-xs bottom-10 right-0 z-40">

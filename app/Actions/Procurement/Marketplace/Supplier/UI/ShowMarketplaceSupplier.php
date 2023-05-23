@@ -10,7 +10,6 @@ namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\MarketplaceSupplierTabsEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
@@ -53,6 +52,8 @@ class ShowMarketplaceSupplier extends InertiaAction
 
     public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
+
+
         return Inertia::render(
             'Procurement/MarketplaceSupplier',
             [
@@ -77,7 +78,7 @@ class ShowMarketplaceSupplier extends InertiaAction
                     'meta'  => [
                         [
                             'href'     => match (true) {
-                                $supplier->agent_id > 0 => ['procurement.marketplace.agents.show.suppliers.show.supplier-products.index', $supplier->agent->slug, $supplier->slug],
+                                $supplier->agent_id > 0 => ['procurement.marketplace.agents.show.suppliers.show.supplier-products.index',[ $supplier->agent->slug, $supplier->slug]],
                                 default                 => ['procurement.marketplace.suppliers.show.supplier-products.index', $supplier->slug],
                             },
                             'name'     => trans_choice('product|products', $supplier->stats->number_supplier_products),
@@ -94,9 +95,6 @@ class ShowMarketplaceSupplier extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => MarketplaceSupplierTabsEnum::navigation()
                 ],
-                MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => MarketplaceSupplierResource::collection(IndexSupplierProducts::run($supplier))
-                    : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(IndexSupplierProducts::run($supplier))),
 
                 MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
                     fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($supplier))
@@ -107,8 +105,7 @@ class ShowMarketplaceSupplier extends InertiaAction
                     : Inertia::lazy(fn () => MarketplaceSupplierResource::make($supplier)->getArray()),
 
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure($supplier))
-            ->table(IndexMarketplaceSupplierProducts::make()->tableStructure($supplier));
+        )->table(IndexMarketplaceSupplierProducts::make()->tableStructure());
     }
 
 
@@ -176,8 +173,6 @@ class ShowMarketplaceSupplier extends InertiaAction
                             'name'       => 'procurement.marketplace.agents.show.suppliers.show',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
-
-
                                 $routeParameters['supplier']->slug
                             ]
                         ]

@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\InertiaTable\InertiaTable;
@@ -103,7 +103,7 @@ class IndexInvoices extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->parameters
                 ),
                 'title'       => __('invoices'),
                 'pageHead'    => [
@@ -130,28 +130,23 @@ class IndexInvoices extends InertiaAction
         return $this->handle($shop);
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('invoices')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'invoices.index'            => $headCrumb(),
-            'shops.show.invoices.index' =>
+        return
             array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
-            ),
-            default => []
-        };
+                AccountingDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'accounting.invoices.index'
+                            ],
+                            'label' => __('invoices'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            );
     }
 }

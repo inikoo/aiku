@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeletedLocations extends FetchAction
 {
-    public string $commandSignature = 'fetch:deleted-locations {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:deleted-locations {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Location
     {

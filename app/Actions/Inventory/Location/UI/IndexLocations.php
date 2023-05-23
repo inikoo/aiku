@@ -73,13 +73,14 @@ class IndexLocations extends InertiaAction
     }
 
 
-    public function tableStructure(): Closure
+    public function tableStructure(?array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::LOCATIONS->value)
                 ->pageName(TabsAbbreviationEnum::LOCATIONS->value.'Page')
                 ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
@@ -155,11 +156,12 @@ class IndexLocations extends InertiaAction
                                 'inventory.warehouses.show.locations.index' => [
                                     'name'       => 'inventory.warehouses.show.locations.create',
                                     'parameters' => array_values($this->originalParameters)
-                                    ],
-                            default => [
-                                'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]},
+                                ],
+                                default => [
+                                    'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            },
                             'label' => __('locations')
                         ] : false,
                 ],

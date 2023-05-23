@@ -13,11 +13,11 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faLayerGroup, faEnvelope, faPhone, faPersonDolly, faCopy, faMapMarkerAlt);
 
 const props = defineProps<{
-    data: object,
+  data: object,
 
 }>()
 
-const copyText2 = (abc) => {
+const copyText = (abc) => {
   const textarea = document.createElement('textarea')
   textarea.value = abc
   document.body.appendChild(textarea)
@@ -44,7 +44,7 @@ const copyText2 = (abc) => {
             <div class="font-extrabold text-xl">
               <p class="inline">{{ data.company_name }}</p>
               <div class="cursor-pointer px-1.5 pt-1 inline justify-center text-xl text-slate-500 active:text-slate-700"
-                @click="copyText2(data.company_name)">
+                @click="copyText(data.company_name)">
                 <FontAwesomeIcon icon="far fa-copy" class="mr-1" aria-hidden="true" />
               </div>
             </div>
@@ -78,24 +78,24 @@ const copyText2 = (abc) => {
       <div class="grid grid-flow-col grid-cols-4 text-gray-700 space-x-4">
         <div
           class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100 ">
-          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_purchase_orders }}</div>
-          <div class="text-sm text-gray-400">Orders</div>
+          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_open_purchase_orders }}</div>
+          <div class="text-sm text-gray-400">Purchase/Sales</div>
+        </div>
+        <div
+          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
+          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_supplier_products }}</div>
+          <div class="text-sm text-gray-400">Products</div>
+        </div>
+        <div
+          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
+          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_purchase_orders_state_received }}
+          </div>
+          <div class="text-sm text-gray-400">Purchase Order</div>
         </div>
         <div
           class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
           <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_deliveries }}</div>
-          <div class="text-sm text-gray-400">Purchase</div>
-        </div>
-        <div
-          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
-          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.suppliers_count }}</div>
-          <div class="text-sm text-gray-400">Suppliers</div>
-        </div>
-        <div
-          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
-          <div class="grid justify-center text-2xl font-extrabold">{{
-            data.stats.number_purchase_orders_status_settled_cancelled }}</div>
-          <div class="text-sm text-gray-400">Cancelled</div>
+          <div class="text-sm text-gray-400">Deliveries</div>
         </div>
       </div>
     </div>

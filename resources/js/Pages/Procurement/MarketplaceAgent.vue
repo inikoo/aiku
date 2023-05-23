@@ -10,7 +10,18 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {
+    faInventory,
+    faWarehouse,
+    faPersonDolly,
+    faParachuteBox,
+    faTruck,
+    faTerminal,
+    faCameraRetro,faPeopleArrows
+} from "@/../private/pro-light-svg-icons";
+import TableMarketplaceSuppliers from "@/Pages/Tables/TableMarketplaceSuppliers.vue";
+import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -24,18 +35,7 @@ const props = defineProps<{
     suppliers?: object
     supplier_products?: object,
 }>()
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {
-    faInventory,
-    faWarehouse,
-    faPersonDolly,
-    faParachuteBox,
-    faTruck,
-    faTerminal,
-    faCameraRetro
-} from "@/../private/pro-light-svg-icons";
-import TableMarketplaceSuppliers from "@/Pages/Tables/TableMarketplaceSuppliers.vue";
-import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
+
 
 library.add(
     faInventory,
@@ -44,7 +44,8 @@ library.add(
     faParachuteBox,
     faTruck,
     faTerminal,
-    faCameraRetro
+    faCameraRetro,
+    faPeopleArrows
 );
 
 let currentTab = ref(props.tabs.current);

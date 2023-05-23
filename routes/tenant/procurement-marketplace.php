@@ -32,7 +32,7 @@ Route::get('/agents/{agent}/suppliers/{supplier}', [ShowMarketplaceSupplier::cla
 Route::get('/agents/{agent}/suppliers/{supplier}/edit', [EditMarketplaceSupplier::class, 'inAgent'])->name('agents.show.suppliers.edit');
 
 Route::get('/agents/{agent}/suppliers/{supplier}/supplier-products', [IndexMarketplaceSupplierProducts::class, 'inSupplierInAgent'])->name('agents.show.suppliers.show.supplier-products.index');
-Route::get('/agents/{agent}/suppliers/{supplier}/supplier-products/', [ShowMarketplaceSupplierProduct::class, 'inSupplierInAgent'])->name('agents.show.suppliers.show.supplier-products.show');
+Route::get('/agents/{agent}/suppliers/{supplier}/supplier-products/{supplierProduct}', [ShowMarketplaceSupplierProduct::class, 'inSupplierInAgent'])->name('agents.show.suppliers.show.supplier-products.show');
 
 Route::get('/suppliers', IndexMarketplaceSuppliers::class)->name('suppliers.index');
 Route::get('/suppliers/create', CreateMarketplaceSupplier::class)->name('suppliers.create');

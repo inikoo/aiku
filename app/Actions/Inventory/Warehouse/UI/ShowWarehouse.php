@@ -47,7 +47,11 @@ class ShowWarehouse extends InertiaAction
                 'title'       => __('warehouse'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->warehouse),
                 'pageHead'    => [
-                    'icon'  => 'fal fa-warehouse',
+                    'icon'          =>
+                        [
+                            'icon'  => ['fal', 'warehouse'],
+                            'title' => __('warehouse')
+                        ],
                     'title' => $this->warehouse->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
@@ -94,41 +98,40 @@ class ShowWarehouse extends InertiaAction
                 ],
 
 
-                WarehouseTabsEnum::LOCATIONS->value => $this->tab == WarehouseTabsEnum::LOCATIONS->value ?
+                WarehouseTabsEnum::LOCATIONS->value       => $this->tab == WarehouseTabsEnum::LOCATIONS->value ?
                     fn () => LocationResource::collection(IndexLocations::run($this->warehouse))
                     : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($this->warehouse))),
-
                 WarehouseTabsEnum::WAREHOUSE_AREAS->value => $this->tab == WarehouseTabsEnum::WAREHOUSE_AREAS->value
                     ?
-                    fn () => [
-                        'table'             => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse)),
-                        'createInlineModel' => [
-                            'buttonLabel' => __('warehouse area'),
-                            'dialog'      => [
-                                'title'       => __('new warehouse area'),
-                                'saveLabel'   => __('save'),
-                                'cancelLabel' => __('cancel')
-                            ]
-                        ],
-                    ]
-
-                    : Inertia::lazy(
-                        fn () => [
-                            'table'             => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse)),
-                            'createInlineModel' => [
-                                'buttonLabel' => __('warehouse area'),
-                                'dialog'      => [
-                                    'title'       => __('new warehouse area'),
-                                    'saveLabel'   => __('save'),
-                                    'cancelLabel' => __('cancel')
-                                ]
-                            ],
-                        ]
-                    ),
+                    fn () => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse))
+                    : Inertia::lazy(fn () => WarehouseAreaResource::collection(IndexWarehouseAreas::run($this->warehouse))),
 
             ]
-        )->table(IndexLocations::make()->tableStructure())
-            ->table(IndexWarehouseAreas::make()->tableStructure());
+        )->table(
+            IndexLocations::make()->tableStructure(
+                [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('product')
+                    ] : false,
+                ]
+            ),
+        )->table(
+            IndexWarehouseAreas::make()->tableStructure(
+                [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('product')
+                    ] : false,
+                ]
+            )
+        );
     }
 
 

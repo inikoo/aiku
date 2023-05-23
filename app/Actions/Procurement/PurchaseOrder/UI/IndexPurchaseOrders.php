@@ -96,20 +96,10 @@ class IndexPurchaseOrders extends InertiaAction
         return Inertia::render(
             'Procurement/PurchaseOrders',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters(),
-                    $parent
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('purchase orders'),
                 'pageHead'    => [
                     'title'   => __('purchase orders'),
-                    'create'  => $this->canEdit && $this->routeName=='procurement.purchase-orders.index' ? [
-                        'route' => [
-                            'name'       => 'procurement.purchase-orders.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label'=> __('purchase orders')
-                    ] : false,
                 ],
                 'data'      => PurchaseOrderResource::collection($purchaseOrders),
             ]

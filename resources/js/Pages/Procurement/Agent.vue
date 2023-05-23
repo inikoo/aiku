@@ -6,6 +6,18 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {
+    faInventory,
+    faWarehouse,
+    faParachuteBox,
+    faTerminal,
+    faMapSigns,
+    faMoneyBill,
+    faHandReceiving,
+    faPoop, faClipboard, faTruck, faCameraRetro, faPaperclip, faPaperPlane, faClock,
+    faPersonDolly
+} from "@/../private/pro-light-svg-icons";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
@@ -29,16 +41,6 @@ const props = defineProps<{
     purchase_orders?: object,
     errors?: object
 }>()
-import { library } from '@fortawesome/fontawesome-svg-core';
-import {
-    faInventory,
-    faWarehouse,
-    faPersonDolly,
-    faParachuteBox,
-    faTruck,
-    faTerminal,
-    faCameraRetro
-} from "@/../private/pro-light-svg-icons";
 import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 import {useForm} from "@inertiajs/vue3";
 

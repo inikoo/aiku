@@ -25,12 +25,14 @@ class ShowWarehouseArea extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.warehouse-areas.edit');
+
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
     public function inTenant(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+
         return $warehouseArea;
     }
 
@@ -38,6 +40,7 @@ class ShowWarehouseArea extends InertiaAction
     public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+
         return $warehouseArea;
     }
 
@@ -46,12 +49,16 @@ class ShowWarehouseArea extends InertiaAction
         return Inertia::render(
             'Inventory/WarehouseArea',
             [
-                'title'         => __('warehouse area'),
-                'breadcrumbs'   => $this->getBreadcrumbs(
+                'title'                                 => __('warehouse area'),
+                'breadcrumbs'                           => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'pageHead'      => [
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($warehouseArea, $request),
+                    'next'     => $this->getNext($warehouseArea, $request),
+                ],
+                'pageHead'                              => [
                     'icon'  => 'fal fa-map-signs',
                     'title' => $warehouseArea->name,
                     'edit'  => $this->canEdit ? [
@@ -86,14 +93,13 @@ class ShowWarehouseArea extends InertiaAction
                     ]
 
                 ],
-                'tabs'=> [
+                'tabs'                                  => [
                     'current'    => $this->tab,
                     'navigation' => WarehouseAreaTabsEnum::navigation()
                 ],
                 WarehouseAreaTabsEnum::LOCATIONS->value => $this->tab == WarehouseAreaTabsEnum::LOCATIONS->value ?
                     fn () => LocationResource::collection(IndexLocations::run($warehouseArea))
                     : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($warehouseArea))),
-
 
 
             ]
@@ -127,6 +133,7 @@ class ShowWarehouseArea extends InertiaAction
                 ],
             ];
         };
+
         return match ($routeName) {
             'inventory.warehouse-areas.show' => array_merge(
                 (new InventoryDashboard())->getBreadcrumbs(),
@@ -170,4 +177,40 @@ class ShowWarehouseArea extends InertiaAction
             default => []
         };
     }
+
+    public function getPrevious(WarehouseArea $warehouseArea, ActionRequest $request): ?array
+    {
+        $previous = WarehouseArea::where('code', '<', $warehouseArea->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(WarehouseArea $warehouseArea, ActionRequest $request): ?array
+    {
+        $next = WarehouseArea::where('code', '>', $warehouseArea->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?WarehouseArea $warehouseArea, string $routeName): ?array
+    {
+        if (!$warehouseArea) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'inventory.warehouses.show.warehouse-areas.show' => [
+                'label' => $warehouseArea->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'warehouse'     => $warehouseArea->warehouse->slug,
+                        'warehouseArea' => $warehouseArea->slug
+                    ]
+
+                ]
+            ]
+        };
+    }
+
 }

@@ -20,16 +20,19 @@ class InertiaTable
     private Collection $filters;
     private string $defaultSort = '';
 
+    private Collection $modelOperations;
+
     private static bool|string $defaultGlobalSearch = false;
     private static array $defaultQueryBuilderConfig = [];
 
     public function __construct(Request $request)
     {
-        $this->request      = $request;
-        $this->columns      = new Collection();
-        $this->searchInputs = new Collection();
-        $this->elements     = new Collection();
-        $this->filters      = new Collection();
+        $this->request         = $request;
+        $this->columns         = new Collection();
+        $this->searchInputs    = new Collection();
+        $this->elements        = new Collection();
+        $this->filters         = new Collection();
+        $this->modelOperations = new Collection();
 
 
         if (static::$defaultGlobalSearch !== false) {
@@ -106,6 +109,7 @@ class InertiaTable
      */
     protected function getQueryBuilderProps(): array
     {
+
         return [
             'defaultVisibleToggleableColumns' => $this->columns->reject->hidden->map->key->sort()->values(),
             'columns'                         => $this->transformColumns(),
@@ -122,14 +126,15 @@ class InertiaTable
             'hasSearchInputsWithValue'    => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
             'hasSearchInputsWithoutValue' => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
 
-            'globalSearch'   => $this->searchInputs->firstWhere('key', 'global'),
-            'cursor'         => $this->query('cursor'),
-            'sort'           => $this->query('sort', $this->defaultSort) ?: null,
-            'defaultSort'    => $this->defaultSort,
-            'page'           => Paginator::resolveCurrentPage($this->pageName),
-            'pageName'       => $this->pageName,
-            'perPageOptions' => $this->perPageOptions,
-            'elements'       => $this->transformElements(),
+            'globalSearch'    => $this->searchInputs->firstWhere('key', 'global'),
+            'cursor'          => $this->query('cursor'),
+            'sort'            => $this->query('sort', $this->defaultSort) ?: null,
+            'defaultSort'     => $this->defaultSort,
+            'page'            => Paginator::resolveCurrentPage($this->pageName),
+            'pageName'        => $this->pageName,
+            'perPageOptions'  => $this->perPageOptions,
+            'elements'        => $this->transformElements(),
+            'modelOperations' => $this->modelOperations
         ];
     }
 
@@ -197,6 +202,8 @@ class InertiaTable
     }
 
 
+
+
     protected function transformSearchInputs(): Collection
     {
         $filters = $this->query('filter', []);
@@ -261,6 +268,13 @@ class InertiaTable
     public function withGlobalSearch(string $label = null): self
     {
         return $this->searchInput('global', $label ?: __('Search...'));
+    }
+
+    public function withModelOperations(array $modelOperations = null): self
+    {
+        $this->modelOperations = collect($modelOperations);
+
+        return $this;
     }
 
 

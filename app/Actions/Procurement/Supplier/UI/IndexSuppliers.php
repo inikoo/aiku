@@ -38,15 +38,15 @@ class IndexSuppliers extends InertiaAction
 
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
-            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'number_supplier_products', 'number_purchase_orders'])
+            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location as supplier_locations', 'number_supplier_products', 'number_purchase_orders'])
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
-
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
                     $query->where('suppliers.owner_type', 'Agent');
                     $query->where('suppliers.owner_id', $parent->id);
                     $query->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
                     $query->addSelect('agents.slug as agent_slug');
+                    $query->addSelect('agents.name as agent_name');
 
                 } else {
                     $query ->leftJoin('supplier_tenant', 'suppliers.id', 'supplier_tenant.supplier_id');
@@ -56,7 +56,7 @@ class IndexSuppliers extends InertiaAction
 
                 }
             })
-            ->allowedSorts(['code', 'name', 'number_supplier_products', 'number_purchase_orders'])
+            ->allowedSorts(['code', 'name', 'agent_name','supplier_locations','number_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -75,8 +75,10 @@ class IndexSuppliers extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'agent_name', label: __('agent name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'supplier_locations', label: __('location'), canBeHidden: false)
                 ->defaultSort('code');
         };
     }

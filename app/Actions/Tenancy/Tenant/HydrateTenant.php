@@ -31,7 +31,7 @@ class HydrateTenant extends HydrateModel
 {
     use WithNormalise;
 
-    public string $commandSignature = 'hydrate:tenant {tenants?*}';
+    public string $commandSignature = 'hydrate:tenants {tenants?*}';
 
 
     public function handle(): void

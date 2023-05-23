@@ -51,7 +51,11 @@ class ShowMarketplaceAgent extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'                                 => [
-                    'icon'   => 'fal people-arrows',
+                    'icon'          =>
+                        [
+                            'icon'  => ['fal', 'people-arrows'],
+                            'title' => __('agent')
+                        ],
                     'title'  => $agent->name,
                     'edit'   => $this->canEdit ? [
                         'route' => [
@@ -101,8 +105,30 @@ class ShowMarketplaceAgent extends InertiaAction
                     : Inertia::lazy(fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))),
 
             ]
-        )->table(IndexMarketplaceSuppliers::make()->tableStructure($agent))
-            ->table(IndexMarketplaceSupplierProducts::make()->tableStructure($agent));
+        )->table(
+            IndexMarketplaceSuppliers::make()->tableStructure(
+                [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.marketplace.agents.show.suppliers.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('supplier')
+                    ] : false,
+                ]
+            )
+        )
+            ->table(IndexMarketplaceSupplierProducts::make()->tableStructure(
+                [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('product')
+                    ] : false,
+                ]
+            ));
     }
 
 

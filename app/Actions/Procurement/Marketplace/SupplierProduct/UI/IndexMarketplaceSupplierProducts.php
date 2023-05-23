@@ -72,15 +72,14 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page');
-
-            $table
+                ->pageName(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page')
                 ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
@@ -140,7 +139,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
 
