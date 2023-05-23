@@ -5,25 +5,27 @@
   -->
 
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
+import { Head } from "@inertiajs/vue3";
+import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faCashRegister,
-    faCreditCard,
-    faMoneyCheckAlt
+    faCoins,
+    faMoneyCheckAlt,
+    faChartLine
 } from "@/../private/pro-light-svg-icons";
 
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import ModelStats from '@/Components/Navigation/FlatTreeMap.vue';
-import {computed, defineAsyncComponent, ref} from "vue";
-import {useTabChange} from "@/Composables/tab-change";
+import PageHeading from "@/Components/Headings/PageHeading.vue";
+import ModelStats from "@/Components/Navigation/FlatTreeMap.vue";
+import { computed, defineAsyncComponent, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import TablePaymentAccounts from "@/Pages/Tables/TablePaymentAccounts.vue";
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
-library.add(faCreditCard, faMoneyCheckAlt, faCashRegister);
+const ModelChangelog = defineAsyncComponent(() => import("@/Pages/ModelChangelog.vue"));
+
+library.add(faCoins, faMoneyCheckAlt, faCashRegister, faChartLine);
 
 const props = defineProps<{
     title: string,
@@ -35,17 +37,17 @@ const props = defineProps<{
     payment_accounts?: object
     payments?: object,
 
-}>()
+}>();
 
 let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug,currentTab);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
 
     const components = {
-        stats:ModelStats,
-        payment_accounts:TablePaymentAccounts,
-        payments:TablePayments,
+        stats: ModelStats,
+        payment_accounts: TablePaymentAccounts,
+        payments: TablePayments,
         details: ModelDetails,
         history: ModelChangelog
     };
@@ -57,9 +59,9 @@ const component = computed(() => {
 
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="title" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]"></component>
 
 </template>

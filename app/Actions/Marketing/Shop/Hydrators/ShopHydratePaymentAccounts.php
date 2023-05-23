@@ -18,7 +18,7 @@ class ShopHydratePaymentAccounts implements ShouldBeUnique
     public function handle(Shop $shop): void
     {
         $stats = [
-            'number_payment_service_providers' => $shop->paymentAccounts()->groupBy('payment_service_provider_id')->pluck('payment_service_provider_id')->count(),
+            'number_payment_service_providers' => $shop->paymentServiceProviders()->count(),
             'number_payment_accounts'          => $shop->paymentAccounts()->count(),
         ];
 

@@ -15,8 +15,9 @@ import {PaymentAccount} from "@/types/payment-account";
 
 
 function paymentAccountRoute(paymentAccount: PaymentAccount) {
+    console.log(route().current())
     switch (route().current()) {
-
+        case 'accounting.payment-service-providers.show':
         case 'accounting.payment-service-providers.show.payment-accounts.index':
             return route(
                 'accounting.payment-service-providers.show.payment-accounts.show',

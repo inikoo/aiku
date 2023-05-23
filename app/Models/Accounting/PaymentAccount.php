@@ -7,8 +7,7 @@
 
 namespace App\Models\Accounting;
 
-use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
+use Database\Factories\Accounting\PaymentAccountFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,7 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
- * @method static \Database\Factories\Accounting\PaymentAccountFactory factory($count = null, $state = [])
+ * @method static PaymentAccountFactory factory($count = null, $state = [])
  * @method static Builder|PaymentAccount newModelQuery()
  * @method static Builder|PaymentAccount newQuery()
  * @method static Builder|PaymentAccount onlyTrashed()
@@ -66,16 +65,6 @@ class PaymentAccount extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    protected static function booted()
-    {
-        static::created(
-            function (PaymentAccount $paymentAccount) {
-                TenantHydrateAccounting::dispatch(app('currentTenant'));
-                PaymentServiceProviderHydrateAccounts::dispatch($paymentAccount->paymentServiceProvider);
-            }
-        );
     }
 
     public function getSlugOptions(): SlugOptions

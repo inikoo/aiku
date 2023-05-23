@@ -15,7 +15,6 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditLocation extends InertiaAction
@@ -108,7 +107,7 @@ class EditLocation extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Location $location): LocationResource
+    public function jsonResponse(Location $location): LocationResource
     {
         return new LocationResource($location);
     }

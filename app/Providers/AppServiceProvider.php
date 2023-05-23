@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
+use Inertia\Response;
 use Lorisleiva\Actions\Facades\Actions;
 use Inertia\Response as InertiaResponse;
 use App\InertiaTable\InertiaTable;
@@ -33,11 +35,17 @@ class AppServiceProvider extends ServiceProvider
             Actions::registerCommands();
         }
 
-        InertiaResponse::macro('getQueryBuilderProps', function () {
+        Str::macro('possessive', function (string $string): string {
+            return $string.'\''.(
+                Str::endsWith($string, ['s', 'S']) ? '' : 's'
+            );
+        });
+
+        InertiaResponse::macro('getQueryBuilderProps', function (): array {
             return $this->props['queryBuilderProps'] ?? [];
         });
 
-        InertiaResponse::macro('table', function (callable $withTableBuilder = null) {
+        InertiaResponse::macro('table', function (callable $withTableBuilder = null): Response {
             $tableBuilder = new InertiaTable(request());
 
             if ($withTableBuilder) {

@@ -25,6 +25,13 @@ class AttachPaymentAccountToShop
             ]
         );
 
+        $shop->paymentServiceProviders()->attach(
+            $paymentAccount->paymentServiceProvider,
+            [
+                'currency_id' => $shop->currency_id
+            ]
+        );
+
         ShopHydratePaymentAccounts::run($shop);
 
         return $shop;

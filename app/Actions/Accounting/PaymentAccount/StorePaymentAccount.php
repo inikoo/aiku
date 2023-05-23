@@ -7,6 +7,8 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
+use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,6 +27,8 @@ class StorePaymentAccount
         /** @var PaymentAccount $paymentAccount */
         $paymentAccount = $paymentServiceProvider->accounts()->create($modelData);
         $paymentAccount->stats()->create();
+        PaymentServiceProviderHydrateAccounts::dispatch($paymentServiceProvider);
+        TenantHydrateAccounting::dispatch(app('currentTenant'));
         return $paymentAccount;
     }
 

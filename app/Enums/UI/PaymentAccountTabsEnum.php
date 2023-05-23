@@ -31,7 +31,7 @@ enum PaymentAccountTabsEnum: string
             ],
             PaymentAccountTabsEnum::PAYMENTS     => [
                 'title' => __('payments'),
-                'icon'  => 'fal fa-credit-card',
+                'icon'  => 'fal fa-coins',
             ],
             PaymentAccountTabsEnum::DATA     => [
                 'title' => __('data'),

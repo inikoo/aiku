@@ -12,12 +12,10 @@ use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditPaymentAccount extends InertiaAction
 {
-    use HasUIPaymentAccount;
     public function handle(PaymentAccount $paymentAccount): PaymentAccount
     {
         return $paymentAccount;
@@ -38,13 +36,16 @@ class EditPaymentAccount extends InertiaAction
 
 
 
-    public function htmlResponse(PaymentAccount $paymentAccount): Response
+    public function htmlResponse(PaymentAccount $paymentAccount, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('warehouse'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $paymentAccount),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
                     'title'     => $paymentAccount->code,
                     'exitEdit'  => [
@@ -88,8 +89,17 @@ class EditPaymentAccount extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(PaymentAccount $paymentAccount): PaymentAccountResource
+    public function jsonResponse(PaymentAccount $paymentAccount): PaymentAccountResource
     {
         return new PaymentAccountResource($paymentAccount);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowPaymentAccount::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '(' . __('editing') . ')'
+        );
     }
 }
