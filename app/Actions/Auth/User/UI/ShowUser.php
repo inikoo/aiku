@@ -47,6 +47,10 @@ class ShowUser extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($user, $request),
+                    'next'     => $this->getNext($user, $request),
+                ],
                 'pageHead'    => [
                     'title'     => $user->username,
                     'edit'      => $this->canEdit ? [
@@ -117,5 +121,37 @@ class ShowUser extends InertiaAction
             default => []
         };
 
+    }
+
+    public function getPrevious(User $user, ActionRequest $request): ?array
+    {
+        $previous = User::where('username', '<', $user->username)->orderBy('username', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(User $user, ActionRequest $request): ?array
+    {
+        $next = User::where('username', '>', $user->username)->orderBy('username')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?User $user, string $routeName): ?array
+    {
+        if(!$user) {
+            return null;
+        }
+        return match ($routeName) {
+            'sysadmin.users.show'=> [
+                'label'=> $user->username,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'user'=> $user->username
+                    ]
+
+                ]
+            ]
+        };
     }
 }

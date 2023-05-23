@@ -236,15 +236,12 @@ class ShowLocation extends InertiaAction
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
                 case 'inventory.warehouses.show.warehouse-areas.show.locations.show':
+                case 'inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
 
             }
         })->orderBy('code', 'desc')->first();
-
-
-
-
 
         return $this->getNavigation($previous, $request->route()->getName());
 
@@ -263,9 +260,8 @@ class ShowLocation extends InertiaAction
                     break;
 
             }
-        })
+        })->orderBy('code')->first();
 
-            ->orderBy('code', 'desc')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
