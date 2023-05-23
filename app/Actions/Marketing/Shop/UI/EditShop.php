@@ -31,9 +31,9 @@ class EditShop extends InertiaAction
     public function asController(Shop $shop, ActionRequest $request): Shop
     {
         $this->initialisation($request);
+
         return $this->handle($shop);
     }
-
 
 
     public function htmlResponse(Shop $shop): Response
@@ -44,8 +44,8 @@ class EditShop extends InertiaAction
                 'title'       => __('edit shop'),
                 'breadcrumbs' => $this->getBreadcrumbs($shop),
                 'pageHead'    => [
-                    'title'     => $shop->name,
-                    'exitEdit'  => [
+                    'title'    => $shop->name,
+                    'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
@@ -58,9 +58,9 @@ class EditShop extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'   => __('id'),
-                            'icon'    => 'fa-light fa-id-card',
-                            'fields'  => [
+                            'title'  => __('id'),
+                            'icon'   => 'fa-light fa-id-card',
+                            'fields' => [
                                 'code' => [
                                     'type'     => 'input',
                                     'label'    => __('code'),
@@ -68,9 +68,10 @@ class EditShop extends InertiaAction
                                     'required' => true
                                 ],
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('label'),
-                                    'value' => $shop->name
+                                    'type'     => 'input',
+                                    'label'    => __('label'),
+                                    'value'    => $shop->name,
+                                    'required' => true
                                 ],
                             ]
                         ],
@@ -87,16 +88,18 @@ class EditShop extends InertiaAction
 
                                 ],
                                 'currency_id' => [
-                                    'type'   => 'currency',
-                                    'label'  => __('currency'),
-                                    'value'  => $shop->currency_id,
-                                    'options'=> GetCurrenciesOptions::run()
+                                    'type'     => 'currency',
+                                    'label'    => __('currency'),
+                                    'value'    => $shop->currency_id,
+                                    'options'  => GetCurrenciesOptions::run(),
+                                    'required' => true
                                 ],
                                 'language_id' => [
-                                    'type'   => 'language',
-                                    'label'  => __('language'),
-                                    'value'  => $shop->language_id,
-                                    'options'=> GetLanguagesOptions::run()
+                                    'type'     => 'language',
+                                    'label'    => __('language'),
+                                    'value'    => $shop->language_id,
+                                    'options'  => GetLanguagesOptions::run(),
+                                    'required' => true
                                 ],
 
 
@@ -104,10 +107,10 @@ class EditShop extends InertiaAction
                         ]
 
                     ],
-                    'args' => [
+                    'args'      => [
                         'updateRoute' => [
-                            'name'      => 'models.shop.update',
-                            'parameters'=> $shop->slug
+                            'name'       => 'models.shop.update',
+                            'parameters' => $shop->slug
 
                         ],
                     ]
@@ -117,9 +120,8 @@ class EditShop extends InertiaAction
     }
 
 
-
     public function getBreadcrumbs(Shop $shop): array
     {
-        return ShowShop::make()->getBreadcrumbs(shop:$shop, suffix: '('.__('editing').')');
+        return ShowShop::make()->getBreadcrumbs(shop: $shop, suffix: '('.__('editing').')');
     }
 }
