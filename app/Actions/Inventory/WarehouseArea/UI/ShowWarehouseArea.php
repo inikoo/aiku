@@ -187,7 +187,7 @@ class ShowWarehouseArea extends InertiaAction
 
     public function getNext(WarehouseArea $warehouseArea, ActionRequest $request): ?array
     {
-        $next = WarehouseArea::where('code', '>', $warehouseArea->code)->orderBy('code', 'desc')->first();
+        $next = WarehouseArea::where('code', '>', $warehouseArea->code)->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
