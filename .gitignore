@@ -26,9 +26,7 @@ deploy.sh
 staging-deploy.sh
 prod-diff.sh
 /public/tenants/
-/c1
 /hash
-/aurora_migration.sh
-/migrate_aurora.sh
 export_thin_au.sh
 import_thin_au.sh
+/create_aurora_tenants.sh
