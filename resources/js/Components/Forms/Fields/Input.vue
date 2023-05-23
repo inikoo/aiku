@@ -24,7 +24,7 @@ if(props.options){
 </script>
 <template>
     <!-- {{ showStats }} -->
-    <div class="mt-1 relative">
+    <div class="relative">
         <!-- <input @input="handleChange(form)" v-model="form[fieldName]" :type="type"
             class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" /> -->
         <PrimitiveInput v-model="form[fieldName]" :showStats="showStats" :type="type" :form="form" :fieldName="fieldName"/>

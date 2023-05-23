@@ -5,28 +5,25 @@
   -->
 
 <script setup lang="ts">
+import { faLayerGroup, faEnvelope, faPhone, faPersonDolly, faMapMarkerAlt } from '../../../../resources/private/pro-solid-svg-icons';
+import { faCopy } from '../../../../resources/private/pro-regular-svg-icons';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
+library.add(faLayerGroup, faEnvelope, faPhone, faPersonDolly, faCopy, faMapMarkerAlt);
 
 const props = defineProps<{
     data: object,
 
 }>()
 
-const copyText = () => {
-  const input = document.getElementById("company-name");
-  input.select();
-  input.setSelectionRange(0, 99999); // For mobile devices
-
-  try {
-    const successful = document.execCommand('copy');
-    if (successful) {
-      console.log('Copied to clipboard:', input.value);
-    } else {
-      console.error('Copy to clipboard failed.');
-    }
-  } catch (err) {
-    console.error('Unable to copy to clipboard:', err);
-  }
+const copyText2 = (abc) => {
+  const textarea = document.createElement('textarea')
+  textarea.value = abc
+  document.body.appendChild(textarea)
+  textarea.select()
+  document.execCommand('copy')
+  textarea.remove()
 }
 
 </script>
