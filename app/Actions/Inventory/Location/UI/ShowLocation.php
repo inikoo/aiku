@@ -230,14 +230,42 @@ class ShowLocation extends InertiaAction
 
     public function getPrevious(Location $location, ActionRequest $request): ?array
     {
-        $previous = Location::where('code', '<', $location->code)->orderBy('code', 'desc')->first();
+        $previous=Location::where('code', '<', $location->code)->when(true, function ($query) use ($location, $request) {
+            switch ($request->route()->getName()) {
+                case 'inventory.warehouses.show.locations.show':
+                    $query->where('locations.warehouse_id', $location->warehouse_id);
+                    break;
+                case 'inventory.warehouses.show.warehouse-areas.show.locations.show':
+                    $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
+                    break;
+
+            }
+        })->orderBy('code', 'desc')->first();
+
+
+
+
+
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
     public function getNext(Location $location, ActionRequest $request): ?array
     {
-        $next = Location::where('code', '>', $location->code)->orderBy('code', 'desc')->first();
+        $next = Location::where('code', '>', $location->code)->when(true, function ($query) use ($location, $request) {
+            switch ($request->route()->getName()) {
+                case 'inventory.warehouses.show.locations.show':
+                    $query->where('locations.warehouse_id', $location->warehouse_id);
+                    break;
+                case 'inventory.warehouses.show.warehouse-areas.show.locations.show':
+                case 'inventory.warehouse-areas.show.locations.show':
+                    $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
+                    break;
+
+            }
+        })
+
+            ->orderBy('code', 'desc')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
@@ -246,14 +274,34 @@ class ShowLocation extends InertiaAction
         if(!$location) {
             return null;
         }
-//        dd($routeName);
         return match ($routeName) {
+            'inventory.locations.show'=> [
+                'label'=> $location->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'location'  => $location->slug
+                    ]
+
+                ]
+            ],
+            'inventory.warehouse-areas.show.locations.show' => [
+                'label'=> $location->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'warehouseArea' => $location->warehouseArea->slug,
+                        'location'      => $location->slug
+                    ]
+
+                ]
+            ],
             'inventory.warehouses.show.locations.show'=> [
                 'label'=> $location->code,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'warehouse'=> $location->warehouse->slug,
+                        'warehouse' => $location->warehouse->slug,
                         'location'  => $location->slug
                     ]
 
@@ -264,9 +312,9 @@ class ShowLocation extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'warehouse'=> $location->warehouse->slug,
+                        'warehouse'     => $location->warehouse->slug,
                         'warehouseArea' => $location->warehouseArea->slug,
-                        'location'  => $location->slug
+                        'location'      => $location->slug
                     ]
 
                 ]
