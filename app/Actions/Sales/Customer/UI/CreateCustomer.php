@@ -20,7 +20,6 @@ class CreateCustomer extends InertiaAction
 {
     public function handle(Shop $shop, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'CreateModel',
             [
