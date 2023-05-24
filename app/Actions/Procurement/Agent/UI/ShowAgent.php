@@ -194,7 +194,7 @@ class ShowAgent extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'agent'=> $agent->code
+                        'agent'=> $agent->slug
                     ]
 
                 ]
