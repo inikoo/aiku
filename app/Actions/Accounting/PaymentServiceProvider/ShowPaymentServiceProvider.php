@@ -30,13 +30,15 @@ class ShowPaymentServiceProvider extends InertiaAction
         return $request->user()->hasPermissionTo("accounting.view");
     }
 
-    public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): void
+    public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
     {
+        $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(PaymentServiceProviderTabsEnum::values());
-        $this->paymentServiceProvider    = $paymentServiceProvider;
+        $this->paymentServiceProvider = $paymentServiceProvider;
+        return $paymentServiceProvider;
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -44,33 +46,37 @@ class ShowPaymentServiceProvider extends InertiaAction
         return Inertia::render(
             'Accounting/PaymentServiceProvider',
             [
-                'title'       => __('payment service provider'),
+                'title' => __('payment service provider'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->paymentServiceProvider),
-                'pageHead'    => [
-                    'icon'  => 'fal fa-cash-register',
+                'navigation' => [
+                    'previous' => $this->getPrevious($this->paymentServiceProvider, $request),
+                    'next' => $this->getNext($this->paymentServiceProvider, $request),
+                ],
+                'pageHead' => [
+                    'icon' => 'fal fa-cash-register',
                     'title' => $this->paymentServiceProvider->slug,
-                    'meta'  => [
+                    'meta' => [
                         [
-                            'name'     => trans_choice('account | accounts', $this->paymentServiceProvider->stats->number_accounts),
-                            'number'   => $this->paymentServiceProvider->stats->number_accounts,
-                            'href'     => [
+                            'name' => trans_choice('account | accounts', $this->paymentServiceProvider->stats->number_accounts),
+                            'number' => $this->paymentServiceProvider->stats->number_accounts,
+                            'href' => [
                                 'accounting.payment-service-providers.show.payment-accounts.index',
                                 $this->paymentServiceProvider->slug
                             ],
                             'leftIcon' => [
-                                'icon'    => 'fal fa-money-check-alt',
+                                'icon' => 'fal fa-money-check-alt',
                                 'tooltip' => __('accounts')
                             ]
                         ],
                         [
-                            'name'     => trans_choice('payment | payments', $this->paymentServiceProvider->stats->number_payments),
-                            'number'   => $this->paymentServiceProvider->stats->number_payments,
-                            'href'     => [
+                            'name' => trans_choice('payment | payments', $this->paymentServiceProvider->stats->number_payments),
+                            'number' => $this->paymentServiceProvider->stats->number_payments,
+                            'href' => [
                                 'accounting.payment-service-providers.show.payments.index',
                                 $this->paymentServiceProvider->slug
                             ],
                             'leftIcon' => [
-                                'icon'    => 'fal fa-credit-card',
+                                'icon' => 'fal fa-credit-card',
                                 'tooltip' => __('payments')
                             ]
                         ]
@@ -78,19 +84,19 @@ class ShowPaymentServiceProvider extends InertiaAction
                     ]
 
                 ],
-                'tabs'=> [
-                    'current'    => $this->tab,
+                'tabs' => [
+                    'current' => $this->tab,
                     'navigation' => PaymentServiceProviderTabsEnum::navigation()
 
                 ],
 
                 PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value ?
-                    fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($this->paymentServiceProvider))
-                    : Inertia::lazy(fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($this->paymentServiceProvider))),
+                    fn() => PaymentAccountResource::collection(IndexPaymentAccounts::run($this->paymentServiceProvider))
+                    : Inertia::lazy(fn() => PaymentAccountResource::collection(IndexPaymentAccounts::run($this->paymentServiceProvider))),
 
                 PaymentServiceProviderTabsEnum::PAYMENTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentResource::collection(IndexPayments::run($this->paymentServiceProvider))
-                    : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($this->paymentServiceProvider))),
+                    fn() => PaymentResource::collection(IndexPayments::run($this->paymentServiceProvider))
+                    : Inertia::lazy(fn() => PaymentResource::collection(IndexPayments::run($this->paymentServiceProvider))),
             ]
         )->table(IndexPaymentAccounts::make()->tableStructure())
             ->table(IndexPayments::make()->tableStructure());
@@ -103,32 +109,65 @@ class ShowPaymentServiceProvider extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider, $suffix=null): array
+    public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider, $suffix = null): array
     {
         return array_merge(
             (new AccountingDashboard())->getBreadcrumbs(),
             [
-                 [
+                [
 
-                     'type'               => 'modelWithIndex',
-                     'modelWithIndex'     => [
-                         'index'=> [
-                             'route'=> [
-                                 'name'=> 'accounting.payment-service-providers.index',
-                             ],
-                             'label'=> __('providers')
-                         ],
-                         'model'=> [
-                             'route'=> [
-                                 'name'      => 'accounting.payment-service-providers.show',
-                                 'parameters'=> [$paymentServiceProvider->slug]
-                             ],
-                             'label'=> $paymentServiceProvider->code,
-                         ],
-                     ],
-                     'suffix'=> $suffix,
+                    'type' => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name' => 'accounting.payment-service-providers.index',
+                            ],
+                            'label' => __('providers')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name' => 'accounting.payment-service-providers.show',
+                                'parameters' => [$paymentServiceProvider->slug]
+                            ],
+                            'label' => $paymentServiceProvider->code,
+                        ],
+                    ],
+                    'suffix' => $suffix,
                 ],
             ]
         );
+    }
+
+
+    public function getPrevious(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): ?array
+    {
+        $previous = PaymentServiceProvider::where('code', '<', $paymentServiceProvider->slug)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): ?array
+    {
+        $next = PaymentServiceProvider::where('code', '>', $paymentServiceProvider->slug)->orderBy('code')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?PaymentServiceProvider $paymentServiceProvider, string $routeName): ?array
+    {
+        if(!$paymentServiceProvider) {
+            return null;
+        }
+        return match ($routeName) {
+            'accounting.payment-service-providers.show'=> [
+                'label'=> $paymentServiceProvider->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'provider'=> $paymentServiceProvider->code
+                    ]
+
+                ]
+            ]
+        };
     }
 }

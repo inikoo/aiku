@@ -56,7 +56,7 @@ class ShowInvoice extends InertiaAction
         return $this->handle($invoice);
     }
 
-    public function htmlResponse(Invoice $invoice): Response
+    public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -66,6 +66,10 @@ class ShowInvoice extends InertiaAction
             [
                 'title'       => __('invoice'),
                 'breadcrumbs' => $this->getBreadcrumbs($invoice),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($invoice, $request),
+                    'next'     => $this->getNext($invoice, $request),
+                ],
                 'pageHead'    => [
                     'title' => $invoice->number,
 
@@ -121,5 +125,37 @@ class ShowInvoice extends InertiaAction
                 ],
             ]
         );
+    }
+
+    public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
+    {
+        $previous = Invoice::where('number', '<', $invoice->number)->orderBy('number', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Invoice $invoice, ActionRequest $request): ?array
+    {
+        $next = Invoice::where('number', '>', $invoice->number)->orderBy('number')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Invoice $invoice, string $routeName): ?array
+    {
+        if(!$invoice) {
+            return null;
+        }
+        return match ($routeName) {
+            'accounting.invoices.show'=> [
+                'label'=> $invoice->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'invoice'=> $invoice->number
+                    ]
+
+                ]
+            ]
+        };
     }
 }

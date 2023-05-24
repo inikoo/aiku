@@ -58,13 +58,17 @@ class ShowPaymentAccount extends InertiaAction
         return $this->handle($paymentAccount);
     }
 
-    public function htmlResponse(PaymentAccount $paymentAccount): Response
+    public function htmlResponse(PaymentAccount $paymentAccount, ActionRequest $request): Response
     {
         return Inertia::render(
             'Accounting/PaymentAccount',
             [
                 'title'       => $paymentAccount->name,
                 'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $paymentAccount),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($paymentAccount, $request),
+                    'next'     => $this->getNext($paymentAccount, $request),
+                ],
                 'pageHead'    => [
                     'icon'    => 'fal fa-agent',
                     'title'   => $paymentAccount->slug,
@@ -121,5 +125,59 @@ class ShowPaymentAccount extends InertiaAction
     public function jsonResponse(PaymentAccount $paymentAccount): PaymentAccountResource
     {
         return new PaymentAccountResource($paymentAccount);
+    }
+
+    public function getPrevious(PaymentAccount $paymentAccount, ActionRequest $request): ?array
+    {
+        $previous=PaymentAccount::where('code', '<', $paymentAccount->code)->when(true, function ($query) use ($paymentAccount, $request) {
+            if ($request->route()->getName() == 'accounting.payment-service-providers.show.payment-accounts.show') {
+                $query->where('payment_accounts.payment_service_provider_id', $paymentAccount->payment_service_provider_id);
+            }
+        })->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(PaymentAccount $paymentAccount, ActionRequest $request): ?array
+    {
+        $next = PaymentAccount::where('code', '>', $paymentAccount->code)->when(true, function ($query) use ($paymentAccount, $request) {
+            if ($request->route()->getName() == 'accounting.payment-service-providers.show.payment-accounts.show') {
+                $query->where('payment_accounts.payment_service_provider_id', $paymentAccount->payment_service_provider_id);
+            }
+        })->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?PaymentAccount $paymentAccount, string $routeName): ?array
+    {
+        if(!$paymentAccount) {
+            return null;
+        }
+        return match ($routeName) {
+            'accounting.payment-accounts.show'=> [
+                'label'=> $paymentAccount->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'account'  => $paymentAccount->slug
+                    ]
+
+                ]
+            ],
+            'accounting.payment-service-providers.show.payment-accounts.show' => [
+                'label'=> $paymentAccount->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'provider' => $paymentAccount->payment_service_provider_id,
+                        'account' => $paymentAccount->code
+                    ]
+
+                ]
+            ],
+
+        };
     }
 }
