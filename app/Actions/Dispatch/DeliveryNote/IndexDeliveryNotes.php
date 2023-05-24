@@ -112,7 +112,7 @@ class IndexDeliveryNotes extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($parent));
     }
 
 
@@ -147,7 +147,9 @@ class IndexDeliveryNotes extends InertiaAction
             'delivery-notes.index'            => $headCrumb(),
             'shops.show.delivery-notes.index' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
+                (new ShowShop())->getBreadcrumbs([
+                    'shop' => $parent
+                ]),
                 $headCrumb([$parent->slug])
             ),
             default => []
