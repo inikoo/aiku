@@ -137,7 +137,7 @@ class CatalogueHub extends InertiaAction
             ),
             'shops.show.catalogue.hub' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb([$routeParameters['shop']->slug])
             ),
             default => []
