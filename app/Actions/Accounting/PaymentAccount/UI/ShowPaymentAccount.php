@@ -34,6 +34,7 @@ class ShowPaymentAccount extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('accounting.edit');
+
         return $request->user()->hasPermissionTo("accounting.view");
     }
 
@@ -53,7 +54,7 @@ class ShowPaymentAccount extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PaymentAccountTabsEnum::values());
         return $this->handle($paymentAccount);
     }
 
@@ -67,32 +68,33 @@ class ShowPaymentAccount extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($paymentAccount, $request),
                     'next'     => $this->getNext($paymentAccount, $request),
                 ],
                 'pageHead'    => [
-                    'icon'          =>
+                    'icon'   =>
                         [
                             'icon'  => ['fal', 'fa-money-check-alt'],
                             'title' => __('payment account')
                         ],
-                    'title'   => $paymentAccount->slug,
-                    'create'  => $this->canEdit && (
-                        $this->routeName=='accounting.payment-service-providers.show.payment-accounts.show' or
-                        $this->routeName=='accounting.payment-accounts.show'
+                    'title'  => $paymentAccount->slug,
+                    'create' => $this->canEdit
+                    && (
+                        $this->routeName == 'accounting.payment-service-providers.show.payment-accounts.show' or
+                        $this->routeName == 'accounting.payment-accounts.show'
                     ) ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'show.payments.create', $this->routeName) ,
+                            'name'       => preg_replace('/show$/', 'show.payments.create', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('payment')
+                        'label' => __('payment')
                     ] : false,
-                    'meta'  => [
+                    'meta'   => [
                         [
-                            'name'   => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
-                            'number' => $paymentAccount->stats->number_payments,
-                            'href'   => match ($this->routeName) {
+                            'name'     => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
+                            'number'   => $paymentAccount->stats->number_payments,
+                            'href'     => match ($this->routeName) {
                                 'accounting.payment-service-providers.show.payment-accounts.show' => [
                                     'accounting.payment-service-providers.show.payment-accounts.show.payments.index',
                                     [$paymentAccount->paymentServiceProvider->slug, $paymentAccount->slug]
@@ -111,7 +113,7 @@ class ShowPaymentAccount extends InertiaAction
                     ],
 
                 ],
-                'tabs'=> [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => PaymentAccountTabsEnum::navigation()
 
@@ -120,7 +122,6 @@ class ShowPaymentAccount extends InertiaAction
                 PaymentAccountTabsEnum::PAYMENTS->value => $this->tab == PaymentAccountTabsEnum::PAYMENTS->value ?
                     fn () => PaymentResource::collection(IndexPayments::run($this->paymentAccount))
                     : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($this->paymentAccount))),
-
 
 
             ]
@@ -135,7 +136,6 @@ class ShowPaymentAccount extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-
         $headCrumb = function (PaymentAccount $paymentAccount, array $routeParameters, string $suffix) {
             return [
                 [
@@ -151,27 +151,50 @@ class ShowPaymentAccount extends InertiaAction
                         ],
 
                     ],
-                    'suffix'=> $suffix
+                    'suffix'         => $suffix
                 ],
             ];
         };
 
         return match ($routeName) {
-            'accounting.payment-accounts.show' =>
+            'shops.show.accounting.payment-accounts.show' =>
             array_merge(
-                (new  AccountingDashboard())->getBreadcrumbs($routeName, $routeParameters),
+                (new  AccountingDashboard())->getBreadcrumbs('shops.show.accounting.dashboard', $routeParameters),
                 $headCrumb(
                     $routeParameters['paymentAccount'],
                     [
-                            'index' => [
-                                'name'       => 'accounting.payment-accounts.index',
-                                'parameters' => []
-                            ],
-                            'model' => [
-                                'name'       => 'accounting.payment-accounts.show',
-                                'parameters' => [$routeParameters['paymentAccount']->slug]
+                        'index' => [
+                            'name'       => 'shops.show.accounting.payment-accounts.index',
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
                             ]
                         ],
+                        'model' => [
+                            'name'       => 'shops.show.accounting.payment-accounts.show',
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
+                                $routeParameters['paymentAccount']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'accounting.payment-accounts.show' =>
+            array_merge(
+                (new  AccountingDashboard())->getBreadcrumbs('accounting.dashboard', $routeParameters),
+                $headCrumb(
+                    $routeParameters['paymentAccount'],
+                    [
+                        'index' => [
+                            'name'       => 'accounting.payment-accounts.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'accounting.payment-accounts.show',
+                            'parameters' => [$routeParameters['paymentAccount']->slug]
+                        ]
+                    ],
                     $suffix
                 )
             ),
@@ -179,7 +202,7 @@ class ShowPaymentAccount extends InertiaAction
             array_merge(
                 ShowPaymentServiceProvider::make()->getBreadcrumbs(
                     [
-                        'paymentServiceProvider'=> $routeParameters['paymentServiceProvider']
+                        'paymentServiceProvider' => $routeParameters['paymentServiceProvider']
                     ]
                 ),
                 $headCrumb(
@@ -232,7 +255,7 @@ class ShowPaymentAccount extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'paymentAccount'   => $paymentAccount->slug
+                        'paymentAccount' => $paymentAccount->slug
                     ]
 
                 ]
@@ -242,12 +265,13 @@ class ShowPaymentAccount extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'paymentServiceProvider'  => $paymentAccount->paymentServiceProvider->slug,
-                        'paymentAccount'   => $paymentAccount->slug
+                        'paymentServiceProvider' => $paymentAccount->paymentServiceProvider->slug,
+                        'paymentAccount'         => $paymentAccount->slug
                     ]
 
                 ]
-            ]
+            ],
+            default=> null
         };
     }
 }
