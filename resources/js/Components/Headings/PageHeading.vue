@@ -23,9 +23,9 @@ const locale = useLocaleStore();
 
 </script>
 <template>
-    <div class="m-4 grid grid-flow-col justify-between items-center">
+    <div class="mx-4 my-4 md:my-2 grid grid-flow-col justify-between items-center">
         <div class="">
-            <h2 class="font-bold text-gray-900 text-3xl tracking-tight capitalize">
+            <h2 class="font-bold text-gray-900 text-2xl tracking-tight capitalize">
 
                 <span v-if="data.container" class="text-indigo-500 font-medium mr-2">
                     <FontAwesomeIcon v-if="data.container.icon" :title="data.container.tooltip" aria-hidden="true"
