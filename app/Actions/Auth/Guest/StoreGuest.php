@@ -10,11 +10,9 @@ namespace App\Actions\Auth\Guest;
 use App\Enums\Auth\GuestTypeEnum;
 use App\Models\Auth\Guest;
 use App\Models\Tenancy\Tenant;
-use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -58,8 +56,7 @@ class StoreGuest
             'identity_document_number' => ['nullable', 'string'],
             'identity_document_type'   => ['nullable', 'string'],
             'type'                     => ['required', Rule::in(GuestTypeEnum::values())],
-            'username'                 => ['required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username'],
-            'password'                 => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+
         ];
     }
 
