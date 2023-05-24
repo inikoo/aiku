@@ -69,8 +69,8 @@ class ShowPurchaseOrder extends InertiaAction
                 ],
 
                 PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
-                    fn () => []
-                    : Inertia::lazy(fn () => []),
+                    fn () => new PurchaseOrderResource(($this->purchaseOrder))
+                    : Inertia::lazy(fn () => new PurchaseOrderResource(($this->purchaseOrder))),
 
                 PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ?
                     fn () => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($this->purchaseOrder))

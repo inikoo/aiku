@@ -560,7 +560,7 @@ const handleElementsChange = function (data) {
                             <Button type='secondary' action="create" class="capitalize focus:ring-0 ">
                                 {{queryBuilderProps.modelOperations.createLink.label}}
                             </Button>
-                        </Link>  
+                        </Link>
                     </div>
                 </div>
 

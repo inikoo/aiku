@@ -13,6 +13,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property string $number
+ * @property string $provider
+ * @property string $state
+ * @property string $status
  * @property string $created_at
  * @property string $updated_at
  * @property string $slug

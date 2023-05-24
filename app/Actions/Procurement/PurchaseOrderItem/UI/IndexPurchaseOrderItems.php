@@ -59,6 +59,7 @@ class IndexPurchaseOrderItems extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::ITEMS->value.'Page');
             $table
                 ->withGlobalSearch()
+                ->withModelOperations()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'unit_price', label: __('unit price'), canBeHidden: false, sortable: true, searchable: true)
