@@ -19,6 +19,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -36,7 +37,6 @@ class IndexWarehouseAreas extends InertiaAction
         });
 
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WAREHOUSE_AREAS->value);
-
 
         return QueryBuilder::for(WarehouseArea::class)
             ->defaultSort('warehouse_areas.code')
@@ -114,9 +114,8 @@ class IndexWarehouseAreas extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $warehousesAreas, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $warehousesAreas, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
             'Inventory/WarehouseAreas',
@@ -136,9 +135,7 @@ class IndexWarehouseAreas extends InertiaAction
                         'label' => __('warehouse area')
                     ] : false,
                 ],
-                'data'        => [
-                   'table' => WarehouseAreaResource::collection($warehousesAreas)
-                ]
+                'data'        => WarehouseAreaResource::collection($warehousesAreas)
 
 
             ]
