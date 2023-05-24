@@ -28,8 +28,8 @@ class IndexPaymentServiceProviders extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('payment_service_providers.code', '~*', "\y$value\y")
-                    ->orWhere('payment_service_providers.data', '=', $value);
+                $query->where('payment_service_providers.code', 'ILIKE', "%$value%")
+                    ->orWhere('payment_service_providers.data', 'ILIKE', "%$value%");
             });
         });
 

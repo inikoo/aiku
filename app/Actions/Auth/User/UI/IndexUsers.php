@@ -25,8 +25,7 @@ class IndexUsers extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('user.username', 'LIKE', "%$value%")
-                    ->where('user.name', 'LIKE', "%$value%");
+                $query->where('users.username', 'ILIKE', "%$value%");
             });
         });
 
