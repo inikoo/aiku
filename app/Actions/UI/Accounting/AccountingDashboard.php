@@ -7,22 +7,27 @@
 
 namespace App\Actions\UI\Accounting;
 
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
+use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-/**
- * @property Tenant $tenant
- * @property \App\Models\Auth\User $user
- */
 class AccountingDashboard
 {
     use AsAction;
     use WithInertia;
+
+
+    public function handle($scope)
+    {
+        return $scope;
+    }
 
     public function authorize(ActionRequest $request): bool
     {
@@ -30,34 +35,49 @@ class AccountingDashboard
     }
 
 
-    public function asController(ActionRequest $request): void
+    public function inTenant(): Tenant
     {
-        $this->user   = $request->user();
-        $this->tenant = app('currentTenant');
+        return $this->handle(app('currentTenant'));
+    }
+
+    public function inShop(Shop $shop): Shop
+    {
+        return $this->handle($shop);
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(Tenant|Shop $scope, ActionRequest $request): Response
     {
-        $this->validateAttributes();
+        $container = null;
+        if (class_basename($scope) == 'Shop') {
+            $container = [
+                'icon'   => ['fal', 'fa-store-alt'],
+                'tooltip'=> __('Shop'),
+                'label'  => Str::possessive($scope->name)
+            ];
+        }
 
 
         return Inertia::render(
             'Accounting/AccountingDashboard',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('accounting'),
-                'pageHead'    => [
-                    'title' => __('accounting'),
+                'breadcrumbs'  => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'title'        => __('accounting'),
+                'pageHead'     => [
+                    'title'     => __('accounting'),
+                    'container' => $container
                 ],
-                'flatTreeMaps'    => [
+                'flatTreeMaps' => [
                     [
                         [
                             'name'  => __('providers'),
                             'icon'  => ['fal', 'fa-cash-register'],
                             'href'  => ['accounting.payment-service-providers.index'],
                             'index' => [
-                                'number' => $this->tenant->accountingStats->number_payment_service_providers
+                                'number' => $scope->accountingStats->number_payment_service_providers
                             ]
 
                         ],
@@ -66,7 +86,7 @@ class AccountingDashboard
                             'icon'  => ['fal', 'fa-money-check-alt'],
                             'href'  => ['accounting.payment-accounts.index'],
                             'index' => [
-                                'number' => $this->tenant->accountingStats->number_payment_accounts
+                                'number' => $scope->accountingStats->number_payment_accounts
                             ]
 
                         ],
@@ -75,20 +95,19 @@ class AccountingDashboard
                             'icon'  => ['fal', 'fa-coins'],
                             'href'  => ['accounting.payments.index'],
                             'index' => [
-                                'number' => $this->tenant->accountingStats->number_payments
+                                'number' => $scope->accountingStats->number_payments
                             ]
 
                         ],
 
                     ],
                     [
-                        // TODO Raul please fix the stats
                         [
                             'name'  => __('invoices'),
                             'icon'  => ['fal', 'fa-file-invoice-dollar'],
                             'href'  => ['accounting.invoices.index'],
                             'index' => [
-                                'number' => $this->tenant->inventoryStats->number_stocks
+                                'number' => $scope->accountingStats->number_invoices
                             ]
 
                         ],
@@ -100,9 +119,26 @@ class AccountingDashboard
         );
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return
+        return match ($routeName) {
+            'shops.show.accounting.dashboard' =>
+            array_merge(
+                ShowShop::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'      => 'shops.show.accounting.dashboard',
+                                'parameters'=> $routeParameters
+                            ],
+                            'label' => __('accounting'),
+                        ]
+                    ]
+                ]
+            ),
+            default =>
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 [
@@ -116,6 +152,7 @@ class AccountingDashboard
                         ]
                     ]
                 ]
-            );
+            )
+        };
     }
 }

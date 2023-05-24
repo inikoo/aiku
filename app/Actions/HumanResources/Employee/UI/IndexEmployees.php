@@ -38,10 +38,10 @@ class IndexEmployees extends InertiaAction
 
         return QueryBuilder::for(Employee::class)
             ->defaultSort('employees.slug')
-            ->select(['slug', 'id', 'worker_number', 'name','state'])
+            ->select(['slug', 'id', 'worker_number', 'name', 'state'])
             ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'name'])
-            ->allowedFilters([$globalSearch, 'slug','name','state'])
+            ->allowedFilters([$globalSearch, 'slug', 'name', 'state'])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
@@ -49,18 +49,17 @@ class IndexEmployees extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) {
             $table
                 ->name(TabsAbbreviationEnum::EMPLOYEES->value)
-                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page');
-            $table
+                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: false, searchable: false)
-                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: false, searchable: false)
+                ->column(key: 'job_positions', label: __('position'), canBeHidden: false)
+                ->column(key: 'state', label: __('state'), canBeHidden: false)
                 ->column(key: 'actions', label: __('actions'))
                 ->defaultSort('slug');
         };
@@ -84,17 +83,12 @@ class IndexEmployees extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $employees)
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
-
         return Inertia::render(
             'HumanResources/Employees',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('employees'),
                 'pageHead'    => [
                     'title'  => __('employees'),
@@ -108,7 +102,7 @@ class IndexEmployees extends InertiaAction
                 ],
                 'data'        => EmployeeInertiaResource::collection($employees),
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
 
@@ -120,7 +114,7 @@ class IndexEmployees extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
         return array_merge(
             (new HumanResourcesDashboard())->getBreadcrumbs(),

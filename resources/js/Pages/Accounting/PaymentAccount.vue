@@ -9,10 +9,9 @@ import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faChartLine,
-    faCreditCard,
-    faCube,
-    faFolder,
-    faInfoCircle
+    faCoins,
+    faInfoCircle,
+    faMoneyCheckAlt
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
@@ -22,7 +21,7 @@ import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 
-library.add(faFolder, faCube, faCreditCard, faChartLine, faInfoCircle);
+library.add(faCoins, faChartLine, faInfoCircle,faMoneyCheckAlt);
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -33,7 +32,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    payments: object;
+    payments?: object;
 }>()
 
 let currentTab = ref(props.tabs.current);

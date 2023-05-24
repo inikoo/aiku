@@ -53,7 +53,6 @@ class ShowAgent extends InertiaAction
             [
                 'title'       => __('agent'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
@@ -92,8 +91,8 @@ class ShowAgent extends InertiaAction
                             ]
                         ],
                         [
-                            'name'     => trans_choice('product|products', $agent->stats->number_products),
-                            'number'   => $agent->stats->number_products,
+                            'name'     => trans_choice('product|products', $agent->stats->number_supplier_products),
+                            'number'   => $agent->stats->number_supplier_products,
                             'href'     => [
                                 'procurement.agents.show.suppliers.index',
                                 $agent->slug
@@ -127,9 +126,9 @@ class ShowAgent extends InertiaAction
                     fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($agent))
                     : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexSupplierProducts::run($agent))),
             ]
-        )->table(IndexSuppliers::make()->tableStructure($agent))
-            ->table(IndexSupplierProducts::make()->tableStructure($agent))
-            ->table(IndexPurchaseOrders::make()->tableStructure($agent));
+        )->table(IndexSuppliers::make()->tableStructure())
+            ->table(IndexSupplierProducts::make()->tableStructure())
+            ->table(IndexPurchaseOrders::make()->tableStructure());
     }
 
 
@@ -138,7 +137,7 @@ class ShowAgent extends InertiaAction
         return new AgentResource($agent);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
             (new ProcurementDashboard())->getBreadcrumbs(),

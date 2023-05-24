@@ -59,7 +59,10 @@ class ShowSupplier extends InertiaAction
 
     public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
-        $this->validateAttributes();
+        if($supplier->type=='sub-supplier') {
+            //    return $this->AW Bamboo
+        }
+
         return Inertia::render(
             'Procurement/Supplier',
             [
@@ -75,15 +78,8 @@ class ShowSupplier extends InertiaAction
                             'title' => __('supplier')
                         ],
                     'title'         => $supplier->name,
-                    /*
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
-                    */
-                    'create_direct' => $this->canEdit ? [
+
+                    'create_direct' => $this->canEdit && $supplier->type=='supplier' ? [
                         'route' => [
                             'name'       => 'models.supplier.purchase-order.store',
                             'parameters' => array_values($this->originalParameters)
@@ -143,10 +139,10 @@ class ShowSupplier extends InertiaAction
                     fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($supplier))
                     : Inertia::lazy(fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($supplier))),
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure($supplier))
-        ->table(IndexSupplierProducts::make()->tableStructure($supplier))
-        ->table(IndexPurchaseOrders::make()->tableStructure($supplier))
-        ->table(IndexSupplierDeliveries::make()->tableStructure($supplier));
+        )->table(IndexSupplierProducts::make()->tableStructure())
+        ->table(IndexSupplierProducts::make()->tableStructure())
+        ->table(IndexPurchaseOrders::make()->tableStructure())
+        ->table(IndexSupplierDeliveries::make()->tableStructure());
     }
 
 
@@ -197,7 +193,6 @@ class ShowSupplier extends InertiaAction
             'procurement.agents.show.suppliers.show' =>
             array_merge(
                 (new ShowAgent())->getBreadcrumbs(
-                    'procurement.agent',
                     ['agent'=> $routeParameters['agent']]
                 ),
                 $headCrumb(

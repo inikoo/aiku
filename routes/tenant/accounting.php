@@ -25,9 +25,9 @@ if (empty($parent)) {
 }
 
 
-Route::get('/', AccountingDashboard::class)->name('dashboard');
+Route::get('/', [AccountingDashboard::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('dashboard');
 
-if ($parent=='tenant') {
+if ($parent == 'tenant') {
     Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments/create', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.create');
     Route::get('/providers/{paymentServiceProvider}/payments/create', [IndexPayments::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.create');
 

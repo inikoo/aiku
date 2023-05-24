@@ -65,13 +65,13 @@ class IndexSuppliers extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(array $modelOperations=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::SUPPLIERS->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page');
-            $table
+                ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page')
+                ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
@@ -128,7 +128,7 @@ class IndexSuppliers extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
     public function getBreadcrumbs(): array

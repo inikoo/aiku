@@ -15,7 +15,7 @@ enum PurchaseOrderTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE            = 'SHOWCASE';
+    case SHOWCASE            = 'showcase';
 
     case ITEMS               = 'items';
 

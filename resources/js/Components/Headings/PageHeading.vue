@@ -26,6 +26,13 @@ const locale = useLocaleStore();
     <div class="m-4 grid grid-flow-col justify-between items-center">
         <div class="">
             <h2 class="font-bold text-gray-900 text-3xl tracking-tight capitalize">
+
+                <span v-if="data.container" class="text-indigo-500 font-medium mr-2">
+                    <FontAwesomeIcon v-if="data.container.icon" :title="data.container.tooltip" aria-hidden="true"
+                                     :icon="data.container.icon" size="xs" />
+                    {{ data.container.label }}
+                </span>
+
                 <FontAwesomeIcon v-if="data.icon" :title="data.icon.title" aria-hidden="true"
                                  :icon="data.icon.icon" size="xs" class="pr-2"/>
                 {{ data.title }}
@@ -42,7 +49,9 @@ const locale = useLocaleStore();
                             size="lg"
                             class="text-gray-400 pr-2"/>
                         <Link v-if="item.href" :href="route(item.href[0],item.href[1])">
-                            <span v-if="item.number">{{ locale.number(item.number) }}</span> {{ item.name }}
+                            <span v-if="item.number">{{ locale.number(item.number) }}</span>
+                            <FontAwesomeIcon v-else icon="fal fa-empty-set"/>
+                            {{ item.name }}
                         </Link>
                         <template v-else-if="item['emptyWithCreateAction']">
                             <FontAwesomeIcon icon="fal fa-empty-set" class="mr-2"/>

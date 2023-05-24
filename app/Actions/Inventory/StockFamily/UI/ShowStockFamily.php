@@ -97,8 +97,8 @@ class ShowStockFamily extends InertiaAction
 
             ]
         )->table(IndexLocations::make()->tableStructure());
-        //->table(IndexProducts::make()->tableStructure($this->stockFamily))
-        //   ->table(IndexFamilies::make()->tableStructure($this->stockFamily));
+        //->table(IndexProducts::make()->tableStructure())
+        //   ->table(IndexFamilies::make()->tableStructure());
     }
 
 

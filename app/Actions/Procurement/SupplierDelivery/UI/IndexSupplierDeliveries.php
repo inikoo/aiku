@@ -45,21 +45,23 @@ class IndexSupplierDeliveries extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::SUPPLIER_DELIVERIES->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIER_DELIVERIES->value.'Page');
-            $table
+                ->pageName(TabsAbbreviationEnum::SUPPLIER_DELIVERIES->value.'Page')
+                ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('number');
         };
     }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -71,9 +73,9 @@ class IndexSupplierDeliveries extends InertiaAction
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
+
         return $this->handle(app('currentTenant'));
     }
-
 
 
     public function jsonResponse(LengthAwarePaginator $suppliers): AnonymousResourceCollection
@@ -85,6 +87,7 @@ class IndexSupplierDeliveries extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request)
     {
         $parent = $request->route()->parameters == [] ? app('currentTenant') : last($request->route()->paramenters());
+
         return Inertia::render(
             'Procurement/SupplierDeliveries',
             [
@@ -94,20 +97,20 @@ class IndexSupplierDeliveries extends InertiaAction
                 ),
                 'title'       => __('supplier deliveries'),
                 'pageHead'    => [
-                    'title'   => __('supplier deliveries'),
-                    'create'  => $this->canEdit && $this->routeName=='procurement.supplier-deliveries.index' ? [
+                    'title'  => __('supplier deliveries'),
+                    'create' => $this->canEdit && $this->routeName == 'procurement.supplier-deliveries.index' ? [
                         'route' => [
                             'name'       => 'procurement.supplier-deliveries.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('supplier deliveries')
+                        'label' => __('supplier deliveries')
                     ] : false,
                 ],
-                'data'   => SupplierDeliveryResource::collection($suppliers),
+                'data'        => SupplierDeliveryResource::collection($suppliers),
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
     public function getBreadcrumbs(): array

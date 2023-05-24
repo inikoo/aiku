@@ -102,7 +102,7 @@ class IndexMailrooms extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new AccountingDashboard())->getBreadcrumbs(),
+            AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
             [
                 'mail.mailrooms.index' => [
                     'route'      => 'mail.mailrooms.index',

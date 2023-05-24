@@ -47,9 +47,11 @@ class ShowShop extends InertiaAction
         return Inertia::render(
             'Marketing/Shop',
             [
-                'title'       => __('shop'),
-                'breadcrumbs' => $this->getBreadcrumbs($shop),
-                'pageHead'    => [
+                'title'        => __('shop'),
+                'breadcrumbs'  => $this->getBreadcrumbs(
+                    $request->route()->parameters
+                ),
+                'pageHead'     => [
                     'title' => $shop->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
@@ -58,8 +60,8 @@ class ShowShop extends InertiaAction
                         ]
                     ] : false,
                 ],
-                'shop'            => new ShopResource($shop),
-                'flatTreeMaps'    => [
+                'shop'         => new ShopResource($shop),
+                'flatTreeMaps' => [
                     [
                         [
                             'name'  => __('customers'),
@@ -151,7 +153,7 @@ class ShowShop extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(Shop $shop, $suffix = null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return
             array_merge(
@@ -160,26 +162,25 @@ class ShowShop extends InertiaAction
                     [
                         'type'           => 'modelWithIndex',
                         'modelWithIndex' => [
-                            'index'=> [
+                            'index' => [
                                 'route' => [
                                     'name' => 'shops.index'
                                 ],
                                 'label' => __('shops'),
                                 'icon'  => 'fal fa-bars'
                             ],
-                            'model'=> [
+                            'model' => [
                                 'route' => [
-                                    'name'      => 'shops.show',
-                                    'parameters'=> [$shop->slug]
+                                    'name'       => 'shops.show',
+                                    'parameters' => [$routeParameters['shop']->slug]
                                 ],
-                                'label' => $shop->code,
+                                'label' => $routeParameters['shop']->code,
                                 'icon'  => 'fal fa-bars'
                             ]
 
 
-
                         ],
-                        'suffix' => $suffix,
+                        'suffix'         => $suffix,
                     ]
                 ]
             );

@@ -14,15 +14,12 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateEmployee extends InertiaAction
 {
-    public function handle(ActionRequest $request): Response
+    public function handle(): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('new employee'),
                 'pageHead'    => [
                     'title'        => __('new employee'),
@@ -79,17 +76,14 @@ class CreateEmployee extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle();
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexEmployees::make()->getBreadcrumbs(
-                routeName: preg_replace('/create$/', 'index', $routeName),
-                routeParameters: $routeParameters,
-            ),
+            IndexEmployees::make()->getBreadcrumbs(),
             [
                 [
                     'type'          => 'creatingModel',

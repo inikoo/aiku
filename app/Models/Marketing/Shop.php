@@ -14,6 +14,7 @@ use App\Enums\Marketing\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Fulfilment\FulfilmentOrder;
@@ -26,6 +27,7 @@ use App\Models\Mail\Outbox;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Sales\PaymentAccountShop;
+use App\Models\Sales\PaymentServiceProviderShop;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Web\Website;
 use Database\Factories\Marketing\ShopFactory;
@@ -238,6 +240,11 @@ class Shop extends Model
         return $this->belongsTo(Country::class);
     }
 
+    public function paymentServiceProviders(): BelongsToMany
+    {
+        return $this->belongsToMany(PaymentServiceProvider::class)->using(PaymentServiceProviderShop::class)
+            ->withTimestamps();
+    }
     public function paymentAccounts(): BelongsToMany
     {
         return $this->belongsToMany(PaymentAccount::class)->using(PaymentAccountShop::class)

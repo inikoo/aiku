@@ -7,12 +7,12 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { Link } from "@inertiajs/vue3"
-import { library } from "@fortawesome/fontawesome-svg-core"
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue"
+import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faSparkles, faArrowFromLeft } from "@/../private/pro-solid-svg-icons"
+import { faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight } from "@/../private/pro-solid-svg-icons"
 
-library.add(faSparkles, faArrowFromLeft)
+library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight)
 
 const props = defineProps<{
 	breadcrumbs: Array<{
@@ -71,10 +71,29 @@ const props = defineProps<{
 const displayBreadcrumbs = computed(() => {
 	return Object.keys(props["breadcrumbs"]).length > 0
 })
+
+const previousParams1 = computed(()=> {
+	return props.navigation.previous?.route.parameters[Object.keys(props.navigation.previous.route.parameters)[0]]
+})
+
+const previousParams2 = computed(()=> {
+	return props.navigation.previous?.route.parameters[Object.keys(props.navigation.previous.route.parameters)[1]]
+})
+
+const nextParams1 = computed(()=> {
+	return props.navigation.next?.route.parameters[Object.keys(props.navigation.next.route.parameters)[0]]
+})
+
+const nextParams2 = computed(()=> {
+	return props.navigation.next?.route.parameters[Object.keys(props.navigation.next.route.parameters)[1]]
+})
+
+// console.log(props.navigation)
+
 </script>
 
 <template>
-	<div v-if="displayBreadcrumbs">
+	<div v-if="displayBreadcrumbs" class="md:pr-10 xl:pr-56">
 		<nav
 			class="bg-white py-4 md:py-0 flex text-gray-600 border-b h-6 border-gray-200 text-sm"
 			aria-label="Breadcrumb">
@@ -297,16 +316,23 @@ const displayBreadcrumbs = computed(() => {
 					</MenuItems>
 				</transition>
 			</Menu>
-
-
 		</nav>
-        Navigation:{{navigation}}
 
-		<!-- <div
-			class="bg-teal-700 text-white px-4 py-1 fixed h-96 overflow-auto w-64 text-xs bottom-10 right-0 z-40">
-			<h2>
-				<pre>{{ breadcrumbs }}</pre>
-			</h2>
-		</div> -->
+		<!-- Button: Previous and Next page -->
+		<div class="grid grid-flow-col justify-end pr-4 space-x-2 pt-1 text-sm text-indigo-700 font-semibold">
+        	<Link v-if="navigation.previous" :href="route(navigation.previous.route.name, [previousParams1, previousParams2])" class="group bg-indigo-100 rounded flex items-center pr-2 pl-4 py-0.5 space-x-2 hover:bg-indigo-200 hover:cursor-pointer hover:text-indigo-900">
+				<FontAwesomeIcon icon="fas fa-arrow-left" class="group-hover:-translate-x-1.5 transition duration-200 ease-in-out" aria-hidden="true" />
+				<span class="">{{navigation.previous.label}}</span>
+			</Link>
+        	<Link v-if="navigation.next" :href="route(navigation.next.route.name, [nextParams1, nextParams2])" class="group bg-indigo-100 rounded flex items-center pr-4 pl-2 py-0.5 space-x-2 hover:bg-indigo-200 hover:cursor-pointer hover:text-indigo-900">
+				<span class="">{{navigation.next.label}}</span>
+				<FontAwesomeIcon icon="fas fa-arrow-right" class="mr-1 group-hover:translate-x-1.5 transition duration-200 ease-in-out" aria-hidden="true" />
+			</Link>
+		</div>
+        <!--
+		<div class="bg-yellow-100 text-xs">
+			<pre>{{ props }}</pre>
+		</div>
+        -->
 	</div>
 </template>

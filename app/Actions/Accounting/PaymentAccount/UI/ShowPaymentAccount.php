@@ -8,7 +8,9 @@
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\Payment\UI\IndexPayments;
+use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
+use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Enums\UI\PaymentAccountTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Http\Resources\Accounting\PaymentResource;
@@ -24,7 +26,6 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowPaymentAccount extends InertiaAction
 {
-    use HasUIPaymentAccount;
     public function handle(PaymentAccount $paymentAccount): PaymentAccount
     {
         return $paymentAccount;
@@ -38,7 +39,6 @@ class ShowPaymentAccount extends InertiaAction
 
     public function inTenant(PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
-        $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(PaymentAccountTabsEnum::values());
         return $this->handle($paymentAccount);
     }
@@ -46,7 +46,6 @@ class ShowPaymentAccount extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
-        $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(PaymentAccountTabsEnum::values());
         return $this->handle($paymentAccount);
     }
@@ -64,13 +63,16 @@ class ShowPaymentAccount extends InertiaAction
             'Accounting/PaymentAccount',
             [
                 'title'       => $paymentAccount->name,
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $paymentAccount),
-                'navigation'                            => [
-                    'previous' => $this->getPrevious($paymentAccount, $request),
-                    'next'     => $this->getNext($paymentAccount, $request),
-                ],
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
-                    'icon'    => 'fal fa-agent',
+                    'icon'          =>
+                        [
+                            'icon'  => ['fal', 'fa-money-check-alt'],
+                            'title' => __('payment account')
+                        ],
                     'title'   => $paymentAccount->slug,
                     'create'  => $this->canEdit && (
                         $this->routeName=='accounting.payment-service-providers.show.payment-accounts.show' or
@@ -97,7 +99,7 @@ class ShowPaymentAccount extends InertiaAction
                                 ]
                             },
                             'leftIcon' => [
-                                'icon'    => 'fal fa-credit-card',
+                                'icon'    => 'fal fa-coins',
                                 'tooltip' => __('payments')
                             ]
                         ],
@@ -127,57 +129,78 @@ class ShowPaymentAccount extends InertiaAction
         return new PaymentAccountResource($paymentAccount);
     }
 
-    public function getPrevious(PaymentAccount $paymentAccount, ActionRequest $request): ?array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        $previous=PaymentAccount::where('code', '<', $paymentAccount->code)->when(true, function ($query) use ($paymentAccount, $request) {
-            if ($request->route()->getName() == 'accounting.payment-service-providers.show.payment-accounts.show') {
-                $query->where('payment_accounts.payment_service_provider_id', $paymentAccount->payment_service_provider_id);
-            }
-        })->orderBy('code', 'desc')->first();
 
-        return $this->getNavigation($previous, $request->route()->getName());
+        $headCrumb = function (PaymentAccount $paymentAccount, array $routeParameters, string $suffix) {
+            return [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('payment accounts')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $paymentAccount->code,
+                        ],
 
-    }
+                    ],
+                    'suffix'=> $suffix
+                ],
+            ];
+        };
 
-    public function getNext(PaymentAccount $paymentAccount, ActionRequest $request): ?array
-    {
-        $next = PaymentAccount::where('code', '>', $paymentAccount->code)->when(true, function ($query) use ($paymentAccount, $request) {
-            if ($request->route()->getName() == 'accounting.payment-service-providers.show.payment-accounts.show') {
-                $query->where('payment_accounts.payment_service_provider_id', $paymentAccount->payment_service_provider_id);
-            }
-        })->orderBy('code')->first();
 
-        return $this->getNavigation($next, $request->route()->getName());
-    }
 
-    private function getNavigation(?PaymentAccount $paymentAccount, string $routeName): ?array
-    {
-        if(!$paymentAccount) {
-            return null;
-        }
         return match ($routeName) {
-            'accounting.payment-accounts.show'=> [
-                'label'=> $paymentAccount->code,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'account'  => $paymentAccount->slug
+            'accounting.payment-accounts.show' =>
+            array_merge(
+                AccountingDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $routeParameters['paymentAccount'],
+                    [
+                            'index' => [
+                                'name'       => 'accounting.payment-accounts.index',
+                                'parameters' => []
+                            ],
+                            'model' => [
+                                'name'       => 'accounting.payment-accounts.show',
+                                'parameters' => [$routeParameters['paymentAccount']->slug]
+                            ]
+                        ],
+                    $suffix
+                )
+            ),
+            'accounting.payment-service-providers.show.payment-accounts.show' =>
+            array_merge(
+                ShowPaymentServiceProvider::make()->getBreadcrumbs(
+                    [
+                        'paymentServiceProvider'=> $routeParameters['paymentServiceProvider']
                     ]
-
-                ]
-            ],
-            'accounting.payment-service-providers.show.payment-accounts.show' => [
-                'label'=> $paymentAccount->code,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'provider' => $paymentAccount->payment_service_provider_id,
-                        'account' => $paymentAccount->code
-                    ]
-
-                ]
-            ],
-
+                ),
+                $headCrumb(
+                    $routeParameters['paymentAccount'],
+                    [
+                        'index' => [
+                            'name'       => 'accounting.payment-service-providers.show.payment-accounts.index',
+                            'parameters' => [
+                                $routeParameters['paymentServiceProvider']->slug,
+                            ]
+                        ],
+                        'model' => [
+                            'name'       => 'accounting.payment-service-providers.show.payment-accounts.show',
+                            'parameters' => [
+                                $routeParameters['paymentServiceProvider']->slug,
+                                $routeParameters['paymentAccount']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
         };
     }
 }

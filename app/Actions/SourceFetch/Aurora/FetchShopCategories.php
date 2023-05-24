@@ -18,7 +18,7 @@ use Illuminate\Console\Command;
 
 class FetchShopCategories extends FetchAction
 {
-    public string $commandSignature = 'fetch:shop-categories {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:shop-categories {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Shop

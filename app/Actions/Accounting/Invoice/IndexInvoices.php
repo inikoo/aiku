@@ -14,7 +14,6 @@ use App\Http\Resources\Accounting\InvoiceResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
 use App\Models\Marketing\Shop;
-use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,7 +24,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexInvoices extends InertiaAction
 {
-    private Shop|Tenant  $parent;
     public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -64,9 +62,9 @@ class IndexInvoices extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) {
             $table
                 ->name(TabsAbbreviationEnum::INVOICES->value)
                 ->pageName(TabsAbbreviationEnum::INVOICES->value.'Page');
@@ -97,7 +95,6 @@ class IndexInvoices extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request)
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'Marketing/Invoices',
             [
@@ -113,7 +110,7 @@ class IndexInvoices extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
 
@@ -124,7 +121,7 @@ class IndexInvoices extends InertiaAction
         return $this->handle(app('currentTenant'));
     }
 
-    public function InShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($shop);

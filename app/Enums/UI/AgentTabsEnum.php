@@ -50,7 +50,7 @@ enum AgentTabsEnum: string
             ],
             AgentTabsEnum::PURCHASE_ORDERS     => [
                 'title' => __('purchase orders'),
-                'icon'  => 'fal fa-shopping-cart',
+                'icon'  => 'fal fa-clipboard',
             ],AgentTabsEnum::DELIVERIES     => [
                 'title' => __('deliveries'),
                 'icon'  => 'fal fa-truck',

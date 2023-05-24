@@ -16,6 +16,7 @@ use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -37,6 +38,15 @@ class IndexPaymentServiceProviders extends InertiaAction
             ->defaultSort('payment_service_providers.code')
             ->select(['code', 'slug', 'number_accounts', 'number_payments'])
             ->leftJoin('payment_service_provider_stats', 'payment_service_providers.id', 'payment_service_provider_stats.payment_service_provider_id')
+            ->when(true, function ($query) use ($parent) {
+                if (class_basename($parent) == 'Shop') {
+                    $query->leftJoin('payment_service_provider_shop', 'payment_service_providers.id', 'payment_service_provider_shop.payment_service_provider_id');
+                    $query->where('payment_service_provider_shop.shop_id', $parent->id);
+
+
+
+                }
+            })
             ->allowedSorts(['code', 'number_accounts', 'number_payments'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -59,7 +69,7 @@ class IndexPaymentServiceProviders extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $paymentServiceProviders)
+    public function htmlResponse(LengthAwarePaginator $paymentServiceProviders): Response
     {
         return Inertia::render(
             'Accounting/PaymentServiceProviders',
@@ -102,7 +112,7 @@ class IndexPaymentServiceProviders extends InertiaAction
     public function getBreadcrumbs($suffix=null): array
     {
         return array_merge(
-            (new AccountingDashboard())->getBreadcrumbs(),
+            AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
             [
                  [
                      'type'   => 'simple',

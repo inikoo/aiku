@@ -10,6 +10,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
+import TablePurchaseOrderItems from "@/Pages/Tables/TablePurchaseOrderItems.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -20,6 +21,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
+    items: object
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -31,6 +33,7 @@ import {
     faTerminal,
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
+import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 
 library.add(
     faInventory,
@@ -48,9 +51,11 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        details: ModelDetails,
-        history: ModelChangelog
+        showcase: ModelDetails,
+        history: ModelChangelog,
+        items: TablePurchaseOrderItems
     };
+
     return components[currentTab.value];
 
 });
@@ -63,4 +68,3 @@ const component = computed(() => {
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>
 </template>
-

@@ -8,8 +8,10 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\PurchaseOrderItem\UI\IndexPurchaseOrderItems;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\PurchaseOrderTabsEnum;
+use App\Http\Resources\Procurement\PurchaseOrderItemResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
 use Inertia\Inertia;
@@ -38,7 +40,6 @@ class ShowPurchaseOrder extends InertiaAction
     {
         $this->validateAttributes();
 
-
         return Inertia::render(
             'Procurement/PurchaseOrder',
             [
@@ -59,8 +60,16 @@ class ShowPurchaseOrder extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => PurchaseOrderTabsEnum::navigation()
                 ],
+
+                PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
+                    fn () => []
+                    : Inertia::lazy(fn () => []),
+
+                PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ?
+                    fn () => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($this->purchaseOrder))
+                    : Inertia::lazy(fn () =>  PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($this->purchaseOrder))),
             ]
-        );
+        )->table(IndexPurchaseOrderItems::make()->tableStructure());
     }
 
     public function jsonResponse(): PurchaseOrderResource

@@ -230,7 +230,7 @@ class IndexPayments extends InertiaAction
         return match ($routeName) {
             'accounting.payments.index' =>
             array_merge(
-                (new AccountingDashboard())->getBreadcrumbs(),
+                AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
                 $headCrumb()
             ),
             'accounting.payment-service-providers.show.payments.index' =>
