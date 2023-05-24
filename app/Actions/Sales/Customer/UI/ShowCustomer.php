@@ -259,6 +259,7 @@ class ShowCustomer extends InertiaAction
                 $query->where('customers.shop_id', $customer->shop_id);
             }
         })->orderBy('slug', 'desc')->first();
+
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
@@ -270,6 +271,7 @@ class ShowCustomer extends InertiaAction
                 $query->where('customers.shop_id', $customer->shop_id);
             }
         })->orderBy('slug')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 

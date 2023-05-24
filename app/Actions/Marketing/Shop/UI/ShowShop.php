@@ -192,6 +192,7 @@ class ShowShop extends InertiaAction
     public function getPrevious(Shop $shop, ActionRequest $request): ?array
     {
         $previous = Shop::where('code', '<', $shop->code)->orderBy('code', 'desc')->first();
+
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
@@ -199,6 +200,7 @@ class ShowShop extends InertiaAction
     public function getNext(Shop $shop, ActionRequest $request): ?array
     {
         $next = Shop::where('code', '>', $shop->code)->orderBy('code')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
