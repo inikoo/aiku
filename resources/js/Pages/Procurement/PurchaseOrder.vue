@@ -21,6 +21,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
+    showcase: object,
     items: object
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
@@ -64,6 +65,7 @@ const component = computed(() => {
 
 <template layout="App">
     <Head :title="title" />
+    {{ showcase }}
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>
