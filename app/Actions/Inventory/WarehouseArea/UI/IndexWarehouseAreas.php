@@ -30,8 +30,8 @@ class IndexWarehouseAreas extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('warehouse_areas.name', 'LIKE', "%$value%")
-                    ->orWhere('warehouse_areas.code', 'LIKE', "%$value%");
+                $query->where('warehouse_areas.name', 'ILIKE', "%$value%")
+                    ->orWhere('warehouse_areas.code', 'ILIKE', "%$value%");
             });
         });
 

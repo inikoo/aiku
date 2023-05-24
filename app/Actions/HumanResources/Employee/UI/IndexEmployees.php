@@ -28,9 +28,9 @@ class IndexEmployees extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.name', 'LIKE', "%$value%")
-                    ->orWhere('employees.slug', 'LIKE', "%$value%")
-                    ->orWhere('employees.state', 'LIKE', "%$value%");
+                $query->where('employees.name', 'ILIKE', "%$value%")
+                    ->orWhere('employees.slug', 'ILIKE', "%$value%")
+                    ->orWhere('employees.state', 'ILIKE', "%$value%");
             });
         });
 

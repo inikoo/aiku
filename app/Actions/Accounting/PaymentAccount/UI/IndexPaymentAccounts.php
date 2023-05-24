@@ -31,9 +31,9 @@ class IndexPaymentAccounts extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('payment_accounts.code', '~*', "\y$value\y")
-                    ->orWhere('payment_accounts.name', '=', $value)
-                    ->orWhere('payment_accounts.data', '=', $value);
+                $query->where('payment_accounts.code', 'ILIKE', "%$value%")
+                    ->orWhere('payment_accounts.name', 'ILIKE', "%$value%")
+                    ->orWhere('payment_accounts.data', 'ILIKE', "%$value%");
             });
         });
 
