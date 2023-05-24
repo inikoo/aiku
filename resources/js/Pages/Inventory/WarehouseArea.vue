@@ -33,7 +33,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    locations: object;
+    locations?: object;
 }>()
 
 let currentTab = ref(props.tabs.current);
