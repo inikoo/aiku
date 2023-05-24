@@ -71,6 +71,10 @@ class ShowSupplier extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($supplier, $request),
+                    'next'     => $this->getNext($supplier, $request),
+                ],
                 'pageHead'    => [
                     'icon'          =>
                         [
@@ -184,7 +188,7 @@ class ShowSupplier extends InertiaAction
                         ],
                         'model' => [
                             'name'       => 'procurement.suppliers.show',
-                            'parameters' => [$routeParameters['supplier']->slug]
+                            'parameters' => [$routeParameters['supplier']->code]
                         ]
                     ],
                     $suffix
@@ -201,14 +205,14 @@ class ShowSupplier extends InertiaAction
                         'index' => [
                             'name'       => 'procurement.agents.show.suppliers.index',
                             'parameters' => [
-                                $routeParameters['agent']->slug,
+                                $routeParameters['agent']->code,
                             ]
                         ],
                         'model' => [
                             'name'       => 'procurement.agents.show.suppliers.show',
                             'parameters' => [
-                                $routeParameters['agent']->slug,
-                                $routeParameters['supplier']->slug
+                                $routeParameters['agent']->code,
+                                $routeParameters['supplier']->code
                             ]
                         ]
                     ],
@@ -225,4 +229,60 @@ class ShowSupplier extends InertiaAction
    {
        return new SupplierResource($supplier);
    }
+
+    public function getPrevious(Supplier $supplier, ActionRequest $request): ?array
+    {
+
+        $previous = Supplier::where('code', '<', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
+            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
+                $query->where('suppliers.agent_id', $supplier->agent_id);
+            }
+        })->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Supplier $supplier, ActionRequest $request): ?array
+    {
+        $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
+            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
+                $query->where('suppliers.agent_id', $supplier->agent_id);
+            }
+        })->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Supplier $supplier, string $routeName): ?array
+    {
+        if(!$supplier) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'procurement.suppliers.show'=> [
+                'label'=> $supplier->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'supplier'  => $supplier->code
+                    ]
+
+                ]
+            ],
+            'procurement.agents.show.suppliers.show' => [
+                'label'=> $supplier->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'agent'     => $supplier->agent->code,
+                        'supplier'  => $supplier->code
+                    ]
+
+                ]
+            ]
+        };
+    }
+
 }

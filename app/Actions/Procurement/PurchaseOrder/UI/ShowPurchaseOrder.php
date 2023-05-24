@@ -23,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowPurchaseOrder extends InertiaAction
 {
+    public $acReq;
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.edit');
@@ -34,6 +35,8 @@ class ShowPurchaseOrder extends InertiaAction
     {
         $this->initialisation($request)->withTab(PurchaseOrderTabsEnum::values());
         $this->purchaseOrder = $purchaseOrder;
+        $this->acReq = $request;
+
     }
 
     public function htmlResponse(): Response
@@ -45,6 +48,10 @@ class ShowPurchaseOrder extends InertiaAction
             [
                 'title'       => __('purchase order'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->purchaseOrder),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($this->purchaseOrder, $this->acReq),
+                    'next'     => $this->getNext($this->purchaseOrder, $this->acReq),
+                ],
                 'pageHead'    => [
                     'icon'  => 'fal people-arrows',
                     'title' => $this->purchaseOrder->number,
@@ -104,5 +111,38 @@ class ShowPurchaseOrder extends InertiaAction
                 ],
             ]
         );
+    }
+
+    public function getPrevious(PurchaseOrder $purchaseOrder, ActionRequest $request): ?array
+    {
+        $previous = PurchaseOrder::where('number', '<', $purchaseOrder->number)->orderBy('number', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(PurchaseOrder $purchaseOrder, ActionRequest $request): ?array
+    {
+        $next = PurchaseOrder::where('number', '>', $purchaseOrder->number)->orderBy('number')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?PurchaseOrder $purchaseOrder, string $routeName): ?array
+    {
+        if(!$purchaseOrder) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'procurement.purchase-orders.show'=> [
+                'label'=> $purchaseOrder->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'order'=> $purchaseOrder->number
+                    ]
+
+                ]
+            ]
+        };
     }
 }
