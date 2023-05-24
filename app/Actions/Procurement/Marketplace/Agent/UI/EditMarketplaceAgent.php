@@ -44,7 +44,6 @@ class EditMarketplaceAgent extends InertiaAction
             [
                 'title'       => __('edit marketplace agent'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
@@ -93,7 +92,7 @@ class EditMarketplaceAgent extends InertiaAction
                             'address' => [
                                 'type'    => 'address',
                                 'label'   => __('Address'),
-                                'value'   => AddressResource::make($agent->getAddress('contact'))->getArray(),
+                                'value'   => AddressResource::make($agent->getAddress())->getArray(),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
 
@@ -119,10 +118,9 @@ class EditMarketplaceAgent extends InertiaAction
         return new AgentResource($agent);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return ShowAgent::make()->getBreadcrumbs(
-            routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );
