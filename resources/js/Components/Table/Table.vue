@@ -552,7 +552,7 @@ const handleElementsChange = function (data) {
                 <div class="flex">
                     <div class="border border-gray-300  mr-2 rounded grid justify-center items-center text-base font-normal "
                         title="Results">
-                        <div class="px-2 ">{{ resourceMeta.total }} {{ $t(' results') }}</div>
+                        <div class="px-2 ">{{ resourceMeta.total }} {{ $t(' records') }}</div>
                     </div>
                     <!-- Button -->
                     <div v-if="queryBuilderProps.modelOperations.createLink">

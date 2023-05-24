@@ -1,9 +1,9 @@
 <template>
-  <th v-show="!cell.hidden">
-    <component :is="cell.sortable ? 'button' : 'div'" class="py-3 px-6 w-full"
+  <th v-show="!cell.hidden" class="font-normal">
+    <component :is="cell.sortable ? 'button' : 'div'" class="py-1 px-6 w-full"
       :dusk="cell.sortable ? `sort-${cell.key}` : null" @click.prevent="onClick">
       <span class="flex flex-row items-center">
-        <slot name="label"><span class="uppercase">{{ cell.label }}</span></slot>
+        <slot name="label"><span class="first-letter:uppercase">{{ cell.label }}</span></slot>
 
         <slot name="sort">
           <svg v-if="cell.sortable" aria-hidden="true" class="w-3 h-3 ml-2" :class="{
