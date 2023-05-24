@@ -90,3 +90,11 @@ do
 done
 pg_dump -Fc -f "devops/devel/snapshots/au_procurement.dump" ${DB}
 php artisan fetch:purchase-orders -d _thin
+pg_dump -Fc -f "devops/devel/snapshots/au_procurement_with_po.dump" ${DB}
+php artisan fetch:stock-families -d _thin
+php artisan fetch:trade-units -d _thin
+php artisan fetch:stocks -d _thin
+php artisan fetch:deleted-stocks -d _thin
+pg_dump -Fc -f "devops/devel/snapshots/au_stocks.dump" ${DB}
+php artisan fetch:shop-categories -d _thin
+

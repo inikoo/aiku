@@ -9,6 +9,8 @@ import TableColumns from '@/Components/Table/TableColumns.vue';
 import TableFilter from '@/Components/Table/TableFilter.vue';
 import TableSearchRows from '@/Components/Table/TableSearchRows.vue';
 import SearchReset from '@/Components/Table/SearchReset.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
+import { Link } from "@inertiajs/vue3"
 
 import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from 'vue';
 import qs from 'qs';
@@ -543,16 +545,26 @@ const handleElementsChange = function (data) {
 <template>
     <Transition>
         <fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
-            <div class="border border-red-100 my-2">
+            <div class="my-2">
             <!-- Wrapper -->
             <div class="grid grid-flow-col justify-between flex-nowrap px-4">
                 <!-- Result Number -->
-                <div class="border border-gray-300  mr-2 rounded grid justify-center items-center text-base font-normal "
-                    title="Results">
-                    <div class="px-2 ">{{ resourceMeta.total }} {{ $t(' results') }}</div>
+                <div class="flex">
+                    <div class="border border-gray-300  mr-2 rounded grid justify-center items-center text-base font-normal "
+                        title="Results">
+                        <div class="px-2 ">{{ resourceMeta.total }} {{ $t(' results') }}</div>
+                    </div>
+                    <!-- Button -->
+                    <div v-if="queryBuilderProps.modelOperations.createLink">
+                        <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
+                            <Button type='secondary' action="create" class="capitalize">
+                                {{queryBuilderProps.modelOperations.createLink.label}}
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
-              {{queryBuilderProps.modelOperations}}
+              <!-- <pre>{{queryBuilderProps.modelOperations}}</pre> -->
 
                 <!-- Search Group -->
                 <div class="flex flex-row justify-end items-start flex-nowrap space-x-2">
@@ -664,3 +676,9 @@ const handleElementsChange = function (data) {
         </fieldset>
     </Transition>
 </template>
+
+<style scope>
+fieldset {
+    margin-top: 0px !important;
+}
+</style>
