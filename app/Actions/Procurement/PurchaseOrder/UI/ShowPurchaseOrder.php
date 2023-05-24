@@ -138,7 +138,7 @@ class ShowPurchaseOrder extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'order'=> $purchaseOrder->number
+                        'purchaseOrder'=> $purchaseOrder->number
                     ]
 
                 ]
