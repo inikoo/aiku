@@ -53,7 +53,29 @@ class CreateWarehouseArea extends InertiaAction
                                 ],
 
                             ]
-                        ]
+                        ],
+                        [
+                            'title'  => __('locations'),
+                            'fields' => [
+
+                                'area_type' => [
+                                    'type'  => 'input',
+                                    'label' => __('area type'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ],
+                        [
+                            'title'  => __('operations'),
+                            'fields' => [
+
+                                'delete_at' => [
+                                    'type'  => 'input',
+                                    'label' => __('delete'),
+                                    'value' => ''
+                                ],
+                            ]
+                        ],
                     ],
                     'route'     => [
                         'name'      => 'models.warehouse.warehouse-area.store',
