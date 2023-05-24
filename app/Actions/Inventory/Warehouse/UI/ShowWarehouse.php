@@ -112,7 +112,7 @@ class ShowWarehouse extends InertiaAction
                 [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
+                            'name'       => 'inventory.warehouses.show.locations.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('product')
@@ -124,10 +124,10 @@ class ShowWarehouse extends InertiaAction
                 [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
+                            'name'       => 'inventory.warehouses.show.warehouse-areas.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('product')
+                        'label' => __('area')
                     ] : false,
                 ]
             )

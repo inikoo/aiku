@@ -16,6 +16,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $location
  * @property numeric $number_suppliers
  * @property numeric $number_supplier_products
+ * @property numeric $number_purchase_orders
  */
 class AgentResource extends JsonResource
 {
@@ -28,6 +29,7 @@ class AgentResource extends JsonResource
             'location'                 => json_decode($this->location),
             'number_suppliers'         => $this->number_suppliers,
             'number_supplier_products' => $this->number_supplier_products,
+            'number_purchase_orders'   => $this->number_purchase_orders
         ];
     }
 }

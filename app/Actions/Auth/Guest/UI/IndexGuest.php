@@ -28,8 +28,8 @@ class IndexGuest extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('guest.name', 'LIKE', "%$value%")
-                    ->orWhere('guest.slug', 'LIKE', "%$value%");
+                $query->where('guests.name', 'ILIKE', "%$value%")
+                    ->orWhere('guests.slug', 'ILIKE', "%$value%");
             });
         });
 

@@ -21,7 +21,13 @@ function warehouseAreaRoute(warehouseArea: WarehouseArea) {
         case "inventory.warehouses.show.warehouse-areas.index":
             return route(
                 "inventory.warehouses.show.warehouse-areas.show",
-                [warehouseArea.warehouse_slug, warehouseArea.slug]);
+                [
+                    warehouseArea.warehouse_slug,
+                    warehouseArea.slug
+                ]);
+
+
+
         case "inventory.warehouse-areas.index":
         default:
             return route(

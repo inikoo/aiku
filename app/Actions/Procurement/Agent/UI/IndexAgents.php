@@ -27,8 +27,8 @@ class IndexAgents extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('agents.code', 'LIKE', "$value%")
-                    ->orWhere('agents.name', 'LIKE', "%$value%");
+                $query->where('agents.code', 'ILIKE', "$value%")
+                    ->orWhere('agents.name', 'ILIKE', "%$value%");
             });
         });
 

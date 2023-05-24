@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Supplier} from "@/types/supplier";
+import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 
 const props = defineProps<{
     data: object
@@ -38,6 +39,9 @@ function supplierRoute(supplier: Supplier) {
             <Link :href="supplierRoute(supplier)">
                 {{ supplier['code'] }}
             </Link>
+        </template>
+        <template #cell(supplier_locations)="{ item: supplier }">
+            <AddressLocation :data="supplier['supplier_locations']"/>
         </template>
     </Table>
 </template>
