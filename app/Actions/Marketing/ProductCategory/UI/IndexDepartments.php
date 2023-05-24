@@ -48,11 +48,11 @@ class IndexDepartments extends InertiaAction
                 'departments.created_at',
                 'departments.updated_at',
             ])
-            ->leftJoin('department_stats', 'departments.id', 'department_stats.department_id')
-            ->leftJoin('shops', 'departments.shop_id', 'shops.id')
+//            ->leftJoin('department_stats', 'departments.id', 'department_stats.department_id')
+//            ->leftJoin('shops', 'departments.shop_id', 'shops.id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
-                    $query->where('departments.shop_id', $parent->id);
+                    $query->where('shop_id', $parent->id);
                 }
             })
             ->allowedSorts(['code', 'name'])
@@ -134,7 +134,7 @@ class IndexDepartments extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($parent));
     }
 
 
@@ -154,11 +154,10 @@ class IndexDepartments extends InertiaAction
             ];
         };
 
-
         return match ($routeName) {
             'shops.show.catalogue.hub.departments.index' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', ['shop' => $routeParameters['shop']]),
+                CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', $routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

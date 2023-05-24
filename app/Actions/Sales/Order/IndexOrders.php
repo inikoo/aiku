@@ -175,13 +175,13 @@ class IndexOrders extends InertiaAction
 
             'shops.show.orders.index' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'      => 'shops.show.orders.index',
                         'parameters'=>
                             [
-                                $routeParameters['shop']->slug
+                                $routeParameters['shop']
                             ]
                     ]
                 )
