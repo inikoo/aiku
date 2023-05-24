@@ -254,17 +254,20 @@ const user = ref(usePage().props.auth.user);
         </Disclosure>
 
         <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
-        <AppLeftSideBar v-if="!sidebarOpen" class="hidden md:block"/>
-        <AppLeftSideBar class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen"/>
+        <AppLeftSideBar :currentRoute="route().current()"  v-if="!sidebarOpen" class="hidden md:block"/>
+        <AppLeftSideBar :currentRoute="route().current()" class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen"/>
 
         <main class="relative flex flex-col pt-16 ml-0 md:ml-10 xl:ml-56">
+
             <Breadcrumbs class="fixed top-11 lg:top-10 z-10 w-full"
-                         :breadcrumbs="$page.props.breadcrumbs??[]"
-                         :navigation="$page.props.navigation??[]"
+                         :breadcrumbs="usePage().props.breadcrumbs??[]"
+                         :navigation="usePage().props.navigation??[]"
             />
             <slot/>
         </main>
+
     </div>
+
 </template>
 
 
