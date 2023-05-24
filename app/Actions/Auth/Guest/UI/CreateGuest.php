@@ -41,9 +41,9 @@ class CreateGuest extends InertiaAction
                             'title'  => __('personal information'),
                             'fields' => [
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                    'value' => '',
+                                    'type'   => 'input',
+                                    'label'  => __('name'),
+                                    'value'  => '',
                                     'options'=> [
                                         'counter'=> true
                                     ]
@@ -59,11 +59,11 @@ class CreateGuest extends InertiaAction
                             'title'  => __('type'),
                             'fields' => [
                                 'type' => [
-                                    'type'   => 'select',
-                                    'label'  => __('type'),
-                                    'value'  => '',
+                                    'type'         => 'select',
+                                    'label'        => __('type'),
+                                    'value'        => '',
                                     'placeholder'  => 'select your options',
-                                    'options'=> GuestTypeEnum::optionLabels()
+                                    'options'      => GuestTypeEnum::optionLabels()
                                 ],
                             ]
                         ]
@@ -93,12 +93,10 @@ class CreateGuest extends InertiaAction
         return $this->handle($request);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs($suffix = null): array
     {
         return array_merge(
             IndexGuest::make()->getBreadcrumbs(
-                routeName: preg_replace('/create$/', 'index', $routeName),
-                routeParameters: $routeParameters,
             ),
             [
                 [

@@ -78,13 +78,13 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
-            <!-- <span v-if="data['create']" class="">
+            <span v-if="data['create']" class="">
                 <Link :href="route(data['create']['route']['name'],data['create']['route']['parameters'])">
                 <Button type='secondary' action="create" class="capitalize">
                  {{data['create']['label']}}
                 </Button>
                 </Link>
-            </span> -->
+            </span>
 
             <span v-if="data['create_direct']" class="">
                 <Link as="button" method="post" :href="route(data['create_direct']['route']['name'],data['create_direct']['route']['parameters'])">
