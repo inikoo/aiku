@@ -59,9 +59,9 @@ class ShowSupplier extends InertiaAction
 
     public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
-        if($supplier->type=='sub-supplier') {
-            //    return $this->AW Bamboo
-        }
+//        if($supplier->type=='sub-supplier') {
+//            //    return $this->AW Bamboo
+//        }
 
         return Inertia::render(
             'Procurement/Supplier',
@@ -71,9 +71,9 @@ class ShowSupplier extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'navigation'                            => [
-                    'previous' => $this->getPrevious($supplier, $request),
-                    'next'     => $this->getNext($supplier, $request),
+                'navigation'    => [
+                    'previous'  => $this->getPrevious($supplier, $request),
+                    'next'      => $this->getNext($supplier, $request),
                 ],
                 'pageHead'    => [
                     'icon'          =>
@@ -188,7 +188,7 @@ class ShowSupplier extends InertiaAction
                         ],
                         'model' => [
                             'name'       => 'procurement.suppliers.show',
-                            'parameters' => [$routeParameters['supplier']->code]
+                            'parameters' => [$routeParameters['supplier']->slug]
                         ]
                     ],
                     $suffix
@@ -205,14 +205,14 @@ class ShowSupplier extends InertiaAction
                         'index' => [
                             'name'       => 'procurement.agents.show.suppliers.index',
                             'parameters' => [
-                                $routeParameters['agent']->code,
+                                $routeParameters['agent']->slug,
                             ]
                         ],
                         'model' => [
                             'name'       => 'procurement.agents.show.suppliers.show',
                             'parameters' => [
-                                $routeParameters['agent']->code,
-                                $routeParameters['supplier']->code
+                                $routeParameters['agent']->slug,
+                                $routeParameters['supplier']->slug
                             ]
                         ]
                     ],

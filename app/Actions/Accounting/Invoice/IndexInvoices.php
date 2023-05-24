@@ -131,7 +131,7 @@ class IndexInvoices extends InertiaAction
     {
         return
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs(),
+                AccountingDashboard::make()->getBreadcrumbs($routeName, $routeParameters),
                 [
                     [
                         'type'   => 'simple',
