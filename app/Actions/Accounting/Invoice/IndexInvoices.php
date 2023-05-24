@@ -17,7 +17,9 @@ use App\Models\Marketing\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -93,18 +95,29 @@ class IndexInvoices extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request): Response
     {
+        $routeName       = $request->route()->getName();
+        $routeParameters = $request->route()->parameters;
+
         return Inertia::render(
             'Marketing/Invoices',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
+                    $routeName,
+                    $routeParameters
                 ),
                 'title'       => __('invoices'),
                 'pageHead'    => [
-                    'title' => __('invoices'),
+                    'title'     => __('invoices'),
+                    'container' => match ($routeName) {
+                        'shops.show.accounting.invoices.index' => [
+                            'icon'    => ['fal', 'fa-store-alt'],
+                            'tooltip' => __('Shop'),
+                            'label'   => Str::possessive($routeParameters['shop']->name)
+                        ],
+                        default => null
+                    },
                 ],
                 'data' => InvoiceResource::collection($invoices),
 
@@ -129,21 +142,40 @@ class IndexInvoices extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return
-            array_merge(
-                AccountingDashboard::make()->getBreadcrumbs($routeName, $routeParameters),
+
+        $headCrumb = function () use ($routeName, $routeParameters) {
+            return [
                 [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name' => 'accounting.invoices.index'
-                            ],
-                            'label' => __('invoices'),
-                            'icon'  => 'fal fa-bars'
-                        ]
-                    ]
-                ]
-            );
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name'       => $routeName,
+                            'parameters' => $routeParameters
+                        ],
+                        'label' => __('invoices'),
+                        'icon'  => 'fal fa-bars',
+
+                    ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'shops.show.accounting.invoices.index' =>
+            array_merge(
+                AccountingDashboard::make()->getBreadcrumbs('shops.show.accounting.dashboard', $routeParameters),
+                $headCrumb()
+            ),
+            'accounting.invoices.index' =>
+            array_merge(
+                AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
+                $headCrumb()
+            ),
+
+
+            default => []
+        };
+
+
     }
 }
