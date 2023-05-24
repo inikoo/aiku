@@ -151,7 +151,7 @@ class ShowInvoice extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'invoice'=> $invoice->number
+                        'invoice'=> $invoice->slug
                     ]
 
                 ]

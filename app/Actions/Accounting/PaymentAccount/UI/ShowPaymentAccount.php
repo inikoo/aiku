@@ -232,7 +232,7 @@ class ShowPaymentAccount extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'account'   => $paymentAccount->code
+                        'paymentAccount'   => $paymentAccount->slug
                     ]
 
                 ]
@@ -242,8 +242,8 @@ class ShowPaymentAccount extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'provider'  => $paymentAccount->paymentServiceProvider->code,
-                        'account'   => $paymentAccount->code
+                        'paymentServiceProvider'  => $paymentAccount->paymentServiceProvider->slug,
+                        'paymentAccount'   => $paymentAccount->slug
                     ]
 
                 ]

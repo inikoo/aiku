@@ -138,7 +138,7 @@ class ShowPayment extends InertiaAction
                     break;
                 case 'accounting.payment-service-providers.show.payment-accounts.show.payments.show':
                 case 'accounting.payment-service-providers.show.payments.show':
-                    $query->where('payments.payment_account_id', $payment->paymentAccount->payment_service_provider_id);
+                    $query->where('payment_accounts.payment_account_id', $payment->paymentAccount->payment_service_provider_id);
                     break;
 
             }
@@ -153,11 +153,11 @@ class ShowPayment extends InertiaAction
         $next=Payment::where('reference', '>', $payment->reference)->when(true, function ($query) use ($payment, $request) {
             switch ($request->route()->getName()) {
                 case 'accounting.payment-accounts.show.payments.show':
-                    $query->where('payments.payment_account_id', $payment->payment_account_id);
+                    $query->where('payments.payment_account_id', $payment->paymentAccount->id);
                     break;
                 case 'accounting.payment-service-providers.show.payment-accounts.show.payments.show':
                 case 'accounting.payment-service-providers.show.payments.show':
-                    $query->where('payments.payment_account_id', $payment->paymentAccount->payment_service_provider_id);
+                    $query->where('payment_accounts.payment_account_id', $payment->paymentAccount->payment_service_provider_id);
                     break;
 
             }
@@ -177,7 +177,7 @@ class ShowPayment extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'payment'  => $payment->reference
+                        'payment'  => $payment->slug
                     ]
 
                 ]
@@ -187,8 +187,8 @@ class ShowPayment extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'account' => $payment->payment_account_id,
-                        'payment' => $payment->reference
+                        'paymentAccount'=> $payment->paymentAccount->slug,
+                        'payment'       => $payment->slug
                     ]
 
                 ]
@@ -198,8 +198,8 @@ class ShowPayment extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'provider' => $payment->paymentAccount->payment_service_provider_id,
-                        'payment'  => $payment->reference
+                        'paymentServiceProvider'=> $payment->paymentAccount->paymentServiceProvider->slug,
+                        'payment'               => $payment->slug
                     ]
 
                 ]
@@ -209,9 +209,9 @@ class ShowPayment extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'provider'     => $payment->paymentAccount->payment_service_provider_id,
-                        'account'      => $payment->payment_account_id,
-                        'payment'      => $payment->reference
+                        'paymentServiceProvider'=> $payment->paymentAccount->paymentServiceProvider->slug,
+                        'paymentAccount'        => $payment->paymentAccount->slug,
+                        'payment'               => $payment->slug
                     ]
 
                 ]

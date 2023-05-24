@@ -41,6 +41,10 @@ class ShowPaymentServiceProvider extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($paymentServiceProvider, $request),
+                    'next'     => $this->getNext($paymentServiceProvider, $request),
+                ],
                 'pageHead'    => [
                     'icon'  =>
                         [
@@ -119,5 +123,37 @@ class ShowPaymentServiceProvider extends InertiaAction
                 ],
             ]
         );
+    }
+
+    public function getPrevious(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): ?array
+    {
+        $previous = PaymentServiceProvider::where('code', '<', $paymentServiceProvider->code)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): ?array
+    {
+        $next = PaymentServiceProvider::where('code', '>', $paymentServiceProvider->code)->orderBy('code')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?PaymentServiceProvider $paymentServiceProvider, string $routeName): ?array
+    {
+        if(!$paymentServiceProvider) {
+            return null;
+        }
+        return match ($routeName) {
+            'accounting.payment-service-providers.show'=> [
+                'label'=> $paymentServiceProvider->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'paymentServiceProvider'=> $paymentServiceProvider->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }
