@@ -31,7 +31,7 @@ class IndexSupplierProducts extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('supplier_products.code', 'ILIKE', "$value%")
+                $query->where('supplier_products.code', 'ILIKE', "%$value%")
                     ->orWhere('supplier_products.name', 'ILIKE', "%$value%");
             });
         });

@@ -27,7 +27,7 @@ class IndexSupplierDeliveries extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('supplier_deliveries.number', 'LIKE', "$value%");
+                $query->where('supplier_deliveries.number', 'ILIKE', "$value%");
             });
         });
 

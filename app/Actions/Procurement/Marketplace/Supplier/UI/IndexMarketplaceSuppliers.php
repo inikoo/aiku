@@ -31,8 +31,8 @@ class IndexMarketplaceSuppliers extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('suppliers.code', 'LIKE', "$value%")
-                    ->orWhere('suppliers.name', 'LIKE', "%$value%");
+                $query->where('suppliers.code', 'ILIKE', "%$value%")
+                    ->orWhere('suppliers.name', 'ILIKE', "%$value%");
             });
         });
 

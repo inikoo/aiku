@@ -30,7 +30,7 @@ class IndexCustomers extends InertiaAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('customers.name', '~*', "\y$value\y")
-                    ->orWhere('customers.email', 'LIKE', "%$value")
+                    ->orWhere('customers.email', 'ILIKE', "%$value")
                     ->orWhere('customers.reference', '=', $value);
             });
         });
@@ -194,7 +194,7 @@ class IndexCustomers extends InertiaAction
 
             'shops.show.customers.index' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'      => 'shops.show.customers.index',
