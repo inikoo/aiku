@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\SupplierProduct\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Supplier;
@@ -18,6 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowSupplierProduct extends InertiaAction
 {
+    public $acReq;
     public function handle(SupplierProduct $supplierProduct): SupplierProduct
     {
         return $supplierProduct;
@@ -34,6 +36,7 @@ class ShowSupplierProduct extends InertiaAction
     public function asController(SupplierProduct $supplierProduct, ActionRequest $request): SupplierProduct
     {
         $this->initialisation($request);
+        $this->acReq = $request;
         return $this->handle($supplierProduct);
     }
 
@@ -43,7 +46,11 @@ class ShowSupplierProduct extends InertiaAction
             'Procurement/SupplierProduct',
             [
                 'title'       => __('supplier product'),
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($supplierProduct),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($supplierProduct, $this->acReq),
+                    'next'     => $this->getNext($supplierProduct, $this->acReq),
+                ],
                 'pageHead'    => [
                     'title' => $supplierProduct->name,
                     /*
@@ -66,8 +73,65 @@ class ShowSupplierProduct extends InertiaAction
         return new SupplierResource($supplier);
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(SupplierProduct $supplierProduct, $suffix = null): array
     {
-        return [];
+        return array_merge(
+            (new ProcurementDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name' => 'procurement.supplier-products.index',
+                            ],
+                            'label' => __('purchaseOrder')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'procurement.supplier-products.show',
+                                'parameters' => [$supplierProduct->code]
+                            ],
+                            'label' => $supplierProduct->code,
+                        ],
+                    ],
+                    'suffix' => $suffix,
+
+                ],
+            ]
+        );
+    }
+
+    public function getPrevious(SupplierProduct $supplierProduct, ActionRequest $request): ?array
+    {
+        $previous = SupplierProduct::where('code', '<', $supplierProduct->code)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(SupplierProduct $supplierProduct, ActionRequest $request): ?array
+    {
+        $next = SupplierProduct::where('code', '>', $supplierProduct->code)->orderBy('code')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?SupplierProduct $supplierProduct, string $routeName): ?array
+    {
+        if(!$supplierProduct) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'procurement.supplier-products.show'=> [
+                'label'=> $supplierProduct->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'product'=> $supplierProduct->code
+                    ]
+
+                ]
+            ]
+        };
     }
 }

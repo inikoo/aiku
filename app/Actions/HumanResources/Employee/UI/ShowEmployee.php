@@ -18,6 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowEmployee extends InertiaAction
 {
+    public $acReq;
     public function handle(Employee $employee): Employee
     {
         return $employee;
@@ -34,7 +35,7 @@ class ShowEmployee extends InertiaAction
     public function asController(Employee $employee, ActionRequest $request): Employee
     {
         $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
-
+        $this->acReq = $request;
         return $this->handle($employee);
     }
 
@@ -45,6 +46,10 @@ class ShowEmployee extends InertiaAction
             [
                 'title'       => __('employee'),
                 'breadcrumbs' => $this->getBreadcrumbs($employee),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($employee, $this->acReq),
+                    'next'     => $this->getNext($employee, $this->acReq),
+                ],
                 'pageHead'    => [
                     'title' => $employee->name,
                     'meta'  => [
@@ -113,5 +118,37 @@ class ShowEmployee extends InertiaAction
                 ],
             ]
         );
+    }
+
+    public function getPrevious(Employee $employee, ActionRequest $request): ?array
+    {
+        $previous = Employee::where('slug', '<', $employee->slug)->orderBy('slug', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Employee $employee, ActionRequest $request): ?array
+    {
+        $next = Employee::where('slug', '>', $employee->slug)->orderBy('slug')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Employee $employee, string $routeName): ?array
+    {
+        if(!$employee) {
+            return null;
+        }
+        return match ($routeName) {
+            'hr.employees.show'=> [
+                'label'=> $employee->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'employee'=> $employee->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }

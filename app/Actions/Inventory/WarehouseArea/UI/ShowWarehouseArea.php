@@ -135,7 +135,8 @@ class ShowWarehouseArea extends InertiaAction
         };
 
         return match ($routeName) {
-            'inventory.warehouse-areas.show' => array_merge(
+            'inventory.warehouse-areas.show' =>
+            array_merge(
                 (new InventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['warehouseArea'],
@@ -154,7 +155,8 @@ class ShowWarehouseArea extends InertiaAction
                     $suffix
                 )
             ),
-            'inventory.warehouses.show.warehouse-areas.show' => array_merge(
+            'inventory.warehouses.show.warehouse-areas.show' =>
+            array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb(
                     $routeParameters['warehouseArea'],

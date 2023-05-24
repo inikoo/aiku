@@ -316,19 +316,23 @@ const nextParams2 = computed(()=> {
 					</MenuItems>
 				</transition>
 			</Menu>
-		</nav>
-
-		<!-- Button: Previous and Next page -->
-		<div class="grid grid-flow-col justify-end pr-4 space-x-2 pt-1 text-sm text-indigo-700 font-semibold">
-        	<Link v-if="navigation.previous" :href="route(navigation.previous.route.name, [previousParams1, previousParams2])" class="group bg-indigo-100 rounded flex items-center pr-2 pl-4 py-0.5 space-x-2 hover:bg-indigo-200 hover:cursor-pointer hover:text-indigo-900">
+		<div class="grid grid-flow-col justify-end pr-2 space-x-2 text-sm text-gray-700 font-semibold">
+        	<Link v-if="navigation.previous" :href="route(navigation.previous.route.name, [previousParams1, previousParams2])" class="group rounded flex items-center pr-2 pl-4 py-0.5 space-x-2 opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
+				:title="navigation.previous.label"
+			>
 				<FontAwesomeIcon icon="fas fa-arrow-left" class="group-hover:-translate-x-1.5 transition duration-200 ease-in-out" aria-hidden="true" />
-				<span class="">{{navigation.previous.label}}</span>
+				<!-- <span class="">{{navigation.previous.label}}</span> -->
 			</Link>
-        	<Link v-if="navigation.next" :href="route(navigation.next.route.name, [nextParams1, nextParams2])" class="group bg-indigo-100 rounded flex items-center pr-4 pl-2 py-0.5 space-x-2 hover:bg-indigo-200 hover:cursor-pointer hover:text-indigo-900">
-				<span class="">{{navigation.next.label}}</span>
+        	<Link v-if="navigation.next" :href="route(navigation.next.route.name, [nextParams1, nextParams2])" class="group rounded flex items-center pr-4 pl-2 py-0.5 space-x-2 opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
+				:title="navigation.next.label"
+			>
+				<!-- <span class="">{{navigation.next.label}}</span> -->
 				<FontAwesomeIcon icon="fas fa-arrow-right" class="mr-1 group-hover:translate-x-1.5 transition duration-200 ease-in-out" aria-hidden="true" />
 			</Link>
 		</div>
+		</nav>
+
+		<!-- Button: Previous and Next page -->
         <!--
 		<div class="bg-yellow-100 text-xs">
 			<pre>{{ props }}</pre>
