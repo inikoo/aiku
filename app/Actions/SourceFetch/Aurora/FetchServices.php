@@ -18,7 +18,7 @@ use App\Services\Tenant\SourceTenantService;
 
 class FetchServices extends FetchAction
 {
-    public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
     {
