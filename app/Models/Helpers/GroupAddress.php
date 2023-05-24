@@ -55,8 +55,7 @@ class GroupAddress extends Model
             function (GroupAddress $address) {
                 if ($country = (new Country())->firstWhere('id', $address->country_id)) {
                     $address->country_code = $country->code;
-
-                    $address->checksum = $address->getChecksum();
+                    $address->checksum     = $address->getChecksum();
                     $address->save();
                 }
             }

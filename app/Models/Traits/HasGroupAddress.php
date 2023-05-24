@@ -19,7 +19,7 @@ trait HasGroupAddress
         return $this->morphToMany(GroupAddress::class, 'group_addressable')->withTimestamps();
     }
 
-    public function getAddress($scope): ?GroupAddress
+    public function getAddress(string $scope = 'contact'): ?GroupAddress
     {
         return $this->addresses()->where('scope', '=', $scope)->first();
     }

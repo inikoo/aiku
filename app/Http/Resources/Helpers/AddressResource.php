@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Helpers;
 
+use App\Http\Resources\Assets\CountryResource;
 use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,6 +25,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $checksum
  * @property string $created_at
  * @property string $updated_at
+ * @property mixed $country
  *
  */
 class AddressResource extends JsonResource
@@ -34,18 +36,24 @@ class AddressResource extends JsonResource
     {
         return [
 
-            'country_id'            => $this->country_id,
-            'address_line_1'        => $this->address_line_1,
-            'address_line_2'        => $this->address_line_2,
-            'sorting_code'          => $this->sorting_code,
-            'postal_code'           => $this->postal_code,
-            'locality'              => $this->locality,
-            'dependant_locality'    => $this->dependant_locality,
-            'administrative_area'   => $this->administrative_area,
-            'country_code'          => $this->country_code,
-            'checksum'              => $this->checksum,
-            'created_at'            => $this->created_at,
-            'updated_at'            => $this->updated_at,
+
+            'address_line_1'      => $this->address_line_1,
+            'address_line_2'      => $this->address_line_2,
+            'sorting_code'        => $this->sorting_code,
+            'postal_code'         => $this->postal_code,
+            'locality'            => $this->locality,
+            'dependant_locality'  => $this->dependant_locality,
+            'administrative_area' => $this->administrative_area,
+            'country_code'        => $this->country_code,
+            'country_id'          => $this->country_id,
+            'checksum'            => $this->checksum,
+            'created_at'          => $this->created_at,
+            'updated_at'          => $this->updated_at,
+            'country'             => $this->whenLoaded(
+                'country',
+                CountryResource::make($this->country)
+            ),
+
         ];
     }
 

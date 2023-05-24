@@ -8,11 +8,11 @@
 namespace App\Models\Traits;
 
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 trait HasPhoto
 {
     use InteractsWithMedia;
-
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('photo')
@@ -22,5 +22,12 @@ trait HasPhoto
                     ->width(256)
                     ->height(256);
             });
+    }
+
+    public function getPhoto(): ?string
+    {
+        /** @var Media $photo */
+        $photo=$this->getMedia('photo')->first();
+        return $photo?->getFullUrl();
     }
 }

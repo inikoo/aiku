@@ -14,6 +14,7 @@ use CommerceGuys\Addressing\Country\CountryRepository;
 use CommerceGuys\Addressing\Formatter\DefaultFormatter;
 use CommerceGuys\Addressing\ImmutableAddressInterface;
 use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 trait IsAddress
@@ -37,11 +38,7 @@ trait IsAddress
         $addressFormatRepository = new AddressFormatRepository();
         $countryRepository       = new CountryRepository();
         $subdivisionRepository   = new SubdivisionRepository();
-
-
-        $formatter = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository, ['html' => false]);
-
-
+        $formatter               = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository, ['html' => false]);
         return $formatter->format($this->getAdr());
     }
 
@@ -93,5 +90,10 @@ trait IsAddress
     public function owner(): MorphTo
     {
         return $this->morphTo(__FUNCTION__, 'owner_type', 'owner_id');
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
     }
 }

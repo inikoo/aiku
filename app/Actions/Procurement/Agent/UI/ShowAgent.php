@@ -45,8 +45,6 @@ class ShowAgent extends InertiaAction
 
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
-        $this->validateAttributes();
-
 
         return Inertia::render(
             'Procurement/Agent',
@@ -66,14 +64,6 @@ class ShowAgent extends InertiaAction
                             'title' => __('agent')
                         ],
                     'title'         => $agent->name,
-                    /*
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
-                    */
                     'create_direct' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'models.agent.purchase-order.store',
@@ -115,8 +105,8 @@ class ShowAgent extends InertiaAction
                 ],
 
                 AgentTabsEnum::SHOWCASE->value => $this->tab == AgentTabsEnum::SHOWCASE->value ?
-                    fn () => $agent
-                    : Inertia::lazy(fn () => $agent),
+                    fn () => GetAgentShowcase::run($agent)
+                    : Inertia::lazy(fn () => GetAgentShowcase::run($agent)),
 
                 AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
                     fn () => SupplierResource::collection(IndexSuppliers::run($agent))

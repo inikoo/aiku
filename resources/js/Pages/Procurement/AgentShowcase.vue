@@ -6,39 +6,25 @@
 
 <script setup lang="ts">
 import ShowcaseStatistic from '@/Components/ShowcaseStatistic.vue'
-import ShowcaseProfile from '@/Components/ShowcaseProfile.vue'
+import ShowcaseContactCard from "@/Components/ShowcaseContactCard.vue";
 
 const props = defineProps<{
-  data: object,
+  data: {
+      contactCard:{
+          company?: string
+          contact?: string
+          email?: string
+          phone?: string
+          address?:string
+          photo?:string
+      }
+  },
 
 }>()
 
-const dataStatistic = [
-  {
-    title: 'Orders',
-    data: props.data.stats.number_purchase_orders,
-    icon: 'fal fa-box-full',
-    databefore: '164',
-  },
-  {
-    title: 'Deliveries',
-    data: props.data.stats.number_deliveries,
-    icon: 'fal fa-truck',
-    databefore: '0',
-  },
-  {
-    title: 'Suppliers',
-    data: props.data.stats.suppliers_count,
-    icon: 'fal fa-person-dolly',
-    databefore: '88',
-  },
-  {
-    title: 'Cancelled',
-    data: props.data.stats.number_purchase_orders_status_settled_cancelled,
-    icon: 'fal fa-ban',
-    databefore: '20',
-  },
-]
+
+
+
 
 </script>
 
@@ -47,7 +33,7 @@ const dataStatistic = [
 
     <!-- Section 1 -->
     <div class="pl-2">
-      <ShowcaseProfile :data="data"/>
+      <ShowcaseContactCard :data="data.contactCard"/>
     </div>
 
     <!-- Section 2: Statistic -->
