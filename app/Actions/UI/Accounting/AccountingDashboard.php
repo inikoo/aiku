@@ -49,11 +49,13 @@ class AccountingDashboard
     public function htmlResponse(Tenant|Shop $scope, ActionRequest $request): Response
     {
         $container = null;
+        $scopeType = 'Tenant';
         if (class_basename($scope) == 'Shop') {
+            $scopeType = 'Shop';
             $container = [
-                'icon'   => ['fal', 'fa-store-alt'],
-                'tooltip'=> __('Shop'),
-                'label'  => Str::possessive($scope->name)
+                'icon'    => ['fal', 'fa-store-alt'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($scope->name)
             ];
         }
 
@@ -70,50 +72,89 @@ class AccountingDashboard
                     'title'     => __('accounting'),
                     'container' => $container
                 ],
-                'flatTreeMaps' => [
-                    [
-                        [
-                            'name'  => __('providers'),
-                            'icon'  => ['fal', 'fa-cash-register'],
-                            'href'  => ['accounting.payment-service-providers.index'],
-                            'index' => [
-                                'number' => $scope->accountingStats->number_payment_service_providers
+                'flatTreeMaps' =>
+                    match ($scopeType) {
+                        'Shop' => [
+                            [
+
+                                [
+                                    'name'  => __('accounts'),
+                                    'icon'  => ['fal', 'fa-money-check-alt'],
+                                    'href'  => ['shops.show.accounting.payment-accounts.index', $scope->slug],
+                                    'index' => [
+                                        'number' => $scope->accountingStats->number_payment_accounts
+                                    ]
+
+                                ],
+                                [
+                                    'name'  => __('payments'),
+                                    'icon'  => ['fal', 'fa-coins'],
+                                    'href'  => ['shops.show.accounting.payments.index', $scope->slug],
+                                    'index' => [
+                                        'number' => $scope->accountingStats->number_payments
+                                    ]
+
+                                ],
+                                [
+                                    'name'  => __('invoices'),
+                                    'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                                    'href'  => ['shops.show.accounting.invoices.index', $scope->slug],
+                                    'index' => [
+                                        'number' => $scope->accountingStats->number_invoices
+                                    ]
+
+                                ],
+
                             ]
-
                         ],
-                        [
-                            'name'  => __('accounts'),
-                            'icon'  => ['fal', 'fa-money-check-alt'],
-                            'href'  => ['accounting.payment-accounts.index'],
-                            'index' => [
-                                'number' => $scope->accountingStats->number_payment_accounts
+                        default => [
+                            [
+
+
+                                [
+                                    'name'  => __('providers'),
+                                    'icon'  => ['fal', 'fa-cash-register'],
+                                    'href'  => ['accounting.payment-service-providers.index'],
+                                    'index' => [
+                                        'number' => $scope->accountingStats->number_payment_service_providers
+                                    ]
+
+                                ],
+                                [
+                                    'name'  => __('accounts'),
+                                    'icon'  => ['fal', 'fa-money-check-alt'],
+                                    'href'  => ['accounting.payment-accounts.index'],
+                                    'index' => [
+                                        'number' => $scope->accountingStats->number_payment_accounts
+                                    ]
+
+                                ],
+                                [
+                                    'name'  => __('payments'),
+                                    'icon'  => ['fal', 'fa-coins'],
+                                    'href'  => ['accounting.payments.index'],
+                                    'index' => [
+                                        'number' => $scope->accountingStats->number_payments
+                                    ]
+
+                                ],
+
+                            ],
+                            [
+                                [
+                                    'name'  => __('invoices'),
+                                    'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                                    'href'  => ['accounting.invoices.index'],
+                                    'index' => [
+                                        'number' => $scope->accountingStats->number_invoices
+                                    ]
+
+                                ],
+
                             ]
+                        ]
+                    }
 
-                        ],
-                        [
-                            'name'  => __('payments'),
-                            'icon'  => ['fal', 'fa-coins'],
-                            'href'  => ['accounting.payments.index'],
-                            'index' => [
-                                'number' => $scope->accountingStats->number_payments
-                            ]
-
-                        ],
-
-                    ],
-                    [
-                        [
-                            'name'  => __('invoices'),
-                            'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                            'href'  => ['accounting.invoices.index'],
-                            'index' => [
-                                'number' => $scope->accountingStats->number_invoices
-                            ]
-
-                        ],
-
-                    ]
-                ]
 
             ]
         );
@@ -130,8 +171,8 @@ class AccountingDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'      => 'shops.show.accounting.dashboard',
-                                'parameters'=> $routeParameters
+                                'name'       => 'shops.show.accounting.dashboard',
+                                'parameters' => $routeParameters
                             ],
                             'label' => __('accounting'),
                         ]
