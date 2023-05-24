@@ -65,6 +65,7 @@ class ShowLocation extends InertiaAction
 
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'Inventory/Location',
             [
@@ -78,7 +79,11 @@ class ShowLocation extends InertiaAction
                     'next'     => $this->getNext($location, $request),
                 ],
                 'pageHead'    => [
-                    'icon'  => 'fal fa-inventory',
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'fa-inventory'],
+                            'title' => __('location')
+                        ],
                     'title' => $location->code,
                     'edit'  => $this->canEdit ? [
                         'route' => [
