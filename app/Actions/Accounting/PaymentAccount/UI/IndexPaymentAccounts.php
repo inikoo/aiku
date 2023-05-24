@@ -76,7 +76,6 @@ class IndexPaymentAccounts extends InertiaAction
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-
         };
     }
 
@@ -121,13 +120,14 @@ class IndexPaymentAccounts extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $paymentAccounts, ActionRequest $request): Response
     {
+        $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->parameters;
 
         return Inertia::render(
             'Accounting/PaymentAccounts',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
+                    $routeName,
                     $routeParameters
                 ),
                 'title'       => __('Payment Accounts'),
@@ -140,11 +140,16 @@ class IndexPaymentAccounts extends InertiaAction
                         ],
                         'label' => __('payment account')
                     ] : false,
-                    'container' => [
-                        'icon'    => ['fal', 'fa-store-alt'],
-                        'tooltip' => __('Shop'),
-                        'label'   => Str::possessive($routeParameters['shop']->name)
-                    ]
+                    'container' => match ($routeName) {
+                        'shops.show.accounting.payment-accounts.index' => [
+                            'icon'    => ['fal', 'fa-store-alt'],
+                            'tooltip' => __('Shop'),
+                            'label'   => Str::possessive($routeParameters['shop']->name)
+                        ],
+                        default => null
+                    },
+
+
                 ],
                 'data'        => PaymentAccountResource::collection($paymentAccounts),
 
