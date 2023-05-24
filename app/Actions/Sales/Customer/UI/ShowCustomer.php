@@ -254,6 +254,7 @@ class ShowCustomer extends InertiaAction
 
     public function getPrevious(Customer $customer, ActionRequest $request): ?array
     {
+
         $previous = Customer::where('slug', '<', $customer->slug)->when(true, function ($query) use ($customer, $request) {
             if ($request->route()->getName() == 'shops.show.customers.show') {
                 $query->where('customers.shop_id', $customer->shop_id);
