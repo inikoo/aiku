@@ -549,18 +549,18 @@ const handleElementsChange = function (data) {
             <!-- Wrapper -->
             <div class="grid grid-flow-col justify-between flex-nowrap px-4">
                 <!-- Result Number -->
-                <div class="flex">
-                    <div class="border border-gray-300  mr-2 rounded grid justify-center items-center text-base font-normal "
+                <div class="flex border border-indigo-100 rounded-lg">
+                    <div class="grid justify-end items-center text-base font-normal text-gray-700"
                         title="Results">
                         <div class="px-2 ">{{ resourceMeta.total }} {{ $t(' records') }}</div>
                     </div>
                     <!-- Button -->
                     <div v-if="queryBuilderProps.modelOperations.createLink">
                         <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
-                            <Button type='secondary' action="create" class="capitalize">
+                            <Button type='secondary' action="create" class="capitalize focus:ring-0 ">
                                 {{queryBuilderProps.modelOperations.createLink.label}}
                             </Button>
-                        </Link>
+                        </Link>  
                     </div>
                 </div>
 

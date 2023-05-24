@@ -12,6 +12,7 @@ import {
     faWarehouse,
     faParachuteBox,
     faTerminal,
+    faPeopleArrows,
     faMapSigns,
     faMoneyBill,
     faHandReceiving,
@@ -51,7 +52,9 @@ library.add(
     faParachuteBox,
     faTruck,
     faTerminal,
-    faCameraRetro
+    faCameraRetro,
+    faClipboard,
+    faPeopleArrows,
 );
 
 let currentTab = ref(props.tabs.current);
