@@ -11,6 +11,7 @@ use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
 use App\Models\Sales\SalesStats;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Marketing\ProductCategoryFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -53,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\Shop|null $shop
  * @property-read \App\Models\Marketing\ProductCategoryStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Marketing\ProductCategoryFactory factory($count = null, $state = [])
+ * @method static ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
  * @method static Builder|ProductCategory newQuery()
  * @method static Builder|ProductCategory onlyTrashed()

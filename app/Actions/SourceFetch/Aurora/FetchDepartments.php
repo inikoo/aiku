@@ -11,7 +11,6 @@ use App\Actions\Marketing\ProductCategory\StoreProductCategory;
 use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Models\Marketing\ProductCategory;
 use App\Services\Tenant\SourceTenantService;
-use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class FetchDepartments
@@ -19,7 +18,7 @@ class FetchDepartments
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?ProductCategory
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?ProductCategory
     {
         if ($productCategoryData = $tenantSource->fetchDepartment($tenantSourceId)) {
             if ($productCategory = ProductCategory::where('source_department_id', $productCategoryData['department']['source_department_id'])
@@ -30,7 +29,7 @@ class FetchDepartments
                 );
             } else {
                 $productCategory = StoreProductCategory::run(
-                    shop:      $productCategoryData['shop'],
+                    parent:      $productCategoryData['shop'],
                     modelData: $productCategoryData['department']
                 );
             }
