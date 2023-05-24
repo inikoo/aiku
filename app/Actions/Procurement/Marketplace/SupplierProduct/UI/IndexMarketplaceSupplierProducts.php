@@ -32,8 +32,8 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('supplier_products.code', 'LIKE', "$value%")
-                    ->orWhere('supplier_products.name', 'LIKE', "%$value%");
+                $query->where('supplier_products.code', 'ILIKE', "%$value%")
+                    ->orWhere('supplier_products.name', 'ILIKE', "%$value%");
             });
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value);

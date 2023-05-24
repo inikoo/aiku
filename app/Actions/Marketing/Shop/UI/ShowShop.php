@@ -43,7 +43,6 @@ class ShowShop extends InertiaAction
     {
         $this->validateAttributes();
 
-
         return Inertia::render(
             'Marketing/Shop',
             [
