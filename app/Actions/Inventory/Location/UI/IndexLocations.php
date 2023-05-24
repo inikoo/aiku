@@ -31,7 +31,7 @@ class IndexLocations extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('locations.code', 'LIKE', "%$value%");
+                $query->where('locations.code', 'ILIKE', "%$value%");
             });
         });
 

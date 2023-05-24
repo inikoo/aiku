@@ -30,8 +30,8 @@ class IndexSupplierPurchaseOrders extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('purchase_orders.number', 'LIKE', "$value%")
-                    ->orWhere('purchase_orders.status', 'LIKE', "%$value%");
+                $query->where('purchase_orders.number', 'ILIKE', "$value%")
+                    ->orWhere('purchase_orders.status', 'ILIKE', "%$value%");
             });
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PURCHASE_ORDERS->value);
