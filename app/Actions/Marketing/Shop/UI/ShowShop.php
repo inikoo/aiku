@@ -50,6 +50,10 @@ class ShowShop extends InertiaAction
                 'breadcrumbs'  => $this->getBreadcrumbs(
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($shop, $request),
+                    'next'     => $this->getNext($shop, $request),
+                ],
                 'pageHead'     => [
                     'title' => $shop->name,
                     'edit'  => $this->canEdit ? [
@@ -183,5 +187,37 @@ class ShowShop extends InertiaAction
                     ]
                 ]
             );
+    }
+
+    public function getPrevious(Shop $shop, ActionRequest $request): ?array
+    {
+        $previous = Shop::where('code', '<', $shop->code)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Shop $shop, ActionRequest $request): ?array
+    {
+        $next = Shop::where('code', '>', $shop->code)->orderBy('code')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Shop $shop, string $routeName): ?array
+    {
+        if(!$shop) {
+            return null;
+        }
+        return match ($routeName) {
+            'shops.show'=> [
+                'label'=> $shop->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'=> $shop->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }
