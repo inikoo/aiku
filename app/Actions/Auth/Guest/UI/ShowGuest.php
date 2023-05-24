@@ -114,7 +114,6 @@ class ShowGuest extends InertiaAction
                 ),
             ),
 
-
             default => []
         };
     }

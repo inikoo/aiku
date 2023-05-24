@@ -100,6 +100,10 @@ class ShowPayment extends InertiaAction
             [
                 'title'       => __($payment->id),
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($payment, $request),
+                    'next'     => $this->getNext($payment, $request),
+                ],
                 'pageHead'    => [
                     'icon'  => 'fal fa-coins',
                     'title' => $payment->slug,
@@ -123,5 +127,95 @@ class ShowPayment extends InertiaAction
     public function jsonResponse(Payment $payment): PaymentResource
     {
         return new PaymentResource($payment);
+    }
+
+    public function getPrevious(Payment $payment, ActionRequest $request): ?array
+    {
+        $previous=Payment::where('reference', '<', $payment->reference)->when(true, function ($query) use ($payment, $request) {
+            switch ($request->route()->getName()) {
+                case 'accounting.payment-accounts.show.payments.show':
+                    $query->where('payments.payment_account_id', $payment->payment_account_id);
+                    break;
+                case 'accounting.payment-service-providers.show.payment-accounts.show.payments.show':
+                case 'accounting.payment-service-providers.show.payments.show':
+                    $query->where('payments.payment_account_id', $payment->paymentAccount->payment_service_provider_id);
+                    break;
+
+            }
+        })->orderBy('reference', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Payment $payment, ActionRequest $request): ?array
+    {
+        $next=Payment::where('reference', '>', $payment->reference)->when(true, function ($query) use ($payment, $request) {
+            switch ($request->route()->getName()) {
+                case 'accounting.payment-accounts.show.payments.show':
+                    $query->where('payments.payment_account_id', $payment->payment_account_id);
+                    break;
+                case 'accounting.payment-service-providers.show.payment-accounts.show.payments.show':
+                case 'accounting.payment-service-providers.show.payments.show':
+                    $query->where('payments.payment_account_id', $payment->paymentAccount->payment_service_provider_id);
+                    break;
+
+            }
+        })->orderBy('reference')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Payment $payment, string $routeName): ?array
+    {
+        if(!$payment) {
+            return null;
+        }
+        return match ($routeName) {
+            'accounting.payments.show'=> [
+                'label'=> $payment->reference,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'payment'  => $payment->reference
+                    ]
+
+                ]
+            ],
+            'accounting.payment-accounts.show.payments.show' => [
+                'label'=> $payment->reference,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'account' => $payment->payment_account_id,
+                        'payment' => $payment->reference
+                    ]
+
+                ]
+            ],
+            'accounting.payment-service-providers.show.payments.show'=> [
+                'label'=> $payment->reference,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'provider' => $payment->paymentAccount->payment_service_provider_id,
+                        'payment'  => $payment->reference
+                    ]
+
+                ]
+            ],
+            'accounting.payment-service-providers.show.payment-accounts.show.payments.show' => [
+                'label'=> $payment->reference,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'provider'     => $payment->paymentAccount->payment_service_provider_id,
+                        'account'      => $payment->payment_account_id,
+                        'payment'      => $payment->reference
+                    ]
+
+                ]
+            ]
+        };
     }
 }

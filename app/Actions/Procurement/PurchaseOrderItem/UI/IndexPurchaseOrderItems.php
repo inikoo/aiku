@@ -32,7 +32,8 @@ class IndexPurchaseOrderItems extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->whereHas('supplierProduct', function ($query) use ($value) {
-                $query->where('code', 'LIKE', "$value%");
+                $query->where('code', 'ILIKE', "%$value%")
+                ->orWhere('name', 'ILIKE', "%$value%");
             });
         });
 
@@ -50,9 +51,9 @@ class IndexPurchaseOrderItems extends InertiaAction
     }
 
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) {
             $table
                 ->name(TabsAbbreviationEnum::ITEMS->value)
                 ->pageName(TabsAbbreviationEnum::ITEMS->value.'Page');
@@ -64,7 +65,7 @@ class IndexPurchaseOrderItems extends InertiaAction
                 ->column(key: 'unit_quantity', label: __('unit quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'unit_cost', label: __('cost'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('number');
+                ->defaultSort('code');
         };
     }
 
