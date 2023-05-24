@@ -26,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPurchaseOrders extends InertiaAction
 {
-    public function handle(Agent|Supplier|Tenant|null $parent): LengthAwarePaginator
+    public function handle(Agent|Supplier|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,11 +37,14 @@ class IndexPurchaseOrders extends InertiaAction
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PURCHASE_ORDERS->value);
 
         return QueryBuilder::for(PurchaseOrder::class)
+            ->with('provider')
             ->defaultSort('purchase_orders.number')
-            ->select(['number', 'slug'])
+            ->select(['number', 'slug', 'date'])
             ->allowedFilters([$globalSearch])
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) != 'Tenant' && $parent != null) {
+            ->when(true, function ($query) use ($parent) {
+                if (class_basename($parent) == 'Tenant') {
+                    $query->addSelect(['provider_id', 'provider_type']);
+                } else {
                     $query->where('provider_id', $parent->id);
                 }
             })
@@ -52,7 +55,7 @@ class IndexPurchaseOrders extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations=null): Closure
+    public function tableStructure(array $modelOperations = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations) {
             $table
@@ -61,6 +64,11 @@ class IndexPurchaseOrders extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'provider', label: __('Agent/Supplier'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'created_by', label: __('Created by'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'author', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('number');
         };
     }
