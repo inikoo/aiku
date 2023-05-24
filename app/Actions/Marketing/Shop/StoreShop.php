@@ -148,6 +148,6 @@ class StoreShop
     }
     public function htmlResponse(Shop $shop): RedirectResponse
     {
-        return Redirect::route('shop.index', $shop->slug);
+        return Redirect::route('shops.show', $shop->slug);
     }
 }
