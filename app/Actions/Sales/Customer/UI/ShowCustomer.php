@@ -130,6 +130,10 @@ class ShowCustomer extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($customer, $request),
+                    'next'     => $this->getNext($customer, $request),
+                ],
                 'pageHead'    => [
                     'title' => $customer->name,
                     'meta'  => array_filter([
@@ -188,7 +192,7 @@ class ShowCustomer extends InertiaAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $customer->reference,
+                            'label' => $customer->name,
                         ],
 
                     ],
@@ -197,7 +201,6 @@ class ShowCustomer extends InertiaAction
                 ],
             ];
         };
-
         return match ($routeName) {
             'customers.show',
             'customers.edit' =>
@@ -224,7 +227,7 @@ class ShowCustomer extends InertiaAction
             'shops.show.customers.show',
             'shops.show.customers.edit'
             => array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['customer'],
                     [
@@ -246,6 +249,60 @@ class ShowCustomer extends InertiaAction
                 )
             ),
             default => []
+        };
+    }
+
+    public function getPrevious(Customer $customer, ActionRequest $request): ?array
+    {
+        $previous = Customer::where('slug', '<', $customer->slug)->when(true, function ($query) use ($customer, $request) {
+            if ($request->route()->getName() == 'shops.show.customers.show') {
+                $query->where('customers.shop_id', $customer->shop_id);
+            }
+        })->orderBy('slug', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Customer $customer, ActionRequest $request): ?array
+    {
+        $next = Customer::where('slug', '>', $customer->slug)->when(true, function ($query) use ($customer, $request) {
+            if ($request->route()->getName() == 'shops.show.customers.show') {
+                $query->where('customers.shop_id', $customer->shop_id);
+            }
+        })->orderBy('slug')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Customer $customer, string $routeName): ?array
+    {
+        if(!$customer) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'shops.customers.show'=> [
+                'label'=> $customer->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'customer'=> $customer->slug
+                    ]
+
+                ]
+            ],
+            'shops.show.customers.show'=> [
+                'label'=> $customer->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'    => $customer->shop->slug,
+                        'customer'=> $customer->slug
+                    ]
+
+                ]
+            ]
         };
     }
 }

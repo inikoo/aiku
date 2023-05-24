@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Thu, 18 May 2023 14:27:38 Central European Summer Time, Malaga, Spain
+ * Created: Thu, 18 May 2023 14:27:38 Central European Summer, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
@@ -50,6 +50,10 @@ class ShowShop extends InertiaAction
                 'breadcrumbs'  => $this->getBreadcrumbs(
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($shop, $request),
+                    'next'     => $this->getNext($shop, $request),
+                ],
                 'pageHead'     => [
                     'title' => $shop->name,
                     'edit'  => $this->canEdit ? [
@@ -171,9 +175,9 @@ class ShowShop extends InertiaAction
                             'model' => [
                                 'route' => [
                                     'name'       => 'shops.show',
-                                    'parameters' => [$routeParameters['shop']->slug]
+                                    'parameters' => [$routeParameters['shop']]
                                 ],
-                                'label' => $routeParameters['shop']->code,
+                                'label' => $routeParameters['shop'],
                                 'icon'  => 'fal fa-bars'
                             ]
 
@@ -183,5 +187,39 @@ class ShowShop extends InertiaAction
                     ]
                 ]
             );
+    }
+
+    public function getPrevious(Shop $shop, ActionRequest $request): ?array
+    {
+        $previous = Shop::where('code', '<', $shop->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Shop $shop, ActionRequest $request): ?array
+    {
+        $next = Shop::where('code', '>', $shop->code)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Shop $shop, string $routeName): ?array
+    {
+        if(!$shop) {
+            return null;
+        }
+        return match ($routeName) {
+            'shops.show'=> [
+                'label'=> $shop->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'=> $shop->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }

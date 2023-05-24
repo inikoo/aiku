@@ -70,13 +70,9 @@ class IndexUsers extends InertiaAction
                 'title'       => __('users'),
                 'pageHead'    => [
                     'title'  => __('users'),
-                    'create' => $this->canEdit && $this->routeName == 'sysadmin.users.index' ? [
-                        'route' => [
-                            'name'       => 'sysadmin.users.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('create user')
-                    ] : false,
+
+                    // Remember to not create new Users on IndexUsers, only in employees and guest
+
                 ],
                 'labels'      => [
                     'usernameNoSet' => __('username no set')
