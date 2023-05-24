@@ -175,9 +175,9 @@ class ShowShop extends InertiaAction
                             'model' => [
                                 'route' => [
                                     'name'       => 'shops.show',
-                                    'parameters' => [$routeParameters['shop']]
+                                    'parameters' => [$routeParameters['shop']->slug]
                                 ],
-                                'label' => $routeParameters['shop'],
+                                'label' => $routeParameters['shop']->slug,
                                 'icon'  => 'fal fa-bars'
                             ]
 
