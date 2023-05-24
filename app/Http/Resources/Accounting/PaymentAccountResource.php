@@ -17,6 +17,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property mixed $created_at
  * @property mixed $updated_at
+ * @property mixed $shop_slug
  *
  */
 class PaymentAccountResource extends JsonResource
@@ -26,6 +27,7 @@ class PaymentAccountResource extends JsonResource
         return [
             'slug'                           => $this->slug,
             'name'                           => $this->name,
+            'shop_slug'                      => $this->shop_slug,
             'payment_service_providers_slug' => $this->payment_service_providers_slug,
             'number_payments'                => $this->number_payments,
             'code'                           => $this->code,

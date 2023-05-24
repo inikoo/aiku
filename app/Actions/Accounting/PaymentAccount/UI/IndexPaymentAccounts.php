@@ -19,7 +19,9 @@ use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -32,8 +34,7 @@ class IndexPaymentAccounts extends InertiaAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('payment_accounts.code', 'ILIKE', "%$value%")
-                    ->orWhere('payment_accounts.name', 'ILIKE', "%$value%")
-                    ->orWhere('payment_accounts.data', 'ILIKE', "%$value%");
+                    ->orWhere('payment_accounts.name', 'ILIKE', "%$value%");
             });
         });
 
@@ -44,9 +45,14 @@ class IndexPaymentAccounts extends InertiaAction
             ->select(['payment_accounts.code', 'payment_accounts.slug', 'payment_accounts.name', 'payment_service_providers.slug as payment_service_providers_slug', 'number_payments'])
             ->leftJoin('payment_account_stats', 'payment_accounts.id', 'payment_account_stats.payment_account_id')
             ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
-            ->when($parent, function ($query) use ($parent) {
+            ->when(true, function ($query) use ($parent) {
                 if (class_basename($parent) == 'PaymentServiceProvider') {
                     $query->where('payment_accounts.payment_service_provider_id', $parent->id);
+                } elseif (class_basename($parent) == 'Shop') {
+                    $query->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id');
+                    $query->leftJoin('shops', 'shops.id', 'payment_account_shop.shop_id');
+                    $query->addSelect('shops.slug as shop_slug');
+                    $query->where('payment_account_shop.shop_id', $parent->id);
                 }
             })
             ->allowedSorts(['code', 'name', 'number_payments'])
@@ -71,7 +77,6 @@ class IndexPaymentAccounts extends InertiaAction
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'payment_service_providers_slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -90,12 +95,14 @@ class IndexPaymentAccounts extends InertiaAction
     public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle(app('currentTenant'));
     }
 
     public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle($paymentServiceProvider);
     }
 
@@ -112,25 +119,32 @@ class IndexPaymentAccounts extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $paymentAccounts, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $paymentAccounts, ActionRequest $request): Response
     {
+        $routeParameters = $request->route()->parameters;
+
         return Inertia::render(
             'Accounting/PaymentAccounts',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $routeParameters
                 ),
                 'title'       => __('Payment Accounts'),
                 'pageHead'    => [
-                    'title'  => __('Payment Accounts'),
-                    'create' => $this->canEdit && $this->routeName == 'accounting.payment-accounts.index' ? [
+                    'title'     => __('Payment Accounts'),
+                    'create'    => $this->canEdit && $this->routeName == 'accounting.payment-accounts.index' ? [
                         'route' => [
                             'name'       => 'accounting.payment-accounts.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('payment account')
                     ] : false,
+                    'container' => [
+                        'icon'    => ['fal', 'fa-store-alt'],
+                        'tooltip' => __('Shop'),
+                        'label'   => Str::possessive($routeParameters['shop']->name)
+                    ]
                 ],
                 'data'        => PaymentAccountResource::collection($paymentAccounts),
 
@@ -160,6 +174,11 @@ class IndexPaymentAccounts extends InertiaAction
         };
 
         return match ($routeName) {
+            'shops.show.accounting.payment-accounts.index' =>
+            array_merge(
+                AccountingDashboard::make()->getBreadcrumbs('shops.show.accounting.dashboard', $routeParameters),
+                $headCrumb($routeParameters)
+            ),
             'accounting.payment-accounts.index' =>
             array_merge(
                 AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),

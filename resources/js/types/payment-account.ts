@@ -6,6 +6,7 @@
 
 export interface PaymentAccount {
     slug: string,
+    shop_slug?: string,
     payment_service_providers_slug: string
     number_payments: number
     code: string
