@@ -266,7 +266,7 @@ class ShowSupplier extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'supplier'  => $supplier->code
+                        'supplier'  => $supplier->slug
                     ]
 
                 ]
@@ -276,8 +276,8 @@ class ShowSupplier extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'agent'     => $supplier->agent->code,
-                        'supplier'  => $supplier->code
+                        'agent'     => $supplier->agent->slug,
+                        'supplier'  => $supplier->slug
                     ]
 
                 ]
