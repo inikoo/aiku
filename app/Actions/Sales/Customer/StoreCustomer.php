@@ -29,6 +29,7 @@ use Illuminate\Validation\Validator;
 
 class StoreCustomer
 {
+
     use AsAction;
     use WithAttributes;
 

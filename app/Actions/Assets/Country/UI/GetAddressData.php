@@ -13,7 +13,6 @@ use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetAddressData
 {
-
     use AsObject;
 
     public function handle(): array

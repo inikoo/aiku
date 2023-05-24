@@ -26,6 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowCustomer extends InertiaAction
 {
+
     public function handle(Customer $customer): Customer
     {
         return $customer;
