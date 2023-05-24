@@ -8,16 +8,12 @@
 namespace App\Actions\Marketing\Shop\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\StockFamily\UI\HasUIStockFamilies;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class CreateShop extends InertiaAction
 {
-    use HasUIStockFamilies;
-
-
     public function handle(): Response
     {
         return Inertia::render(
@@ -47,12 +43,16 @@ class CreateShop extends InertiaAction
                                     'value' => ''
                                 ],
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                    'value' => ''
+                                    'type'   => 'input',
+                                    'label'  => __('name'),
+                                    'value'  => '',
+                                    'options'=> [
+                                        'counter'=> true
+                                    ]
                                 ],
                             ]
                         ],
+                        /*
                         [
                             'title'  => __('localization'),
                             'icon'   => 'fa-light fa-phone',
@@ -108,10 +108,10 @@ class CreateShop extends InertiaAction
                                 ],
                             ]
                         ],
-
+                        */
                     ],
                     'route' => [
-                        'name' => 'models.agent.store',
+                        'name' => 'models.shop.store',
                     ]
                 ],
 
@@ -121,7 +121,7 @@ class CreateShop extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops');
+        return $request->user()->can('shops.edit');
     }
 
 

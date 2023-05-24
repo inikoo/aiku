@@ -16,6 +16,8 @@ use App\Enums\Marketing\Shop\ShopSubtypeEnum;
 use App\Enums\Marketing\Shop\ShopTypeEnum;
 use App\Models\Mail\Mailroom;
 use App\Models\Marketing\Shop;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -137,5 +139,15 @@ class StoreShop
         $validatedData = $this->validateAttributes();
 
         return $this->handle($validatedData);
+    }
+
+    public function asController(ActionRequest $request): Shop
+    {
+        $request->validate();
+        return $this->handle($request->validated());
+    }
+    public function htmlResponse(Shop $shop): RedirectResponse
+    {
+        return Redirect::route('shop.index', $shop->slug);
     }
 }

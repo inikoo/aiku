@@ -24,6 +24,7 @@ use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Product\UpdateProduct;
+use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Marketing\Shop\UpdateShop;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
@@ -38,7 +39,8 @@ use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use Illuminate\Support\Facades\Route;
 
-Route::patch('/shop/{shop}', UpdateShop::class)->name('shop.update');
+Route::post('/shop/', StoreShop::class)->name('shop.store');
+Route::post('/shop/{shop}', UpdateShop::class)->name('shop.update');
 
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
