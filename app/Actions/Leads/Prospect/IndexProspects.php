@@ -9,6 +9,7 @@ namespace App\Actions\Leads\Prospect;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Lead\ProspectResource;
 use App\InertiaTable\InertiaTable;
@@ -19,6 +20,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -96,15 +98,16 @@ class IndexProspects extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Lead/Prospects',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->parameters(),
                 ),
                 'title'       => __('prospects'),
                 'pageHead'    => [
@@ -114,7 +117,7 @@ class IndexProspects extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($parent));
     }
 
 
@@ -132,26 +135,43 @@ class IndexProspects extends InertiaAction
         return $this->handle($shop);
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
+        $headCrumb = function (array $routeParameters = [])  {
             return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('prospects')
-                    ]
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('prospects'),
+                        'icon'  => 'fal fa-bars'
+                    ],
                 ],
             ];
         };
 
         return match ($routeName) {
-            'prospects.index'            => $headCrumb(),
+            'prospects.index' =>
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => 'prospects.index',
+                    ]
+                ),
+            ),
             'shops.show.prospects.index' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
+                (new ShowShop())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'      => 'shops.show.prospects.index',
+                        'parameters'=>
+                            [
+                                $routeParameters['shop']->slug
+                            ]
+                    ]
+                )
             ),
             default => []
         };
