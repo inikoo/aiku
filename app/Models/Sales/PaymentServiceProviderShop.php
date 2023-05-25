@@ -10,6 +10,21 @@ namespace App\Models\Sales;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
+/**
+ * App\Models\Sales\PaymentServiceProviderShop
+ *
+ * @property int $id
+ * @property int $shop_id
+ * @property int $payment_service_provider_id
+ * @property int $currency_id
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentServiceProviderShop newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentServiceProviderShop newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentServiceProviderShop query()
+ * @mixin \Eloquent
+ */
 class PaymentServiceProviderShop extends Pivot
 {
     use UsesTenantConnection;

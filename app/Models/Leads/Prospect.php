@@ -16,7 +16,6 @@ use App\Models\Sales\Customer;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Leads\ProspectFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -53,7 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Customer|null $customer
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static ProspectFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Leads\ProspectFactory factory($count = null, $state = [])
  * @method static Builder|Prospect newModelQuery()
  * @method static Builder|Prospect newQuery()
  * @method static Builder|Prospect onlyTrashed()

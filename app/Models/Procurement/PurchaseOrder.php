@@ -11,7 +11,6 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\PurchaseOrderFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -61,7 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
  * @property-read Model|\Eloquent $provider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
- * @method static PurchaseOrderFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrder newModelQuery()
  * @method static Builder|PurchaseOrder newQuery()
  * @method static Builder|PurchaseOrder onlyTrashed()

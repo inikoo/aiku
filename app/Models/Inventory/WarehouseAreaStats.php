@@ -18,7 +18,10 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $id
  * @property int $warehouse_area_id
  * @property int $number_locations
+ * @property int $number_locations_state_operational
+ * @property int $number_locations_state_broken
  * @property int $number_empty_locations
+ * @property int $number_locations_no_stock_slots
  * @property string $stock_value
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

@@ -9,7 +9,6 @@ namespace App\Models\Inventory;
 
 use App\Actions\Utils\Abbreviate;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Inventory\WarehouseAreaFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -39,7 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\WarehouseAreaStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
- * @method static WarehouseAreaFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Inventory\WarehouseAreaFactory factory($count = null, $state = [])
  * @method static Builder|WarehouseArea newModelQuery()
  * @method static Builder|WarehouseArea newQuery()
  * @method static Builder|WarehouseArea onlyTrashed()

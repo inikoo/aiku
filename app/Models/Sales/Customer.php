@@ -15,6 +15,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\TaxNumber;
@@ -76,6 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop|null $shop
  * @property-read \App\Models\Sales\CustomerStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StoredItem> $storedItems
  * @property-read TaxNumber|null $taxNumber
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
@@ -195,6 +197,11 @@ class Customer extends Model implements HasMedia
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function storedItems(): HasMany
+    {
+        return $this->hasMany(StoredItem::class);
     }
 
     public function taxNumber(): MorphOne

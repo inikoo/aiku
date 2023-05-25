@@ -6,6 +6,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
+/**
+ * App\Models\Auth\GroupUserUser
+ *
+ * @property int $id
+ * @property int $group_user_id
+ * @property int $user_id
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Auth\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupUserUser newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupUserUser newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupUserUser query()
+ * @mixin \Eloquent
+ */
 class GroupUserUser extends Pivot
 {
     use UsesLandlordConnection;

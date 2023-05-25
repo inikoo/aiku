@@ -9,7 +9,6 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Inventory\LocationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -46,7 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
- * @method static LocationFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Inventory\LocationFactory factory($count = null, $state = [])
  * @method static Builder|Location newModelQuery()
  * @method static Builder|Location newQuery()
  * @method static Builder|Location onlyTrashed()

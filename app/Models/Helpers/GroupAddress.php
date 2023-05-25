@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $usage
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Country|null $country
  * @property-read string $formatted_address
  * @property-read Model|\Eloquent $owner
  * @method static Builder|GroupAddress newModelQuery()
