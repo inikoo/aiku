@@ -59,9 +59,9 @@ class ShowSupplier extends InertiaAction
 
     public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
-//        if($supplier->type=='sub-supplier') {
-//            //    return $this->AW Bamboo
-//        }
+        //        if($supplier->type=='sub-supplier') {
+        //            //    return $this->AW Bamboo
+        //        }
 
         return Inertia::render(
             'Procurement/Supplier',
@@ -124,8 +124,8 @@ class ShowSupplier extends InertiaAction
                 ],
 
                 SupplierTabsEnum::SHOWCASE->value => $this->tab == SupplierTabsEnum::SHOWCASE->value ?
-                    fn () => $supplier
-                    : Inertia::lazy(fn () => $supplier),
+                    fn () => GetSupplierShowcase::run($supplier)
+                    : Inertia::lazy(fn () => GetSupplierShowcase::run($supplier)),
 
                 SupplierTabsEnum::PURCHASES_SALES->value => $this->tab == SupplierTabsEnum::PURCHASES_SALES->value ?
                     fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))
