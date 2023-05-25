@@ -116,7 +116,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                                 'name'       => 'accounting.payment-service-providers.show',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => $routeParameters['paymentServiceProvider']->code,
+                            'label' => $routeParameters['paymentServiceProvider']->slug,
                         ],
                     ],
                     'suffix'         => $suffix,

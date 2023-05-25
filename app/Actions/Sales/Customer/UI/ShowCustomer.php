@@ -284,6 +284,7 @@ class ShowCustomer extends InertiaAction
         }
 
         return match ($routeName) {
+            'customers.show' ,
             'shops.customers.show'=> [
                 'label'=> $customer->name,
                 'route'=> [
