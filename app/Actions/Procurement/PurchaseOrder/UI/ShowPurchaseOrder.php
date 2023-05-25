@@ -23,7 +23,6 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowPurchaseOrder extends InertiaAction
 {
-    public $acReq;
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.edit');
@@ -35,11 +34,10 @@ class ShowPurchaseOrder extends InertiaAction
     {
         $this->initialisation($request)->withTab(PurchaseOrderTabsEnum::values());
         $this->purchaseOrder = $purchaseOrder;
-        $this->acReq = $request;
 
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -49,8 +47,8 @@ class ShowPurchaseOrder extends InertiaAction
                 'title'       => __('purchase order'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->purchaseOrder),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($this->purchaseOrder, $this->acReq),
-                    'next'     => $this->getNext($this->purchaseOrder, $this->acReq),
+                    'previous' => $this->getPrevious($this->purchaseOrder, $request),
+                    'next'     => $this->getNext($this->purchaseOrder, $request),
                 ],
                 'pageHead'    => [
                     'icon'  => 'fal people-arrows',

@@ -18,7 +18,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowEmployee extends InertiaAction
 {
-    public $acReq;
     public function handle(Employee $employee): Employee
     {
         return $employee;
@@ -35,11 +34,10 @@ class ShowEmployee extends InertiaAction
     public function asController(Employee $employee, ActionRequest $request): Employee
     {
         $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
-        $this->acReq = $request;
         return $this->handle($employee);
     }
 
-    public function htmlResponse(Employee $employee): Response
+    public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         return Inertia::render(
             'HumanResources/Employee',
@@ -47,8 +45,8 @@ class ShowEmployee extends InertiaAction
                 'title'       => __('employee'),
                 'breadcrumbs' => $this->getBreadcrumbs($employee),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($employee, $this->acReq),
-                    'next'     => $this->getNext($employee, $this->acReq),
+                    'previous' => $this->getPrevious($employee, $request),
+                    'next'     => $this->getNext($employee, $request),
                 ],
                 'pageHead'    => [
                     'title' => $employee->name,

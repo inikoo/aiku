@@ -21,7 +21,6 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowSupplierDelivery extends InertiaAction
 {
-    public $acReq;
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.edit');
@@ -33,10 +32,9 @@ class ShowSupplierDelivery extends InertiaAction
     {
         $this->initialisation($request)->withTab(SupplierDeliveryTabsEnum::values());
         $this->supplierDelivery    = $supplierDelivery;
-        $this->acReq = $request;
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -47,8 +45,8 @@ class ShowSupplierDelivery extends InertiaAction
                 'title'       => __('supplier delivery'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->supplierDelivery),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($this->supplierDelivery, $this->acReq),
-                    'next'     => $this->getNext($this->supplierDelivery, $this->acReq),
+                    'previous' => $this->getPrevious($this->supplierDelivery, $request),
+                    'next'     => $this->getNext($this->supplierDelivery, $request),
                 ],
                 'pageHead'    => [
                     'icon'  => 'fal people-arrows',

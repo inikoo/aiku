@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 09 May 2023 09:25:51 Central European Summer Time, Malaga, Spain
+ * Created: Tue, 09 May 2023 09:25:51 Central European Summer, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
@@ -19,6 +19,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -99,7 +100,7 @@ class IndexPurchaseOrders extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $purchaseOrders, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $purchaseOrders, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
