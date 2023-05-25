@@ -62,6 +62,11 @@ class ShowSupplierProduct extends InertiaAction
                     'next'     => $this->getNext($supplierProduct, $request),
                 ],
                 'pageHead'    => [
+                    'icon'          =>
+                        [
+                            'icon'  => ['fal', 'parachute-box'],
+                            'title' => __('agent')
+                        ],
                     'title' => $supplierProduct->name,
                     /*
                     'edit'  => $this->canEdit ? [

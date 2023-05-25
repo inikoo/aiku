@@ -29,7 +29,7 @@ import {
     faParachuteBox,
     faTruck,
     faTerminal,
-    faCameraRetro, faPaperclip, faPoop
+    faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
 } from "@/../private/pro-light-svg-icons";
 
 library.add(
@@ -41,8 +41,9 @@ library.add(
     faTerminal,
     faCameraRetro,
     faPaperclip,
-    faPoop
-
+    faPoop,
+    faMoneyBill,
+    faClipboard,
 );
 
 let currentTab = ref(props.tabs.current);
