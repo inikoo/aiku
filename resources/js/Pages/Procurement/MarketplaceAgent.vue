@@ -22,6 +22,7 @@ import {
 } from "@/../private/pro-light-svg-icons";
 import TableMarketplaceSuppliers from "@/Pages/Tables/TableMarketplaceSuppliers.vue";
 import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
+import MarketplaceAgentShowcase from "@/Pages/Procurement/MarketplaceAgentShowcase.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -32,6 +33,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
+    showcase?: object
     suppliers?: object
     supplier_products?: object,
 }>()
@@ -54,6 +56,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        showcase: MarketplaceAgentShowcase,
         suppliers: TableMarketplaceSuppliers,
         supplier_products: TableMarketplaceSupplierProducts,
         details: ModelDetails,
