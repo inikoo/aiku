@@ -44,7 +44,6 @@ const copyText = (text: string) => {
 
             <!-- Contact Section -->
             <div class="pt-4 flex flex-col text-sm pb-2 space-y-1">
-
                 <div v-if="data.company" class="grid grid-flow-col justify-start items-center">
                     <FontAwesomeIcon  fixed-width icon="fal fa-building" class="mr-4" aria-hidden="true" />
                     {{ data.company }}
@@ -82,7 +81,12 @@ const copyText = (text: string) => {
                 </div>
                 <div v-if="data.address" class="grid grid-flow-col justify-start items-center pl-0.5">
                     <FontAwesomeIcon  fixed-width icon="fal fa-map-marker-alt" class="mr-4" aria-hidden="true" />
-                    <span>{{ data.address }}</span>
+                    <p>
+                        <!-- <pre>{{ data.address }}</pre> -->
+                        {{ data.address.address_line_1 }} <span v-if="data.address.address_line_2">({{ data.address.address_line_2 }})</span>
+                        <br>{{ data.address.locality }}<span v-if="data.address.administrative_area">, {{ data.address.administrative_area }}</span>
+                        <br>{{ data.address.country.data.name }}, {{ data.address.postal_code }}
+                    </p>
                 </div>
             </div>
 
