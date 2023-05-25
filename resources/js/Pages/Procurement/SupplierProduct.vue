@@ -4,7 +4,7 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, useForm } from "@inertiajs/vue3";
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
@@ -69,6 +69,7 @@ const component = computed(() => {
     return components[currentTab.value];
 
 });
+
 
 </script>
 

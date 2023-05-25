@@ -11,10 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\Supplier;
-use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -27,7 +24,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPurchaseOrders extends InertiaAction
 {
-    public function handle(Agent|Supplier|Tenant $parent): LengthAwarePaginator
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

@@ -7,6 +7,7 @@
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Tabs from "@/Components/Navigation/Tabs.vue";
+import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
@@ -50,6 +51,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        supplier_products: TableSupplierProducts,
         details: ModelDetails,
         history: ModelChangelog
     };

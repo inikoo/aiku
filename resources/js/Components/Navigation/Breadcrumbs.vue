@@ -299,20 +299,24 @@ const displayBreadcrumbs = computed(() => {
 					</MenuItems>
 				</transition>
 			</Menu>
-		<div class="grid grid-flow-col justify-end pr-2 space-x-2 text-sm text-gray-700 font-semibold">
-        	<Link v-if="navigation.previous" :href="route(navigation.previous.route.name, navigation.previous.route.parameters)" class="rounded flex items-center pr-2 pl-4 py-0.5 space-x-2 opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
-				:title="navigation.previous.label"
-			>
-				<FontAwesomeIcon icon="fas fa-arrow-left" class="" aria-hidden="true" />
-				<!-- <span class="">{{navigation.previous.label}}</span> -->
-			</Link>
-        	<Link v-if="navigation.next" :href="route(navigation.next.route.name,navigation.next.route.parameters)" class="rounded flex items-center pr-4 pl-2 py-0.5 space-x-2 opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
-				:title="navigation.next.label"
-			>
-				<!-- <span class="">{{navigation.next.label}}</span> -->
-				<FontAwesomeIcon icon="fas fa-arrow-right" class="mr-1" aria-hidden="true" />
-			</Link>
-		</div>
+            <div v-if="props.navigation.previous || props.navigation.next" class="grid grid-flow-col justify-end pr-2 space-x-2 text-sm text-gray-700 font-semibold">
+                <div class="flex justify-center items-center w-8">
+                    <Link v-if="props.navigation.previous" :href="route(props.navigation.previous?.route.name, props.navigation.previous?.route.parameters)" class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
+                        :title="props.navigation.previous?.label"
+                    >
+                        <FontAwesomeIcon icon="fas fa-arrow-left" class="" aria-hidden="true" />
+                    </Link>
+                    <FontAwesomeIcon v-else icon="fas fa-arrow-left" class="opacity-20 cursor-pointer" aria-hidden="true" />
+                </div>
+                <div class="flex justify-center items-center w-8">
+                    <Link v-if="props.navigation.next" :href="route(props.navigation.next?.route.name, props.navigation.next?.route.parameters)" class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
+                        :title="props.navigation.next?.label"
+                    >
+                        <FontAwesomeIcon icon="fas fa-arrow-right" class="" aria-hidden="true" />
+                    </Link>
+                    <FontAwesomeIcon v-else icon="fas fa-arrow-right" class="opacity-20 cursor-pointer" aria-hidden="true" />
+                </div>
+            </div>
 		</nav>
 
 

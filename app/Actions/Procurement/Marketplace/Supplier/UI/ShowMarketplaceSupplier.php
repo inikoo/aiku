@@ -96,6 +96,10 @@ class ShowMarketplaceSupplier extends InertiaAction
                     'navigation' => MarketplaceSupplierTabsEnum::navigation()
                 ],
 
+                MarketplaceSupplierTabsEnum::SHOWCASE->value => $this->tab == MarketplaceSupplierTabsEnum::SHOWCASE->value ?
+                    fn () => GetMarketplaceSupplierShowcase::run($supplier)
+                    : Inertia::lazy(fn () => GetMarketplaceSupplierShowcase::run($supplier)),
+
                 MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
                     fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($supplier))
                     : Inertia::lazy(fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($supplier))),

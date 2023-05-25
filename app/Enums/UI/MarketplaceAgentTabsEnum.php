@@ -15,7 +15,7 @@ enum MarketplaceAgentTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE            = 'SHOWCASE';
+    case SHOWCASE            = 'showcase';
     case  SUPPLIERS          = 'suppliers';
     case SUPPLIER_PRODUCTS   = 'supplier_products';
 

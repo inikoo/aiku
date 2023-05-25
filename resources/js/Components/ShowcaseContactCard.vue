@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AddressLocation from '@/Components/AddressLocation.vue'
 import {
     faEnvelope, faPhone,
     faMapMarkerAlt, faCopy,
@@ -17,7 +18,27 @@ const props = defineProps<{
         contact?: string
         email?: string
         phone?: string
-        address?: string
+        address?: {
+            address_line_1: string
+            address_line_2: string
+            sorting_code: string
+            postal_code: number
+            locality: string
+            dependant_locality: string
+            administrative_area: string
+            country_code: string
+            country_id: number
+            checksum: string
+            created_at: string
+            updated_at: string
+            country: {
+                data: {
+                    code: string
+                    iso3: string
+                    name: string
+                }
+            }
+        }
         photo?: string
     }
 }>();
@@ -34,58 +55,60 @@ const copyText = (text: string) => {
 </script>
 
 <template>
-    <div class="grid grid-flow-col w-fit">
-        <div class="relative rounded-md h-40 w-40 shadow overflow-hidden grid justify-center m-2">
+    <div class="grid md:grid-flow-col w-fit">
+
+        <!-- Images -->
+        <div class="relative place-self-center md:place-self-start rounded-md h-40 w-40 shadow overflow-hidden grid justify-center">
             <img class="object-fit" src="https://source.unsplash.com/featured/300x300" alt="">
         </div>
-        <div class="pl-3 pt-3">
 
-            <!-- Contact Section -->
-            <div class="pt-4 flex flex-col text-sm pb-2 space-y-1">
+        <!-- Contact Section -->
+        <div class="pl-3">
+            <div class="pt-0.5 flex flex-col text-sm pb-2 space-y-1 text-gray-500">
 
-                <div v-if="data.company" class="grid grid-flow-col justify-start items-center">
-                    <FontAwesomeIcon  fixed-width icon="fal fa-building" class="mr-4" aria-hidden="true" />
-                    {{ data.company }}
-                    <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(data.company)">
+                <!-- Company name -->
+                <div v-if="props.data.company" class="grid grid-flow-col justify-start items-center">
+                    <FontAwesomeIcon  fixed-width icon="fal fa-building" class="mr-4 text-gray-400" aria-hidden="true" />
+                    {{ props.data.company }}
+                    <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(props.data.company)">
                         <FontAwesomeIcon icon="fal fa-copy"
                                          class="text-sm leading-none mr-1 opacity-20 group-hover:opacity-75 group-active:opacity-100" aria-hidden="true" />
                     </div>
                 </div>
 
-                <div v-if="data.contact" class="grid grid-flow-col justify-start items-center pb-2">
-                    <FontAwesomeIcon  fixed-width icon="fal fa-male" class="mr-4" aria-hidden="true" />
-                    {{ data.contact }}
-                    <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(data.contact)">
+                <!-- Contact name -->
+                <div v-if="props.data.contact" class="grid grid-flow-col justify-start items-center pb-2">
+                    <FontAwesomeIcon  fixed-width icon="fal fa-male" class="mr-4 text-gray-400" aria-hidden="true" />
+                    {{ props.data.contact }}
+                    <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(props.data.contact)">
                         <FontAwesomeIcon icon="fal fa-copy"
                                          class="text-sm leading-none mr-1 opacity-20 group-hover:opacity-75 group-active:opacity-100" aria-hidden="true" />
                     </div>
                 </div>
 
+                <!-- Email address -->
                 <div class="grid grid-flow-col justify-start items-center">
-                    <FontAwesomeIcon  fixed-width icon="fal fa-envelope" class="mr-4" aria-hidden="true" />
-                    <a :href="`mailto:${data.email}`" class="hover:text-indigo-500">{{ data.email }}</a>
-                    <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(data.email)">
+                    <FontAwesomeIcon  fixed-width icon="fal fa-envelope" class="mr-4 text-gray-400" aria-hidden="true" />
+                    <a :href="`mailto:${props.data.email}`" class="hover:text-indigo-500">{{ props.data.email }}</a>
+                    <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(props.data.email)">
                         <FontAwesomeIcon icon="fal fa-copy"
                                          class="text-sm leading-none mr-1 opacity-20 group-hover:opacity-75 group-active:opacity-100" aria-hidden="true" />
                     </div>
                 </div>
 
+                <!-- Telephone address -->
                 <div class="grid grid-flow-col justify-start items-center">
-                    <FontAwesomeIcon  fixed-width icon="fal fa-phone" class="mr-4" aria-hidden="true" />
-                    {{ data.phone }}
-                    <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(data.phone)">
+                    <FontAwesomeIcon  fixed-width icon="fal fa-phone" class="mr-4 text-gray-400" aria-hidden="true" />
+                    {{ props.data.phone }}
+                    <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(props.data.phone)">
                         <FontAwesomeIcon icon="fal fa-copy"
                                          class="text-sm leading-none mr-1 opacity-20 group-hover:opacity-75 group-active:opacity-100" aria-hidden="true" />
                     </div>
                 </div>
-                <div v-if="data.address" class="grid grid-flow-col justify-start items-center pl-0.5">
-                    <FontAwesomeIcon  fixed-width icon="fal fa-map-marker-alt" class="mr-4" aria-hidden="true" />
-                    <p>
-                        <!-- <pre>{{ data.address }}</pre> -->
-                        {{ data.address.address_line_1 }} <span v-if="data.address.address_line_2">({{ data.address.address_line_2 }})</span>
-                        <br>{{ data.address.locality }}<span v-if="data.address.administrative_area">, {{ data.address.administrative_area }}</span>
-                        <br>{{ data.address.country.data.name }}, {{ data.address.postal_code }}
-                    </p>
+
+                <!-- Location address -->
+                <div v-if="props.data.address" class="grid grid-flow-col justify-start items-start pl-0">
+                    <AddressLocation :data="props.data.address"/>
                 </div>
             </div>
 

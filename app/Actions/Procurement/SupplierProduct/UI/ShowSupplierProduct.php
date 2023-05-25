@@ -93,7 +93,7 @@ class ShowSupplierProduct extends InertiaAction
 
                 SupplierProductTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierProductTabsEnum::PURCHASE_ORDERS->value ?
                     fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplierProduct))
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexSupplierProducts::run($supplierProduct))),
+                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplierProduct))),
 
 
             ]
