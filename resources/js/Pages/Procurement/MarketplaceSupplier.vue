@@ -10,8 +10,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-import MarketplaceSupplierShowcase from "@/Pages/Procurement/MarketplaceSupplierShowcase.vue";
-
+// import MarketplaceSupplierShowcase from "@/Pages/Procurement/MarketplaceSupplierShowcase.vue";
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
 const props = defineProps<{
@@ -21,7 +20,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
-    showcase?: object
+    //showcase?: object
     supplier_products?: object,
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
@@ -35,7 +34,6 @@ import {
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
 import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
-import SupplierShowcase from "@/Pages/Procurement/SupplierShowcase.vue";
 
 library.add(
     faInventory,
@@ -53,7 +51,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        showcase: MarketplaceSupplierShowcase,
+        //showcase: MarketplaceSupplierShowcase,
         supplier_products: TableMarketplaceSupplierProducts,
         details: ModelDetails,
         history: ModelChangelog

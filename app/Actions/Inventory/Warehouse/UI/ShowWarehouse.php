@@ -96,7 +96,9 @@ class ShowWarehouse extends InertiaAction
 
 
                 ],
-
+                WarehouseTabsEnum::SHOWCASE->value => $this->tab == WarehouseTabsEnum::SHOWCASE->value ?
+                    fn () => GetWarehouseShowcase::run($this->warehouse)
+                    : Inertia::lazy(fn () => GetWarehouseShowcase::run($this->warehouse)),
 
                 WarehouseTabsEnum::LOCATIONS->value       => $this->tab == WarehouseTabsEnum::LOCATIONS->value ?
                     fn () => LocationResource::collection(IndexLocations::run($this->warehouse))
