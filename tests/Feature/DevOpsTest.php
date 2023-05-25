@@ -44,3 +44,14 @@ test('edit deployment', function () {
     ));
     $response->assertOK();
 });
+
+test('create backup files', function (){
+    $fileName = "backup_from_test";
+    $ext=".zip";
+    $path = env("DB_BACKUP_DIR", "storage/backups/aiku/");
+    if(\File::exists($path.$fileName.$ext)){
+        \File::delete(public_path($path.$fileName.$ext));
+    }
+    $response = $this->artisan('backup:new -N '. $fileName);
+    $response->assertOK();
+});
