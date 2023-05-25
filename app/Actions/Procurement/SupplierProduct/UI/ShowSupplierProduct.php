@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use Inertia\Inertia;
@@ -35,6 +36,15 @@ class ShowSupplierProduct extends InertiaAction
     public function asController(SupplierProduct $supplierProduct, ActionRequest $request): SupplierProduct
     {
         $this->initialisation($request);
+
+        return $this->handle($supplierProduct);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inAgent(Agent $agent, SupplierProduct $supplierProduct, ActionRequest $request): SupplierProduct
+    {
+        $this->initialisation($request);
+
         return $this->handle($supplierProduct);
     }
 
@@ -43,9 +53,9 @@ class ShowSupplierProduct extends InertiaAction
         return Inertia::render(
             'Procurement/SupplierProduct',
             [
-                'title'                                 => __('supplier product'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($supplierProduct),
-                'navigation'                            => [
+                'title'       => __('supplier product'),
+                'breadcrumbs' => $this->getBreadcrumbs($supplierProduct),
+                'navigation'  => [
                     'previous' => $this->getPrevious($supplierProduct, $request),
                     'next'     => $this->getNext($supplierProduct, $request),
                 ],
@@ -93,7 +103,7 @@ class ShowSupplierProduct extends InertiaAction
                             'label' => $supplierProduct->code,
                         ],
                     ],
-                    'suffix' => $suffix,
+                    'suffix'         => $suffix,
 
                 ],
             ]
@@ -102,30 +112,64 @@ class ShowSupplierProduct extends InertiaAction
 
     public function getPrevious(SupplierProduct $supplierProduct, ActionRequest $request): ?array
     {
-        $previous = SupplierProduct::where('code', '<', $supplierProduct->code)->orderBy('code', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
+        $query = SupplierProduct::where('code', '<', $supplierProduct->code);
 
+        $query = match ($request->route()->getName()) {
+            'procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'procurement.agents.show.show.supplier.supplier-products.show',
+            'procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+
+            default => $query
+        };
+
+        $previous = $query->orderBy('code', 'desc')->first();
+
+
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(SupplierProduct $supplierProduct, ActionRequest $request): ?array
     {
-        $next = SupplierProduct::where('code', '>', $supplierProduct->code)->orderBy('code')->first();
+        $query = SupplierProduct::where('code', '>', $supplierProduct->code);
+
+        $query = match ($request->route()->getName()) {
+            'procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'procurement.agents.show.show.supplier.supplier-products.show',
+            'procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+
+            default => $query
+        };
+
+        $next = $query->orderBy('code')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?SupplierProduct $supplierProduct, string $routeName): ?array
     {
-        if(!$supplierProduct) {
+        if (!$supplierProduct) {
             return null;
         }
 
+
         return match ($routeName) {
-            'procurement.supplier-products.show'=> [
-                'label'=> $supplierProduct->code,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'supplierProduct'=> $supplierProduct->slug
+            'procurement.supplier-products.show' => [
+                'label' => $supplierProduct->code,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'supplierProduct' => $supplierProduct->slug
+                    ]
+
+                ]
+            ],
+            'procurement.agents.show.supplier-products.show' => [
+                'label' => $supplierProduct->code,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'agent'           => $supplierProduct->agent->slug,
+                        'supplierProduct' => $supplierProduct->slug
                     ]
 
                 ]
