@@ -45,6 +45,15 @@ Route::prefix("{shop}/accounting")
         }
     );
 
+Route::prefix("{shop}/dispatch")
+    ->name("show.dispatch.")
+    ->group(
+        function () {
+            $parent='shop';
+            require __DIR__.'/dispatch.php';
+        }
+    );
+
 Route::prefix("{shop}/catalogue")
     ->name("show.catalogue.")
     ->group(

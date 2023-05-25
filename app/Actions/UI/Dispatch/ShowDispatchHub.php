@@ -7,7 +7,12 @@
 
 namespace App\Actions\UI\Dispatch;
 
+use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
+use App\Models\Marketing\Shop;
+use App\Models\Tenancy\Tenant;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -18,31 +23,53 @@ class ShowDispatchHub
     use AsAction;
     use WithInertia;
 
+    public function handle($scope)
+    {
+        return $scope;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("osm.view");
     }
 
-
-    public function asController(ActionRequest $request): void
+    public function inTenant(): Tenant
     {
+        return $this->handle(app('currentTenant'));
+    }
 
+    public function inShop(Shop $shop): Shop
+    {
+        return $this->handle($shop);
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(Tenant|Shop $scope, ActionRequest $request): Response
     {
-        $this->validateAttributes();
+        $container = null;
+        //$scopeType = 'Tenant';
+        if (class_basename($scope) == 'Shop') {
+            //$scopeType = 'Shop';
+            $container = [
+                'icon'    => ['fal', 'fa-store-alt'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
 
 
 
         return Inertia::render(
             'Dispatch/DispatchHub',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => 'dispatch',
                 'pageHead'    => [
-                    'title' => __('Dispatch'),
+                    'title'     => __('Dispatch'),
+                    'container' => $container
                 ],
 
 
@@ -50,14 +77,41 @@ class ShowDispatchHub
         );
     }
 
-
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return [
-            'dispatch.hub' => [
-                'route' => 'dispatch.hub',
-                'name'  => __('dispatch'),
-            ]
-        ];
+        return match ($routeName) {
+            'shops.show.dispatch.hub' =>
+            array_merge(
+                ShowShop::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'shops.show.dispatch.hub',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('dispatch'),
+                        ]
+                    ]
+                ]
+            ),
+            default =>
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'dispatch.hub'
+                            ],
+                            'label' => __('dispatch'),
+                        ]
+                    ]
+                ]
+            )
+        };
     }
+
 }

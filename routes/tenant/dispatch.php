@@ -7,4 +7,8 @@
 
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 
-Route::get('/', ShowDispatchHub::class)->name('hub');
+if (empty($parent)) {
+    $parent = 'tenant';
+}
+
+Route::get('/', [ShowDispatchHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
