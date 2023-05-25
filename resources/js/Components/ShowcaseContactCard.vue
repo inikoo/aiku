@@ -22,8 +22,6 @@ const props = defineProps<{
     }
 }>();
 
-console.log(props.data);
-
 const copyText = (text: string) => {
     const textarea = document.createElement("textarea");
     textarea.value = text;
@@ -82,7 +80,12 @@ const copyText = (text: string) => {
                 </div>
                 <div v-if="data.address" class="grid grid-flow-col justify-start items-center pl-0.5">
                     <FontAwesomeIcon  fixed-width icon="fal fa-map-marker-alt" class="mr-4" aria-hidden="true" />
-                    <span>{{ data.address }}</span>
+                    <p>
+                        <!-- <pre>{{ data.address }}</pre> -->
+                        {{ data.address.address_line_1 }} <span v-if="data.address.address_line_2">({{ data.address.address_line_2 }})</span>
+                        <br>{{ data.address.locality }}<span v-if="data.address.administrative_area">, {{ data.address.administrative_area }}</span>
+                        <br>{{ data.address.country.data.name }}, {{ data.address.postal_code }}
+                    </p>
                 </div>
             </div>
 

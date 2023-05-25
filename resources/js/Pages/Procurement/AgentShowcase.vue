@@ -10,35 +10,33 @@ import ShowcaseContactCard from "@/Components/ShowcaseContactCard.vue";
 
 const props = defineProps<{
   data: {
-      contactCard:{
-          company?: string
-          contact?: string
-          email?: string
-          phone?: string
-          address?:string
-          photo?:string
-      }
+    contactCard: {
+      company?: string
+      contact?: string
+      email?: string
+      phone?: string
+      address?: string
+      photo?: string
+    },
+    stats: [{
+      label: string,
+      value: number,
+    }],
   },
 
 }>()
-
-
-
-
-
 </script>
 
 <template >
   <div class="grid text-gray-600  grid-flow-col grid-cols-2">
-
     <!-- Section 1 -->
     <div class="pl-2">
-      <ShowcaseContactCard :data="data.contactCard"/>
+      <ShowcaseContactCard :data="data.contactCard" />
     </div>
 
     <!-- Section 2: Statistic -->
     <div class="mt-4 px-4">
-      <ShowcaseStatistic />
+      <ShowcaseStatistic :data="data.stats" />
     </div>
 
 

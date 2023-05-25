@@ -5,102 +5,42 @@
   -->
 
 <script setup lang="ts">
-import { faLayerGroup, faEnvelope, faPhone, faPersonDolly, faMapMarkerAlt } from '../../../../resources/private/pro-solid-svg-icons';
-import { faCopy } from '../../../../resources/private/pro-regular-svg-icons';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-library.add(faLayerGroup, faEnvelope, faPhone, faPersonDolly, faCopy, faMapMarkerAlt);
+import ShowcaseStatistic from '@/Components/ShowcaseStatistic.vue'
+import ShowcaseContactCard from "@/Components/ShowcaseContactCard.vue";
 
 const props = defineProps<{
-  data: object,
+  data: {
+    contactCard: {
+      company?: string
+      contact?: string
+      email?: string
+      phone?: string
+      address?: string
+      photo?: string
+    },
+    stats: [{
+      label: string,
+      value: number,
+    }],
+  },
 
 }>()
-
-const copyText = (abc) => {
-  const textarea = document.createElement('textarea')
-  textarea.value = abc
-  document.body.appendChild(textarea)
-  textarea.select()
-  document.execCommand('copy')
-  textarea.remove()
-}
-
 </script>
-
-<template layout="App">
-  <div class="grid grid-flow-col grid-cols-2 border-y-2 border-gray-200 divide-x-2 divide-gray-200">
-
+  
+<template >
+  <div class="grid text-gray-600  grid-flow-col grid-cols-2">
     <!-- Section 1 -->
-    <div class="bg-gray-100/70 ">
-      <div class="flex items-center">
-        <div class="relative rounded w-40 h-40 shadow grid justify-center">
-          <img class=" object-contain" src="https://source.unsplash.com/featured/300x300" alt="">
-          <div class="absolute bottom-0 w-full h-2/6 bg-gradient-to-t from-gray-900 from-20% "></div>
-          <div class="absolute bottom-1.5 left-2 font-semibold text-white">{{ data.contact_name }}</div>
-        </div>
-        <div class="pt-4 pl-3">
-          <div class="grid grid-flow-col text-slate-800 space-x-1 w-full">
-            <div class="font-extrabold text-xl">
-              <p class="inline">{{ data.company_name }}</p>
-              <div class="cursor-pointer px-1.5 pt-1 inline justify-center text-xl text-slate-500 active:text-slate-700"
-                @click="copyText(data.company_name)">
-                <FontAwesomeIcon icon="far fa-copy" class="mr-1" aria-hidden="true" />
-              </div>
-            </div>
-          </div>
-          <div class="grid text-sm font-medium text-slate-500"></div>
-
-          <!-- Contact Section -->
-          <div class="pt-4 flex flex-col text-slate-800 pb-2">
-            <div class="grid grid-flow-col justify-start items-center">
-              <FontAwesomeIcon icon="fas fa-envelope" class="mr-2" aria-hidden="true" />
-              {{ data.email }}
-            </div>
-            <div class="grid grid-flow-col justify-start items-center">
-              <FontAwesomeIcon icon="fas fa-phone" class="mr-2" aria-hidden="true" />
-              {{ data.phone }}
-            </div>
-            <div class="grid grid-flow-col justify-start items-center">
-              <FontAwesomeIcon icon="fas fa-map-marker-alt" class="mr-2" aria-hidden="true" />
-              {{ data.location[2] }}, {{ data.location[1] }}
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div class="pl-2">
+      <ShowcaseContactCard :data="data.contactCard" />
     </div>
 
-    <!-- Section 2 -->
-    <div class="grid items-center px-8">
-
-      <!-- Orders & Purchase -->
-      <div class="grid grid-flow-col grid-cols-4 text-gray-700 space-x-4">
-        <div
-          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100 ">
-          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_open_purchase_orders }}</div>
-          <div class="text-sm text-gray-400">Purchase/Sales</div>
-        </div>
-        <div
-          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
-          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_supplier_products }}</div>
-          <div class="text-sm text-gray-400">Products</div>
-        </div>
-        <div
-          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
-          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_purchase_orders_state_received }}
-          </div>
-          <div class="text-sm text-gray-400">Purchase Order</div>
-        </div>
-        <div
-          class="border border-gray-200 rounded-lg shadow-md py-2 text-indigo-600 grid justify-center hover:bg-slate-100">
-          <div class="grid justify-center text-2xl font-extrabold">{{ data.stats.number_deliveries }}</div>
-          <div class="text-sm text-gray-400">Deliveries</div>
-        </div>
-      </div>
+    <!-- Section 2: Statistic -->
+    <div class="mt-4 px-4">
+      <ShowcaseStatistic :data="data.stats" />
     </div>
 
 
   </div>
 </template>
-
+  
+  
