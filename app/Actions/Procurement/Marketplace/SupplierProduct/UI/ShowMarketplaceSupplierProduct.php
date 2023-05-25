@@ -77,6 +77,11 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
+                    'icon'          =>
+                        [
+                            'icon'  => ['fal', 'parachute-box'],
+                            'title' => __('supplier product')
+                        ],
                     'title' => $supplierProduct->name,
 
                     'edit' => $this->canEdit &&  $request->route()->getName()=='procurement.marketplace.agents.show.suppliers.show.supplier-products.edit' ? [
@@ -87,15 +92,10 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                     ] : false,
 
                 ],
-                'tabs'        => [
+                'tabs'                                     => [
                     'current'    => $this->tab,
                     'navigation' => MarketplaceSupplierProductTabsEnum::navigation()
                 ],
-
-
-                MarketplaceSupplierProductTabsEnum::SHOWCASE->value => $this->tab == MarketplaceSupplierProductTabsEnum::SHOWCASE->value ?
-                    fn () => MarketplaceSupplierProductResource::make($supplierProduct)->getArray()
-                    : Inertia::lazy(fn () => MarketplaceSupplierProductResource::make($supplierProduct)->getArray()),
 
             ]
         );

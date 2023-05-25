@@ -19,6 +19,11 @@ const props = defineProps<{
     tabs: {
         current: string;
         navigation: object;
+        showcase?: object
+        supplier_products?: object,
+        purchase_orders?: object,
+        errors?: object
+
     },
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
@@ -29,8 +34,11 @@ import {
     faParachuteBox,
     faTruck,
     faTerminal,
-    faCameraRetro
+    faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
 } from "@/../private/pro-light-svg-icons";
+import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
+import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
+import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 
 library.add(
     faInventory,
@@ -39,7 +47,11 @@ library.add(
     faParachuteBox,
     faTruck,
     faTerminal,
-    faCameraRetro
+    faCameraRetro,
+    faPaperclip,
+    faPoop,
+    faMoneyBill,
+    faClipboard,
 );
 
 let currentTab = ref(props.tabs.current);
@@ -48,6 +60,9 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        showcase: AgentShowcase,
+        supplier_products: TableSupplierProducts,
+        purchase_orders: TablePurchaseOrders,
         details: ModelDetails,
         history: ModelChangelog
     };

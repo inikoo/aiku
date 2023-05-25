@@ -41,5 +41,5 @@ Route::get('/suppliers/{supplier}/edit', EditMarketplaceSupplier::class)->name('
 Route::get('/suppliers/{supplier}/supplier-products', [IndexMarketplaceSupplierProducts::class, 'inSupplier'])->name('suppliers.show.supplier-products.index');
 Route::get('/suppliers/{supplier}/supplier-products/{supplierProduct}', [ShowMarketplaceSupplierProduct::class, 'inSupplier'])->name('suppliers.show.supplier-products.show');
 
-
-Route::get('/supplier-products/{supplierProduct}', ShowMarketplaceSupplierProduct::class)->name('supplier-products.show');
+Route::get('/supplier-products', [IndexMarketplaceSupplierProducts::class, 'inAgent'])->name('supplier-products.index');
+Route::get('/supplier-products/{supplierProduct}', [ShowMarketplaceSupplierProduct::class, 'inAgent'])->name('supplier-products.show');

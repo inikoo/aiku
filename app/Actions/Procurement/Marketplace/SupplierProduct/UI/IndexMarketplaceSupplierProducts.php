@@ -125,16 +125,24 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
-            'Procurement/SupplierProducts',
+            'Procurement/MarketplaceSupplierProducts',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('supplier_products'),
+                'title'       => __("supplier's marketplaces"),
                 'pageHead'    => [
-                    'title' => __('supplier products'),
+                    'title'  => __("supplier's marketplaces"),
+                    'create' => $this->canEdit && $this->routeName == 'procurement.marketplace.supplier-products.index' ? [
+                        'route' => [
+                            'name'       => 'procurement.marketplace.supplier-products.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('agent')
+                    ] : false,
                 ],
+
                 'data'        => MarketplaceSupplierProductResource::collection($supplier_products),
 
 

@@ -15,7 +15,6 @@ use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
-use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -27,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSupplierProducts extends InertiaAction
 {
-    public function handle(Tenant|Agent|Supplier $parent): LengthAwarePaginator
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

@@ -18,7 +18,6 @@ enum MarketplaceSupplierProductTabsEnum: string
     case SHOWCASE           = 'showcase';
     case ISSUES             = 'issues';
     case HISTORY            = 'history';
-
     case DATA               = 'data';
     case ATTACHMENTS        = 'attachments';
     case IMAGES             = 'images';
@@ -28,10 +27,6 @@ enum MarketplaceSupplierProductTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-
-
-
-
 
             MarketplaceSupplierProductTabsEnum::SHOWCASE => [
                 'title' => __('supplier product'),
