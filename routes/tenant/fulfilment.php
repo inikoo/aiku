@@ -6,7 +6,11 @@
  */
 
 
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
+use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', FulfilmentDashboard::class)->name('dashboard');
+Route::get('/stored-items', IndexStoredItems::class)->name('stored-items.index');
+Route::get('/stored-items/{storedItem}', ShowStoredItem::class)->name('stored-items.show');

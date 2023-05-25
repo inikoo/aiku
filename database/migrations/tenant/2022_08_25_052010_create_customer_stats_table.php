@@ -10,7 +10,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('customer_stats', function (Blueprint $table) {
             $table->increments('id');
@@ -31,12 +31,14 @@ return new class () extends Migration {
             $table->unsignedInteger('number_invoices_type_refund')->default(0);
             $table->unsignedInteger('number_clients')->default(0);
             $table->unsignedInteger('number_active_clients')->default(0);
+            $table->unsignedInteger('number_stored_items')->default(0);
+
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('customer_stats');
     }

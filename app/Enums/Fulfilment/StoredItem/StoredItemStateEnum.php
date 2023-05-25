@@ -12,8 +12,9 @@ use App\Enums\EnumHelperTrait;
 enum StoredItemStateEnum: string
 {
     use EnumHelperTrait;
-    case BOOKED        = 'booked';
-    case RECEIVED      = 'received';
-    case STORED        = 'stored';
-    case RETURNED      = 'returned';
+
+    case IN_PROCESS       = 'in-process';
+    case RECEIVED         = 'received';
+    case BOOKED_IN        = 'booked-in';
+    case SETTLED          = 'settled';
 }

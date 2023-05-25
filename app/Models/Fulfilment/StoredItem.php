@@ -13,7 +13,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $id
  * @property string $slug
  * @property string $code
- * @property bool $status false for returned goods
+ * @property string $status
  * @property StoredItemStateEnum $state
  * @property int $customer_id
  * @property int $location_id
@@ -22,8 +22,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $received_at
- * @property string|null $stored_at
- * @property string|null $returned_at
+ * @property string|null $booked_in_at
+ * @property string|null $settled_at
  * @property array $data
  * @property string|null $deleted_at
  * @property int|null $source_id

@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_customers_with_stocks
  * @property int $number_customers_with_active_stocks
  * @property int $number_customers_with_assets
- * @property int $number_assets
+ * @property int $number_stored_items
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Tenancy\Tenant $tenant

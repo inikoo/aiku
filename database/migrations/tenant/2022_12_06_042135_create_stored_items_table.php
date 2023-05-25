@@ -5,19 +5,21 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('stored_items', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug')->unique();
             $table->string('code')->index();
-            $table->boolean('status')->default(false)->comment('false for returned goods');
-            $table->string('state')->index();
+            $table->string('status')->default(StoredItemStatusEnum::IN_PROCESS->value);
+            $table->string('state')->index()->default(StoredItemStateEnum::IN_PROCESS->value);
 
 
             $table->unsignedInteger('customer_id')->index();
@@ -31,8 +33,8 @@ return new class () extends Migration {
 
             $table->timestampsTz();
             $table->dateTimeTz('received_at')->nullable();
-            $table->dateTimeTz('stored_at')->nullable();
-            $table->dateTimeTz('returned_at')->nullable();
+            $table->dateTimeTz('booked_in_at')->nullable();
+            $table->dateTimeTz('settled_at')->nullable();
             $table->jsonb('data');
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
@@ -40,7 +42,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('stored_items');
     }

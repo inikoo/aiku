@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->unsignedInteger('number_customers_with_stocks')->default(0);
             $table->unsignedInteger('number_customers_with_active_stocks')->default(0);
             $table->unsignedInteger('number_customers_with_assets')->default(0);
-            $table->unsignedInteger('number_assets')->default(0);
+            $table->unsignedInteger('number_stored_items')->default(0);
 
             $table->timestampsTz();
         });

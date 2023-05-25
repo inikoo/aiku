@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Fulfilment;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
@@ -51,11 +52,11 @@ class FulfilmentDashboard
 
                     [
                         [
-                            'name'  => __('Products'),
-                            'icon'  => ['fal', 'fa-flask'],
-                            'href'  => ['fulfilment.products.index'],
+                            'name'  => __('Stored Items'),
+                            'icon'  => ['fal', 'fa-narwhal'],
+                            'href'  => ['fulfilment.stored-items.index'],
                             'index' => [
-                                'number' => $this->tenant->fulfilmentStats->number_products
+                                'number' => $this->tenant->fulfilmentStats->number_stored_items
                             ]
                         ]
                     ]
@@ -65,14 +66,25 @@ class FulfilmentDashboard
         );
     }
 
-
     public function getBreadcrumbs(): array
     {
-        return [
-            'fulfilment.dashboard' => [
-                'route' => 'fulfilment.dashboard',
-                'name'  => __('fulfilment'),
-            ]
-        ];
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'fulfilment.dashboard'
+                            ],
+                            'label' => __('fulfilment'),
+                        ]
+                    ]
+                ]
+            );
     }
+
+
+
 }

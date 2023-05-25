@@ -13,18 +13,15 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt } from '@/../private/pro-light-svg-icons';
+import { faNarwhal } from '@/../private/pro-light-svg-icons';
+import FlatTreeMap from "@/Components/Navigation/FlatTreeMap.vue";
 
-library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt);
+library.add(faNarwhal);
 
 </script>
-  
+
 <template layout="App">
-    <Head :title="title" />
-    <!-- <PageHeading :data="pageHead"></PageHeading> -->
-    <div class="bg-yellow-200 grid grid-col-1 h-screen grid-row-1 items-center">
-      <h2 class="place-self-center text-3xl font-bold">Hello Fulfilment!</h2>
-    </div>
+    <Head :title="title"/>
+    <PageHeading :data="pageHead"></PageHeading>
+    <FlatTreeMap class="mx-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
 </template>
-  
-  
