@@ -19,7 +19,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowSupplierProduct extends InertiaAction
 {
-    public $acReq;
     public function handle(SupplierProduct $supplierProduct): SupplierProduct
     {
         return $supplierProduct;
@@ -36,20 +35,19 @@ class ShowSupplierProduct extends InertiaAction
     public function asController(SupplierProduct $supplierProduct, ActionRequest $request): SupplierProduct
     {
         $this->initialisation($request);
-        $this->acReq = $request;
         return $this->handle($supplierProduct);
     }
 
-    public function htmlResponse(SupplierProduct $supplierProduct): Response
+    public function htmlResponse(SupplierProduct $supplierProduct, ActionRequest $request): Response
     {
         return Inertia::render(
             'Procurement/SupplierProduct',
             [
-                'title'       => __('supplier product'),
-                'breadcrumbs' => $this->getBreadcrumbs($supplierProduct),
+                'title'                                 => __('supplier product'),
+                'breadcrumbs'                           => $this->getBreadcrumbs($supplierProduct),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($supplierProduct, $this->acReq),
-                    'next'     => $this->getNext($supplierProduct, $this->acReq),
+                    'previous' => $this->getPrevious($supplierProduct, $request),
+                    'next'     => $this->getNext($supplierProduct, $request),
                 ],
                 'pageHead'    => [
                     'title' => $supplierProduct->name,
