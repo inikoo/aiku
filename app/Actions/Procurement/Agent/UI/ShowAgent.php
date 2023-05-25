@@ -118,7 +118,7 @@ class ShowAgent extends InertiaAction
 
                 AgentTabsEnum::PURCHASE_ORDERS->value => $this->tab == AgentTabsEnum::PURCHASE_ORDERS->value ?
                     fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($agent))
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexSupplierProducts::run($agent))),
+                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($agent))),
             ]
         )->table(IndexSuppliers::make()->tableStructure())
             ->table(IndexSupplierProducts::make()->tableStructure())
