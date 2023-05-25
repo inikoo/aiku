@@ -8,7 +8,9 @@
 namespace App\Actions\Procurement\SupplierProduct\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
 use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Enums\UI\SupplierProductTabsEnum;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
@@ -70,7 +72,16 @@ class ShowSupplierProduct extends InertiaAction
                     ] : false,
                     */
                 ],
-                'supplier'    => new SupplierProductResource($supplierProduct)
+                'supplier'    => new SupplierProductResource($supplierProduct),
+                'tabs'        => [
+                    'current'    => $this->tab,
+                    'navigation' => SupplierProductTabsEnum::navigation()
+                ],
+                SupplierProductTabsEnum::SHOWCASE->value => $this->tab == SupplierProductTabsEnum::SHOWCASE->value ?
+                    fn () => GetAgentShowcase::run($supplierProduct)
+                    : Inertia::lazy(fn () => GetAgentShowcase::run($supplierProduct)),
+
+
             ]
         );
     }
