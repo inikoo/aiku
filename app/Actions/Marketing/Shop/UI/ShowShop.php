@@ -75,7 +75,7 @@ class ShowShop extends InertiaAction
                             ]
                         ],
                         [
-                            'name'  => __('prospect'),
+                            'name'  => __('prospects'),
                             'icon'  => ['fal', 'fa-user'],
                             'href'  => ['shops.show.prospects.index', $shop->slug],
                             'index' => [

@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Actions\Sales\Order\IndexOrders;
+use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\ProductResource;
@@ -60,7 +61,14 @@ class ShowProduct extends InertiaAction
             'Marketing/Product',
             [
                 'title'       => __('product'),
-                'breadcrumbs' => $this->getBreadcrumbs($product),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($product, $request),
+                    'next'     => $this->getNext($product, $request),
+                ],
                 'pageHead'    => [
                     'title' => $product->code,
                     'edit'  => $this->canEdit ? [
@@ -106,8 +114,122 @@ class ShowProduct extends InertiaAction
             ->table(IndexMailshots::make()->tableStructure());
     }
 
-    #[Pure] public function jsonResponse(Product $product): ProductResource
+    public function jsonResponse(Product $product): ProductResource
     {
         return new ProductResource($product);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    {
+        $headCrumb = function (Product $product, array $routeParameters, $suffix) {
+            return [
+
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('products')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $product->slug,
+                        ],
+                    ],
+                    'suffix'         => $suffix,
+
+                ],
+
+            ];
+        };
+
+
+        return match ($routeName) {
+            'catalogue.hub.products.show' =>
+            array_merge(
+                CatalogueHub::make()->getBreadcrumbs('catalogue.hub', []),
+                $headCrumb(
+                    $routeParameters['product'],
+                    [
+                        'index' => [
+                            'name'       => 'catalogue.hub.products.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'catalogue.hub.products.show',
+                            'parameters' => [
+                                $routeParameters['product']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'shops.show.catalogue.hub.products.show' =>
+            array_merge(
+                CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', ['shop' => $routeParameters['shop']]),
+                $headCrumb(
+                    $routeParameters['product'],
+                    [
+                        'index' => [
+                            'name'       => 'shops.show.catalogue.hub.products.index',
+                            'parameters' => [$routeParameters['shop']->slug]
+                        ],
+                        'model' => [
+                            'name'       => 'shops.show.catalogue.hub.products.show',
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
+                                $routeParameters['product']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
+    }
+
+    public function getPrevious(Product $product, ActionRequest $request): ?array
+    {
+        $previous = Product::where('code', '<', $product->code)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Product $product, ActionRequest $request): ?array
+    {
+        $next = Product::where('code', '>', $product->code)->orderBy('code')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Product $product, string $routeName): ?array
+    {
+        if(!$product) {
+            return null;
+        }
+        return match ($routeName) {
+            'catalogue.hub.products.show'=> [
+                'label'=> $product->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'product'=> $product->slug
+                    ]
+
+                ]
+            ],
+            'shops.show.catalogue.hub.products.show'=> [
+                'label'=> $product->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'  => $product->shop->slug,
+                        'product'=> $product->slug
+                    ]
+
+                ]
+            ],
+        };
     }
 }

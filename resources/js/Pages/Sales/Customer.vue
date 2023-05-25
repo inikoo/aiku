@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import {Head, useForm} from '@inertiajs/vue3';
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -80,10 +80,10 @@ function setIsOpen(value) {
     isOpen.value = value;
 }
 
-/*const webUserForm = useForm({
+const webUserForm = useForm({
     username: props["customer"].email,
     password: null,
-});*/
+});
 </script>
 
 <template layout="App">
