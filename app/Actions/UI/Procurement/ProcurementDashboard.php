@@ -60,11 +60,11 @@ class ProcurementDashboard
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_agents
                             ],
-                            'rightSubLink'=> [
-                                'tooltip'   => __('marketplace agents'),
-                                'icon'      => ['fal', 'fa-store'],
-                                'labelStyle'=> 'bordered',
-                                'href'      => ['procurement.marketplace.agents.index'],
+                            'rightSubLink' => [
+                                'tooltip'    => __('marketplace agents'),
+                                'icon'       => ['fal', 'fa-store'],
+                                'labelStyle' => 'bordered',
+                                'href'       => ['procurement.marketplace.agents.index'],
 
                             ]
 
@@ -76,11 +76,11 @@ class ProcurementDashboard
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_suppliers
                             ],
-                            'rightSubLink'=> [
-                                'tooltip'   => __('marketplace suppliers'),
-                                'icon'      => ['fal', 'fa-store'],
-                                'labelStyle'=> 'bordered',
-                                'href'      => ['procurement.marketplace.suppliers.index'],
+                            'rightSubLink' => [
+                                'tooltip'    => __('marketplace suppliers'),
+                                'icon'       => ['fal', 'fa-store'],
+                                'labelStyle' => 'bordered',
+                                'href'       => ['procurement.marketplace.suppliers.index'],
 
                             ]
 
@@ -91,6 +91,13 @@ class ProcurementDashboard
                             'href'  => ['procurement.supplier-products.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_supplier_products
+                            ],
+                            'rightSubLink' => [
+                                'tooltip'    => __('marketplace suppliers'),
+                                'icon'       => ['fal', 'fa-store'],
+                                'labelStyle' => 'bordered',
+                                'href'       => ['procurement.marketplace.supplier-products.index'],
+
                             ]
 
                         ],
