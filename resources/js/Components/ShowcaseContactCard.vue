@@ -22,8 +22,6 @@ const props = defineProps<{
     }
 }>();
 
-console.log(props.data);
-
 const copyText = (text: string) => {
     const textarea = document.createElement("textarea");
     textarea.value = text;
@@ -44,6 +42,7 @@ const copyText = (text: string) => {
 
             <!-- Contact Section -->
             <div class="pt-4 flex flex-col text-sm pb-2 space-y-1">
+
                 <div v-if="data.company" class="grid grid-flow-col justify-start items-center">
                     <FontAwesomeIcon  fixed-width icon="fal fa-building" class="mr-4" aria-hidden="true" />
                     {{ data.company }}
