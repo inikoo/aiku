@@ -52,7 +52,7 @@ class FetchAuroraPayment extends FetchAurora
             'payment_account_id' => $this->parsedData['paymentAccount']->id,
             'reference'          => $this->auroraModelData->{'Payment Transaction ID'},
             'amount'             => $this->auroraModelData->{'Payment Transaction Amount'},
-            'dc_amount'          => $this->auroraModelData->{'Payment Transaction Amount'} * $this->auroraModelData->{'Payment Currency Exchange Rate'},
+            'tc_amount'          => $this->auroraModelData->{'Payment Transaction Amount'} * $this->auroraModelData->{'Payment Currency Exchange Rate'},
             'data'               => $data,
             'currency_id'        => $this->parseCurrencyID($this->auroraModelData->{'Payment Currency Code'}),
 

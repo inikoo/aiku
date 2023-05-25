@@ -98,8 +98,7 @@ class FetchAction
                 }
 
 
-                //with
-                if ($command->getName() == 'fetch:customers') {
+                if (in_array($command->getName(), [ 'fetch:customers','fetch:orders','fetch:invoices','fetch:delivery-notes'])) {
                     $this->with = $command->option('with');
                 }
 

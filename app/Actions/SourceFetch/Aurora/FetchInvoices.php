@@ -19,7 +19,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchInvoices extends FetchAction
 {
-    public string $commandSignature = 'fetch:invoices {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:invoices {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
     {
@@ -35,8 +35,10 @@ class FetchInvoices extends FetchAction
                     UpdateHistoricAddressToModel::run($invoice, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
                 }
 
+                if (in_array('transactions', $this->with)) {
+                    $this->fetchInvoiceTransactions($tenantSource, $invoice);
+                }
 
-                $this->fetchInvoiceTransactions($tenantSource, $invoice);
                 $this->updateAurora($invoice);
 
                 return $invoice;
@@ -51,7 +53,11 @@ class FetchInvoices extends FetchAction
                         modelData:      $invoiceData['invoice'],
                         billingAddress: $invoiceData['billing_address']
                     );
-                    $this->fetchInvoiceTransactions($tenantSource, $invoice);
+                    if (in_array('transactions', $this->with)) {
+                        $this->fetchInvoiceTransactions($tenantSource, $invoice);
+                    }
+
+
                     $this->updateAurora($invoice);
 
                     return $invoice;
@@ -63,7 +69,7 @@ class FetchInvoices extends FetchAction
         return null;
     }
 
-    public function updateAurora(Invoice $invoice)
+    public function updateAurora(Invoice $invoice): void
     {
         DB::connection('aurora')->table('Invoice Dimension')
             ->where('Invoice Key', $invoice->source_id)

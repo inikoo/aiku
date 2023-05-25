@@ -14,7 +14,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeletedCustomers extends FetchAction
 {
-    public string $commandSignature = 'fetch:deleted-customers {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:deleted-customers {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer

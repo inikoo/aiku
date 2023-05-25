@@ -24,7 +24,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeliveryNotes extends FetchAction
 {
-    public string $commandSignature = 'fetch:delivery-notes {tenants?*} {--s|source_id=}  {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:delivery-notes {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?DeliveryNote
     {
@@ -52,7 +52,10 @@ class FetchDeliveryNotes extends FetchAction
                         $deliveryNoteData['delivery_note'],
                         $deliveryNoteData['delivery_address']
                     );
-                    $this->fetchDeliveryNoteTransactions($tenantSource, $deliveryNote);
+
+                    if (in_array('transactions', $this->with)) {
+                        $this->fetchDeliveryNoteTransactions($tenantSource, $deliveryNote);
+                    }
 
                     $this->updateAurora($deliveryNote);
 

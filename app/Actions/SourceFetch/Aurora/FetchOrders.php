@@ -17,14 +17,14 @@ use App\Models\Sales\Order;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchOrders extends FetchAction
 {
-    public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:orders {tenants?*} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments} {--N|only_new : Fetch only new} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
     {
+
         if ($orderData = $tenantSource->fetchOrder($tenantSourceId)) {
             if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
                     ->first()) {
@@ -43,9 +43,12 @@ class FetchOrders extends FetchAction
                     UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
                 }
 
-
-                $this->fetchTransactions($tenantSource, $order);
-                $this->fetchPayments($tenantSource, $order);
+                if (in_array('transactions', $this->with)) {
+                    $this->fetchTransactions($tenantSource, $order);
+                }
+                if (in_array('payments', $this->with)) {
+                    $this->fetchPayments($tenantSource, $order);
+                }
                 $this->updateAurora($order);
 
 
@@ -53,9 +56,14 @@ class FetchOrders extends FetchAction
             } else {
                 if ($orderData['parent']) {
                     $order = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
-                    $this->fetchTransactions($tenantSource, $order);
+
+                    if (in_array('transactions', $this->with)) {
+                        $this->fetchTransactions($tenantSource, $order);
+                    }
+                    if (in_array('payments', $this->with)) {
+                        $this->fetchPayments($tenantSource, $order);
+                    }
                     $this->updateAurora($order);
-                    $this->fetchPayments($tenantSource, $order);
 
 
                     return $order;

@@ -36,7 +36,7 @@ php artisan create:sys-user Admin root -a
 php artisan access-token:sys-user root root '*' > devops/devel/tokens/admin.token
 echo "🏗️ Creating AW group and tenants"
 ./create_aurora_tenants.sh
-php artisan fetch:tenants -d _thin
+php artisan fetch:tenants -d _base
 echo "⚙： Setting up tenants"
 for tenant in "${tenants[@]}"
 do
@@ -55,46 +55,56 @@ do
     php artisan user:add-roles "$tenant" aiku super-admin
 done
 pg_dump -Fc -f "devops/devel/snapshots/au_init.dump" ${DB}
-php artisan fetch:employees  -d _thin
-php artisan fetch:deleted-employees  -d _thin
-php artisan fetch:guests  -d _thin
-php artisan fetch:deleted-guests  -d _thin
+php artisan fetch:employees  -d _base
+php artisan fetch:deleted-employees  -d _base
+php artisan fetch:guests  -d _base
+php artisan fetch:deleted-guests  -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_hr.dump" ${DB}
-php artisan fetch:users  -d _thin
+php artisan fetch:users  -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_users.dump" ${DB}
-php artisan fetch:shops -d _thin
-php artisan fetch:payment-service-providers -d _thin
-php artisan fetch:payment-accounts -d _thin
-php artisan fetch:websites -d _thin
+php artisan fetch:shops -d _base
+php artisan fetch:payment-service-providers -d _base
+php artisan fetch:payment-accounts -d _base
+php artisan fetch:websites -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_shops.dump" ${DB}
-php artisan fetch:shippers -d _thin
-php artisan fetch:warehouses -d _thin
-php artisan fetch:warehouse-area -d _thin
-php artisan fetch:locations -d _thin
-php artisan fetch:deleted-locations -d _thin
+php artisan fetch:shippers -d _base
+php artisan fetch:warehouses -d _base
+php artisan fetch:warehouse-area -d _base
+php artisan fetch:locations -d _base
+php artisan fetch:deleted-locations -d _base
 
 pg_dump -Fc -f "devops/devel/snapshots/au_warehouses.dump" ${DB}
 
 for tenant in "${tenants[@]}"
 do
-  php artisan fetch:agents "$tenant" -d _thin
-  php artisan fetch:suppliers "$tenant" -d _thin
-  php artisan fetch:deleted-suppliers "$tenant" -d _thin
+  php artisan fetch:agents "$tenant" -d _base
+  php artisan fetch:suppliers "$tenant" -d _base
+  php artisan fetch:deleted-suppliers "$tenant" -d _base
 
 done
 pg_dump -Fc -f "devops/devel/snapshots/au_suppliers.dump" ${DB}
 for tenant in "${tenants[@]}"
 do
-  php artisan fetch:supplier-products "$tenant" -d _thin
-  php artisan fetch:deleted-supplier-products "$tenant" -d _thin
+  php artisan fetch:supplier-products "$tenant" -d _base
+  php artisan fetch:deleted-supplier-products "$tenant" -d _base
 done
 pg_dump -Fc -f "devops/devel/snapshots/au_procurement.dump" ${DB}
-php artisan fetch:purchase-orders -d _thin
+php artisan fetch:purchase-orders -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_procurement_with_po.dump" ${DB}
-php artisan fetch:stock-families -d _thin
-php artisan fetch:trade-units -d _thin
-php artisan fetch:stocks -d _thin
-php artisan fetch:deleted-stocks -d _thin
+php artisan fetch:stock-families -d _base
+php artisan fetch:trade-units -d _base
+php artisan fetch:stocks -d _base
+php artisan fetch:deleted-stocks -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_stocks.dump" ${DB}
-php artisan fetch:shop-categories -d _thin
+#php artisan fetch:shop-categories -d _base
+
+php artisan fetch:customers -w clients -d _crm
+php artisan fetch:deleted-customers -d _crm
+php artisan fetch:webusers -d _crm
+php artisan fetch:prospects -d _crm
+pg_dump -Fc -f "devops/devel/snapshots/au_crm.dump" ${DB}
+php artisan fetch:orders -w payments -d _crm
+php artisan fetch:invoices -d _crm
+php artisan fetch:delivery-notes -d _crm
+pg_dump -Fc -f "devops/devel/snapshots/au_sales.dump" ${DB}
 

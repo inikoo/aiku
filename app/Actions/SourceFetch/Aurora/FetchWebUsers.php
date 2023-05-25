@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchWebUsers extends FetchAction
 {
-    public string $commandSignature = 'fetch:web-users {tenants?*} {--s|source_id=} {--S|shop= : Shop slug}';
+    public string $commandSignature = 'fetch:web-users {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--d|db_suffix=}';
 
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?WebUser

@@ -1,6 +1,0 @@
-ssh devels 'cd paso_au; ./export_thin_au.sh'
-cd devops/devel/aurora/ 
-mysql dw_thin < dw_thin.sql
-mysql sk_thin < sk_thin.sql
-mysql es_thin < es_thin.sql
-mysql  aroma_thin < aroma_thin.sql

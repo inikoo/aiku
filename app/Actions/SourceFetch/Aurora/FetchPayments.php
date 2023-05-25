@@ -13,14 +13,13 @@ use App\Models\Accounting\Payment;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchPayments extends FetchAction
 {
     public string $commandSignature = 'fetch:payments {tenants?*} {--s|source_id=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Payment
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Payment
     {
         if ($paymentData = $tenantSource->fetchPayment($tenantSourceId)) {
             if ($payment = Payment::where('source_id', $paymentData['payment']['source_id'])
@@ -33,7 +32,8 @@ class FetchPayments extends FetchAction
             } else {
                 if ($paymentData['customer']) {
                     $payment = StorePayment::run(
-                        parent: $paymentData['customer'],
+                        customer: $paymentData['customer'],
+                        paymentAccount: $paymentData['paymentAccount'],
                         modelData: $paymentData['payment']
                     );
 
@@ -48,7 +48,7 @@ class FetchPayments extends FetchAction
         return null;
     }
 
-    public function markAuroraModel(Payment $payment)
+    public function markAuroraModel(Payment $payment): void
     {
         DB::connection('aurora')->table('Payment Dimension')
             ->where('Payment Key', $payment->source_id)
