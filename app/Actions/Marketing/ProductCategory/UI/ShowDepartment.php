@@ -53,7 +53,7 @@ class ShowDepartment extends InertiaAction
         return $this->handle($department);
     }
 
-    public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
+    public function htmlResponse(Department $department, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -66,6 +66,10 @@ class ShowDepartment extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($department, $request),
+                    'next'     => $this->getNext($department, $request),
+                ],
                 'pageHead'                           => [
                     'title' => $department->name,
                     'icon'  => 'fal fa-folders',
@@ -122,7 +126,7 @@ class ShowDepartment extends InertiaAction
             ]
         )->table(IndexCustomers::make()->tableStructure($department))
             ->table(IndexMailshots::make()->tableStructure($department))
-            ->table(IndexFamilies::make()->tableStructure($department))
+//            ->table(IndexFamilies::make()->tableStructure($department))
             ->table(IndexProducts::make()->tableStructure($department));
     }
 
@@ -146,7 +150,7 @@ class ShowDepartment extends InertiaAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $department->code,
+                            'label' => $department->slug,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -200,6 +204,47 @@ class ShowDepartment extends InertiaAction
                 )
             ),
             default => []
+        };
+    }
+
+    public function getPrevious(Department $department, ActionRequest $request): ?array
+    {
+        $previous = Department::where('code', '<', $department->code)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Department $department, ActionRequest $request): ?array
+    {
+        $next = Department::where('code', '>', $department->code)->orderBy('code')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Department $department, string $routeName): ?array
+    {
+        if(!$department) {
+            return null;
+        }
+        return match ($routeName) {
+            'catalogue.hub.departments.show'=> [
+                'label'=> $department->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'department'=> $department->slug
+                    ]
+                ]
+            ],
+            'shops.show.catalogue.hub.departments.show'=> [
+                'label'=> $department->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'  => $department->shop->slug,
+                        'product'=> $department->slug
+                    ]
+                ]
+            ],
         };
     }
 }

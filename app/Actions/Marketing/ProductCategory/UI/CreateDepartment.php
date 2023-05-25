@@ -39,7 +39,7 @@ class CreateDepartment extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('new department'),
+                'title'       => __('New Department'),
                 'pageHead'    => [
                     'title'        => __('new department'),
                     'cancelCreate' => [
@@ -53,13 +53,24 @@ class CreateDepartment extends InertiaAction
                 'formData'    => [
                     'blueprint' =>
                         [
-
+                            [
+                                'title'  => __('department'),
+                                'fields' => [
+                                    'code' => [
+                                        'type'  => 'input',
+                                        'label' => __('code')
+                                    ],
+                                    'name' => [
+                                        'type'  => 'input',
+                                        'label' => __('name')
+                                    ],
+                                ]
+                            ]
                         ],
                     'route'     => [
                         'name' => ''
                     ]
                 ]
-
 
             ]
         );

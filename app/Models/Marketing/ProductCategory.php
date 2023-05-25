@@ -10,9 +10,12 @@ namespace App\Models\Marketing;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
 use App\Models\Sales\SalesStats;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Database\Factories\Marketing\ProductCategoryFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -41,19 +45,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_department_id
  * @property int|null $source_family_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductCategory> $departments
- * @property-read Model|\Eloquent $parent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Product> $products
+ * @property-read Collection<int, ProductCategory> $departments
+ * @property-read Model|Eloquent $parent
+ * @property-read Collection<int, Product> $products
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
- * @property-read \App\Models\Marketing\Shop|null $shop
- * @property-read \App\Models\Marketing\ProductCategoryStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read Shop|null $shop
+ * @property-read ProductCategoryStats|null $stats
+ * @property-read UniversalSearch|null $universalSearch
  * @method static ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
  * @method static Builder|ProductCategory newQuery()
@@ -61,7 +65,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|ProductCategory query()
  * @method static Builder|ProductCategory withTrashed()
  * @method static Builder|ProductCategory withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class ProductCategory extends Model
 {
@@ -121,10 +125,10 @@ class ProductCategory extends Model
         return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales');
     }
 
-    public function salesTenantCurrencyStats(): MorphOne
-    {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-tenant-currency');
-    }
+//    public function salesTenantCurrencyStats(): MorphOne
+//    {
+//        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-tenant-currency');
+//    }
 
     public function parent(): MorphTo
     {

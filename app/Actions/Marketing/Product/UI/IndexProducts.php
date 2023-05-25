@@ -8,6 +8,9 @@
 namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\UI\Catalogue\CatalogueHub;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\ProductCategory;
@@ -18,6 +21,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -97,46 +101,29 @@ class IndexProducts extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Marketing/Products',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->parameters
                 ),
-                'title'       => __('products'),
+                'title'       => __('Products'),
                 'pageHead'    => [
-                    'title'   => __('products'),
-                    'create'  => $this->canEdit
-                    && (
-                        $this->routeName == 'shops.show.products.index' or
-                        $this->routeName == 'products.index'
-                    )
-
-                        ? [
-                            'route' =>
-                                match ($this->routeName) {
-                                    'shops.show.products.index' =>
-                                    [
-                                        'name'       => 'shops.show.products.create',
-                                        'parameters' => array_values($this->originalParameters)
-                                    ],
-                                    'products.index' =>
-                                    [
-                                        'name'       => 'products.create',
-                                        'parameters' => array_values($this->originalParameters)
-                                    ]
-                                }
-
-
-                            ,
-                            'label' => __('products')
-                        ] : false,
+                    'title'  => __('products'),
+                    'create' => $this->canEdit && $this->routeName == 'shops.show.catalogue.hub.products.index' ? [
+                        'route' => [
+                            'name'       => 'shops.show.catalogue.hub.products.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('products')
+                    ] : false,
                 ],
-                'data' => ProductResource::collection($products),
+                'data'        => ProductResource::collection($products),
 
 
             ]
@@ -161,5 +148,49 @@ class IndexProducts extends InertiaAction
     {
         $this->initialisation($request);
         return $this->handle($department);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
+    {
+        $headCrumb = function (array $routeParameters, ?string $suffix) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('products'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                    'suffix' => $suffix
+                ]
+            ];
+        };
+        return match ($routeName) {
+            'shops.show.catalogue.hub.products.index' =>
+            array_merge(
+                CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+
+            'catalogue.hub.products.index' =>
+            array_merge(
+                CatalogueHub::make()->getBreadcrumbs('catalogue.hub', []),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+
+            default => []
+        };
     }
 }

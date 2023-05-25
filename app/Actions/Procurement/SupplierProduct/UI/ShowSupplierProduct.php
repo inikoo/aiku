@@ -119,14 +119,14 @@ class ShowSupplierProduct extends InertiaAction
                             'route' => [
                                 'name' => 'procurement.supplier-products.index',
                             ],
-                            'label' => __('purchaseOrder')
+                            'label' => __('supplierProduct')
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'procurement.supplier-products.show',
-                                'parameters' => [$supplierProduct->code]
+                                'parameters' => [$supplierProduct->slug]
                             ],
-                            'label' => $supplierProduct->code,
+                            'label' => $supplierProduct->name,
                         ],
                     ],
                     'suffix'         => $suffix,

@@ -18,6 +18,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -108,7 +109,7 @@ class IndexDepartments extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
@@ -119,7 +120,7 @@ class IndexDepartments extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('departments'),
+                'title'       => __('Departments'),
                 'pageHead'    => [
                     'title'  => __('departments'),
                     'create' => $this->canEdit && $this->routeName == 'shops.show.catalogue.hub.departments.index' ? [
@@ -153,7 +154,6 @@ class IndexDepartments extends InertiaAction
                 ]
             ];
         };
-
         return match ($routeName) {
             'shops.show.catalogue.hub.departments.index' =>
             array_merge(
