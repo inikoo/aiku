@@ -209,6 +209,16 @@ class ShowWarehouseArea extends InertiaAction
         }
 
         return match ($routeName) {
+            'inventory.warehouse-areas.show' => [
+                'label' => $warehouseArea->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'warehouseArea' => $warehouseArea->slug
+                    ]
+
+                ]
+            ],
             'inventory.warehouses.show.warehouse-areas.show' => [
                 'label' => $warehouseArea->name,
                 'route' => [

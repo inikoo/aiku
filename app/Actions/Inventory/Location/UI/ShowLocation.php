@@ -101,8 +101,8 @@ class ShowLocation extends InertiaAction
                 ],
 
                 LocationTabsEnum::SHOWCASE->value => $this->tab == LocationTabsEnum::SHOWCASE->value ?
-                    fn () => GetAgentShowcase::run($location)
-                    : Inertia::lazy(fn () => GetAgentShowcase::run($location)),
+                    fn () => GetLocationShowcase::run($location)
+                    : Inertia::lazy(fn () => GetLocationShowcase::run($location)),
             ]
         );
     }
@@ -143,11 +143,11 @@ class ShowLocation extends InertiaAction
                     $routeParameters['location'],
                     [
                         'index' => [
-                            'name'       => 'inventory.location.index',
+                            'name'       => 'inventory.locations.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'inventory.location.show',
+                            'name'       => 'inventory.locations.show',
                             'parameters' => [$routeParameters['location']->slug]
                         ]
                     ],

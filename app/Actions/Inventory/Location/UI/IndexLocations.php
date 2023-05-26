@@ -221,7 +221,7 @@ class IndexLocations extends InertiaAction
                     'name'       => 'inventory.warehouse-areas.show.locations.index',
                     'parameters' =>
                         [
-                            $routeParameters['warehouse']->slug
+                            $routeParameters['warehouseArea']->slug
                         ]
                 ])
             ),
