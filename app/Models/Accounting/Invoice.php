@@ -16,6 +16,7 @@ use App\Models\Sales\Order;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -70,6 +71,7 @@ class Invoice extends Model
     use HasSlug;
     use HasTenantAddress;
     use HasUniversalSearch;
+    use HasFactory;
 
     protected $casts = [
         'type'    => InvoiceTypeEnum::class,
