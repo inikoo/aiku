@@ -22,6 +22,10 @@ import isEqual from 'lodash-es/isEqual';
 import map from 'lodash-es/map';
 import pickBy from 'lodash-es/pickBy';
 
+import {useLocaleStore} from '@/Stores/locale.js';
+import {trans} from 'laravel-vue-i18n';
+const locale = useLocaleStore();
+
 const props = defineProps(
     {
         changeElements: {
@@ -552,7 +556,7 @@ const handleElementsChange = function (data) {
                 <div class="flex border border-indigo-100 rounded-lg">
                     <div class="grid justify-end items-center text-base font-normal text-gray-700"
                         title="Results">
-                        <div class="px-2 ">{{ resourceMeta.total }} {{ $t(' records') }}</div>
+                        <div class="px-2 ">{{ locale.number(resourceMeta.total) }}{{ $t(' records') }}</div>
                     </div>
                     <!-- Button -->
                     <div v-if="queryBuilderProps.modelOperations.createLink">
@@ -650,10 +654,9 @@ const handleElementsChange = function (data) {
                                         }">
                                         <td v-for="column in queryBuilderProps.columns" v-show="show(column.key)"
                                             :key="`table-${name}-row-${key}-column-${column.key}`" :class="[
-                                                columnsType[column.key] === 'number'
-                                                    ? 'text-right'
-                                                    : '',
+                                                typeof item[column.key] == 'number' ? 'text-center' : '',
                                                 'text-sm py-4 px-6 text-gray-500 whitespace-normal min-w-fit max-w-[450px]',
+                                                
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
                                                 {{ item[column.key] }}
