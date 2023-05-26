@@ -133,7 +133,7 @@ class ShowWarehouseArea extends InertiaAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $warehouseArea->code,
+                            'label' => $warehouseArea->slug,
                         ],
                     ],
                     'suffix'         => $suffix,
