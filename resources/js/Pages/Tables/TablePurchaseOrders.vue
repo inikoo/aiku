@@ -27,6 +27,15 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
     }
 }
 
+const formatDate = (dateIso: Date) => {
+  const date = new Date(dateIso)
+  const year = date.getFullYear()
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 </script>
 
 <template>
@@ -35,6 +44,9 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
             <Link :href="PurchaseOrderRoute(purchaseOrder)">
                 {{ purchaseOrder['number'] }}
             </Link>
+        </template>
+        <template #cell(date)="{ item: purchaseOrder }">
+            {{ formatDate(purchaseOrder['date']) }}
         </template>
     </Table>
 </template>
