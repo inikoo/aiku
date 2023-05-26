@@ -32,9 +32,10 @@ class FetchDeletedSupplierProducts extends FetchAction
                         skipHistoric:    true
                     );
                 } else {
-                    $supplierProduct = StoreSupplierProduct::run(
+                    $supplierProduct = StoreSupplierProduct::make()->asFetch(
                         supplier:     $supplierDeletedProductData['supplier'],
                         modelData:    $supplierDeletedProductData['supplierProduct'],
+                        hydratorsDelay: $this->hydrateDelay,
                         skipHistoric: true
                     );
                 }

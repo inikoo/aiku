@@ -49,7 +49,7 @@ class FetchInvoices extends FetchAction
                     }
 
                     $invoice = StoreInvoice::make()->asFetch(
-                        order:          $invoiceData['order'],
+                        parent:          $invoiceData['parent'],
                         modelData:      $invoiceData['invoice'],
                         billingAddress: $invoiceData['billing_address'],
                         hydratorsDelay: $this->hydrateDelay

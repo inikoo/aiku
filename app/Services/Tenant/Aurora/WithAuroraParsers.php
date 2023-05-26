@@ -73,7 +73,7 @@ trait WithAuroraParsers
     protected function parseDate($value): ?string
     {
         return ($value                                                                                                                                                                                                                                                                                                  != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                                                                                                                                                                                             && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+                                                                                                                                                                                                                                                                                                                              && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 
@@ -222,22 +222,22 @@ trait WithAuroraParsers
     }
 
 
-    public function parseShop($source_id): Shop
+    public function parseShop($sourceId): Shop
     {
-        $shop = Shop::where('source_id', $source_id)->first();
+        $shop = Shop::where('source_id', $sourceId)->first();
         if (!$shop) {
-            $shop = FetchShops::run($this->tenantSource, $source_id);
+            $shop = FetchShops::run($this->tenantSource, $sourceId);
         }
 
         return $shop;
     }
 
 
-    public function parseHistoricProduct($source_id): HistoricProduct
+    public function parseHistoricProduct($sourceId): HistoricProduct
     {
-        $historicProduct = HistoricProduct::where('source_id', $source_id)->first();
+        $historicProduct = HistoricProduct::where('source_id', $sourceId)->first();
         if (!$historicProduct) {
-            $historicProduct = FetchHistoricProducts::run($this->tenantSource, $source_id);
+            $historicProduct = FetchHistoricProducts::run($this->tenantSource, $sourceId);
         }
 
         return $historicProduct;
@@ -246,249 +246,254 @@ trait WithAuroraParsers
 
 
 
-    public function parseHistoricItem($source_id): HistoricProduct
+    public function parseHistoricItem($sourceId): HistoricProduct
     {
         $auroraData = DB::connection('aurora')
             ->table('Product History Dimension as PH')
             ->leftJoin('Product Dimension as P', 'P.Product ID', 'PH.Product ID')
             ->select('Product Type')
-            ->where('PH.Product Key', $source_id)->first();
+            ->where('PH.Product Key', $sourceId)->first();
 
-        $historicItem = HistoricProduct::where('source_id', $source_id)->first();
+        $historicItem = HistoricProduct::where('source_id', $sourceId)->first();
 
         if ($auroraData->{'Product Type'} == 'Product') {
             if (!$historicItem) {
-                $historicItem = FetchHistoricProducts::run($this->tenantSource, $source_id);
+                $historicItem = FetchHistoricProducts::run($this->tenantSource, $sourceId);
             }
         } else {
             if (!$historicItem) {
-                $historicItem = FetchHistoricServices::run($this->tenantSource, $source_id);
+                $historicItem = FetchHistoricServices::run($this->tenantSource, $sourceId);
             }
         }
 
         return $historicItem;
     }
 
-    public function parseProduct($source_id): Product
+    public function parseProduct($sourceId): Product
     {
-        $product = Product::where('source_id', $source_id)->first();
+        $product = Product::where('source_id', $sourceId)->first();
         if (!$product) {
-            $product = FetchProducts::run($this->tenantSource, $source_id);
+            $product = FetchProducts::run($this->tenantSource, $sourceId);
         }
 
         return $product;
     }
 
-    public function parseService($source_id): Product
+    public function parseService($sourceId): Product
     {
-        $service = Product::withTrashed()->where('source_id', $source_id)->first();
+        $service = Product::withTrashed()->where('source_id', $sourceId)->first();
         if (!$service) {
-            $service = FetchServices::run($this->tenantSource, $source_id);
+            $service = FetchServices::run($this->tenantSource, $sourceId);
         }
 
         return $service;
     }
 
-    public function parseCustomer($source_id): ?Customer
+    public function parseCustomer($sourceId): ?Customer
     {
-        if (!$source_id) {
+        if (!$sourceId) {
             return null;
         }
-        $customer = Customer::withTrashed()->where('source_id', $source_id)->first();
+        $customer = Customer::withTrashed()->where('source_id', $sourceId)->first();
         if (!$customer) {
-            $customer = FetchCustomers::run($this->tenantSource, $source_id);
+            $customer = FetchCustomers::run($this->tenantSource, $sourceId);
             if (!$customer) {
-                $customer = FetchDeletedCustomers::run($this->tenantSource, $source_id);
+                $customer = FetchDeletedCustomers::run($this->tenantSource, $sourceId);
             }
         }
 
         return $customer;
     }
 
-    public function parseSupplier($source_id): ?Supplier
+    public function parseSupplier($sourceId): ?Supplier
     {
-        $supplierTenant= SupplierTenant::where('source_id', $source_id)->where('tenant_id', app('currentTenant')->id)->first();
+        $supplierTenant= SupplierTenant::where('source_id', $sourceId)->where('tenant_id', app('currentTenant')->id)->first();
         return Supplier::withTrashed()->find($supplierTenant?->supplier_id);
 
     }
 
-    public function parseAgent($source_id): ?Agent
+    public function parseAgent($sourceId): ?Agent
     {
-        $agentTenant= AgentTenant::where('source_id', $source_id)->where('tenant_id', app('currentTenant')->id)->first();
+        $agentTenant= AgentTenant::where('source_id', $sourceId)->where('tenant_id', app('currentTenant')->id)->first();
         return Agent::withTrashed()->find($agentTenant?->agent_id);
     }
 
-    public function parseStock($source_id): ?Stock
+    public function parseStock($sourceId): ?Stock
     {
-        $stock = Stock::withTrashed()->where('source_id', $source_id)->first();
+        $stock = Stock::withTrashed()->where('source_id', $sourceId)->first();
         if (!$stock) {
-            $stock = FetchStocks::run($this->tenantSource, $source_id);
+            $stock = FetchStocks::run($this->tenantSource, $sourceId);
         }
         if (!$stock) {
-            $stock = FetchDeletedStocks::run($this->tenantSource, $source_id);
+            $stock = FetchDeletedStocks::run($this->tenantSource, $sourceId);
         }
 
         return $stock;
     }
 
-    public function parseLocation($source_id): Location
+    public function parseLocation($sourceId): Location
     {
-        $location = Location::where('source_id', $source_id)->first();
+        $location = Location::where('source_id', $sourceId)->first();
         if (!$location) {
-            $location = FetchLocations::run($this->tenantSource, $source_id);
+            $location = FetchLocations::run($this->tenantSource, $sourceId);
         }
 
         return $location;
     }
 
-    public function parseOrder($source_id): ?Order
+    public function parseOrder(?int $sourceId): ?Order
     {
-        $order = Order::where('source_id', $source_id)->first();
+
+        if(!$sourceId) {
+            return null;
+        }
+
+        $order = Order::where('source_id', $sourceId)->first();
         if (!$order) {
-            $order = FetchOrders::run($this->tenantSource, $source_id);
+            $order = FetchOrders::run($this->tenantSource, $sourceId);
         }
 
         return $order;
     }
 
-    public function parseTransaction($source_id): ?Transaction
+    public function parseTransaction($sourceId): ?Transaction
     {
-        return Transaction::where('source_id', $source_id)->first();
+        return Transaction::where('source_id', $sourceId)->first();
     }
 
-    public function parseShipper($source_id): Shipper
+    public function parseShipper($sourceId): Shipper
     {
-        $shipper = Shipper::where('source_id', $source_id)->first();
+        $shipper = Shipper::where('source_id', $sourceId)->first();
         if (!$shipper) {
-            $shipper = FetchShippers::run($this->tenantSource, $source_id);
+            $shipper = FetchShippers::run($this->tenantSource, $sourceId);
         }
 
         return $shipper;
     }
 
-    public function parsePaymentServiceProvider($source_id): PaymentServiceProvider
+    public function parsePaymentServiceProvider($sourceId): PaymentServiceProvider
     {
-        $paymentServiceProvider = PaymentServiceProvider::where('source_id', $source_id)->first();
+        $paymentServiceProvider = PaymentServiceProvider::where('source_id', $sourceId)->first();
         if (!$paymentServiceProvider) {
-            $paymentServiceProvider = FetchPaymentServiceProviders::run($this->tenantSource, $source_id);
+            $paymentServiceProvider = FetchPaymentServiceProviders::run($this->tenantSource, $sourceId);
         }
 
         return $paymentServiceProvider;
     }
 
-    public function parsePaymentAccount($source_id): PaymentAccount
+    public function parsePaymentAccount($sourceId): PaymentAccount
     {
-        $paymentAccount = PaymentAccount::where('source_id', $source_id)->first();
+        $paymentAccount = PaymentAccount::where('source_id', $sourceId)->first();
         if (!$paymentAccount) {
-            $paymentAccount = FetchPaymentAccounts::run($this->tenantSource, $source_id);
+            $paymentAccount = FetchPaymentAccounts::run($this->tenantSource, $sourceId);
         }
 
         return $paymentAccount;
     }
 
-    public function parseEmployee($source_id): ?Employee
+    public function parseEmployee($sourceId): ?Employee
     {
-        $employee = Employee::withTrashed()->where('source_id', $source_id)->first();
+        $employee = Employee::withTrashed()->where('source_id', $sourceId)->first();
         if (!$employee) {
-            $employee = FetchEmployees::run($this->tenantSource, $source_id);
+            $employee = FetchEmployees::run($this->tenantSource, $sourceId);
         }
         if (!$employee) {
-            $employee = FetchDeletedEmployees::run($this->tenantSource, $source_id);
+            $employee = FetchDeletedEmployees::run($this->tenantSource, $sourceId);
         }
 
         return $employee;
     }
 
-    public function parseGuest($source_id): ?Guest
+    public function parseGuest($sourceId): ?Guest
     {
-        $guest = Guest::withTrashed()->where('source_id', $source_id)->first();
+        $guest = Guest::withTrashed()->where('source_id', $sourceId)->first();
         if (!$guest) {
-            $guest = FetchGuests::run($this->tenantSource, $source_id);
+            $guest = FetchGuests::run($this->tenantSource, $sourceId);
         }
         if (!$guest) {
-            $guest = FetchDeletedGuests::run($this->tenantSource, $source_id);
+            $guest = FetchDeletedGuests::run($this->tenantSource, $sourceId);
         }
 
         return $guest;
     }
 
-    public function parseOutbox($source_id): ?Outbox
+    public function parseOutbox($sourceId): ?Outbox
     {
-        $outbox = Outbox::where('source_id', $source_id)->first();
+        $outbox = Outbox::where('source_id', $sourceId)->first();
         if (!$outbox) {
-            $outbox = FetchOutboxes::run($this->tenantSource, $source_id);
+            $outbox = FetchOutboxes::run($this->tenantSource, $sourceId);
         }
 
         return $outbox;
     }
 
-    public function parseMailshot($source_id): ?Mailshot
+    public function parseMailshot($sourceId): ?Mailshot
     {
-        if (!$source_id) {
+        if (!$sourceId) {
             return null;
         }
 
-        $mailshot = Mailshot::where('source_id', $source_id)->first();
+        $mailshot = Mailshot::where('source_id', $sourceId)->first();
         if (!$mailshot) {
-            $mailshot = FetchMailshots::run($this->tenantSource, $source_id);
+            $mailshot = FetchMailshots::run($this->tenantSource, $sourceId);
         }
 
         return $mailshot;
     }
 
-    public function parseProspect($source_id): ?Prospect
+    public function parseProspect($sourceId): ?Prospect
     {
-        if (!$source_id) {
+        if (!$sourceId) {
             return null;
         }
 
-        $prospect = Prospect::where('source_id', $source_id)->first();
+        $prospect = Prospect::where('source_id', $sourceId)->first();
         if (!$prospect) {
-            $prospect = FetchProspects::run($this->tenantSource, $source_id);
+            $prospect = FetchProspects::run($this->tenantSource, $sourceId);
         }
 
         return $prospect;
     }
 
-    public function parseDispatchedEmail($source_id): ?DispatchedEmail
+    public function parseDispatchedEmail($sourceId): ?DispatchedEmail
     {
-        $dispatchedEmail = DispatchedEmail::where('source_id', $source_id)->first();
+        $dispatchedEmail = DispatchedEmail::where('source_id', $sourceId)->first();
         if (!$dispatchedEmail) {
-            $dispatchedEmail = FetchDispatchedEmails::run($this->tenantSource, $source_id);
+            $dispatchedEmail = FetchDispatchedEmails::run($this->tenantSource, $sourceId);
         }
 
         return $dispatchedEmail;
     }
 
-    public function parseWarehouse($source_id): ?Warehouse
+    public function parseWarehouse($sourceId): ?Warehouse
     {
-        if (!$source_id) {
+        if (!$sourceId) {
             return null;
         }
 
-        $warehouse = Warehouse::withTrashed()->where('source_id', $source_id)->first();
+        $warehouse = Warehouse::withTrashed()->where('source_id', $sourceId)->first();
         if (!$warehouse) {
-            $warehouse = FetchWarehouses::run($this->tenantSource, $source_id);
+            $warehouse = FetchWarehouses::run($this->tenantSource, $sourceId);
         }
 
         return $warehouse;
     }
 
-    public function parsePayment($source_id): Payment
+    public function parsePayment($sourceId): Payment
     {
-        $payment = Payment::withTrashed()->where('source_id', $source_id)->first();
+        $payment = Payment::withTrashed()->where('source_id', $sourceId)->first();
         if (!$payment) {
-            $payment = FetchPayments::run($this->tenantSource, $source_id);
+            $payment = FetchPayments::run($this->tenantSource, $sourceId);
         }
 
         return $payment;
     }
 
-    public function parseTradeUnit($source_id): TradeUnit
+    public function parseTradeUnit($sourceId): TradeUnit
     {
-        $tradeUnit = TradeUnit::withTrashed()->where('source_id', $source_id)->first();
+        $tradeUnit = TradeUnit::withTrashed()->where('source_id', $sourceId)->first();
         if (!$tradeUnit) {
-            $tradeUnit = FetchTradeUnits::run($this->tenantSource, $source_id);
+            $tradeUnit = FetchTradeUnits::run($this->tenantSource, $sourceId);
         }
 
         return $tradeUnit;

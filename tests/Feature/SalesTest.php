@@ -6,6 +6,12 @@
  */
 
 
+use App\Actions\Accounting\Invoice\StoreInvoice;
+use App\Actions\Accounting\Payment\StorePayment;
+use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
+use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Leads\Prospect\StoreProspect;
@@ -29,8 +35,12 @@ use App\Actions\Sales\Transaction\StoreTransaction;
 use App\Actions\Sales\Transaction\UpdateTransaction;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Enums\Sales\Order\OrderStateEnum;
+use App\Models\Accounting\Payment;
+use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Leads\Prospect;
@@ -294,3 +304,54 @@ test('update customer client', function ($customerClient) {
     $customerClient = UpdateCustomerClient::make()->action($customerClient, ['reference' => '001']);
     expect($customerClient->reference)->toBe('001');
 })->depends('create customer client');
+
+test('create payment service provider', function () {
+    $paymentServiceProvider = StorePaymentServiceProvider::make()->action(PaymentServiceProvider::factory()->definition());
+    $this->assertModelExists($paymentServiceProvider);
+
+    return $paymentServiceProvider;
+});
+
+test('can not update payment service provider type', function ($paymentServiceProvider) {
+    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['type' => PaymentServiceProviderTypeEnum::BANK->value]);
+    expect($paymentServiceProvider->type)->not->toBe(PaymentServiceProviderTypeEnum::BANK->value);
+})->depends('create payment service provider');
+
+test('update payment service provider code', function ($paymentServiceProvider) {
+    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['code' => 'hello']);
+    expect($paymentServiceProvider->code)->toBe('hello');
+})->depends('create payment service provider');
+
+test('create payment account', function ($paymentServiceProvider) {
+    $paymentAccount = StorePaymentAccount::make()->action($paymentServiceProvider, PaymentAccount::factory()->definition());
+    $this->assertModelExists($paymentAccount);
+
+    return $paymentAccount;
+})->depends('create payment service provider');
+
+test('update payment account', function ($paymentAccount) {
+    $paymentAccount = UpdatePaymentAccount::make()->action($paymentAccount, ['name' => 'Pika Ltd']);
+    expect($paymentAccount->name)->toBe('Pika Ltd');
+})->depends('create payment account');
+
+
+test(
+    'create payment',
+    function ($paymentAccount) {
+        $shop     = StoreShop::make()->action(Shop::factory()->definition());
+        $customer = StoreCustomer::make()->action(
+            $shop,
+            Customer::factory()->definition(),
+            Address::factory()->definition()
+        );
+        $payment  = StorePayment::make()->action($customer, $paymentAccount, Payment::factory()->definition());
+        $this->assertModelExists($payment);
+
+        return $payment;
+    }
+)->depends('create payment account');
+
+test('create invoice', function ($customer) {
+    $invoice = StoreInvoice::make()->action($customer, ['number' => 000011], Address::first());
+    expect($invoice->number)->toBe(000011);
+})->depends('create customer');

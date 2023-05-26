@@ -14,6 +14,7 @@ use App\Actions\Marketing\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Models\Accounting\Invoice;
 use App\Models\Helpers\Address;
+use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -23,17 +24,26 @@ class StoreInvoice
     public int $hydratorsDelay=0;
 
     public function handle(
-        Order $order,
+        Customer|Order $parent,
         array $modelData,
         Address $billingAddress,
     ): Invoice {
-        $modelData['currency_id'] = $order->shop->currency_id;
-        $modelData['shop_id']     = $order->shop_id;
-        $modelData['customer_id'] = $order->customer_id;
+
+
+        if(class_basename($parent)=='Customer') {
+            $modelData['customer_id'] = $parent->id;
+        } else {
+            $modelData['customer_id'] = $parent->customer_id;
+
+        }
+        $modelData['shop_id']     = $parent->shop_id;
+        $modelData['currency_id'] = $parent->shop->currency_id;
+
+
 
 
         /** @var \App\Models\Accounting\Invoice $invoice */
-        $invoice = $order->invoices()->create($modelData);
+        $invoice = $parent->invoices()->create($modelData);
         $invoice->stats()->create();
 
         $billingAddress = StoreHistoricAddress::run($billingAddress);
@@ -48,13 +58,18 @@ class StoreInvoice
     }
 
     public function asFetch(
-        Order $order,
+        Customer|Order $parent,
         array $modelData,
         Address $billingAddress,
         int $hydratorsDelay = 60
     ): Invoice {
         $this->hydratorsDelay = $hydratorsDelay;
 
-        return $this->handle($order, $modelData, $billingAddress);
+        return $this->handle($parent, $modelData, $billingAddress);
+    }
+
+    public function action(Customer|Order $parent, array $modelData, Address $billingAddress): Invoice
+    {
+        return $this->handle($parent, $modelData, $billingAddress);
     }
 }

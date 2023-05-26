@@ -117,7 +117,7 @@ class ShowWarehouse extends InertiaAction
                             'name'       => 'inventory.warehouses.show.locations.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('product')
+                        'label' => __('location')
                     ] : false,
                 ]
             ),

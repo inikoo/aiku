@@ -25,7 +25,10 @@ class StoreSupplierProduct
     use AsAction;
     use WithAttributes;
 
-    public function handle(Supplier $supplier, array $modelData, bool $skipHistoric = false): SupplierProduct
+    public int $hydratorsDelay=0;
+    public bool $skipHistoric =false;
+
+    public function handle(Supplier $supplier, array $modelData): SupplierProduct
     {
         if($supplier->agent_id) {
             $modelData['agent_id'] = $supplier->agent_id;
@@ -37,7 +40,7 @@ class StoreSupplierProduct
 
         $supplierProduct->stats()->create();
 
-        if (!$skipHistoric) {
+        if (!$this->skipHistoric) {
             $historicProduct = StoreHistoricSupplierProduct::run($supplierProduct);
             $supplierProduct->update(
                 [
@@ -46,8 +49,8 @@ class StoreSupplierProduct
             );
         }
 
-        SupplierHydrateSupplierProducts::dispatch($supplier);
-        AgentHydrateSuppliers::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent);
+        SupplierHydrateSupplierProducts::dispatch($supplier)->delay($this->hydratorsDelay);
+        AgentHydrateSuppliers::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
         SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
 
         AttachSupplierProduct::run(
@@ -69,7 +72,7 @@ class StoreSupplierProduct
             }
         }
 
-        GroupHydrateProcurement::run(app('currentTenant')->group);
+        GroupHydrateProcurement::dispatch(app('currentTenant')->group)->delay($this->hydratorsDelay);
         return $supplierProduct;
     }
 
@@ -88,5 +91,17 @@ class StoreSupplierProduct
         $validatedData = $this->validateAttributes();
 
         return $this->handle($supplier, $validatedData, $skipHistoric);
+    }
+
+    public function asFetch(
+        Supplier $supplier,
+        array $modelData,
+        int $hydratorsDelay = 60,
+        bool $skipHistoric=false,
+    ): SupplierProduct {
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->skipHistoric   =$skipHistoric;
+
+        return $this->handle($supplier, $modelData);
     }
 }
