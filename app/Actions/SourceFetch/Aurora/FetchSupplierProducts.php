@@ -50,8 +50,6 @@ class FetchSupplierProducts extends FetchAction
 
             }
 
-
-
             if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierProductData['supplierProduct']['source_id'])
                 ->first()) {
                 $supplierProduct = UpdateSupplierProduct::run(
@@ -60,9 +58,10 @@ class FetchSupplierProducts extends FetchAction
                     skipHistoric:    true
                 );
             } else {
-                $supplierProduct = StoreSupplierProduct::run(
-                    supplier:     $supplierProductData['supplier'],
-                    modelData:    $supplierProductData['supplierProduct'],
+                $supplierProduct = StoreSupplierProduct::make()->asFetch(
+                    supplier: $supplierProductData['supplier'],
+                    modelData: $supplierProductData['supplierProduct'],
+                    hydratorsDelay: $this->hydrateDelay,
                     skipHistoric: true
                 );
             }
