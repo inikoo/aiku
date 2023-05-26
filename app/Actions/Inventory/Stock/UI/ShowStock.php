@@ -10,11 +10,11 @@ namespace App\Actions\Inventory\Stock\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Marketing\Product\UI\IndexProducts;
+use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Enums\UI\StockTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\StockResource;
-use App\Http\Resources\Inventory\StockShowcaseResource;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Inventory\Stock;
@@ -73,8 +73,8 @@ class ShowStock extends InertiaAction
 
                 ],
                 StockTabsEnum::SHOWCASE->value => $this->tab == StockTabsEnum::SHOWCASE->value ?
-                    fn () => new StockShowcaseResource($this->stock)
-                    : Inertia::lazy(fn () => new StockShowcaseResource($this->stock)),
+                    fn () => GetAgentShowcase::run($this->stock)
+                    : Inertia::lazy(fn () => GetAgentShowcase::run($this->stock)),
 
                 StockTabsEnum::SUPPLIERS_PRODUCTS->value => $this->tab == StockTabsEnum::SUPPLIERS_PRODUCTS->value ?
                     fn () => SupplierProductResource::collection(IndexSupplierProducts::run($this->stock))
