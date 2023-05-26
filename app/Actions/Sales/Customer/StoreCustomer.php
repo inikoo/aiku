@@ -19,7 +19,6 @@ use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,11 +29,13 @@ use Throwable;
 
 class StoreCustomer
 {
-
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction    = false;
+    public int $hydratorsDelay=0;
+
+
 
     /**
      * @throws Throwable
@@ -42,20 +43,20 @@ class StoreCustomer
     public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
     {
 
-
-
         data_fill(
             $customerData,
             'status',
-            Arr::get($shop->settings, 'registration_type', 'open')=='approval-only' ?
-            CustomerStatusEnum::PENDING_APPROVAL :
-            CustomerStatusEnum::APPROVED
+            Arr::get($shop->settings, 'registration_type', 'open') == 'approval-only'
+                ?
+                CustomerStatusEnum::PENDING_APPROVAL
+                :
+                CustomerStatusEnum::APPROVED
         );
 
-        $customer=DB::transaction(function () use ($shop, $customerData) {
+        $customer = DB::transaction(function () use ($shop, $customerData) {
             /** @var Customer $customer */
-            $customer       = $shop->customers()->create($customerData);
-            if($customer->reference==null) {
+            $customer = $shop->customers()->create($customerData);
+            if ($customer->reference == null) {
                 $reference = GetSerialReference::run(container: $shop, modelType: SerialReferenceModelEnum::CUSTOMER);
                 $customer->update(
                     [
@@ -64,6 +65,7 @@ class StoreCustomer
                 );
             }
             $customer->stats()->create();
+
             return $customer;
         });
 
@@ -73,35 +75,33 @@ class StoreCustomer
         $customer->save();
 
 
-        Bus::chain([
-            ShopHydrateCustomers::makeJob($customer->shop),
-            ShopHydrateCustomerInvoices::makeJob($customer->shop)
-        ])->dispatch();
 
-
-
-        TenantHydrateCustomers::dispatch(app('currentTenant'));
-
+        ShopHydrateCustomers::dispatch($customer->shop)->delay($this->hydratorsDelay);
+        ShopHydrateCustomerInvoices::dispatch($customer->shop)->delay($this->hydratorsDelay);
+        TenantHydrateCustomers::dispatch(app('currentTenant'))->delay($this->hydratorsDelay);
         CustomerHydrateUniversalSearch::dispatch($customer);
+
 
         return $customer;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
+
     public function rules(): array
     {
         return [
-            'contact_name'              => ['nullable', 'string', 'max:255'],
-            'company_name'              => ['nullable', 'string', 'max:255'],
-            'email'                     => ['nullable', 'email'],
-            'phone'                     => ['nullable', 'string'],
-            'identity_document_number'  => ['nullable', 'string'],
+            'contact_name'             => ['nullable', 'string', 'max:255'],
+            'company_name'             => ['nullable', 'string', 'max:255'],
+            'email'                    => ['nullable', 'email'],
+            'phone'                    => ['nullable', 'string'],
+            'identity_document_number' => ['nullable', 'string'],
             //'website'                   => ['nullable', 'active_url'],
         ];
     }
@@ -126,7 +126,7 @@ class StoreCustomer
 
     public function htmlResponse(Customer $customer): RedirectResponse
     {
-        return Redirect::route('shops.show.customers.show', [$customer->shop->slug,$customer->slug]);
+        return Redirect::route('shops.show.customers.show', [$customer->shop->slug, $customer->slug]);
     }
 
 
@@ -135,10 +135,19 @@ class StoreCustomer
      */
     public function action(Shop $shop, array $objectData, array $customerAddressesData): Customer
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($shop, $validatedData, $customerAddressesData);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function asFetch(Shop $shop, array $customerData, array $customerAddressesData, int $hydratorsDelay=60): Customer
+    {
+        $this->hydratorsDelay=$hydratorsDelay;
+        return $this->handle($shop, $customerData, $customerAddressesData);
     }
 }

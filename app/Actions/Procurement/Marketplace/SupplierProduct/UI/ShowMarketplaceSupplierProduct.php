@@ -135,10 +135,11 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
             ];
         };
 
+//        dd($routeName);
         return match ($routeName) {
             'procurement.marketplace.suppliers.show.supplier-products.show' => array_merge(
                 (new ShowMarketplaceSupplier())->getBreadcrumbs(
-                    'procurement.marketplace.suppliers.show',
+                    'procurement.marketplace.suppliers.show.supplier-products.show',
                     ['supplier' => $routeParameters['supplier']]
                 ),
                 $headCrumb(

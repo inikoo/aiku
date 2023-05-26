@@ -10,7 +10,6 @@ namespace App\Actions\Inventory\WarehouseArea\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
@@ -103,8 +102,8 @@ class ShowWarehouseArea extends InertiaAction
                     'navigation' => WarehouseAreaTabsEnum::navigation()
                 ],
                 WarehouseAreaTabsEnum::SHOWCASE->value => $this->tab == WarehouseAreaTabsEnum::SHOWCASE->value ?
-                    fn () => GetAgentShowcase::run($warehouseArea)
-                    : Inertia::lazy(fn () => GetAgentShowcase::run($warehouseArea)),
+                    fn () => GetWarehouseAreaShowcase::run($warehouseArea)
+                    : Inertia::lazy(fn () => GetWarehouseAreaShowcase::run($warehouseArea)),
 
                 WarehouseAreaTabsEnum::LOCATIONS->value => $this->tab == WarehouseAreaTabsEnum::LOCATIONS->value ?
                     fn () => LocationResource::collection(IndexLocations::run($warehouseArea))
@@ -210,6 +209,16 @@ class ShowWarehouseArea extends InertiaAction
         }
 
         return match ($routeName) {
+            'inventory.warehouse-areas.show' => [
+                'label' => $warehouseArea->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'warehouseArea' => $warehouseArea->slug
+                    ]
+
+                ]
+            ],
             'inventory.warehouses.show.warehouse-areas.show' => [
                 'label' => $warehouseArea->name,
                 'route' => [

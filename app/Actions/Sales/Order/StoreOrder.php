@@ -25,6 +25,8 @@ class StoreOrder
     use AsAction;
     use WithAttributes;
 
+    public int $hydratorsDelay=0;
+
     public function handle(
         Customer|CustomerClient $parent,
         array $modelData,
@@ -52,10 +54,11 @@ class StoreOrder
         AttachHistoricAddressToModel::run($order, $billingAddress, ['scope'=>'billing']);
         AttachHistoricAddressToModel::run($order, $deliveryAddress, ['scope'=>'delivery']);
 
+
         HydrateOrder::make()->originalItems($order);
 
-        TenantHydrateOrders::run(app('currentTenant'));
-        ShopHydrateOrders::run($parent->shop);
+        TenantHydrateOrders::dispatch(app('currentTenant'))->delay($this->hydratorsDelay);
+        ShopHydrateOrders::dispatch($parent->shop)->delay($this->hydratorsDelay);
 
         OrderHydrateUniversalSearch::dispatch($order);
 
@@ -80,5 +83,16 @@ class StoreOrder
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $validatedData, $seedBillingAddress, $seedDeliveryAddress);
+    }
+
+    public function asFetch(
+        Customer|CustomerClient $parent,
+        array $modelData,
+        Address $seedBillingAddress,
+        Address $seedDeliveryAddress,
+        int $hydratorsDelay=60
+    ): Order {
+        $this->hydratorsDelay=$hydratorsDelay;
+        return $this->handle($parent, $modelData, $seedBillingAddress, $seedDeliveryAddress);
     }
 }

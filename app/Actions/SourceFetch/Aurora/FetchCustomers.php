@@ -29,6 +29,9 @@ class FetchCustomers extends FetchAction
     public string $commandSignature = 'fetch:customers {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
 
 
+    /**
+     * @throws \Throwable
+     */
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
     {
         $with = $this->with;
@@ -77,11 +80,15 @@ class FetchCustomers extends FetchAction
                     }
                 }
             } else {
-                $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['contact_address']);
+                $customer = StoreCustomer::make()->asFetch(
+                    shop: $customerData['shop'],
+                    customerData: $customerData['customer'],
+                    customerAddressesData: $customerData['contact_address'],
+                    hydratorsDelay: $this->hydrateDelay
+                );
                 if (!empty($customerData['delivery_address'])) {
                     StoreAddressAttachToModel::run($customer, $customerData['delivery_address'], ['scope' => 'delivery']);
                 }
-
 
 
                 if ($customerData['tax_number']) {

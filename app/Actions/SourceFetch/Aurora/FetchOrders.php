@@ -55,7 +55,13 @@ class FetchOrders extends FetchAction
                 return $order;
             } else {
                 if ($orderData['parent']) {
-                    $order = StoreOrder::run($orderData['parent'], $orderData['order'], $orderData['billing_address'], $orderData['delivery_address']);
+                    $order = StoreOrder::make()->asFetch(
+                        parent: $orderData['parent'],
+                        modelData: $orderData['order'],
+                        seedBillingAddress: $orderData['billing_address'],
+                        seedDeliveryAddress: $orderData['delivery_address'],
+                        hydratorsDelay: $this->hydrateDelay
+                    );
 
                     if (in_array('transactions', $this->with)) {
                         $this->fetchTransactions($tenantSource, $order);
