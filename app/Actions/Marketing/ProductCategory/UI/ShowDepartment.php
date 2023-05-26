@@ -84,6 +84,11 @@ class ShowDepartment extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => DepartmentTabsEnum::navigation()
                 ],
+
+                DepartmentTabsEnum::SHOWCASE->value => $this->tab == DepartmentTabsEnum::SHOWCASE->value ?
+                    fn () => GetProductCategoryShowcase::run($this->department)
+                    : Inertia::lazy(fn () => GetProductCategoryShowcase::run($this->department)),
+
                 DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
                     fn () => CustomerResource::collection(IndexCustomers::run($this->department))
                     : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($this->department))),
@@ -240,7 +245,7 @@ class ShowDepartment extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'  => $department->shop->slug,
+                        'shop'   => $department->shop->slug,
                         'product'=> $department->slug
                     ]
                 ]
