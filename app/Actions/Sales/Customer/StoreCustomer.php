@@ -26,6 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Illuminate\Validation\Validator;
+use Throwable;
 
 class StoreCustomer
 {
@@ -36,7 +37,7 @@ class StoreCustomer
     private bool $asAction=false;
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
     {
@@ -112,6 +113,9 @@ class StoreCustomer
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function asController(Shop $shop, ActionRequest $request): Customer
     {
         $this->fillFromRequest($request);
@@ -127,7 +131,7 @@ class StoreCustomer
 
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function action(Shop $shop, array $objectData, array $customerAddressesData): Customer
     {

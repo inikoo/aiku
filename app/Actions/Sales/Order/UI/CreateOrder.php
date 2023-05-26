@@ -16,13 +16,13 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateOrder extends InertiaAction
 {
-    public function handle(ActionRequest $request): Response
+    public function handle(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $this->routeName,
+                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'title'       => __('new order'),
@@ -30,13 +30,37 @@ class CreateOrder extends InertiaAction
                     'title'        => __('new order'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'shops.show.orders.index',
+                            'name'       => match ($this->routeName) {
+                                'shops.show.orders.create' => 'shops.show.orders.index',
+                                default                       => preg_replace('/create$/', 'index', $this->routeName)
+                            },
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
 
                 ],
-
+                'formData'    => [
+                    'blueprint' =>
+                        [
+                            [
+                                'title'  => __('number'),
+                                'fields' => [
+                                    'number' => [
+                                        'type'  => 'input',
+                                        'label' => __('number')
+                                    ],
+                                    'customer_number' => [
+                                        'type'  => 'input',
+                                        'label' => __('customer number')
+                                    ],
+                                ]
+                            ]
+                        ],
+                    'route'     => [
+                        'name'     => 'models.shop.customer.store',
+                        'arguments'=> [$shop->slug]
+                    ]
+                ]
 
             ]
         );
@@ -44,19 +68,14 @@ class CreateOrder extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops.products.edit');
+        return $request->user()->can('shops.orders.edit');
     }
 
 
-    public function asController(ActionRequest $request): Response
+    public function asController(Shop $shop, ActionRequest $request): Response
     {
         $this->initialisation($request);
-        return $this->handle($request);
-    }
-    public function inShop(Shop $shop, ActionRequest $request): Response
-    {
-        $this->initialisation($request);
-        return $this->handle($request);
+        return $this->handle($shop, $request);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
