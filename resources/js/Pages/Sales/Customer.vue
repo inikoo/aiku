@@ -48,7 +48,6 @@ const props = defineProps<{
     products?: object
     dispatched_emails?: object
 }>()
-
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
@@ -81,7 +80,8 @@ function setIsOpen(value) {
 }
 
 const webUserForm = useForm({
-    username: props["customer"].email,
+    // username: props["customer"].email,
+    username: null,
     password: null,
 });
 </script>

@@ -70,7 +70,7 @@ class CreateCustomer extends InertiaAction
                                             'countriesAddressData' => GetAddressData::run()
 
                                         ]
-                                    ],
+                                    ]
                                 ]
                             ]
                         ],
