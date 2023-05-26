@@ -7,6 +7,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\Traits\WithElasticsearch;
+use App\Actions\UserHydrateElasticsearch;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
@@ -20,6 +22,8 @@ use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
+    use WithElasticsearch;
+
     public function create(): Response
     {
         return Inertia::render('Auth/Login', [
@@ -44,12 +48,16 @@ class AuthenticatedSessionController extends Controller
 
         app()->setLocale($locale);
 
+        UserHydrateElasticsearch::dispatch('login', $request->user());
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
 
     public function destroy(Request $request): RedirectResponse
     {
+        UserHydrateElasticsearch::dispatch('logout', $request->user());
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

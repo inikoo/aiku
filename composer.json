@@ -23,6 +23,7 @@
         "commerceguys/addressing": "^1.4",
         "commerceguys/intl": "^1.1",
         "doctrine/dbal": "^3.5",
+        "elasticsearch/elasticsearch": "^8.8",
         "guzzlehttp/guzzle": "^7.2",
         "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^0.6",
