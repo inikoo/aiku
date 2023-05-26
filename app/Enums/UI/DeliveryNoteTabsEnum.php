@@ -15,6 +15,7 @@ enum DeliveryNoteTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
+    case SHOWCASE               = 'showcase';
     case SKOS_ORDERED           = 'skos_ordered';
     case UNITS                  = 'units';
     case TARIFF_CODES_ORIGIN    = 'tariff_codes_origin';
@@ -49,6 +50,10 @@ enum DeliveryNoteTabsEnum: string
             DeliveryNoteTabsEnum::CHANGELOG     => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-road',
+            ],
+            DeliveryNoteTabsEnum::SHOWCASE => [
+                'title' => __('agent'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

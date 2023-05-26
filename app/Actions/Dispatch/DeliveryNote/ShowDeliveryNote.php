@@ -10,6 +10,7 @@ namespace App\Actions\Dispatch\DeliveryNote;
 use App\Actions\InertiaAction;
 use App\Actions\Sales\Order\UI\ShowOrder;
 use App\Actions\UI\WithInertia;
+use App\Enums\UI\DeliveryNoteTabsEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Marketing\Shop;
@@ -76,6 +77,10 @@ class ShowDeliveryNote extends InertiaAction
 
                 ],
                 'delivery_note' => new DeliveryNoteResource($deliveryNote),
+
+                DeliveryNoteTabsEnum::SHOWCASE->value => $this->tab == DeliveryNoteTabsEnum::SHOWCASE->value ?
+                    fn () => GetDeliveryNoteShowcase::run($deliveryNote)
+                    : Inertia::lazy(fn () => GetDeliveryNoteShowcase::run($deliveryNote)),
             ]
         );
     }
