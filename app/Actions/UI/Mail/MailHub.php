@@ -172,7 +172,6 @@ class MailHub extends InertiaAction
             ];
         };
 
-
         return match ($routeName) {
             'mail.hub' => array_merge(
                 Dashboard::make()->getBreadcrumbs(),
@@ -185,7 +184,7 @@ class MailHub extends InertiaAction
             ),
             'shops.show.mail.hub' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => 'shops.show.mail.hub',
