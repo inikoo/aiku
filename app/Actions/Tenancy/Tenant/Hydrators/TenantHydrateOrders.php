@@ -9,7 +9,6 @@ namespace App\Actions\Tenancy\Tenant\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Enums\Sales\Order\OrderStateEnum;
-use App\Models\Marketing\Shop;
 use App\Models\Sales\Order;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -38,8 +37,8 @@ class TenantHydrateOrders implements ShouldBeUnique
         $tenant->salesStats->update($stats);
     }
 
-    public function getJobUniqueId(Shop $shop): string
+    public function getJobUniqueId(Tenant $tenant): string
     {
-        return $shop->id;
+        return $tenant->id;
     }
 }

@@ -177,7 +177,6 @@ class ShowSupplierProduct extends InertiaAction
             return null;
         }
 
-
         return match ($routeName) {
             'procurement.supplier-products.show' => [
                 'label' => $supplierProduct->code,

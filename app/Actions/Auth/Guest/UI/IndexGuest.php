@@ -18,6 +18,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -63,7 +64,7 @@ class IndexGuest extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('sysadmin.edit');
+        $this->canEdit = $request->user()->can('sysadmin.guests.edit');
 
         return
             (
@@ -79,7 +80,7 @@ class IndexGuest extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $guests)
+    public function htmlResponse(LengthAwarePaginator $guests): Response
     {
 
         return Inertia::render(
@@ -106,7 +107,6 @@ class IndexGuest extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-
         return $this->handle();
     }
 

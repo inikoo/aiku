@@ -11,7 +11,9 @@ use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\Sales\Order\UI\HasUIOrder;
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\PaymentResource;
@@ -84,16 +86,16 @@ class ShowOrder extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters(),
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($order, $request),
+                    'next'     => $this->getNext($order, $request),
+                ],
                 'pageHead'    => [
                     'title' => $order->number,
-
-
-
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => OrderTabsEnum::navigation()
-
                 ],
 
                 OrderTabsEnum::PAYMENTS->value => $this->tab == OrderTabsEnum::PAYMENTS->value ?
@@ -125,5 +127,135 @@ class ShowOrder extends InertiaAction
     public function jsonResponse(Order $order): OrderResource
     {
         return new OrderResource($order);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
+    {
+        $headCrumb = function (Order $order, array $routeParameters, string $suffix) {
+            return [
+                [
+
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('orders')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $order->slug,
+                        ],
+
+                    ],
+                    'suffix'=> $suffix
+
+                ],
+            ];
+        };
+        return match ($routeName) {
+            'orders.show',
+            'orders.edit' =>
+
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $routeParameters['order'],
+                    [
+                        'index' => [
+                            'name'       => 'customers.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'orders.show',
+                            'parameters' => [$routeParameters['order']->slug]
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+
+
+            'shops.show.orders.show',
+            'shops.show.orders.edit'
+            => array_merge(
+                (new ShowShop())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $routeParameters['order'],
+                    [
+                        'index' => [
+                            'name'       => 'shops.show.orders.index',
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
+                            ]
+                        ],
+                        'model' => [
+                            'name'       => 'shops.show.orders.show',
+                            'parameters' => [
+                                $routeParameters['shop']->slug,
+                                $routeParameters['order']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
+    }
+
+    public function getPrevious(Order $order, ActionRequest $request): ?array
+    {
+
+        $previous = Order::where('number', '<', $order->number)->when(true, function ($query) use ($order, $request) {
+            if ($request->route()->getName() == 'shops.show.orders.show') {
+                $query->where('orders.shop_id', $order->shop_id);
+            }
+        })->orderBy('number', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Order $order, ActionRequest $request): ?array
+    {
+        $next = Order::where('number', '>', $order->number)->when(true, function ($query) use ($order, $request) {
+            if ($request->route()->getName() == 'shops.show.orders.show') {
+                $query->where('orders.shop_id', $order->shop_id);
+            }
+        })->orderBy('number')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Order $order, string $routeName): ?array
+    {
+        if(!$order) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'orders.show' ,
+            'shops.orders.show'=> [
+                'label'=> $order->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'order'=> $order->slug
+                    ]
+
+                ]
+            ],
+            'shops.show.orders.show'=> [
+                'label'=> $order->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'  => $order->shop->slug,
+                        'order' => $order->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }

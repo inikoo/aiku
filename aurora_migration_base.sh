@@ -98,13 +98,4 @@ php artisan fetch:deleted-stocks -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_stocks.dump" ${DB}
 #php artisan fetch:shop-categories -d _base
 
-php artisan fetch:customers -w clients -d _crm
-php artisan fetch:deleted-customers -d _crm
-php artisan fetch:webusers -d _crm
-php artisan fetch:prospects -d _crm
-pg_dump -Fc -f "devops/devel/snapshots/au_crm.dump" ${DB}
-php artisan fetch:orders -w payments -d _crm
-php artisan fetch:invoices -d _crm
-php artisan fetch:delivery-notes -d _crm
-pg_dump -Fc -f "devops/devel/snapshots/au_sales.dump" ${DB}
 

@@ -35,8 +35,11 @@ class FetchAction
     protected bool $onlyNew = false;
     private ?Tenant $tenant;
 
+    protected int $hydrateDelay = 0;
+
     public function __construct()
     {
+        $this->progressBar = null;
         $this->progressBar = null;
         $this->shop        = null;
         $this->with        = [];
@@ -74,6 +77,8 @@ class FetchAction
 
     public function asCommand(Command $command): int
     {
+        $this->hydrateDelay = 120;
+
         $tenants  = $this->getTenants($command);
         $exitCode = 0;
 
@@ -98,7 +103,7 @@ class FetchAction
                 }
 
 
-                if (in_array($command->getName(), [ 'fetch:customers','fetch:orders','fetch:invoices','fetch:delivery-notes'])) {
+                if (in_array($command->getName(), ['fetch:customers', 'fetch:orders', 'fetch:invoices', 'fetch:delivery-notes'])) {
                     $this->with = $command->option('with');
                 }
 

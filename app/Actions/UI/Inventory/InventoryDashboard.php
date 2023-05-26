@@ -9,6 +9,7 @@ namespace App\Actions\UI\Inventory;
 
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
+use App\Models\Auth\User;
 use App\Models\Inventory\Warehouse;
 use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
@@ -18,7 +19,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * @property Tenant $tenant
- * @property \App\Models\Auth\User $user
+ * @property User $user
  */
 class InventoryDashboard
 {

@@ -71,7 +71,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
         return Inertia::render(
             'Procurement/MarketplaceSupplierProduct',
             [
-                'title'       => __('supplier product'),
+                'title'       => __('supplier product marketplaces'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
@@ -84,7 +84,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                     'icon'          =>
                         [
                             'icon'  => ['fal', 'parachute-box'],
-                            'title' => __('supplier product')
+                            'title' => __('supplier product marketplaces')
                         ],
                     'title' => $supplierProduct->name,
 
@@ -121,7 +121,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('supplier products')
+                            'label' => __('supplier product marketplaces')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -135,10 +135,11 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
             ];
         };
 
+//        dd($routeName);
         return match ($routeName) {
             'procurement.marketplace.suppliers.show.supplier-products.show' => array_merge(
                 (new ShowMarketplaceSupplier())->getBreadcrumbs(
-                    'procurement.marketplace.suppliers.show',
+                    'procurement.marketplace.suppliers.show.supplier-products.show',
                     ['supplier' => $routeParameters['supplier']]
                 ),
                 $headCrumb(

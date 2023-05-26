@@ -20,19 +20,22 @@ class CreateProduct extends InertiaAction
     private Shop $parent;
 
 
-    public function handle(): Response
+    public function handle(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $this->parent
+                ),
                 'title'       => __('new product'),
                 'pageHead'    => [
                     'title'        => __('new product'),
                     'cancelCreate' => [
                         'route' => [
                             'name' => match ($this->routeName) {
-                                'shops.show.products.create' => 'products.index',
+                                'shops.show.products.create' => 'shops.show.products.index',
                                 default                      => preg_replace('/create$/', 'index', $this->routeName)
                             },
                             'parameters' => array_values($this->originalParameters)
@@ -40,7 +43,36 @@ class CreateProduct extends InertiaAction
                     ]
 
                 ],
-
+                'formData'    => [
+                    'blueprint' =>
+                        [
+                            [
+                                'title'  => __('name'),
+                                'fields' => [
+                                    'name' => [
+                                        'type'  => 'input',
+                                        'label' => __('name')
+                                    ],
+                                    'description' => [
+                                        'type'  => 'input',
+                                        'label' => __('description')
+                                    ],
+                                    'units' => [
+                                        'type'  => 'input',
+                                        'label' => __('units')
+                                    ],
+                                    'price' => [
+                                        'type'  => 'input',
+                                        'label' => __('price')
+                                    ],
+                                ]
+                            ]
+                        ],
+                    'route'     => [
+                        'name'     => 'models.shop.product.store',
+                        'arguments'=> [$shop->slug]
+                    ]
+                ]
 
             ]
         );
@@ -56,7 +88,7 @@ class CreateProduct extends InertiaAction
     {
         $this->parent = $shop;
         $this->initialisation($request);
-
-        return $this->handle();
+        return $this->handle($shop, $request);
     }
+
 }

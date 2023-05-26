@@ -131,9 +131,9 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __("supplier's marketplaces"),
+                'title'       => __("supplier product's marketplaces "),
                 'pageHead'    => [
-                    'title'  => __("supplier's marketplaces"),
+                    'title'  => __("supplier product's marketplaces "),
                     'create' => $this->canEdit && $this->routeName == 'procurement.marketplace.supplier-products.index' ? [
                         'route' => [
                             'name'       => 'procurement.marketplace.supplier-products.create',
@@ -159,7 +159,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('supplier products'),
+                        'label' => __('supplier products marketplaces'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

@@ -22,6 +22,7 @@ class ShopHydrateCustomers implements ShouldBeUnique
 
     public function handle(Shop $shop): void
     {
+
         $stats          = [
             'number_customers' => $shop->customers->count(),
         ];

@@ -14,6 +14,10 @@ class FetchAuroraInvoice extends FetchAurora
 {
     protected function parseModel(): void
     {
+        if(!$this->auroraModelData->{'Invoice Order Key'} and $this->auroraModelData->{'Invoice Total Amount'}==0) {
+            // just ignore it
+            return;
+        }
         $this->parsedData['order'] = $this->parseOrder($this->auroraModelData->{'Invoice Order Key'});
 
         $data = [];

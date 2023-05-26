@@ -10,24 +10,33 @@ use App\Services\Tenant\SourceTenantService;
 use Arr;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeletedCustomers extends FetchAction
 {
     public string $commandSignature = 'fetch:deleted-customers {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
+    /**
+     * @throws \Throwable
+     */
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
     {
         if ($customerData = $tenantSource->fetchDeletedCustomer($tenantSourceId)) {
             if ($customerData['customer']) {
                 if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                     ->first()) {
-                    if (Arr::get($customer->data, 'deleted.source')=='aurora') {
+                    if (Arr::get($customer->data, 'deleted.source') == 'aurora') {
                         $customer = UpdateCustomer::run($customer, $customerData['customer']);
                     }
                 } else {
-                    $customer = StoreCustomer::run($customerData['shop'], $customerData['customer'], $customerData['contact_address']);
+                    $customer = StoreCustomer::make()->asFetch(
+                        shop: $customerData['shop'],
+                        customerData: $customerData['customer'],
+                        customerAddressesData: $customerData['contact_address'],
+                        hydratorsDelay: $this->hydrateDelay
+                    );
+
+
                     if (!empty($customerData['delivery_address'])) {
                         StoreAddressAttachToModel::run($customer, $customerData['delivery_address'], ['scope' => 'delivery']);
                     }
