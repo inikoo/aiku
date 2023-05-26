@@ -38,6 +38,7 @@ use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Enums\Sales\Order\OrderStateEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -352,6 +353,6 @@ test(
 )->depends('create payment account');
 
 test('create invoice', function ($customer) {
-    $invoice = StoreInvoice::make()->action($customer, ['number' => 000011], Address::first());
-    expect($invoice->number)->toBe(000011);
+    $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition(), Address::first());
+    expect($invoice->number)->toBe(00001);
 })->depends('create customer');
