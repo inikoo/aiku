@@ -76,6 +76,10 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'  => [
+                    'previous' => $this->getPrevious($supplierProduct, $request),
+                    'next'     => $this->getNext($supplierProduct, $request),
+                ],
                 'pageHead'    => [
                     'icon'          =>
                         [
@@ -202,6 +206,73 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
             ),
 
             default => []
+        };
+    }
+
+    public function getPrevious(SupplierProduct $supplierProduct, ActionRequest $request): ?array
+    {
+        $query = SupplierProduct::where('code', '<', $supplierProduct->code);
+
+        $query = match ($request->route()->getName()) {
+            'procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'procurement.marketplace.agents.show.show.supplier.supplier-products.show',
+            'procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+
+            default => $query
+        };
+
+        $previous = $query->orderBy('code', 'desc')->first();
+
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(SupplierProduct $supplierProduct, ActionRequest $request): ?array
+    {
+        $query = SupplierProduct::where('code', '>', $supplierProduct->code);
+
+        $query = match ($request->route()->getName()) {
+            'procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'procurement.marketplace.agents.show.show.supplier.supplier-products.show',
+            'procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+
+            default => $query
+        };
+
+        $next = $query->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?SupplierProduct $supplierProduct, string $routeName): ?array
+    {
+        if (!$supplierProduct) {
+            return null;
+        }
+
+
+        return match ($routeName) {
+            'procurement.marketplace.supplier-products.show' => [
+                'label' => $supplierProduct->code,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'supplierProduct' => $supplierProduct->slug
+                    ]
+
+                ]
+            ],
+            'procurement.marketplace.agents.show.supplier-products.show' => [
+                'label' => $supplierProduct->code,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'agent'           => $supplierProduct->agent->slug,
+                        'supplierProduct' => $supplierProduct->slug
+                    ]
+
+                ]
+            ]
         };
     }
 }

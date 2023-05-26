@@ -50,6 +50,10 @@ class ShowMarketplaceAgent extends InertiaAction
                 'breadcrumbs'                              => $this->getBreadcrumbs(
                     $request->route()->parameters
                 ),
+                'navigation'    => [
+                    'previous'  => $this->getPrevious($agent, $request),
+                    'next'      => $this->getNext($agent, $request),
+                ],
                 'pageHead'                                 => [
                     'icon'          =>
                         [
@@ -168,5 +172,37 @@ class ShowMarketplaceAgent extends InertiaAction
                 ],
             ]
         );
+    }
+
+    public function getPrevious(Agent $agent, ActionRequest $request): ?array
+    {
+        $previous = Agent::where('code', '<', $agent->code)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Agent $agent, ActionRequest $request): ?array
+    {
+        $next = Agent::where('code', '>', $agent->code)->orderBy('code')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Agent $agent, string $routeName): ?array
+    {
+        if(!$agent) {
+            return null;
+        }
+        return match ($routeName) {
+            'procurement.marketplace.agents.show'=> [
+                'label'=> $agent->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'agent'=> $agent->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }

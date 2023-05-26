@@ -62,6 +62,10 @@ class ShowMarketplaceSupplier extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'    => [
+                    'previous'  => $this->getPrevious($supplier, $request),
+                    'next'      => $this->getNext($supplier, $request),
+                ],
                 'pageHead'                                            => [
                     'icon'  =>
                         [
@@ -186,6 +190,61 @@ class ShowMarketplaceSupplier extends InertiaAction
             ),
 
             default => []
+        };
+    }
+
+    public function getPrevious(Supplier $supplier, ActionRequest $request): ?array
+    {
+
+        $previous = Supplier::where('code', '<', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
+            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
+                $query->where('suppliers.agent_id', $supplier->agent_id);
+            }
+        })->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Supplier $supplier, ActionRequest $request): ?array
+    {
+        $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
+            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
+                $query->where('suppliers.agent_id', $supplier->agent_id);
+            }
+        })->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Supplier $supplier, string $routeName): ?array
+    {
+        if(!$supplier) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'procurement.marketplace.suppliers.show'=> [
+                'label'=> $supplier->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'supplier'  => $supplier->slug
+                    ]
+
+                ]
+            ],
+            'procurement.marketplace.agents.show.suppliers.show' => [
+                'label'=> $supplier->code,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'agent'     => $supplier->agent->slug,
+                        'supplier'  => $supplier->slug
+                    ]
+
+                ]
+            ]
         };
     }
 
