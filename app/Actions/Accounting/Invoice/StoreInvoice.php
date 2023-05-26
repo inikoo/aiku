@@ -67,4 +67,9 @@ class StoreInvoice
 
         return $this->handle($parent, $modelData, $billingAddress);
     }
+
+    public function action(Customer|Order $parent, array $modelData, Address $billingAddress): Invoice
+    {
+        return $this->handle($parent, $modelData, $billingAddress);
+    }
 }
