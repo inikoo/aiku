@@ -79,6 +79,10 @@ class ShowStockFamily extends InertiaAction
 
                 ],
 
+                StockFamilyTabsEnum::SHOWCASE->value => $this->tab == StockFamilyTabsEnum::SHOWCASE->value ?
+                    fn () => GetStockFamilyShowcase::run($this->stockFamily)
+                    : Inertia::lazy(fn () => GetStockFamilyShowcase::run($this->stockFamily)),
+
                 StockFamilyTabsEnum::LOCATIONS->value => $this->tab == StockFamilyTabsEnum::LOCATIONS->value ?
                     fn () => LocationResource::collection(IndexLocations::run($this->stockFamily))
                     : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($this->stockFamily))),
