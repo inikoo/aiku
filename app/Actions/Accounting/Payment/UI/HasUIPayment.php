@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
-use App\Actions\Sales\Order\ShowOrder;
+use App\Actions\Sales\Order\UI\ShowOrder;
 use App\Actions\UI\Accounting\AccountingDashboard;
 
 trait HasUIPayment

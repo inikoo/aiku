@@ -9,9 +9,9 @@
 use App\Actions\Accounting\Payment\UI\EditPayment;
 use App\Actions\Accounting\Payment\UI\ShowPayment;
 use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
-use App\Actions\Sales\Order\IndexOrders;
-use App\Actions\Sales\Order\ShowOrder;
 use App\Actions\Sales\Order\UI\CreateOrder;
+use App\Actions\Sales\Order\UI\IndexOrders;
+use App\Actions\Sales\Order\UI\ShowOrder;
 use Illuminate\Support\Facades\Route;
 
 if (empty($parent)) {

@@ -12,7 +12,7 @@ use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
-use App\Actions\Sales\Order\IndexOrders;
+use App\Actions\Sales\Order\UI\IndexOrders;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;

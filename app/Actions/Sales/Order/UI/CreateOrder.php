@@ -8,7 +8,6 @@
 namespace App\Actions\Sales\Order\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Sales\Order\IndexOrders;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,7 +30,7 @@ class CreateOrder extends InertiaAction
                     'cancelCreate' => [
                         'route' => [
                             'name'       => match ($this->routeName) {
-                                'shops.show.orders.create' => 'shops.show.orders.index',
+                                'shops.show.orders.create'    => 'shops.show.orders.index',
                                 default                       => preg_replace('/create$/', 'index', $this->routeName)
                             },
                             'parameters' => array_values($this->originalParameters)

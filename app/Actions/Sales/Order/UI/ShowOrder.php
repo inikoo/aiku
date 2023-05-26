@@ -1,18 +1,17 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 17:04:31 Central European Summer, Benalmádena, Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Fri, 26 May 2023 12:41:25 Central European Summer Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Sales\Order;
+namespace App\Actions\Sales\Order\UI;
 
 use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
-use App\Actions\Sales\Order\UI\HasUIOrder;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
@@ -97,6 +96,10 @@ class ShowOrder extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => OrderTabsEnum::navigation()
                 ],
+
+                OrderTabsEnum::SHOWCASE->value => $this->tab == OrderTabsEnum::SHOWCASE->value ?
+                    fn () => GetOrderShowcase::run($this->order)
+                    : Inertia::lazy(fn () => GetOrderShowcase::run($this->order)),
 
                 OrderTabsEnum::PAYMENTS->value => $this->tab == OrderTabsEnum::PAYMENTS->value ?
                     fn () => PaymentResource::collection(IndexPayments::run($this->order))

@@ -8,7 +8,7 @@
 namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
-use App\Actions\Sales\Order\ShowOrder;
+use App\Actions\Sales\Order\UI\ShowOrder;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Dispatch\DeliveryNote;
@@ -64,8 +64,8 @@ class ShowDeliveryNote extends InertiaAction
         return Inertia::render(
             'Marketing/DeliveryNote',
             [
-                'title'         => __('delivery_note'),
-                'breadcrumbs'   => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters(), $deliveryNote),
+                'title'                                 => __('delivery_note'),
+                'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters(), $deliveryNote),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($deliveryNote, $request),
                     'next'     => $this->getNext($deliveryNote, $request),
@@ -193,7 +193,7 @@ class ShowDeliveryNote extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'    => $deliveryNote->shop->slug,
+                        'shop'        => $deliveryNote->shop->slug,
                         'deliveryNote'=> $deliveryNote->slug
                     ]
 

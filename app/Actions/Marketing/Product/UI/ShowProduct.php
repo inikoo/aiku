@@ -10,7 +10,7 @@ namespace App\Actions\Marketing\Product\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
-use App\Actions\Sales\Order\IndexOrders;
+use App\Actions\Sales\Order\UI\IndexOrders;
 use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;

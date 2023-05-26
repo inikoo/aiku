@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 22 Feb 2023 12:20:38 Central European Standard Time, Malaga, Spain
+ * Created: Fri, 26 May 2023 12:41:30 Central European Summer Time, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Sales\Order;
+namespace App\Actions\Sales\Order\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
