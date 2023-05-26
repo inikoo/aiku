@@ -189,7 +189,7 @@ class ShowDeliveryNote extends InertiaAction
                 ]
             ],
             'shops.show.delivery-notes.show'=> [
-                'label'=> $deliveryNote->name,
+                'label'=> $deliveryNote->number,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
