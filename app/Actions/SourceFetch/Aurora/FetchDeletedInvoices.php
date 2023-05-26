@@ -31,8 +31,8 @@ class FetchDeletedInvoices extends FetchAction
                         modelData: $deletedInvoiceData['invoice'],
                     );
                 } else {
-                    $invoice = StoreInvoice::run(
-                        order:              $deletedInvoiceData['order'],
+                    $invoice = StoreInvoice::make()->asFetch(
+                        parent:              $deletedInvoiceData['parent'],
                         modelData:          $deletedInvoiceData['invoice'],
                         billingAddress: $deletedInvoiceData['billing_address']
                     );
