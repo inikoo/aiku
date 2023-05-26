@@ -64,8 +64,8 @@ class ShowInvoice extends InertiaAction
         return Inertia::render(
             'Marketing/Invoice',
             [
-                'title'       => __('invoice'),
-                'breadcrumbs' => $this->getBreadcrumbs($invoice),
+                'title'                                 => __('invoice'),
+                'breadcrumbs'                           => $this->getBreadcrumbs($invoice),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($invoice, $request),
                     'next'     => $this->getNext($invoice, $request),
@@ -78,8 +78,11 @@ class ShowInvoice extends InertiaAction
                 'tabs'=> [
                     'current'    => $this->tab,
                     'navigation' => InvoiceTabsEnum::navigation()
-
                 ],
+
+                InvoiceTabsEnum::SHOWCASE->value => $this->tab == InvoiceTabsEnum::SHOWCASE->value ?
+                    fn () => GetInvoiceShowcase::run($this->invoice)
+                    : Inertia::lazy(fn () => GetInvoiceShowcase::run($this->invoice)),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
                     fn () => PaymentResource::collection(IndexPayments::run($this->invoice))
