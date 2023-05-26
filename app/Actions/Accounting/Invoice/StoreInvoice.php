@@ -20,6 +20,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StoreInvoice
 {
     use AsAction;
+    public int $hydratorsDelay=0;
 
     public function handle(
         Order $order,
@@ -38,11 +39,22 @@ class StoreInvoice
         $billingAddress = StoreHistoricAddress::run($billingAddress);
         AttachHistoricAddressToModel::run($invoice, $billingAddress, ['scope' => 'billing']);
 
-        CustomerHydrateInvoices::dispatch($invoice->customer);
-        ShopHydrateInvoices::dispatch($invoice->shop);
+        CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
+        ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
         InvoiceHydrateUniversalSearch::dispatch($invoice);
 
 
         return $invoice;
+    }
+
+    public function asFetch(
+        Order $order,
+        array $modelData,
+        Address $billingAddress,
+        int $hydratorsDelay = 60
+    ): Invoice {
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        return $this->handle($order, $modelData, $billingAddress);
     }
 }

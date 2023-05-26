@@ -48,10 +48,11 @@ class FetchInvoices extends FetchAction
                         unset($invoiceData['invoice']['data']['foot_note']);
                     }
 
-                    $invoice = StoreInvoice::run(
+                    $invoice = StoreInvoice::make()->asFetch(
                         order:          $invoiceData['order'],
                         modelData:      $invoiceData['invoice'],
-                        billingAddress: $invoiceData['billing_address']
+                        billingAddress: $invoiceData['billing_address'],
+                        hydratorsDelay: $this->hydrateDelay
                     );
                     if (in_array('transactions', $this->with)) {
                         $this->fetchInvoiceTransactions($tenantSource, $invoice);

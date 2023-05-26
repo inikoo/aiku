@@ -24,7 +24,6 @@ class ShopHydrateCustomerInvoices implements ShouldBeUnique
     {
         $stats = [];
 
-
         $numberInvoicesStateCounts = Customer::where('shop_id', $shop->id)
             ->selectRaw('trade_state, count(*) as total')
             ->groupBy('trade_state')
