@@ -109,7 +109,6 @@ class InertiaTable
      */
     protected function getQueryBuilderProps(): array
     {
-
         return [
             'defaultVisibleToggleableColumns' => $this->columns->reject->hidden->map->key->sort()->values(),
             'columns'                         => $this->transformColumns(),
@@ -202,8 +201,6 @@ class InertiaTable
     }
 
 
-
-
     protected function transformSearchInputs(): Collection
     {
         $filters = $this->query('filter', []);
@@ -221,22 +218,16 @@ class InertiaTable
         });
     }
 
-    /**
-     * Add a column to the query builder.
-     *
-     * @param  string|null  $key
-     * @param  string|null  $label
-     * @param  bool  $canBeHidden
-     * @param  bool  $hidden
-     * @param  bool  $sortable
-     * @param  bool  $searchable
-     *
-     * @return self
-     */
-    public function column(string $key = null, string $label = null, bool $canBeHidden = true, bool $hidden = false, bool $sortable = false, bool $searchable = false): self
+
+    public function column(string $key = null, array|string $label = null, bool $canBeHidden = true, bool $hidden = false, bool $sortable = false, bool $searchable = false): self
     {
-        $key   = $key ?: Str::kebab($label);
-        $label = $label ?: Str::headline($key);
+        if (is_string($label)) {
+            $label = $label ?: Str::headline($key);
+            $key   = $key ?: Str::kebab($label);
+        } else {
+            $key = $key ?: Str::kebab($label['tooltip']);
+        }
+
 
         $this->columns = $this->columns->reject(function (Column $column) use ($key) {
             return $column->key === $key;

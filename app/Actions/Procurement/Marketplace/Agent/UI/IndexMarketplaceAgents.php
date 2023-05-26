@@ -62,7 +62,11 @@ class IndexMarketplaceAgents extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::AGENTS->value.'Page');
             $table
                 ->withGlobalSearch()
-                ->column(key: 'adoption', label: 'z', canBeHidden: false)
+                ->column(key: 'adoption', label: [
+                    'type'   => 'icon',
+                    'data'   => ['fal','fa-yin-yang'],
+                    'tooltip'=> __('adoption')
+                ], canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)

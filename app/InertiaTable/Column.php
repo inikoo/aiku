@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 26 May 2023 16:39:21 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 namespace App\InertiaTable;
 
@@ -8,7 +13,7 @@ class Column implements Arrayable
 {
     public function __construct(
         public string $key,
-        public string $label,
+        public string|array $label,
         public bool $canBeHidden,
         public bool $hidden,
         public bool $sortable,
@@ -16,7 +21,7 @@ class Column implements Arrayable
     ) {
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'key'           => $this->key,
