@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
 use App\Actions\Sales\Order\IndexOrders;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\CustomerTabsEnum;
@@ -26,7 +27,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowCustomer extends InertiaAction
 {
-
     public function handle(Customer $customer): Customer
     {
         return $customer;
@@ -154,6 +154,10 @@ class ShowCustomer extends InertiaAction
                     'navigation' => CustomerTabsEnum::navigation()
 
                 ],
+
+                CustomerTabsEnum::SHOWCASE->value => $this->tab == CustomerTabsEnum::SHOWCASE->value ?
+                    fn () => GetAgentShowcase::run($customer)
+                    : Inertia::lazy(fn () => GetAgentShowcase::run($customer)),
 
                 CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
                     fn () => OrderResource::collection(IndexOrders::run($customer))
