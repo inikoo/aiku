@@ -66,6 +66,10 @@ class ShowDeliveryNote extends InertiaAction
             [
                 'title'         => __('delivery_note'),
                 'breadcrumbs'   => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters(), $deliveryNote),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($deliveryNote, $request),
+                    'next'     => $this->getNext($deliveryNote, $request),
+                ],
                 'pageHead'      => [
                     'title' => $deliveryNote->number,
 
@@ -139,6 +143,62 @@ class ShowDeliveryNote extends InertiaAction
                 ),
                 $headCrumb([$routeParameters['order']->slug,$routeParameters['deliveryNote']->slug])
             ),
+        };
+    }
+
+    public function getPrevious(DeliveryNote $deliveryNote, ActionRequest $request): ?array
+    {
+
+        $previous = DeliveryNote::where('number', '<', $deliveryNote->number)->when(true, function ($query) use ($deliveryNote, $request) {
+            if ($request->route()->getName() == 'shops.show.delivery-notes.show') {
+                $query->where('delivery_notes.shop_id', $deliveryNote->shop_id);
+            }
+        })->orderBy('number', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(DeliveryNote $deliveryNote, ActionRequest $request): ?array
+    {
+        $next = DeliveryNote::where('number', '>', $deliveryNote->number)->when(true, function ($query) use ($deliveryNote, $request) {
+            if ($request->route()->getName() == 'shops.show.delivery-notes.show') {
+                $query->where('delivery_notes.shop_id', $deliveryNote->shop_id);
+            }
+        })->orderBy('number')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?DeliveryNote $deliveryNote, string $routeName): ?array
+    {
+        if(!$deliveryNote) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'delivery-notes.show' ,
+            'shops.delivery-notes.show'=> [
+                'label'=> $deliveryNote->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'deliveryNote'=> $deliveryNote->slug
+                    ]
+
+                ]
+            ],
+            'shops.show.delivery-notes.show'=> [
+                'label'=> $deliveryNote->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'    => $deliveryNote->shop->slug,
+                        'deliveryNote'=> $deliveryNote->slug
+                    ]
+
+                ]
+            ]
         };
     }
 }

@@ -49,10 +49,10 @@ class ShowInvoice extends InertiaAction
         return $this->handle($invoice);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->initialisation($request)->withTab(CustomerTabsEnum::values());
-
         return $this->handle($invoice);
     }
 
