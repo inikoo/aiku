@@ -15,14 +15,12 @@ use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\ProductResource;
-use App\Http\Resources\Marketing\ProductShowcaseResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowProduct extends InertiaAction
@@ -87,8 +85,8 @@ class ShowProduct extends InertiaAction
 
 
                 ProductTabsEnum::SHOWCASE->value => $this->tab == ProductTabsEnum::SHOWCASE->value ?
-                    fn () => new ProductShowcaseResource($product)
-                    : Inertia::lazy(fn () => new ProductShowcaseResource($product)),
+                    fn () => GetProductShowcase::run($product)
+                    : Inertia::lazy(fn () => GetProductShowcase::run($product)),
 
                 ProductTabsEnum::ORDERS->value => $this->tab == ProductTabsEnum::ORDERS->value ?
                     fn () => OrderResource::collection(IndexOrders::run($product))
@@ -224,7 +222,7 @@ class ShowProduct extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'  => $product->shop->slug,
+                        'shop'   => $product->shop->slug,
                         'product'=> $product->slug
                     ]
 
