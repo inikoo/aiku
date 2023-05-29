@@ -98,10 +98,10 @@ router.on('navigate', (event) => {
               :href="layout.currentShopSlug? route(shopsFeature.link1, layout.currentShopSlug) : route(shopsFeature.link2)"
         >
             <div
-                :class="{ 'border-b border-indigo-500 hover:border-indigo-500 text-indigo-500': route(shopsFeature.link2) == urlPage }"
+                :class="{ 'border-b border-indigo-500 hover:border-indigo-500 text-indigo-500': route(shopsFeature.link1, layout.currentShopSlug) == urlPage || route(shopsFeature.link2) == urlPage }"
                 class="col-span-2 flex justify-center items-center text-gray-600 w-7 h-auto aspect-square hover:border-b hover:border-indigo-100"
             >
-            <!-- {{ route(shopsFeature.link2) == urlPage }} -->
+            <!-- {{ route(shopsFeature.link1, layout.currentShopSlug) == urlPage }} -->
                 <font-awesome-icon class="text-xs group-hover:text-indigo-500" aria-hidden="true" :icon="shopsFeature.icon" />
             </div>
             <div class="md:hidden col-span-5 ">
