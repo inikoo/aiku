@@ -84,7 +84,7 @@ const shopsFeatures = [
     <div class="flex flex-wrap py-3 my-2 md:py-0 md:my-0 md:mt-0 md:inline-flex justify-start items-center border-b border-gray-200 md:border-0 bg-gray-100/50 md:bg-inherit md:space-y-0 md:space-x-0">
         <Link v-for="(shopsFeature, index) in shopsFeatures"
               :key="index"
-              class="grid grid-flow-col grid-cols-7 justify-center items-center w-full py-1.5 px-4 space-x-0 group md:first:hidden md:grid-cols-1 md:justify-end md:w-auto md:px-3 lg:px-5 "
+              class="grid grid-flow-col grid-cols-7 justify-center items-center w-full py-1.5 px-4 space-x-0 group md:grid-cols-1 md:justify-end md:w-auto md:px-3 lg:px-5 "
               :title="trans(shopsFeature.title)"
               :href="layout.currentShopSlug? route(shopsFeature.link1, layout.currentShopSlug) : route(shopsFeature.link2)"
         >
