@@ -17,6 +17,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -83,7 +84,7 @@ class IndexShops extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $shops, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $shops, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 

@@ -65,15 +65,17 @@ class IndexDepartments extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, ?array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($parent , $modelOperations ) {
             $table
+                ->defaultSort('code')
                 ->name(TabsAbbreviationEnum::DEPARTMENTS->value)
-                ->pageName(TabsAbbreviationEnum::DEPARTMENTS->value.'Page');
-
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->pageName(TabsAbbreviationEnum::DEPARTMENTS->value.'Page')
+                ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -92,14 +94,14 @@ class IndexDepartments extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle(app('currentTenant'));
+        return $this->handle(parent: app('currentTenant'));
     }
 
     public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
-        return $this->handle($shop);
+        return $this->handle(parent: $shop);
     }
 
     public function jsonResponse(LengthAwarePaginator $departments): AnonymousResourceCollection
@@ -127,7 +129,7 @@ class IndexDepartments extends InertiaAction
                             'name'       => 'shops.show.catalogue.hub.departments.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('department')
+                        'label' => __('departments')
                     ] : false,
                 ],
                 'data'        => DepartmentResource::collection($departments),

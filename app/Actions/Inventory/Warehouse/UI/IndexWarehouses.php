@@ -85,7 +85,6 @@ class IndexWarehouses extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        //$request->validate();
         $this->initialisation($request);
         return $this->handle();
     }

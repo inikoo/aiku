@@ -37,7 +37,7 @@ class ShowPurchaseOrder extends InertiaAction
 
     }
 
-    public function htmlResponse(ActionRequest $request): Response
+    public function htmlResponse(): Response
     {
         $this->validateAttributes();
 
@@ -46,10 +46,10 @@ class ShowPurchaseOrder extends InertiaAction
             [
                 'title'       => __('purchase order'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->purchaseOrder),
-                'navigation'                            => [
-                    'previous' => $this->getPrevious($this->purchaseOrder, $request),
-                    'next'     => $this->getNext($this->purchaseOrder, $request),
-                ],
+//                'navigation'                            => [
+//                    'previous' => $this->getPrevious($this->purchaseOrder, $request),
+//                    'next'     => $this->getNext($this->purchaseOrder, $request),
+//                ],
                 'pageHead'    => [
                     'icon'  => 'fal people-arrows',
                     'title' => $this->purchaseOrder->number,

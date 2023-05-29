@@ -13,12 +13,12 @@ use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -98,11 +98,6 @@ class IndexSupplierProducts extends InertiaAction
         return $this->handle($agent);
     }
 
-    public function inSupplier(Supplier $supplier): LengthAwarePaginator
-    {
-        $this->validateAttributes();
-        return $this->handle($supplier);
-    }
 
     public function jsonResponse(LengthAwarePaginator $supplier_products): AnonymousResourceCollection
     {
@@ -110,9 +105,9 @@ class IndexSupplierProducts extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $supplier_products, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $supplier_products, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+//        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'Procurement/SupplierProducts',
             [

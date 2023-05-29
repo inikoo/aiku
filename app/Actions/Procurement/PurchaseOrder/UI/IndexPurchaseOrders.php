@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -37,10 +38,14 @@ class IndexPurchaseOrders extends InertiaAction
         return QueryBuilder::for(PurchaseOrder::class)
             ->with('provider')
             ->defaultSort('purchase_orders.number')
-            ->select(['number', 'slug', 'date'])
+            ->select(['number', 'purchase_orders.slug', 'date'])
             ->allowedFilters([$globalSearch])
             ->when(true, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Tenant') {
+                if (class_basename($parent) == 'Agent') {
+                    $query->leftJoin('agents', 'agents.id', 'purchase_orders.provider_id');
+                    $query->where('purchase_orders.provider_id', $parent->id);
+                    $query->addSelect('agents.slug as agent_slug');
+                } elseif (class_basename($parent) == 'Tenant') {
                     $query->addSelect(['provider_id', 'provider_type']);
                 } else {
                     $query->where('provider_id', $parent->id);
@@ -88,6 +93,12 @@ class IndexPurchaseOrders extends InertiaAction
         $this->initialisation($request);
 
         return $this->handle(app('currentTenant'));
+    }
+
+    public function inAgent(Agent $agent): LengthAwarePaginator
+    {
+        $this->validateAttributes();
+        return $this->handle($agent);
     }
 
 

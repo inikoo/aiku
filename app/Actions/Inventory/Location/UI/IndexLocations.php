@@ -20,6 +20,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -134,7 +135,7 @@ class IndexLocations extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $locations, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $locations, ActionRequest $request): Response
     {
         return Inertia::render(
             'Inventory/Locations',
@@ -143,7 +144,7 @@ class IndexLocations extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('locations'),
+                'title'       => __('Locations'),
                 'pageHead'    => [
                     'title'  => __('locations'),
                     'create' => $this->canEdit

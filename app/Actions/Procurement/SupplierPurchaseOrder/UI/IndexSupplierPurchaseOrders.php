@@ -19,6 +19,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -38,20 +39,19 @@ class IndexSupplierPurchaseOrders extends InertiaAction
         ;
         return QueryBuilder::for(PurchaseOrder::class)
             ->defaultSort('purchase_orders.number')
-            ->select(['number', 'slug', 'status'])
+            ->select(['number', 'slug', 'purchase_orders.status as status'])
             ->leftJoin('purchase_order_items', 'purchase_order_items.purchase_order_id', 'purchase_orders.id')
 
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
                     $query->where('purchase_orders.provider_id', $parent->id);
                 } elseif (class_basename($parent) == 'Tenant') {
-
-                    $query->where('supplier_product_tenant.tenant_id', $parent->id);
+                    $query->where('purchase_orders.provider_id', $parent->id);
                 } elseif (class_basename($parent) == 'Supplier') {
-                    $query->where('supplier_products.supplier_id', $parent->id);
+                    $query->where('purchase_orders.provider_id', $parent->id);
                 }
             })
-            ->allowedSorts(['code', 'name'])
+            ->allowedSorts(['number', 'slug'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -95,18 +95,19 @@ class IndexSupplierPurchaseOrders extends InertiaAction
     {
         return PurchaseOrderResource::collection($suppliers);
     }
+    public function inAgent(Agent $agent): LengthAwarePaginator
+    {
+        $this->validateAttributes();
+        return $this->handle($agent);
+    }
 
-
-    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $purchase_orders, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters == [] ? app('currentTenant') : last($request->route()->paramenters());
         return Inertia::render(
             'Procurement/SupplierPurchaseOrders',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('supplier purchase orders'),
                 'pageHead'    => [
                     'title'   => __('supplier purchase orders'),
@@ -118,7 +119,7 @@ class IndexSupplierPurchaseOrders extends InertiaAction
                         'label'=> __('supplier deliveries')
                     ] : false,
                 ],
-                'data'   => PurchaseOrderResource::collection($suppliers),
+                'data'   => PurchaseOrderResource::collection($purchase_orders),
 
 
             ]
