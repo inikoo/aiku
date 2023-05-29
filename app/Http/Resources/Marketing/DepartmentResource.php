@@ -26,8 +26,9 @@ class DepartmentResource extends JsonResource
     {
         return [
             'slug'            => $this->slug,
-            'shop_slug'       => $this->shop_slug,
-            'department_slug' => $this->department_slug,
+            'shop_slug'       => $this->whenHas('shop_slug'),
+
+            //'department_slug' => $this->department_slug,
             'code'            => $this->code,
             'name'            => $this->name,
             'state'           => $this->state,

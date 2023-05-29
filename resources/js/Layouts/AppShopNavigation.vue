@@ -20,44 +20,46 @@ library.add(faList, faFolderTree, faMailBulk);
 
 const shopsFeatures = [
 
+
     {
-        title: "Catalogue",
+        title: trans("Catalogue"),
         link1: "shops.show.catalogue.hub",
         link2: "catalogue.hub",
         icon : "fal fa-folder-tree"
     },
     {
-        title: "Website",
+        title: trans("Website"),
         link1: "shops.show.website",
         link2: "websites.index",
         icon : "fal fa-globe"
     },
+
     {
-        title: "Customers",
+        title: trans("Customers"),
         link1: "shops.show.customers.index",
         link2: "customers.index",
         icon : "fal fa-user"
     },
     {
-        title: "Orders",
+        title: trans("Orders"),
         link1: "shops.show.orders.index",
         link2: "orders.index",
         icon : "fal fa-shopping-cart"
     },
     {
-        title: "Mailroom",
+        title: trans("Mailroom"),
         link1: "shops.show.mail.hub",
         link2: "mail.hub",
         icon : "fal fa-mail-bulk"
     },
     {
-        title: "Accounting",
+        title: trans("Accounting"),
         link1: "shops.show.accounting.dashboard",
         link2: "accounting.dashboard",
         icon : "fal fa-abacus"
     },
     {
-        title: "Accounting",
+        title: trans("Dispatch"),
         link1: "shops.show.dispatch.hub",
         link2: "dispatch.hub",
         icon : "fal fa-conveyor-belt-alt"

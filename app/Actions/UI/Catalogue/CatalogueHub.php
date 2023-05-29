@@ -17,43 +17,54 @@ use App\Http\Resources\Marketing\DepartmentResource;
 use App\Http\Resources\Marketing\FamilyResource;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\Shop;
+use App\Models\Tenancy\Tenant;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class CatalogueHub extends InertiaAction
 {
+    public function handle(Tenant|Shop $scope): Tenant|Shop
+    {
+        return $scope;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("showroom.view");
     }
 
 
-    public function inTenant(ActionRequest $request): ActionRequest
+    public function inTenant(ActionRequest $request): Tenant
     {
         $this->initialisation($request)->withTab(CatalogueTabsEnum::values());
-        return $request;
+
+        return $this->handle(app('currentTenant'));
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): ActionRequest
+    public function inShop(Shop $shop, ActionRequest $request): Shop
     {
         $this->initialisation($request)->withTab(CatalogueTabsEnum::values());
-        return $request;
+
+        return $this->handle($shop);
     }
 
 
-
-    public function htmlResponse(ActionRequest $request): Response
+    public function htmlResponse(Tenant|Shop $scope, ActionRequest $request): Response
     {
-        $parent = match ($request->route()->getName()) {
-            'shops.show.catalogue.hub' => $request->route()->parameters()['shop'],
-            default                    => app('currentTenant')
-        };
-
-        $title = match (class_basename($parent)) {
-            'Shop'  => $parent->code.' '.__('catalogue'),
-            default => __('catalogue all stores')
-        };
+        $container = null;
+        $scopeType = 'Tenant';
+        $title     = __('catalogue all stores');
+        if (class_basename($scope) == 'Shop') {
+            $title     = __('catalogue');
+            $scopeType = 'Shop';
+            $container = [
+                'icon'    => ['fal', 'fa-store-alt'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
 
 
         return Inertia::render(
@@ -65,49 +76,37 @@ class CatalogueHub extends InertiaAction
                 ),
                 'title'       => $title,
                 'pageHead'    => [
-                    'title' => $title,
+                    'title'     => $title,
+                    'container' => $container,
+
                 ],
 
                 'tabs'                                => [
                     'current'    => $this->tab,
                     'navigation' => CatalogueTabsEnum::navigation()
                 ],
-                CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value ?
-                    fn () => [
-                        'table'             => DepartmentResource::collection(IndexDepartments::run($parent)),
-                        'createInlineModel' => [
-                            'buttonLabel' => __('department'),
-                            'dialog'      => [
-                                'title'       => __('new department'),
-                                'saveLabel'   => __('save'),
-                                'cancelLabel' => __('cancel')
-                            ]
-                        ],
-                    ]
-                    : Inertia::lazy(
-                        fn () => [
-                            'table'             => DepartmentResource::collection(IndexDepartments::run($parent)),
-                            'createInlineModel' => [
-                                'buttonLabel' => __('department'),
-                                'dialog'      => [
-                                    'title'       => __('new department'),
-                                    'saveLabel'   => __('save'),
-                                    'cancelLabel' => __('cancel')
-                                ]
-                            ],
-                        ]
-                    ),
-                CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
-                    fn () => FamilyResource::collection(IndexFamilies::run($parent))
-                    : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($parent))),
+                CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value
+                    ?
+                    fn () =>
+                        DepartmentResource::collection(IndexDepartments::run($scope))
 
-                CatalogueTabsEnum::PRODUCTS->value => $this->tab == CatalogueTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($parent))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($parent))),
+
+                    : Inertia::lazy(
+                        fn () =>
+                            DepartmentResource::collection(IndexDepartments::run($scope))
+                    ),
+                /*
+                 CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
+                     fn () => FamilyResource::collection(IndexFamilies::run($scope))
+                     : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($scope))),
+ */
+                CatalogueTabsEnum::PRODUCTS->value    => $this->tab == CatalogueTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(IndexProducts::run($scope))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($scope))),
             ]
-        )->table(IndexDepartments::make()->tableStructure($parent))
-            ->table(IndexFamilies::make()->tableStructure($parent))
-            ->table(IndexProducts::make()->tableStructure($parent));
+        )->table(IndexDepartments::make()->tableStructure($scope))
+            //  ->table(IndexFamilies::make()->tableStructure($scope))
+            ->table(IndexProducts::make()->tableStructure($scope));
     }
 
 

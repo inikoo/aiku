@@ -25,7 +25,7 @@ Route::get('/departments/create', CreateDepartment::class)->name('hub.department
 //Route::get('/families/create', CreateFamily::class)->name('hub.families.create');
 
 
-Route::get('/', [CatalogueHub::class, $parent == 'tenant' ? 'inTenant' : 'inShopInDepartment'])->name('hub');
+Route::get('/', [CatalogueHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
 Route::get('/products', [IndexProducts::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.products.index');
 Route::get('/products/{product}', [ShowProduct::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.products.show');
 Route::get('/products/{product}/edit', [EditProduct::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.products.edit');

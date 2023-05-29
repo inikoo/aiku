@@ -13,17 +13,7 @@ import { ref } from "vue";
 import Button from "@/Components/Elements/Buttons/Button.vue";
 
 const props = defineProps<{
-    data: {
-        table: object
-        createInlineModel?: {
-            buttonLabel: string,
-            dialog: {
-                title: string
-                saveLabel: string
-                cancelLabel: string
-            }
-        }
-    }
+    data: object
 }>();
 
 
@@ -39,21 +29,12 @@ function departmentRoute(department: Department) {
                 [department.slug]);
     }
 }
-const showSearchDialog = ref(false);
 
 </script>
 
 <template>
-    <span v-if="data.createInlineModel"
-          class="hidden sm:block text-end">
-                <Button v-on:click="showSearchDialog = !showSearchDialog" type="secondary" action="create"
-                        class="capitalize">
-                 {{ data.createInlineModel.buttonLabel }}
-                </Button>
-        <NewItem :data="data.createInlineModel.dialog" v-if="showSearchDialog" v-on:close="showSearchDialog = false">
-        </NewItem>
-    </span>
-    <Table :resource="data.table" :name="'dep'" class="mt-5">
+
+    <Table :resource="data" :name="'dep'" class="mt-5">
         <template #cell(code)="{ item: department }">
             <Link :href="departmentRoute(department)">
                 {{ department['code'] }}
