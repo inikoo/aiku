@@ -556,7 +556,8 @@ const handleElementsChange = function (data) {
                 <div class="flex border border-indigo-100 rounded-lg">
                     <div class="grid justify-end items-center text-base font-normal text-gray-700"
                         title="Results">
-                        <div class="px-2 ">{{ locale.number(resourceMeta.total) }}{{ $t(' records') }}</div>
+                        <div v-if="resourceMeta.total" class="px-2 ">{{ locale.number(resourceMeta.total) }}{{ $t(' records') }}</div>
+                        <div v-else class="px-2 ">{{ locale.number(0) }}{{ $t(' records') }}</div>
                     </div>
                     <!-- Button -->
                     <div v-if="queryBuilderProps.modelOperations.createLink">
@@ -654,7 +655,7 @@ const handleElementsChange = function (data) {
                                         }">
                                         <td v-for="column in queryBuilderProps.columns" v-show="show(column.key)"
                                             :key="`table-${name}-row-${key}-column-${column.key}`" :class="[
-                                                typeof item[column.key] == 'number' ? 'text-center' : '',
+                                                typeof item[column.key] == 'number' ? 'text-right' : '',
                                                 'text-sm py-4 px-6 text-gray-500 whitespace-normal min-w-fit max-w-[450px]',
                                                 
                                             ]">
