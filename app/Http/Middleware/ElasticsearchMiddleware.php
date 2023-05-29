@@ -15,7 +15,9 @@ class ElasticsearchMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        UserHydrateElasticsearch::dispatch($request);
+        if (!app()->runningUnitTests()) {
+            UserHydrateElasticsearch::dispatch($request);
+        }
 
         return $next($request);
     }
