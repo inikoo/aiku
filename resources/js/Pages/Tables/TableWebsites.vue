@@ -20,6 +20,10 @@ function websiteRoute(website: Website) {
             return route(
                 'websites.show',
                 [website.slug]);
+        case 'shops.show.websites.index':
+            return route(
+                'shops.show.websites.show',
+                [website.shop_slug,website.slug]);
     }
 }
 
@@ -29,7 +33,7 @@ function websiteRoute(website: Website) {
     <Table :resource="data" :name="'webs'" class="mt-5">
         <template #cell(code)="{ item: website }">
             <Link :href="websiteRoute(website)">
-                {{ website.code }}
+                {{ website['code'] }}
             </Link>
         </template>
     </Table>

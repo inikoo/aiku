@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 17:04:31 Central European Summer, Benalmádena, Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 29 May 2023 12:18:51 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\Website;
+namespace App\Actions\Web\Website\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
@@ -25,7 +25,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 /**
  * @property Website $website
  */
-class WebsiteHub extends InertiaAction
+class ShowWebsite extends InertiaAction
 {
     use AsAction;
     use WithInertia;
@@ -148,7 +148,7 @@ class WebsiteHub extends InertiaAction
             'shops.show.websites.show',
             'shops.show.websites.edit'
             => array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     'simple',
                     $routeParameters['website'],

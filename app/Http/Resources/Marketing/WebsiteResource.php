@@ -7,13 +7,24 @@
 
 namespace App\Http\Resources\Marketing;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $slug
+ * @property string $name
+ * @property string $code
+ */
 class WebsiteResource extends JsonResource
 {
-    public function toArray($request): array|\JsonSerializable|Arrayable
+    public function toArray($request): array
     {
-        return parent::toArray($request);
+        return [
+            'slug'      => $this->slug,
+            'shop_slug' => $this->whenHas('shop_slug'),
+            'code'      => $this->code,
+            'name'      => $this->name
+
+
+        ];
     }
 }

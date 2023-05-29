@@ -27,8 +27,8 @@ const shopsFeatures = [
         icon : "fal fa-folder-tree"
     },
     {
-        title: "Websites",
-        link1: "shops.show.websites.index",
+        title: "Website",
+        link1: "shops.show.website",
         link2: "websites.index",
         icon : "fal fa-globe"
     },
