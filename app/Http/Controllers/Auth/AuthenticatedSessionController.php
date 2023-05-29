@@ -48,16 +48,12 @@ class AuthenticatedSessionController extends Controller
 
         app()->setLocale($locale);
 
-        UserHydrateElasticsearch::dispatch('login', $request->user());
-
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
 
     public function destroy(Request $request): RedirectResponse
     {
-        UserHydrateElasticsearch::dispatch('logout', $request->user());
-
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

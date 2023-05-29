@@ -11,6 +11,7 @@ namespace App\Actions\Traits;
 use App\Models\Auth\User;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
+use Illuminate\Http\Request;
 
 trait WithElasticsearch
 {
@@ -22,13 +23,24 @@ trait WithElasticsearch
         return ClientBuilder::create()->build();
     }
 
-    public function storeElastic(string $indexName, array $data = []): void
+    public function storeElastic(Request $request): void
     {
-        $data = array_merge($data, ['date' => now()]);
+        /** @var User $user */
+        $user = auth()->user();
+
+        $data =  [
+            'datetime' => now(),
+            'tenant_slug' => app('currentTenant')->slug,
+            'username' => $user->username,
+            'route' => [
+                'name' => $request->route()->getName(),
+                'parameters' => $request->route()->parameters
+            ],
+            'ip_address' => $request->ip()
+        ];
 
         $this->init()->index([
-            'index' => $indexName,
-            'id' => auth()->user()->id ?? rand(),
+            'index' => $data['tenant_slug'],
             'body' => $data
         ]);
     }

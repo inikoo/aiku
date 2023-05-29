@@ -353,14 +353,26 @@ test(
     }
 )->depends('create payment account');
 
-test('create invoice', function ($customer) {
+test('create invoice from customer', function ($customer) {
     $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition(), Address::first());
     expect($invoice->number)->toBe(00001);
 
     return $invoice;
 })->depends('create customer');
 
-test('update invoice', function ($invoice) {
+test('update invoice from customer', function ($invoice) {
     $invoice = UpdateInvoice::make()->action($invoice, Invoice::factory()->definition());
     expect($invoice->number)->toBe(00001);
-})->depends('create invoice');
+})->depends('create invoice from customer');
+
+test('create invoice from order', function ($customer) {
+    $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition(), Address::first());
+    expect($invoice->number)->toBe(00001);
+
+    return $invoice;
+})->depends('create order');
+
+test('update invoice from order', function ($invoice) {
+    $invoice = UpdateInvoice::make()->action($invoice, Invoice::factory()->definition());
+    expect($invoice->number)->toBe(00001);
+})->depends('create invoice from order');
