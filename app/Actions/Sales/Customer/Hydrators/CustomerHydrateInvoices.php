@@ -7,6 +7,7 @@
 
 namespace App\Actions\Sales\Customer\Hydrators;
 
+use App\Actions\Traits\WithElasticsearch;
 use App\Actions\WithTenantJob;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Sales\Customer\CustomerTradeStateEnum;
@@ -20,6 +21,7 @@ class CustomerHydrateInvoices implements ShouldBeUnique
 {
     use AsAction;
     use WithTenantJob;
+    use WithElasticsearch;
 
     public function handle(Customer $customer): void
     {
@@ -45,7 +47,7 @@ class CustomerHydrateInvoices implements ShouldBeUnique
             $stats['number_invoices_type_'.$invoiceType->snake()] = Arr::get($invoiceTypeCounts, $invoiceType->value, 0);
         }
 
-
+//        $this->storeElastic('invoice');
 
         $customer->stats->update($stats);
     }

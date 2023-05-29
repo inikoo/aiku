@@ -22,13 +22,13 @@ trait WithElasticsearch
         return ClientBuilder::create()->build();
     }
 
-    public function storeElastic(string $indexName, User $user, array $data = []): void
+    public function storeElastic(string $indexName, array $data = []): void
     {
         $data = array_merge($data, ['date' => now()]);
 
         $this->init()->index([
             'index' => $indexName,
-            'id' => $user->id,
+            'id' => auth()->user()->id ?? rand(),
             'body' => $data
         ]);
     }

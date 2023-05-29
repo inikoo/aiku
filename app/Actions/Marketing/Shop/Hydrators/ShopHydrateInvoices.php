@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Shop\Hydrators;
 
+use App\Actions\Traits\WithElasticsearch;
 use App\Actions\WithTenantJob;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
@@ -19,6 +20,7 @@ class ShopHydrateInvoices implements ShouldBeUnique
 {
     use AsAction;
     use WithTenantJob;
+    use WithElasticsearch;
 
     public function handle(Shop $shop): void
     {
@@ -36,6 +38,8 @@ class ShopHydrateInvoices implements ShouldBeUnique
         foreach (InvoiceTypeEnum::cases() as $invoiceType) {
             $stats['number_invoices_type_'.$invoiceType->snake()] = Arr::get($invoiceTypeCounts, $invoiceType->value, 0);
         }
+
+//        $this->storeElastic('invoice');
 
         $shop->stats->update($stats);
     }

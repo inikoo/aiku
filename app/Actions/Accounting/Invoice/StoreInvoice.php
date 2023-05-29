@@ -68,6 +68,14 @@ class StoreInvoice
         return $this->handle($parent, $modelData, $billingAddress);
     }
 
+    public function rules(): array
+    {
+        return [
+            'number' => ['required', 'unique:tenant.invoices', 'numeric'],
+            'currency_id' => ['required', 'required', 'exists:central.currencies,id']
+        ];
+    }
+
     public function action(Customer|Order $parent, array $modelData, Address $billingAddress): Invoice
     {
         return $this->handle($parent, $modelData, $billingAddress);

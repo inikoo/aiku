@@ -21,7 +21,7 @@ class FetchAuroraInvoice extends FetchAurora
 
         $order = $this->parseOrder($this->auroraModelData->{'Invoice Order Key'});
         if(!$order) {
-            $this->parsedData['parent']=$this->parseCustomer();
+            $this->parsedData['parent']=$this->parseCustomer($this->auroraModelData->{'Invoice Customer Key'});
         } else {
             $this->parsedData['parent']=$order;
         }
