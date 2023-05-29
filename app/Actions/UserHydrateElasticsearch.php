@@ -9,6 +9,7 @@ namespace App\Actions;
 
 use App\Actions\Traits\WithElasticsearch;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UserHydrateElasticsearch implements ShouldBeUnique
@@ -17,8 +18,10 @@ class UserHydrateElasticsearch implements ShouldBeUnique
     use WithTenantJob;
     use WithElasticsearch;
 
-    public function handle(string $indexName): void
+    public function handle(Request $request): void
     {
-        $this->storeElastic($indexName);
+        if($request->user()) {
+            $this->storeElastic($request);
+        }
     }
 }

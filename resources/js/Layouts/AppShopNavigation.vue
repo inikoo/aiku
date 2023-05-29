@@ -5,7 +5,7 @@
   -->
 
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
@@ -14,6 +14,7 @@ import {
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { useLayoutStore } from "@/Stores/layout";
 import AppShopNavigationDropDown from "@/Layouts/AppShopNavigationDropDown.vue";
+import { ref } from 'vue'
 
 const layout = useLayoutStore();
 library.add(faList, faFolderTree, faMailBulk);
@@ -66,6 +67,12 @@ const shopsFeatures = [
     }
 ];
 
+const urlPage = ref()
+router.on('navigate', (event) => {
+    urlPage.value = location.href
+    // console.log(location.href)
+})
+
 </script>
 
 <template>
@@ -86,12 +93,16 @@ const shopsFeatures = [
     <div class="flex flex-wrap py-3 my-2 md:py-0 md:my-0 md:mt-0 md:inline-flex justify-start items-center border-b border-gray-200 md:border-0 bg-gray-100/50 md:bg-inherit md:space-y-0 md:space-x-0">
         <Link v-for="(shopsFeature, index) in shopsFeatures"
               :key="index"
-              class="grid grid-flow-col grid-cols-7 justify-center items-center w-full py-1.5 px-4 space-x-0 group md:grid-cols-1 md:justify-end md:w-auto md:px-3 lg:px-5 "
+              class="grid grid-flow-col grid-cols-7 justify-center items-center w-full py-1.5 px-4 space-x-0 group md:grid-cols-1 md:justify-end md:w-auto md:px-2 lg:px-4 "
               :title="trans(shopsFeature.title)"
               :href="layout.currentShopSlug? route(shopsFeature.link1, layout.currentShopSlug) : route(shopsFeature.link2)"
         >
-            <div class="col-span-2 grid justify-center items-end">
-                <font-awesome-icon class="text-sm text-gray-600 group-hover:text-indigo-500" aria-hidden="true" :icon="shopsFeature.icon" />
+            <div
+                :class="{ 'border-b border-indigo-500 hover:border-indigo-500 text-indigo-500': route(shopsFeature.link1, layout.currentShopSlug) == urlPage || route(shopsFeature.link2) == urlPage }"
+                class="col-span-2 flex justify-center items-center text-gray-600 w-7 h-auto aspect-square hover:border-b hover:border-indigo-100"
+            >
+            <!-- {{ route(shopsFeature.link1, layout.currentShopSlug) == urlPage }} -->
+                <font-awesome-icon class="text-xs group-hover:text-indigo-500" aria-hidden="true" :icon="shopsFeature.icon" />
             </div>
             <div class="md:hidden col-span-5 ">
                 <span class="text-xs inline text-gray-700 group-hover:text-indigo-500">{{ trans(shopsFeature.title) }}</span>
