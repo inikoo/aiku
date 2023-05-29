@@ -30,30 +30,30 @@ class IndexDepartments extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('departments.code', '~*', "\y$value\y")
-                    ->orWhere('departments.name', '=', $value);
+                $query->where('product_categories.code', '~*', "\y$value\y")
+                    ->orWhere('product_categories.name', '=', $value);
             });
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DEPARTMENTS->value);
 
         return QueryBuilder::for(ProductCategory::class)
-            ->defaultSort('departments.code')
+            ->defaultSort('product_categories.code')
             ->select([
-                'departments.slug',
-                'shops.slug as shop_slug',
-                'departments.slug as departments_slug',
-                'departments.code',
-                'departments.name',
-                'departments.state',
-                'departments.description',
-                'departments.created_at',
-                'departments.updated_at',
+                'product_categories.slug',
+                'product_categories.code',
+                'product_categories.name',
+                'product_categories.state',
+                'product_categories.description',
+                'product_categories.created_at',
+                'product_categories.updated_at',
             ])
-//            ->leftJoin('department_stats', 'departments.id', 'department_stats.department_id')
-//            ->leftJoin('shops', 'departments.shop_id', 'shops.id')
+            ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
-                    $query->where('shop_id', $parent->id);
+                    $query->where('product_categories.shop_id', $parent->id);
+                } elseif (class_basename($parent) == 'Tenant') {
+                    $query->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
+                    $query->addSelect('shops.slug as shop_slug');
                 }
             })
             ->allowedSorts(['code', 'name'])
@@ -73,15 +73,13 @@ class IndexDepartments extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::DEPARTMENTS->value.'Page');
 
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-
-
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.departments.edit');
+        $this->canEdit = $request->user()->can('shops.products.edit');
 
         return
             (
@@ -100,6 +98,7 @@ class IndexDepartments extends InertiaAction
     public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle($shop);
     }
 
@@ -154,6 +153,7 @@ class IndexDepartments extends InertiaAction
                 ]
             ];
         };
+
         return match ($routeName) {
             'shops.show.catalogue.hub.departments.index' =>
             array_merge(

@@ -20,6 +20,6 @@ const props = defineProps <{
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableDepartments  :data="data"  />
+    <TableDepartments :data="data"  />
 </template>
 
