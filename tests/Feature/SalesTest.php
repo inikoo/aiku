@@ -7,6 +7,7 @@
 
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
+use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
@@ -355,4 +356,11 @@ test(
 test('create invoice', function ($customer) {
     $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition(), Address::first());
     expect($invoice->number)->toBe(00001);
+
+    return $invoice;
 })->depends('create customer');
+
+test('update invoice', function ($invoice) {
+    $invoice = UpdateInvoice::make()->action($invoice, Invoice::factory()->definition());
+    expect($invoice->number)->toBe(00001);
+})->depends('create invoice');

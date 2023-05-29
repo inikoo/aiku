@@ -10,6 +10,9 @@ namespace App\Actions\Accounting\Invoice;
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Models\Accounting\Invoice;
+use App\Models\Helpers\Address;
+use App\Models\Sales\Customer;
+use App\Models\Sales\Order;
 use Illuminate\Support\Arr;
 
 class UpdateInvoice
@@ -24,5 +27,18 @@ class UpdateInvoice
         InvoiceHydrateUniversalSearch::dispatch($invoice);
 
         return $this->update($invoice, $modelData, ['data']);
+    }
+
+    public function rules(): array
+    {
+        return [
+            'number' => ['sometimes', 'unique:tenant.invoices', 'numeric'],
+            'currency_id' => ['sometimes', 'required', 'exists:central.currencies,id']
+        ];
+    }
+
+    public function action(Invoice $invoice, array $modelData): Invoice
+    {
+        return $this->handle($invoice, $modelData);
     }
 }
