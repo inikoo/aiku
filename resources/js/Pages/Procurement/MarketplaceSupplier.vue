@@ -31,7 +31,10 @@ import {
     faParachuteBox,
     faTruck,
     faTerminal,
-    faCameraRetro
+    faCameraRetro,
+    faPoop,
+    faPaperPlane,
+    faPaperclip
 } from "@/../private/pro-light-svg-icons";
 import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
 
@@ -42,7 +45,10 @@ library.add(
     faParachuteBox,
     faTruck,
     faTerminal,
-    faCameraRetro
+    faCameraRetro,
+    faPoop,
+    faPaperPlane,
+    faPaperclip
 );
 
 let currentTab = ref(props.tabs.current);

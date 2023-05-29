@@ -15,7 +15,6 @@ const props = defineProps<{
 
 
 function supplierProductRoute(supplierProduct: SupplierProduct) {
-    console.log(route().current());
     switch (route().current()) {
         case "procurement.marketplace.agents.show":
             return route(
