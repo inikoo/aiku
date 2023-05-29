@@ -15,6 +15,7 @@ use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexCustomers extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle(Tenant|Shop $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -51,7 +52,7 @@ class IndexCustomers extends InertiaAction
             ])
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->when($parent, function ($query) use ($parent) {
+            ->when(true, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('customers.shop_id', $parent->id);
                 }
