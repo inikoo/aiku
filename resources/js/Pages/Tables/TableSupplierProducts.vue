@@ -15,7 +15,7 @@ const props = defineProps<{
 
 
 function supplierProductRoute(supplierProduct: SupplierProduct) {
-    console.log(route().current())
+    // console.log(route().current())
     switch (route().current()) {
         case 'procurement.suppliers.show':
             return route(

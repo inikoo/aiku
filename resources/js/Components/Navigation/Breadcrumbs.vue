@@ -75,10 +75,16 @@ const displayBreadcrumbs = computed(() => {
 // Get parameter for Prev & Next button to stay on same tab
 const urlParameter = ref('showcase')
 router.on('navigate', (event) => {
-    const params = new URLSearchParams(event.detail.page.url.substring(event.detail.page.url.indexOf("?") + 1))
-    urlParameter.value = (params.get('tab'))
+    const params = new URLSearchParams(location.search.substring(1))
+    const filteredParams = {}
+    const patternToDelete = /\[global\]$/  // to filter su_filter[global], etc
+    for (const [key, value] of params.entries()) {
+        if (!patternToDelete.test(key)) {
+            filteredParams[key] = value
+        }
+    }
+    urlParameter.value = `?${new URLSearchParams(filteredParams).toString()}`
 })
-
 </script>
 
 <template>
@@ -307,7 +313,7 @@ router.on('navigate', (event) => {
 			</Menu>
             <div v-if="props.navigation.previous || props.navigation.next" class="grid grid-flow-col justify-end pr-2 space-x-2 text-sm text-gray-700 font-semibold">
                 <div class="flex justify-center items-center w-8">
-                    <Link v-if="props.navigation.previous" :href="route(props.navigation.previous?.route.name, props.navigation.previous?.route.parameters)  + [urlParameter ? `?tab=${urlParameter}` : '']" class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
+                    <Link v-if="props.navigation.previous" :href="route(props.navigation.previous?.route.name, props.navigation.previous?.route.parameters)  + urlParameter" class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
                         :title="props.navigation.previous?.label"
                     >
                         <FontAwesomeIcon icon="fas fa-arrow-left" class="" aria-hidden="true" />
@@ -317,7 +323,7 @@ router.on('navigate', (event) => {
                 <div class="flex justify-center items-center w-8">
                     <Link v-if="props.navigation.next" class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
                         :title="props.navigation.next?.label"
-                        :href="route(props.navigation.next?.route.name, props.navigation.next?.route.parameters) + [urlParameter ? `?tab=${urlParameter}` : '']" 
+                        :href="route(props.navigation.next?.route.name, props.navigation.next?.route.parameters) + urlParameter" 
                     >
                         <FontAwesomeIcon icon="fas fa-arrow-right" class="" aria-hidden="true" />
                     </Link>
