@@ -93,16 +93,19 @@ router.on('navigate', (event) => {
     <div class="flex flex-wrap py-3 my-2 md:py-0 md:my-0 md:mt-0 md:inline-flex justify-start items-center border-b border-gray-200 md:border-0 bg-gray-100/50 md:bg-inherit md:space-y-0 md:space-x-0">
         <Link v-for="(shopsFeature, index) in shopsFeatures"
               :key="index"
-              class="grid grid-flow-col grid-cols-7 justify-center items-center w-full py-1.5 px-4 space-x-0 group md:grid-cols-1 md:justify-end md:w-auto md:px-2 lg:px-4 "
+              class="group relative grid grid-flow-col grid-cols-7 justify-center items-center w-full py-1.5 px-4 space-x-0 group md:grid-cols-1 md:justify-end md:w-auto md:px-2 lg:px-4 "
               :title="trans(shopsFeature.title)"
               :href="layout.currentShopSlug? route(shopsFeature.link1, layout.currentShopSlug) : route(shopsFeature.link2)"
         >
-            <div
-                :class="{ 'border-b border-indigo-500 hover:border-indigo-500 text-indigo-500': route(shopsFeature.link2) == urlPage }"
-                class="col-span-2 flex justify-center items-center text-gray-600 w-7 h-auto aspect-square hover:border-b hover:border-indigo-100"
+            <div class="col-span-2 flex justify-center items-center text-gray-600 w-7 h-auto aspect-square"
             >
-            <!-- {{ route(shopsFeature.link2) == urlPage }} -->
-                <font-awesome-icon class="text-xs group-hover:text-indigo-500" aria-hidden="true" :icon="shopsFeature.icon" />
+                <!-- Helper: Border bottom to indicate current active link -->
+                <div class="absolute w-9/12 bottom-0 group-hover:border-b group-hover:border-indigo-300"
+                    :class="{ 'border-b border-indigo-700 group-hover:border-indigo-700': route(shopsFeature.link2) == urlPage || (layout.currentShopSlug ? route(shopsFeature.link1, layout.currentShopSlug) : null) == urlPage }"
+                />
+                <font-awesome-icon class="text-xs group-hover:text-indigo-300" aria-hidden="true" :icon="shopsFeature.icon"
+                    :class="{ 'text-indigo-600 group-hover:text-indigo-600': route(shopsFeature.link2) == urlPage || (layout.currentShopSlug ? route(shopsFeature.link1, layout.currentShopSlug) : null) == urlPage }"
+                />
             </div>
             <div class="md:hidden col-span-5 ">
                 <span class="text-xs inline text-gray-700 group-hover:text-indigo-500">{{ trans(shopsFeature.title) }}</span>
