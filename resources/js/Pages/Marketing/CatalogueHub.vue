@@ -34,9 +34,8 @@ const props = defineProps<{
     }
     departments?: object
     products?: object
-    families?: object,
+    // families?: object,
 }>()
-
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
@@ -44,7 +43,7 @@ const component = computed(() => {
 
     const components = {
         departments: TableDepartments,
-        families: TableFamilies,
+        // families: TableFamilies,
         products: TableProducts,
     };
     return components[currentTab.value];

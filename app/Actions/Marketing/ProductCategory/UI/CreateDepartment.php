@@ -29,8 +29,14 @@ class CreateDepartment extends InertiaAction
         return $request;
     }
 
+    public function inShop(Shop $shop, ActionRequest $request): Response
+    {
+        $this->initialisation($request);
 
-    public function htmlResponse(ActionRequest $request): Response
+        return $this->handle($request);
+    }
+
+    function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -67,14 +73,22 @@ class CreateDepartment extends InertiaAction
                                 ]
                             ]
                         ],
-                    'route'     => [
-                        'name' => ''
-                    ]
+                    'route' => match ($this->routeName) {
+                        'shops.show.catalogue.hub.departments.create' => [
+                            'name' => 'models.shop.department.store',
+                            'arguments' => [$request->route()->parameters['shop']->slug]
+                        ],
+                        default => [
+                            'name' => 'models.departments.store'
+                        ]
+                    }
                 ]
 
             ]
         );
     }
+
+
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {

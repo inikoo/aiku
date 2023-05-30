@@ -14,12 +14,11 @@ const props = defineProps <{
   title: string
   data: object
 }>()
-
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableDepartments :data="data"  />
+    <TableDepartments :data="data"/>
 </template>
 

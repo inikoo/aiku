@@ -143,7 +143,7 @@ class StoreCustomer
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function asFetch(Shop $shop, array $customerData, array $customerAddressesData, int $hydratorsDelay=60): Customer
     {

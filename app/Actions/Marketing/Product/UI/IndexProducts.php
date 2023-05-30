@@ -70,17 +70,16 @@ class IndexProducts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, ?array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($parent, $modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::PRODUCTS->value)
-                ->pageName(TabsAbbreviationEnum::PRODUCTS->value.'Page');
-
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-
-
-            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->pageName(TabsAbbreviationEnum::PRODUCTS->value.'Page')
+                ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
