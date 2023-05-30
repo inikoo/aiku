@@ -15,7 +15,7 @@ class ElasticsearchMiddleware
     {
         if (!app()->runningUnitTests()) {
             $user = $request->user();
-            UserHydrateElasticsearch::run($request, $user);
+            UserHydrateElasticsearch::dispatch($request, $user);
         }
 
         return $next($request);

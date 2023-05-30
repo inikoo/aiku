@@ -8,6 +8,8 @@
 
 namespace App\Actions\Traits;
 
+use App\Enums\UI\TabsAbbreviationEnum;
+use App\Enums\UI\UserTabsEnum;
 use App\Models\Auth\User;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
@@ -64,6 +66,6 @@ trait WithElasticsearch
             ];
         }
 
-        return collect(array_reverse($results))->paginate();
+        return collect(array_reverse($results))->paginate()->withQueryString();
     }
 }
