@@ -11,6 +11,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
+import TableHistoryUsers from "@/Pages/Tables/TableHistoryUsers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile } from "@/../private/pro-light-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -34,7 +35,8 @@ const props = defineProps<{
     tabs: {
         current: string;
         navigation: object;
-    }
+    },
+    history: object
 
 }>()
 
@@ -45,7 +47,7 @@ const component = computed(() => {
 
     const components = {
         details: ModelDetails,
-        history: ModelChangelog,
+        history: TableHistoryUsers,
     };
     return components[currentTab.value];
 

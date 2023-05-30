@@ -8,9 +8,12 @@
 namespace App\Actions\Auth\User\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\UserTabsEnum;
+use App\Http\Resources\SysAdmin\UserHistoryResource;
 use App\Http\Resources\SysAdmin\UserResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Auth\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,6 +21,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowUser extends InertiaAction
 {
+    use WithElasticsearch;
+
     public function asController(User $user, ActionRequest $request): User
     {
         $this->initialisation($request)->withTab(UserTabsEnum::values());
@@ -65,9 +70,22 @@ class ShowUser extends InertiaAction
                 'tabs'=> [
                     'current'    => $this->tab,
                     'navigation' => UserTabsEnum::navigation()
-                ]
+                ],
+
+
+                UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
+                    fn () => UserHistoryResource::collection($this->getElastics($user->username))
+                    : Inertia::lazy(fn () => UserHistoryResource::collection($this->getElastics($user->username)))
             ]
-        );
+        )->table(function (InertiaTable $table) {
+            $table
+                ->withGlobalSearch()
+                ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'route_name', label: __('Route Name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'route_parameter', label: __('Route Parameter'), canBeHidden: false, sortable: true)
+                ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
+                ->defaultSort('datetime');
+        });
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

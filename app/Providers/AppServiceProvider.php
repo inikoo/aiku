@@ -10,7 +10,10 @@ namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\Response;
@@ -18,6 +21,10 @@ use Lorisleiva\Actions\Facades\Actions;
 use Inertia\Response as InertiaResponse;
 use App\InertiaTable\InertiaTable;
 
+/**
+ * @method forPage(mixed $page, mixed $perPage)
+ * @method count()
+ */
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
@@ -67,6 +74,17 @@ class AppServiceProvider extends ServiceProvider
 
             return $validated;
         });
+
+        if (!Collection::hasMacro('paginate')) {
+
+            Collection::macro('paginate',
+                function ($perPage = 15, $page = null, $options = []) {
+                    $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+                    return (new LengthAwarePaginator(
+                        $this->forPage($page, $perPage)->values()->all(), $this->count(), $perPage, $page, $options))
+                        ->withPath('');
+                });
+        }
 
         Relation::morphMap(
             [
