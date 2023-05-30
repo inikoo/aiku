@@ -124,7 +124,9 @@ class IndexDepartments extends InertiaAction
                 'title'       => __('Departments'),
                 'pageHead'    => [
                     'title'  => __('departments'),
-                    'create' => $this->canEdit && $this->routeName == 'shops.show.catalogue.hub.departments.index' ? [
+                    'create' => $this->canEdit &&
+                        $this->routeName == 'shops.show.catalogue.hub.departments.index'
+                    ? [
                         'route' => [
                             'name'       => 'shops.show.catalogue.hub.departments.create',
                             'parameters' => array_values($this->originalParameters)
@@ -133,8 +135,6 @@ class IndexDepartments extends InertiaAction
                     ] : false,
                 ],
                 'data'        => DepartmentResource::collection($departments),
-
-
             ]
         )->table($this->tableStructure($parent));
     }

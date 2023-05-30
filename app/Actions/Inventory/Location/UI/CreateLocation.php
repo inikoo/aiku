@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 11 Apr 2023 08:24:46 Central European Summer Time, Malaga, Spain
+ * Created: Tue, 11 Apr 2023 08:24:46 Central European Summer, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 

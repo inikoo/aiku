@@ -32,6 +32,9 @@ class CatalogueHub extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit =
+            $request->user()->can('showroom.departments.edit') or
+            $request->user()->can('showroom.products.edit');
         return $request->user()->hasPermissionTo("showroom.view");
     }
 
@@ -72,29 +75,24 @@ class CatalogueHub extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters()
+                    $request->route()->parameters
                 ),
                 'title'       => $title,
+                'navigation'                            => [
+                    'previous' => $this->getPrevious( $scope,$request),
+                    'next'     => $this->getNext( $scope, $request),
+                ],
                 'pageHead'    => [
                     'title'     => $title,
                     'container' => $container,
-
                 ],
-
                 'tabs'                                => [
                     'current'    => $this->tab,
                     'navigation' => CatalogueTabsEnum::navigation()
                 ],
-                CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value
-                    ?
-                    fn () =>
-                        DepartmentResource::collection(IndexDepartments::run($scope))
-
-
-                    : Inertia::lazy(
-                        fn () =>
-                            DepartmentResource::collection(IndexDepartments::run($scope))
-                    ),
+                CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value ?
+                    fn () => DepartmentResource::collection(IndexDepartments::run($scope))
+                    : Inertia::lazy( fn () => DepartmentResource::collection(IndexDepartments::run($scope))),
                 /*
                  CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
                      fn () => FamilyResource::collection(IndexFamilies::run($scope))
@@ -104,9 +102,28 @@ class CatalogueHub extends InertiaAction
                     fn () => ProductResource::collection(IndexProducts::run($scope))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($scope))),
             ]
-        )->table(IndexDepartments::make()->tableStructure($scope))
-            //  ->table(IndexFamilies::make()->tableStructure($scope))
-            ->table(IndexProducts::make()->tableStructure($scope));
+        )->table(IndexDepartments::make()->tableStructure($scope,
+            [
+                'createLink' => $this->canEdit ?[
+                    'route' => [
+                        'name'       => 'shops.show.catalogue.hub.departments.create',
+                        'parameters' => array_values([$scope->slug])
+                    ],
+                    'label' => __('department')
+                ] : false,
+            ]
+        ))->table(IndexProducts::make()->tableStructure($scope,
+            [
+                'createLink' => $this->canEdit ?[
+                    'route' => [
+                        'name'       => 'shops.show.catalogue.hub.products.create',
+                        'parameters' => array_values([$scope->slug])
+                    ],
+                    'label' => __('product')
+                ] : false,
+            ]
+        ));
+        //  ->table(IndexFamilies::make()->tableStructure($scope))
     }
 
 
@@ -127,8 +144,6 @@ class CatalogueHub extends InertiaAction
                 ],
             ];
         };
-
-
         return match ($routeName) {
             'catalogue.hub' => array_merge(
                 Dashboard::make()->getBreadcrumbs(),
@@ -140,6 +155,55 @@ class CatalogueHub extends InertiaAction
                 $headCrumb([$routeParameters['shop']->slug])
             ),
             default => []
+        };
+    }
+
+    public function getPrevious(Shop | Tenant $parent, ActionRequest $request): ?array
+    {
+        if (class_basename($parent) == 'Shop') {
+            $previous = Shop::where('code', '<', $parent->code)->orderBy('code', 'desc')->first();
+            return $this->getNavigation($previous, $request->route()->getName());
+        } else {
+            return null;
+        }
+    }
+
+    public function getNext(Shop | Tenant $parent, ActionRequest $request): ?array
+    {
+        if (class_basename($parent) == 'Shop') {
+            $next = Shop::where('code', '>', $parent->code)->orderBy('code')->first();
+            return $this->getNavigation($next, $request->route()->getName());
+        } else {
+            return null;
+        }
+    }
+
+    private function getNavigation(?Shop $shop, string $routeName): ?array
+    {
+        if (!$shop) {
+            return null;
+        }
+        return match ($routeName) {
+            'shops.show.catalogue.hub' => [
+                'label' => $shop->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'shop' => $shop->slug
+                    ]
+
+                ]
+            ],
+            'catalogue.hub' => [
+                'label' => 'catalogues',
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'shop' => $shop->slug
+                    ]
+
+                ]
+            ]
         };
     }
 }

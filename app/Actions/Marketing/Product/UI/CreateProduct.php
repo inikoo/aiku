@@ -91,4 +91,22 @@ class CreateProduct extends InertiaAction
         return $this->handle($shop, $request);
     }
 
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return array_merge(
+            IndexProducts::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
+            [
+                [
+                    'type'         => 'creatingModel',
+                    'creatingModel'=> [
+                        'label'=> __('creating department'),
+                    ]
+                ]
+            ]
+        );
+    }
+
 }

@@ -53,7 +53,7 @@ class ShowDepartment extends InertiaAction
         return $this->handle($department);
     }
 
-    public function htmlResponse(Department $department, ActionRequest $request): Response
+    public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -72,7 +72,10 @@ class ShowDepartment extends InertiaAction
                 ],
                 'pageHead'                           => [
                     'title' => $department->name,
-                    'icon'  => 'fal fa-folders',
+                    'icon'  => [
+                        'icon'  => ['fal', 'fa-folders'],
+                        'title' => __('department')
+                    ],
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
@@ -86,15 +89,15 @@ class ShowDepartment extends InertiaAction
                 ],
 
                 DepartmentTabsEnum::SHOWCASE->value => $this->tab == DepartmentTabsEnum::SHOWCASE->value ?
-                    fn () => GetProductCategoryShowcase::run($this->department)
-                    : Inertia::lazy(fn () => GetProductCategoryShowcase::run($this->department)),
+                    fn () => GetProductCategoryShowcase::run($department)
+                    : Inertia::lazy(fn () => GetProductCategoryShowcase::run($department)),
 
                 DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(IndexCustomers::run($this->department))
-                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($this->department))),
+                    fn () => CustomerResource::collection(IndexCustomers::run($department))
+                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($department))),
                 DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($this->department))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->department))),
+                    fn () => MailshotResource::collection(IndexMailshots::run($department))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($department))),
 
                 /*
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
@@ -136,7 +139,7 @@ class ShowDepartment extends InertiaAction
     }
 
 
-    public function jsonResponse(Department $department): DepartmentResource
+    public function jsonResponse(ProductCategory $department): DepartmentResource
     {
         return new DepartmentResource($department);
     }
@@ -212,20 +215,20 @@ class ShowDepartment extends InertiaAction
         };
     }
 
-    public function getPrevious(Department $department, ActionRequest $request): ?array
+    public function getPrevious(ProductCategory $department, ActionRequest $request): ?array
     {
-        $previous = Department::where('code', '<', $department->code)->orderBy('code', 'desc')->first();
+        $previous = ProductCategory::where('code', '<', $department->code)->orderBy('code', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Department $department, ActionRequest $request): ?array
+    public function getNext(ProductCategory $department, ActionRequest $request): ?array
     {
-        $next = Department::where('code', '>', $department->code)->orderBy('code')->first();
+        $next = ProductCategory::where('code', '>', $department->code)->orderBy('code')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Department $department, string $routeName): ?array
+    private function getNavigation(?ProductCategory $department, string $routeName): ?array
     {
         if(!$department) {
             return null;
@@ -246,7 +249,7 @@ class ShowDepartment extends InertiaAction
                     'name'      => $routeName,
                     'parameters'=> [
                         'shop'   => $department->shop->slug,
-                        'product'=> $department->slug
+                        'department'=> $department->slug
                     ]
                 ]
             ],

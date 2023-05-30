@@ -13,6 +13,10 @@ use App\Enums\Marketing\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
+use App\Rules\CaseSensitive;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -20,6 +24,8 @@ class StoreProductCategory
 {
     use AsAction;
     use WithAttributes;
+
+    private int $hydratorsDelay =0;
 
     public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
@@ -55,7 +61,7 @@ class StoreProductCategory
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:tenant.product_categories', 'between:2,9', 'alpha'],
+            'code'        => ['required', 'unique:tenant.product_categories', 'between:2,9', 'alpha', new CaseSensitive('product_categories')],
             'name'        => ['required', 'max:250', 'string'],
             'image_id'    => ['sometimes', 'required', 'exists:media,id'],
             'state'       => ['sometimes', 'required'],
@@ -69,5 +75,19 @@ class StoreProductCategory
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $validatedData);
+    }
+
+    public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
+    {
+        $request->validate();
+
+        $this->handle($shop, $request->all());
+        return  Redirect::route('shops.show.catalogue.hub.departments.index',$shop);
+    }
+
+    public function asFetch(Shop $shop, array $productCategoryData, int $hydratorsDelay=60): ProductCategory
+    {
+        $this->hydratorsDelay=$hydratorsDelay;
+        return $this->handle($shop, $productCategoryData);
     }
 }

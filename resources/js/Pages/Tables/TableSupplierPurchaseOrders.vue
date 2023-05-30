@@ -20,9 +20,17 @@ function supplierPurchaseOrderRoute(supplierPurchaseOrder: SupplierPurchaseOrder
             return route(
                 'procurement.purchase-orders.show',
                 [supplierPurchaseOrder.slug]);
+        case 'procurement.agents.show':
+            return route(
+                'procurement.agents.show.supplier-purchase-orders.show',
+                [supplierPurchaseOrder.agent_slug, supplierPurchaseOrder.slug]);
+        case 'procurement.agents.show.suppliers.show':
+            return route(
+                'procurement.agents.show.suppliers.show.supplier-purchase-orders.show',
+                [supplierPurchaseOrder.agent_slug, supplierPurchaseOrder.supplier_slug, supplierPurchaseOrder.slug]);
         default:
             return route(
-                'procurement.purchase-orders.show',
+                'procurement.supplier-purchase-orders.show',
                 [supplierPurchaseOrder.slug]);
     }
 }
