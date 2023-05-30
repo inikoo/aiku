@@ -22,6 +22,7 @@ use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Mail\Outbox\UpdateOutbox;
+use App\Actions\Marketing\Product\StoreProduct;
 use App\Actions\Marketing\ProductCategory\StoreProductCategory;
 use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Product\UpdateProduct;
@@ -43,11 +44,12 @@ use Illuminate\Support\Facades\Route;
 Route::post('/shop/', StoreShop::class)->name('shop.store');
 Route::patch('/shop/{shop}', UpdateShop::class)->name('shop.update');
 
-
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
 Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('shop.customer.store');
 Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
+Route::post('/shop/{shop}/product/', [StoreProduct::class, 'inShop'])->name('shop.product.store');
 
+Route::post('/product/', StoreProductCategory::class)->name('product.store');
 Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');
 
 Route::post('/department/', StoreProductCategory::class)->name('department.store');

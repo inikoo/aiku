@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -27,7 +28,7 @@ class CreateProduct extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $this->parent
+                    $request->route()->parameters
                 ),
                 'title'       => __('new product'),
                 'pageHead'    => [
@@ -49,6 +50,10 @@ class CreateProduct extends InertiaAction
                             [
                                 'title'  => __('name'),
                                 'fields' => [
+                                    'code' => [
+                                        'type'  => 'input',
+                                        'label' => __('code')
+                                    ],
                                     'name' => [
                                         'type'  => 'input',
                                         'label' => __('name')
@@ -65,13 +70,31 @@ class CreateProduct extends InertiaAction
                                         'type'  => 'input',
                                         'label' => __('price')
                                     ],
+                                    'owner_id' => [
+                                        'type'  => 'input',
+                                        'label' => __('owner id')
+                                    ],
+                                    'owner_type' => [
+                                        'type'  => 'input',
+                                        'label' => __('owner type')
+                                    ],
+                                    'type' => [
+                                        'type'  => 'select',
+                                        'label' => __('type'),
+                                        "value" => __('PHYSICAL_GOOD'),
+                                    ]
                                 ]
                             ]
                         ],
-                    'route'     => [
-                        'name'     => 'models.shop.product.store',
-                        'arguments'=> [$shop->slug]
-                    ]
+                    'route' => match ($this->routeName) {
+                        'shops.show.catalogue.hub.products.create' => [
+                            'name' => 'models.shop.product.store',
+                            'arguments' => [$shop->slug]
+                        ],
+                        default => [
+                            'name' => 'models.product.store'
+                        ]
+                    }
                 ]
 
             ]
@@ -102,7 +125,7 @@ class CreateProduct extends InertiaAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating department'),
+                        'label'=> __('creating product'),
                     ]
                 ]
             ]

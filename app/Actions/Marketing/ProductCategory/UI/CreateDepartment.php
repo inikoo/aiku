@@ -79,11 +79,10 @@ class CreateDepartment extends InertiaAction
                             'arguments' => [$request->route()->parameters['shop']->slug]
                         ],
                         default => [
-                            'name' => 'models.departments.store'
+                            'name' => 'models.department.store'
                         ]
                     }
                 ]
-
             ]
         );
     }
