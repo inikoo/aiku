@@ -56,16 +56,12 @@ trait WithElasticsearch
         ];
         $params['body']['query']['match']['username'] = $query;
 
-
         foreach (json_decode($this->init()->search($params), true)['hits']['hits'] as $result) {
             $results[] = [
                 'username' => $result['_source']['username'],
                 'ip_address' => $result['_source']['ip_address'],
                 'route_name' => $result['_source']['route']['name'],
-                'route_parameter' => array_map(
-                    fn($param) => $param[array_key_first($param)],
-                    $result['_source']['route']['parameters']
-                ),
+                'route_parameter' => array_keys($result['_source']['route']['parameters']),
                 'datetime' => $result['_source']['datetime']
             ];
         }
