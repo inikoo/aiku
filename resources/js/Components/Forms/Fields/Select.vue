@@ -5,71 +5,72 @@
   -->
 
 <script setup>
-import Multiselect from '@vueform/multiselect'
-import { ref, computed } from 'vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import Multiselect from "@vueform/multiselect"
+import { ref, computed } from "vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle } from "../../../../private/pro-solid-svg-icons"
-import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faExclamationCircle, faCheckCircle);
-const props = defineProps(['form', 'fieldName', 'options', 'required', 'placeholder'])
-const value = ref(null)
-// const options = [
-//     'Batman',
-//     'Robin',
-//     'Joker',
-//     'Superman',
-//     'Wonderwoman',
-//     'Spiderman',
-//     'Hulk',
-//     'Iron Man',
-//     'Dr. Strange',
-// ]
-
-// console.log(props.required)
+import { library } from "@fortawesome/fontawesome-svg-core"
+library.add(faExclamationCircle, faCheckCircle)
+const props = defineProps(["form", "fieldName", "options", "required", "placeholder"])
 const placeholder = "Select your option"
-// const compForm = computed(() => {
-//     props.form
-// })
-
 </script>
 
 <template>
-    <div class="">
-        <!-- <pre>{{ compForm }}</pre> -->
-        <div class="relative">
-            <Multiselect :class="{'pr-8': form.errors[fieldName] || form.recentlySuccessful}" v-model="form[fieldName]" :options="props.options" :placeholder="props.placeholder ? props.placeholder : placeholder" :canClear="required" />
-            <div v-if="form.errors[fieldName] || form.recentlySuccessful"
-                class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">
-                <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500"
-                    aria-hidden="true" />
-                <FontAwesomeIcon icon="fas fa-check-circle" v-if="form.recentlySuccessful"
-                    class="mt-1.5  h-5 w-5 text-green-500" aria-hidden="true" />
-            </div>
-        </div>
-        <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
-    </div>
+	<div class="">
+		<div class="relative">
+			<Multiselect
+				:class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
+				v-model="form[fieldName]"
+				:options="props.options"
+				:placeholder="props.placeholder ? props.placeholder : placeholder"
+				:canClear="!props.required"
+				:mode="props.mode ? props.mode : 'single'"
+				:closeOnSelect="props.mode ? false : true"
+				:canDeselect="false"
+                :hideSelected="false"
+            >
+                <template slot="selection" slot-scope="{ values, search, isOpen }"><span class="multiselect__single" v-if="values.length" v-show="!isOpen">fdsafdsafdsa</span></template>
+
+            </Multiselect>
+			<div
+				v-if="form.errors[fieldName] || form.recentlySuccessful"
+				class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">
+				<FontAwesomeIcon
+					icon="fas fa-exclamation-circle"
+					v-if="form.errors[fieldName]"
+					class="h-5 w-5 text-red-500"
+					aria-hidden="true" />
+				<FontAwesomeIcon
+					icon="fas fa-check-circle"
+					v-if="form.recentlySuccessful"
+					class="mt-1.5 h-5 w-5 text-green-500"
+					aria-hidden="true" />
+			</div>
+		</div>
+		<p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">
+			{{ form.errors[fieldName] }}
+		</p>
+	</div>
 </template>
 
-
-
 <style src="@vueform/multiselect/themes/default.css"></style>
-
 
 <style>
 /* Style for multiselect globally */
 .multiselect-option.is-selected,
 .multiselect-option.is-selected.is-pointed {
-    background: var(--ms-option-bg-selected, #6366f1) !important;
-    color: var(--ms-option-color-selected, #fff) !important;
+	background: var(--ms-option-bg-selected, #6366f1) !important;
+	color: var(--ms-option-color-selected, #fff) !important;
 }
 
 .multiselect-option.is-selected.is-disabled {
-    background: var(--ms-option-bg-selected-disabled, #c7d2fe);
-    color: var(--ms-option-color-selected-disabled, #818cf8)
+	background: var(--ms-option-bg-selected-disabled, #c7d2fe);
+	color: var(--ms-option-color-selected-disabled, #818cf8);
 }
 
 .multiselect.is-active {
-    border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid var(--ms-border-color-active, var(--ms-border-color, #d1d5db));
-    box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(99, 102, 241, 0.188))
+	border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid
+		var(--ms-border-color-active, var(--ms-border-color, #d1d5db));
+	box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(99, 102, 241, 0.188));
 }
 </style>

@@ -94,7 +94,10 @@ const handleFormSubmit = () => {
                                             :is="getComponent(fieldData['type'])"
                                             :form="form"
                                             :fieldName="fieldName"
-                                            :options="fieldData['options']">
+                                            :options="fieldData['options']"
+                                            :required="fieldData.required"
+                                            :placeholder="fieldData.placeholder"
+                                        >
                                         </component>
                                     </div>
                                     <span class="ml-4 flex-shrink-0 w-5 ">
