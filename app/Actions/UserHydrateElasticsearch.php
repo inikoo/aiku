@@ -19,10 +19,8 @@ class UserHydrateElasticsearch implements ShouldBeUnique
     use WithTenantJob;
     use WithElasticsearch;
 
-    public function handle(Request $request, ?User $user): void
+    public function handle(Request $request, User $user): void
     {
-        if($user) {
-            $this->storeElastic($request, $user);
-        }
+        $this->storeElastic($request, $user);
     }
 }
