@@ -8,7 +8,7 @@
 
 
 <script setup>
-import {ref, watchEffect} from 'vue';
+import {ref, watchEffect, defineAsyncComponent } from 'vue';
 import {
     Menu,
     MenuButton,
@@ -16,6 +16,12 @@ import {
     MenuItems,
 } from '@headlessui/vue';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
+import SearchBar from '@/Components/SearchBar.vue';
+import Spinner from '@/Components/Spinner.vue'
+import {usePage} from '@inertiajs/vue3';
+import {useLayoutStore} from '@/Stores/layout';
 
 import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
 import {loadLanguageAsync, trans} from 'laravel-vue-i18n';
@@ -62,6 +68,30 @@ library.add(
     faGlobe,
 );
 
+const AppLeftSideBar = defineAsyncComponent({
+    loader: () => {
+        return new Promise ((resolve, reject) => {
+            // Add setTimeout to 5s because the loading too fast
+            // setTimeout(() => {
+                resolve(import('@/Layouts/AppLeftSideBar.vue'))
+            // }, 5000);
+        })
+    },
+    loadingComponent: Spinner
+})
+
+const AppShopNavigation = defineAsyncComponent({
+    loader: () => {
+        return new Promise ((resolve, reject) => {
+            // Add setTimeout to 6s because the loading too fast
+            // setTimeout(() => {
+                resolve(import('@/Layouts/AppShopNavigation.vue'))
+            // }, 6000);
+        })
+    },
+    loadingComponent: Spinner
+})
+
 const initialiseApp = () => {
     const layout = useLayoutStore();
 
@@ -107,13 +137,7 @@ const layout = initialiseApp();
 
 const sidebarOpen = ref(false);
 
-import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/vue';
-import AppLeftSideBar from '@/Layouts/AppLeftSideBar.vue';
-import AppShopNavigation from '@/Layouts/AppShopNavigation.vue';
-import Button from '@/Components/Elements/Buttons/Button.vue';
-import SearchBar from '@/Components/SearchBar.vue';
-import {usePage} from '@inertiajs/vue3';
-import {useLayoutStore} from '@/Stores/layout';
+
 
 const showSearchDialog = ref(false);
 
@@ -137,15 +161,22 @@ const user = ref(usePage().props.auth.user);
                         </button>
 
                         <!-- Shop Navigation -->
-                        <div class="hidden md:flex justify-between items-center">
-                            <div class="block mb-3 ml-3 xl:w-40 2xl:w-56">
-                                <img class=" h-4  mt-4  xl:h-6  " src="/art/logo-color-trimmed.png" alt="Aiku"/>
-                                <span class="font-logo mb-1 mr-2  xl:hidden   whitespace-nowrap	   text-sm">
-                                    {{ layout.tenant.name }}
-                                </span>
+                            <div class="hidden md:flex justify-between items-center">
+                                <div class="block mb-3 ml-3 xl:w-40 2xl:w-56">
+                                    <img class=" h-4  mt-4  xl:h-6  " src="/art/logo-color-trimmed.png" alt="Aiku"/>
+                                    <span class="font-logo mb-1 mr-2  xl:hidden   whitespace-nowrap	   text-sm">
+                                        {{ layout.tenant.name }}
+                                    </span>
+                                </div>
+                                <Suspense>
+                                    <AppShopNavigation />
+                                    <template #fallback>
+                                        <div class="w-80 flex justify-end">
+                                                <Spinner />
+                                        </div>
+                                    </template>
+                                </Suspense>
                             </div>
-                            <AppShopNavigation />
-                        </div>
 
                         <!-- Avatar Group -->
                         <div class="flex items-center mr-6 space-x-3">
@@ -253,18 +284,26 @@ const user = ref(usePage().props.auth.user);
             </DisclosurePanel>
         </Disclosure>
 
-        <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
-        <AppLeftSideBar :currentRoute="route().current()"  v-if="!sidebarOpen" class="hidden md:block"/>
-        <AppLeftSideBar :currentRoute="route().current()" class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen"/>
+        <Suspense>
+            <div>
+                <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
+                <AppLeftSideBar :currentRoute="route().current()"  v-if="!sidebarOpen" class="hidden md:block"/>
+                <AppLeftSideBar :currentRoute="route().current()" class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen"/>
+            </div>
+            <template #fallback>
+                <div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-gray-100 md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56">
+                    <Spinner />
+                </div>
+            </template>
+        </Suspense>
 
-        <main class="relative flex flex-col pt-16 ml-0 md:ml-10 xl:ml-56">
-
-            <Breadcrumbs class="fixed top-11 lg:top-10 z-10 w-full"
-                         :breadcrumbs="usePage().props.breadcrumbs??[]"
-                         :navigation="usePage().props.navigation??[]"
-            />
-            <slot/>
-        </main>
+            <main class="relative flex flex-col pt-16 ml-0 md:ml-10 xl:ml-56">
+                <Breadcrumbs class="fixed top-11 lg:top-10 z-10 w-full"
+                             :breadcrumbs="usePage().props.breadcrumbs??[]"
+                             :navigation="usePage().props.navigation??[]"
+                />
+                <slot/>
+            </main>
 
     </div>
 
