@@ -47,7 +47,9 @@ class StoreOrder
             $modelData['currency_id'] = $parent->shop->currency_id;
             $modelData['shop_id']     = $parent->shop_id;
         } else {
+            $modelData['customer_id'] = $parent->customer_id;
             $modelData['currency_id'] = $parent->currency_id;
+            $modelData['shop_id']     = $parent->id;
         }
 
         /** @var Order $order */
@@ -75,15 +77,17 @@ class StoreOrder
     {
         return [
             'number' => ['required', 'unique:tenant.orders', 'numeric'],
-            'customer_number' =>['required']
+            'date' => ['required']
         ];
     }
 
     public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
     {
         $request->validate();
-        $seedBillingAddress = $request->get('billing_address');
-        $seedDeliveryAddress = $request->get('delivery_address');
+        $seedBillingAddress = new Address();
+        $seedBillingAddress::hydrate($request->get('billing_address'));
+        $seedDeliveryAddress = new Address();
+        $seedBillingAddress::hydrate($request->get('delivery_address'));
         $this->handle($shop, $request->validated(), $seedBillingAddress, $seedDeliveryAddress);
         return  Redirect::route('shops.show.orders.index',$shop);
     }
