@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Payment\UI;
 use App\Actions\InertiaAction;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Assets\Currency;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
@@ -25,18 +26,71 @@ class CreatePayment extends InertiaAction
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
-                'title'       => __('new payment'),
-                'pageHead'    => [
-                    'title'        => __('new payment'),
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, array_values($this->originalParameters)),
+                'title' => __('new payment'),
+                'pageHead' => [
+                    'title' => __('new payment'),
                     'cancelCreate' => [
                         'route' => [
                             'name' => match ($this->routeName) {
                                 'accounting.payment-accounts.show.payments.create' => 'accounting.payment-accounts.show',
-                                default                                            => preg_replace('/create$/', 'index', $this->routeName)
+                                default => preg_replace('/create$/', 'index', $this->routeName)
                             },
                             'parameters' => array_values($this->originalParameters)
                         ]
+                    ]
+                ],
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title' => __('payment'),
+                            'fields' => [
+                                'reference' => [
+                                    'type' => 'input',
+                                    'label' => __('reference'),
+                                    'value' => ''
+                                ],
+                                'customer' => [
+                                    'type' => 'select',
+                                    'label' => __('customer'),
+                                    'value' => ''
+                                ]
+                            ]
+                        ],
+                        [
+                            'title' => __('Details'),
+                            'fields' => [
+                                'amount' => [
+                                    'type' => 'input',
+                                    'label' => __('amount'),
+                                    'value' => ''
+                                ],
+                                'gc_amount' => [
+                                    'type' => 'input',
+                                    'label' => __('group currency amount'),
+                                    'value' => ''
+                                ],
+                                'tc_amount' => [
+                                    'type' => 'input',
+                                    'label' => __('tenant currency amount'),
+                                    'value' => ''
+                                ],
+                                'currency_id' => [
+                                    'type' => 'currency',
+                                    'label' => __('currency'),
+                                    'value' => '',
+                                    'options' => Currency::get()->toArray()
+                                ],
+                                'date' => [
+                                    'type' => 'date',
+                                    'label' => __('date'),
+                                    'value' => ''
+                                ]
+                            ]
+                        ]
+                    ],
+                    'route' => [
+                        'name' => 'models.payment-account.store'
                     ]
                 ],
             ]
@@ -63,13 +117,16 @@ class CreatePayment extends InertiaAction
         return $this->handle();
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent): array
+    public function getBreadcrumbs(string $routeName, array $params): array
     {
         return array_merge(
-            IndexPayments::make()->getBreadcrumbs($routeName, $parent),
+            IndexPayments::make()->getBreadcrumbs($routeName, $params),
             [
                 [
-                    'suffix'=> __('creating payment')
+                    'type' => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __("creating payment"),
+                    ]
                 ]
             ]
         );

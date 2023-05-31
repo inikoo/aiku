@@ -7,6 +7,7 @@
 
 
 use App\Actions\Accounting\Payment\UpdatePayment;
+use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
@@ -90,6 +91,7 @@ Route::post('/supplier/{supplier}/purchase-order', [StorePurchaseOrder::class, '
 Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');
 
 Route::patch('/payment-account/{paymentAccount}', UpdatePaymentAccount::class)->name('payment-account.update');
+Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
 
 Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
 

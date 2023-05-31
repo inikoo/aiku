@@ -60,7 +60,7 @@ class CreatePaymentAccount extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.payment-account.update',
+                        'name'       => 'models.payment-account.store'
                     ]
                 ],
 
@@ -86,8 +86,8 @@ class CreatePaymentAccount extends InertiaAction
     {
         return array_merge(
             IndexPaymentAccounts::make()->getBreadcrumbs(
-                $this->routeName,
-                $this->parent
+                request()->route()->getName(),
+                request()->route()->parameters
             ),
             [
                 [
