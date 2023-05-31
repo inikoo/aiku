@@ -66,6 +66,8 @@ trait WithElasticsearch
             ];
         }
 
-        return collect(array_reverse($results))->paginate()->withQueryString();
+        return collect(array_reverse($results))->paginate(
+            perPage: \request()->get('perPage') ?? config('ui.table.records_per_page')
+        )->withQueryString();
     }
 }
