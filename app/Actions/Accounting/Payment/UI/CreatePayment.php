@@ -79,7 +79,7 @@ class CreatePayment extends InertiaAction
                                     'type' => 'currency',
                                     'label' => __('currency'),
                                     'value' => '',
-                                    'options' => Currency::get()->toArray()
+                                    'options' => Currency::get()->pluck('code')
                                 ],
                                 'date' => [
                                     'type' => 'date',
