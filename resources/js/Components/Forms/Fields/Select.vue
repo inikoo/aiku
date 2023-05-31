@@ -34,7 +34,7 @@ const placeholder = "Select your option"
 				:placeholder="props.fieldData.placeholder ? props.fieldData.placeholder : placeholder"
 				:canClear="!props.fieldData.required"
 				:mode="props.fieldData.mode ? props.fieldData.mode : 'single'"
-				:closeOnSelect="props.fieldData.mode ? false : true"
+				:closeOnSelect="props.fieldData.mode == 'multiple' ? false : true"
 				:canDeselect="false"
 				:hideSelected="false" />
 			<div

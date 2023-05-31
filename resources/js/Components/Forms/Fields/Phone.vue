@@ -12,7 +12,7 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 library.add(faExclamationCircle, faCheckCircle);
 
-const props = defineProps(['form', 'fieldName', 'options']);
+const props = defineProps(['form', 'fieldName', 'options', 'fieldData']);
 
 import {VueTelInput} from 'vue-tel-input';
 import 'vue-tel-input/vue-tel-input.css';

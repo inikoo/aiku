@@ -112,7 +112,7 @@ form['type'] = 'edit';
                     <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">
                         <div class="relative  flex-grow">
                             <component :is="getComponent(fieldData['type'])" :form=form :fieldName=field
-                                :options="fieldData['options']" :required="fieldData.required">
+                                :options="fieldData['options']" :fieldData="fieldData">
                             </component>
                         </div>
 

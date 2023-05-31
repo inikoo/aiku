@@ -6,7 +6,7 @@ import { faExclamationCircle ,faCheckCircle} from "../../../../private/pro-solid
 import {library} from '@fortawesome/fontawesome-svg-core';
 library.add(faExclamationCircle,faCheckCircle);
 
-const props = defineProps(['form', 'fieldName','options']);
+const props = defineProps(['form', 'fieldName','options', 'fieldData']);
 
 const handleChange = (form) => {
     if(form.type==='edit'){
