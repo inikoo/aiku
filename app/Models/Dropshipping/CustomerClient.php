@@ -11,13 +11,18 @@ use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Dropshipping\CustomerClientFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -37,23 +42,23 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $email
  * @property string|null $phone
  * @property array $location
- * @property \Illuminate\Support\Carbon|null $deactivated_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $deactivated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
+ * @property-read Collection<int, Address> $addresses
  * @property-read Customer|null $customer
  * @property-read Shop|null $shop
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Dropshipping\CustomerClientFactory factory($count = null, $state = [])
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static CustomerClientFactory factory($count = null, $state = [])
  * @method static Builder|CustomerClient newModelQuery()
  * @method static Builder|CustomerClient newQuery()
  * @method static Builder|CustomerClient onlyTrashed()
  * @method static Builder|CustomerClient query()
  * @method static Builder|CustomerClient withTrashed()
  * @method static Builder|CustomerClient withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class CustomerClient extends Model
 {
@@ -90,7 +95,7 @@ class CustomerClient extends Model
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::creating(
             function (CustomerClient $customerClient) {

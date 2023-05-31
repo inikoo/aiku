@@ -39,6 +39,8 @@ use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
 use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Customer\UpdateCustomer;
+use App\Actions\Sales\Order\StoreOrder;
+use App\Actions\Sales\Order\UpdateOrder;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/shop/', StoreShop::class)->name('shop.store');
@@ -48,12 +50,16 @@ Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.upda
 Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('shop.customer.store');
 Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
 Route::post('/shop/{shop}/product/', [StoreProduct::class, 'inShop'])->name('shop.product.store');
+Route::post('/shop/{shop}/order/', [StoreOrder::class, 'inShop'])->name('shop.order.store');
 
 Route::post('/product/', StoreProduct::class)->name('product.store');
 Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');
 
 Route::post('/department/', StoreProductCategory::class)->name('department.store');
 Route::patch('/department/{department}', UpdateProductCategory::class)->name('department.update');
+
+Route::post('/order/', StoreOrder::class)->name('order.store');
+Route::patch('/order/{order}', UpdateOrder::class)->name('order.update');
 
 Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.update');
 Route::post('/employee/', StoreEmployee::class)->name('employee.store');

@@ -18,29 +18,13 @@ enum GuestTypeEnum: string
     case EXTERNAL_ADMINISTRATOR = 'external_administrator';
 
 
-    public static function optionLabels(): array
+    public static function labels(): array
     {
-        return collect(self::cases())->mapWithKeys(function ($case) {
-            return  [$case->value=>$case->optionLabel()];
-        })->all();
-    }
-
-    public function optionLabel(): array
-    {
-        return match ($this) {
-            GuestTypeEnum::CONTRACTOR => [
-                'label' => __('contractor'),
-
-            ],
-            GuestTypeEnum::EXTERNAL_EMPLOYEE => [
-                'label' => __('external employee'),
-
-            ],
-            GuestTypeEnum::EXTERNAL_ADMINISTRATOR => [
-                'label' => __('external administrator'),
-
-            ],
-        };
+        return [
+            'contractor' => 'Contractor',
+            'external_employee' => 'External Employee',
+            'external_administrator' => 'External Administrator',
+        ];
     }
 
 }

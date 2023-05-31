@@ -175,7 +175,7 @@ class IndexDepartments extends InertiaAction
                 $headCrumb(
                     [
                         'name'       => $routeName,
-                        'parameters' => $routeParameters
+                        'parameters' => []
                     ],
                     $suffix
                 )

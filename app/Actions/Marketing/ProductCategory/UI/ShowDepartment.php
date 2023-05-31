@@ -57,7 +57,6 @@ class ShowDepartment extends InertiaAction
     {
         $this->validateAttributes();
 
-
         return Inertia::render(
             'Marketing/Department',
             [

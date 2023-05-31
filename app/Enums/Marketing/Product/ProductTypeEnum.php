@@ -16,4 +16,12 @@ enum ProductTypeEnum: string
     case PHYSICAL_GOOD    = 'physical_good';
     case SERVICE          = 'service';
 
+    public static function labels(): array
+    {
+        return [
+            'physical_good' => 'Physical Good',
+            'service' => 'Service',
+        ];
+    }
+
 }
