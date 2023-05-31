@@ -11,10 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faExclamationCircle, faCheckCircle } from "../../../../private/pro-solid-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faExclamationCircle, faCheckCircle);
-const props = defineProps(['form', 'fieldName', 'options'])
-// console.log(props.form)
-// console.log(props.fieldName)
-// console.log(props.options)
+const props = defineProps(['form', 'fieldName', 'options', 'required', 'placeholder'])
 const value = ref(null)
 // const options = [
 //     'Batman',
@@ -28,18 +25,19 @@ const value = ref(null)
 //     'Dr. Strange',
 // ]
 
-const multiselectPlaceholder = "Select your option"
-const compForm = computed(() => {
-    props.form
-})
+// console.log(props.required)
+const placeholder = "Select your option"
+// const compForm = computed(() => {
+//     props.form
+// })
 
 </script>
 
 <template>
     <div class="">
-        <pre>{{ compForm }}</pre>
+        <!-- <pre>{{ compForm }}</pre> -->
         <div class="relative">
-            <Multiselect :class="{'pr-8': form.errors[fieldName] || form.recentlySuccessful}" v-model="form[fieldName]" :options="props.options" :placeholder="multiselectPlaceholder" />
+            <Multiselect :class="{'pr-8': form.errors[fieldName] || form.recentlySuccessful}" v-model="form[fieldName]" :options="props.options" :placeholder="props.placeholder ? props.placeholder : placeholder" :canClear="required" />
             <div v-if="form.errors[fieldName] || form.recentlySuccessful"
                 class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">
                 <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500"
@@ -55,3 +53,23 @@ const compForm = computed(() => {
 
 
 <style src="@vueform/multiselect/themes/default.css"></style>
+
+
+<style>
+/* Style for multiselect globally */
+.multiselect-option.is-selected,
+.multiselect-option.is-selected.is-pointed {
+    background: var(--ms-option-bg-selected, #6366f1) !important;
+    color: var(--ms-option-color-selected, #fff) !important;
+}
+
+.multiselect-option.is-selected.is-disabled {
+    background: var(--ms-option-bg-selected-disabled, #c7d2fe);
+    color: var(--ms-option-color-selected-disabled, #818cf8)
+}
+
+.multiselect.is-active {
+    border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid var(--ms-border-color-active, var(--ms-border-color, #d1d5db));
+    box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(99, 102, 241, 0.188))
+}
+</style>

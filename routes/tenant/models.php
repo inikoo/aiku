@@ -49,7 +49,7 @@ Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('shop.customer
 Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
 Route::post('/shop/{shop}/product/', [StoreProduct::class, 'inShop'])->name('shop.product.store');
 
-Route::post('/product/', StoreProductCategory::class)->name('product.store');
+Route::post('/product/', StoreProduct::class)->name('product.store');
 Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');
 
 Route::post('/department/', StoreProductCategory::class)->name('department.store');
