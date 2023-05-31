@@ -68,8 +68,6 @@ class CatalogueHub extends InertiaAction
                 'label'   => Str::possessive($scope->name)
             ];
         }
-
-
         return Inertia::render(
             'Marketing/CatalogueHub',
             [
@@ -97,31 +95,53 @@ class CatalogueHub extends InertiaAction
                  CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
                      fn () => FamilyResource::collection(IndexFamilies::run($scope))
                      : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($scope))),
- */
+                */
                 CatalogueTabsEnum::PRODUCTS->value    => $this->tab == CatalogueTabsEnum::PRODUCTS->value ?
                     fn () => ProductResource::collection(IndexProducts::run($scope))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($scope))),
             ]
         )->table(IndexDepartments::make()->tableStructure($scope,
-            [
-                'createLink' => $this->canEdit ?[
-                    'route' => [
-                        'name'       => 'shops.show.catalogue.hub.departments.create',
-                        'parameters' => array_values([$scope->slug])
-                    ],
-                    'label' => __('department')
-                ] : false,
-            ]
+            match ($this->routeName) {
+                'shops.show.catalogue.hub' => [
+                    'createLink' => $this->canEdit ?[
+                        'route' => [
+                            'name'       => 'shops.show.catalogue.hub.departments.create',
+                            'parameters' => array_values([$scope->slug])
+                        ],
+                        'label' => __('department')
+                    ] : false,
+                ],
+                'catalogue.hub' => [
+                    'createLink' => $this->canEdit ?[
+                        'route' => [
+                            'name'       => 'catalogue.hub.departments.create',
+                            'parameters' => array_values([$scope->slug])
+                        ],
+                        'label' => __('department')
+                    ] : false,
+                ]
+            }
         ))->table(IndexProducts::make()->tableStructure($scope,
-            [
-                'createLink' => $this->canEdit ?[
-                    'route' => [
-                        'name'       => 'shops.show.catalogue.hub.products.create',
-                        'parameters' => array_values([$scope->slug])
-                    ],
-                    'label' => __('product')
-                ] : false,
-            ]
+            match ($this->routeName) {
+                'shops.show.catalogue.hub' => [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name' => 'shops.show.catalogue.hub.products.create',
+                            'parameters' => array_values([$scope->slug])
+                        ],
+                        'label' => __('product')
+                    ] : false
+                ],
+                'catalogue.hub' => [
+                    'createLink' => $this->canEdit ?[
+                        'route' => [
+                            'name'       => 'catalogue.hub.products.create',
+                            'parameters' => array_values([$scope->slug])
+                        ],
+                        'label' => __('product')
+                    ] : false
+                ]
+            }
         ));
         //  ->table(IndexFamilies::make()->tableStructure($scope))
     }
