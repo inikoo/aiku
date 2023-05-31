@@ -65,13 +65,7 @@
 </template>
   
 <script setup>
-import StarterKit from '@tiptap/starter-kit';
-import BulletList from '@tiptap/extension-bullet-list'
-import Document from '@tiptap/extension-document'
-// import ListItem from '@tiptap/extension-list-item'
-// import OrderedList from '@tiptap/extension-ordered-list'
-import Paragraph from '@tiptap/extension-paragraph'
-import Text from '@tiptap/extension-text'
+import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Underline from '@tiptap/extension-underline'
 import CharacterCount from '@tiptap/extension-character-count'
@@ -108,9 +102,6 @@ editor.value = new Editor({
   },
   extensions: [
     StarterKit,
-    // BulletList,
-    // OrderedList,
-    // ListItem,
     CharacterCount.configure({
       limit: null,
     }),
