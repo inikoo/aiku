@@ -22,7 +22,7 @@ const props = defineProps<{
 <template>
     <Table :resource="data" class="mt-5">
         <template #cell(username)="{ item: user }">
-            <template v-if="user._source.username">{{ user._source.username }}</template>
+            <template v-if="user.username">{{ user.username }}</template>
         </template>
     </Table>
 </template>

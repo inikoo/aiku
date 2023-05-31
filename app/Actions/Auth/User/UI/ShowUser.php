@@ -80,6 +80,7 @@ class ShowUser extends InertiaAction
         )->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
+                ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'route_name', label: __('Route Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'route_parameter', label: __('Route Parameter'), canBeHidden: false, sortable: true)
