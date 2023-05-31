@@ -63,13 +63,9 @@ const current = ref(0)
     <!-- If overflow-hidden, affect to Multiselect on Address -->
     <div class="rounded-lg bg-white shadow">
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
+            
+            <!-- Left Tab: Navigation -->
             <aside class="py-0 lg:col-span-3 lg:h-full">
-                <!-- <div>
-                    <h2
-                        class="py-3 pl-2 font-bold leading-7 text-gray-900 sm:truncate lg:text-2xl sm:tracking-tight capitalize">
-                        {{ pageHead.title }}
-                    </h2>
-                </div> -->
                 <nav role="navigation" class="space-y-1">
                     <ul>
                         <li v-for="(item, key) in formData['blueprint']" @click="current = key" :class="[
@@ -78,7 +74,7 @@ const current = ref(0)
                                 : 'border-transparent text-gray-900 hover:bg-gray-50 hover:text-gray-900',
                             'cursor-pointer group border-l-4 px-3 py-2 flex items-center text-sm font-medium',
                         ]" :aria-current="key === current ? 'page' : undefined">
-                            <FontAwesomeIcon aria-hidden="true" :class="[
+                            <FontAwesomeIcon v-if="item.icon" aria-hidden="true" :class="[
                                 key === current
                                     ? 'text-indigo-500 group-hover:text-indigo-500'
                                     : 'text-gray-400 group-hover:text-gray-500',
@@ -91,19 +87,19 @@ const current = ref(0)
                 </nav>
             </aside>
 
+            <!-- Content of forms -->
             <div class="px-4 sm:px-6 md:px-4 col-span-9">
                 <div class="pb-6">
-                    <div class="mt-10 divide-y divide-grey-200" v-for="(sectionData, sectionIdx ) in formData['blueprint']"
-                        :key="sectionIdx">
+                    <div class="mt-10 divide-y divide-grey-200">
                         <div class="space-y-1 mb-6 ">
                             <h3 class="text-lg leading-6 font-medium text-gray-900 capitalize">
-                                {{ sectionData.title }}
+                                {{ formData['blueprint'][current].title }}
                             </h3>
-                            <p v-show="sectionData['subtitle']" class="max-w-2xl text-sm text-gray-500 capitalize">
-                                {{ sectionData['subtitle'] }}
+                            <p v-show="formData['blueprint'][current]['subtitle']" class="max-w-2xl text-sm text-gray-500 capitalize">
+                                {{ formData['blueprint'][current]['subtitle'] }}
                             </p>
                         </div>
-                        <FieldForm class=" pt-4 sm:pt-5 px-6 " v-for="(fieldData, field ) in sectionData.fields"
+                        <FieldForm class=" pt-4 sm:pt-5 px-6 " v-for="(fieldData, field ) in formData['blueprint'][current].fields"
                             :field="field" :fieldData="fieldData" :args="formData['args']" />
                     </div>
                 </div>

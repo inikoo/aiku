@@ -15,10 +15,14 @@ use App\Actions\Sales\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
+use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
+use Illuminate\Http\RedirectResponse;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Redirect;
 
 class StoreOrder
 {
@@ -28,21 +32,23 @@ class StoreOrder
     public int $hydratorsDelay=0;
 
     public function handle(
-        Customer|CustomerClient $parent,
+        Shop|Customer|CustomerClient $parent,
         array $modelData,
         Address $seedBillingAddress,
         Address $seedDeliveryAddress
     ): Order {
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
-        } else {
+            $modelData['currency_id'] = $parent->shop->currency_id;
+            $modelData['shop_id']     = $parent->shop_id;
+        } elseif (class_basename($parent) == 'CustomerClient'){
             $modelData['customer_id']        = $parent->customer_id;
             $modelData['customer_client_id'] = $parent->id;
+            $modelData['currency_id'] = $parent->shop->currency_id;
+            $modelData['shop_id']     = $parent->shop_id;
+        } else {
+            $modelData['currency_id'] = $parent->currency_id;
         }
-
-        $modelData['currency_id'] = $parent->shop->currency_id;
-        $modelData['shop_id']     = $parent->shop_id;
-
 
         /** @var Order $order */
         $order = $parent->shop->orders()->create($modelData);
@@ -68,13 +74,22 @@ class StoreOrder
     public function rules(): array
     {
         return [
-            'number' => ['required', 'unique:tenant.orders'],
-            'date'   => ['required', 'date']
+            'number' => ['required', 'unique:tenant.orders', 'numeric'],
+            'customer_number' =>['required']
         ];
     }
 
+    public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
+    {
+        $request->validate();
+        $seedBillingAddress = $request->get('billing_address');
+        $seedDeliveryAddress = $request->get('delivery_address');
+        $this->handle($shop, $request->validated(), $seedBillingAddress, $seedDeliveryAddress);
+        return  Redirect::route('shops.show.orders.index',$shop);
+    }
+
     public function action(
-        Customer|CustomerClient $parent,
+        Shop|Customer|CustomerClient $parent,
         array $modelData,
         Address $seedBillingAddress,
         Address $seedDeliveryAddress
@@ -86,7 +101,7 @@ class StoreOrder
     }
 
     public function asFetch(
-        Customer|CustomerClient $parent,
+        Shop|Customer|CustomerClient $parent,
         array $modelData,
         Address $seedBillingAddress,
         Address $seedDeliveryAddress,

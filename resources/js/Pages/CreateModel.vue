@@ -98,7 +98,9 @@ const handleFormSubmit = () => {
                                             :is="getComponent(fieldData['type'])"
                                             :form="form"
                                             :fieldName="fieldName"
-                                            :options="fieldData['options']">
+                                            :options="fieldData['options']"
+                                            :fieldData="fieldData"
+                                        >
                                         </component>
                                     </div>
                                     <span class="ml-4 flex-shrink-0 w-5 ">

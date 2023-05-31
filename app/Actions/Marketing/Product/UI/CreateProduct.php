@@ -90,7 +90,9 @@ class CreateProduct extends InertiaAction
                                     'type' => [
                                         'type'  => 'select',
                                         'label' => __('type'),
-                                        'options' => Options::forEnum(ProductTypeEnum::class)->toArray()
+                                        'options' => Options::forEnum(ProductTypeEnum::class)->toArray(),
+                                        'required'=> true,
+                                        'mode'  => 'single'
                                     ]
                                 ]
                             ]

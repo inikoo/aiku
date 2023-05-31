@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import PrimitiveInput from '@/Components/Elements/Fields/PrimitiveInput.vue'
 
-const props = defineProps<{ form, fieldName, options?}>()
+const props = defineProps<{ form: any, fieldName: any, options?: any, fieldData?: object}>()
 
 let type = 'text'
 if (props.options !== undefined && props.options.type) {
@@ -23,12 +23,8 @@ if(props.options){
 
 </script>
 <template>
-    <!-- {{ showStats }} -->
     <div class="relative">
-        <!-- <input @input="handleChange(form)" v-model="form[fieldName]" :type="type"
-            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" /> -->
         <PrimitiveInput v-model="form[fieldName]" :showStats="showStats" :type="type" :form="form" :fieldName="fieldName"/>
-        
     </div>
     <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
 </template>

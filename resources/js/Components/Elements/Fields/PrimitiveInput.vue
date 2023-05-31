@@ -10,8 +10,8 @@ const props = defineProps<{
     modelValue?: string,
     showStats: Boolean,
     type: string,
-    form,
-    fieldName,
+    form: Object,
+    fieldName: string,
 }>()
 defineEmits(['update:modelValue'])
 const inputValue = ref(props.modelValue ? props.modelValue : '')

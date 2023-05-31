@@ -12,9 +12,13 @@ use App\Enums\Auth\GuestTypeEnum;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateGuest extends InertiaAction
 {
+    /**
+     * @throws \Exception
+     */
     public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
@@ -62,8 +66,8 @@ class CreateGuest extends InertiaAction
                                     'type'         => 'select',
                                     'label'        => __('type'),
                                     'value'        => '',
-                                    'placeholder'  => 'select your options',
-                                    'options'      => GuestTypeEnum::optionLabels()
+                                    'placeholder'  => 'Select a Type',
+                                    'options'      => Options::forEnum(GuestTypeEnum::class)
                                 ],
                             ]
                         ]

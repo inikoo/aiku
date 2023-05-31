@@ -7,16 +7,22 @@
 
 namespace App\Actions\Sales\Order\UI;
 
+use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Http\Resources\Helpers\AddressResource;
+use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateOrder extends InertiaAction
 {
     public function handle(Shop $shop, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'CreateModel',
             [
@@ -44,19 +50,77 @@ class CreateOrder extends InertiaAction
                             [
                                 'title'  => __('number'),
                                 'fields' => [
+                                    'date' =>[
+                                        'type' => 'date',
+                                        'label'=> __('date')
+                                    ],
                                     'number' => [
                                         'type'  => 'input',
                                         'label' => __('number')
+                                    ],
+                                ]
+                            ],
+                            [
+                                'title' => __('customer'),
+                                'fields' =>[
+                                    'customer_id' =>[
+                                        'type' => 'select',
+                                        'label' => 'name',
+                                        'placeholder' => 'Select A Customer',
+                                        'options' => Options::forModels(Customer::query()->where('shop_id', $shop->id)),
+
                                     ],
                                     'customer_number' => [
                                         'type'  => 'input',
                                         'label' => __('customer number')
                                     ],
                                 ]
+                            ],
+                            [
+                                'title' => __('billing address'),
+                                'fields' =>[
+                                    'billing_address'      => [
+                                        'type'    => 'address',
+                                        'label'   => __('Address'),
+                                        'value'   => AddressResource::make(
+                                            new Address(
+                                                [
+                                                    'country_id' => $shop->country_id,
+
+                                                ]
+                                            )
+                                        )->getArray(),
+                                        'options' => [
+                                            'countriesAddressData' => GetAddressData::run()
+
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            [
+                                'title' => __('Delivery address'),
+                                'fields' =>[
+                                    'delivery_address' => [
+                                        'type'    => 'address',
+                                        'label'   => __('Address'),
+                                        'value'   => AddressResource::make(
+                                            new Address(
+                                                [
+                                                    'country_id' => $shop->country_id,
+
+                                                ]
+                                            )
+                                        )->getArray(),
+                                        'options' => [
+                                            'countriesAddressData' => GetAddressData::run()
+
+                                        ]
+                                    ]
+                                ]
                             ]
                         ],
                     'route'     => [
-                        'name'     => 'models.shop.customer.store',
+                        'name'     => 'models.shop.order.store',
                         'arguments'=> [$shop->slug]
                     ]
                 ]
@@ -76,6 +140,7 @@ class CreateOrder extends InertiaAction
         $this->initialisation($request);
         return $this->handle($shop, $request);
     }
+
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {

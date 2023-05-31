@@ -33,7 +33,7 @@ class CreateDepartment extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->htmlResponse($request);
     }
 
     function htmlResponse(ActionRequest $request): Response
