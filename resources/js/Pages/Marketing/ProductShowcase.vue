@@ -19,9 +19,9 @@ const product = props.data.data;
 <template>
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-3 gap-4 ">
         <div class="m-auto">
-            <img :src="route('media.show',product.image_id)" alt="product main image"
-                 class=" sm:max-w-xs  md:max-w lg:h-64 "
-            />
+<!--            <img :src="route('media.show',product.image_id)" alt="product main image"-->
+<!--                 class=" sm:max-w-xs  md:max-w lg:h-64 "-->
+<!--            />-->
         </div>
         <table class="lg:mr-6 lg:ml-0 md:ml-28 md:mr-28">
             <tr>

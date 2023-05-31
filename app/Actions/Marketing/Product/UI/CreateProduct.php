@@ -8,11 +8,16 @@
 namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\Marketing\Product\ProductTypeEnum;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\Shop;
+use App\Models\Tenancy\Tenant;
+use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Nette\Schema\Elements\Type;
+use Spatie\LaravelOptions\Options;
 
 class CreateProduct extends InertiaAction
 {
@@ -21,7 +26,10 @@ class CreateProduct extends InertiaAction
     private Shop $parent;
 
 
-    public function handle(Shop $shop, ActionRequest $request): Response
+    /**
+     * @throws Exception
+     */
+    public function handle(Tenant|Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -37,6 +45,7 @@ class CreateProduct extends InertiaAction
                         'route' => [
                             'name' => match ($this->routeName) {
                                 'shops.show.products.create' => 'shops.show.products.index',
+                                'catalogue.hub.products.create' => 'catalogue.hub',
                                 default                      => preg_replace('/create$/', 'index', $this->routeName)
                             },
                             'parameters' => array_values($this->originalParameters)
@@ -81,7 +90,7 @@ class CreateProduct extends InertiaAction
                                     'type' => [
                                         'type'  => 'select',
                                         'label' => __('type'),
-                                        "value" => __('PHYSICAL_GOOD'),
+                                        'options' => Options::forEnum(ProductTypeEnum::class)->toArray()
                                     ]
                                 ]
                             ]
@@ -107,6 +116,9 @@ class CreateProduct extends InertiaAction
     }
 
 
+    /**
+     * @throws Exception
+     */
     public function asController(Shop $shop, ActionRequest $request): Response
     {
         $this->parent = $shop;
