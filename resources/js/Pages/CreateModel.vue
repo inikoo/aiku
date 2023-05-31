@@ -30,7 +30,6 @@ import {trans} from "laravel-vue-i18n";
 import Address from "@/Components/Forms/Fields/Address.vue";
 
 const getComponent = (componentName) => {
-
     const components = {
         'input': Input,
         'phone': Phone,
@@ -39,7 +38,6 @@ const getComponent = (componentName) => {
         'address':Address
     };
     return components[componentName] ?? null;
-
 };
 
 let fields = {};
@@ -55,11 +53,10 @@ const handleFormSubmit = () => {
     form.post(route(
         props.formData.route.name,
         props.formData.route.arguments
-));
-};
-
-
+    ))
+}
 </script>
+
 
 <template layout="App">
     <Head :title="title"/>
@@ -95,8 +92,7 @@ const handleFormSubmit = () => {
                                             :form="form"
                                             :fieldName="fieldName"
                                             :options="fieldData['options']"
-                                            :required="fieldData.required"
-                                            :placeholder="fieldData.placeholder"
+                                            :fieldData="fieldData"
                                         >
                                         </component>
                                     </div>

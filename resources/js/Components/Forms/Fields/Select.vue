@@ -4,14 +4,23 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
-<script setup>
+<script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
 import { ref, computed } from "vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle } from "../../../../private/pro-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 library.add(faExclamationCircle, faCheckCircle)
-const props = defineProps(["form", "fieldName", "options", "required", "placeholder"])
+const props = defineProps<{
+    form: any
+    fieldName: any
+    options: string[]
+    fieldData: {
+        placeholder: string,
+        required: boolean,
+        mode: string
+    }
+}>()
 const placeholder = "Select your option"
 </script>
 
@@ -22,16 +31,12 @@ const placeholder = "Select your option"
 				:class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
 				v-model="form[fieldName]"
 				:options="props.options"
-				:placeholder="props.placeholder ? props.placeholder : placeholder"
-				:canClear="!props.required"
-				:mode="props.mode ? props.mode : 'single'"
-				:closeOnSelect="props.mode ? false : true"
+				:placeholder="props.fieldData.placeholder ? props.fieldData.placeholder : placeholder"
+				:canClear="!props.fieldData.required"
+				:mode="props.fieldData.mode ? props.fieldData.mode : 'single'"
+				:closeOnSelect="props.fieldData.mode ? false : true"
 				:canDeselect="false"
-                :hideSelected="false"
-            >
-                <template slot="selection" slot-scope="{ values, search, isOpen }"><span class="multiselect__single" v-if="values.length" v-show="!isOpen">fdsafdsafdsa</span></template>
-
-            </Multiselect>
+				:hideSelected="false" />
 			<div
 				v-if="form.errors[fieldName] || form.recentlySuccessful"
 				class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">
