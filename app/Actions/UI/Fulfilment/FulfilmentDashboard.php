@@ -57,7 +57,26 @@ class FulfilmentDashboard
                             'href'  => ['fulfilment.stored-items.index'],
                             'index' => [
                                 'number' => $this->tenant->fulfilmentStats->number_stored_items
-                            ]
+                            ],
+
+                        ],
+                        [
+                            'name'  => __('Customers'),
+                            'icon'  => ['fal', 'fa-user-tie'],
+                            'href'  => ['fulfilment.customers.index'],
+                            'index' => [
+                                'number' => $this->tenant->fulfilmentStats->number_customers_with_stocks
+                            ],
+
+                        ],
+                        [
+                            'name'  => __('Orders'),
+                            'icon'  => ['fal', 'fa-business-time'],
+                            'href'  => ['fulfilment.orders.index'],
+                            'index' => [
+                                'number' => $this->tenant->fulfilmentStats->number_customers_with_assets
+                            ],
+
                         ]
                     ]
                 ]

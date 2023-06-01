@@ -9,7 +9,6 @@ namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
 use App\Enums\Marketing\Product\ProductTypeEnum;
-use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 use Exception;
@@ -44,9 +43,9 @@ class CreateProduct extends InertiaAction
                     'cancelCreate' => [
                         'route' => [
                             'name' => match ($this->routeName) {
-                                'shops.show.products.create' => 'shops.show.products.index',
+                                'shops.show.products.create'    => 'shops.show.products.index',
                                 'catalogue.hub.products.create' => 'catalogue.hub',
-                                default                      => preg_replace('/create$/', 'index', $this->routeName)
+                                default                         => preg_replace('/create$/', 'index', $this->routeName)
                             },
                             'parameters' => array_values($this->originalParameters)
                         ]
@@ -67,6 +66,7 @@ class CreateProduct extends InertiaAction
                                         'type'  => 'input',
                                         'label' => __('name')
                                     ],
+                                    /*
                                     'description' => [
                                         'type'  => 'input',
                                         'label' => __('description')
@@ -94,12 +94,13 @@ class CreateProduct extends InertiaAction
                                         'required'=> true,
                                         'mode'  => 'single'
                                     ]
+                                    */
                                 ]
                             ]
                         ],
                     'route' => match ($this->routeName) {
                         'shops.show.catalogue.hub.products.create' => [
-                            'name' => 'models.shop.product.store',
+                            'name'      => 'models.shop.product.store',
                             'arguments' => [$shop->slug]
                         ],
                         default => [
