@@ -17,7 +17,7 @@ class AddItemPurchaseOrder
     use AsAction;
     use WithAttributes;
 
-    public function handle(PurchaseOrder $purchaseOrder, array $modelData):  PurchaseOrderItem
+    public function handle(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrderItem
     {
         /** @var PurchaseOrderItem $items */
         $items = $purchaseOrder->items()->create($modelData);

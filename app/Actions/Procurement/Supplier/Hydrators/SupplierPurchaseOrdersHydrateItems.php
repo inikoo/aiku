@@ -29,11 +29,11 @@ class SupplierPurchaseOrdersHydrateItems implements ShouldBeUnique
         ];
 
         $checkedItemsCount = $supplierPurchaseOrder->items()->where('state', PurchaseOrderItemStateEnum::CHECKED)->count();
-        $items = $supplierPurchaseOrder->items()->count();
+        $items             = $supplierPurchaseOrder->items()->count();
 
         if(($checkedItemsCount === $items) && ($items > 0)) {
-            $stats['state'] = PurchaseOrderStateEnum::CHECKED;
-            $stats['checked_at'] = now();
+            $stats['state']                                      = PurchaseOrderStateEnum::CHECKED;
+            $stats['checked_at']                                 = now();
             $stats[$supplierPurchaseOrder->state->value . '_at'] = null;
         }
 

@@ -12,7 +12,8 @@ class CaseSensitive implements Rule
      *
      * @return void
      */
-    public  $tableName, $message;
+    public $tableName;
+    public $message;
     public function __construct($tableName)
     {
         $this->tableName = $tableName;
@@ -27,8 +28,8 @@ class CaseSensitive implements Rule
      */
     public function passes($attribute, $value): bool
     {
-        $query = DB::connection('tenant')->table($this->tableName);
-        $column = $query->getGrammar()->wrap($attribute);
+        $query         = DB::connection('tenant')->table($this->tableName);
+        $column        = $query->getGrammar()->wrap($attribute);
         $this->message ='The '.$attribute.' has already been taken.';
 
         return ! $query->whereRaw("lower({$column}) = lower(?)", [$value])->count();

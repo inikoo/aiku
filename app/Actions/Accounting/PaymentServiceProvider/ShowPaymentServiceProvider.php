@@ -4,7 +4,9 @@
  *  Created: Wed, 26 Oct 2022 13:06:04 British Summer Time, Sheffield, UK
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
+
 namespace App\Actions\Accounting\PaymentServiceProvider;
+
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\InertiaAction;
@@ -17,6 +19,7 @@ use App\Models\Accounting\PaymentServiceProvider;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+
 class ShowPaymentServiceProvider extends InertiaAction
 {
     public function handle(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProvider

@@ -31,13 +31,13 @@ class WhistlGbCallShipperApi
             "Content-Type: application/json",
             'GeoClient: account/' .$shipper->data['account_number']
         ];
-        $output = [];
-        $apiResponse = ProsesApiCalls::run($apiUrl.$deliveryNote->data['shipmentId'].'/label',$header, json_encode([]), 'GET', $output);
+        $output      = [];
+        $apiResponse = ProsesApiCalls::run($apiUrl.$deliveryNote->data['shipmentId'].'/label', $header, json_encode([]), 'GET', $output);
         return $apiResponse['data'];
     }
 
 
-    public function login($apiUrl, $shipper) : Shipper
+    public function login($apiUrl, $shipper): Shipper
     {
         $headers = [
             "Authorization: Basic ".base64_encode($shipper->code.':'.$shipper->data['password']),
@@ -49,7 +49,9 @@ class WhistlGbCallShipperApi
         $params = [];
 
         $apiResponse = ProsesApiCalls::run(
-            $apiUrl.'user?action=login', $headers, json_encode($params)
+            $apiUrl.'user?action=login',
+            $headers,
+            json_encode($params)
         );
 
         if ($apiResponse['status'] == 200 and !empty($apiResponse['data']['data']['geoSession'])) {

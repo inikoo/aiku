@@ -16,11 +16,11 @@ class UserHistoryResource extends JsonResource
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         return [
-            'username' => $this['username'],
-            'ip_address' => $this['ip_address'],
-            'route_name' => $this['route_name'],
+            'username'        => $this['username'],
+            'ip_address'      => $this['ip_address'],
+            'route_name'      => $this['route_name'],
             'route_parameter' => $this['route_parameter'],
-            'datetime' => $this['datetime']
+            'datetime'        => $this['datetime']
         ];
     }
 }

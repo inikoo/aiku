@@ -42,8 +42,8 @@ class ShowEmployee extends InertiaAction
         return Inertia::render(
             'HumanResources/Employee',
             [
-                'title'       => __('employee'),
-                'breadcrumbs' => $this->getBreadcrumbs($employee),
+                'title'                                 => __('employee'),
+                'breadcrumbs'                           => $this->getBreadcrumbs($employee),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($employee, $request),
                     'next'     => $this->getNext($employee, $request),

@@ -41,11 +41,11 @@ class StoreOrder
             $modelData['customer_id'] = $parent->id;
             $modelData['currency_id'] = $parent->shop->currency_id;
             $modelData['shop_id']     = $parent->shop_id;
-        } elseif (class_basename($parent) == 'CustomerClient'){
+        } elseif (class_basename($parent) == 'CustomerClient') {
             $modelData['customer_id']        = $parent->customer_id;
             $modelData['customer_client_id'] = $parent->id;
-            $modelData['currency_id'] = $parent->shop->currency_id;
-            $modelData['shop_id']     = $parent->shop_id;
+            $modelData['currency_id']        = $parent->shop->currency_id;
+            $modelData['shop_id']            = $parent->shop_id;
         } else {
             $modelData['customer_id'] = $parent->customer_id;
             $modelData['currency_id'] = $parent->currency_id;
@@ -77,7 +77,7 @@ class StoreOrder
     {
         return [
             'number' => ['required', 'unique:tenant.orders', 'numeric'],
-            'date' => ['required']
+            'date'   => ['required']
         ];
     }
 
@@ -89,7 +89,7 @@ class StoreOrder
         $seedDeliveryAddress = new Address();
         $seedBillingAddress::hydrate($request->get('delivery_address'));
         $this->handle($shop, $request->validated(), $seedBillingAddress, $seedDeliveryAddress);
-        return  Redirect::route('shops.show.orders.index',$shop);
+        return  Redirect::route('shops.show.orders.index', $shop);
     }
 
     public function action(

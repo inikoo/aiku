@@ -71,7 +71,7 @@ class StoreInvoice
     public function rules(): array
     {
         return [
-            'number' => ['required', 'unique:tenant.invoices', 'numeric'],
+            'number'      => ['required', 'unique:tenant.invoices', 'numeric'],
             'currency_id' => ['required', 'required', 'exists:central.currencies,id']
         ];
     }

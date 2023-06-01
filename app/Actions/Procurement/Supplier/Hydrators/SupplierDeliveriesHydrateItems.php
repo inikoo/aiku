@@ -10,7 +10,6 @@ namespace App\Actions\Procurement\Supplier\Hydrators;
 use App\Actions\WithTenantJob;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum;
-use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierDelivery;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -30,11 +29,11 @@ class SupplierDeliveriesHydrateItems implements ShouldBeUnique
         ];
 
         $checkedItemsCount = $supplierDelivery->items()->where('state', SupplierDeliveryItemStateEnum::CHECKED)->count();
-        $items = $supplierDelivery->items()->count();
+        $items             = $supplierDelivery->items()->count();
 
         if(($checkedItemsCount === $items) && ($items > 0)) {
-            $stats['state'] = SupplierDeliveryStateEnum::CHECKED;
-            $stats['checked_at'] = now();
+            $stats['state']                                 = SupplierDeliveryStateEnum::CHECKED;
+            $stats['checked_at']                            = now();
             $stats[$supplierDelivery->state->value . '_at'] = null;
         }
 

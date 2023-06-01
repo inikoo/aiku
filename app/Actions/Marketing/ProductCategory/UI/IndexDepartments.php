@@ -67,7 +67,7 @@ class IndexDepartments extends InertiaAction
 
     public function tableStructure($parent, ?array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) use ($parent , $modelOperations ) {
+        return function (InertiaTable $table) use ($parent, $modelOperations) {
             $table
                 ->defaultSort('code')
                 ->name(TabsAbbreviationEnum::DEPARTMENTS->value)

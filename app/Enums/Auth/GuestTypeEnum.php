@@ -21,8 +21,8 @@ enum GuestTypeEnum: string
     public static function labels(): array
     {
         return [
-            'contractor' => 'Contractor',
-            'external_employee' => 'External Employee',
+            'contractor'             => 'Contractor',
+            'external_employee'      => 'External Employee',
             'external_administrator' => 'External Administrator',
         ];
     }

@@ -18,9 +18,9 @@ class GlsSkCallShipperApi
     use WithAttributes;
     public function handle(Request $request, Shipper $shipper): array
     {
-        $apiUrl = "https://api.dpdportal.sk/shipment";
+        $apiUrl         = "https://api.dpdportal.sk/shipment";
         $shipmentParams = DpdSkShipmentParameters::run($request, $shipper);
-        $params = array(
+        $params         = array(
             'jsonrpc' => '2.0',
             'method'  => 'create',
             'params'  => array(
@@ -34,6 +34,6 @@ class GlsSkCallShipperApi
             ),
             'id'      => 'null',
         );
-        return ProsesApiCalls::run($apiUrl,["Content-Type: application/json"], json_encode($params));
+        return ProsesApiCalls::run($apiUrl, ["Content-Type: application/json"], json_encode($params));
     }
 }

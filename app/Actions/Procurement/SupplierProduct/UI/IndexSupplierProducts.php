@@ -107,7 +107,7 @@ class IndexSupplierProducts extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $supplier_products, ActionRequest $request): Response
     {
-//        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+        //        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'Procurement/SupplierProducts',
             [

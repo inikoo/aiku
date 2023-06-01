@@ -75,10 +75,10 @@ class CatalogueHub extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => $title,
+                'title'                                 => $title,
                 'navigation'                            => [
-                    'previous' => $this->getPrevious( $scope,$request),
-                    'next'     => $this->getNext( $scope, $request),
+                    'previous' => $this->getPrevious($scope, $request),
+                    'next'     => $this->getNext($scope, $request),
                 ],
                 'pageHead'    => [
                     'title'     => $title,
@@ -90,7 +90,7 @@ class CatalogueHub extends InertiaAction
                 ],
                 CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value ?
                     fn () => DepartmentResource::collection(IndexDepartments::run($scope))
-                    : Inertia::lazy( fn () => DepartmentResource::collection(IndexDepartments::run($scope))),
+                    : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($scope))),
                 /*
                  CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
                      fn () => FamilyResource::collection(IndexFamilies::run($scope))
@@ -100,10 +100,11 @@ class CatalogueHub extends InertiaAction
                     fn () => ProductResource::collection(IndexProducts::run($scope))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($scope))),
             ]
-        )->table(IndexDepartments::make()->tableStructure($scope,
+        )->table(IndexDepartments::make()->tableStructure(
+            $scope,
             match ($this->routeName) {
                 'shops.show.catalogue.hub' => [
-                    'createLink' => $this->canEdit ?[
+                    'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'shops.show.catalogue.hub.departments.create',
                             'parameters' => array_values([$scope->slug])
@@ -112,7 +113,7 @@ class CatalogueHub extends InertiaAction
                     ] : false,
                 ],
                 'catalogue.hub' => [
-                    'createLink' => $this->canEdit ?[
+                    'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'catalogue.hub.departments.create',
                             'parameters' => array_values([$scope->slug])
@@ -121,19 +122,20 @@ class CatalogueHub extends InertiaAction
                     ] : false,
                 ]
             }
-        ))->table(IndexProducts::make()->tableStructure($scope,
+        ))->table(IndexProducts::make()->tableStructure(
+            $scope,
             match ($this->routeName) {
                 'shops.show.catalogue.hub' => [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name' => 'shops.show.catalogue.hub.products.create',
+                            'name'       => 'shops.show.catalogue.hub.products.create',
                             'parameters' => array_values([$scope->slug])
                         ],
                         'label' => __('product')
                     ] : false
                 ],
                 'catalogue.hub' => [
-                    'createLink' => $this->canEdit ?[
+                    'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'catalogue.hub.products.create',
                             'parameters' => array_values([$scope->slug])

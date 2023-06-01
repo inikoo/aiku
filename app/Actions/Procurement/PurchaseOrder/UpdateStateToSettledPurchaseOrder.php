@@ -34,7 +34,7 @@ class UpdateStateToSettledPurchaseOrder
             $purchaseOrder->items()->update($data);
 
             $data[$purchaseOrder->state->value . '_at'] = null;
-            $data['settled_at'] = now();
+            $data['settled_at']                         = now();
 
             $purchaseOrder = $this->update($purchaseOrder, $data);
 

@@ -26,9 +26,9 @@ class DpdSkPrepareShipment
         foreach ($parcelsData as $key => $value) {
 
 
-            $parcelsData[$key]['depth']=(int) max(round($value['depth'],0),1);
-            $parcelsData[$key]['height']=(int) max(round($value['height'],0),1);
-            $parcelsData[$key]['width']=(int) max(round($value['width'],0),1);
+            $parcelsData[$key]['depth'] =(int) max(round($value['depth'], 0), 1);
+            $parcelsData[$key]['height']=(int) max(round($value['height'], 0), 1);
+            $parcelsData[$key]['width'] =(int) max(round($value['width'], 0), 1);
 
             $weight= round($value['weight'], 1);
             if ($weight> 31.5) {
@@ -69,7 +69,7 @@ class DpdSkPrepareShipment
             $nameDetail = '';
         }
 
-        $country = (new Country)->where('code', $shipTo['country_code'])->first();
+        $country = (new Country())->where('code', $shipTo['country_code'])->first();
 
         $services = [];
 
@@ -105,7 +105,8 @@ class DpdSkPrepareShipment
 
 
         if (!in_array(
-            $country->code, [
+            $country->code,
+            [
                 'GB',
                 'NL',
                 'IE'
@@ -194,11 +195,12 @@ class DpdSkPrepareShipment
             $holidays = Yasumi::create('Slovakia', $date->format('Y'));
             foreach ($holidays as $day) {
                 if ($day == $formatted_date and in_array(
-                        $day->getType(), [
+                    $day->getType(),
+                    [
                             'bank',
                             'official'
                         ]
-                    )) {
+                )) {
                     return true;
                 }
             }

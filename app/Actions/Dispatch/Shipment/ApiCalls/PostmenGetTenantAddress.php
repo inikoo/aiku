@@ -21,7 +21,7 @@ class PostmenGetTenantAddress
     use WithAttributes;
     public function handle(Request $request, Shipper $shipper): Shipper
     {
-        $apiUrl = "https://api.mygls.sk/ParcelService.svc?singleWsdl";
+        $apiUrl  = "https://api.mygls.sk/ParcelService.svc?singleWsdl";
         $headers = [
             "content-type: application/json",
             "postmen-api-key: ".$shipper->data['api_key']
@@ -63,7 +63,7 @@ class PostmenGetTenantAddress
             return false;
         }
 
-        $shipperAccount             = new ShipperAccount;
+        $shipperAccount             = new ShipperAccount();
         $shipperAccount->slug       = $request->get('shipper');
         $shipperAccount->label      = $request->get('label');
         $shipperAccount->shipper_id = $this->shipper->id;
@@ -77,9 +77,9 @@ class PostmenGetTenantAddress
     private function get_credentials_validation($slug): array
     {
         return match ($slug) {
-            'dpd' => ['slid' => ['required']],
+            'dpd'           => ['slid' => ['required']],
             'apc-overnight' => [
-                'password' => ['required'],
+                'password'   => ['required'],
                 'user_email' => ['required'],
 
             ],
@@ -90,7 +90,7 @@ class PostmenGetTenantAddress
     private function get_tenant_address($tenant)
     {
         $tenant_address = $tenant->data['address'];
-        $tenant_country = (new Country)->where('code', $tenant_address['country_code'])->first();
+        $tenant_country = (new Country())->where('code', $tenant_address['country_code'])->first();
 
 
         $tenant_address = [

@@ -34,7 +34,7 @@ class UpdateStateToReceivedPurchaseOrder
             $purchaseOrder->items()->update($data);
 
             $data[$purchaseOrder->state->value . '_at'] = null;
-            $data['received_at'] = now();
+            $data['received_at']                        = now();
 
             $purchaseOrder = $this->update($purchaseOrder, $data);
 

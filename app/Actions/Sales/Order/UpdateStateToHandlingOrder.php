@@ -31,7 +31,7 @@ class UpdateStateToHandlingOrder
             $order->transactions()->update($data);
 
             $data[$order->state->value . '_at'] = null;
-            $data['handling_at'] = now();
+            $data['handling_at']                = now();
 
             $this->update($order, $data);
 

@@ -35,7 +35,7 @@ class UpdateStateToCheckedPurchaseOrder
             $purchaseOrder->items()->update($data);
 
             $data[$purchaseOrder->state->value . '_at'] = null;
-            $data['checked_at'] = now();
+            $data['checked_at']                         = now();
 
             $purchaseOrder = $this->update($purchaseOrder, $data);
 

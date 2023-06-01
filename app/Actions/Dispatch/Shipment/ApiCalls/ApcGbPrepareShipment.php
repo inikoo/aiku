@@ -35,16 +35,17 @@ class ApcGbPrepareShipment
             $name = Arr::get($shipTo, 'contact');
         }
 
-        if($name==''){
+        if($name=='') {
             $name='Householder';
         }
 
-        $country = (new Country)->where('code', $shipTo['country_code'])->first();
+        $country = (new Country())->where('code', $shipTo['country_code'])->first();
 
         $address2 = Arr::get($shipTo, 'address_line_2');
 
         if (in_array(
-            $country->code, [
+            $country->code,
+            [
                 'GB',
                 'IM',
                 'JE',
@@ -61,10 +62,10 @@ class ApcGbPrepareShipment
         $items = [];
         foreach ($parcelsData as $parcelData) {
             $items[] = [
-                'Type' => 'ALL',
+                'Type'   => 'ALL',
                 'Weight' => $parcelData['weight'],
                 'Length' => $parcelData['depth'],
-                'Width' => $parcelData['width'],
+                'Width'  => $parcelData['width'],
                 'Height' => $parcelData['height']
             ];
 

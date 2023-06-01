@@ -8,9 +8,7 @@
 namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Catalogue\CatalogueHub;
-use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\ProductCategory;

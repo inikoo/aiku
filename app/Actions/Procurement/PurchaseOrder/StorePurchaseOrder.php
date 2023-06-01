@@ -72,7 +72,7 @@ class StorePurchaseOrder
          }
      }
 
-    public function action(Agent|Supplier $parent, array $objectData, bool $force = false):  \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function action(Agent|Supplier $parent, array $objectData, bool $force = false): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
         $this->parent = $parent;
         $this->force  = $force;
@@ -85,8 +85,8 @@ class StorePurchaseOrder
     public function inAgent(Agent $agent, ActionRequest $request): \Illuminate\Http\RedirectResponse
     {
         $modelData = [
-            'number' => rand(1111, 9999),
-            'date' => now(),
+            'number'      => rand(1111, 9999),
+            'date'        => now(),
             'currency_id' => $agent->currency_id,
         ];
 
@@ -99,11 +99,11 @@ class StorePurchaseOrder
         return redirect()->route('procurement.purchase-orders.show', $purchaseOrder->slug);
     }
 
-    public function inSupplier(Supplier $supplier, ActionRequest $request):  \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function inSupplier(Supplier $supplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
         $modelData = [
-            'number' => rand(1111, 9999),
-            'date' => now(),
+            'number'      => rand(1111, 9999),
+            'date'        => now(),
             'currency_id' => $supplier->currency_id
         ];
 

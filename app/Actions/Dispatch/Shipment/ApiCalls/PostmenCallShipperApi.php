@@ -20,11 +20,11 @@ class PostmenCallShipperApi
 {
     use AsAction;
     use WithAttributes;
-    public function handle(DeliveryNote $shipment,Request $request, Shipper $shipper): array
+    public function handle(DeliveryNote $shipment, Request $request, Shipper $shipper): array
     {
-        $debug = Arr::get($shipper->data, 'debug') == 'Yes';
-        $apiUrl = "https://api.mygls.sk/ParcelService.svc?singleWsdl";
-        $shipmentParams = DpdSkShipmentParameters::run($request, $shipper);
+        $debug              = Arr::get($shipper->data, 'debug') == 'Yes';
+        $apiUrl             = "https://api.mygls.sk/ParcelService.svc?singleWsdl";
+        $shipmentParams     = DpdSkShipmentParameters::run($request, $shipper);
         $printLabelsRequest = array(
             'Username'   => $shipper->data['username'],
             'Password'   => hex2bin($shipper->data['password']),
@@ -92,7 +92,7 @@ class PostmenCallShipperApi
             $tracking_number = $apiResponse->PrintLabelsInfoList->PrintLabelsInfo->ParcelNumber;
 
             $shipment->status    = 'success';
-            $shipment->tracking = $tracking_number;
+            $shipment->tracking  = $tracking_number;
 
             $result['tracking_number'] = $tracking_number;
             $result['shipment_id']     = $shipment->id;
@@ -100,7 +100,7 @@ class PostmenCallShipperApi
 
             $error_shipments = json_decode($request->get('error_shipments', '[]'));
             if (is_array($error_shipments) and count($error_shipments) > 0) {
-                (new Shipment)->wherein('id', $error_shipments)->update(['status' => 'fixed']);
+                (new Shipment())->wherein('id', $error_shipments)->update(['status' => 'fixed']);
             }
 
 

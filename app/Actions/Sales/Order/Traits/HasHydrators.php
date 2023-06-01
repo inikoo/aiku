@@ -12,7 +12,8 @@ use App\Actions\Sales\Order\HydrateOrder;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
 use App\Models\Sales\Order;
 
-trait HasHydrators {
+trait HasHydrators
+{
     public function orderHydrators(Order $order): void
     {
         HydrateOrder::make()->originalItems($order);

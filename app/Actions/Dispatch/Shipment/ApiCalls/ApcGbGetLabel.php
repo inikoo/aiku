@@ -22,7 +22,10 @@ class ApcGbGetLabel
         "Content-Type: application/json"
         ];
         $apiResponse = ProsesApiCalls::run(
-            'https://apc.hypaship.com/api/3.0/Orders/'.$labelID.'.json', $headers, json_encode([]), 'GET'
+            'https://apc.hypaship.com/api/3.0/Orders/'.$labelID.'.json',
+            $headers,
+            json_encode([]),
+            'GET'
         );
 
         return base64_decode($apiResponse['data']['Orders']['Order']['Label']['Content']);

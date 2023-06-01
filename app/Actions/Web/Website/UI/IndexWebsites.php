@@ -44,7 +44,7 @@ class IndexWebsites extends InertiaAction
             ->when(true, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('websites.shop_id', $parent->id);
-                    $query->leftJoin('shops','shops.id','websites.shop_id');
+                    $query->leftJoin('shops', 'shops.id', 'websites.shop_id');
                     $query->addSelect('shops.slug as shop_slug');
                 }
             })
@@ -151,7 +151,8 @@ class IndexWebsites extends InertiaAction
             'shops.show.websites.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs(
-                    ['shop'=>$routeParameters['shop']]),
+                    ['shop'=>$routeParameters['shop']]
+                ),
                 $headCrumb(
                     [
                         'name'       => 'shops.show.websites.index',

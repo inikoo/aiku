@@ -137,7 +137,7 @@ class IndexProspects extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = [])  {
+        $headCrumb = function (array $routeParameters = []) {
             return [
                 [
                     'type'   => 'simple',

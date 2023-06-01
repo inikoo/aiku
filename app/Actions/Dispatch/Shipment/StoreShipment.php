@@ -27,13 +27,13 @@ class StoreShipment
     public function handle(DeliveryNote $deliveryNote, Shipper $shipper, array $modelData): Shipment
     {
         $modelData['shipper_id'] = $shipper->id;
-        $modelData['data'] = $deliveryNote;
-        $shipment=match($shipper->api_shipper) {
-            'apc-gb'=> ApcGbCallShipperApi::run($deliveryNote,$shipper),
-            'dpd-gb'=> DpdGbCallShipperApi::run($deliveryNote,$shipper),
-            'dpd-sk'=> DpdSkCallShipperApi::run($deliveryNote,$shipper),
-            'pst-mn'=> PostmenCallShipperApi::run($deliveryNote,$shipper),
-            'whl-gb'=> WhistlGbCallShipperApi::run($deliveryNote,$shipper),
+        $modelData['data']       = $deliveryNote;
+        $shipment                =match($shipper->api_shipper) {
+            'apc-gb'=> ApcGbCallShipperApi::run($deliveryNote, $shipper),
+            'dpd-gb'=> DpdGbCallShipperApi::run($deliveryNote, $shipper),
+            'dpd-sk'=> DpdSkCallShipperApi::run($deliveryNote, $shipper),
+            'pst-mn'=> PostmenCallShipperApi::run($deliveryNote, $shipper),
+            'whl-gb'=> WhistlGbCallShipperApi::run($deliveryNote, $shipper),
             default => $shipper->shipments()->create($modelData),
         };
         ShipmentHydrateUniversalSearch::dispatch($shipment);
@@ -48,7 +48,7 @@ class StoreShipment
         ];
     }
 
-    public function action(DeliveryNote $deliveryNote, Shipper $shipper,array $objectData): Shipment
+    public function action(DeliveryNote $deliveryNote, Shipper $shipper, array $objectData): Shipment
     {
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();

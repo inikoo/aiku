@@ -2,7 +2,6 @@
 
 namespace Database\Factories\Inventory;
 
-use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class LostAndFoundStockFactory extends Factory
@@ -10,8 +9,8 @@ class LostAndFoundStockFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => fake()->lexify(),
-            'quantity' => 4,
+            'code'        => fake()->lexify(),
+            'quantity'    => 4,
             'stock_value' => rand(100, 1000)
         ];
     }

@@ -34,7 +34,7 @@ class UpdateStateToDispatchedPurchaseOrder
             $purchaseOrder->items()->update($data);
 
             $data[$purchaseOrder->state->value . '_at'] = null;
-            $data['dispatched_at'] = now();
+            $data['dispatched_at']                      = now();
 
             $purchaseOrder = $this->update($purchaseOrder, $data);
 

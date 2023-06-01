@@ -247,7 +247,7 @@ class ShowDepartment extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'   => $department->shop->slug,
+                        'shop'      => $department->shop->slug,
                         'department'=> $department->slug
                     ]
                 ]

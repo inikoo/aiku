@@ -31,7 +31,7 @@ class AddLostAndFoundStock
     {
         return [
             'code'  => ['required', 'string'],
-            'type' => ['required', Rule::in([LostAndFoundStockStateEnum::LOST->value, LostAndFoundStockStateEnum::FOUND->value])],
+            'type'  => ['required', Rule::in([LostAndFoundStockStateEnum::LOST->value, LostAndFoundStockStateEnum::FOUND->value])],
         ];
     }
 

@@ -31,7 +31,7 @@ class UpdateStateToSettledSupplierDelivery
 
         if ($supplierDelivery->state === SupplierDeliveryStateEnum::CHECKED) {
             $data[$supplierDelivery->state->value . '_at'] = null;
-            $data['settled_at'] = now();
+            $data['settled_at']                            = now();
 
             $supplierDelivery = $this->update($supplierDelivery, $data);
 
