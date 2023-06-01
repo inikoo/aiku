@@ -18,7 +18,7 @@ class SyncProductTradeUnits
     {
         $product->tradeUnits()->sync($tradeUnitsData);
 
-        SyncProductTradeUnitImages::run($product);
+        //SyncProductTradeUnitImages::run($product);
 
 
         return $product;

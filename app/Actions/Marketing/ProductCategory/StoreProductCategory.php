@@ -29,7 +29,7 @@ class StoreProductCategory
 
     public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
-        if (class_basename($parent) == 'Department') {
+        if (class_basename($parent) == 'ProductCategory') {
             $modelData['type']    = ProductCategoryTypeEnum::BRANCH;
             $modelData['shop_id'] = $parent->shop_id;
         } else {

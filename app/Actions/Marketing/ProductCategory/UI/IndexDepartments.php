@@ -48,9 +48,11 @@ class IndexDepartments extends InertiaAction
                 'product_categories.updated_at',
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
+            ->where('is_family', false)
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
-                    $query->where('product_categories.shop_id', $parent->id);
+                    $query->where('product_categories.parent_type', 'Shop');
+                    $query->where('product_categories.parent_id', $parent->id);
                 } elseif (class_basename($parent) == 'Tenant') {
                     $query->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
                     $query->addSelect('shops.slug as shop_slug');

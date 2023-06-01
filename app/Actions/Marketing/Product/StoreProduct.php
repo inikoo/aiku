@@ -12,6 +12,7 @@ use App\Actions\Marketing\HistoricProduct\StoreHistoricProduct;
 use App\Actions\Marketing\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateProducts;
 use App\Models\Marketing\Product;
+use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 use App\Rules\CaseSensitive;
@@ -28,8 +29,16 @@ class StoreProduct
 
     private int $hydratorsDelay =0;
 
-    public function handle(Shop|Product $parent, array $modelData, bool $skipHistoric = false): Product
+    public function handle(Shop|ProductCategory $parent, array $modelData, bool $skipHistoric = false): Product
     {
+
+        if(class_basename($parent)=='Shop') {
+            $modelData['shop_id']=$parent->id;
+        } else {
+            $modelData['shop_id']=$parent->shop_id;
+
+        }
+
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();

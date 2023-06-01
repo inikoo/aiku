@@ -17,6 +17,7 @@ return new class () extends Migration {
             $table->foreign('stock_id')->references('id')->on('stocks');
             $table->unsignedInteger('trade_unit_id')->nullable();
             $table->decimal('quantity', 12, 3)->default(1);
+            $table->string('notes')->nullable();
             $table->timestampsTz();
         });
     }
