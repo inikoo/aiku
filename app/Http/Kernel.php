@@ -8,7 +8,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\Authenticate;
-use App\Http\Middleware\ElasticsearchMiddleware;
+use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandleCentralInertiaRequests;
@@ -56,7 +56,6 @@ class Kernel extends HttpKernel
         ValidatePostSize::class,
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
-        ElasticsearchMiddleware::class
     ];
 
     /**
@@ -84,7 +83,6 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             HandleCentralInertiaRequests::class,
             SetLocale::class,
-            ElasticsearchMiddleware::class
         ],
         'app'     => [
             NeedsTenant::class,
@@ -97,7 +95,7 @@ class Kernel extends HttpKernel
             HandleInertiaRequests::class,
             EnsureValidTenantSession::class,
             SetLocale::class,
-            ElasticsearchMiddleware::class
+            LogUserRequestMiddleware::class
         ],
         // for use in cypress
         'web'     => [
@@ -111,7 +109,7 @@ class Kernel extends HttpKernel
             HandleInertiaRequests::class,
             EnsureValidTenantSession::class,
             SetLocale::class,
-            ElasticsearchMiddleware::class
+            LogUserRequestMiddleware::class
         ],
 
         'api'            => [
