@@ -7,7 +7,7 @@
 
 namespace App\Actions\Auth\User;
 
-use App\Actions\ElasticSearch\IndexElasticsearchDocument;
+use App\Actions\Elasticsearch\IndexElasticsearchDocument;
 use App\Actions\WithTenantJob;
 use App\Models\Auth\User;
 use hisorange\BrowserDetect\Parser as Browser;
