@@ -8,6 +8,8 @@
 
 use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\FulfilmentOrder\IndexFulfilmentOrders;
+use App\Actions\Fulfilment\FulfilmentOrder\ShowfulfilmentOrder;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
@@ -19,3 +21,6 @@ Route::get('/stored-items/{storedItem}', ShowStoredItem::class)->name('stored-it
 
 Route::get('/customers', IndexFulfilmentCustomers::class)->name('customers.index');
 Route::get('/customers/{customer}', ShowFulfilmentCustomer::class)->name('customers.show');
+
+Route::get('/orders', IndexFulfilmentOrders::class)->name('orders.index');
+Route::get('/orders/{order}', ShowFulfilmentOrder::class)->name('orders.show');
