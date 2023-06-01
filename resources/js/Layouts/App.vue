@@ -8,25 +8,24 @@
 
 
 <script setup>
-import {ref, watchEffect, defineAsyncComponent } from 'vue';
+import { ref, watchEffect } from "vue";
 import {
     Menu,
     MenuButton,
     MenuItem,
-    MenuItems,
-} from '@headlessui/vue';
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
-import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/vue';
-import Button from '@/Components/Elements/Buttons/Button.vue';
-import SearchBar from '@/Components/SearchBar.vue';
-import Spinner from '@/Components/Spinner.vue'
-import {usePage} from '@inertiajs/vue3';
-import {useLayoutStore} from '@/Stores/layout';
+    MenuItems
+} from "@headlessui/vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
+import Button from "@/Components/Elements/Buttons/Button.vue";
+import SearchBar from "@/Components/SearchBar.vue";
+import { usePage } from "@inertiajs/vue3";
+import { useLayoutStore } from "@/Stores/layout";
 
-import Breadcrumbs from '@/Components/Navigation/Breadcrumbs.vue';
-import {loadLanguageAsync, trans} from 'laravel-vue-i18n';
-import {Link} from '@inertiajs/vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
+import Breadcrumbs from "@/Components/Navigation/Breadcrumbs.vue";
+import { loadLanguageAsync, trans } from "laravel-vue-i18n";
+import { Link } from "@inertiajs/vue3";
+import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faHome,
     faDollyFlatbedAlt,
@@ -43,8 +42,8 @@ import {
     faParachuteBox,
     faDollyEmpty,
     faShoppingCart,
-    faAbacus, faChevronDown, faCube, faGlobe,
-} from '@/../private/pro-light-svg-icons';
+    faAbacus, faChevronDown, faCube, faGlobe
+} from "@/../private/pro-light-svg-icons";
 
 library.add(
     faHome,
@@ -65,32 +64,11 @@ library.add(
     faAbacus,
     faChevronDown,
     faCube,
-    faGlobe,
+    faGlobe
 );
 
-const AppLeftSideBar = defineAsyncComponent({
-    loader: () => {
-        return new Promise ((resolve, reject) => {
-            // Add setTimeout to 5s because the loading too fast
-            // setTimeout(() => {
-                resolve(import('@/Layouts/AppLeftSideBar.vue'))
-            // }, 5000);
-        })
-    },
-    loadingComponent: Spinner
-})
-
-const AppShopNavigation = defineAsyncComponent({
-    loader: () => {
-        return new Promise ((resolve, reject) => {
-            // Add setTimeout to 6s because the loading too fast
-            // setTimeout(() => {
-                resolve(import('@/Layouts/AppShopNavigation.vue'))
-            // }, 6000);
-        })
-    },
-    loadingComponent: Spinner
-})
+import AppLeftSideBar from "@/Layouts/AppLeftSideBar.vue";
+import AppShopNavigation from "@/Layouts/AppShopNavigation.vue";
 
 const initialiseApp = () => {
     const layout = useLayoutStore();
@@ -111,8 +89,8 @@ const initialiseApp = () => {
         if (usePage().props.layoutCurrentShopSlug) {
             layout.currentShopSlug = usePage().props.layoutCurrentShopSlug;
         } else {
-            if (route().params.hasOwnProperty('shop')) {
-                layout.currentShopSlug = route().params['shop'];
+            if (route().params.hasOwnProperty("shop")) {
+                layout.currentShopSlug = route().params["shop"];
             }
         }
 
@@ -122,8 +100,8 @@ const initialiseApp = () => {
 
         layout.currentShopData = layout.shops[layout.currentShopSlug] ?? {
             slug: null,
-            name: trans('All shops'),
-            code: trans('All'),
+            name: trans("All shops"),
+            code: trans("All")
         };
 
         if (usePage().props.tenant) {
@@ -136,8 +114,6 @@ const initialiseApp = () => {
 const layout = initialiseApp();
 
 const sidebarOpen = ref(false);
-
-
 
 const showSearchDialog = ref(false);
 
@@ -154,29 +130,24 @@ const user = ref(usePage().props.auth.user);
                         <button class="block md:hidden w-10 h-10 relative focus:outline-none bg-white" @click="sidebarOpen = !sidebarOpen">
                             <span class="sr-only">Open sidebar</span>
                             <div class="block w-5 absolute left-1/2 top-1/2   transform  -translate-x-1/2 -translate-y-1/2">
-                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out" :class="{'rotate-45': sidebarOpen,' -translate-y-1.5': !sidebarOpen }"></span>
+                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out"
+                                      :class="{'rotate-45': sidebarOpen,' -translate-y-1.5': !sidebarOpen }"></span>
                                 <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-100 ease-in-out" :class="{'opacity-0': sidebarOpen } "></span>
-                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out" :class="{'-rotate-45': sidebarOpen, ' translate-y-1.5': !sidebarOpen}"></span>
+                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out"
+                                      :class="{'-rotate-45': sidebarOpen, ' translate-y-1.5': !sidebarOpen}"></span>
                             </div>
                         </button>
 
                         <!-- Shop Navigation -->
-                            <div class="hidden md:flex justify-between items-center">
-                                <div class="block mb-3 ml-3 xl:w-40 2xl:w-56">
-                                    <img class=" h-4  mt-4  xl:h-6  " src="/art/logo-color-trimmed.png" alt="Aiku"/>
-                                    <span class="font-logo mb-1 mr-2  xl:hidden   whitespace-nowrap	   text-sm">
+                        <div class="hidden md:flex justify-between items-center">
+                            <div class="block mb-3 ml-3 xl:w-40 2xl:w-56">
+                                <img class=" h-4  mt-4  xl:h-6  " src="/art/logo-color-trimmed.png" alt="Aiku" />
+                                <span class="font-logo mb-1 mr-2  xl:hidden   whitespace-nowrap	   text-sm">
                                         {{ layout.tenant.name }}
                                     </span>
-                                </div>
-                                <Suspense>
-                                    <AppShopNavigation />
-                                    <template #fallback>
-                                        <div class="w-80 flex justify-end">
-                                                <Spinner />
-                                        </div>
-                                    </template>
-                                </Suspense>
                             </div>
+                            <AppShopNavigation />
+                        </div>
 
                         <!-- Avatar Group -->
                         <div class="flex items-center mr-6 space-x-3">
@@ -184,36 +155,38 @@ const user = ref(usePage().props.auth.user);
                                 <!-- Search Button -->
                                 <button @click="showSearchDialog = !showSearchDialog"
                                         class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                                    <span class="sr-only">{{ trans('Search') }}</span>
+                                    <span class="sr-only">{{ trans("Search") }}</span>
                                     <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
                                     <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false" />
                                 </button>
 
                                 <!-- Notifications -->
-                                <button type="button" class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                                    <span class="sr-only">{{ trans('View notifications') }}</span>
-                                    <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
+                                <button type="button"
+                                        class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                                    <span class="sr-only">{{ trans("View notifications") }}</span>
+                                    <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
                                 </button>
                             </div>
 
                             <!-- Avatar Button -->
-                            <Menu as="div" class="relative" >
+                            <Menu as="div" class="relative">
 
-                                    <MenuButton
-                                        class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                                        <span class="sr-only">{{ trans('Open user menu') }}</span>
-                                        <img v-if="user.avatar" class="h-8 w-8 rounded-full"
-                                             :src="route('media.group.show',user.avatar)"
-                                             alt=""/>
-                                    </MenuButton>
+                                <MenuButton
+                                    class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                                    <span class="sr-only">{{ trans("Open user menu") }}</span>
+                                    <img v-if="user.avatar" class="h-8 w-8 rounded-full"
+                                         :src="route('media.group.show',user.avatar)"
+                                         alt="" />
+                                </MenuButton>
 
                                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
                                             leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                                     <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                                         <div class="py-1">
-                                            <MenuItem v-slot="{ active,close }"   >
-                                                <Link as="ul" type="button" :href="route('profile.show')"  @click="close"  :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
-                                                    {{ trans('View profile') }}
+                                            <MenuItem v-slot="{ active,close }">
+                                                <Link as="ul" type="button" :href="route('profile.show')" @click="close"
+                                                      :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
+                                                    {{ trans("View profile") }}
                                                 </Link>
                                             </MenuItem>
 
@@ -240,7 +213,6 @@ const user = ref(usePage().props.auth.user);
                     </div>
 
 
-
                 </div>
             </div>
 
@@ -254,7 +226,7 @@ const user = ref(usePage().props.auth.user);
                 <div class="border-t border-gray-700 pt-4 pb-3">
                     <div class="flex items-center px-5">
                         <div class="flex-shrink-0">
-                            <img class="h-10 w-10 rounded-full" :src="user.imageUrl" alt=""/>
+                            <img class="h-10 w-10 rounded-full" :src="user.imageUrl" alt="" />
                         </div>
                         <div class="ml-3">
 
@@ -264,12 +236,12 @@ const user = ref(usePage().props.auth.user);
 
                         <Button type="button"
                                 class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                            <span class="sr-only">{{ trans('View notifications') }}</span>
-                            <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
+                            <span class="sr-only">{{ trans("View notifications") }}</span>
+                            <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
                         </Button>
                         <Button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-                            <span class="sr-only">{{ trans('View notifications') }}</span>
-                            <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg"/>
+                            <span class="sr-only">{{ trans("View notifications") }}</span>
+                            <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
 
                         </Button>
 
@@ -284,26 +256,20 @@ const user = ref(usePage().props.auth.user);
             </DisclosurePanel>
         </Disclosure>
 
-        <Suspense>
-            <div>
-                <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
-                <AppLeftSideBar :currentRoute="route().current()"  v-if="!sidebarOpen" class="hidden md:block"/>
-                <AppLeftSideBar :currentRoute="route().current()" class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen"/>
-            </div>
-            <template #fallback>
-                <div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-gray-100 md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56">
-                    <Spinner />
-                </div>
-            </template>
-        </Suspense>
+        <div>
+            <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen" @click="sidebarOpen = !sidebarOpen" />
+            <AppLeftSideBar :currentRoute="route().current()" v-if="!sidebarOpen" class="hidden md:block" />
+            <AppLeftSideBar :currentRoute="route().current()" class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden" :class="{'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen" />
+        </div>
 
-            <main class="relative flex flex-col pt-16 ml-0 md:ml-10 xl:ml-56">
-                <Breadcrumbs class="fixed top-11 lg:top-10 z-10 w-full"
-                             :breadcrumbs="usePage().props.breadcrumbs??[]"
-                             :navigation="usePage().props.navigation??[]"
-                />
-                <slot/>
-            </main>
+
+        <main class="relative flex flex-col pt-16 ml-0 md:ml-10 xl:ml-56">
+            <Breadcrumbs class="fixed top-11 lg:top-10 z-10 w-full"
+                         :breadcrumbs="usePage().props.breadcrumbs??[]"
+                         :navigation="usePage().props.navigation??[]"
+            />
+            <slot />
+        </main>
 
     </div>
 
