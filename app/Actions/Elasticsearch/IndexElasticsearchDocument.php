@@ -22,7 +22,7 @@ class IndexElasticsearchDocument
 
         if ($client = BuildElasticsearchClient::run()) {
             try {
-                $res=$client->index(
+                $client->index(
                     [
                         'index' => $index,
                         'body'  => $body
@@ -31,21 +31,21 @@ class IndexElasticsearchDocument
 
                 return true;
             } catch (ClientResponseException $e) {
-                dd($e->getMessage());
+                //dd($e->getMessage());
                 // manage the 4xx error
                 return false;
             } catch (ServerResponseException $e) {
-                dd($e->getMessage());
+                //dd($e->getMessage());
                 // manage the 5xx error
                 return false;
             } catch (Exception $e) {
-                dd($e->getMessage());
+                //dd($e->getMessage());
                 // eg. network error like NoNodeAvailableException
                 return false;
             }
-        } else {
-            dd('shit');
         }
+
+        return false;
     }
 
 }
