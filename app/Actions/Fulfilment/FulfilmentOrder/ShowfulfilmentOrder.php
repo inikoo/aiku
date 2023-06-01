@@ -13,7 +13,6 @@ use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\Sales\Order\UI\GetOrderShowcase;
-use App\Actions\Sales\Order\UI\HasUIOrder;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
@@ -32,8 +31,6 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowfulfilmentOrder extends InertiaAction
 {
-    use HasUIOrder;
-
     public function handle(Order $order): Order
     {
         return $order;

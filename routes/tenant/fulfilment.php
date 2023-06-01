@@ -19,8 +19,8 @@ Route::get('/', FulfilmentDashboard::class)->name('dashboard');
 Route::get('/stored-items', IndexStoredItems::class)->name('stored-items.index');
 Route::get('/stored-items/{storedItem}', ShowStoredItem::class)->name('stored-items.show');
 
-Route::get('/customers', IndexFulfilmentCustomers::class)->name('customers.index');
+Route::get('/customers', [IndexFulfilmentCustomers::class, 'inShop'])->name('customers.index');
 Route::get('/customers/{customer}', ShowFulfilmentCustomer::class)->name('customers.show');
 
-Route::get('/orders', IndexFulfilmentOrders::class)->name('orders.index');
+Route::get('/orders', [IndexFulfilmentOrders::class, 'inShop'])->name('orders.index');
 Route::get('/orders/{order}', ShowFulfilmentOrder::class)->name('orders.show');
