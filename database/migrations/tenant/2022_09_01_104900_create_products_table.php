@@ -18,6 +18,8 @@ return new class () extends Migration {
             $table->string('slug')->nullable()->index();
             $table->string('type')->index();
             $table->morphs('owner');
+            $table->morphs('parent');
+
             $table->unsignedInteger('current_historic_product_id')->index()->nullable();
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');

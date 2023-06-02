@@ -22,10 +22,9 @@ class FetchAuroraProduct extends FetchAurora
 
         $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Product Store Key'});
 
-        $this->parsedData['parent']=$this->parseFamily($this->auroraModelData->{'Product Family Key'});
-        if(!$this->parsedData['parent']) {
+        $this->parsedData['parent'] = $this->parseFamily($this->auroraModelData->{'Product Family Category Key'});
+        if (!$this->parsedData['parent']) {
             $this->parsedData['parent'] = $this->parsedData['shop'];
-
         }
 
         if ($this->auroraModelData->{'Product Customer Key'}) {
@@ -72,7 +71,7 @@ class FetchAuroraProduct extends FetchAurora
         $this->parsedData['historic_product_source_id'] = $this->auroraModelData->{'Product Current Key'};
 
         $this->parsedData['product'] = [
-            'type'       => ProductTypeEnum::SERVICE,
+            'type'       => ProductTypeEnum::PHYSICAL_GOOD,
             'owner_type' => $owner_type,
             'owner_id'   => $owner_id,
             'code'       => $this->auroraModelData->{'Product Code'},

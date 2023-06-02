@@ -94,6 +94,7 @@ class FetchAction
 
                 if (in_array($command->getName(), [
                     'fetch:stocks',
+                    'fetch:products',
                     'fetch:orders',
                     'fetch:invoices',
                     'fetch:customers',
@@ -124,6 +125,7 @@ class FetchAction
 
                 if (in_array($command->getName(), [
                         'fetch:stocks',
+                        'fetch:products',
                         'fetch:orders',
                         'fetch:invoices',
                         'fetch:customers',

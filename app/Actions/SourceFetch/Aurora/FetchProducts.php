@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchProducts extends FetchAction
 {
-    public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
     {
@@ -92,5 +92,10 @@ class FetchProducts extends FetchAction
         }
 
         return $query->count();
+    }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Product Dimension')->update(['aiku_id' => null]);
     }
 }
