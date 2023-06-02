@@ -78,8 +78,8 @@ class StoreOrder
     public function rules(): array
     {
         return [
-            'number' => ['required', 'unique:tenant.orders', 'numeric'],
-            'date'   => ['required'],
+            'number'      => ['required', 'unique:tenant.orders', 'numeric'],
+            'date'        => ['required'],
             'customer_id' => ['required', 'numeric']
         ];
     }
