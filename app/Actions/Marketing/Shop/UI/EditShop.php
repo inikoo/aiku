@@ -38,13 +38,14 @@ class EditShop extends InertiaAction
 
     public function htmlResponse(Shop $shop): Response
     {
+        //        dd($this->routeName, $shop);
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('edit shop'),
                 'breadcrumbs' => $this->getBreadcrumbs($shop),
                 'pageHead'    => [
-                    'title'    => $shop->name,
+                    'title'    => $shop->code,
                     'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
