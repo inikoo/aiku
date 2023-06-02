@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Fri, 26 May 2023 12:41:25 Central European Summer Time, Malaga, Spain
+ * Created: Fri, 26 May 2023 12:41:25 Central European Summer, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
@@ -59,19 +59,19 @@ class ShowOrder extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomerInTenant(Customer $customer, Order $order, ActionRequest $request): Order
+    /*public function inCustomerInTenant(Customer $customer, Order $order, ActionRequest $request): Order
     {
         $this->initialisation($request)->withTab(OrderTabsEnum::values());
         return $this->handle($order);
-    }
+    }*/
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomerInShop(Shop $shop, Customer $customer, Order $order, ActionRequest $request): Order
+    /*public function inCustomerInShop(Shop $shop, Customer $customer, Order $order, ActionRequest $request): Order
     {
         $this->initialisation($request)->withTab(OrderTabsEnum::values());
         return $this->handle($order);
     }
-
+*/
     public function htmlResponse(Order $order, ActionRequest $request): Response
     {
         $this->validateAttributes();
@@ -115,7 +115,7 @@ class ShowOrder extends InertiaAction
 
             ]
         )->table(IndexPayments::make()->tableStructure())
-            ->table(IndexInvoices::make()->tableStructure($order))
+            ->table(IndexInvoices::make()->tableStructure())
             ->table(IndexDeliveryNotes::make()->tableStructure($order));
     }
 
