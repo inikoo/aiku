@@ -15,7 +15,6 @@ use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Nette\Schema\Elements\Type;
 use Spatie\LaravelOptions\Options;
 
 class CreateProduct extends InertiaAction
@@ -88,11 +87,11 @@ class CreateProduct extends InertiaAction
                                         'label' => __('owner type')
                                     ],
                                     'type' => [
-                                        'type'  => 'select',
-                                        'label' => __('type'),
+                                        'type'    => 'select',
+                                        'label'   => __('type'),
                                         'options' => Options::forEnum(ProductTypeEnum::class)->toArray(),
                                         'required'=> true,
-                                        'mode'  => 'single'
+                                        'mode'    => 'single'
                                     ]
 
                                 ]

@@ -16,4 +16,13 @@ enum ShopTypeEnum: string
     case SHOP             = 'shop';
     case FULFILMENT_HOUSE = 'fulfilment-house';
     case AGENT            = 'agent';
+
+    public static function labels(): array
+    {
+        return [
+            'shop'              => 'Shop',
+            'fulfilment-house'  => 'Fulfilment House',
+            'agent'             => 'Agent'
+        ];
+    }
 }

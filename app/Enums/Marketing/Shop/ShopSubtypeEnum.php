@@ -17,4 +17,14 @@ enum ShopSubtypeEnum: string
     case B2C          = 'b2c';
     case FULFILMENT   = 'fulfilment';
     case DROPSHIPPING = 'dropshipping';
+
+    public static function labels(): array
+    {
+        return [
+            'b2b'              => 'B2B',
+            'b2c'              => 'B2C',
+            'fulfilment'       => 'Fulfilment',
+            'dropshipping'     => 'Dropshipping'
+        ];
+    }
 }

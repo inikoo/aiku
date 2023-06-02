@@ -9,8 +9,10 @@
 namespace App\Models\Assets;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
@@ -24,9 +26,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property float|null $longitude
  * @property string $location
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assets\Country> $countries
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Country> $countries
  * @method static Builder|Timezone newModelQuery()
  * @method static Builder|Timezone newQuery()
  * @method static Builder|Timezone query()

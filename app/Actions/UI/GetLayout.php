@@ -80,6 +80,14 @@ class GetLayout
             ];
         }
 
+        if ($user->can('shops.view')) {
+            $navigation['dropshipping'] = [
+                'name'  => __('dropshipping'),
+                'icon'  => ['fal', 'fa-parachute-box'],
+                'route' => 'dropshipping.dashboard'
+            ];
+        }
+
         if ($user->can('production.view')) {
             $navigation['production'] = [
                 'name'  => __('production'),

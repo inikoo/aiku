@@ -40,7 +40,6 @@ class FetchAction
     public function __construct()
     {
         $this->progressBar = null;
-        $this->progressBar = null;
         $this->shop        = null;
         $this->with        = [];
     }
@@ -74,6 +73,9 @@ class FetchAction
         return null;
     }
 
+    public function reset(): void
+    {
+    }
 
     public function asCommand(Command $command): int
     {
@@ -118,6 +120,21 @@ class FetchAction
 
 
                 $tenantSource->initialisation(app('currentTenant'), $command->option('db_suffix') ?? '');
+
+
+                if (in_array($command->getName(), [
+                        'fetch:stocks',
+                        'fetch:orders',
+                        'fetch:invoices',
+                        'fetch:customers',
+                        'fetch:delivery-notes',
+                        'fetch:purchase-orders'
+
+                    ]) and $command->option('reset')) {
+                    $this->reset();
+                }
+
+
                 $command->info('');
 
                 if ($command->option('source_id')) {

@@ -14,13 +14,12 @@ use App\Models\Inventory\Stock;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchStocks extends FetchAction
 {
-    public string $commandSignature = 'fetch:stocks {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:stocks {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Stock
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Stock
     {
         if ($stockData = $tenantSource->fetchStock($tenantSourceId)) {
             if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])
@@ -82,5 +81,10 @@ class FetchStocks extends FetchAction
             $query->whereNull('aiku_id');
         }
         return $query->count();
+    }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Part Dimension')->update(['aiku_id' => null]);
     }
 }

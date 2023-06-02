@@ -34,7 +34,8 @@ class IndexShops extends InertiaAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('shops.name', 'ILIKE', "%$value%")
-                    ->orWhere('shops.code', 'ILIKE', "%$value%");
+                    ->orWhere('shops.code', 'ILIKE', "%$value%")
+                    ->orWhere('shops.type', 'ILIKE', "%$value%");
             });
         });
 
@@ -42,8 +43,8 @@ class IndexShops extends InertiaAction
 
         return QueryBuilder::for(Shop::class)
             ->defaultSort('shops.code')
-            ->select(['code', 'id', 'name', 'slug'])
-            ->allowedSorts(['code', 'name'])
+            ->select(['code', 'id', 'name', 'slug','type','subtype'])
+            ->allowedSorts(['code', 'name','type','subtype'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -62,6 +63,8 @@ class IndexShops extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'subtype', label: __('subtype'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
@@ -77,6 +80,11 @@ class IndexShops extends InertiaAction
             );
     }
 
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        return $this->handle();
+    }
 
     public function jsonResponse(): AnonymousResourceCollection
     {
@@ -110,19 +118,11 @@ class IndexShops extends InertiaAction
         )->table($this->tableStructure($parent));
     }
 
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle();
-    }
-
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs($suffix=null): array
     {
         return
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                (new Dashboard())->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
@@ -132,7 +132,9 @@ class IndexShops extends InertiaAction
                             ],
                             'label' => __('shops'),
                             'icon'  => 'fal fa-bars'
-                        ]
+                        ],
+                        'suffix'=> $suffix
+
                     ]
                 ]
             );

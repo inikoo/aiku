@@ -82,7 +82,6 @@ class StoreShop
             }
         }
 
-
         return $shop;
     }
 

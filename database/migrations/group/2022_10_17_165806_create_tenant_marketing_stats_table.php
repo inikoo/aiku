@@ -5,6 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Marketing\Shop\ShopStateEnum;
+use App\Enums\Marketing\Shop\ShopSubtypeEnum;
+use App\Enums\Marketing\Shop\ShopTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,22 +22,19 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('number_shops')->default(0);
 
-            $shopStates = ['in-process', 'open', 'closing-down', 'closed'];
-            foreach ($shopStates as $shopState) {
-                $table->unsignedSmallInteger('number_shops_state_'.preg_replace('/-/', '_', $shopState))->default(0);
+            foreach (ShopStateEnum::cases() as $shopState) {
+                $table->unsignedSmallInteger('number_shops_state_'.$shopState->snake())->default(0);
             }
-            $shopTypes = ['shop', 'fulfilment_house', 'agent'];
-            foreach ($shopTypes as $shopType) {
-                $table->unsignedSmallInteger('number_shops_type_'.$shopType)->default(0);
+            foreach (ShopTypeEnum::cases() as $shopType) {
+                $table->unsignedSmallInteger('number_shops_type_'.$shopType->snake())->default(0);
             }
-            $shopSubtypes = ['b2b', 'b2c', 'storage', 'fulfilment', 'dropshipping'];
-            foreach ($shopSubtypes as $shopSubtype) {
-                $table->unsignedSmallInteger('number_shops_subtype_'.$shopSubtype)->default(0);
+            foreach (ShopSubtypeEnum::cases() as $shopSubtype) {
+                $table->unsignedSmallInteger('number_shops_subtype_'.$shopSubtype->snake())->default(0);
             }
 
-            foreach ($shopStates as $shopState) {
-                foreach ($shopSubtypes as $shopSubtype) {
-                    $table->unsignedSmallInteger('number_shops_state_subtype_'.preg_replace('/-/', '_', $shopState).'_'.$shopSubtype)->default(0);
+            foreach (ShopStateEnum::cases() as $shopState) {
+                foreach (ShopSubtypeEnum::cases() as $shopSubtype) {
+                    $table->unsignedSmallInteger('number_shops_state_subtype_'.$shopState->snake().'_'.$shopSubtype->snake())->default(0);
                 }
             }
 

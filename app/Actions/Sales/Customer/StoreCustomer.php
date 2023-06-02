@@ -14,6 +14,7 @@ use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Enums\Marketing\Shop\ShopSubtypeEnum;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
@@ -32,9 +33,8 @@ class StoreCustomer
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction    = false;
-    public int $hydratorsDelay=0;
-
+    private bool $asAction     = false;
+    public int $hydratorsDelay = 0;
 
 
     /**
@@ -42,6 +42,12 @@ class StoreCustomer
      */
     public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
     {
+        if ($shop->subtype == ShopSubtypeEnum::DROPSHIPPING) {
+            $customerData['is_dropshipping'] = true;
+        } elseif ($shop->subtype == ShopSubtypeEnum::FULFILMENT) {
+            $customerData['is_fulfilment'] = true;
+        }
+
 
         data_fill(
             $customerData,
@@ -73,7 +79,6 @@ class StoreCustomer
         StoreAddressAttachToModel::run($customer, $customerAddressesData, ['scope' => 'contact']);
         $customer->location = $customer->getLocation();
         $customer->save();
-
 
 
         ShopHydrateCustomers::dispatch($customer->shop)->delay($this->hydratorsDelay);
@@ -145,9 +150,10 @@ class StoreCustomer
     /**
      * @throws Throwable
      */
-    public function asFetch(Shop $shop, array $customerData, array $customerAddressesData, int $hydratorsDelay=60): Customer
+    public function asFetch(Shop $shop, array $customerData, array $customerAddressesData, int $hydratorsDelay = 60): Customer
     {
-        $this->hydratorsDelay=$hydratorsDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
+
         return $this->handle($shop, $customerData, $customerAddressesData);
     }
 }

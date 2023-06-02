@@ -28,8 +28,11 @@ use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Sales\PaymentAccountShop;
 use App\Models\Sales\PaymentServiceProviderShop;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\Website;
+use Database\Factories\Marketing\ShopFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -78,30 +81,31 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Marketing\ShopAccountingStats|null $accountingStats
+ * @property-read ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
  * @property-read Country $country
  * @property-read Currency $currency
  * @property-read Collection<int, Customer> $customers
- * @property-read Collection<int, \App\Models\Marketing\ProductCategory> $departments
+ * @property-read Collection<int, ProductCategory> $departments
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
- * @property-read \App\Models\Marketing\ShopMailStats|null $mailStats
- * @property-read Collection<int, \App\Models\Marketing\OfferCampaign> $offerCampaigns
+ * @property-read ShopMailStats|null $mailStats
+ * @property-read Collection<int, OfferCampaign> $offerCampaigns
  * @property-read Collection<int, Order> $orders
  * @property-read Collection<int, Outbox> $outboxes
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
  * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read Collection<int, Payment> $payments
- * @property-read Collection<int, \App\Models\Marketing\Product> $products
+ * @property-read Collection<int, Product> $products
  * @property-read Collection<int, Prospect> $prospects
  * @property-read Collection<int, SerialReference> $serialReferences
- * @property-read Collection<int, \App\Models\Marketing\ShippingZoneSchema> $shippingZoneSchemas
- * @property-read \App\Models\Marketing\ShopStats|null $stats
+ * @property-read Collection<int, ShippingZoneSchema> $shippingZoneSchemas
+ * @property-read UniversalSearch|null $universalSearch
+ * @property-read ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read Website|null $website
- * @method static \Database\Factories\Marketing\ShopFactory factory($count = null, $state = [])
+ * @method static ShopFactory factory($count = null, $state = [])
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop onlyTrashed()
@@ -116,6 +120,7 @@ class Shop extends Model
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
+    use HasUniversalSearch;
     use HasFactory;
 
     protected $casts = [
@@ -167,6 +172,7 @@ class Shop extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(6);
     }
 
@@ -290,4 +296,5 @@ class Shop extends Model
     {
         return $this->morphMany(SerialReference::class, 'container')->where('tenant_id', app('currentTenant')->id);
     }
+
 }

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchPurchaseOrders extends FetchAction
 {
-    public string $commandSignature = 'fetch:purchase-orders {tenants?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:purchase-orders {tenants?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--r|reset}';
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?PurchaseOrder
     {
@@ -110,5 +110,10 @@ class FetchPurchaseOrders extends FetchAction
         }
 
         return $query->count();
+    }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Purchase Order Dimension')->update(['aiku_id' => null]);
     }
 }
