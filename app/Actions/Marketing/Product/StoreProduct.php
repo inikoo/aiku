@@ -38,7 +38,6 @@ class StoreProduct
             $modelData['shop_id']=$parent->shop_id;
 
         }
-
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();

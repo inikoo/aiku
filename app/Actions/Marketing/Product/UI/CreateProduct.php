@@ -66,7 +66,7 @@ class CreateProduct extends InertiaAction
                                         'type'  => 'input',
                                         'label' => __('name')
                                     ],
-                                    /*
+
                                     'description' => [
                                         'type'  => 'input',
                                         'label' => __('description')
@@ -94,7 +94,7 @@ class CreateProduct extends InertiaAction
                                         'required'=> true,
                                         'mode'  => 'single'
                                     ]
-                                    */
+
                                 ]
                             ]
                         ],

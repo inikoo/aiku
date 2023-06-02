@@ -47,13 +47,12 @@ class StoreOrder
             $modelData['currency_id']        = $parent->shop->currency_id;
             $modelData['shop_id']            = $parent->shop_id;
         } else {
-            $modelData['customer_id'] = $parent->customer_id;
             $modelData['currency_id'] = $parent->currency_id;
             $modelData['shop_id']     = $parent->id;
         }
 
         /** @var Order $order */
-        $order = $parent->shop->orders()->create($modelData);
+        $order = Order::create($modelData);
         $order->stats()->create();
 
         $billingAddress  = StoreHistoricAddress::run($seedBillingAddress);
@@ -66,8 +65,11 @@ class StoreOrder
         HydrateOrder::make()->originalItems($order);
 
         TenantHydrateOrders::dispatch(app('currentTenant'))->delay($this->hydratorsDelay);
-        ShopHydrateOrders::dispatch($parent->shop)->delay($this->hydratorsDelay);
-
+        if (class_basename($parent) == 'Shop') {
+            ShopHydrateOrders::dispatch($parent)->delay($this->hydratorsDelay);
+        } else {
+            ShopHydrateOrders::dispatch($parent->shop)->delay($this->hydratorsDelay);
+        }
         OrderHydrateUniversalSearch::dispatch($order);
 
         return $order->fresh();
@@ -77,7 +79,8 @@ class StoreOrder
     {
         return [
             'number' => ['required', 'unique:tenant.orders', 'numeric'],
-            'date'   => ['required']
+            'date'   => ['required'],
+            'customer_id' => ['required', 'numeric']
         ];
     }
 
