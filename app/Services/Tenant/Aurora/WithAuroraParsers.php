@@ -16,6 +16,7 @@ use App\Actions\SourceFetch\Aurora\FetchDeletedStocks;
 use App\Actions\SourceFetch\Aurora\FetchDepartments;
 use App\Actions\SourceFetch\Aurora\FetchDispatchedEmails;
 use App\Actions\SourceFetch\Aurora\FetchEmployees;
+use App\Actions\SourceFetch\Aurora\FetchFamilies;
 use App\Actions\SourceFetch\Aurora\FetchGuests;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
@@ -74,8 +75,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                                                                                                                                                                                                                                                     != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                                                                                                                                                                                                                                                                 && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                                                                                                                                                                                                                                                                                                                                                                      != '' && $value != '0000-00-00 00:00:00'
+                                                                                                                                                                                                                                                                                                                                                                                                  && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 
@@ -289,6 +290,16 @@ trait WithAuroraParsers
         }
 
         return $department;
+    }
+
+    public function parseFamily($sourceId): ?ProductCategory
+    {
+        $family = ProductCategory::where('source_family_id', $sourceId)->first();
+        if (!$family) {
+            $family = FetchFamilies::run($this->tenantSource, $sourceId);
+        }
+
+        return $family;
     }
 
     public function parseService($sourceId): Product

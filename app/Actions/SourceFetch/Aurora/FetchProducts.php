@@ -32,7 +32,7 @@ class FetchProducts extends FetchAction
                 );
             } else {
                 $product = StoreProduct::run(
-                    parent: $productData['shop'],
+                    parent: $productData['parent'],
                     modelData: $productData['product'],
                     skipHistoric: true
                 );
