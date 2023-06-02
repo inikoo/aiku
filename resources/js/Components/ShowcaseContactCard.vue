@@ -87,7 +87,7 @@ const copyText = (text: string) => {
                 </div>
 
                 <!-- Email address -->
-                <div class="grid grid-flow-col justify-start items-center">
+                <div v-if="props.data.email.length != 0" class="grid grid-flow-col justify-start items-center">
                     <FontAwesomeIcon  fixed-width icon="fal fa-envelope" class="mr-4 text-gray-400" aria-hidden="true" />
                     <a :href="`mailto:${props.data.email}`" class="hover:text-indigo-500">{{ props.data.email }}</a>
                     <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(props.data.email)">
@@ -97,7 +97,7 @@ const copyText = (text: string) => {
                 </div>
 
                 <!-- Telephone address -->
-                <div class="grid grid-flow-col justify-start items-center">
+                <div v-if="props.data.phone.length != 0" class="grid grid-flow-col justify-start items-center">
                     <FontAwesomeIcon  fixed-width icon="fal fa-phone" class="mr-4 text-gray-400" aria-hidden="true" />
                     {{ props.data.phone }}
                     <div class="group cursor-pointer px-1.5 flex justify-center text-xl " @click="copyText(props.data.phone)">
