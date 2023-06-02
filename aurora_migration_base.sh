@@ -89,11 +89,11 @@ do
   php artisan fetch:deleted-supplier-products "$tenant" -d _base
 done
 pg_dump -Fc -f "devops/devel/snapshots/au_procurement.dump" ${DB}
-php artisan fetch:purchase-orders -d _base
+php artisan fetch:purchase-orders -r -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_procurement_with_po.dump" ${DB}
 php artisan fetch:stock-families -d _base
 php artisan fetch:trade-units -d _base
-php artisan fetch:stocks -d _base
+php artisan fetch:stocks -r -d _base
 php artisan fetch:deleted-stocks -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_stocks.dump" ${DB}
 php artisan fetch:shop-categories -d _base
