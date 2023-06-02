@@ -93,7 +93,7 @@ class ShowAgent extends InertiaAction
                                 $agent->slug
                             ],
                             'leftIcon' => [
-                                'icon'    => 'fal fa-parachute-box',
+                                'icon'    => 'fal fa-box-usd',
                                 'tooltip' => __('products')
                             ]
                         ]

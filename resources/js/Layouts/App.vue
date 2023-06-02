@@ -39,7 +39,7 @@ import {
     faStoreAlt,
     faUser,
     faIndustry,
-    faParachuteBox,
+    faBoxUsd,
     faDollyEmpty,
     faShoppingCart,
     faAbacus, faChevronDown, faCube, faGlobe
@@ -58,7 +58,7 @@ library.add(
     faStoreAlt,
     faUser,
     faIndustry,
-    faParachuteBox,
+    faBoxUsd,
     faDollyEmpty,
     faShoppingCart,
     faAbacus,

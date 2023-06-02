@@ -15,7 +15,7 @@ import {
     faInventory,
     faWarehouse,
     faPersonDolly,
-    faParachuteBox,
+    faBoxUsd,
     faTruck,
     faTerminal,
     faCameraRetro,faPeopleArrows
@@ -43,7 +43,7 @@ library.add(
     faInventory,
     faWarehouse,
     faPersonDolly,
-    faParachuteBox,
+    faBoxUsd,
     faTruck,
     faTerminal,
     faCameraRetro,

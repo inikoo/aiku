@@ -31,7 +31,7 @@ import {
     faInventory,
     faWarehouse,
     faPersonDolly,
-    faParachuteBox,
+    faBoxUsd,
     faTruck,
     faTerminal,
     faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
@@ -44,7 +44,7 @@ library.add(
     faInventory,
     faWarehouse,
     faPersonDolly,
-    faParachuteBox,
+    faBoxUsd,
     faTruck,
     faTerminal,
     faCameraRetro,

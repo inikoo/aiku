@@ -88,7 +88,7 @@ class ShowMarketplaceSupplier extends InertiaAction
                             'name'     => trans_choice('product|products', $supplier->stats->number_supplier_products),
                             'number'   => $supplier->stats->number_supplier_products,
                             'leftIcon' => [
-                                'icon'    => 'fal fa-parachute-box',
+                                'icon'    => 'fal fa-box-usd',
                                 'tooltip' => __('products'),
                             ],
                         ]

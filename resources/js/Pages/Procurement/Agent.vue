@@ -10,7 +10,7 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faInventory,
     faWarehouse,
-    faParachuteBox,
+    faBoxUsd,
     faTerminal,
     faPeopleArrows,
     faMapSigns,
@@ -49,7 +49,7 @@ library.add(
     faInventory,
     faWarehouse,
     faPersonDolly,
-    faParachuteBox,
+    faBoxUsd,
     faTruck,
     faTerminal,
     faCameraRetro,

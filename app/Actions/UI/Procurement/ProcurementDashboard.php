@@ -87,7 +87,7 @@ class ProcurementDashboard
                         ],
                         [
                             'name'  => __('Supplier Product'),
-                            'icon'  => ['fal', 'fa-parachute-box'],
+                            'icon'  => ['fal', 'fa-box-usd'],
                             'href'  => ['procurement.supplier-products.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_supplier_products

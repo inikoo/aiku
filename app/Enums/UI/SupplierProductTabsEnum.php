@@ -43,7 +43,7 @@ enum SupplierProductTabsEnum: string
             ],
             SupplierProductTabsEnum::SUPPLIER_PRODUCTS => [
                 'title' => __('products'),
-                'icon'  => 'fal fa-parachute-box',
+                'icon'  => 'fal fa-box-usd',
             ],
 
             SupplierProductTabsEnum::PURCHASE_ORDERS => [

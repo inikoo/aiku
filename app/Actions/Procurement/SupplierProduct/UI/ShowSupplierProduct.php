@@ -66,7 +66,7 @@ class ShowSupplierProduct extends InertiaAction
                 'pageHead'    => [
                     'icon'          =>
                         [
-                            'icon'  => ['fal', 'parachute-box'],
+                            'icon'  => ['fal', 'box-usd'],
                             'title' => __('agent')
                         ],
                     'title' => $supplierProduct->name,

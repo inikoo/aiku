@@ -46,7 +46,7 @@ enum AgentTabsEnum: string
             ],
             AgentTabsEnum::SUPPLIER_PRODUCTS => [
                 'title' => __('products'),
-                'icon'  => 'fal fa-parachute-box',
+                'icon'  => 'fal fa-box-usd',
             ],
             AgentTabsEnum::PURCHASE_ORDERS     => [
                 'title' => __('purchase orders'),

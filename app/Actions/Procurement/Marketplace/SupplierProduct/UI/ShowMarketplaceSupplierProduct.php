@@ -83,7 +83,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                 'pageHead'    => [
                     'icon'          =>
                         [
-                            'icon'  => ['fal', 'parachute-box'],
+                            'icon'  => ['fal', 'box-usd'],
                             'title' => __('supplier product marketplaces')
                         ],
                     'title' => $supplierProduct->name,
@@ -135,7 +135,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
             ];
         };
 
-//        dd($routeName);
+        //        dd($routeName);
         return match ($routeName) {
             'procurement.marketplace.suppliers.show.supplier-products.show' => array_merge(
                 (new ShowMarketplaceSupplier())->getBreadcrumbs(

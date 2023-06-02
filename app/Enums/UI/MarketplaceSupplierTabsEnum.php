@@ -36,7 +36,7 @@ enum MarketplaceSupplierTabsEnum: string
 
             MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS => [
                 'title' => __('products'),
-                'icon'  => 'fal fa-parachute-box',
+                'icon'  => 'fal fa-box-usd',
             ],
 
 
