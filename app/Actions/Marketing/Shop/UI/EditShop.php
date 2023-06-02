@@ -31,21 +31,18 @@ class EditShop extends InertiaAction
     public function asController(Shop $shop, ActionRequest $request): Shop
     {
         $this->initialisation($request);
-
         return $this->handle($shop);
     }
 
-
     public function htmlResponse(Shop $shop): Response
     {
-        //        dd($this->routeName, $shop);
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('edit shop'),
                 'breadcrumbs' => $this->getBreadcrumbs($shop),
                 'pageHead'    => [
-                    'title'    => $shop->code,
+                    'title'    => $shop->name,
                     'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
@@ -123,6 +120,7 @@ class EditShop extends InertiaAction
 
     public function getBreadcrumbs(Shop $shop): array
     {
-        return ShowShop::make()->getBreadcrumbs(shop: $shop, suffix: '('.__('editing').')');
+        $routeParameters = ['shop' => $shop];
+        return ShowShop::make()->getBreadcrumbs($routeParameters, suffix: '('.__('editing').')');
     }
 }

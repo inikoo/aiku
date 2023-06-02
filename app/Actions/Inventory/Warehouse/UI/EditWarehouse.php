@@ -31,8 +31,6 @@ class EditWarehouse extends InertiaAction
         return $this->handle($warehouse);
     }
 
-
-
     public function htmlResponse(Warehouse $warehouse): Response
     {
         return Inertia::render(

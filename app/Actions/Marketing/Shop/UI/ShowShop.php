@@ -158,6 +158,7 @@ class ShowShop extends InertiaAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+
         return
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),

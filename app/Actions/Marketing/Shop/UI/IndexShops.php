@@ -77,6 +77,11 @@ class IndexShops extends InertiaAction
             );
     }
 
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        return $this->handle();
+    }
 
     public function jsonResponse(): AnonymousResourceCollection
     {
@@ -110,19 +115,11 @@ class IndexShops extends InertiaAction
         )->table($this->tableStructure($parent));
     }
 
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle();
-    }
-
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs($suffix=null): array
     {
         return
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                (new Dashboard())->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
@@ -132,7 +129,9 @@ class IndexShops extends InertiaAction
                             ],
                             'label' => __('shops'),
                             'icon'  => 'fal fa-bars'
-                        ]
+                        ],
+                        'suffix'=> $suffix
+
                     ]
                 ]
             );
