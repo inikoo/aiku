@@ -24,7 +24,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeliveryNotes extends FetchAction
 {
-    public string $commandSignature = 'fetch:delivery-notes {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:delivery-notes {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?DeliveryNote
     {
@@ -126,5 +126,10 @@ class FetchDeliveryNotes extends FetchAction
         }
 
         return $query->count();
+    }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Delivery Note Dimension')->update(['aiku_id' => null]);
     }
 }
