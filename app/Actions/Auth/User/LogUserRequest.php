@@ -13,6 +13,7 @@ use App\Models\Auth\User;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Stevebauman\Location\Facades\Location;
 
 class LogUserRequest
 {
@@ -25,9 +26,7 @@ class LogUserRequest
 
         $index = 'user_requests_'.$tenant->group->slug;
 
-
         $parsedUserAgent = (new Browser())->parse($userAgent);
-
 
         $body = [
             'datetime'    => $datetime,
@@ -35,10 +34,10 @@ class LogUserRequest
             'username'    => $user->username,
             'route'       => $routeData,
             'ip_address'  => $ip,
-            'location'    => '',// todo get it using https://github.com/stevebauman/location
+            'location'    => $this->getLocation($ip), // reference: https://github.com/stevebauman/location
             'user_agent'  => $userAgent,
             'device_type' => $parsedUserAgent->deviceType(),
-            'platform'    => $parsedUserAgent->platformName(),
+            'platform'    => $this->detectWindows11($parsedUserAgent),
             'browser'     => $parsedUserAgent->browserName()
 
         ];
@@ -49,5 +48,27 @@ class LogUserRequest
 
 
         IndexElasticsearchDocument::run(index: $index, body: $body);
+    }
+
+    public function getLocation(string $ip): false|string|null
+    {
+        if ($position = Location::get($ip == '127.0.0.1' ? '103.121.18.96' : $ip)) {
+            return $position->countryName;
+        }
+
+        return false;
+    }
+
+    public function detectWindows11($parsedUserAgent): string
+    {
+        if($parsedUserAgent->isWindows()) {
+            if (str_contains($parsedUserAgent->userAgent(), 'Windows NT 10.0; Win64; x64')) {
+                return 'Windows 11';
+            }
+
+            return 'Windows 10';
+        }
+
+        return $parsedUserAgent->platformName();
     }
 }

@@ -15,14 +15,13 @@ class LogUserRequestMiddleware
     {
         $user = $request->user();
 
-
         if (!app()->runningUnitTests() && $user) {
             LogUserRequest::run(
                 now(),
                 [
                     'name'      => $request->route()->getName(),
                     'arguments' => $request->route()->originalParameters(),
-                    'url'       => url()->current()
+                    'url'       => $request->path()
                 ],
                 $request->ip(),
                 $request->header('User-Agent'),
