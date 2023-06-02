@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
+
+
+
         Schema::create('customers', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
@@ -21,10 +24,10 @@ return new class () extends Migration {
             $table->unsignedBigInteger('image_id')->nullable();
             $table->string('slug')->unique();
             $table->string('reference')->nullable()->comment('customer public id');
-            $table->string('name', 256)->nullable()->fulltext();
+            $table->string('name', 256)->nullable()->fulltext()->collation('und_ns_ci_ai');
             $table->string('contact_name', 256)->nullable()->index()->fulltext();
             $table->string('company_name', 256)->nullable();
-            $table->string('email')->nullable()->fulltext();
+            $table->string('email')->nullable()->fulltext()->collation('und_ns_ci');
             $table->string('phone')->nullable();
             $table->string('identity_document_number')->nullable();
             $table->string('website', 256)->nullable();

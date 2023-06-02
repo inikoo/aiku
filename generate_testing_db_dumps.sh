@@ -11,7 +11,7 @@ DB_PORT="${1:-$DEFAUL_DB_PORT}"
 
 echo -e "✨ Resetting database ${ITALIC}${DB}${NONE}"
 dropdb --if-exists -p "${DB_PORT}" ${DB}
-createdb -p "${DB_PORT}"  ${DB}
+createdb -p "${DB_PORT}"  --lc-collate=C.UTF-8 --lc-ctype=C.UTF-8  ${DB}
 echo "🌱 Migrating and seeding database"
 php artisan --env=testing migrate --path=database/migrations/central  --database=central
 php artisan --env=testing db:seed

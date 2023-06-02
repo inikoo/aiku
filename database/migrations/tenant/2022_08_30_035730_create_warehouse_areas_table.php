@@ -17,8 +17,8 @@ return new class () extends Migration {
             $table->string('slug')->unique();
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
-            $table->string('code')->index();
-            $table->string('name');
+            $table->string('code')->index()->collation('und_ns_ci');
+            $table->string('name')->index()->collation('und_ns_ci_ai');
             $table->decimal('unit_quantity')->default(0);
             $table->decimal('value')->default(0);
             $table->timestampsTz();
