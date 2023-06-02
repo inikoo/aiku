@@ -167,7 +167,6 @@ test('create order', function ($customer) {
     $billingAddress  = Address::first();
     $shipmentAddress = Address::latest()->first();
     $order           = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
-
     expect($order)->toBeInstanceOf(Order::class);
 
     return $order;

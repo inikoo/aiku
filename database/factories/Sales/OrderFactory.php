@@ -23,7 +23,8 @@ class OrderFactory extends Factory
     {
         return [
             'number' => fake()->numberBetween(100, 999),
-            'date'   => fake()->date
+            'date'   => fake()->date,
+            'customer_id' => fake()->numberBetween(1,100)
         ];
     }
 }
