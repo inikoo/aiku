@@ -25,7 +25,7 @@ rm -rf storage/app/public/tenants
 rm -rf storage/app/public/central
 echo -e "✨ Resetting database ${ITALIC}${DB}${NONE}"
 dropdb --force --if-exists ${DB}
-createdb ${DB}
+createdb --template=template0 --lc-collate=C.UTF-8 --lc-ctype=C.UTF-8  ${DB}
 echo "🌱 Migrating and seeding database"
 php artisan migrate --path=database/migrations/central --database=central
 php artisan db:seed
