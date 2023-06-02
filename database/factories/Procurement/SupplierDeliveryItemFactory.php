@@ -7,7 +7,6 @@
 
 namespace Database\Factories\Procurement;
 
-use App\Models\Assets\Currency;
 use App\Models\Procurement\SupplierProduct;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

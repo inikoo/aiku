@@ -25,7 +25,7 @@ class FetchFamilies
             if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
                 ->first()) {
                 $family = UpdateProductCategory::run(
-                    family:    $family,
+                    productCategory:    $family,
                     modelData: $familyData['family'],
                 );
             } else {

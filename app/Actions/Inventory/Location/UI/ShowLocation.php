@@ -10,7 +10,6 @@ namespace App\Actions\Inventory\Location\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
-use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\LocationTabsEnum;
 use App\Models\Inventory\Location;

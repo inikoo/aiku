@@ -38,10 +38,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Issue> $issues
- * @property-read Collection<int, \App\Models\Inventory\Location> $locations
- * @property-read \App\Models\Inventory\WarehouseStats|null $stats
+ * @property-read Collection<int, Location> $locations
+ * @property-read WarehouseStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
- * @property-read Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
+ * @property-read Collection<int, WarehouseArea> $warehouseAreas
  * @method static \Database\Factories\Inventory\WarehouseFactory factory($count = null, $state = [])
  * @method static Builder|Warehouse newModelQuery()
  * @method static Builder|Warehouse newQuery()

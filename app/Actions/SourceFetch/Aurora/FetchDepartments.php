@@ -25,11 +25,11 @@ class FetchDepartments
                 ->first()) {
                 $productCategory = UpdateProductCategory::run(
                     productCategory: $productCategory,
-                    modelData:  $productCategoryData['department'],
+                    modelData: $productCategoryData['department'],
                 );
             } else {
                 $productCategory = StoreProductCategory::run(
-                    parent:      $productCategoryData['shop'],
+                    parent: $productCategoryData['shop'],
                     modelData: $productCategoryData['department']
                 );
             }

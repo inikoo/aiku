@@ -25,6 +25,7 @@
         "doctrine/dbal": "^3.5",
         "elasticsearch/elasticsearch": "^8.8",
         "guzzlehttp/guzzle": "^7.2",
+        "hisorange/browser-detect": "^4.5",
         "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^0.6",
         "jackwh/laravel-new-relic": "^1.0",
@@ -52,6 +53,7 @@
         "spatie/laravel-query-builder": "^5.0",
         "spatie/laravel-sluggable": "^3.4",
         "spatie/temporary-directory": "^2.1",
+        "stevebauman/location": "^6.6",
         "tightenco/ziggy": "^1.0",
         "vemcogroup/laravel-translation": "^3.0",
         "vlucas/phpdotenv": "^5.4"

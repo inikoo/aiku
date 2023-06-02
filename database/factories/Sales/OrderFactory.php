@@ -22,8 +22,9 @@ class OrderFactory extends Factory
     public function definition()
     {
         return [
-            'number' => fake()->numberBetween(100, 999),
-            'date'   => fake()->date
+            'number'      => fake()->numberBetween(100, 999),
+            'date'        => fake()->date,
+            'customer_id' => fake()->numberBetween(1, 100)
         ];
     }
 }

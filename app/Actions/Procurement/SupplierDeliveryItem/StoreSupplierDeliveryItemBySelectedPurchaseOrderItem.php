@@ -17,14 +17,14 @@ class StoreSupplierDeliveryItemBySelectedPurchaseOrderItem
 
     public function handle(SupplierDelivery $supplierDelivery, array $purchaseOrderIds): array
     {
-        $items = [];
+        $items              = [];
         $purchaseOrderItems = PurchaseOrderItem::whereIn('purchase_order_id', $purchaseOrderIds)->get();
 
         foreach ($purchaseOrderItems as $item) {
             $items[] = StoreSupplierDeliveryItem::run($supplierDelivery, [
                 'supplier_product_id' => $item->supplier_product_id,
-                'unit_price' => $item->unit_price,
-                'unit_quantity' => $item->unit_quantity
+                'unit_price'          => $item->unit_price,
+                'unit_quantity'       => $item->unit_quantity
             ]);
         }
 

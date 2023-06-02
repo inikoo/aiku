@@ -9,9 +9,11 @@
 namespace App\Models\Assets;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
@@ -28,10 +30,10 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int|null $currency_id
  * @property string|null $type
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assets\Timezone> $timezones
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Collection<int, Timezone> $timezones
  * @method static Builder|Country newModelQuery()
  * @method static Builder|Country newQuery()
  * @method static Builder|Country onlyTrashed()

@@ -39,7 +39,7 @@ class ShopHydrateInvoices implements ShouldBeUnique
             $stats['number_invoices_type_'.$invoiceType->snake()] = Arr::get($invoiceTypeCounts, $invoiceType->value, 0);
         }
 
-//        $this->storeElastic('invoice');
+        //        $this->storeElastic('invoice');
 
         $shop->stats->update($stats);
     }

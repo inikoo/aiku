@@ -98,8 +98,8 @@ class ShowPayment extends InertiaAction
         return Inertia::render(
             'Accounting/Payment',
             [
-                'title'       => __($payment->id),
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters),
+                'title'                                 => __($payment->id),
+                'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($payment, $request),
                     'next'     => $this->getNext($payment, $request),

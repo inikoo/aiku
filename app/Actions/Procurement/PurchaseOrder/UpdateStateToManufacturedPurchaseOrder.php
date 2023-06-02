@@ -34,7 +34,7 @@ class UpdateStateToManufacturedPurchaseOrder
             $purchaseOrder->items()->update($data);
 
             $data[$purchaseOrder->state->value . '_at'] = null;
-            $data['manufactured_at'] = now();
+            $data['manufactured_at']                    = now();
 
             $purchaseOrder = $this->update($purchaseOrder, $data);
 

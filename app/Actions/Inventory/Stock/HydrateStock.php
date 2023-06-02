@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\HydrateModel;
-use App\Actions\Inventory\Stock\Hydrators\StockInitialiseImageID;
 use App\Models\Inventory\Stock;
 use Illuminate\Support\Collection;
 
@@ -36,7 +35,7 @@ class HydrateStock extends HydrateModel
     public function locations(Stock $stock): void
     {
         $numberLocations = $stock->locations->count();
-        $stats = [
+        $stats           = [
             'number_locations' => $numberLocations
         ];
 

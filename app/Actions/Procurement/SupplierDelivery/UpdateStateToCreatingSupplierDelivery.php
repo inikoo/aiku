@@ -31,7 +31,7 @@ class UpdateStateToCreatingSupplierDelivery
 
         if ($supplierDelivery->state == SupplierDeliveryStateEnum::DISPATCHED) {
             $data[$supplierDelivery->state->value . '_at'] = null;
-            $data['creating_at'] = now();
+            $data['creating_at']                           = now();
 
             $supplierDelivery = $this->update($supplierDelivery, $data);
 

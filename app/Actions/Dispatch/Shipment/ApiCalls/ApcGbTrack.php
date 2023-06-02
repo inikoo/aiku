@@ -31,8 +31,11 @@ class ApcGbTrack
             return false;
         }
 
-        $apiResponse = ProsesApiCalls::run (
-            'https://apc.hypaship.com/api/3.0/Tracks/'.$shipment->tracking.'.json?searchtype=CarrierWaybill&history=Yes', $headers, "[]", 'GET'
+        $apiResponse = ProsesApiCalls::run(
+            'https://apc.hypaship.com/api/3.0/Tracks/'.$shipment->tracking.'.json?searchtype=CarrierWaybill&history=Yes',
+            $headers,
+            "[]",
+            'GET'
         );
 
 
@@ -131,6 +134,7 @@ class ApcGbTrack
                 break;
             case 'cancelled':
                 $state = 0;
+                // no break
             default:
 
         }
@@ -150,13 +154,14 @@ class ApcGbTrack
 
         $eventData = array_filter($eventData);
 
-        $event = (new Event)->firstOrCreate(
+        $event = (new Event())->firstOrCreate(
             [
                 'date'        => $date->format('Y-m-d H:i:s'),
                 'box'         => $boxID,
                 'code'        => $code,
                 'shipment_id' => $shipment->id
-            ], [
+            ],
+            [
                 'state'  => $state,
                 'status' => $status,
                 'data'   => $eventData

@@ -1,19 +1,30 @@
 <?php
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Thu, 18 May 2023 14:27:30 Central European Summer Time, Malaga, Spain
+ * Created: Thu, 18 May 2023 14:27:30 Central European Summer, Malaga, Spain
  * Copyright (c) 2023, Inikoo LTD
  */
 
 namespace App\Actions\Marketing\Shop\UI;
 
+use App\Actions\Assets\Country\UI\GetCountriesOptions;
+use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
+use App\Actions\Assets\Language\UI\GetLanguagesOptions;
+use App\Actions\Assets\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\InertiaAction;
+use App\Enums\Marketing\Shop\ShopSubtypeEnum;
+use App\Enums\Marketing\Shop\ShopTypeEnum;
+use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateShop extends InertiaAction
 {
+    /**
+     * @throws Exception
+     */
     public function handle(): Response
     {
         return Inertia::render(
@@ -34,13 +45,12 @@ class CreateShop extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title'  => __('detail'),
                             'fields' => [
 
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => ''
                                 ],
                                 'name' => [
                                     'type'   => 'input',
@@ -50,34 +60,62 @@ class CreateShop extends InertiaAction
                                         'counter'=> true
                                     ]
                                 ],
+                                'type' => [
+                                    'type'         => 'select',
+                                    'label'        => __('type'),
+                                    'placeholder'  => 'Select a Type',
+                                    'options'      => Options::forEnum(ShopTypeEnum::class),
+                                    'mode'         => 'single',
+                                    'required'     => true
+
+                                ],
+                                'subtype' => [
+                                    'type'         => 'select',
+                                    'label'        => __('subtype'),
+                                    'placeholder'  => 'Select a Subtype',
+                                    'options'      => Options::forEnum(ShopSubtypeEnum::class),
+                                    'required'     => true,
+                                    'mode'         => 'single'
+                                ],
                             ]
                         ],
-                        /*
+
                         [
                             'title'  => __('localization'),
                             'icon'   => 'fa-light fa-phone',
                             'fields' => [
-                                'language_id' => [
-                                    'type'    => 'input',
-                                    'label'   => __('language'),
-                                    'value'   => '',
+                                'country_id'  => [
+                                    'type'        => 'select',
+                                    'label'       => __('country'),
+                                    'placeholder' => 'Select a Country',
+                                    'options'     => GetCountriesOptions::run(),
+                                    'required'    => true,
+                                    'mode'        => 'single'
                                 ],
                                 'currency_id' => [
-                                    'type'    => 'input',
-                                    'label'   => __('currency'),
-                                    'value'   => '',
+                                    'type'        => 'select',
+                                    'label'       => __('currency'),
+                                    'placeholder' => 'Select a Currency',
+                                    'options'     => GetCurrenciesOptions::run(),
+                                    'required'    => true,
+                                    'mode'        => 'single'
                                 ],
                                 'timezone_id' => [
-                                    'type'    => 'input',
-                                    'label'   => __('timezone'),
-                                    'value'   => '',
+                                    'type'        => 'select',
+                                    'label'       => __('timezone'),
+                                    'placeholder' => 'Select a Timezone',
+                                    'options'     => GetTimeZonesOptions::run(),
+                                    'required'    => true,
+                                    'mode'        => 'single'
                                 ],
-                                'country_id' => [
-                                    'type'    => 'input',
-                                    'label'   => __('country'),
-                                    'value'   => '',
+                                'language_id' => [
+                                    'type'        => 'select',
+                                    'label'       => __('language'),
+                                    'placeholder' => 'Select a Language',
+                                    'options'     => GetLanguagesOptions::run(),
+                                    'required'    => true,
+                                    'mode'        => 'single'
                                 ],
-
                             ]
                         ],
                         [
@@ -108,7 +146,6 @@ class CreateShop extends InertiaAction
                                 ],
                             ]
                         ],
-                        */
                     ],
                     'route' => [
                         'name' => 'models.shop.store',
@@ -125,6 +162,9 @@ class CreateShop extends InertiaAction
     }
 
 
+    /**
+     * @throws Exception
+     */
     public function asController(ActionRequest $request): Response
     {
         $this->initialisation($request);

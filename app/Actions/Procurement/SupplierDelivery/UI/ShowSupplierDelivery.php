@@ -42,8 +42,8 @@ class ShowSupplierDelivery extends InertiaAction
         return Inertia::render(
             'Procurement/SupplierDelivery',
             [
-                'title'       => __('supplier delivery'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->supplierDelivery),
+                'title'                                 => __('supplier delivery'),
+                'breadcrumbs'                           => $this->getBreadcrumbs($this->supplierDelivery),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($this->supplierDelivery, $request),
                     'next'     => $this->getNext($this->supplierDelivery, $request),

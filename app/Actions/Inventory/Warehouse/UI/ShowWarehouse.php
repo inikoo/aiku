@@ -25,6 +25,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowWarehouse extends InertiaAction
 {
+    private ActionRequest $request;
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.warehouses.edit');
@@ -36,6 +38,7 @@ class ShowWarehouse extends InertiaAction
     {
         $this->initialisation($request)->withTab(WarehouseTabsEnum::values());
         $this->warehouse = $warehouse;
+        $this->request   = $request;
     }
 
 
@@ -44,8 +47,12 @@ class ShowWarehouse extends InertiaAction
         return Inertia::render(
             'Inventory/Warehouse',
             [
-                'title'       => __('warehouse'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->warehouse),
+                'title'                                 => __('warehouse'),
+                'breadcrumbs'                           => $this->getBreadcrumbs($this->warehouse),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($this->warehouse, $this->request),
+                    'next'     => $this->getNext($this->warehouse, $this->request),
+                ],
                 'pageHead'    => [
                     'icon'          =>
                         [
@@ -154,7 +161,8 @@ class ShowWarehouse extends InertiaAction
                             'route' => [
                                 'name' => 'inventory.warehouses.index',
                             ],
-                            'label' => __('warehouse')
+                            'label' => __('warehouse'),
+                            'icon'  => 'fal fa-bars'
                         ],
                         'model' => [
                             'route' => [
@@ -162,6 +170,7 @@ class ShowWarehouse extends InertiaAction
                                 'parameters' => [$warehouse->slug]
                             ],
                             'label' => $warehouse->code,
+                            'icon'  => 'fal fa-bars'
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -169,5 +178,39 @@ class ShowWarehouse extends InertiaAction
                 ],
             ]
         );
+    }
+
+    public function getPrevious(Warehouse $warehouse, ActionRequest $request): ?array
+    {
+        $previous = Warehouse::where('code', '<', $warehouse->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(Warehouse $warehouse, ActionRequest $request): ?array
+    {
+        $next = Warehouse::where('code', '>', $warehouse->code)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Warehouse $warehouse, string $routeName): ?array
+    {
+        if (!$warehouse) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'inventory.warehouses.show' => [
+                'label' => $warehouse->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'warehouse' => $warehouse->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }

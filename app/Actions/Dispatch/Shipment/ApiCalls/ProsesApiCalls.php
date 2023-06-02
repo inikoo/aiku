@@ -18,7 +18,8 @@ class ProsesApiCalls
     {
         $curl = curl_init();
         curl_setopt_array(
-            $curl, array(
+            $curl,
+            array(
                 CURLOPT_URL            => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING       => "",

@@ -19,7 +19,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchInvoices extends FetchAction
 {
-    public string $commandSignature = 'fetch:invoices {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:invoices {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
     #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
     {
@@ -116,5 +116,10 @@ class FetchInvoices extends FetchAction
         }
 
         return $query->count();
+    }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Invoices Dimension')->update(['aiku_id' => null]);
     }
 }

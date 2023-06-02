@@ -31,7 +31,7 @@ class UpdateStateToReceivedSupplierDelivery
 
         if (in_array($supplierDelivery->state, [SupplierDeliveryStateEnum::CHECKED, SupplierDeliveryStateEnum::DISPATCHED])) {
             $data[$supplierDelivery->state->value . '_at'] = null;
-            $data['received_at'] = now();
+            $data['received_at']                           = now();
 
             $supplierDelivery = $this->update($supplierDelivery, $data);
 

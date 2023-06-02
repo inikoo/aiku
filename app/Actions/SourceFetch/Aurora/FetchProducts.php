@@ -15,13 +15,12 @@ use App\Models\Marketing\Product;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchProducts extends FetchAction
 {
     public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
     {
         if ($productData = $tenantSource->fetchProduct($tenantSourceId)) {
             if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
@@ -33,7 +32,7 @@ class FetchProducts extends FetchAction
                 );
             } else {
                 $product = StoreProduct::run(
-                    shop: $productData['shop'],
+                    parent: $productData['parent'],
                     modelData: $productData['product'],
                     skipHistoric: true
                 );
@@ -42,7 +41,7 @@ class FetchProducts extends FetchAction
 
             DB::connection('aurora')->table('Product Dimension')
                 ->where('Product ID', $product->source_id)
-                ->update(['aiku_id'=> $product->id]);
+                ->update(['aiku_id' => $product->id]);
 
 
             $historicProduct = HistoricProduct::where('source_id', $productData['historic_product_source_id'])->first();
@@ -61,8 +60,6 @@ class FetchProducts extends FetchAction
 
 
             SyncProductTradeUnits::run($product, $tradeUnits['product_stocks']);
-
-
 
 
             return $product;

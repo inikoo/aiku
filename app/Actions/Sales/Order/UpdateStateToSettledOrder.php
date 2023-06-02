@@ -31,7 +31,7 @@ class UpdateStateToSettledOrder
             $order->transactions()->update($data);
 
             $data[$order->state->value . '_at'] = null;
-            $data['settled_at'] = now();
+            $data['settled_at']                 = now();
 
             $this->update($order, $data);
 

@@ -20,7 +20,7 @@ enum ProductTypeEnum: string
     {
         return [
             'physical_good' => 'Physical Good',
-            'service' => 'Service',
+            'service'       => 'Service',
         ];
     }
 

@@ -32,6 +32,9 @@ return new class () extends Migration {
             $table->string('status')->index();
             $table->string('state')->index()->default(CustomerStateEnum::IN_PROCESS->value);
             $table->string('trade_state')->index()->default(CustomerTradeStateEnum::NONE->value)->comment('number of invoices');
+            $table->boolean('is_fulfilment')->index()->default(false);
+            $table->boolean('is_dropshipping')->index()->default(false);
+
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();

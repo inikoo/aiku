@@ -194,7 +194,7 @@ test('detach stock from location', function ($location, $stock) {
 test('move stock location', function () {
     $currentLocation = LocationStock::first();
     $targetLocation  = LocationStock::latest()->first();
-    $stock = MoveStockLocation::make()->action($currentLocation, $targetLocation, [
+    $stock           = MoveStockLocation::make()->action($currentLocation, $targetLocation, [
         'quantity' => 1
     ]);
     $this->assertModelExists($stock);

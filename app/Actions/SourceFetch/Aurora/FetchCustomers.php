@@ -26,7 +26,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchCustomers extends FetchAction
 {
-    public string $commandSignature = 'fetch:customers {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:customers {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
 
 
     /**
@@ -119,7 +119,7 @@ class FetchCustomers extends FetchAction
                 }
             }
 
-            if ($customer->shop->type == 'fulfilment_house' and in_array('clients', $with)) {
+            if ($customer->shop->subtype == 'dropshipping' and in_array('clients', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Customer Client Dimension')
@@ -197,5 +197,10 @@ class FetchCustomers extends FetchAction
         }
 
         return $query->count();
+    }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Customer Dimension')->update(['aiku_id' => null]);
     }
 }

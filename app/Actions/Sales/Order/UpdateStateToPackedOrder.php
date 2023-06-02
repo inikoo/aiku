@@ -31,7 +31,7 @@ class UpdateStateToPackedOrder
             $order->transactions()->update($data);
 
             $data[$order->state->value . '_at'] = null;
-            $data['packed_at'] = now();
+            $data['packed_at']                  = now();
 
             $this->update($order, $data);
 

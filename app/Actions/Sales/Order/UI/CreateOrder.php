@@ -50,7 +50,7 @@ class CreateOrder extends InertiaAction
                             [
                                 'title'  => __('number'),
                                 'fields' => [
-                                    'date' =>[
+                                    'date' => [
                                         'type' => 'date',
                                         'label'=> __('date')
                                     ],
@@ -61,13 +61,13 @@ class CreateOrder extends InertiaAction
                                 ]
                             ],
                             [
-                                'title' => __('customer'),
-                                'fields' =>[
-                                    'customer_id' =>[
-                                        'type' => 'select',
-                                        'label' => 'name',
+                                'title'  => __('customer'),
+                                'fields' => [
+                                    'customer_id' => [
+                                        'type'        => 'select',
+                                        'label'       => 'name',
                                         'placeholder' => 'Select A Customer',
-                                        'options' => Options::forModels(Customer::query()->where('shop_id', $shop->id)),
+                                        'options'     => Options::forModels(Customer::query()->where('shop_id', $shop->id)),
 
                                     ],
                                     'customer_number' => [
@@ -77,8 +77,8 @@ class CreateOrder extends InertiaAction
                                 ]
                             ],
                             [
-                                'title' => __('billing address'),
-                                'fields' =>[
+                                'title'  => __('billing address'),
+                                'fields' => [
                                     'billing_address'      => [
                                         'type'    => 'address',
                                         'label'   => __('Address'),
@@ -98,8 +98,8 @@ class CreateOrder extends InertiaAction
                                 ]
                             ],
                             [
-                                'title' => __('Delivery address'),
-                                'fields' =>[
+                                'title'  => __('Delivery address'),
+                                'fields' => [
                                     'delivery_address' => [
                                         'type'    => 'address',
                                         'label'   => __('Address'),

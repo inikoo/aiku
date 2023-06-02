@@ -9,11 +9,8 @@ namespace App\Actions\Procurement\SupplierDeliveryItem;
 
 use App\Actions\Procurement\SupplierDelivery\Traits\HasHydrators;
 use App\Actions\WithActionUpdate;
-use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum;
-use App\Models\Procurement\SupplierDelivery;
 use App\Models\Procurement\SupplierDeliveryItem;
-use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -28,7 +25,7 @@ class UpdateStateToCheckedSupplierDeliveryItem
         $data = [
             'state' => SupplierDeliveryItemStateEnum::CHECKED,
         ];
-        $data['checked_at'] = now();
+        $data['checked_at']            = now();
         $data['unit_quantity_checked'] = $modelData['unit_quantity_checked'];
 
         $supplierDeliveryItem = $this->update($supplierDeliveryItem, $data);

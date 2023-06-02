@@ -29,7 +29,7 @@ class StoreProductCategory
 
     public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
-        if (class_basename($parent) == 'Department') {
+        if (class_basename($parent) == 'ProductCategory') {
             $modelData['type']    = ProductCategoryTypeEnum::BRANCH;
             $modelData['shop_id'] = $parent->shop_id;
         } else {
@@ -82,7 +82,7 @@ class StoreProductCategory
         $request->validate();
 
         $this->handle($shop, $request->all());
-        return  Redirect::route('shops.show.catalogue.hub.departments.index',$shop);
+        return  Redirect::route('shops.show.catalogue.hub.departments.index', $shop);
     }
 
     public function asFetch(Shop $shop, array $productCategoryData, int $hydratorsDelay=60): ProductCategory

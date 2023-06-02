@@ -137,7 +137,10 @@ class Product extends Model implements HasMedia
 
     public function tradeUnits(): BelongsToMany
     {
-        return $this->belongsToMany(TradeUnit::class)->withPivot(['quantity','notes'])->withTimestamps();
+        return $this->belongsToMany(
+            TradeUnit::class,
+            'tenant_'.app('currentTenant')->slug.'.product_trade_unit',
+        )->withPivot(['quantity','notes'])->withTimestamps();
     }
 
     public function salesStats(): MorphOne

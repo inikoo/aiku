@@ -18,7 +18,7 @@ class WhistlGbPrepareShipment
     use WithAttributes;
     public function handle($shipper, $request, $pickUp, $shipTo, $parcelsData, $cash_on_delivery): array
     {
-        $shipToCountry = (new Country)->where('code', Arr::get($shipTo, 'country_code'))->first();
+        $shipToCountry = (new Country())->where('code', Arr::get($shipTo, 'country_code'))->first();
 
 
         $shipTo = [

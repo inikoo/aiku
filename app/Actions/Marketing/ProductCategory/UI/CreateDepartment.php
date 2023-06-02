@@ -36,7 +36,7 @@ class CreateDepartment extends InertiaAction
         return $this->htmlResponse($request);
     }
 
-    function htmlResponse(ActionRequest $request): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -75,7 +75,7 @@ class CreateDepartment extends InertiaAction
                         ],
                     'route' => match ($this->routeName) {
                         'shops.show.catalogue.hub.departments.create' => [
-                            'name' => 'models.shop.department.store',
+                            'name'      => 'models.shop.department.store',
                             'arguments' => [$request->route()->parameters['shop']->slug]
                         ],
                         default => [

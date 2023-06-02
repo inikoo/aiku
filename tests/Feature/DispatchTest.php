@@ -73,7 +73,8 @@ test('create delivery note', function () {
             Address::make(),
             Address::make()
         );
-        $deliveryNote = StoreDeliveryNote::make()->action($order, DeliveryNote::factory()->definition(), Address::make());
+        $order['customer_id'] = $customer->id;
+        $deliveryNote         = StoreDeliveryNote::make()->action($order, DeliveryNote::factory()->definition(), Address::make());
         $this->assertModelExists($deliveryNote);
 
     } catch (Throwable $e) {

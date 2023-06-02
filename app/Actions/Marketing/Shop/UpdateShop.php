@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\Shop;
 
+use App\Actions\Marketing\Shop\Hydrators\ShopHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Enums\Marketing\Shop\ShopSubtypeEnum;
 use App\Enums\Marketing\Shop\ShopTypeEnum;
@@ -19,9 +20,23 @@ class UpdateShop
 {
     use WithActionUpdate;
 
+    private bool $asAction = false;
+
     public function handle(Shop $shop, array $modelData): Shop
     {
-        return $this->update($shop, $modelData, ['data', 'settings']);
+        $shop =  $this->update($shop, $modelData, ['data', 'settings']);
+        ShopHydrateUniversalSearch::dispatch($shop);
+
+        return $shop;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("shops.edit");
     }
 
     public function rules(): array
@@ -46,6 +61,7 @@ class UpdateShop
     public function asController(Shop $shop, ActionRequest $request): Shop
     {
         $this->fillFromRequest($request);
+
         return $this->handle(
             shop:$shop,
             modelData: $this->validateAttributes()
@@ -53,8 +69,9 @@ class UpdateShop
     }
 
 
-    public function action(Shop $shop, array $objectData): Shop
+    public function action(Shop $shop, $objectData): Shop
     {
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 

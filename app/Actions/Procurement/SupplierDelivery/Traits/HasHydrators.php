@@ -11,11 +11,10 @@ use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSupplierDeliveries;
 use App\Actions\Procurement\Supplier\Hydrators\HydrateSupplierDeliveries;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierDeliveries;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierDelivery;
 
-trait HasHydrators {
+trait HasHydrators
+{
     public function getHydrators(SupplierDelivery $supplierDelivery): void
     {
         $parent = $supplierDelivery->provider;

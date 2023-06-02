@@ -18,7 +18,7 @@ class PostmenCreateShipperAccount
     use WithAttributes;
     public function handle($shipper, $request, $pickUp, $shipTo, $parcelsData, $cash_on_delivery): array
     {
-        $shipToCountry = (new Country)->where('code', Arr::get($shipTo, 'country_code'))->first();
+        $shipToCountry = (new Country())->where('code', Arr::get($shipTo, 'country_code'))->first();
 
 
         $shipTo = [
@@ -92,7 +92,7 @@ class PostmenCreateShipperAccount
     private function get_tenant_address(mixed $tenant): array
     {
         $tenant_address = $tenant->data['address'];
-        $tenant_country = (new Country)->where('code', $tenant_address['country_code'])->first();
+        $tenant_country = (new Country())->where('code', $tenant_address['country_code'])->first();
 
 
         $tenant_address = [

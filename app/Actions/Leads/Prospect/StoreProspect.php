@@ -9,7 +9,6 @@ namespace App\Actions\Leads\Prospect;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Leads\Prospect\Hydrators\ProspectHydrateUniversalSearch;
-use App\Enums\Leads\Prospect\ProspectStateEnum;
 use App\Models\Leads\Prospect;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\ActionRequest;
