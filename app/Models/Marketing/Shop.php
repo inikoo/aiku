@@ -172,6 +172,7 @@ class Shop extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(6);
     }
 

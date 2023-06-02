@@ -44,6 +44,7 @@ class EditDepartment extends InertiaAction
 
     public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'EditModel',
             [

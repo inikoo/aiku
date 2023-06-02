@@ -11,10 +11,14 @@ use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\InertiaAction;
+use App\Enums\Marketing\Shop\ShopSubtypeEnum;
+use App\Enums\Marketing\Shop\ShopTypeEnum;
 use App\Models\Marketing\Shop;
+use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class EditShop extends InertiaAction
 {
@@ -34,6 +38,9 @@ class EditShop extends InertiaAction
         return $this->handle($shop);
     }
 
+    /**
+     * @throws Exception
+     */
     public function htmlResponse(Shop $shop): Response
     {
         return Inertia::render(
@@ -56,7 +63,7 @@ class EditShop extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title'  => __('Detail'),
                             'icon'   => 'fa-light fa-id-card',
                             'fields' => [
                                 'code' => [
@@ -70,6 +77,25 @@ class EditShop extends InertiaAction
                                     'label'    => __('label'),
                                     'value'    => $shop->name,
                                     'required' => true
+                                ],
+                                'type' => [
+                                    'type'         => 'select',
+                                    'label'        => __('type'),
+                                    'value'        => $shop->type,
+                                    'placeholder'  => 'Select a Type',
+                                    'options'      => Options::forEnum(ShopTypeEnum::class),
+                                    'required'     => true,
+                                    'mode'         => 'single',
+
+                                ],
+                                'subtype' => [
+                                    'type'         => 'select',
+                                    'label'        => __('subtype'),
+                                    'value'        => $shop->subtype,
+                                    'placeholder'  => 'Select a Subtype',
+                                    'options'      => Options::forEnum(ShopSubtypeEnum::class),
+                                    'required'     => true,
+                                    'mode'         => 'single',
                                 ],
                             ]
                         ],
@@ -93,13 +119,12 @@ class EditShop extends InertiaAction
                                     'required' => true
                                 ],
                                 'language_id' => [
-                                    'type'     => 'language',
+                                    'type'     => 'select',
                                     'label'    => __('language'),
                                     'value'    => $shop->language_id,
                                     'options'  => GetLanguagesOptions::run(),
                                     'required' => true
                                 ],
-
 
                             ]
                         ]
