@@ -41,16 +41,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $stock_family_id
  * @property StockTradeUnitCompositionEnum|null $trade_unit_composition
  * @property StockStateEnum $state
- * @property StockQuantityStatusEnum|null $quantity_status
  * @property bool $sellable
  * @property bool $raw_material
  * @property \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
  * @property string|null $description
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton
- * @property string|null $quantity stock quantity in units
+ * @property string|null $quantity_in_locations stock quantity in units
+ * @property StockQuantityStatusEnum|null $quantity_status
  * @property float|null $available_forecast days
- * @property string|null $value
+ * @property int $number_locations
+ * @property string|null $unit_value
+ * @property string $value_in_locations
  * @property int|null $image_id
  * @property array $settings
  * @property array $data

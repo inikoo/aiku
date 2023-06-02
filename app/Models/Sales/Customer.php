@@ -26,7 +26,6 @@ use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\WebUser;
-use Database\Factories\Sales\CustomerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -61,6 +60,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property CustomerStatusEnum $status
  * @property CustomerStateEnum $state
  * @property CustomerTradeStateEnum $trade_state number of invoices
+ * @property bool $is_fulfilment
+ * @property bool $is_dropshipping
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -82,7 +83,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read TaxNumber|null $taxNumber
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
- * @method static CustomerFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Sales\CustomerFactory factory($count = null, $state = [])
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static Builder|Customer onlyTrashed()

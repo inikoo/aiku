@@ -35,7 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $number
  * @property int $shop_id
  * @property int $customer_id
- * @property int $order_id
+ * @property int|null $order_id
  * @property InvoiceTypeEnum $type
  * @property int $currency_id
  * @property string $exchange
@@ -56,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])
  * @method static Builder|Invoice newModelQuery()
  * @method static Builder|Invoice newQuery()
  * @method static Builder|Invoice onlyTrashed()

@@ -7,8 +7,6 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Inventory\Location\HydrateLocation;
-use App\Actions\Inventory\Stock\HydrateStock;
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,7 +21,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $id
  * @property int $stock_id
  * @property int $location_id
- * @property string $quantity
+ * @property string $quantity in units
  * @property LocationStockTypeEnum $type
  * @property int|null $picking_priority
  * @property string|null $notes
@@ -58,21 +56,6 @@ class LocationStock extends Pivot
 
     protected $guarded = [];
 
-    protected static function booted(): void
-    {
-        static::created(
-            function (LocationStock $locationStock) {
-                HydrateLocation::make()->stocks($locationStock->location);
-                HydrateStock::run($locationStock->stock);
-            }
-        );
-        static::deleted(
-            function (LocationStock $locationStock) {
-                HydrateLocation::make()->stocks($locationStock->location);
-                HydrateStock::run($locationStock->stock);
-            }
-        );
-    }
 
     public function stock(): BelongsTo
     {

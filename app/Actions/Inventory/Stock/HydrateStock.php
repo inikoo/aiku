@@ -8,6 +8,9 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\HydrateModel;
+use App\Actions\Inventory\Stock\Hydrators\StockHydrateLocations;
+use App\Actions\Inventory\Stock\Hydrators\StockHydrateQuantityInLocations;
+use App\Actions\Inventory\Stock\Hydrators\StockHydrateValueInLocations;
 use App\Models\Inventory\Stock;
 use Illuminate\Support\Collection;
 
@@ -18,37 +21,11 @@ class HydrateStock extends HydrateModel
 
     public function handle(Stock $stock): void
     {
-        $this->locations($stock);
-        $this->quantity($stock);
-        $this->value($stock);
+        StockHydrateLocations::run($stock);
+        StockHydrateQuantityInLocations::run($stock);
+        StockHydrateValueInLocations::run($stock);
     }
 
-    public function value(Stock $stock): void
-    {
-        $numberLocations = $stock->locations->count();
-
-        $stock->stats->update([
-            'stock_value' => $stock->value * $numberLocations
-        ]);
-    }
-
-    public function locations(Stock $stock): void
-    {
-        $numberLocations = $stock->locations->count();
-        $stats           = [
-            'number_locations' => $numberLocations
-        ];
-
-        $stock->stats->update($stats);
-    }
-
-    public function quantity(Stock $stock): void
-    {
-        $stock->update([
-            'quantity' =>
-                $stock->locations->sum('pivot.quantity')
-        ]);
-    }
 
 
     protected function getModel(int $id): Stock

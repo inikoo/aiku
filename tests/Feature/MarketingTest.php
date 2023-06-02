@@ -20,6 +20,7 @@ use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Enums\Marketing\Product\ProductTypeEnum;
 use App\Models\Marketing\Offer;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;
@@ -44,7 +45,6 @@ beforeEach(function () {
 });
 
 test('create shop', function () {
-
     $shop = StoreShop::make()->action(Shop::factory()->definition());
 
     expect($shop)->toBeInstanceOf(Shop::class);
@@ -118,7 +118,16 @@ test('update product category', function ($productCategory) {
 })->depends('create product category');
 
 test('create product', function ($shop) {
-    $product = StoreProduct::make()->action($shop, Product::factory()->definition());
+    $productData = array_merge(
+        Product::factory()->definition(),
+        [
+            'owner_type'=> 'Tenant',
+            'owner_id'  => app('currentTenant')->id,
+            'type'      => ProductTypeEnum::PHYSICAL_GOOD->value,
+
+        ]
+    );
+    $product     = StoreProduct::make()->action($shop, $productData);
     $this->assertModelExists($product);
 
     return $product;

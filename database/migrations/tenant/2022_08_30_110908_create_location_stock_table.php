@@ -11,7 +11,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('location_stock', function (Blueprint $table) {
             $table->increments('id');
@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->foreign('stock_id')->references('id')->on('stocks');
             $table->unsignedInteger('location_id')->index();
             $table->foreign('location_id')->references('id')->on('locations');
-            $table->decimal('quantity', 16, 3)->default(0);
+            $table->decimal('quantity', 16, 3)->default(0)->comment('in units');
             $table->string('type')->index()->default(LocationStockTypeEnum::PICKING->value);
             $table->smallInteger('picking_priority')->nullable()->index();
             $table->string('notes')->nullable();
@@ -33,7 +33,7 @@ return new class () extends Migration {
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('location_stock');
     }

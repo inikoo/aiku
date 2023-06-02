@@ -8,6 +8,8 @@
 namespace App\Actions\Inventory\Location;
 
 use App\Actions\HydrateModel;
+use App\Actions\Inventory\Location\Hydrators\LocationHydrateStocks;
+use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
 use App\Models\Inventory\Location;
 use Illuminate\Support\Collection;
 
@@ -18,28 +20,10 @@ class HydrateLocation extends HydrateModel
 
     public function handle(Location $location): void
     {
-        $this->stocks($location);
-        $this->value($location);
+        LocationHydrateStocks::run($location);
+        LocationHydrateStockValue::run($location);
     }
 
-    public function value(Location $location): void
-    {
-        $stockValue = $location->stocks->sum('value');
-
-        $location->stats->update([
-            'stock_value' => $stockValue
-        ]);
-    }
-
-    public function stocks(Location $location): void
-    {
-        $numberStockSlots = $location->stocks()->count();
-        $stats            = [
-            'number_stock_slots' => $numberStockSlots,
-        ];
-
-        $location->stats->update($stats);
-    }
 
 
 

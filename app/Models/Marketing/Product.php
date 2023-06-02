@@ -39,6 +39,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property ProductTypeEnum $type
  * @property string $owner_type
  * @property int $owner_id
+ * @property string $parent_type
+ * @property int $parent_id
  * @property int|null $current_historic_product_id
  * @property int|null $shop_id
  * @property ProductStateEnum|null $state

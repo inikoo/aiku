@@ -44,15 +44,10 @@ class UpdateProduct
     {
         return [
             'code'        => ['required', 'unique:tenant.products', 'between:2,9', 'alpha'],
-            'family_id'   => ['sometimes', 'required', 'exists:families,id'],
             'units'       => ['sometimes', 'required', 'numeric'],
-            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
             'price'       => ['sometimes', 'required', 'numeric'],
             'rrp'         => ['sometimes', 'required', 'numeric'],
             'name'        => ['required', 'max:250', 'string'],
-            'state'       => ['sometimes', 'required'],
-            'owner_id'    => ['required'],
-            'owner_type'  => ['required'],
             'description' => ['sometimes', 'required', 'max:1500'],
         ];
     }

@@ -22,8 +22,7 @@ return new class () extends Migration {
             $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
             $table->string('status')->index()->default(LocationStatusEnum::OPERATIONAL->value);
             $table->string('code', 64);
-            $table->decimal('unit_quantity')->default(0);
-            $table->decimal('value')->default(0);
+            $table->decimal('stock_value', 16)->default(0);
             $table->boolean('is_empty')->default(true);
             $table->jsonb('data');
             $table->dateTimeTz('audited_at')->nullable();

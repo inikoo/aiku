@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->increments('id');
@@ -29,7 +29,6 @@ return new class () extends Migration {
 
             $table->string('trade_unit_composition')->default(StockTradeUnitCompositionEnum::MATCH->value)->nullable();
             $table->string('state')->default(StockStateEnum::IN_PROCESS->value)->index();
-            $table->string('quantity_status')->nullable()->index();
             $table->boolean('sellable')->default(1)->index();
             $table->boolean('raw_material')->default(0)->index();
 
@@ -37,9 +36,13 @@ return new class () extends Migration {
             $table->text('description')->nullable();
             $table->unsignedInteger('units_per_pack')->nullable()->comment('units per pack');
             $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
-            $table->decimal('quantity', 16, 3)->nullable()->default(0)->comment('stock quantity in units');
+            $table->decimal('quantity_in_locations', 16, 3)->nullable()->default(0)->comment('stock quantity in units');
+            $table->string('quantity_status')->nullable()->index();
             $table->float('available_forecast')->nullable()->comment('days');
-            $table->decimal('value', 16)->nullable();
+            $table->unsignedSmallInteger('number_locations')->default(0);
+            $table->decimal('unit_value', 16)->nullable();
+            $table->decimal('value_in_locations', 16)->default(0);
+
             $table->unsignedBigInteger('image_id')->nullable();
             $table->jsonb('settings');
             $table->jsonb('data');
@@ -53,7 +56,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('stocks');
     }

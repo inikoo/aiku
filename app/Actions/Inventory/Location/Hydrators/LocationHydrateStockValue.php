@@ -19,9 +19,13 @@ class LocationHydrateStockValue implements ShouldBeUnique
 
     public function handle(Location $location): void
     {
-        $stockValue = $location->stocks()->sum('value');
+        $stockValue=0;
+        foreach($location->stocks as $stock) {
+            $stockValue+=$stock->pivot->quantity*$stock->unit_value;
+        }
 
-        $location->stats->update([
+
+        $location->update([
             'stock_value' => $stockValue
         ]);
 

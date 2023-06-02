@@ -10,22 +10,20 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('location_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('location_id')->index();
             $table->foreign('location_id')->references('id')->on('locations');
-
             $table->unsignedSmallInteger('number_stock_slots')->default(0);
             $table->unsignedSmallInteger('number_empty_stock_slots')->default(0);
-            $table->decimal('stock_value', 16)->default(0);
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('location_stats');
     }

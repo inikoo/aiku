@@ -17,8 +17,12 @@ return new class () extends Migration {
             $table->increments('id');
             $table->string('slug')->nullable()->index();
             $table->string('type')->index();
-            $table->morphs('owner');
-            $table->morphs('parent');
+
+            $table->unsignedInteger('owner_id');
+            $table->string('owner_type');
+            $table->unsignedInteger('parent_id');
+            $table->string('parent_type');
+
 
             $table->unsignedInteger('current_historic_product_id')->index()->nullable();
             $table->unsignedSmallInteger('shop_id')->nullable();
@@ -42,6 +46,8 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->index(['owner_id','owner_type']);
+            $table->index(['parent_id','parent_type']);
         });
     }
 

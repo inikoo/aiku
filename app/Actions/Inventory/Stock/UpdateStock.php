@@ -21,7 +21,6 @@ class UpdateStock
     {
         $stock = $this->update($stock, $modelData, ['data', 'settings']);
         StockHydrateUniversalSearch::dispatch($stock);
-        HydrateStock::run($stock);
 
         return $stock;
     }
@@ -30,11 +29,11 @@ class UpdateStock
     {
         return $request->user()->hasPermissionTo("inventory.stocks.edit");
     }
+
     public function rules(): array
     {
         return [
-            'code'     => ['sometimes', 'required'],
-            'quantity' => ['sometimes', 'required'],
+            'code' => ['sometimes', 'required'],
         ];
     }
 
@@ -42,6 +41,7 @@ class UpdateStock
     public function asController(Stock $stock, ActionRequest $request): Stock
     {
         $request->validate();
+
         return $this->handle($stock, $request->all());
     }
 

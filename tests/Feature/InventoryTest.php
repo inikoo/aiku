@@ -127,7 +127,6 @@ test('create location in warehouse area', function ($warehouseArea) {
 })->depends('create warehouse area');
 
 
-
 test('create stock families', function () {
     $stockFamily = StoreStockFamily::make()->action(StockFamily::factory()->definition());
     $this->assertModelExists($stockFamily);
@@ -136,8 +135,6 @@ test('create stock families', function () {
 });
 
 test('create stock', function () {
-
-
     $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
 
     $stock = StoreStock::make()->action(app('currentTenant'), Stock::factory()->definition());
@@ -153,7 +150,6 @@ test('create stock', function () {
 
     return $stock->fresh();
 });
-
 
 
 test('create another stock', function () {
@@ -172,7 +168,7 @@ test('create another stock', function () {
 });
 
 test('attach stock to location', function ($location) {
-    $stocks   = Stock::all();
+    $stocks = Stock::all();
     expect($stocks->count())->toBe(2);
     foreach ($stocks as $stock) {
         $location = AttachStockToLocation::run($location, $stock);
@@ -182,13 +178,10 @@ test('attach stock to location', function ($location) {
 })->depends('create location in warehouse area');
 
 
-
 test('detach stock from location', function ($location, $stock) {
-    $stock = DetachStockFromLocation::run($location, $stock);
+    DetachStockFromLocation::run($location, $stock);
     $location->refresh();
     expect($location->stats->number_stock_slots)->toBe(1);
-
-
 })->depends('create location in warehouse area', 'create stock');
 
 test('move stock location', function () {

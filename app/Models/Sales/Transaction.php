@@ -27,7 +27,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $id
  * @property int $shop_id
  * @property int $customer_id
- * @property int $order_id
+ * @property int|null $order_id
  * @property int|null $invoice_id
  * @property TransactionTypeEnum $type
  * @property TransactionStateEnum $state
@@ -50,7 +50,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \App\Models\Sales\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNoteItem> $deliveryNoteItems
  * @property-read Model|\Eloquent $item
- * @property-read \App\Models\Sales\Order $order
+ * @property-read \App\Models\Sales\Order|null $order
  * @property-write mixed $quantity
  * @property-read Shop $shop
  * @method static \Database\Factories\Sales\TransactionFactory factory($count = null, $state = [])

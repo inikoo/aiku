@@ -33,7 +33,10 @@ class StoreProduct
     {
 
         if(class_basename($parent)=='Shop') {
-            $modelData['shop_id']=$parent->id;
+            $modelData['shop_id']    =$parent->id;
+            $modelData['parent_id']  =$parent->id;
+            $modelData['parent_type']='Shop';
+
         } else {
             $modelData['shop_id']=$parent->shop_id;
 

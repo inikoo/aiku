@@ -25,6 +25,7 @@ class FetchAuroraStock extends FetchAurora
             'created_at'      => $this->parseDate($this->auroraModelData->{'Part Valid From'}),
             'activated_at'    => $this->parseDate($this->auroraModelData->{'Part Active From'}),
             'units_per_pack'  => $this->auroraModelData->{'Part Units Per Package'},
+            'unit_value'      => $this->auroraModelData->{'Part Cost in Warehouse'},
             'discontinued_at' =>
                 ($this->auroraModelData->{'Part Valid To'} && $this->auroraModelData->{'Part Status'} == 'Not In Use')
                     ? $this->parseDate($this->auroraModelData->{'Part Valid To'})
