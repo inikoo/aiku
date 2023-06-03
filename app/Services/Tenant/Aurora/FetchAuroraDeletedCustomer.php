@@ -49,20 +49,20 @@ class FetchAuroraDeletedCustomer extends FetchAurora
         $this->parsedData['customer'] =
             [
 
-                'name'                     => $auroraDeletedData->{'Customer Name'} ?? null,
-                'reference'                => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
-                'state'                    => $state,
-                'status'                   => $status,
-                'contact_name'             => $contactName,
-                'company_name'             => $name,
-                'email'                    => $this->auroraModelData->{'Customer Deleted Email'} ?? null,
-                'phone'                    => $auroraDeletedData->{'Customer Main Plain Mobile'} ?? null,
-                'identity_document_number' => $registrationNumber,
-                'website'                  => $auroraDeletedData->{'Customer Website'}              ?? null,
-                'created_at'               => $auroraDeletedData->{'Customer First Contacted Date'} ?? $this->auroraModelData->{'Customer Deleted Date'},
-                'deleted_at'               => $this->auroraModelData->{'Customer Deleted Date'},
-                'source_id'                => $this->auroraModelData->{'Customer Key'},
-                'data'                     => $data
+                'name'                             => $auroraDeletedData->{'Customer Name'} ?? null,
+                'reference'                        => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
+                'state'                            => $state,
+                'status'                           => $status,
+                'contact_name'                     => $contactName,
+                'company_name'                     => $name,
+                'email'                            => $this->auroraModelData->{'Customer Deleted Email'} ?? null,
+                'phone'                            => $auroraDeletedData->{'Customer Main Plain Mobile'} ?? null,
+                'identity_document_number'         => $registrationNumber,
+                'contact_website'                  => $auroraDeletedData->{'Customer Website'}              ?? null,
+                'created_at'                       => $auroraDeletedData->{'Customer First Contacted Date'}         ?? $this->auroraModelData->{'Customer Deleted Date'},
+                'deleted_at'                       => $this->auroraModelData->{'Customer Deleted Date'},
+                'source_id'                        => $this->auroraModelData->{'Customer Key'},
+                'data'                             => $data
 
             ];
 
