@@ -107,7 +107,7 @@ class StoreCustomer
             'email'                    => ['nullable', 'email'],
             'phone'                    => ['nullable', 'string'],
             'identity_document_number' => ['nullable', 'string'],
-            //'website'                   => ['nullable', 'active_url'],
+            'contact_website'          => ['nullable', 'active_url'],
         ];
     }
 
