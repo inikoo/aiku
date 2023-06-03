@@ -32,23 +32,25 @@ class UpdateProspect
         if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
 
     public function rules(): array
     {
         return [
-            'contact_name' => ['sometimes'],
-            'company_name' => ['sometimes'],
-            'phone'        => 'sometimes|phone:AUTO',
-            'website'      => ['sometimes', 'nullable', 'active_url'],
-            'email'        => ['sometimes', 'nullable', 'email'],
+            'contact_name'    => ['sometimes'],
+            'company_name'    => ['sometimes'],
+            'phone'           => 'sometimes|phone:AUTO',
+            'contact_website' => ['sometimes', 'nullable', 'active_url'],
+            'email'           => ['sometimes', 'nullable', 'email'],
         ];
     }
 
     public function asController(Prospect $prospect, ActionRequest $request): Prospect
     {
         $request->validate();
+
         return $this->handle($prospect, $request->all());
     }
 

@@ -20,7 +20,7 @@ class StoreProspect
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
     public function handle(Shop $shop, array $modelData, array $addressesData = []): Prospect
     {
@@ -29,31 +29,33 @@ class StoreProspect
         StoreAddressAttachToModel::run($prospect, $addressesData, ['scope' => 'contact']);
 
         ProspectHydrateUniversalSearch::dispatch($prospect);
+
         return $prospect;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
 
     public function rules(): array
     {
         return [
-            'contact_name'              => ['required', 'nullable', 'string', 'max:255'],
-            'company_name'              => ['required', 'nullable', 'string', 'max:255'],
-            'email'                     => ['required', 'nullable', 'email'],
-            'phone'                     => ['required', 'nullable', 'string'],
-            'website'                   => ['required', 'nullable', 'active_url'],
+            'contact_name'    => ['required', 'nullable', 'string', 'max:255'],
+            'company_name'    => ['required', 'nullable', 'string', 'max:255'],
+            'email'           => ['required', 'nullable', 'email'],
+            'phone'           => ['required', 'nullable', 'string'],
+            'contact_website' => ['required', 'nullable', 'active_url'],
         ];
     }
 
     public function action(Shop $shop, array $objectData, array $addressesData): Prospect
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 

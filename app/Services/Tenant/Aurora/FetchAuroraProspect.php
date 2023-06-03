@@ -23,15 +23,15 @@ class FetchAuroraProspect extends FetchAurora
 
         $this->parsedData['prospect'] =
             [
-                'state'        => $state,
-                'contact_name' => $this->auroraModelData->{'Prospect Main Contact Name'},
-                'company_name' => $this->auroraModelData->{'Prospect Company Name'},
-                'email'        => $this->auroraModelData->{'Prospect Main Plain Email'},
-                'phone'        => $this->auroraModelData->{'Prospect Main Plain Mobile'},
-                'website'      => $this->auroraModelData->{'Prospect Website'},
-                'source_id'    => $this->auroraModelData->{'Prospect Key'},
-                'created_at'   => $this->auroraModelData->{'Prospect First Contacted Date'},
-                'customer_id'  => $customer_id
+                'state'           => $state,
+                'contact_name'    => $this->auroraModelData->{'Prospect Main Contact Name'},
+                'company_name'    => $this->auroraModelData->{'Prospect Company Name'},
+                'email'           => $this->auroraModelData->{'Prospect Main Plain Email'},
+                'phone'           => $this->auroraModelData->{'Prospect Main Plain Mobile'},
+                'contact_website' => $this->auroraModelData->{'Prospect Website'},
+                'source_id'       => $this->auroraModelData->{'Prospect Key'},
+                'created_at'      => $this->auroraModelData->{'Prospect First Contacted Date'},
+                'customer_id'     => $customer_id
             ];
 
         $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Prospect Store Key'});

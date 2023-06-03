@@ -14,11 +14,11 @@ class ProspectFactory extends Factory
     public function definition(): array
     {
         return [
-            'contact_name'             => fake()->name,
-            'company_name'             => fake()->company,
-            'email'                    => fake()->email,
-            'phone'                    => fake()->phoneNumber,
-            'website'                  => fake()->url,
+            'contact_name'    => fake()->name,
+            'company_name'    => fake()->company,
+            'email'           => fake()->email,
+            'phone'           => fake()->phoneNumber,
+            'contact_website' => fake()->url,
         ];
     }
 }

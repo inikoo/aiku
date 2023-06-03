@@ -78,11 +78,11 @@ test('create shop', function () {
 
 test('create prospect', function ($shop) {
     $prospect = StoreProspect::make()->action($shop, [
-        'contact_name'  => 'check123',
-        'company_name'  => 'check123',
-        'email'         => 'test@gmail.com',
-        'phone'         => '+12345678',
-        'website'       => 'https://google.com'
+        'contact_name'          => 'check123',
+        'company_name'          => 'check123',
+        'email'                 => 'test@gmail.com',
+        'phone'                 => '+12345678',
+        'contact_website'       => 'https://google.com'
     ], Address::factory()->definition());
     $this->assertModelExists($prospect);
     return $prospect;
