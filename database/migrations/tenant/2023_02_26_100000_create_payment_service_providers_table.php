@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('type')->index();
             $table->string('code')->index();
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->jsonb('data');
             $table->dateTimeTz('last_used_at')->nullable();
             $table->timestampsTz();

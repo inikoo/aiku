@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('barcodes', function (Blueprint $table) {
             $table->id();
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('type');
             $table->string('status');
             $table->string('number');

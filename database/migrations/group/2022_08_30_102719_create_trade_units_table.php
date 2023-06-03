@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('trade_units', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();

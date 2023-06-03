@@ -17,7 +17,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->boolean('status');
-            $table->string('slug');
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('name');
             $table->softDeletesTz();
             $table->timestampsTz();

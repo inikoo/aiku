@@ -15,7 +15,7 @@ return new class () extends Migration {
     {
         Schema::create('web_users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('type')->index();
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');

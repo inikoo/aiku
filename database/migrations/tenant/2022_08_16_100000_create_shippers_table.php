@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('shippers', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
             $table->string('api_shipper')->nullable()->index();
             $table->boolean('status')->default('true')->index();

@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('webnodes', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->enum('type', ['structural', 'content'])->index();
             $table->string('locus')->unique()->nullable()->comment('for structural type, identification od the node');
             $table->unsignedSmallInteger('website_id')->index();

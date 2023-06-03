@@ -15,7 +15,7 @@ return new class () extends Migration {
     {
         Schema::create('guests', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->boolean('status')->index()->default(true);
             $table->string('type')->default(GuestTypeEnum::CONTRACTOR->value);
             $table->string('name', 256)->nullable()->index();

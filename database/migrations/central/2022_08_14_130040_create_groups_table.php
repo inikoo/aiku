@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('owner_id')->nullable()->comment('Tenant who owns this model');
             $table->ulid()->index();
-            $table->string('slug');
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code');
             $table->string('name');
             $table->unsignedSmallInteger('currency_id');

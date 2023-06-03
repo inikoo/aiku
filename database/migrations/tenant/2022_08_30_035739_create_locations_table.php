@@ -15,7 +15,7 @@ return new class () extends Migration {
     {
         Schema::create('locations', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->unsignedSmallInteger('warehouse_area_id')->nullable()->index();

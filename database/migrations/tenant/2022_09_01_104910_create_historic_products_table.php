@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->increments('id');
 
 
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->boolean('status')->index();
 
             $table->unsignedInteger('product_id')->index();

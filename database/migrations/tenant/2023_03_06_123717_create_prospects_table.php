@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id')->index()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('name', 256)->nullable()->collation('und_ns_ci_ai');
             $table = $this->contactFields(table: $table, withWebsite: true);
             $table->jsonb('location');

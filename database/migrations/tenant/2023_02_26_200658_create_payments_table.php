@@ -24,7 +24,7 @@ return new class () extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('type');
             $table->string('reference')->index();
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('status')->index()->default(PaymentStatusEnum::IN_PROCESS->value);
             $table->string('state')->index()->default(PaymentStateEnum::APPROVING->value);
             $table->string('subsequent_status')->index()->nullable();

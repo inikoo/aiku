@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->foreign('mailroom_id')->references('id')->on('mailrooms');
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('type')->index();
             $table->string('name');
             $table->string('state')->index()->default('in-process');

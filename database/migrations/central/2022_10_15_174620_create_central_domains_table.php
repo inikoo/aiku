@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('central_domains', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('website_id')->index();

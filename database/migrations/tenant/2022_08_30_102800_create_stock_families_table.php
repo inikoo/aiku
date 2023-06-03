@@ -15,7 +15,7 @@ return new class () extends Migration {
     {
         Schema::create('stock_families', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
             $table->string('state')->default(StockFamilyStateEnum::IN_PROCESS->value)->index();
             $table->string('name', 255)->nullable();

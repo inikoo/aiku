@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('shipments', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->nullable();
 
             $table->unsignedInteger('shipper_id')->index()->nullable();

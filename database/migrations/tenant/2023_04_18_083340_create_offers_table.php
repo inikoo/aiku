@@ -13,7 +13,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('offer_campaign_id')->index();
             $table->foreign('offer_campaign_id')->references('id')->on('offer_campaigns');
-            $table->string('slug');
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code');
             $table->string('name');
             $table->jsonb('data');

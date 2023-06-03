@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shipping_zone_schema_id')->index();
             $table->foreign('shipping_zone_schema_id')->references('id')->on('shipping_zone_schemas');
             $table->boolean('status');
-            $table->string('slug');
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code');
             $table->string('name');
             $table->jsonb('territories');

@@ -17,7 +17,7 @@ return new class () extends Migration {
 
         Schema::create('invoices', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('number')->index();
             $table=$this->salesTransactionParents($table);
             $table->string('type')->index();

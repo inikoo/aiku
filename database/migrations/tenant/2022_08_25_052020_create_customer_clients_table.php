@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('customer_clients', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('reference')->nullable()->index();
             $table->boolean('status')->default(true)->index();
             $table->unsignedSmallInteger('shop_id')->index()->nullable();

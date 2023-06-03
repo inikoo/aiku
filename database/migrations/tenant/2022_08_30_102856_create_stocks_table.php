@@ -16,7 +16,7 @@ return new class () extends Migration {
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
             $table->string('owner_type')->comment('Tenant|Customer');
             $table->unsignedInteger('owner_id');

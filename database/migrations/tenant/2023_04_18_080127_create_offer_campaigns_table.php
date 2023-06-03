@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->string('slug');
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code');
             $table->string('name');
             $table->jsonb('data');

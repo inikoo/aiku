@@ -17,7 +17,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups');
             $table->ulid()->index();
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
             $table->string('name');
             $table->string('email')->nullable();

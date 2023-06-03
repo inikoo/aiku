@@ -16,7 +16,7 @@ return new class () extends Migration {
     {
         Schema::create('supplier_deliveries', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedInteger('provider_id')->index();
             $table->string('provider_type');
             $table->string('number');
