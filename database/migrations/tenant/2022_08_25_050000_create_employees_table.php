@@ -20,9 +20,7 @@ return new class () extends Migration {
         Schema::create('employees', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
-
             $table=$this->contactFields(table:$table, withCompany: false, withPersonalDetails: true);
-
             $table->string('worker_number')->nullable()->collation('und_ns_ci');
             $table->string('job_title')->nullable()->collation('und_ns_ci_ai');
             $table->string('type')->default(EmployeeTypeEnum::EMPLOYEE->value);

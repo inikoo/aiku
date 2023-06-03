@@ -19,7 +19,7 @@ class FetchAuroraDeletedEmployee extends FetchAurora
 
         $this->parsedData['employee'] =
             [
-                'name'                     => $auDeletedModel->data->{'Staff Name'},
+                'contact_name'             => $auDeletedModel->data->{'Staff Name'},
                 'email'                    => $auDeletedModel->data->{'Staff Email'},
                 'phone'                    => $auDeletedModel->data->{'Staff Telephone'},
                 'identity_document_number' => $auDeletedModel->data->{'Staff Official ID'},

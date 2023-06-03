@@ -6,11 +6,14 @@
  */
 
 use App\Enums\Auth\GuestTypeEnum;
+use App\Stubs\Migrations\HasContact;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasContact;
+
     public function up(): void
     {
         Schema::create('guests', function (Blueprint $table) {
@@ -18,18 +21,11 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->boolean('status')->index()->default(true);
             $table->string('type')->default(GuestTypeEnum::CONTRACTOR->value);
-            $table->string('name', 256)->nullable()->index();
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('identity_document_type')->nullable();
-            $table->string('identity_document_number')->nullable()->collation('und_ns_ci');
-            $table->date('date_of_birth')->nullable();
-            $table->enum('gender', ['Make', 'Female', 'Other'])->nullable();
+            $table = $this->contactFields(table: $table, withPersonalDetails: true);
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
-
         });
     }
 

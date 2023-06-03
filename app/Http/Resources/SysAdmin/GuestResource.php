@@ -20,12 +20,12 @@ class GuestResource extends JsonResource
         $guest = $this;
 
         return [
-            'id'         => $guest->id,
-            'slug'       => $guest->slug,
-            'name'       => $guest->name,
-            'user'       => $guest->user?->only('username', 'status'),
-            'created_at' => $guest->created_at,
-            'updated_at' => $guest->updated_at,
+            'id'           => $guest->id,
+            'slug'         => $guest->slug,
+            'contact_name' => $guest->contact_name,
+            'user'         => $guest->user?->only('username', 'status'),
+            'created_at'   => $guest->created_at,
+            'updated_at'   => $guest->updated_at,
         ];
     }
 }

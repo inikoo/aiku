@@ -5,16 +5,19 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasAssetCodeDescription;
     public function up(): void
     {
         Schema::create('product_categories', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
+            $table = $this->assertCodeDescription($table);
             $table->unsignedBigInteger('image_id')->nullable();
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
@@ -23,9 +26,6 @@ return new class () extends Migration {
             $table->string('type')->index();
             $table->boolean('is_family')->default(false);
             $table->string('state')->nullable()->index();
-            $table->string('code')->index()->collation('und_ns');
-            $table->string('name', 255)->nullable()->collation('und_ns_ci_ai');
-            $table->text('description')->nullable()->collation('und_ns_ci_ai');
             $table->jsonb('data');
             $table->timestampstz();
             $table->softDeletesTz();
@@ -33,6 +33,7 @@ return new class () extends Migration {
             $table->unsignedInteger('source_family_id')->nullable()->unique();
             $table->index(['parent_id','parent_type']);
         });
+        DB::statement('CREATE INDEX ON product_categories USING gin (name gin_trgm_ops) ');
     }
 
 

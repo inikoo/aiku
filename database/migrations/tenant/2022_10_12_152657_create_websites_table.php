@@ -10,7 +10,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('websites', function (Blueprint $table) {
             $table->smallIncrements('id');
@@ -18,9 +18,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->enum('state', ['construction', 'live', 'maintenance', 'closed'])->default('construction')->index();
-            $table->string('code')->index();
-            $table->string('domain')->unique();
-            $table->string('name');
+            $table->string('code')->unique()->collation('und_ns_ci');
+            $table->string('domain')->unique()->collation('und_ns_ci');
+            $table->string('name')->unique()->collation('und_ns_ci_ai');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->jsonb('webnodes');
@@ -34,7 +34,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('websites');
     }

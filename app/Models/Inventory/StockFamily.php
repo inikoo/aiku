@@ -25,8 +25,8 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
- * @property string $code
  * @property StockFamilyStateEnum $state
+ * @property string $code
  * @property string|null $name
  * @property string|null $description
  * @property array $data

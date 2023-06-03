@@ -36,6 +36,9 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $description
  * @property ProductTypeEnum $type
  * @property int $owner_id
  * @property string $owner_type
@@ -46,9 +49,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property ProductStateEnum|null $state
  * @property bool|null $status
  * @property ProductTradeUnitCompositionEnum $trade_unit_composition
- * @property string $code
- * @property string|null $name
- * @property string|null $description
  * @property string|null $units units per outer
  * @property string $price unit price
  * @property string|null $rrp RRP per outer

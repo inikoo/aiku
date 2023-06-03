@@ -49,7 +49,7 @@ class ShowEmployee extends InertiaAction
                     'next'     => $this->getNext($employee, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $employee->name,
+                    'title' => $employee->contact_name,
                     'meta'  => [
                         [
                             'name'     => $employee->worker_number,
@@ -138,7 +138,7 @@ class ShowEmployee extends InertiaAction
         }
         return match ($routeName) {
             'hr.employees.show'=> [
-                'label'=> $employee->name,
+                'label'=> $employee->contact_name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [

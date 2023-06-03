@@ -51,7 +51,7 @@ class ShowGuest extends InertiaAction
                     'next'     => $this->getNext($guest, $request),
                 ],
                 'pageHead'    => [
-                    'title'     => $guest->name,
+                    'title'     => $guest->contact_name,
                     'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
@@ -138,7 +138,7 @@ class ShowGuest extends InertiaAction
         }
         return match ($routeName) {
             'sysadmin.guests.show'=> [
-                'label'=> $guest->name,
+                'label'=> $guest->contact_name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [

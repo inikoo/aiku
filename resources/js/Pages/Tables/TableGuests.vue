@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import JobPositionBadges from "@/Components/Elements/Badges/JobPositionBadges.vue";
 import { Guest } from "@/types/guest";
 
 const props = defineProps<{

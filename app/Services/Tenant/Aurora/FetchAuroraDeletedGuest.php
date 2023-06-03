@@ -13,30 +13,23 @@ class FetchAuroraDeletedGuest extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $auDeletedModel = json_decode(gzuncompress($this->auroraModelData->{'Staff Deleted Metadata'}));
-
-
+        $auDeletedModel            = json_decode(gzuncompress($this->auroraModelData->{'Staff Deleted Metadata'}));
         $this->parsedData['guest'] =
             [
-
                 'slug'                     => strtolower($auDeletedModel->data->{'Staff Alias'}),
-                'name'                     => $auDeletedModel->data->{'Staff Name'},
+                'contact_name'             => $auDeletedModel->data->{'Staff Name'},
                 'email'                    => $auDeletedModel->data->{'Staff Email'},
                 'phone'                    => $auDeletedModel->data->{'Staff Telephone'},
                 'identity_document_number' => $auDeletedModel->data->{'Staff Official ID'},
                 'date_of_birth'            => $this->parseDate($auDeletedModel->data->{'Staff Birthday'}),
                 'created_at'               => $this->parseDate($auDeletedModel->data->{'Staff Valid From'}),
-
-
-                'source_id'  => $auDeletedModel->data->{'Staff Key'},
-
-                'data' => [
+                'source_id'                => $auDeletedModel->data->{'Staff Key'},
+                'data'                     => [
                     'address' => $auDeletedModel->data->{'Staff Address'},
                 ],
-                'deleted_at' => $this->auroraModelData->{'Staff Deleted Date'}
+                'deleted_at'               => $this->auroraModelData->{'Staff Deleted Date'}
             ];
     }
-
 
     protected function fetchData($id): object|null
     {

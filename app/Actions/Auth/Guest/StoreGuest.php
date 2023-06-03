@@ -50,7 +50,7 @@ class StoreGuest
     public function rules(): array
     {
         return [
-            'name'                     => ['required', 'string', 'max:255'],
+            'contact_name'             => ['required', 'string', 'max:255'],
             'email'                    => ['nullable', 'email'],
             'phone'                    => ['nullable'],
             'identity_document_number' => ['nullable', 'string'],
@@ -93,7 +93,7 @@ class StoreGuest
 
         $this->fill([
             'type'                     => $command->argument('type'),
-            'name'                     => $command->argument('name'),
+            'contact_name'             => $command->argument('name'),
             'email'                    => $command->option('email'),
             'phone'                    => $command->option('phone'),
             'identity_document_number' => $command->option('identity_document_number'),
@@ -110,6 +110,7 @@ class StoreGuest
 
         return 0;
     }
+
     public function htmlResponse(Guest $guest): RedirectResponse
     {
         return Redirect::route('sysadmin.guests.show', $guest->slug);

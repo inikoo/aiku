@@ -6,16 +6,19 @@
  */
 
 use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
+use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasAssetCodeDescription;
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug')->unique()->collation('und_ns');
+            $table = $this->assertCodeDescription($table);
             $table->string('type')->index();
             $table->unsignedInteger('owner_id');
             $table->string('owner_type');
@@ -27,9 +30,6 @@ return new class () extends Migration {
             $table->string('state')->nullable()->index();
             $table->boolean('status')->nullable()->index();
             $table->string('trade_unit_composition')->default(ProductTradeUnitCompositionEnum::MATCH->value);
-            $table->string('code')->index()->collation('und_ns_ci');
-            $table->string('name', 255)->nullable()->collation('und_ns_ci_ai');
-            $table->text('description')->nullable()->collation('und_ns_ci_ai');
             $table->unsignedDecimal('units', 12, 3)->nullable()->comment('units per outer');
             $table->unsignedDecimal('price', 18)->comment('unit price');
             $table->unsignedDecimal('rrp', 12, 3)->nullable()->comment('RRP per outer');

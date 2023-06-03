@@ -33,6 +33,9 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $description
  * @property int|null $image_id
  * @property int|null $shop_id
  * @property int $parent_id
@@ -40,9 +43,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $type
  * @property bool $is_family
  * @property ProductCategoryStateEnum|null $state
- * @property string $code
- * @property string|null $name
- * @property string|null $description
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

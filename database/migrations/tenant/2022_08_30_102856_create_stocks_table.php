@@ -7,17 +7,19 @@
 
 use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
+use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasAssetCodeDescription;
     public function up(): void
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('code')->index();
+            $table = $this->assertCodeDescription($table);
             $table->string('owner_type')->comment('Tenant|Customer');
             $table->unsignedInteger('owner_id');
             $table->index([
@@ -26,14 +28,11 @@ return new class () extends Migration {
             ]);
             $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
-
             $table->string('trade_unit_composition')->default(StockTradeUnitCompositionEnum::MATCH->value)->nullable();
             $table->string('state')->default(StockStateEnum::IN_PROCESS->value)->index();
             $table->boolean('sellable')->default(1)->index();
             $table->boolean('raw_material')->default(0)->index();
-
             $table->string('barcode')->index()->nullable();
-            $table->text('description')->nullable();
             $table->unsignedInteger('units_per_pack')->nullable()->comment('units per pack');
             $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
             $table->decimal('quantity_in_locations', 16, 3)->nullable()->default(0)->comment('stock quantity in units');
@@ -42,7 +41,6 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_locations')->default(0);
             $table->decimal('unit_value', 16)->nullable();
             $table->decimal('value_in_locations', 16)->default(0);
-
             $table->unsignedBigInteger('image_id')->nullable();
             $table->jsonb('settings');
             $table->jsonb('data');
@@ -53,6 +51,8 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
         });
+        DB::statement('CREATE INDEX ON stocks USING gin (name gin_trgm_ops) ');
+
     }
 
 

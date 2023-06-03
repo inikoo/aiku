@@ -39,7 +39,7 @@ class UpdateGuest
     public function rules(): array
     {
         return [
-            'name'                     => ['sometimes', 'required', 'string', 'max:255'],
+            'contact_name'             => ['sometimes', 'required', 'string', 'max:255'],
             'email'                    => ['sometimes', 'nullable', 'email', 'max:255'],
             'phone'                    => ['sometimes', 'nullable', 'string'],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
@@ -64,7 +64,6 @@ class UpdateGuest
         $validatedData = $this->validateAttributes();
 
         return $this->handle($guest, $validatedData);
-
     }
 
     public function jsonResponse(Guest $guest): GuestResource

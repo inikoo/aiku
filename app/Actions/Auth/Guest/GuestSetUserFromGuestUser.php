@@ -61,7 +61,7 @@ class GuestSetUserFromGuestUser
 
         $user = $this->handle($guest, $groupUser);
 
-        $command->info("User <fg=yellow>$user->username</> for guest <fg=yellow>$guest->name</> created in <fg=yellow>$tenant->slug</> 👍");
+        $command->info("User <fg=yellow>$user->username</> for guest <fg=yellow>$guest->contact_name</> created in <fg=yellow>$tenant->slug</> 👍");
 
         return 0;
     }

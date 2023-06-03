@@ -41,7 +41,7 @@ class EditEmployee extends InertiaAction
                 'title'       => __('employee'),
                 'breadcrumbs' => $this->getBreadcrumbs($employee),
                 'pageHead'    => [
-                    'title'    => $employee->name,
+                    'title'    => $employee->contact_name,
                     'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
@@ -59,7 +59,7 @@ class EditEmployee extends InertiaAction
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
-                                    'value' => $employee->name
+                                    'value' => $employee->contact_name
                                 ],
                                 'date_of_birth' => [
                                     'type'  => 'date',

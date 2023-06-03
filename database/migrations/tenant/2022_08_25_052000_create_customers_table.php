@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedBigInteger('image_id')->nullable();
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('reference')->nullable()->comment('customer public id');
+            $table->string('reference')->nullable()->collation('und_ns_ci')->comment('customer public id');
             $table->string('name', 256)->nullable()->collation('und_ns_ci_ai');
             $table = $this->contactFields(table: $table, withWebsite: true);
             $table->jsonb('location');
@@ -38,6 +38,9 @@ return new class () extends Migration {
             $table->unsignedInteger('source_id')->nullable()->unique();
             $table->unique(['shop_id', 'reference']);
         });
+        DB::statement('CREATE INDEX ON customers USING gin (name gin_trgm_ops) ');
+        DB::statement('CREATE INDEX ON customers USING gin (reference gin_trgm_ops) ');
+
     }
 
 

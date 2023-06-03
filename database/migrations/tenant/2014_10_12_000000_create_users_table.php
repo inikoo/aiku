@@ -16,16 +16,18 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_user_id');
             $table->boolean('status')->default(true);
-            $table->string('username')->unique()->comment('mirror group_users.username');
+            $table->string('username')->unique()->collation('und_ns_ci')->comment('mirror group_users.username');
             $table->string('password')->comment('mirror group_users.password');
-            $table->string('email')->nullable()->comment('mirror group_users.email');
-            $table->nullableMorphs('parent');
+            $table->string('email')->nullable()->collation('und_ns_ci')->comment('mirror group_users.email');
+            $table->unsignedInteger('parent_id')->nullable();
+            $table->string('parent_type')->nullable();
             $table->rememberToken();
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->unique(['parent_type','parent_id']);
 
         });
     }

@@ -31,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property SupplierProductTradeUnitCompositionEnum|null $trade_unit_composition
- * @property string|null $slug
+ * @property string $slug
  * @property int|null $current_historic_supplier_product_id
  * @property int|null $image_id
  * @property int|null $supplier_id

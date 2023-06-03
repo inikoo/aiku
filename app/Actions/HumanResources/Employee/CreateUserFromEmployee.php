@@ -126,7 +126,7 @@ class CreateUserFromEmployee
                         [
                             $user->username,
                             $password,
-                            $employee->name,
+                            $employee->contact_name,
                             $user->getRoleNames()->implode(',')
                         ],
 

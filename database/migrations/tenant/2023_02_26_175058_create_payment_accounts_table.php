@@ -10,16 +10,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('payment_accounts', function (Blueprint $table) {
             $table->smallIncrements('id');
-
             $table->unsignedInteger('payment_service_provider_id')->index();
             $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
-            $table->string('code')->index();
+            $table->string('code')->index()->collation('und_ns_ci');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('name')->index();
+            $table->string('name')->index()->collation('und_ns_ci_ai');
             $table->jsonb('data');
             $table->dateTimeTz('last_used_at')->nullable();
             $table->timestampsTz();
@@ -29,7 +28,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('payment_accounts');
     }

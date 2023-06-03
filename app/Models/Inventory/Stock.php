@@ -36,6 +36,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property string $code
+ * @property string|null $name
+ * @property string|null $description
  * @property string $owner_type Tenant|Customer
  * @property int $owner_id
  * @property int|null $stock_family_id
@@ -44,7 +46,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $sellable
  * @property bool $raw_material
  * @property \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
- * @property string|null $description
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton
  * @property string|null $quantity_in_locations stock quantity in units

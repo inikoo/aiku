@@ -6,29 +6,30 @@
  */
 
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
+use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    use HasAssetCodeDescription;
+    public function up(): void
     {
         Schema::create('stock_families', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('code')->index();
             $table->string('state')->default(StockFamilyStateEnum::IN_PROCESS->value)->index();
-            $table->string('name', 255)->nullable();
-            $table->text('description')->nullable();
+            $table = $this->assertCodeDescription($table);
             $table->jsonb('data');
             $table->timestampstz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
         });
+        DB::statement('CREATE INDEX ON stock_families USING gin (name gin_trgm_ops) ');
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('stock_families');
     }

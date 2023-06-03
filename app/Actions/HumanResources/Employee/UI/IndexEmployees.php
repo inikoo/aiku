@@ -28,9 +28,8 @@ class IndexEmployees extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.name', 'ILIKE', "%$value%")
-                    ->orWhere('employees.slug', 'ILIKE', "%$value%")
-                    ->orWhere('employees.state', 'ILIKE', "%$value%");
+                $query->where('employees.contact_name', 'ILIKE', "%$value%")
+                    ->orWhere('employees.slug', 'ILIKE', "%$value%");
             });
         });
 
@@ -38,10 +37,10 @@ class IndexEmployees extends InertiaAction
 
         return QueryBuilder::for(Employee::class)
             ->defaultSort('employees.slug')
-            ->select(['slug', 'id', 'worker_number', 'name', 'state'])
+            ->select(['slug', 'id', 'worker_number', 'contact_name', 'state'])
             ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'name'])
-            ->allowedFilters([$globalSearch, 'slug', 'name', 'state'])
+            ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
@@ -57,7 +56,7 @@ class IndexEmployees extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_positions', label: __('position'), canBeHidden: false)
                 ->column(key: 'state', label: __('state'), canBeHidden: false)
                 ->column(key: 'actions', label: __('actions'))
@@ -83,7 +82,7 @@ class IndexEmployees extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees)
+    public function htmlResponse(LengthAwarePaginator $employees): \Inertia\Response
     {
         return Inertia::render(
             'HumanResources/Employees',

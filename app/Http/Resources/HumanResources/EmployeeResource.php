@@ -23,6 +23,7 @@ class EmployeeResource extends JsonResource
         return [
             'id'                  => $employee->id,
             'slug'                => $employee->slug,
+            'contact_name'        => $employee->contact_name,
             'worker_number'       => $employee->worker_number,
             'state'               => $employee->state,
             'employment_start_at' => $employee->employment_start_at,

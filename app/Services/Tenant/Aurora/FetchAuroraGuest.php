@@ -39,7 +39,7 @@ class FetchAuroraGuest extends FetchAurora
         $this->parsedData['guest'] = [
 
             'slug'                     => strtolower($this->auroraModelData->{'Staff Alias'}),
-            'name'                     => $this->auroraModelData->{'Staff Name'},
+            'contact_name'             => $this->auroraModelData->{'Staff Name'},
             'email'                    => $this->auroraModelData->{'Staff Email'},
             'phone'                    => $this->auroraModelData->{'Staff Telephone'},
             'identity_document_number' => $this->auroraModelData->{'Staff Official ID'},

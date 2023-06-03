@@ -49,7 +49,7 @@ class EditGuest extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'title'     => $guest->name,
+                    'title'     => $guest->contact_name,
                     'exitEdit'  => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
@@ -68,7 +68,7 @@ class EditGuest extends InertiaAction
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
-                                    'value' => $guest->name
+                                    'value' => $guest->contact_name
                                 ],
                                 'email' => [
                                     'type'  => 'input',

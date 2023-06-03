@@ -78,11 +78,11 @@ test('create guest', function () {
 });
 
 test('update guest', function ($guest) {
-    $guest = UpdateGuest::make()->action($guest, ['name' => 'Pika']);
-    expect($guest->name)->toBe('Pika');
+    $guest = UpdateGuest::make()->action($guest, ['contact_name' => 'Pika']);
+    expect($guest->contact_name)->toBe('Pika');
 
-    $guest = UpdateGuest::make()->action($guest, ['name' => 'Aiku']);
-    expect($guest->name)->toBe('Aiku');
+    $guest = UpdateGuest::make()->action($guest, ['contact_name' => 'Aiku']);
+    expect($guest->contact_name)->toBe('Aiku');
 })->depends('create guest');
 
 test('create user for guest', function ($guest) {
