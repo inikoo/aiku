@@ -6,11 +6,13 @@
  */
 
 use App\Enums\Leads\Prospect\ProspectStateEnum;
+use App\Stubs\Migrations\HasContact;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasContact;
     public function up(): void
     {
         Schema::create('prospects', function (Blueprint $table) {
@@ -20,12 +22,8 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_id')->index()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('slug')->unique();
-            $table->string('name', 256)->nullable()->fulltext();
-            $table->string('contact_name', 256)->nullable()->index()->fulltext();
-            $table->string('company_name', 256)->nullable();
-            $table->string('email')->nullable()->fulltext();
-            $table->string('phone')->nullable();
-            $table->string('website', 256)->nullable();
+            $table->string('name', 256)->nullable()->collation('und_ns_ci_ai');
+            $table = $this->contactFields(table: $table, withWebsite: true);
             $table->jsonb('location');
             $table->string('state')->index()->default(ProspectStateEnum::NO_CONTACTED->value);
             $table->jsonb('data');
