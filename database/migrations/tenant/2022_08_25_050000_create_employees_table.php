@@ -5,49 +5,47 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
+use App\Stubs\Migrations\HasContact;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    use HasContact;
+
+    public function up(): void
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->collation('und_ns');
 
-            $table->string('name', 256)->nullable()->index();
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('identity_document_type')->nullable();
-            $table->string('identity_document_number')->nullable();
-            $table->date('date_of_birth')->nullable();
-            $table->string('gender')->nullable();
+            $table=$this->contactFields(table:$table, withCompany: false, withPersonalDetails: true);
 
-            $table->string('worker_number')->nullable();
-            $table->string('job_title')->nullable();
-
-            $table->string('type')->default('employee');
-            $table->string('state')->default('working');
+            $table->string('worker_number')->nullable()->collation('und_ns_ci');
+            $table->string('job_title')->nullable()->collation('und_ns_ci_ai');
+            $table->string('type')->default(EmployeeTypeEnum::EMPLOYEE->value);
+            $table->string('state')->default(EmployeeStateEnum::WORKING->value);
             $table->date('employment_start_at')->nullable();
             $table->date('employment_end_at')->nullable();
-            $table->string('emergency_contact', 1024)->nullable();
+            $table->string('emergency_contact', 1024)->nullable()->collation('und_ns_ci_ai');
             $table->jsonb('salary')->nullable();
             $table->jsonb('working_hours')->nullable();
             $table->decimal('week_working_hours', 4)->default(0);
-
             $table->jsonb('data');
             $table->jsonb('job_position_scopes');
-
             $table->jsonb('errors');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
         });
+
+        DB::statement('CREATE INDEX ON employees USING gin (contact_name gin_trgm_ops) ');
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('employees');
     }

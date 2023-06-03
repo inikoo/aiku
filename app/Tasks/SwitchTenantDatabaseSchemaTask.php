@@ -37,7 +37,7 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
     /**
      * @throws \Spatie\Multitenancy\Exceptions\InvalidConfiguration
      */
-    protected function setTenantConnectionDatabaseName(?string $databaseName, ?string $groupSearchPath)
+    protected function setTenantConnectionDatabaseName(?string $databaseName, ?string $groupSearchPath): void
     {
         $tenantConnectionName = $this->tenantDatabaseConnectionName();
 
@@ -51,14 +51,13 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
 
 
         config([
-                   "database.connections.$tenantConnectionName.search_path" => $databaseName,
-                   "database.connections.group.search_path"                 => $groupSearchPath
+                   "database.connections.$tenantConnectionName.search_path" => $databaseName.' , extensions',
+                   "database.connections.group.search_path"                 => $groupSearchPath.' , extensions'
 
         ]);
-
         app('db')->extend($tenantConnectionName, function ($config, $name) use ($databaseName) {
-            $config['search_path'] = $databaseName;
 
+            $config['search_path'] = $databaseName.' , extensions';
             return app('db.factory')->make($config, $name);
         });
 

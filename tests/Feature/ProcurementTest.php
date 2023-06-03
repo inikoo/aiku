@@ -10,7 +10,7 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Procurement\Agent\ChangeAgentOwner;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
-use App\Actions\Procurement\Agent\UpdateAgentVisibility;
+use App\Actions\Procurement\Agent\UpdateAgentIsPrivate;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -85,6 +85,7 @@ beforeEach(function () {
 test('create agent', function () {
     $agent = StoreAgent::make()->action(app('currentTenant'), Agent::factory()->definition(), Address::factory()->definition());
     $this->assertModelExists($agent);
+
     return $agent;
 });
 
@@ -116,16 +117,13 @@ test('check if agent not match with tenant', function ($agent) {
     expect($agent)->toBeNull();
 })->depends('create agent');
 
-test('cant change agent visibility to private', function ($agent) {
-    expect(function () use ($agent) {
-        UpdateAgentVisibility::make()->action($agent, false);
-    })->toThrow(ValidationException::class);
-})->depends('create agent');
 
-test('change agent visibility to public', function ($agent) {
-    $agent = UpdateAgentVisibility::make()->action($agent->first(), false);
-
-    $this->assertModelExists($agent);
+test('change agent visibility', function ($agent) {
+    expect($agent->is_private)->toBeFalsy();
+    $agent = UpdateAgentIsPrivate::run($agent, true);
+    expect($agent->is_private)->toBeTrue();
+    $agent = UpdateAgentIsPrivate::run($agent, false);
+    expect($agent->is_private)->toBeFalse();
 })->depends('create agent');
 
 test('change agent owner', function ($agent) {
@@ -171,6 +169,7 @@ test('create supplier in agent', function ($agent) {
     $agent->refresh();
     expect($supplier)->toBeInstanceOf(Supplier::class)
         ->and($agent->stats->number_suppliers)->toBe(1);
+
     return $supplier;
 })->depends('create agent');
 
@@ -214,6 +213,7 @@ test('create purchase order independent supplier', function ($supplier) {
 
     expect($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class)
         ->and($supplier->stats->number_purchase_orders)->toBe(1);
+
     return $purchaseOrder;
 })->depends('create independent supplier');
 
@@ -232,7 +232,6 @@ test('add items to purchase order', function ($purchaseOrder) {
 
 
 test('delete purchase order', function () {
-
     $supplier = StoreSupplier::make()->action(app('currentTenant'), Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
     StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
 
@@ -240,9 +239,9 @@ test('delete purchase order', function () {
 
 
     expect($supplier->stats->number_purchase_orders)->toBe(1);
-    $purchaseOrderDeleted=false;
+    $purchaseOrderDeleted = false;
     try {
-        $purchaseOrderDeleted= DeletePurchaseOrder::make()->action($purchaseOrder->fresh());
+        $purchaseOrderDeleted = DeletePurchaseOrder::make()->action($purchaseOrder->fresh());
     } catch (ValidationException) {
     }
     $supplier->refresh();
@@ -251,8 +250,7 @@ test('delete purchase order', function () {
 });
 
 test('update quantity items to 0 in purchase order', function ($purchaseOrder) {
-
-    $item=$purchaseOrder->items()->first();
+    $item = $purchaseOrder->items()->first();
 
     $item = UpdatePurchaseOrderItemQuantity::make()->action($item, [
         'unit_quantity' => 0
@@ -260,19 +258,15 @@ test('update quantity items to 0 in purchase order', function ($purchaseOrder) {
 
     $this->assertModelMissing($item);
     expect($purchaseOrder->items()->count())->toBe(4);
-
-
-
 })->depends('add items to purchase order');
 
 test('update quantity items in purchase order', function ($purchaseOrder) {
-    $item=$purchaseOrder->items()->first();
+    $item = $purchaseOrder->items()->first();
 
     $item = UpdatePurchaseOrderItemQuantity::make()->action($item, [
         'unit_quantity' => 12
     ]);
     expect($item)->toBeInstanceOf(PurchaseOrderItem::class)->and($item->unit_quantity)->toBe(12);
-
 })->depends('add items to purchase order');
 
 test('sync supplier product and trade units', function ($supplier) {
@@ -297,6 +291,7 @@ test('change state to submit purchase order', function ($purchaseOrder) {
     } catch (ValidationException) {
     }
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SUBMITTED);
+
     return $purchaseOrder;
 })->depends('add items to purchase order');
 
@@ -306,6 +301,7 @@ test('change state to confirm purchase order', function ($purchaseOrder) {
     } catch (ValidationException) {
     }
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CONFIRMED);
+
     return $purchaseOrder;
 })->depends('change state to submit purchase order');
 
@@ -315,6 +311,7 @@ test('change state to manufactured purchase order', function ($purchaseOrder) {
     } catch (ValidationException) {
     }
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::MANUFACTURED);
+
     return $purchaseOrder;
 })->depends('create purchase order independent supplier');
 
@@ -324,6 +321,7 @@ test('change state to dispatched from manufacture purchase order', function ($pu
     } catch (ValidationException) {
     }
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::DISPATCHED);
+
     return $purchaseOrder;
 })->depends('change state to confirm purchase order');
 
@@ -333,6 +331,7 @@ test('change state to received from dispatch purchase order', function ($purchas
     } catch (ValidationException) {
     }
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::RECEIVED);
+
     return $purchaseOrder;
 })->depends('change state to manufactured purchase order');
 
@@ -342,12 +341,14 @@ test('change state to checked from received purchase order', function ($purchase
     } catch (ValidationException) {
     }
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CHECKED);
+
     return $purchaseOrder;
 })->depends('change state to received from dispatch purchase order');
 
 test('change state to settled from checked purchase order', function ($purchaseOrder) {
     $purchaseOrder = UpdateStateToSettledPurchaseOrder::make()->action($purchaseOrder);
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SETTLED);
+
     return $purchaseOrder;
 })->depends('change state to checked from received purchase order');
 

@@ -41,8 +41,8 @@ class StoreEmployee
     public function rules(): array
     {
         return [
-            'name'          => ['required', 'max:255'],
-            'date_of_birth' => ['nullable', 'date', 'before_or_equal:today'],
+            'contact_name'          => ['required', 'max:255'],
+            'date_of_birth'         => ['nullable', 'date', 'before_or_equal:today'],
 
             //   'email'         => ['sometimes', 'email'],
         ];

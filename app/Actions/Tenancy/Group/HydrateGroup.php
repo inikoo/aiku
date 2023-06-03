@@ -40,7 +40,7 @@ class HydrateGroup extends HydrateModel
         }
 
         $database_settings = data_get(config('database.connections'), 'group');
-        data_set($database_settings, 'search_path', $group->schema());
+        data_set($database_settings, 'search_path', $group->schema().' , extensions');
         config(['database.connections.group' => $database_settings]);
         DB::connection('group');
         DB::purge('group');

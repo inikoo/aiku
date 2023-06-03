@@ -36,7 +36,7 @@ class StoreGroup
         DB::statement("CREATE SCHEMA $dbSchema");
 
         $database_settings = data_get(config('database.connections'), 'group');
-        data_set($database_settings, 'search_path', $dbSchema);
+        data_set($database_settings, 'search_path', $dbSchema.', extensions');
         config(['database.connections.group' => $database_settings]);
         DB::connection('group');
         DB::purge('group');

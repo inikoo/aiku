@@ -14,28 +14,24 @@ return new class () extends Migration {
     {
         Schema::create('product_categories', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique();
-            $table->string('code')->index();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedBigInteger('image_id')->nullable();
-
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-
-            $table->morphs('parent');
+            $table->unsignedInteger('parent_id');
+            $table->string('parent_type');
             $table->string('type')->index();
             $table->boolean('is_family')->default(false);
-
             $table->string('state')->nullable()->index();
-            $table->string('name', 255)->nullable();
-            $table->text('description')->nullable();
+            $table->string('code')->index()->collation('und_ns');
+            $table->string('name', 255)->nullable()->collation('und_ns_ci_ai');
+            $table->text('description')->nullable()->collation('und_ns_ci_ai');
             $table->jsonb('data');
-
-
             $table->timestampstz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_department_id')->nullable()->unique();
             $table->unsignedInteger('source_family_id')->nullable()->unique();
-
+            $table->index(['parent_id','parent_type']);
         });
     }
 

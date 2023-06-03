@@ -7,16 +7,16 @@
 
 use App\Enums\Sales\Customer\CustomerStateEnum;
 use App\Enums\Sales\Customer\CustomerTradeStateEnum;
+use App\Stubs\Migrations\HasContact;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasContact;
+
     public function up(): void
     {
-
-
-
         Schema::create('customers', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
@@ -25,24 +25,18 @@ return new class () extends Migration {
             $table->string('slug')->unique();
             $table->string('reference')->nullable()->comment('customer public id');
             $table->string('name', 256)->nullable()->fulltext()->collation('und_ns_ci_ai');
-            $table->string('contact_name', 256)->nullable()->index()->fulltext();
-            $table->string('company_name', 256)->nullable();
-            $table->string('email')->nullable()->fulltext()->collation('und_ns_ci');
-            $table->string('phone')->nullable();
-            $table->string('identity_document_number')->nullable();
-            $table->string('website', 256)->nullable();
+            $table = $this->contactFields(table: $table, withWebsite: true);
             $table->jsonb('location');
             $table->string('status')->index();
             $table->string('state')->index()->default(CustomerStateEnum::IN_PROCESS->value);
             $table->string('trade_state')->index()->default(CustomerTradeStateEnum::NONE->value)->comment('number of invoices');
             $table->boolean('is_fulfilment')->index()->default(false);
             $table->boolean('is_dropshipping')->index()->default(false);
-
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
-            $table->unique(['shop_id','reference']);
+            $table->unique(['shop_id', 'reference']);
         });
     }
 

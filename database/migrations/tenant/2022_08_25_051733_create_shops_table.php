@@ -11,19 +11,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('shops', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique()->nullable();
-            $table->string('code')->unique();
-            $table->string('name');
-            $table->string('company_name', 256)->nullable();
-            $table->string('contact_name', 256)->nullable();
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
+            $table->string('slug')->unique()->collation('und_ns');
+            $table->string('code')->unique()->collation('und_ns_ci');
+            $table->string('name')->collation('und_ns_ci_ai');
+            $table->string('company_name', 256)->nullable()->collation('und_ns_ci_ai');
+            $table->string('contact_name', 256)->nullable()->collation('und_ns_ci_ai');
+            $table->string('email')->nullable()->collation('und_ns_ci');
+            $table->string('phone')->nullable()->collation('und_ns');
             $table->string('identity_document_type')->nullable();
-            $table->string('identity_document_number')->nullable();
+            $table->string('identity_document_number')->nullable()->collation('und_ns_ci');
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
@@ -48,7 +48,7 @@ return new class () extends Migration {
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('shops');
     }

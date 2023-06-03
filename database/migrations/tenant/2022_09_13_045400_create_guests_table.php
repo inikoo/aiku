@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('identity_document_type')->nullable();
-            $table->string('identity_document_number')->nullable();
+            $table->string('identity_document_number')->nullable()->collation('und_ns_ci');
             $table->date('date_of_birth')->nullable();
             $table->enum('gender', ['Make', 'Female', 'Other'])->nullable();
             $table->jsonb('data');
