@@ -21,7 +21,7 @@ class EmployeeHydrateUniversalSearch implements ShouldBeUnique
     {
         $employee->universalSearch()->create(
             [
-                'primary_term'   => $employee->name,
+                'primary_term'   => $employee->contact_name,
                 'secondary_term' => $employee->email
             ]
         );

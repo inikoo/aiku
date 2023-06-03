@@ -36,16 +36,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $type sub-supplier: agents supplier
  * @property int|null $agent_id
  * @property bool $status
+ * @property bool $is_private
  * @property string $slug
  * @property string $code
- * @property string $owner_type
  * @property int $owner_id
- * @property string $name
+ * @property string $owner_type
+ * @property string|null $name
  * @property int|null $image_id
- * @property string|null $company_name
  * @property string|null $contact_name
+ * @property string|null $company_name
  * @property string|null $email
  * @property string|null $phone
+ * @property string|null $identity_document_type
+ * @property string|null $identity_document_number
+ * @property string|null $contact_website
  * @property int|null $address_id
  * @property array $location
  * @property int $currency_id

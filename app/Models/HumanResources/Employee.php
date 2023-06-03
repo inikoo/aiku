@@ -33,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
- * @property string|null $name
+ * @property string|null $contact_name
  * @property string|null $email
  * @property string|null $phone
  * @property string|null $identity_document_type

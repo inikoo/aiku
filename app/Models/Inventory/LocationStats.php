@@ -19,7 +19,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $location_id
  * @property int $number_stock_slots
  * @property int $number_empty_stock_slots
- * @property string $stock_value
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Inventory\Location $location

@@ -54,8 +54,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $company_name
  * @property string|null $email
  * @property string|null $phone
+ * @property string|null $identity_document_type
  * @property string|null $identity_document_number
- * @property string|null $website
+ * @property string|null $contact_website
  * @property array $location
  * @property CustomerStatusEnum $status
  * @property CustomerStateEnum $state

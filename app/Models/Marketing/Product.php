@@ -35,12 +35,12 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Marketing\Product
  *
  * @property int $id
- * @property string|null $slug
+ * @property string $slug
  * @property ProductTypeEnum $type
- * @property string $owner_type
  * @property int $owner_id
- * @property string $parent_type
+ * @property string $owner_type
  * @property int $parent_id
+ * @property string $parent_type
  * @property int|null $current_historic_product_id
  * @property int|null $shop_id
  * @property ProductStateEnum|null $state

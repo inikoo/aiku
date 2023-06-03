@@ -31,19 +31,23 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\Agent
  *
  * @property int $id
- * @property int $owner_id Tenant who owns this model
  * @property bool $status
+ * @property bool $is_private
  * @property string $slug
  * @property string $code
- * @property string $name
- * @property string|null $company_name
+ * @property int $owner_id
+ * @property string $owner_type
+ * @property string|null $name
+ * @property int|null $image_id
  * @property string|null $contact_name
+ * @property string|null $company_name
  * @property string|null $email
  * @property string|null $phone
- * @property bool $is_private
+ * @property string|null $identity_document_type
+ * @property string|null $identity_document_number
+ * @property string|null $contact_website
  * @property int|null $address_id
  * @property array $location
- * @property int|null $image_id
  * @property int $currency_id
  * @property array $settings
  * @property array $shared_data
@@ -56,7 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\GroupAddress> $addresses
  * @property-read Currency $currency
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
- * @property-read Tenant $owner
+ * @property-read Tenant|null $owner
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\AgentStats|null $stats

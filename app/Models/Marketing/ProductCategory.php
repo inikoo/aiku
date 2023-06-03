@@ -33,14 +33,14 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
- * @property string $code
  * @property int|null $image_id
  * @property int|null $shop_id
- * @property string $parent_type
  * @property int $parent_id
+ * @property string $parent_type
  * @property string $type
  * @property bool $is_family
  * @property ProductCategoryStateEnum|null $state
+ * @property string $code
  * @property string|null $name
  * @property string|null $description
  * @property array $data
