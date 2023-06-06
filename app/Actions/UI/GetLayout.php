@@ -8,7 +8,9 @@
 namespace App\Actions\UI;
 
 use App\Http\Resources\UI\ShopsNavigationResource;
+use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Models\Auth\User;
+use App\Models\Inventory\Warehouse;
 use App\Models\Marketing\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -18,12 +20,9 @@ class GetLayout
 
     public function handle(User $user): array
     {
-        $tenant    = app('currentTenant');
-        $shopCount = $tenant->marketingStats->number_shops;
-
-
+        $tenant              = app('currentTenant');
+        $shopCount           = $tenant->marketingStats->number_shops;
         $currentShopInstance = null;
-
         if ($shopCount == 1) {
             $currentShopInstance = Shop::first();
         }
@@ -66,9 +65,29 @@ class GetLayout
 
         if ($user->can('inventory.view')) {
             $navigation['inventory'] = [
-                'name'  => __('inventory'),
-                'icon'  => ['fal', 'fa-inventory'],
-                'route' => 'inventory.dashboard'
+                'name'    => __('inventory'),
+                'icon'    => ['fal', 'fa-inventory'],
+                'route'   => 'inventory.dashboard',
+                'topMenu' => [
+                    [
+                        'label' => __('stocks'),
+                        'icon'  => ['fal', 'fa-box'],
+                        'route' => [
+                            'name' => 'inventory.stock.index',
+
+                        ]
+                    ],
+                    [
+                        'label'  => __('categories'),
+                        'tooltip'=> __('Stock categories'),
+                        'icon'   => ['fal', 'fa-boxes-alt'],
+                        'route'  => [
+                            'name' => 'inventory.families.index',
+
+                        ]
+                    ],
+
+                ]
             ];
         }
 
@@ -114,9 +133,51 @@ class GetLayout
 
         if ($user->can('hr.view')) {
             $navigation['hr'] = [
-                'name'  => __('human resources'),
-                'icon'  => ['fal', 'fa-user-hard-hat'],
-                'route' => 'hr.dashboard'
+                'name'    => __('human resources'),
+                'icon'    => ['fal', 'fa-user-hard-hat'],
+                'route'   => 'hr.dashboard',
+                'topMenu' => [
+                    [
+                        'label' => __('work positions'),
+                        'icon'  => ['fal', 'fa-network-wired'],
+                        'route' => [
+                            'name' => 'hr.job-positions.index',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('employees'),
+                        'icon'  => ['fal', 'fa-terminal'],
+                        'route' => [
+                            'name' => 'hr.employees.index',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('calendar'),
+                        'icon'  => ['fal', 'fa-calendar'],
+                        'route' => [
+                            'name' => 'hr.calendar',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('time sheets'),
+                        'icon'  => ['fal', 'fa-stopwatch'],
+                        'route' => [
+                            'name' => 'hr.time-sheets.hub',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('clocking machines'),
+                        'icon'  => ['fal', 'fa-chess-clock'],
+                        'route' => [
+                            'name' => 'hr.clocking-machines',
+
+                        ]
+                    ]
+                ]
             ];
         }
 
@@ -130,7 +191,7 @@ class GetLayout
                         'label' => __('users'),
                         'icon'  => ['fal', 'fa-terminal'],
                         'route' => [
-                            'name' => 'sysadmin.users',
+                            'name' => 'sysadmin.users.index',
 
                         ]
                     ],
@@ -138,7 +199,7 @@ class GetLayout
                         'label' => __('guests'),
                         'icon'  => ['fal', 'fa-users-alien'],
                         'route' => [
-                            'name' => 'sysadmin.guests',
+                            'name' => 'sysadmin.guests.index',
 
                         ]
                     ],
@@ -150,7 +211,7 @@ class GetLayout
 
                         ]
                     ],
-                    []
+
                 ]
             ];
         }
@@ -178,9 +239,10 @@ class GetLayout
 
 
         return [
-            'navigation'      => $navigation,
-            'actions'         => $actions,
-            'shopsInDropDown' => ShopsNavigationResource::collection(Shop::all()),
+            'navigation'           => $navigation,
+            'actions'              => $actions,
+            'shopsInDropDown'      => ShopsNavigationResource::collection(Shop::all()),
+            'warehousesInDropDown' => WarehousesNavigationResource::collection(Warehouse::all()),
 
         ];
     }
