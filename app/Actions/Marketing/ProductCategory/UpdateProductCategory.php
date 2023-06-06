@@ -24,6 +24,7 @@ class UpdateProductCategory
     {
         $productCategory = $this->update($productCategory, $modelData, ['data']);
         ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
+
         return $productCategory;
     }
 
@@ -33,7 +34,7 @@ class UpdateProductCategory
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.products.edit");
+        return $request->user()->hasPermissionTo("shops.department.edit");
     }
 
     public function rules(): array
@@ -52,13 +53,13 @@ class UpdateProductCategory
         $this->asAction=true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
-
         return $this->handle($productCategory, $validatedData);
     }
 
     public function asController(ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
-        $request->validate();
+        $productCategory = $productCategory::where('slug', $request->route()->parameters)->first();
+        //        $request->validate();
         return $this->handle($productCategory, $request->all());
     }
 

@@ -29,6 +29,7 @@ class CreateProduct extends InertiaAction
      */
     public function handle(Tenant|Shop $shop, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'CreateModel',
             [

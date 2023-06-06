@@ -80,7 +80,6 @@ class StoreProductCategory
     public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
     {
         $request->validate();
-
         $this->handle($shop, $request->all());
         return  Redirect::route('shops.show.catalogue.hub.departments.index', $shop);
     }

@@ -15,7 +15,7 @@ use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Marketing\DepartmentResource;
-use App\Http\Resources\Marketing\FamilyResource;
+
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Marketing\ProductCategory;
@@ -55,7 +55,7 @@ class ShowDepartment extends InertiaAction
 
     public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
     {
-        $this->validateAttributes();
+        //        $this->validateAttributes();
 
         return Inertia::render(
             'Marketing/Department',
@@ -127,8 +127,8 @@ class ShowDepartment extends InertiaAction
 */
 
                 DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($this->department))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->department))),
+                    fn () => ProductResource::collection(IndexProducts::run($department))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($department))),
 
             ]
         )->table(IndexCustomers::make()->tableStructure($department))

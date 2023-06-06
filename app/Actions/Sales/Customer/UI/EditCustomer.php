@@ -35,7 +35,6 @@ class EditCustomer extends InertiaAction
         return $this->handle($customer);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Customer $customer, ActionRequest $request): Customer
     {
         $this->initialisation($request);

@@ -25,6 +25,7 @@ class EditDepartment extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('shops.products.edit');
+
         return $request->user()->hasPermissionTo("shops.products.edit");
     }
 
@@ -45,8 +46,6 @@ class EditDepartment extends InertiaAction
 
     public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
     {
-
-
         return Inertia::render(
             'EditModel',
             [
@@ -77,7 +76,7 @@ class EditDepartment extends InertiaAction
                                 ],
                                 'name' => [
                                     'type'  => 'input',
-                                    'label' => __('label'),
+                                    'label' => __('name'),
                                     'value' => $department->name
                                 ],
                             ]
@@ -88,7 +87,6 @@ class EditDepartment extends InertiaAction
                         'updateRoute' => [
                             'name'       => 'models.department.update',
                             'parameters' => $department->slug
-
                         ],
                     ]
                 ]
