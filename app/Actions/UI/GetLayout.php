@@ -114,9 +114,51 @@ class GetLayout
 
         if ($user->can('hr.view')) {
             $navigation['hr'] = [
-                'name'  => __('human resources'),
-                'icon'  => ['fal', 'fa-user-hard-hat'],
-                'route' => 'hr.dashboard'
+                'name'    => __('human resources'),
+                'icon'    => ['fal', 'fa-user-hard-hat'],
+                'route'   => 'hr.dashboard',
+                'topMenu' => [
+                    [
+                        'label' => __('work positions'),
+                        'icon'  => ['fal', 'fa-network-wired'],
+                        'route' => [
+                            'name' => 'hr.job-positions.index',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('employees'),
+                        'icon'  => ['fal', 'fa-terminal'],
+                        'route' => [
+                            'name' => 'hr.employees.index',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('calendar'),
+                        'icon'  => ['fal', 'fa-calendar'],
+                        'route' => [
+                            'name' => 'sysadmin.calendar',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('time sheets'),
+                        'icon'  => ['fal', 'fa-stopwatch'],
+                        'route' => [
+                            'name' => 'sysadmin.time-sheets.hub',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('clocking machines'),
+                        'icon'  => ['fal', 'fa-chess-clock'],
+                        'route' => [
+                            'name' => 'sysadmin.clocking-machines',
+
+                        ]
+                    ]
+                ]
             ];
         }
 
@@ -130,7 +172,7 @@ class GetLayout
                         'label' => __('users'),
                         'icon'  => ['fal', 'fa-terminal'],
                         'route' => [
-                            'name' => 'sysadmin.users',
+                            'name' => 'sysadmin.users.index',
 
                         ]
                     ],
@@ -138,7 +180,7 @@ class GetLayout
                         'label' => __('guests'),
                         'icon'  => ['fal', 'fa-users-alien'],
                         'route' => [
-                            'name' => 'sysadmin.guests',
+                            'name' => 'sysadmin.guests.index',
 
                         ]
                     ],
@@ -150,7 +192,7 @@ class GetLayout
 
                         ]
                     ],
-                    []
+
                 ]
             ];
         }
