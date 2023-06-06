@@ -22,7 +22,6 @@ use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchCustomers extends FetchAction
 {
@@ -32,7 +31,7 @@ class FetchCustomers extends FetchAction
     /**
      * @throws \Throwable
      */
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
     {
         $with = $this->with;
 

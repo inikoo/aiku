@@ -120,6 +120,6 @@ class FetchInvoices extends FetchAction
 
     public function reset(): void
     {
-        DB::connection('aurora')->table('Invoices Dimension')->update(['aiku_id' => null]);
+        DB::connection('aurora')->table('Invoice Dimension')->update(['aiku_id' => null]);
     }
 }
