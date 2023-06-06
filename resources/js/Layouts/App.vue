@@ -8,7 +8,7 @@
 
 
 <script setup>
-import { ref, watchEffect } from "vue";
+import { ref, watchEffect, computed } from "vue";
 import {
     Menu,
     MenuButton,
@@ -39,7 +39,7 @@ import {
     faStoreAlt,
     faUser,
     faIndustry,
-    faBoxUsd,
+    faParachuteBox,
     faDollyEmpty,
     faShoppingCart,
     faAbacus, faChevronDown, faCube, faGlobe
@@ -58,7 +58,7 @@ library.add(
     faStoreAlt,
     faUser,
     faIndustry,
-    faBoxUsd,
+    faParachuteBox,
     faDollyEmpty,
     faShoppingCart,
     faAbacus,
@@ -68,7 +68,7 @@ library.add(
 );
 
 import AppLeftSideBar from "@/Layouts/AppLeftSideBar.vue";
-import AppShopNavigation from "@/Layouts/AppShopNavigation.vue";
+import AppTopBar from "@/Layouts/AppTopBar.vue";
 
 const initialiseApp = () => {
     const layout = useLayoutStore();
@@ -118,6 +118,7 @@ const sidebarOpen = ref(false);
 const showSearchDialog = ref(false);
 
 const user = ref(usePage().props.auth.user);
+
 </script>
 
 <template>
@@ -138,16 +139,8 @@ const user = ref(usePage().props.auth.user);
                             </div>
                         </button>
 
-                        <!-- Shop Navigation -->
-                        <div class="hidden md:flex justify-between items-center">
-                            <div class="block mb-3 ml-3 xl:w-40 2xl:w-56">
-                                <img class=" h-4  mt-4  xl:h-6  " src="/art/logo-color-trimmed.png" alt="Aiku" />
-                                <span class="font-logo mb-1 mr-2  xl:hidden   whitespace-nowrap	   text-sm">
-                                        {{ layout.tenant.name }}
-                                    </span>
-                            </div>
-                            <AppShopNavigation />
-                        </div>
+                        <!-- Menu -->
+                        <AppTopBar :tenantName="layout.tenant.name"/>
 
                         <!-- Avatar Group -->
                         <div class="flex items-center mr-6 space-x-3">

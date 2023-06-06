@@ -42,7 +42,7 @@ const locale = useLocaleStore();
                 </Link>
 
                 <!-- Sublink on right each section -->
-                <div v-if="node.rightSubLink" class="pr-4 abc" :title="node.rightSubLink.tooltip">
+                <div v-if="node.rightSubLink" class="pr-4" :title="node.rightSubLink.tooltip">
                     <!-- {{ importIcon(node.rightSubLink.icon) }} -->
                     <Link :href="route(node.rightSubLink.href[0])"
                         class="w-8 h-8 grid justify-center items-center border-2 text-indigo-500 border-indigo-500 rounded-lg cursor-pointer hover:bg-indigo-500 hover:text-white transition-all duration-75 ease-in-out">
@@ -65,7 +65,4 @@ const locale = useLocaleStore();
 </template>
 
 <style scoped>
-.abc {
-    text-transform: capitalize;
-}
 </style>

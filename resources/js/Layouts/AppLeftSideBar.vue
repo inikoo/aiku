@@ -30,7 +30,7 @@ import {
 } from "@/../private/pro-light-svg-icons"
 import { useLayoutStore } from "@/Stores/layout"
 
-import AppShopNavigation from "@/Layouts/AppShopNavigation.vue"
+import AppTopBar from "@/Layouts/AppTopBar.vue"
 import { computed } from "vue";
 
 library.add(
@@ -77,10 +77,7 @@ const currentModule = computed(() => {
 
 			</div>
 
-			<div class="md:hidden">
-				<AppShopNavigation />
-			</div>
-
+			
 			<div class="flex flex-grow flex-col pb-16">
 				<nav
 					class="flex-1 space-y-1 bg-white"
@@ -95,9 +92,8 @@ const currentModule = computed(() => {
 								: 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900',
 							'group flex items-center border-l-4 text-sm font-medium px-0 xl:px-3 py-2',
 						]"
-						:aria-current="
-							itemKey === currentModule ? 'page' : undefined
-						">
+						:aria-current="itemKey === currentModule ? 'page' : undefined"
+					>
 						<font-awesome-icon
 							aria-hidden="true"
 							:class="[
