@@ -9,9 +9,11 @@ namespace App\Models\HumanResources;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateJobPositionsShare;
 use App\Actions\HumanResources\JobPosition\HydrateJobPosition;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -21,14 +23,14 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $job_position_id
  * @property int $employee_id
  * @property float|null $share
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\HumanResources\Employee $employee
- * @property-read \App\Models\HumanResources\JobPosition $jobPosition
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Employee $employee
+ * @property-read JobPosition $jobPosition
  * @method static Builder|EmployeeJobPosition newModelQuery()
  * @method static Builder|EmployeeJobPosition newQuery()
  * @method static Builder|EmployeeJobPosition query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class EmployeeJobPosition extends Pivot
 {
@@ -37,7 +39,7 @@ class EmployeeJobPosition extends Pivot
 
     protected $guarded = [];
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::created(
             function (EmployeeJobPosition $employeeJobPosition) {

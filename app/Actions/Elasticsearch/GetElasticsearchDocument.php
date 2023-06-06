@@ -39,7 +39,7 @@ class GetElasticsearchDocument
                         'platform'      => $result['_source']['platform'],
                         'browser'       => $result['_source']['browser'],
                         'route_name'    => $result['_source']['route']['name'],
-                        'arguments'     => $result['_source']['route']['arguments'],
+                        'arguments'     => array_values($result['_source']['route']['arguments']),
                         'url'           => $result['_source']['route']['url'],
                         'datetime'      => $result['_source']['datetime']
                     ];

@@ -8,10 +8,13 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class EditEmployee extends InertiaAction
 {
@@ -33,6 +36,9 @@ class EditEmployee extends InertiaAction
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function htmlResponse(Employee $employee): Response
     {
         return Inertia::render(
@@ -56,18 +62,34 @@ class EditEmployee extends InertiaAction
                             'title'  => __('personal information'),
                             'fields' => [
 
-                                'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                    'value' => $employee->contact_name
+                                'contact_name' => [
+                                    'type'        => 'input',
+                                    'label'       => __('name'),
+                                    'placeholder' => 'Name',
+                                    'value'       => $employee->contact_name
                                 ],
                                 'date_of_birth' => [
-                                    'type'  => 'date',
-                                    'label' => __('date of birth'),
-                                    'value' => $employee->date_of_birth
+                                    'type'        => 'date',
+                                    'label'       => __('date of birth'),
+                                    'placeholder' => 'Date Of Birth',
+                                    'value'       => $employee->date_of_birth
                                 ],
-
-
+                                'job_title' => [
+                                    'type'        => 'select',
+                                    'label'       => __(' position'),
+                                    'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
+                                    'placeholder' => 'Select a Position',
+                                    'mode'        => 'single',
+                                    'value'       => $employee->job_title
+                                ],
+                                'state' => [
+                                    'type'        => 'select',
+                                    'label'       => __(' state'),
+                                    'options'     => Options::forEnum(EmployeeStateEnum::class),
+                                    'placeholder' => 'Select a State',
+                                    'mode'        => 'single',
+                                    'value'       => $employee->state
+                                ]
                             ]
                         ]
 

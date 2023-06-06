@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\HumanResources;
 
+use App\Models\HumanResources\Employee;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
@@ -16,7 +17,7 @@ class EmployeeInertiaResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
     {
-        /** @var \App\Models\HumanResources\Employee $employee */
+        /** @var Employee $employee */
         $employee = $this;
 
 
@@ -25,6 +26,9 @@ class EmployeeInertiaResource extends JsonResource
             'slug'          => $employee->slug,
             'worker_number' => $employee->worker_number,
             'name'          => $employee->contact_name,
+            'contact_name'  => $employee->contact_name,
+            'job_title'     => $employee->job_title,
+            'state'         => $employee->state,
             'job_positions' => JobPositionLightResource::collection($employee->jobPositions),
         ];
     }
