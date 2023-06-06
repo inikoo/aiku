@@ -18,6 +18,7 @@ enum UserTabsEnum: string
     case SHOWCASE                       = 'showcase';
     case HISTORY                        = 'history';
     case DATA                           = 'data';
+    case REQUEST_LOGS                   = 'request_logs';
 
 
     public function blueprint(): array
@@ -39,6 +40,10 @@ enum UserTabsEnum: string
             UserTabsEnum::SHOWCASE => [
                 'title' => __('user'),
                 'icon'  => 'fas fa-info-circle',
+            ],
+            UserTabsEnum::REQUEST_LOGS => [
+                'title' => __('Visit Logs'),
+                'icon'  => 'fas fa-road',
             ],
         };
     }
