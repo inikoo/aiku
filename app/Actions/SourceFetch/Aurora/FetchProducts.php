@@ -77,6 +77,10 @@ class FetchProducts extends FetchAction
             ->select('Product ID as source_id')
             ->orderBy('Product ID');
 
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
         if ($this->shop) {
             $query->where('Product Store Key', $this->shop->source_id);
         }
@@ -87,6 +91,11 @@ class FetchProducts extends FetchAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Product Dimension')->where('Product Type', 'Product');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
         if ($this->shop) {
             $query->where('Product Store Key', $this->shop->source_id);
         }

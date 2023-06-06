@@ -92,6 +92,8 @@ class FetchAction
                 }
 
 
+
+
                 if (in_array($command->getName(), [
                     'fetch:stocks',
                     'fetch:products',

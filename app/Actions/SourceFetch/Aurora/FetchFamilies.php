@@ -11,15 +11,14 @@ use App\Actions\Marketing\ProductCategory\StoreProductCategory;
 use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Models\Marketing\ProductCategory;
 use App\Services\Tenant\SourceTenantService;
-use JetBrains\PhpStorm\NoReturn;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
-class FetchFamilies
+class FetchFamilies extends FetchAction
 {
-    use AsAction;
+    public string $commandSignature = 'fetch:families {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?ProductCategory
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?ProductCategory
     {
         if ($familyData = $tenantSource->fetchFamily($tenantSourceId)) {
             if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
@@ -40,5 +39,46 @@ class FetchFamilies
 
 
         return null;
+    }
+
+
+    public function getModelsQuery(): Builder
+    {
+
+        $familySourceIDs=[];
+        $query          =DB::connection('aurora')
+            ->table('Store Dimension')
+            ->select('Store Family Category Key');
+        foreach($query->get() as $row) {
+            $familySourceIDs[]=$row->{'Store Family Category Key'};
+        }
+
+
+
+        return DB::connection('aurora')
+            ->table('Category Dimension')
+            ->select('Category Key as source_id')
+            ->where('Category Branch Type', 'Head')
+            ->whereIn('Category Root Key', $familySourceIDs)
+            ->orderBy('source_id');
+    }
+
+    public function count(): ?int
+    {
+        $familySourceIDs=[];
+        $query          =DB::connection('aurora')
+            ->table('Store Dimension')
+            ->select('Store Family Category Key');
+        foreach($query->get() as $row) {
+            $familySourceIDs[]=$row->{'Store Family Category Key'};
+        }
+
+
+
+        return DB::connection('aurora')
+            ->table('Category Dimension')
+            ->where('Category Branch Type', 'Head')
+            ->whereIn('Category Root Key', $familySourceIDs)
+            ->count();
     }
 }
