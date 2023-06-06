@@ -20,6 +20,8 @@ if (empty($parent)) {
     $parent = 'tenant';
 }
 
+
+
 Route::get('/create', CreateCustomer::class)->name('create');
 Route::get('/{customer}/web-users/create', [CreateWebUser::class, 'inCustomer'])->name('show.web-users.create');
 

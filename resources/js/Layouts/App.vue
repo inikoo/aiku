@@ -79,7 +79,7 @@ const initialiseApp = () => {
     watchEffect(() => {
         if (usePage().props.layout) {
             layout.navigation = usePage().props.layout.navigation ?? null;
-            layout.actions = usePage().props.layout.actions ?? null;
+            layout.secondaryNavigation = usePage().props.layout.secondaryNavigation ?? null;
             if (usePage().props.layout.shopsInDropDown) {
                 layout.shopsInDropDown = usePage().props.layout.shopsInDropDown.data ??
                     {};
