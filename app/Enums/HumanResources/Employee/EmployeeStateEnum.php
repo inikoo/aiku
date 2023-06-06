@@ -16,4 +16,13 @@ enum EmployeeStateEnum: string
     case HIRED   = 'hired';
     case WORKING = 'working';
     case LEFT    = 'left';
+
+    public static function labels(): array
+    {
+        return [
+            'hired'         => 'Hired',
+            'working'       => 'Working',
+            'left'          => 'Left',
+        ];
+    }
 }

@@ -122,9 +122,36 @@ class GetLayout
 
         if ($user->can('sysadmin.view')) {
             $navigation['sysadmin'] = [
-                'name'  => __('Sysadmin'),
-                'icon'  => ['fal', 'fa-users-cog'],
-                'route' => 'sysadmin.dashboard'
+                'name'    => __('sysadmin'),
+                'icon'    => ['fal', 'fa-users-cog'],
+                'route'   => 'sysadmin.dashboard',
+                'topMenu' => [
+                    [
+                        'label' => __('users'),
+                        'icon'  => ['fal', 'fa-terminal'],
+                        'route' => [
+                            'name' => 'sysadmin.users',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('guests'),
+                        'icon'  => ['fal', 'fa-users-alien'],
+                        'route' => [
+                            'name' => 'sysadmin.guests',
+
+                        ]
+                    ],
+                    [
+                        'label' => __('system settings'),
+                        'icon'  => ['fal', 'fa-cog'],
+                        'route' => [
+                            'name' => 'sysadmin.settings',
+
+                        ]
+                    ],
+                    []
+                ]
             ];
         }
 

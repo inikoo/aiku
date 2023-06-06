@@ -36,7 +36,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
-    history: object
+    request_logs: object
 
 }>()
 
@@ -47,7 +47,7 @@ const component = computed(() => {
 
     const components = {
         details: ModelDetails,
-        history: TableHistoryUsers,
+        request_logs: TableHistoryUsers,
     };
     return components[currentTab.value];
 

@@ -73,7 +73,7 @@ class ShowUser extends InertiaAction
                     'navigation' => UserTabsEnum::navigation()
                 ],
 
-                UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
+                UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
                     fn () => UserHistoryResource::collection(GetElasticsearchDocument::run($user->username))
                     : Inertia::lazy(fn () => UserHistoryResource::collection(GetElasticsearchDocument::run($user->username)))
             ]
