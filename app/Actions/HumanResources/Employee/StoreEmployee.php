@@ -43,8 +43,8 @@ class StoreEmployee
         return [
             'contact_name'      => ['required', 'max:255'],
             'date_of_birth'     => ['nullable', 'date', 'before_or_equal:today'],
-            'job_title'         => ['required'],
-            'state'             => ['required']
+            'job_title'         => ['sometimes','required'],
+            'state'             => ['sometimes','required']
             //   'email'         => ['sometimes', 'email'],
         ];
     }

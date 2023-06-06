@@ -37,7 +37,7 @@ class UpdateEmployee
             'contact_name'  => ['sometimes','required'],
             'date_of_birth' => ['sometimes','date'],
             'job_title'     => ['sometimes','required'],
-            'state'         => ['sometimes','required']
+            'state'         => ['sometimes','required'],
         ];
     }
 

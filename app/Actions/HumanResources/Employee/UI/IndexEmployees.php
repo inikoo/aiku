@@ -38,9 +38,9 @@ class IndexEmployees extends InertiaAction
         return QueryBuilder::for(Employee::class)
             ->defaultSort('employees.slug')
             ->select(['slug', 'id', 'job_title', 'contact_name', 'state'])
-//            ->with('jobPositions')
+            ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'contact_name','job_title'])
-            ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
+            ->allowedFilters([$globalSearch, 'slug', 'contact_name'])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
