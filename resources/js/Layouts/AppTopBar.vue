@@ -31,7 +31,7 @@ const props = defineProps<{
 
 const currentUrl = ref()
 router.on('navigate', (event) => {
-	currentUrl.value = event.detail.page.url.substring(1)
+	currentUrl.value = event.detail.page.url.split('/')[1]
 })
 
 const component = {
