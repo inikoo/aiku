@@ -7,7 +7,7 @@
 		>
 			<FontAwesomeIcon
 				:icon="topMenu.icon"
-				class="h-4 w-4 border border-indigo-600 p-1 text-indigo-700 rounded-lg"
+				class="h-4 w-4 border border-indigo-600 p-1 text-indigo-700 rounded"
 				aria-hidden="true"
 			/>
 			<span class="text-gray-700 capitalize">{{ topMenu.label }}</span>

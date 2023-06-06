@@ -138,7 +138,7 @@ class GetLayout
                         'label' => __('calendar'),
                         'icon'  => ['fal', 'fa-calendar'],
                         'route' => [
-                            'name' => 'sysadmin.calendar',
+                            'name' => 'hr.calendar',
 
                         ]
                     ],
@@ -146,7 +146,7 @@ class GetLayout
                         'label' => __('time sheets'),
                         'icon'  => ['fal', 'fa-stopwatch'],
                         'route' => [
-                            'name' => 'sysadmin.time-sheets.hub',
+                            'name' => 'hr.time-sheets.hub',
 
                         ]
                     ],
@@ -154,7 +154,7 @@ class GetLayout
                         'label' => __('clocking machines'),
                         'icon'  => ['fal', 'fa-chess-clock'],
                         'route' => [
-                            'name' => 'sysadmin.clocking-machines',
+                            'name' => 'hr.clocking-machines.index',
 
                         ]
                     ]
