@@ -85,7 +85,7 @@ class ShowUser extends InertiaAction
                 ->column(key: 'platform', label: __('Platform'), canBeHidden: false, sortable: true)
                 ->column(key: 'browser', label: __('Browser'), canBeHidden: false, sortable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
-                ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
                 ->defaultSort('datetime');
         });

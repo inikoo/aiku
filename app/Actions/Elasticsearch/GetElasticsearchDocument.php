@@ -34,7 +34,7 @@ class GetElasticsearchDocument
                     $results[] = [
                         'username'      => $result['_source']['username'],
                         'ip_address'    => $result['_source']['ip_address'],
-                        'location'      => $result['_source']['location'],
+                        'location'      => json_decode($result['_source']['location'], true),
                         'device_type'   => $result['_source']['device_type'],
                         'platform'      => $result['_source']['platform'],
                         'browser'       => $result['_source']['browser'],

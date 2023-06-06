@@ -34,7 +34,7 @@ class LogUserRequest
             'username'    => $user->username,
             'route'       => $routeData,
             'ip_address'  => $ip,
-            'location'    => $this->getLocation($ip), // reference: https://github.com/stevebauman/location
+            'location'    => json_encode($this->getLocation($ip)), // reference: https://github.com/stevebauman/location
             'user_agent'  => $userAgent,
             'device_type' => $parsedUserAgent->deviceType(),
             'platform'    => $this->detectWindows11($parsedUserAgent),
@@ -50,10 +50,14 @@ class LogUserRequest
         IndexElasticsearchDocument::run(index: $index, body: $body);
     }
 
-    public function getLocation(string $ip): false|string|null
+    public function getLocation(string $ip): false|array|null
     {
         if ($position = Location::get($ip == '127.0.0.1' ? '103.121.18.96' : $ip)) {
-            return $position->countryName;
+            return [
+                $position->countryCode,
+                $position->countryName,
+                $position->cityName
+            ];
         }
 
         return false;
