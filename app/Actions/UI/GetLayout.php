@@ -178,7 +178,7 @@ class GetLayout
                     ],
                     [
                         'label' => __('guests'),
-                        'icon'  => ['fal', 'fa-users-alien'],
+                        'icon'  => ['fal', 'fa-user-alien'],
                         'route' => [
                             'name' => 'sysadmin.guests.index',
 
