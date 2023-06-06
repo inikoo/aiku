@@ -74,7 +74,7 @@ const currentModule = computed(() => {
 		<div
 			class="flex flex-grow flex-col h-screen overflow-y-auto border-r border-gray-200 bg-white pb-4">
 			<div class="font-logo md:hidden xl:block py-3 text-center">
-
+				{{ layout.tenant.name }}
 			</div>
 
 			
