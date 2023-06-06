@@ -7,6 +7,7 @@
 
 namespace App\Actions\Auth\User\UI;
 
+use App\Actions\Elasticsearch\GetElasticsearchDocument;
 use App\Actions\InertiaAction;
 use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
@@ -72,10 +73,9 @@ class ShowUser extends InertiaAction
                     'navigation' => UserTabsEnum::navigation()
                 ],
 
-
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
-                    fn () => UserHistoryResource::collection($this->getElastics($user->username))
-                    : Inertia::lazy(fn () => UserHistoryResource::collection($this->getElastics($user->username)))
+                    fn () => UserHistoryResource::collection(GetElasticsearchDocument::run($user->username))
+                    : Inertia::lazy(fn () => UserHistoryResource::collection(GetElasticsearchDocument::run($user->username)))
             ]
         )->table(function (InertiaTable $table) {
             $table
@@ -84,6 +84,11 @@ class ShowUser extends InertiaAction
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'route_name', label: __('Route Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'route_parameter', label: __('Route Parameter'), canBeHidden: false, sortable: true)
+                ->column(key: 'device_type', label: __('Device Type'), canBeHidden: false, sortable: true)
+                ->column(key: 'platform', label: __('Platform'), canBeHidden: false, sortable: true)
+                ->column(key: 'browser', label: __('Browser'), canBeHidden: false, sortable: true)
+                ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
+                ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true)
                 ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
                 ->defaultSort('datetime');
         });
