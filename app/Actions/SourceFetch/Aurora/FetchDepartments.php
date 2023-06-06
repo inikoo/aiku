@@ -11,12 +11,12 @@ use App\Actions\Marketing\ProductCategory\StoreProductCategory;
 use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
 use App\Models\Marketing\ProductCategory;
 use App\Services\Tenant\SourceTenantService;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
-class FetchDepartments
+class FetchDepartments extends FetchAction
 {
-    use AsAction;
-
+    public string $commandSignature = 'fetch:departments {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?ProductCategory
     {
@@ -40,4 +40,47 @@ class FetchDepartments
 
         return null;
     }
+
+
+    public function getModelsQuery(): Builder
+    {
+
+        $departmentSourceIDs=[];
+        $query              =DB::connection('aurora')
+            ->table('Store Dimension')
+            ->select('Store Department Category Key');
+        foreach($query->get() as $row) {
+            $departmentSourceIDs[]=$row->{'Store Department Category Key'};
+        }
+
+
+
+        return DB::connection('aurora')
+            ->table('Category Dimension')
+            ->select('Category Key as source_id')
+            ->where('Category Branch Type', 'Head')
+            ->whereIn('Category Root Key', $departmentSourceIDs)
+            ->orderBy('source_id');
+    }
+
+    public function count(): ?int
+    {
+        $departmentSourceIDs=[];
+        $query              =DB::connection('aurora')
+            ->table('Store Dimension')
+            ->select('Store Department Category Key');
+        foreach($query->get() as $row) {
+            $departmentSourceIDs[]=$row->{'Store Department Category Key'};
+        }
+
+
+
+        return DB::connection('aurora')
+            ->table('Category Dimension')
+            ->where('Category Branch Type', 'Head')
+            ->whereIn('Category Root Key', $departmentSourceIDs)
+            ->count();
+    }
+
+
 }

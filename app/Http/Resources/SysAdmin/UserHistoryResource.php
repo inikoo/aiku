@@ -19,8 +19,13 @@ class UserHistoryResource extends JsonResource
             'username'        => $this['username'],
             'ip_address'      => $this['ip_address'],
             'route_name'      => $this['route_name'],
-            'route_parameter' => $this['route_parameter'],
-            'datetime'        => $this['datetime']
+            'route_parameter' => $this['arguments'],
+            'datetime'        => $this['datetime'],
+            'location'        => $this['location'],
+            'device_type'     => $this['device_type'],
+            'platform'        => $this['platform'],
+            'browser'         => $this['browser'],
+            'url'             => $this['url'],
         ];
     }
 }

@@ -2,10 +2,11 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\DB;
 
-class CaseSensitive implements Rule
+class CaseSensitive implements ValidationRule
 {
     /**
      * Create a new rule instance.
@@ -19,29 +20,12 @@ class CaseSensitive implements Rule
         $this->tableName = $tableName;
     }
 
-    /**
-     * Determine if the validation rule passes.
-     *
-     * @param  string  $attribute
-     * @param  mixed  $value
-     * @return bool
-     */
-    public function passes($attribute, $value): bool
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $query         = DB::connection('tenant')->table($this->tableName);
         $column        = $query->getGrammar()->wrap($attribute);
-        $this->message ='The '.$attribute.' has already been taken.';
-
-        return ! $query->whereRaw("lower({$column}) = lower(?)", [$value])->count();
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message(): string
-    {
-        return $this->message;
+        if ($query->whereRaw("lower($column) = lower(?)", [$value])->count() >= 1) {
+            $fail('The '.$attribute.' has already been taken.');
+        }
     }
 }

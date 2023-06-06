@@ -20,11 +20,13 @@ class FetchAuroraProduct extends FetchAurora
             return;
         }
 
-        $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Product Store Key'});
-
-        $this->parsedData['parent'] = $this->parseFamily($this->auroraModelData->{'Product Family Category Key'});
-        if (!$this->parsedData['parent']) {
-            $this->parsedData['parent'] = $this->parsedData['shop'];
+        $this->parsedData['shop']   = $this->parseShop($this->auroraModelData->{'Product Store Key'});
+        $this->parsedData['parent'] = $this->parsedData['shop'];
+        if ($this->auroraModelData->{'Product Family Category Key'}) {
+            $family = $this->parseFamily($this->auroraModelData->{'Product Family Category Key'});
+            if ($family) {
+                $this->parsedData['parent'] =$family;
+            }
         }
 
         if ($this->auroraModelData->{'Product Customer Key'}) {
