@@ -18,6 +18,17 @@ const props = defineProps<{
     data: object
 }>()
 
+const formatDate = (dateIso: Date) => {
+    const date = new Date(dateIso)
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+
+    const hours = date.getHours().toString()
+    const minutes = date.getMinutes().toString()
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`
+}
 </script>
 
 <template>
@@ -27,6 +38,9 @@ const props = defineProps<{
         </template>
         <template #cell(location)="{ item: user }">
             <AddressLocation :data="user.location"/>
+        </template>
+        <template #cell(datetime)="{ item: user }">
+            {{ formatDate(user.datetime) }}
         </template>
     </Table>
 </template>
