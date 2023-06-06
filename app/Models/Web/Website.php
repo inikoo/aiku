@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -29,36 +30,42 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property array $settings
  * @property array $data
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\Webnode> $webnodes
+ * @property array $structure
  * @property int|null $current_layout_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $launched_at
  * @property string|null $closed_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Shop $shop
  * @property-read \App\Models\Web\WebsiteStats|null $stats
+ * @property-read \App\Models\Web\WebsiteStats|null $webStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\Webpage> $webpages
  * @method static Builder|Website newModelQuery()
  * @method static Builder|Website newQuery()
+ * @method static Builder|Website onlyTrashed()
  * @method static Builder|Website query()
+ * @method static Builder|Website withTrashed()
+ * @method static Builder|Website withoutTrashed()
  * @mixin \Eloquent
  */
 class Website extends Model
 {
     use UsesTenantConnection;
     use HasSlug;
+    use SoftDeletes;
 
     protected $casts = [
-        'data'     => 'array',
-        'settings' => 'array',
-        'webnodes' => 'array',
+        'data'      => 'array',
+        'settings'  => 'array',
+        'structure' => 'array',
     ];
 
     protected $attributes = [
-        'data'     => '{}',
-        'settings' => '{}',
-        'webnodes' => '{}',
+        'data'      => '{}',
+        'settings'  => '{}',
+        'structure' => '{}',
     ];
 
     protected $guarded = [];
@@ -85,8 +92,13 @@ class Website extends Model
         return $this->belongsTo(Shop::class);
     }
 
-    public function webnodes(): HasMany
+    public function webpages(): HasMany
     {
-        return $this->hasMany(Webnode::class);
+        return $this->hasMany(Webpage::class);
+    }
+
+    public function webStats(): HasOne
+    {
+        return $this->hasOne(WebsiteStats::class);
     }
 }

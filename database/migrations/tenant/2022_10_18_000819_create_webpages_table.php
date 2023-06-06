@@ -10,21 +10,33 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('webnodes', function (Blueprint $table) {
+        Schema::create('webpages', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->enum('type', ['structural', 'content'])->index();
-            $table->string('locus')->unique()->nullable()->comment('for structural type, identification od the node');
+            $table->string('code')->index()->collation('und_ns_ci');
+            $table->string('url')->index()->collation('und_ns_ci');
+
+            $table->string('purpose')->index();
+            $table->string('type')->index();
+
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
+            $table->unsignedInteger('main_variant_id')->index()->nullable();
+
+            $table->jsonb('data');
+            $table->jsonb('settings');
             $table->timestampsTz();
+            $table->softDeletesTz();
+
+            $table->unsignedSmallInteger('source_id')->nullable()->unique();
+
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('webnodes');
+        Schema::dropIfExists('webpages');
     }
 };

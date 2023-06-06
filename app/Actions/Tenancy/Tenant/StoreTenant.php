@@ -75,6 +75,7 @@ class StoreTenant
                 $tenant->accountingStats()->create();
                 $tenant->mailStats()->create();
                 $tenant->crmStats()->create();
+                $tenant->webStats()->create();
 
                 Artisan::call('tenants:artisan "migrate:fresh  --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->slug);
                 Artisan::call('tenants:artisan "db:seed --force --class=TenantsSeeder" --tenant='.$tenant->slug);

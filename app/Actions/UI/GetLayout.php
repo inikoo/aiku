@@ -54,6 +54,13 @@ class GetLayout
             };
         }
 
+        if ($user->can('websites.view')) {
+            $navigation['websites'] = [
+                'name'  => __('Websites'),
+                'icon'  => ['fal', 'fa-globe'],
+                'route' => 'websites.dashboard'
+            ];
+        }
 
         if ($user->can('customers.view')) {
             $navigation['customers'] = [

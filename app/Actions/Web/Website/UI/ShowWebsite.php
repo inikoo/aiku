@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
-use App\Actions\Web\Webpage\IndexWebpages;
+use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
 use App\Enums\UI\WebsiteTabsEnum;
 use App\Http\Resources\Marketing\WebpageResource;
 use App\Http\Resources\Marketing\WebsiteResource;
@@ -74,10 +74,10 @@ class ShowWebsite extends InertiaAction
                     'navigation' => WebsiteTabsEnum::navigation()
                 ],
                 WebsiteTabsEnum::WEBPAGES->value => $this->tab == WebsiteTabsEnum::WEBPAGES->value ?
-                    fn () => WebpageResource::collection(IndexWebpages::run($this->website))
-                    : Inertia::lazy(fn () => WebpageResource::collection(IndexWebpages::run($this->website))),
+                    fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))
+                    : Inertia::lazy(fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))),
             ]
-        )->table(IndexWebpages::make()->tableStructure($website));
+        )->table(IndexWebpageVariants::make()->tableStructure($website));
     }
 
 

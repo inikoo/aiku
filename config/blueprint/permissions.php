@@ -52,9 +52,9 @@ return [
     'accounting.view',
     'accounting.edit',
 
-    'shops.websites',
-    'shops.websites.view',
-    'shops.websites.edit',
+    'websites',
+    'websites.view',
+    'websites.edit',
 
     'inventory',
     'inventory.stocks',

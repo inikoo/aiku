@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->string('name')->unique()->collation('und_ns_ci_ai');
             $table->jsonb('settings');
             $table->jsonb('data');
-            $table->jsonb('webnodes');
+            $table->jsonb('structure');
             $table->unsignedSmallInteger('current_layout_id')->index()->nullable();
             $table->timestampsTz();
             $table->timestampTz('launched_at')->nullable();

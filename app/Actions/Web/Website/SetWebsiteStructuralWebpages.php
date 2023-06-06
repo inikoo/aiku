@@ -7,57 +7,57 @@
 
 namespace App\Actions\Web\Website;
 
-use App\Actions\Web\Webnode\StoreWebnode;
+use App\Actions\Web\Webpage\StoreWebpage;
 use App\Models\Tenancy\Tenant;
-use App\Models\Web\Webnode;
+use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsCommand;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class SetWebsiteStructuralWebnodes
+class SetWebsiteStructuralWebpages
 {
     use asCommand;
     use WithAttributes;
 
-    public string $commandSignature = 'set:website-structural-webnodes
+    public string $commandSignature = 'set:website-structural-webpages
     {tenant : tenant code}
     {website : website code}
     ';
 
     public function getCommandDescription(): string
     {
-        return 'Create initial website nodes (webpages).';
+        return 'Create initial website webpages.';
     }
 
     public function handle(Website $website): void
     {
-        $webnodes = [];
+        $structure = [];
 
-        foreach (config('blueprint.webnodes.ecommerce') as $node) {
-            $webnode = $this->getWebnode($website, $node['webnode'], $node['webpage']);
+        foreach (config('blueprint.webpages.ecommerce') as $node) {
+            $webpage = $this->getWebpage($website, $node['webpage'], $node['webpage-variant']);
 
-            $webnodes[$node['webnode']['locus']] = $webnode->id;
+            $structure[$node['webpage']['type']] = $webpage->id;
         }
 
 
         $website->update(
             [
-                'webnodes' => $webnodes
+                'structure' => $structure
             ]
         );
     }
 
-    private function getWebnode($website, $webnodeData, $webpageData): Webnode
+    private function getWebpage($website, $webpageData, $webpageVariantData): Webpage
     {
-        if ($webnode = Webnode::firstWhere('locus', $webnodeData['locus'])) {
-            $webnode->mainWebpage->update(
-                $webpageData
+        if ($webpage = Webpage::firstWhere('type', $webpageData['type'])) {
+            $webpage->mainVariant->update(
+                $webpageVariantData
             );
-            return $webnode;
+            return $webpage;
         }
 
-        return StoreWebnode::run($website, $webnodeData, $webpageData);
+        return StoreWebpage::run($website,$webpageData, $webpageVariantData );
     }
 
 

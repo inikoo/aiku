@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\Webpage;
+namespace App\Actions\Web\WebpageVariant;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
@@ -14,7 +14,7 @@ use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Http\Resources\Marketing\WebpageResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Web\Webpage;
+use App\Models\Web\WebpageVariant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,7 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexWebpages extends InertiaAction
+class IndexWebpageVariants extends InertiaAction
 {
     public function handle(): LengthAwarePaginator
     {
@@ -35,7 +35,7 @@ class IndexWebpages extends InertiaAction
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WEBPAGES->value);
 
-        return QueryBuilder::for(Webpage::class)
+        return QueryBuilder::for(WebpageVariant::class)
             ->defaultSort('webpages.code')
             ->select(['code', 'id', 'type', 'slug'])
             ->allowedSorts(['code', 'type'])
@@ -67,7 +67,7 @@ class IndexWebpages extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('webpages.view')
+                $request->user()->hasPermissionTo('websites.view')
             );
     }
 

@@ -19,6 +19,7 @@ use App\Models\Procurement\SupplierProduct;
 use App\Models\Procurement\SupplierProductTenant;
 use App\Models\Procurement\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
+use App\Models\TenantWebStats;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -73,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read SysUser|null $sysUser
+ * @property-read TenantWebStats|null $webStats
  * @method static TenantCollection<int, static> all($columns = ['*'])
  * @method static \Database\Factories\Tenancy\TenantFactory factory($count = null, $state = [])
  * @method static TenantCollection<int, static> get($columns = ['*'])
@@ -162,6 +164,10 @@ class Tenant extends SpatieTenant
         return $this->hasOne(TenantCRMStats::class);
     }
 
+    public function webStats(): HasOne
+    {
+        return $this->hasOne(TenantWebStats::class);
+    }
 
     public function accountingStats(): HasOne
     {

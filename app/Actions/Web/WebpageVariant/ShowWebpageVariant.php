@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Web\Webpage;
+namespace App\Actions\Web\WebpageVariant;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
@@ -18,60 +18,60 @@ use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
-use App\Models\Web\Webpage;
+use App\Models\Web\WebpageVariant;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property Webpage $webpage
+ * @property WebpageVariant $webpageVariant
  */
 
-class ShowWebpage extends InertiaAction
+class ShowWebpageVariant extends InertiaAction
 {
-    public function handle(Webpage $webpage): Webpage
+    public function handle(WebpageVariant $webpageVariant): WebpageVariant
     {
-        return $webpage;
+        return $webpageVariant;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.products.edit');
-        return $request->user()->hasPermissionTo("shops.products.view");
+        $this->canEdit = $request->user()->can('websites.edit');
+        return $request->user()->hasPermissionTo("websites.view");
     }
 
-    public function inTenant(Webpage $webpage, ActionRequest $request): Webpage
+    public function inTenant(WebpageVariant $webpageVariant, ActionRequest $request): WebpageVariant
     {
         $this->initialisation($request)->withTab(WebpageTabsEnum::values());
-        return $this->handle($webpage);
+        return $this->handle($webpageVariant);
     }
 
-    public function inShop(Shop $shop, Webpage $webpage, ActionRequest $request): Webpage
-    {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request)->withTab(WebpageTabsEnum::values());
-        return $this->handle($webpage);
-    }
-    public function inShopInDepartment(Shop $shop, ProductCategory $department, Webpage $webpage, ActionRequest $request): Webpage
+    public function inShop(Shop $shop, WebpageVariant $webpageVariant, ActionRequest $request): WebpageVariant
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(WebpageTabsEnum::values());
-        return $this->handle($webpage);
+        return $this->handle($webpageVariant);
+    }
+    public function inShopInDepartment(Shop $shop, ProductCategory $department, WebpageVariant $webpageVariant, ActionRequest $request): WebpageVariant
+    {
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request)->withTab(WebpageTabsEnum::values());
+        return $this->handle($webpageVariant);
     }
 
-    public function htmlResponse(Webpage $webpage): Response
+    public function htmlResponse(WebpageVariant $webpageVariant): Response
     {
         $this->validateAttributes();
 
 
         return Inertia::render(
-            'Marketing/Webpage',
+            'Marketing/WebpageVariant',
             [
-                'title'       => __('family'),
-                'breadcrumbs' => $this->getBreadcrumbs($webpage),
+                'title'       => __('webpage variant'),
+                'breadcrumbs' => $this->getBreadcrumbs($webpageVariant),
                 'pageHead'    => [
-                    'title' => $webpage->code,
+                    'title' => $webpageVariant->code,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
@@ -97,9 +97,9 @@ class ShowWebpage extends InertiaAction
 
 
             ]
-        )->table(IndexCustomers::make()->tableStructure($webpage))
-            ->table(IndexMailshots::make()->tableStructure($webpage))
-            ->table(IndexProducts::make()->tableStructure($webpage));
+        )->table(IndexCustomers::make()->tableStructure($webpageVariant))
+            ->table(IndexMailshots::make()->tableStructure($webpageVariant))
+            ->table(IndexProducts::make()->tableStructure($webpageVariant));
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -110,8 +110,8 @@ class ShowWebpage extends InertiaAction
         $this->set('canViewUsers', $request->user()->can('users.view'));
     }
 
-    #[Pure] public function jsonResponse(Webpage $webpage): WebpageResource
+    #[Pure] public function jsonResponse(WebpageVariant $webpageVariant): WebpageResource
     {
-        return new WebpageResource($webpage);
+        return new WebpageResource($webpageVariant);
     }
 }

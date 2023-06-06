@@ -13,28 +13,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Web\WebnodeStats
+ * App\Models\Web\WebpageVariantStats
  *
  * @property int $id
- * @property int $webnode_id
+ * @property int $webpage_variant_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Web\Webnode $webnode
- * @method static Builder|WebnodeStats newModelQuery()
- * @method static Builder|WebnodeStats newQuery()
- * @method static Builder|WebnodeStats query()
+ * @property-read \App\Models\Web\WebpageVariant $webpageVariant
+ * @method static Builder|WebpageVariantStats newModelQuery()
+ * @method static Builder|WebpageVariantStats newQuery()
+ * @method static Builder|WebpageVariantStats query()
  * @mixin \Eloquent
  */
-class WebnodeStats extends Model
+class WebpageVariantStats extends Model
 {
     use UsesTenantConnection;
 
-    protected $table = 'webnode_stats';
+    protected $table = 'webpage_variant_stats';
 
     protected $guarded = [];
 
-    public function webnode(): BelongsTo
+    public function webpageVariant(): BelongsTo
     {
-        return $this->belongsTo(Webnode::class);
+        return $this->belongsTo(WebpageVariant::class);
     }
 }

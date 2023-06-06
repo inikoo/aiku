@@ -16,6 +16,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWeb;
 use App\Actions\Traits\WithNormalise;
 use App\Enums\Marketing\Shop\ShopStateEnum;
 use App\Enums\Marketing\Shop\ShopSubtypeEnum;
@@ -50,6 +51,7 @@ class HydrateTenant extends HydrateModel
         TenantHydrateCustomers::run($tenant);
         TenantHydrateOrders::run($tenant);
         TenantHydrateProcurement::run($tenant);
+        TenantHydrateWeb::run($tenant);
     }
 
     public function fulfilmentStats()

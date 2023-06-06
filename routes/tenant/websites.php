@@ -6,11 +6,14 @@
  */
 
 
-use App\Actions\Web\Webpage\IndexWebpages;
+use App\Actions\UI\Websites\WebsitesDashboard;
+use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
 use App\Actions\Web\Website\UI\IndexWebsites;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/dashboard', WebsitesDashboard::class)->name('dashboard');
+
 Route::get('/', IndexWebsites::class)->name('index');
 Route::get('/{website}', ShowWebsite::class)->name('show');
-Route::get('/{website}/webpage', IndexWebpages::class)->name('show.webpages.index');
+Route::get('/{website}/webpage', IndexWebpageVariants::class)->name('show.webpages.index');

@@ -8,13 +8,12 @@
 
 return [
     [
-        'webnode' => [
-            'slug'  => 'home',
-            'type'  => 'structural',
-            'locus' => 'storefront',
-        ],
         'webpage' => [
-            'type'       => 'storefront',
+            'code'  => 'home',
+            'purpose'  => 'structural',
+            'type' => 'storefront',
+        ],
+        'webpage-variant' => [
             'components' => [
                 'three-column' => [
                     'title'       => 'Shop by Collection',

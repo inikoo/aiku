@@ -18,6 +18,7 @@ return
             'inventory',
             'dispatch',
             'shops',
+            'websites',
             'osm',
             'production',
             'procurement',
@@ -87,7 +88,7 @@ return
 
         'webmaster' => [
             'shops.view',
-            'shops.websites'
+            'websites'
         ],
 
         'production-manager' => [

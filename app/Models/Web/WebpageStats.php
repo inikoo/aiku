@@ -18,7 +18,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $webpage_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Web\Webpage $webpage
+ * @property-read \App\Models\Web\WebpageVariant $webpage
  * @method static \Illuminate\Database\Eloquent\Builder|WebpageStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|WebpageStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|WebpageStats query()
@@ -34,6 +34,6 @@ class WebpageStats extends Model
 
     public function webpage(): BelongsTo
     {
-        return $this->belongsTo(Webpage::class);
+        return $this->belongsTo(WebpageVariant::class);
     }
 }

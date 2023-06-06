@@ -10,18 +10,18 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('webnode_stats', function (Blueprint $table) {
+        Schema::create('webpage_variant_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('webnode_id')->index();
-            $table->foreign('webnode_id')->references('id')->on('webnodes');
+            $table->unsignedSmallInteger('webpage_variant_id')->index();
+            $table->foreign('webpage_variant_id')->references('id')->on('webpage_variants');
             $table->timestampsTz();
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('webnode_stats');
+        Schema::dropIfExists('webpage_variant_stats');
     }
 };

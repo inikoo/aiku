@@ -28,7 +28,7 @@ class StoreWebsite
                 'domain'     => $website->domain
             ]);
         }
-
+        $website->webStats()->create();
 
         return $website;
     }
