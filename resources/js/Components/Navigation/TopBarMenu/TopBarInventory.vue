@@ -14,9 +14,9 @@
 			<AppShopNavigationDropDown class="place-self-center" />
 		</div>
         <div class="flex divide-x divide-gray-300 justify-center rounded overflow-hidden">
-            <div class="px-2 cursor-pointer hover:bg-indigo-500 hover:text-white">Warehouse</div>
-            <div class="px-2 cursor-pointer hover:bg-indigo-500 hover:text-white">Warehouse Areas</div>
-            <div class="px-2 cursor-pointer hover:bg-indigo-500 hover:text-white">Locations</div>
+            <div class="px-2 cursor-pointer hover:bg-indigo-600 hover:text-white">Warehouse</div>
+            <div class="px-2 cursor-pointer hover:bg-indigo-600 hover:text-white">Warehouse Areas</div>
+            <div class="px-2 cursor-pointer hover:bg-indigo-600 hover:text-white">Locations</div>
         </div>
 	</div>
 </template>

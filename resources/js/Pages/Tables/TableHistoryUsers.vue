@@ -9,6 +9,7 @@ import { Link } from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import { User } from "@/types/user";
 import { trans } from "laravel-vue-i18n";
+import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 // import {ref,computed} from 'vue'
 
 // import TableElements from '@/Components/Table/TableElements.vue'
@@ -23,6 +24,9 @@ const props = defineProps<{
     <Table :resource="data" class="mt-5">
         <template #cell(username)="{ item: user }">
             <template v-if="user.username">{{ user.username }}</template>
+        </template>
+        <template #cell(location)="{ item: user }">
+            <AddressLocation :data="user.location"/>
         </template>
     </Table>
 </template>

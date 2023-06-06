@@ -27,10 +27,11 @@ import {
 	faAbacus,
 	faParachuteBox,
 	faChevronDown,
+    faTasksAlt,
+    faBullhorn
 } from "@/../private/pro-light-svg-icons"
 import { useLayoutStore } from "@/Stores/layout"
 
-import AppTopBar from "@/Layouts/AppTopBar.vue"
 import { computed } from "vue";
 
 library.add(
@@ -51,7 +52,9 @@ library.add(
 	faShoppingCart,
 	faAbacus,
 	faParachuteBox,
-	faChevronDown
+	faChevronDown,
+    faTasksAlt,
+    faBullhorn
 )
 
 
@@ -77,7 +80,7 @@ const currentModule = computed(() => {
 				{{ layout.tenant.name }}
 			</div>
 
-			
+
 			<div class="flex flex-grow flex-col pb-16">
 				<nav
 					class="flex-1 space-y-1 bg-white"

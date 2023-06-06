@@ -55,6 +55,23 @@ class GetLayout
         }
 
 
+        if ($user->can('shops.customers.view')) {
+            $navigation['customers'] = [
+                'name'  => __('CRM'),
+                'icon'  => ['fal', 'fa-tasks-alt'],
+                'route' => 'customers.index'
+            ];
+        }
+
+        if ($user->can('shops.customers.view')) {
+            $navigation['marketing'] = [
+                'name'  => __('Marketing'),
+                'icon'  => ['fal', 'fa-bullhorn'],
+                'route' => 'customers.index'
+            ];
+        }
+
+
         if ($user->can('dispatch')) {
             $navigation['dispatch'] = [
                 'name'  => __('Dispatch'),
@@ -91,21 +108,6 @@ class GetLayout
             ];
         }
 
-        if ($user->can('fulfilment.view')) {
-            $navigation['fulfilment'] = [
-                'name'  => __('fulfilment'),
-                'icon'  => ['fal', 'fa-dolly-empty'],
-                'route' => 'fulfilment.dashboard'
-            ];
-        }
-
-        if ($user->can('shops.view')) {
-            $navigation['dropshipping'] = [
-                'name'  => __('dropshipping'),
-                'icon'  => ['fal', 'fa-parachute-box'],
-                'route' => 'dropshipping.dashboard'
-            ];
-        }
 
         if ($user->can('production.view')) {
             $navigation['production'] = [
@@ -217,30 +219,29 @@ class GetLayout
         }
 
 
-        $actions = [];
+        $secondaryNavigation = [];
 
-        if ($user->can('dispatching.pick')) {
-            $actions[] = [
-                'name'  => __('picking'),
-                'icon'  => ['fal', 'fa-dolly-flatbed-alt'],
-                'route' => 'dashboard.show',
-                'color' => 'bg-indigo-500'
+
+        if ($user->can('fulfilment.view')) {
+            $secondaryNavigation['fulfilment'] = [
+                'name'  => __('fulfilment'),
+                'icon'  => ['fal', 'fa-dolly-empty'],
+                'route' => 'fulfilment.dashboard'
             ];
         }
 
-        if ($user->can('dispatching.pack')) {
-            $actions[] = [
-                'name'  => __('packing'),
-                'icon'  => ['fal', 'fa-conveyor-belt-alt'],
-                'route' => 'dashboard.show',
-                'color' => 'bg-green-500'
+        if ($user->can('shops.view')) {
+            $secondaryNavigation['dropshipping'] = [
+                'name'  => __('dropshipping'),
+                'icon'  => ['fal', 'fa-parachute-box'],
+                'route' => 'dropshipping.dashboard'
             ];
         }
 
 
         return [
             'navigation'           => $navigation,
-            'actions'              => $actions,
+            'secondaryNavigation'  => $secondaryNavigation,
             'shopsInDropDown'      => ShopsNavigationResource::collection(Shop::all()),
             'warehousesInDropDown' => WarehousesNavigationResource::collection(Warehouse::all()),
 
