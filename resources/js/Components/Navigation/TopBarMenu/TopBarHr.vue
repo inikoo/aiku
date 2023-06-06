@@ -24,7 +24,6 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 
 library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock)
 const layout = useLayoutStore()
-// console.log(layout.navigation.sysadmin.topMenu)
 
 </script>
 
