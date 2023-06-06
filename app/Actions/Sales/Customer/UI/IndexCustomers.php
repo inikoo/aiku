@@ -9,6 +9,7 @@ namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\UI\CRM\CRMDashboard;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\CustomerResource;
@@ -88,12 +89,12 @@ class IndexCustomers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.customers.edit');
+        $this->canEdit = $request->user()->can('customers.edit');
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.customers.view')
+                $request->user()->hasPermissionTo('customers.view')
             );
     }
 
@@ -182,28 +183,50 @@ class IndexCustomers extends InertiaAction
         };
 
         return match ($routeName) {
-            'customers.index'            =>
+            'customers.index' =>
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'=> 'customers.index',
+                        'name' => 'customers.index',
                         null
                     ]
                 ),
             ),
-
+            'crm.customers.index' =>
+            array_merge(
+                (new CRMDashboard())->getBreadcrumbs(
+                    'crm.dashboard',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name' => 'crm.customers.index',
+                        null
+                    ]
+                ),
+            ),
+            'crm.shop.customers.index' =>
+            array_merge(
+                (new CRMDashboard())->getBreadcrumbs(
+                    'crm.shop.dashboard',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'crm.shop.customers.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
 
             'shops.show.customers.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'      => 'shops.show.customers.index',
-                        'parameters'=>
-                        [
-                            $routeParameters['shop']->slug
-                        ]
+                        'name'       => 'shops.show.customers.index',
+                        'parameters' => $routeParameters
                     ]
                 )
             ),

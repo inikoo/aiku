@@ -12,7 +12,7 @@ return
         'super-admin'           => [
             'tenant',
             'showroom',
-            'crm',
+            'customers',
             'sysadmin',
             'hr',
             'inventory',
@@ -81,7 +81,7 @@ return
 
         'customer-services' => [
             'shops.view',
-            'shops.customers',
+            'customers',
             'osm'
         ],
 

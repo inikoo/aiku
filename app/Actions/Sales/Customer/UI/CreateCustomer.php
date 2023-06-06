@@ -85,7 +85,7 @@ class CreateCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops.customers.edit');
+        return $request->user()->can('customers.edit');
     }
 
 

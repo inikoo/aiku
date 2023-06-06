@@ -6,6 +6,16 @@
  */
 
 
+use App\Actions\Sales\Customer\UI\IndexCustomers;
+use App\Actions\Sales\Order\UI\IndexOrders;
 use App\Actions\UI\CRM\CRMDashboard;
 
-Route::get('/', CRMDashboard::class)->name('dashboard');
+Route::get('/', [CRMDashboard::class,'inTenant'])->name('dashboard');
+Route::get('/customers', [IndexCustomers::class, 'inTenant'])->name('customers.index');
+Route::get('/orders', [IndexOrders::class, 'inTenant'])->name('orders.index');
+
+
+Route::get('/{shop}', [CRMDashboard::class,'inShop'])->name('shop.dashboard');
+
+Route::get('/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('shop.customers.index');
+Route::get('/{shop}/orders', [IndexOrders::class, 'inShop'])->name('shop.orders.index');

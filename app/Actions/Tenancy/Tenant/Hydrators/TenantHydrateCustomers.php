@@ -26,7 +26,6 @@ class TenantHydrateCustomers implements ShouldBeUnique
             'number_customers' => Customer::count()
         ];
 
-
         $customerStatesCount = Customer::selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -45,6 +44,6 @@ class TenantHydrateCustomers implements ShouldBeUnique
         }
 
 
-        $tenant->salesStats->update($stats);
+        $tenant->crmStats()->update($stats);
     }
 }

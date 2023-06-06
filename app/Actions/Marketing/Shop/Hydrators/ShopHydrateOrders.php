@@ -36,7 +36,7 @@ class ShopHydrateOrders implements ShouldBeUnique
             $stats['number_orders_state_' . $orderState->snake()] = Arr::get($stateCounts, $orderState->value, 0);
         }
 
-        $shop->stats->update($stats);
+        $shop->crmStats->update($stats);
     }
 
     public function getJobUniqueId(Shop $shop): string

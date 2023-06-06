@@ -17,6 +17,7 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
+use App\Models\Catalogue\ShopCRMStats;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
@@ -83,6 +84,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
  * @property-read Country $country
+ * @property-read ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read Collection<int, Customer> $customers
  * @property-read Collection<int, \App\Models\Marketing\ProductCategory> $departments
@@ -173,6 +175,11 @@ class Shop extends Model
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(6);
+    }
+
+    public function crmStats(): HasOne
+    {
+        return $this->hasOne(ShopCRMStats::class);
     }
 
     public function stats(): HasOne

@@ -9,6 +9,7 @@ namespace App\Actions\Sales\Order\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\UI\CRM\CRMDashboard;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
@@ -161,6 +162,32 @@ class IndexOrders extends InertiaAction
         };
 
         return match ($routeName) {
+            'crm.orders.index' =>
+            array_merge(
+                (new CRMDashboard())->getBreadcrumbs(
+                    'crm.dashboard',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name' => 'crm.orders.index',
+                        null
+                    ]
+                ),
+            ),
+            'crm.shop.orders.index' =>
+            array_merge(
+                (new CRMDashboard())->getBreadcrumbs(
+                    'crm.shop.dashboard',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'crm.shop.orders.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
             'orders.index'            =>
 
             array_merge(

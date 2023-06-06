@@ -59,9 +59,7 @@ class StoreTenant
             );
         }
 
-
         GroupHydrateTenants::dispatch($group);
-
         SetCurrencyHistoricFields::run($tenant->currency, $tenant->created_at);
 
         DB::statement("CREATE SCHEMA ".$tenant->schema());
@@ -76,15 +74,12 @@ class StoreTenant
                 $tenant->fulfilmentStats()->create();
                 $tenant->accountingStats()->create();
                 $tenant->mailStats()->create();
-
-
+                $tenant->crmStats()->create();
 
                 Artisan::call('tenants:artisan "migrate:fresh  --force --path=database/migrations/tenant --database=tenant" --tenant='.$tenant->slug);
                 Artisan::call('tenants:artisan "db:seed --force --class=TenantsSeeder" --tenant='.$tenant->slug);
 
-
                 CreateTenantStorageLink::run();
-
                 StorePaymentServiceProvider::run(
                     modelData: [
                         'type' => 'account',
@@ -205,7 +200,6 @@ class StoreTenant
                 return 1;
             }
         }
-
 
 
         $this->setRawAttributes([

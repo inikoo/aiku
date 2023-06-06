@@ -25,7 +25,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowProduct extends InertiaAction
 {
-    use HasUIProduct;
     public function handle(Product $product): Product
     {
         return $product;

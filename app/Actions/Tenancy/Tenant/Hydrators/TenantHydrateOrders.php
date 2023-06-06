@@ -34,7 +34,7 @@ class TenantHydrateOrders implements ShouldBeUnique
             $stats['number_orders_state_' . $orderState->snake()] = Arr::get($stateCounts, $orderState->value, 0);
         }
 
-        $tenant->salesStats->update($stats);
+        $tenant->crmStats->update($stats);
     }
 
     public function getJobUniqueId(Tenant $tenant): string

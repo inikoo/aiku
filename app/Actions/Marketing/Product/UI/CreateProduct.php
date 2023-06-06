@@ -19,11 +19,6 @@ use Spatie\LaravelOptions\Options;
 
 class CreateProduct extends InertiaAction
 {
-    use HasUIProducts;
-
-    private Shop $parent;
-
-
     /**
      * @throws Exception
      */
@@ -124,7 +119,6 @@ class CreateProduct extends InertiaAction
      */
     public function asController(Shop $shop, ActionRequest $request): Response
     {
-        $this->parent = $shop;
         $this->initialisation($request);
         return $this->handle($shop, $request);
     }

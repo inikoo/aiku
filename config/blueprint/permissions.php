@@ -23,9 +23,9 @@ return [
     'showroom.products',
     'showroom.website',
 
-    'crm',
-    'crm.customers',
-    'crm.email-marketing',
+    'customers',
+    'customers.view',
+    'customers.edit',
 
     'hr',
     'hr.view',
@@ -39,9 +39,7 @@ return [
     'shops.products',
     'shops.products.view',
     'shops.products.edit',
-    'shops.customers',
-    'shops.customers.view',
-    'shops.customers.edit',
+
     'shops.websites',
     'shops.websites.view',
     'shops.websites.edit',
@@ -49,11 +47,6 @@ return [
     'shops.orders.view',
     'shops.orders.edit',
 
-
-
-    'osm',
-    'osm.view',
-    'osm.edit',
 
     'accounting',
     'accounting.view',

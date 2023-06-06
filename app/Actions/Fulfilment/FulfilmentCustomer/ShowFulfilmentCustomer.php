@@ -35,7 +35,7 @@ class ShowFulfilmentCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.customers.edit');
+        $this->canEdit = $request->user()->can('customers.edit');
 
         return $request->user()->hasPermissionTo("shops.customers.view");
     }

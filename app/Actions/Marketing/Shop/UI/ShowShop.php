@@ -71,7 +71,7 @@ class ShowShop extends InertiaAction
                             'icon'  => ['fal', 'fa-user'],
                             'href'  => ['shops.show.customers.index', $shop->slug],
                             'index' => [
-                                'number' => $shop->stats->number_customers
+                                'number' => $shop->crmStats->number_customers
                             ]
                         ],
                         [
@@ -79,7 +79,7 @@ class ShowShop extends InertiaAction
                             'icon'  => ['fal', 'fa-user'],
                             'href'  => ['shops.show.prospects.index', $shop->slug],
                             'index' => [
-                                'number' => $shop->stats->number_customers
+                                'number' => 'TBD'// $shop->stats->number_customers
                             ]
                         ],
                     ],

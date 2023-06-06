@@ -27,8 +27,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexProducts extends InertiaAction
 {
-    use HasUIProducts;
-
     private Shop|Tenant $parent;
     public function handle($parent): LengthAwarePaginator
     {

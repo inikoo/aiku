@@ -7,21 +7,25 @@
 
 namespace App\Actions\UI\CRM;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
+use App\Models\Catalogue\Shop;
 use App\Models\Tenancy\Tenant;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-/**
- * @property Tenant $tenant
- * @property \App\Models\Auth\User $user
- */
 class CRMDashboard
 {
     use AsAction;
     use WithInertia;
+
+    public function handle($scope)
+    {
+        return $scope;
+    }
 
     public function authorize(ActionRequest $request): bool
     {
@@ -29,27 +33,99 @@ class CRMDashboard
     }
 
 
-    public function asController(ActionRequest $request): void
+    public function inTenant(): Tenant
     {
-        $this->user   = $request->user();
-        $this->tenant = app('currentTenant');
+        return $this->handle(app('currentTenant'));
+    }
+
+    public function inShop(Shop $shop): Shop
+    {
+        return $this->handle($shop);
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(Tenant|Shop $scope, ActionRequest $request): Response
     {
-        $this->validateAttributes();
 
+        $container = null;
+        $scopeType = 'Tenant';
+        if (class_basename($scope) == 'Shop') {
+            $scopeType = 'Shop';
+            $container = [
+                'icon'    => ['fal', 'fa-store-alt'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
 
 
         return Inertia::render(
             'CRM/CRMDashboard',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs'  => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => 'CRM',
                 'pageHead'    => [
-                    'title' => __('customer relationship manager'),
+                    'title'     => __('customer relationship manager'),
+                    'container' => $container
                 ],
+                'flatTreeMaps' =>
+                    match ($scopeType) {
+                        'Shop' => [
+                            [
+
+                                [
+                                    'name'  => __('customers'),
+                                    'icon'  => ['fal', 'fa-money-check-alt'],
+                                    'href'  => ['crm.shop.customers.index', $scope->slug],
+                                    'index' => [
+                                        'number' => $scope->crmStats->number_customers
+                                    ]
+
+                                ],
+                                [
+                                    'name'  => __('orders'),
+                                    'icon'  => ['fal', 'fa-coins'],
+                                    'href'  => ['crm.shop.orders.index', $scope->slug],
+                                    'index' => [
+                                        'number' => $scope->crmStats->number_orders
+                                    ]
+
+                                ],
+
+
+                            ]
+                        ],
+                        default => [
+                            [
+
+
+                                [
+                                    'name'  => __('customers'),
+                                    'icon'  => ['fal', 'fa-cash-register'],
+                                    'href'  => ['crm.customers.index'],
+                                    'index' => [
+                                        'number' => $scope->crmStats->number_customers
+                                    ]
+
+                                ],
+                                [
+                                    'name'  => __('orders'),
+                                    'icon'  => ['fal', 'fa-money-check-alt'],
+                                    'href'  => ['crm.orders.index'],
+                                    'index' => [
+                                        'number' => $scope->crmStats->number_orders
+                                    ]
+
+                                ],
+
+
+                            ],
+
+                        ]
+                    }
 
 
             ]
@@ -57,13 +133,43 @@ class CRMDashboard
     }
 
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return [
-            'crm.hub' => [
-                'route' => 'crm.dashboard',
-                'name'  => 'crm',
-            ]
-        ];
+
+
+        return match ($routeName) {
+            'crm.shop.dashboard' =>
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'crm.shop.dashboard',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('CRM').' ('.$routeParameters['shop']->code.')',
+                        ]
+                    ]
+                ]
+            ),
+            default =>
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'crm.dashboard'
+                            ],
+                            'label' => __('CRM').' ('.__('all shops').')',
+                        ]
+                    ]
+                ]
+            )
+        };
     }
+
 }

@@ -56,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CentralDomain> $centralDomains
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, CentralMedia> $centralMedia
+ * @property-read \App\Models\Tenancy\TenantCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read \App\Models\Tenancy\TenantFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\Tenancy\Group $group
@@ -155,6 +156,12 @@ class Tenant extends SpatieTenant
     {
         return $this->hasOne(TenantSalesStats::class);
     }
+
+    public function crmStats(): HasOne
+    {
+        return $this->hasOne(TenantCRMStats::class);
+    }
+
 
     public function accountingStats(): HasOne
     {

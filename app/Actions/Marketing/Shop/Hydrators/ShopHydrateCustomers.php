@@ -9,6 +9,7 @@ namespace App\Actions\Marketing\Shop\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Enums\Sales\Customer\CustomerStateEnum;
+use App\Enums\Sales\Customer\CustomerTradeStateEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -22,8 +23,7 @@ class ShopHydrateCustomers implements ShouldBeUnique
 
     public function handle(Shop $shop): void
     {
-
-        $stats          = [
+        $stats = [
             'number_customers' => $shop->customers->count(),
         ];
 
@@ -38,7 +38,17 @@ class ShopHydrateCustomers implements ShouldBeUnique
                 Arr::get($stateCounts, $customerState->value, 0);
         }
 
-        $shop->stats->update($stats);
+        $customerTradeStatesCount = Customer::where('shop_id', $shop->id)
+            ->selectRaw('trade_state, count(*) as total')
+            ->groupBy('trade_state')
+            ->pluck('total', 'trade_state')->all();
+
+        foreach (CustomerTradeStateEnum::cases() as $customerTradeState) {
+            $stats['number_customers_trade_state_'.$customerTradeState->snake()] = Arr::get($customerTradeStatesCount, $customerTradeState->value, 0);
+        }
+
+
+        $shop->crmStats()->update($stats);
     }
 
     public function getJobUniqueId(Shop $shop): string

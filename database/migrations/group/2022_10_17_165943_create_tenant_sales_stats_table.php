@@ -5,9 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Sales\Customer\CustomerStateEnum;
-use App\Enums\Sales\Customer\CustomerTradeStateEnum;
-use App\Enums\Sales\Order\OrderStateEnum;
 use App\Stubs\Migrations\HasDateIntervalsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -24,22 +21,6 @@ return new class () extends Migration {
             $table->foreign('tenant_id')->references('id')->on('public.tenants')->onUpdate('cascade')->onDelete('cascade');
 
 
-            $table->unsignedBigInteger('number_customers')->default(0);
-
-
-            foreach (CustomerStateEnum::cases() as $customerState) {
-                $table->unsignedInteger("number_customers_state_{$customerState->snake()}")->default(0);
-            }
-
-
-            foreach (CustomerTradeStateEnum::cases() as $tradeState) {
-                $table->unsignedBigInteger('number_customers_trade_state_'.$tradeState->snake())->default(0);
-            }
-
-            $table->unsignedBigInteger('number_orders')->default(0);
-            foreach (OrderStateEnum::cases() as $orderState) {
-                $table->unsignedBigInteger('number_orders_state_'.$orderState->snake())->default(0);
-            }
 
 
             $table->unsignedBigInteger('number_invoices')->default(0);

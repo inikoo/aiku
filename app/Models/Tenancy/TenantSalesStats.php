@@ -17,22 +17,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $tenant_id
- * @property int $number_customers
- * @property int $number_customers_state_in_process
- * @property int $number_customers_state_registered
- * @property int $number_customers_state_active
- * @property int $number_customers_state_losing
- * @property int $number_customers_state_lost
- * @property int $number_customers_trade_state_none
- * @property int $number_customers_trade_state_one
- * @property int $number_customers_trade_state_many
- * @property int $number_orders
- * @property int $number_orders_state_creating
- * @property int $number_orders_state_submitted
- * @property int $number_orders_state_handling
- * @property int $number_orders_state_packed
- * @property int $number_orders_state_finalised
- * @property int $number_orders_state_settled
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund

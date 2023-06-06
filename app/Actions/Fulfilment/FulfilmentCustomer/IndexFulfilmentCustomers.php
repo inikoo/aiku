@@ -88,12 +88,12 @@ class IndexFulfilmentCustomers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.customers.edit');
+        $this->canEdit = $request->user()->can('customers.edit');
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.customers.view')
+                $request->user()->hasPermissionTo('customers.view')
             );
     }
 

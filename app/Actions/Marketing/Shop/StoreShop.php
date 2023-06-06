@@ -39,6 +39,7 @@ class StoreShop
         $shop->stats()->create();
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
+        $shop->crmStats()->create();
         $shop->serialReferences()->create(
             [
                 'model'     => SerialReferenceModelEnum::CUSTOMER,

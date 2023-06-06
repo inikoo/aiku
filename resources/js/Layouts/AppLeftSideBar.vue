@@ -28,7 +28,7 @@ import {
 	faParachuteBox,
 	faChevronDown,
     faTasksAlt,
-    faBullhorn
+    faBullhorn,
 } from "@/../private/pro-light-svg-icons"
 import { useLayoutStore } from "@/Stores/layout"
 
@@ -54,7 +54,7 @@ library.add(
 	faParachuteBox,
 	faChevronDown,
     faTasksAlt,
-    faBullhorn
+    faBullhorn,
 )
 
 

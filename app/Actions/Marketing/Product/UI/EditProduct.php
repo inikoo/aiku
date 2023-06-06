@@ -8,17 +8,15 @@
 namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Marketing\ProductResource;
+use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditProduct extends InertiaAction
 {
-    use HasUIProduct;
     public function handle(Product $product): Product
     {
         return $product;
@@ -27,6 +25,7 @@ class EditProduct extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('shops.products.edit');
+
         return $request->user()->hasPermissionTo("shops.products.edit");
     }
 
@@ -37,6 +36,7 @@ class EditProduct extends InertiaAction
         return $this->handle($product);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Product $product, ActionRequest $request): Product
     {
         $this->initialisation($request);
@@ -44,16 +44,19 @@ class EditProduct extends InertiaAction
         return $this->handle($product);
     }
 
-    public function htmlResponse(Product $product): Response
+    public function htmlResponse(Product $product, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('product'),
-                'breadcrumbs' => $this->getBreadcrumbs($product),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
-                    'title'     => $product->code,
-                    'exitEdit'  => [
+                    'title'    => $product->code,
+                    'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
@@ -62,7 +65,7 @@ class EditProduct extends InertiaAction
 
 
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
                             'title'  => __('id'),
@@ -81,10 +84,10 @@ class EditProduct extends InertiaAction
                         ]
 
                     ],
-                    'args' => [
+                    'args'      => [
                         'updateRoute' => [
-                            'name'      => 'models.product.update',
-                            'parameters'=> $product->slug
+                            'name'       => 'models.product.update',
+                            'parameters' => $product->slug
 
                         ],
                     ]
@@ -94,8 +97,13 @@ class EditProduct extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Product $product): ProductResource
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return new ProductResource($product);
+        return ShowCustomer::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }
