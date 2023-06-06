@@ -25,6 +25,7 @@ import {
 	faDollyEmpty,
 	faShoppingCart,
 	faAbacus,
+	faParachuteBox,
 	faChevronDown,
 } from "@/../private/pro-light-svg-icons"
 import { useLayoutStore } from "@/Stores/layout"
@@ -49,6 +50,7 @@ library.add(
 	faDollyEmpty,
 	faShoppingCart,
 	faAbacus,
+	faParachuteBox,
 	faChevronDown
 )
 
