@@ -8,12 +8,18 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Models\HumanResources\JobPosition;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateEmployee extends InertiaAction
 {
+    /**
+     * @throws \Exception
+     */
     public function handle(): Response
     {
         return Inertia::render(
@@ -36,18 +42,29 @@ class CreateEmployee extends InertiaAction
                         [
                             'title'  => __('personal information'),
                             'fields' => [
-
-                                'name' => [
+                                'contact_name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
-                                    'value' => ''
                                 ],
                                 'date_of_birth' => [
                                     'type'  => 'date',
                                     'label' => __('date of birth'),
                                     'value' => ''
                                 ],
-
+                                'job_title' => [
+                                    'type'        => 'select',
+                                    'label'       => __(' position'),
+                                    'options'     => Options::forModels(JobPosition::class),
+                                    'placeholder' => 'Select a Position',
+                                    'mode'        => 'single'
+                                ],
+                                'state' => [
+                                    'type'        => 'select',
+                                    'label'       => __(' state'),
+                                    'options'     => Options::forEnum(EmployeeStateEnum::class),
+                                    'placeholder' => 'Select a State',
+                                    'mode'        => 'single'
+                                ]
 
                             ]
                         ]

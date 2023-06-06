@@ -7,8 +7,10 @@
 
 namespace App\Models\HumanResources;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -24,12 +26,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_employees
  * @property float $number_work_time
  * @property string|null $share_work_time
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static Builder|JobPosition newModelQuery()
  * @method static Builder|JobPosition newQuery()
  * @method static Builder|JobPosition query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class JobPosition extends Model
 {

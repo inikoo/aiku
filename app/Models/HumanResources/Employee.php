@@ -13,17 +13,23 @@ use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Auth\User;
 use App\Models\Helpers\Issue;
+use App\Models\Media\GroupMedia;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\HumanResources\EmployeeFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -38,7 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
- * @property \Illuminate\Support\Carbon|null $date_of_birth
+ * @property Carbon|null $date_of_birth
  * @property GenderEnum|null $gender
  * @property string|null $worker_number
  * @property string|null $job_title
@@ -53,23 +59,23 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property array $job_position_scopes
  * @property array $errors
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
+ * @property-read Collection<int, Issue> $issues
+ * @property-read Collection<int, JobPosition> $jobPositions
+ * @property-read MediaCollection<int, GroupMedia> $media
  * @property-read UniversalSearch|null $universalSearch
  * @property-read User|null $user
- * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])
+ * @method static EmployeeFactory factory($count = null, $state = [])
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
  * @method static Builder|Employee onlyTrashed()
  * @method static Builder|Employee query()
  * @method static Builder|Employee withTrashed()
  * @method static Builder|Employee withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Employee extends Model implements HasMedia
 {
@@ -109,9 +115,11 @@ class Employee extends Model implements HasMedia
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return head(explode(' ', trim($this->name)));
+                return head(explode(' ', trim($this->contact_name)));
             })
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(16);
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
+            ->slugsShouldBeNoLongerThan(16);
     }
 
 

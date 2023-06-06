@@ -5,12 +5,12 @@
   -->
 
 <script setup lang="ts">
-import {ref} from 'vue'
+// import {ref} from 'vue'
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Employee} from "@/types/employee";
 import JobPositionBadges from "@/Components/Elements/Badges/JobPositionBadges.vue";
-import TableElements from "@/Components/Table/TableElements.vue";
+// import TableElements from "@/Components/Table/TableElements.vue";
 
 const props = defineProps<{
     data: object

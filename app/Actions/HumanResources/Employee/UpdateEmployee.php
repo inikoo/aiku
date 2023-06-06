@@ -34,16 +34,18 @@ class UpdateEmployee
     public function rules(): array
     {
         return [
-            'contact_name'          => ['sometimes','required'],
-            'date_of_birth'         => ['sometimes','date'],
-
+            'contact_name'  => ['sometimes','required'],
+            'date_of_birth' => ['sometimes','date'],
+            'job_title'     => ['sometimes','required'],
+            'state'         => ['sometimes','required']
         ];
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee
     {
         $request->validate();
-        return $this->handle($employee, $request->validated());
+
+        return $this->handle($employee, $request->all());
     }
 
 
