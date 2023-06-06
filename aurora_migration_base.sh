@@ -96,8 +96,8 @@ php artisan fetch:trade-units -d _base
 php artisan fetch:stocks -r -d _base
 php artisan fetch:deleted-stocks -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_stocks.dump" ${DB}
-php artisan fetch:shop-categories -d _base
-php artisan fetch:products -d _base
-pg_dump -Fc -f "devops/devel/snapshots/au_products.dump" ${DB}
+php artisan fetch:departments -d _base
+php artisan fetch:families -d _base
+pg_dump -Fc -f "devops/devel/snapshots/au_products_cats.dump" ${DB}
 
 
