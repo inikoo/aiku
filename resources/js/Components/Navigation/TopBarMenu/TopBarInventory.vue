@@ -1,23 +1,35 @@
 <template>
-	<div class="flex gap-x-6">
-		<Link
-			v-for="topMenu in layout.navigation.inventory.topMenu"
-			:href="route(topMenu.route.name)"
-			class="group space-x-1 flex items-center">
-			<FontAwesomeIcon
-				:icon="topMenu.icon"
-				class="h-4 w-4 border border-indigo-600 p-1 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white rounded"
-				aria-hidden="true" />
-			<span class="text-sm text-gray-700 capitalize">{{ topMenu.label }}</span>
-		</Link>
+	<div class="flex gap-x-3">
+
+		<!-- Left Menu -->
+		<div class="flex divide-x divide-gray-200">
+			<Link
+				v-for="topMenu in layout.navigation.inventory.topMenu"
+				:href="route(topMenu.route.name)"
+				class="group space-x-1 flex items-center px-3">
+				<FontAwesomeIcon
+					:icon="topMenu.icon"
+					class="h-4 w-4 p-1 text-gray-800 group-hover:bg-indigo-600 group-hover:text-white rounded opacity-60 group-hover:opacity-100"
+					aria-hidden="true" />
+				<span class="text-gray-800 capitalize">{{ topMenu.label }}</span>
+			</Link>
+		</div>
+
+		<!-- Dropdown -->
 		<div class="grid">
 			<AppShopNavigationDropDown class="place-self-center" />
 		</div>
-        <div class="flex divide-x divide-gray-300 justify-center rounded overflow-hidden">
-            <div class="px-2 cursor-pointer hover:bg-indigo-600 hover:text-white">Warehouse</div>
-            <div class="px-2 cursor-pointer hover:bg-indigo-600 hover:text-white">Warehouse Areas</div>
-            <div class="px-2 cursor-pointer hover:bg-indigo-600 hover:text-white">Locations</div>
-        </div>
+
+		<!-- Right Menu -->
+		<div class="flex items-center divide-x divide-gray-200 justify-center rounded overflow-hidden">
+			<div v-for="menu in rightMenu" class="group flex justify-center items-center cursor-pointer space-x-1 px-3">
+				<FontAwesomeIcon
+					:icon="menu.icon"
+					class="h-4 w-4 p-1 text-gray-800 group-hover:bg-indigo-600 group-hover:text-white rounded opacity-60 group-hover:opacity-100"
+					aria-hidden="true" />
+				<span class="text-gray-800 capitalize">{{menu.label}}</span>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -37,6 +49,21 @@ import AppShopNavigationDropDown from "@/Layouts/AppShopNavigationDropDown.vue"
 
 library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock)
 const layout = useLayoutStore()
+
+const rightMenu = [
+	{
+		'label': 'Warehouse',
+		'icon': ['fal', 'warehouse'],
+	},
+	{
+		'label': 'Warehouse Areas',
+		'icon': ['fal', 'map-signs'],
+	},
+	{
+		'label': 'Locations',
+		'icon': ['fal', 'inventory'],
+	},
+]
 </script>
 
 <style lang="scss" scoped></style>
