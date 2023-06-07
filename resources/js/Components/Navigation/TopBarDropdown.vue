@@ -75,10 +75,12 @@ const handleClick = (shopSlug) => {
         <!-- Box All Shops -->
         <MenuButton
             class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            <span class="">{{ layout.currentShopData.name }}</span>
+            <span class="">
+                {{ layout.currentShopData.name }}
+                <!-- More -->
+            </span>
             <!-- <span class="inline xl:hidden">{{ layout.currentShopData.code }}</span> -->
-            <FontAwesomeIcon aria-hidden="true" class="place-self-center ml-4 opacity-50 hover:opacity-100"
-                icon="fal fa-chevron-down" />
+            <FontAwesomeIcon aria-hidden="true" class="place-self-center ml-4 opacity-50 hover:opacity-100" icon="fal fa-chevron-down" />
         </MenuButton>
 
         <!-- Popup All Shops -->
@@ -89,18 +91,18 @@ const handleClick = (shopSlug) => {
                 class="absolute w-[134px] md:w-44 xl:w-56 divide-y divide-gray-300 top-8 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div class="py-1">
                     <MenuItem v-slot="{ active }" v-for="shop in layout.navigation[currentPage].topMenu.dropdown.options.data" :key="shop.slug">
-                    <button @click="handleClick(shop.slug)"
-                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
-                        {{ shop.name }}
-                    </button>
+                        <button @click="handleClick(shop.slug)"
+                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
+                            {{ shop.name }}
+                        </button>
                     </MenuItem>
                 </div>
                 <div class="py-1 ">
                     <MenuItem v-slot="{ active }">
-                    <button @click="handleClick(null)"
-                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
-                        {{ trans('All Shops') }}
-                    </button>
+                        <button @click="handleClick(null)"
+                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
+                            {{ trans('All Shops') }}
+                        </button>
                     </MenuItem>
                 </div>
             </MenuItems>

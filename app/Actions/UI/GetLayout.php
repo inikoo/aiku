@@ -164,13 +164,11 @@ class GetLayout
                 'route'   => 'inventory.dashboard',
                 'topMenu' => [
                     'subSections' => [
-
                         [
                             'label' => __('stocks'),
                             'icon'  => ['fal', 'fa-box'],
                             'route' => [
                                 'name' => 'inventory.stocks.index',
-
                             ]
                         ],
                         [
@@ -179,7 +177,6 @@ class GetLayout
                             'icon'    => ['fal', 'fa-boxes-alt'],
                             'route'   => [
                                 'name' => 'inventory.stock-families.index',
-
                             ]
                         ],
 
@@ -198,7 +195,7 @@ class GetLayout
                                 'tooltipSelected' => __('Warehouse'),
 
                                 'icon'   => ['fal', 'fa-warehouse'],
-                                'routes' =>
+                                'route'  =>
                                     [
                                         'all'      => ['inventory.warehouses.index'],
                                         'selected' => ['inventory.warehouses.show'],

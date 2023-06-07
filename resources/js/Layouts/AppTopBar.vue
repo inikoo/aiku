@@ -26,6 +26,23 @@
         <div v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown">
             <TopBarDropdown :currentPage="currentUrl"/>
         </div>
+
+        <!-- Right Menu -->
+        <div class="flex items-center divide-x divide-gray-200 justify-center rounded overflow-hidden">
+			<Link
+                v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown?.subsections"
+				v-for="menu in layout.navigation[currentUrl].topMenu.dropdown.subsections"
+				:href="route(menu.route.all)"
+                :title="menu.tooltip"
+				class="group flex justify-center items-center cursor-pointer space-x-1 px-4"
+            >
+				<FontAwesomeIcon
+					:icon="menu.icon"
+					class="h-4 w-4 p-1 text-gray-800 group-hover:bg-indigo-600 group-hover:text-white rounded opacity-60 group-hover:opacity-100"
+					aria-hidden="true" />
+				<span class="text-gray-800 capitalize">{{ menu.label }}</span>
+			</Link>
+		</div>
 	</div>
 </template>
 
@@ -36,10 +53,10 @@ import { router } from "@inertiajs/vue3"
 import TopBarDropdown from "@/Components/Navigation/TopBarDropdown.vue"
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog } from "@/../private/pro-light-svg-icons"
+import { faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
-library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog)
+library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt)
 const layout = useLayoutStore()
 
 const props = defineProps<{
