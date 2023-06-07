@@ -39,17 +39,11 @@
 import { Link, router } from "@inertiajs/vue3"
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import {
-	faNetworkWired,
-	faTerminal,
-	faCalendar,
-	faStopwatch,
-	faChessClock,
-} from "../../../../private/pro-light-svg-icons"
+import { faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt } from "../../../../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import AppInventoryNavigationDropDown from "@/Layouts/AppInventoryNavigationDropDown.vue";
 
-library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock)
+library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt)
 const layout = useLayoutStore()
 
 // const rightMenu = [
