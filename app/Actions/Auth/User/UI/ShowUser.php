@@ -82,10 +82,8 @@ class ShowUser extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
-                ->column(key: 'url', label: __('Module'), canBeHidden: false, sortable: true)
-                ->column(key: 'device_type', label: __('Device Type'), canBeHidden: false, sortable: true)
-                ->column(key: 'platform', label: __('Platform'), canBeHidden: false, sortable: true)
-                ->column(key: 'browser', label: __('Browser'), canBeHidden: false, sortable: true)
+                ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)
+                ->column(key: 'user_agent', label: __('User Agent'), canBeHidden: false, sortable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
                 ->defaultSort('datetime');
