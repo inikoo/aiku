@@ -10,7 +10,7 @@
 		<div
 			class="flex items-center divide-x divide-gray-200 justify-center rounded overflow-hidden">
 			<Link
-                v-if="currentUrl && layout.navigation[currentUrl].topMenu.subSections"
+                v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.subSections"
 				v-for="menu in layout.navigation[currentUrl].topMenu.subSections"
 				:href="route(menu.route.name)"
 				class="group flex justify-center items-center cursor-pointer space-x-1 px-3">
