@@ -89,58 +89,75 @@ class GetLayout
 
         if ($user->can('inventory.view')) {
             $navigation['inventory'] = [
-                'name'         => __('inventory'),
-                'icon'         => ['fal', 'fa-inventory'],
-                'route'        => 'inventory.dashboard',
-                'topMenuRight' => [
-                    [
-                        'label' => __('stocks'),
-                        'icon'  => ['fal', 'fa-box'],
-                        'route' => [
-                            'name' => 'inventory.stocks.index',
+                'name'    => __('inventory'),
+                'icon'    => ['fal', 'fa-inventory'],
+                'route'   => 'inventory.dashboard',
+                'topMenu' => [
+                    'subSections' => [
 
-                        ]
+                        [
+                            'label' => __('stocks'),
+                            'icon'  => ['fal', 'fa-box'],
+                            'route' => [
+                                'name' => 'inventory.stocks.index',
+
+                            ]
+                        ],
+                        [
+                            'label'   => __('categories'),
+                            'tooltip' => __('Stock categories'),
+                            'icon'    => ['fal', 'fa-boxes-alt'],
+                            'route'   => [
+                                'name' => 'inventory.stock-families.index',
+
+                            ]
+                        ],
+
                     ],
-                    [
-                        'label'  => __('categories'),
-                        'tooltip'=> __('Stock categories'),
-                        'icon'   => ['fal', 'fa-boxes-alt'],
-                        'route'  => [
-                            'name' => 'inventory.stock-families.index',
+                    'dropdown'    => [
 
+                        'type'        => 'warehouses',
+                        'options'     => WarehousesNavigationResource::collection(Warehouse::all()),
+                        'subsections' => [
+                            [
+                                'type'    => 'labelDependant',
+                                'label'   => __('warehouses'),
+                                'tooltip' => __('Warehouses'),
+
+                                'labelSelected'   => __('warehouse'),
+                                'tooltipSelected' => __('Warehouse'),
+
+                                'icon'   => ['fal', 'fa-warehouse'],
+                                'routes' =>
+                                    [
+                                        'all'      => ['inventory.warehouses.index'],
+                                        'selected' => ['inventory.warehouses.index'],
+
+                                    ]
+                            ],
+                            [
+                                'label'   => __('warehouse areas'),
+                                'tooltip' => __('Warehouse Areas'),
+                                'icon'    => ['fal', 'fa-map-signs'],
+                                'route'   => [
+                                    'all'      => 'inventory.warehouse-areas.index',
+                                    'selected' => 'inventory.warehouse-areas.index',
+
+                                ]
+                            ],
+                            [
+                                'label'   => __('locations'),
+                                'tooltip' => __('Locations'),
+                                'icon'    => ['fal', 'fa-inventory'],
+                                'route'   => [
+                                    'all'      => 'inventory.locations.index',
+                                    'selected' => 'inventory.locations.index',
+
+                                ]
+                            ],
                         ]
-                    ],
-
+                    ]
                 ],
-                'topMenuLeft' => [
-                    [
-                        'label'  => __('warehouses'),
-                        'tooltip'=> __('Warehouses'),
-                        'icon'   => ['fal', 'fa-warehouse'],
-                        'route'  => [
-                            'name' => 'inventory.warehouses.index',
-
-                        ]
-                    ],
-                    [
-                        'label'  => __('warehouse areas'),
-                        'tooltip'=> __('Warehouse Areas'),
-                        'icon'   => ['fal', 'fa-map-signs'],
-                        'route'  => [
-                            'name' => 'inventory.warehouse-areas.index',
-
-                        ]
-                    ],
-                    [
-                        'label'  => __('locations'),
-                        'tooltip'=> __('Locations'),
-                        'icon'   => ['fal', 'fa-inventory'],
-                        'route'  => [
-                            'name' => 'inventory.locations.index',
-
-                        ]
-                    ],
-                ]
             ];
         }
 
@@ -175,44 +192,46 @@ class GetLayout
                 'icon'    => ['fal', 'fa-user-hard-hat'],
                 'route'   => 'hr.dashboard',
                 'topMenu' => [
-                    [
-                        'label' => __('work positions'),
-                        'icon'  => ['fal', 'fa-network-wired'],
-                        'route' => [
-                            'name' => 'hr.job-positions.index',
+                    'subSections' => [
+                        [
+                            'label' => __('work positions'),
+                            'icon'  => ['fal', 'fa-network-wired'],
+                            'route' => [
+                                'name' => 'hr.job-positions.index',
 
-                        ]
-                    ],
-                    [
-                        'label' => __('employees'),
-                        'icon'  => ['fal', 'fa-terminal'],
-                        'route' => [
-                            'name' => 'hr.employees.index',
+                            ]
+                        ],
+                        [
+                            'label' => __('employees'),
+                            'icon'  => ['fal', 'fa-terminal'],
+                            'route' => [
+                                'name' => 'hr.employees.index',
 
-                        ]
-                    ],
-                    [
-                        'label' => __('calendar'),
-                        'icon'  => ['fal', 'fa-calendar'],
-                        'route' => [
-                            'name' => 'hr.calendar',
+                            ]
+                        ],
+                        [
+                            'label' => __('calendar'),
+                            'icon'  => ['fal', 'fa-calendar'],
+                            'route' => [
+                                'name' => 'hr.calendar',
 
-                        ]
-                    ],
-                    [
-                        'label' => __('time sheets'),
-                        'icon'  => ['fal', 'fa-stopwatch'],
-                        'route' => [
-                            'name' => 'hr.time-sheets.hub',
+                            ]
+                        ],
+                        [
+                            'label' => __('time sheets'),
+                            'icon'  => ['fal', 'fa-stopwatch'],
+                            'route' => [
+                                'name' => 'hr.time-sheets.hub',
 
-                        ]
-                    ],
-                    [
-                        'label' => __('clocking machines'),
-                        'icon'  => ['fal', 'fa-chess-clock'],
-                        'route' => [
-                            'name' => 'hr.clocking-machines.index',
+                            ]
+                        ],
+                        [
+                            'label' => __('clocking machines'),
+                            'icon'  => ['fal', 'fa-chess-clock'],
+                            'route' => [
+                                'name' => 'hr.clocking-machines.index',
 
+                            ]
                         ]
                     ]
                 ]
@@ -225,30 +244,32 @@ class GetLayout
                 'icon'    => ['fal', 'fa-users-cog'],
                 'route'   => 'sysadmin.dashboard',
                 'topMenu' => [
-                    [
-                        'label' => __('users'),
-                        'icon'  => ['fal', 'fa-terminal'],
-                        'route' => [
-                            'name' => 'sysadmin.users.index',
+                    'subSections' => [
+                        [
+                            'label' => __('users'),
+                            'icon'  => ['fal', 'fa-terminal'],
+                            'route' => [
+                                'name' => 'sysadmin.users.index',
 
-                        ]
-                    ],
-                    [
-                        'label' => __('guests'),
-                        'icon'  => ['fal', 'fa-user-alien'],
-                        'route' => [
-                            'name' => 'sysadmin.guests.index',
+                            ]
+                        ],
+                        [
+                            'label' => __('guests'),
+                            'icon'  => ['fal', 'fa-user-alien'],
+                            'route' => [
+                                'name' => 'sysadmin.guests.index',
 
-                        ]
-                    ],
-                    [
-                        'label' => __('system settings'),
-                        'icon'  => ['fal', 'fa-cog'],
-                        'route' => [
-                            'name' => 'sysadmin.settings',
+                            ]
+                        ],
+                        [
+                            'label' => __('system settings'),
+                            'icon'  => ['fal', 'fa-cog'],
+                            'route' => [
+                                'name' => 'sysadmin.settings',
 
-                        ]
-                    ],
+                            ]
+                        ],
+                    ]
 
                 ]
             ];
