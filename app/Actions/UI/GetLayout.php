@@ -101,9 +101,42 @@ class GetLayout
 
         if ($user->can('customers.view')) {
             $navigation['customers'] = [
-                'name'  => __('CRM'),
-                'icon'  => ['fal', 'fa-tasks-alt'],
-                'route' => 'crm.dashboard'
+                'name'    => __('CRM'),
+                'icon'    => ['fal', 'fa-tasks-alt'],
+                'route'   => 'crm.dashboard',
+                'topMenu' => [
+
+                    'dropdown' => [
+                        'type'        => 'shops',
+                        'options'     => ShopsNavigationResource::collection(Shop::all()),
+                        'subsections' => [
+                            [
+                                'label'   => __('dashboard'),
+                                'tooltip' => __('Dashboard'),
+
+
+                                'icon'   => ['fal', 'fa-tasks-alt'],
+                                'routes' =>
+                                    [
+                                        'all'      => ['crm.dashboard'],
+                                        'selected' => ['crm.shop.dashboard'],
+
+                                    ]
+                            ],
+                            [
+                                'label'   => __('customers'),
+                                'tooltip' => __('Customers'),
+                                'icon'    => ['fal', 'fa-user'],
+                                'route'   => [
+                                    'all'      => ['crm.customers.index'],
+                                    'selected' => ['crm.shop.customers.index'],
+
+                                ]
+                            ],
+
+                        ]
+                    ]
+                ],
             ];
         }
 
