@@ -67,7 +67,7 @@ const locale = useLocaleStore();
         </div>
 
         <!-- Button Add -->
-        <div class="">
+        <div class="flex items-center gap-2">
              <span v-if="data['edit']"  class="">
                 <Link :href="route(data['edit']['route']['name'],data['edit']['route']['parameters'])">
                 <Button type="button"
