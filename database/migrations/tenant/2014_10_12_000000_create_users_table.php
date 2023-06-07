@@ -30,6 +30,8 @@ return new class () extends Migration {
             $table->unique(['parent_type','parent_id']);
 
         });
+        DB::statement('CREATE INDEX ON users USING gin (contact_name gin_trgm_ops) ');
+
     }
 
 
