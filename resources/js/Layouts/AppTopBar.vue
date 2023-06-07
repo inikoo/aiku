@@ -1,6 +1,6 @@
 <template>
 	<div class="flex justify-between items-center">
-		<div class="block mb-3 ml-3 xl:w-56">
+		<div class="block pb-3 pl-3 xl:w-56">
 			<img class="h-4 mt-4 xl:h-6" src="/art/logo-color-trimmed.png" alt="Aiku" />
 			<span class="font-logo mb-1 mr-2 xl:hidden whitespace-nowrap text-sm">
 				{{ props.tenantName }}

@@ -1,16 +1,14 @@
 <template>
-	<div class="flex gap-x-6">
+	<div class="flex items-center divide-x divide-gray-200 justify-center rounded overflow-hidden">
 		<Link
-			v-for="topMenu in layout.navigation.sysadmin.topMenu"
-			:href="route(topMenu.route.name)"
-			class="space-x-1 flex items-center"
-		>
+			v-for="menu in layout.navigation.sysadmin.topMenu"
+			:href="route(menu.route.name)"
+			class="group flex justify-center items-center cursor-pointer space-x-1 px-3">
 			<FontAwesomeIcon
-				:icon="topMenu.icon"
-				class="h-4 w-4 border border-indigo-600 p-1 text-indigo-700 rounded"
-				aria-hidden="true"
-			/>
-			<span class="text-gray-700 capitalize">{{ topMenu.label }}</span>
+				:icon="menu.icon"
+				class="h-4 w-4 p-1 text-gray-800 group-hover:bg-indigo-600 group-hover:text-white rounded opacity-60 group-hover:opacity-100"
+				aria-hidden="true" />
+			<span class="text-gray-800 capitalize">{{ menu.label }}</span>
 		</Link>
 	</div>
 </template>
