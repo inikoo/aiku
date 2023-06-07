@@ -17,7 +17,7 @@ class GetElasticsearchDocument
 {
     use AsObject;
 
-    public function handle(string $query): LengthAwarePaginator|bool
+    public function handle(string $query = null): LengthAwarePaginator|bool
     {
         if ($client = BuildElasticsearchClient::run()) {
             try {
@@ -27,8 +27,9 @@ class GetElasticsearchDocument
                     'size' => 10000
                 ];
 
-
-                $params['body']['query']['match']['username'] = $query;
+                if(! blank($query)) {
+                    $params['body']['query']['match']['username'] = $query;
+                }
 
                 foreach (json_decode($client->search($params), true)['hits']['hits'] as $result) {
                     $results[] = [

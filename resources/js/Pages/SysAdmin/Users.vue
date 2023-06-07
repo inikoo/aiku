@@ -8,18 +8,44 @@
 import {Head} from '@inertiajs/vue3';
 import  PageHeading from '@/Components/Headings/PageHeading.vue'
 import TableUsers from "@/Pages/Tables/TableUsers.vue";
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import {computed, ref} from "vue";
+import {useTabChange} from "@/Composables/tab-change";
+import WarehouseDashboard from "@/Pages/Inventory/WarehouseDashboard.vue";
+import TableWarehouseAreas from "@/Pages/Tables/TableWarehouseAreas.vue";
+import TableLocations from "@/Pages/Tables/TableLocations.vue";
+import TableHistoryUsers from "@/Pages/Tables/TableHistoryUsers.vue";
 
 const props = defineProps <{
     pageHead: object
+    tabs: {
+        current: string;
+        navigation: object;
+    },
     title: string
-    data: object
+    users: object
+    users_requests: object
 }>()
+
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        users: TableUsers,
+        users_requests: TableHistoryUsers
+    };
+    return components[currentTab.value];
+
+});
 
 </script>
 
 <template layout="App">
     <Head :title="title"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableUsers :data="data" />
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <component :is="component" :data="props[currentTab]"></component>
 </template>
-
