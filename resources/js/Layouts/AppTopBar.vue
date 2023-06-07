@@ -1,5 +1,5 @@
 <template>
-	<div class="flex justify-between items-center">
+	<div class="flex justify-between items-center gap-5">
 		<div class="block pb-3 pl-3 xl:w-56">
 			<img class="h-4 mt-4 xl:h-6" src="/art/logo-color-trimmed.png" alt="Aiku" />
 			<span class="font-logo mb-1 mr-2 xl:hidden whitespace-nowrap text-sm">
@@ -13,7 +13,7 @@
                 v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.subSections"
 				v-for="menu in layout.navigation[currentUrl].topMenu.subSections"
 				:href="route(menu.route.name)"
-				class="group flex justify-center items-center cursor-pointer space-x-1 px-3">
+				class="group flex justify-center items-center cursor-pointer space-x-1 px-4">
 				<FontAwesomeIcon
 					:icon="menu.icon"
 					class="h-4 w-4 p-1 text-gray-800 group-hover:bg-indigo-600 group-hover:text-white rounded opacity-60 group-hover:opacity-100"
