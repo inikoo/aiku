@@ -1,3 +1,33 @@
+<script setup lang="ts">
+import { Link } from "@inertiajs/vue3"
+import { ref } from "vue"
+import { router } from "@inertiajs/vue3"
+import TopBarDropdown from "@/Components/Navigation/TopBarDropdown.vue"
+import { useLayoutStore } from "@/Stores/layout"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt,
+    faPeopleArrows, faBoxUsd, faPersonDolly, faTruck, faClipboardList
+} from "@/../private/pro-light-svg-icons"
+import { library } from "@fortawesome/fontawesome-svg-core"
+
+library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt,
+    faPeopleArrows, faBoxUsd, faPersonDolly, faTruck, faClipboardList
+)
+const layout = useLayoutStore()
+
+const props = defineProps<{
+    tenantName: string
+}>()
+
+const currentUrl = ref()
+router.on("navigate", (event) => {
+    currentUrl.value = event.detail.page.url.split("/")[1]
+})
+
+</script>
+
+<style scoped></style>
+
 <template>
 	<div class="flex justify-between items-center gap-5">
 		<div class="block pb-3 pl-3 xl:w-56">
@@ -46,28 +76,3 @@
 	</div>
 </template>
 
-<script setup lang="ts">
-import { Link } from "@inertiajs/vue3"
-import { ref } from "vue"
-import { router } from "@inertiajs/vue3"
-import TopBarDropdown from "@/Components/Navigation/TopBarDropdown.vue"
-import { useLayoutStore } from "@/Stores/layout"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt } from "@/../private/pro-light-svg-icons"
-import { library } from "@fortawesome/fontawesome-svg-core"
-
-library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt)
-const layout = useLayoutStore()
-
-const props = defineProps<{
-	tenantName: string
-}>()
-
-const currentUrl = ref()
-router.on("navigate", (event) => {
-	currentUrl.value = event.detail.page.url.split("/")[1]
-})
-
-</script>
-
-<style scoped></style>
