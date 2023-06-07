@@ -157,15 +157,18 @@ class GetLayout
                         'options'     => WarehousesNavigationResource::collection(Warehouse::all()),
                         'subsections' => [
                             [
-                                'label'   => __('dashboard'),
-                                'tooltip' => __('Dashboard'),
+                                'label'   => __('warehouse'),
+                                'tooltip' => __('Warehouse'),
 
+
+                                'labelSelected'   => __('warehouse'),
+                                'tooltipSelected' => __('Warehouse'),
 
                                 'icon'   => ['fal', 'fa-warehouse'],
                                 'routes' =>
                                     [
                                         'all'      => ['inventory.warehouses.index'],
-                                        'selected' => ['inventory.warehouses.index'],
+                                        'selected' => ['inventory.warehouses.show'],
 
                                     ]
                             ],
@@ -175,7 +178,7 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-map-signs'],
                                 'route'   => [
                                     'all'      => 'inventory.warehouse-areas.index',
-                                    'selected' => 'inventory.warehouse-areas.index',
+                                    'selected' => 'inventory.warehouse.show.warehouse-areas.index',
 
                                 ]
                             ],
@@ -185,7 +188,7 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-inventory'],
                                 'route'   => [
                                     'all'      => 'inventory.locations.index',
-                                    'selected' => 'inventory.locations.index',
+                                    'selected' => 'inventory.warehouse.show.locations.index',
 
                                 ]
                             ],
