@@ -36,6 +36,7 @@ class GetElasticsearchDocument
                         'ip_address'    => $result['_source']['ip_address'],
                         'location'      => json_decode($result['_source']['location'], true),
                         'device_type'   => $result['_source']['device_type'],
+                        'module'        => $result['_source']['module'],
                         'platform'      => $result['_source']['platform'],
                         'browser'       => $result['_source']['browser'],
                         'route_name'    => $result['_source']['route']['name'],

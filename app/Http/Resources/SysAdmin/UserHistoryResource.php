@@ -9,6 +9,7 @@ namespace App\Http\Resources\SysAdmin;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 use JsonSerializable;
 
 class UserHistoryResource extends JsonResource
@@ -20,6 +21,7 @@ class UserHistoryResource extends JsonResource
             'ip_address'      => $this['ip_address'],
             'route_name'      => $this['route_name'],
             'route_parameter' => $this['arguments'],
+            'module'          => Str::title($this['module']),
             'datetime'        => $this['datetime'],
             'location'        => $this['location'],
             'user_agent'      => [
