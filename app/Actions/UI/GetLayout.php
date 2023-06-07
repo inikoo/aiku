@@ -9,9 +9,11 @@ namespace App\Actions\UI;
 
 use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Http\Resources\UI\WarehousesNavigationResource;
+use App\Http\Resources\UI\WebsitesNavigationResource;
 use App\Models\Auth\User;
 use App\Models\Inventory\Warehouse;
 use App\Models\Marketing\Shop;
+use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetLayout
@@ -56,17 +58,85 @@ class GetLayout
 
         if ($user->can('websites.view')) {
             $navigation['websites'] = [
-                'name'  => __('Websites'),
-                'icon'  => ['fal', 'fa-globe'],
-                'route' => 'websites.dashboard'
+                'name'    => __('Websites'),
+                'icon'    => ['fal', 'fa-globe'],
+                'route'   => 'websites.dashboard',
+                'topMenu' => [
+
+                    'dropdown' => [
+
+                        'type'        => 'websites',
+                        'options'     => WebsitesNavigationResource::collection(Website::all()),
+                        'subsections' => [
+                            [
+                                'label'   => __('dashboard'),
+                                'tooltip' => __('Dashboard'),
+
+
+                                'icon'   => ['fal', 'fa-globe'],
+                                'routes' =>
+                                    [
+                                        'all'      => ['websites.dashboard'],
+                                        'selected' => ['websites.show.dashboard'],
+
+                                    ]
+                            ],
+                            [
+                                'label'   => __('webpages'),
+                                'tooltip' => __('Webpages'),
+                                'icon'    => ['fal', 'fa-browser'],
+                                'route'   => [
+                                    'all'      => ['websites.dashboard'],
+                                    'selected' => ['websites.show.dashboard'],
+
+                                ]
+                            ],
+
+                        ]
+                    ]
+                ],
+
             ];
         }
 
         if ($user->can('customers.view')) {
             $navigation['customers'] = [
-                'name'  => __('CRM'),
-                'icon'  => ['fal', 'fa-tasks-alt'],
-                'route' => 'crm.dashboard'
+                'name'    => __('CRM'),
+                'icon'    => ['fal', 'fa-tasks-alt'],
+                'route'   => 'crm.dashboard',
+                'topMenu' => [
+
+                    'dropdown' => [
+                        'type'        => 'shops',
+                        'options'     => ShopsNavigationResource::collection(Shop::all()),
+                        'subsections' => [
+                            [
+                                'label'   => __('dashboard'),
+                                'tooltip' => __('Dashboard'),
+
+
+                                'icon'   => ['fal', 'fa-tasks-alt'],
+                                'routes' =>
+                                    [
+                                        'all'      => ['crm.dashboard'],
+                                        'selected' => ['crm.shop.dashboard'],
+
+                                    ]
+                            ],
+                            [
+                                'label'   => __('customers'),
+                                'tooltip' => __('Customers'),
+                                'icon'    => ['fal', 'fa-user'],
+                                'route'   => [
+                                    'all'      => ['crm.customers.index'],
+                                    'selected' => ['crm.shop.customers.index'],
+
+                                ]
+                            ],
+
+                        ]
+                    ]
+                ],
             ];
         }
 
@@ -120,9 +190,9 @@ class GetLayout
                         'options'     => WarehousesNavigationResource::collection(Warehouse::all()),
                         'subsections' => [
                             [
-                                'type'    => 'labelDependant',
-                                'label'   => __('warehouses'),
-                                'tooltip' => __('Warehouses'),
+                                'label'   => __('warehouse'),
+                                'tooltip' => __('Warehouse'),
+
 
                                 'labelSelected'   => __('warehouse'),
                                 'tooltipSelected' => __('Warehouse'),
@@ -131,7 +201,7 @@ class GetLayout
                                 'routes' =>
                                     [
                                         'all'      => ['inventory.warehouses.index'],
-                                        'selected' => ['inventory.warehouses.index'],
+                                        'selected' => ['inventory.warehouses.show'],
 
                                     ]
                             ],
@@ -141,7 +211,7 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-map-signs'],
                                 'route'   => [
                                     'all'      => 'inventory.warehouse-areas.index',
-                                    'selected' => 'inventory.warehouse-areas.index',
+                                    'selected' => 'inventory.warehouse.show.warehouse-areas.index',
 
                                 ]
                             ],
@@ -151,7 +221,7 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-inventory'],
                                 'route'   => [
                                     'all'      => 'inventory.locations.index',
-                                    'selected' => 'inventory.locations.index',
+                                    'selected' => 'inventory.warehouse.show.locations.index',
 
                                 ]
                             ],
