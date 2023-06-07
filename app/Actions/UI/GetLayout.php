@@ -89,10 +89,10 @@ class GetLayout
 
         if ($user->can('inventory.view')) {
             $navigation['inventory'] = [
-                'name'    => __('inventory'),
-                'icon'    => ['fal', 'fa-inventory'],
-                'route'   => 'inventory.dashboard',
-                'topMenu' => [
+                'name'         => __('inventory'),
+                'icon'         => ['fal', 'fa-inventory'],
+                'route'        => 'inventory.dashboard',
+                'topMenuRight' => [
                     [
                         'label' => __('stocks'),
                         'icon'  => ['fal', 'fa-box'],
@@ -111,6 +111,35 @@ class GetLayout
                         ]
                     ],
 
+                ],
+                'topMenuLeft' => [
+                    [
+                        'label'  => __('warehouses'),
+                        'tooltip'=> __('Warehouses'),
+                        'icon'   => ['fal', 'fa-warehouse'],
+                        'route'  => [
+                            'name' => 'inventory.warehouses.index',
+
+                        ]
+                    ],
+                    [
+                        'label'  => __('warehouse areas'),
+                        'tooltip'=> __('Warehouse Areas'),
+                        'icon'   => ['fal', 'fa-map-signs'],
+                        'route'  => [
+                            'name' => 'inventory.warehouse-areas.index',
+
+                        ]
+                    ],
+                    [
+                        'label'  => __('locations'),
+                        'tooltip'=> __('Locations'),
+                        'icon'   => ['fal', 'fa-inventory'],
+                        'route'  => [
+                            'name' => 'inventory.locations.index',
+
+                        ]
+                    ],
                 ]
             ];
         }

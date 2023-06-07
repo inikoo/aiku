@@ -91,7 +91,7 @@ class EditWarehouseArea extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.warehouse_area.update',
+                            'name'      => 'models.warehouse-area.update',
                             'parameters'=> $warehouseArea->slug
 
                         ],
