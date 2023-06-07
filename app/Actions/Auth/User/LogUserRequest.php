@@ -33,6 +33,7 @@ class LogUserRequest
             'tenant'      => $tenant->slug,
             'username'    => $user->username,
             'route'       => $routeData,
+            'module'      => explode('.', $routeData['name'])[0],
             'ip_address'  => $ip,
             'location'    => json_encode($this->getLocation($ip)), // reference: https://github.com/stevebauman/location
             'user_agent'  => $userAgent,
