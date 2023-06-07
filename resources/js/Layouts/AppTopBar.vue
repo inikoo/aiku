@@ -21,6 +21,11 @@
 				<span class="text-gray-800 capitalize">{{ menu.label }}</span>
 			</Link>
 		</div>
+
+        <!-- Dropdown -->
+        <div v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown">
+            <TopBarDropdown :currentPage="currentUrl"/>
+        </div>
 	</div>
 </template>
 
@@ -28,6 +33,7 @@
 import { Link } from "@inertiajs/vue3"
 import { ref } from "vue"
 import { router } from "@inertiajs/vue3"
+import TopBarDropdown from "@/Components/Navigation/TopBarDropdown.vue"
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog } from "@/../private/pro-light-svg-icons"

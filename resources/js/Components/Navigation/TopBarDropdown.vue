@@ -9,41 +9,42 @@ import { ref } from "vue";
 
 const layout = useLayoutStore();
 
-const currentWarehouse = ref(layout.currentShopData);
+const props = defineProps<{
+    currentPage: string
+}>()
 
-const handleClick = (warehouseSlug) => {
-    console.log(layout);
+const currentShop = ref(layout.currentShopData);
+
+const handleClick = (shopSlug) => {
     let routeName = route().current();
     let parameters = route().params;
 
-    if (warehouseSlug) {
+    if (shopSlug) {
 
-        if (route().params.hasOwnProperty('warehouse')) {
-            parameters = { warehouse: warehouseSlug }
-            if (routeName.startsWith('c.locations')) {
-                routeName = 'warehouses.show.warehouse-areas.show.locations.index'
-            } else if (routeName.startsWith('warehouses.show.warehouse-areas')) {
-                routeName = 'warehouses.show.warehouse-areas.index'
-            } else if (routeName.startsWith('warehouses.show')) {
-                routeName = 'warehouses.show'
+        if (route().params.hasOwnProperty('shop')) {
+            parameters = { shop: shopSlug }
+            if (routeName.startsWith('shops.show.customers')) {
+                routeName = 'shops.show.customers.index'
+            } else if (routeName.startsWith('shops.show.orders')) {
+                routeName = routeName.replace(/.orders.*/, '.orders.index');
+            } else if (routeName.startsWith('shops.show.catalogue')) {
+                routeName = 'shops.show.catalogue.hub'
+            } else if (routeName.startsWith('shops.show')) {
+                routeName = 'shops.show'
             }
         } else {
-            if (routeName.startsWith('warehouse-areas')) {
-                parameters = { warehouse: warehouseSlug }
-                routeName = 'warehouses.show.warehouse-areas.index'
+            if (routeName.startsWith('customers')) {
+                parameters = { shop: shopSlug }
+                routeName = 'shops.show.customers.index'
             } else if (routeName.startsWith('catalogue.hub')) {
-                parameters = { warehouse: warehouseSlug }
+                parameters = { shop: shopSlug }
                 routeName = 'shops.show.catalogue.hub'
             }
-
         }
         // router.patch(route('sessions.current-shop.update', [shop.slug]));
 
-
     } else {
-
-        if (route().params.hasOwnProperty('warehouse')) {
-
+        if (route().params.hasOwnProperty('shop')) {
             parameters = {}
             if (routeName.startsWith('shops.show.customers')) {
                 routeName = 'customers.index';
@@ -51,20 +52,19 @@ const handleClick = (warehouseSlug) => {
                 routeName = 'shops.index'
             }
         }
-
         //        router.delete(route('sessions.current-shop.delete'));
     }
 
     router.get(route(routeName, parameters));
 
-    // layout.currentWarehouseSlug = warehouseSlug
-    // layout.currentWarehouseData = layout.warehouses[layout.currentWarehouseSlug] ?? {
-    //     slug: null,
-    //     name: trans('All Warehouse'),
-    //     code: trans('All'),
-    // };
-    //
-    // currentWarehouse.value = layout.currentWarehouseData;
+    layout.currentShopSlug = shopSlug
+    layout.currentShopData = layout.shops[layout.currentShopSlug] ?? {
+        slug: null,
+        name: trans('All shops'),
+        code: trans('All'),
+    };
+
+    currentShop.value = layout.currentShopData;
 }
 
 
@@ -72,7 +72,7 @@ const handleClick = (warehouseSlug) => {
 
 <template>
     <Menu as="div" class="ml-0 md:ml-8 lg:ml-0 relative inline-flex text-right w-10/12 md:w-44">
-        <!-- Box All Warehouse -->
+        <!-- Box All Shops -->
         <MenuButton
             class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
             <span class="">{{ layout.currentShopData.name }}</span>
@@ -88,7 +88,7 @@ const handleClick = (warehouseSlug) => {
             <MenuItems
                 class="absolute w-[134px] md:w-44 xl:w-56 divide-y divide-gray-300 top-8 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div class="py-1">
-                    <MenuItem v-slot="{ active }" v-for="shop in layout.shopsInDropDown" :key="shop.slug">
+                    <MenuItem v-slot="{ active }" v-for="shop in layout.navigation[currentPage].topMenu.dropdown.options.data" :key="shop.slug">
                     <button @click="handleClick(shop.slug)"
                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
                         {{ shop.name }}
