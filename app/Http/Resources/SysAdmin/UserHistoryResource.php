@@ -22,9 +22,11 @@ class UserHistoryResource extends JsonResource
             'route_parameter' => $this['arguments'],
             'datetime'        => $this['datetime'],
             'location'        => $this['location'],
-            'device_type'     => $this['device_type'],
-            'platform'        => $this['platform'],
-            'browser'         => $this['browser'],
+            'user_agent'      => [
+                $this['device_type'],
+                $this['platform'],
+                $this['browser']
+            ],
             'url'             => $this['url'],
         ];
     }
