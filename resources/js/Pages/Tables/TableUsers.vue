@@ -50,7 +50,7 @@ function userRoute(user: User) {
 //     },
 // ])
 // const compFakeElements = computed(() => {
-//     return fakeElements.value.filter((i) => 
+//     return fakeElements.value.filter((i) =>
 //         i.show == false
 //     )
 // })
@@ -70,7 +70,7 @@ function userRoute(user: User) {
     </Table>
     -->
     <!-- {{ compFakeElements }} -->
-    <Table :resource="data" class="mt-5">
+    <Table :resource="data" name="user" class="mt-5">
         <template #cell(username)="{ item: user }">
             <Link :href="userRoute(user)">
             <template v-if="user.username">{{ user.username }}</template>
