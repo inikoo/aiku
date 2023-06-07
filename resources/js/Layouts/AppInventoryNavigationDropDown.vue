@@ -9,33 +9,30 @@ import { ref } from "vue";
 
 const layout = useLayoutStore();
 
-const currentShop = ref(layout.currentShopData);
+const currentWarehouse = ref(layout.currentShopData);
 
-const handleClick = (shopSlug) => {
-
-
+const handleClick = (warehouseSlug) => {
+    console.log(layout);
     let routeName = route().current();
     let parameters = route().params;
 
-    if (shopSlug) {
+    if (warehouseSlug) {
 
-        if (route().params.hasOwnProperty('shop')) {
-            parameters = { shop: shopSlug }
-            if (routeName.startsWith('shops.show.customers')) {
-                routeName = 'shops.show.customers.index'
-            } else if (routeName.startsWith('shops.show.orders')) {
-                routeName = routeName.replace(/.orders.*/, '.orders.index');
-            } else if (routeName.startsWith('shops.show.catalogue')) {
-                routeName = 'shops.show.catalogue.hub'
-            } else if (routeName.startsWith('shops.show')) {
-                routeName = 'shops.show'
+        if (route().params.hasOwnProperty('warehouse')) {
+            parameters = { warehouse: warehouseSlug }
+            if (routeName.startsWith('c.locations')) {
+                routeName = 'warehouses.show.warehouse-areas.show.locations.index'
+            } else if (routeName.startsWith('warehouses.show.warehouse-areas')) {
+                routeName = 'warehouses.show.warehouse-areas.index'
+            } else if (routeName.startsWith('warehouses.show')) {
+                routeName = 'warehouses.show'
             }
         } else {
-            if (routeName.startsWith('customers')) {
-                parameters = { shop: shopSlug }
-                routeName = 'shops.show.customers.index'
+            if (routeName.startsWith('warehouse-areas')) {
+                parameters = { warehouse: warehouseSlug }
+                routeName = 'warehouses.show.warehouse-areas.index'
             } else if (routeName.startsWith('catalogue.hub')) {
-                parameters = { shop: shopSlug }
+                parameters = { warehouse: warehouseSlug }
                 routeName = 'shops.show.catalogue.hub'
             }
 
@@ -45,7 +42,7 @@ const handleClick = (shopSlug) => {
 
     } else {
 
-        if (route().params.hasOwnProperty('shop')) {
+        if (route().params.hasOwnProperty('warehouse')) {
 
             parameters = {}
             if (routeName.startsWith('shops.show.customers')) {
@@ -60,14 +57,14 @@ const handleClick = (shopSlug) => {
 
     router.get(route(routeName, parameters));
 
-    layout.currentShopSlug = shopSlug
-    layout.currentShopData = layout.shops[layout.currentShopSlug] ?? {
-        slug: null,
-        name: trans('All shops'),
-        code: trans('All'),
-    };
-
-    currentShop.value = layout.currentShopData;
+    // layout.currentWarehouseSlug = warehouseSlug
+    // layout.currentWarehouseData = layout.warehouses[layout.currentWarehouseSlug] ?? {
+    //     slug: null,
+    //     name: trans('All Warehouse'),
+    //     code: trans('All'),
+    // };
+    //
+    // currentWarehouse.value = layout.currentWarehouseData;
 }
 
 
@@ -75,7 +72,7 @@ const handleClick = (shopSlug) => {
 
 <template>
     <Menu as="div" class="ml-0 md:ml-8 lg:ml-0 relative inline-flex text-right w-10/12 md:w-44">
-        <!-- Box All Shops -->
+        <!-- Box All Warehouse -->
         <MenuButton
             class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
             <span class="">{{ layout.currentShopData.name }}</span>

@@ -37,15 +37,15 @@ class IndexJobPosition
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('employees.slug', 'LIKE', "%$value%")
-                    ->orWhere('employees.name', 'LIKE', "%$value%");
+                    ->orWhere('employees.contact_name', 'LIKE', "%$value%");
             });
         });
 
 
         return QueryBuilder::for(Employee::class)
             ->defaultSort('job_positions.slug')
-            ->select(['slug', 'id', 'name'])
-            ->allowedSorts(['slug', 'name'])
+            ->select(['slug', 'id', 'contact_name'])
+            ->allowedSorts(['slug', 'contact_name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
