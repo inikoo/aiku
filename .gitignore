@@ -27,7 +27,4 @@ staging-deploy.sh
 prod-diff.sh
 /public/tenants/
 /hash
-export_*.sh
-import_*.sh
 /create_aurora_tenants.sh
-/import_aurora_db.sh
