@@ -6,7 +6,8 @@
 				{{ props.tenantName }}
 			</span>
 		</div>
-		<!-- <component :is="component[currentUrl]" /> -->
+		
+		<!-- Left Menu -->
 		<div
 			class="flex items-center divide-x divide-gray-200 justify-center rounded overflow-hidden">
 			<Link
