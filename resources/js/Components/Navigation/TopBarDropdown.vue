@@ -13,58 +13,33 @@ const props = defineProps<{
     currentPage: string
 }>()
 
-const currentShop = ref(layout.currentShopData);
+console.log(route().current()) // inventory.warehouses.show
+console.log(layout[props.currentPage].routeSingle) // inventory.warehouses.show
+console.log(route().params) // { warehouse: "ed" }
 
-const handleClick = (shopSlug) => {
-    let routeName = route().current();
-    let parameters = route().params;
+const checkCurrentRoute = (slug: string) => {
+    if (props.currentPage == 'inventory'){
+        return route().params.warehouse == slug ? true : false 
+    }
+}
 
-    if (shopSlug) {
+const handleClick = (option) => {
+    layout[props.currentPage].currentData = option
 
-        if (route().params.hasOwnProperty('shop')) {
-            parameters = { shop: shopSlug }
-            if (routeName.startsWith('shops.show.customers')) {
-                routeName = 'shops.show.customers.index'
-            } else if (routeName.startsWith('shops.show.orders')) {
-                routeName = routeName.replace(/.orders.*/, '.orders.index');
-            } else if (routeName.startsWith('shops.show.catalogue')) {
-                routeName = 'shops.show.catalogue.hub'
-            } else if (routeName.startsWith('shops.show')) {
-                routeName = 'shops.show'
-            }
-        } else {
-            if (routeName.startsWith('customers')) {
-                parameters = { shop: shopSlug }
-                routeName = 'shops.show.customers.index'
-            } else if (routeName.startsWith('catalogue.hub')) {
-                parameters = { shop: shopSlug }
-                routeName = 'shops.show.catalogue.hub'
-            }
+    // if click 'All Inventories'
+    if (option == null) {
+        layout[props.currentPage].currentData = {
+            slug: null,
+            name: trans('All inventories'),
+            code: trans('All')
         }
-        // router.patch(route('sessions.current-shop.update', [shop.slug]));
 
-    } else {
-        if (route().params.hasOwnProperty('shop')) {
-            parameters = {}
-            if (routeName.startsWith('shops.show.customers')) {
-                routeName = 'customers.index';
-            } else {
-                routeName = 'shops.index'
-            }
-        }
-        //        router.delete(route('sessions.current-shop.delete'));
+        // Redirect to warehouses
+        return router.get(route(`${layout[props.currentPage].routeAll}`))
     }
 
-    router.get(route(routeName, parameters));
-
-    layout.currentShopSlug = shopSlug
-    layout.currentShopData = layout.shops[layout.currentShopSlug] ?? {
-        slug: null,
-        name: trans('All shops'),
-        code: trans('All'),
-    };
-
-    currentShop.value = layout.currentShopData;
+    // Redirect to warehouse
+    router.get(route(`${layout[props.currentPage].routeSingle}`, option.slug))
 }
 
 
@@ -76,7 +51,7 @@ const handleClick = (shopSlug) => {
         <MenuButton
             class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
             <span class="">
-                {{ layout.currentShopData.name }}
+                {{ layout[props.currentPage].currentData.name }}
                 <!-- More -->
             </span>
             <!-- <span class="inline xl:hidden">{{ layout.currentShopData.code }}</span> -->
@@ -90,17 +65,17 @@ const handleClick = (shopSlug) => {
             <MenuItems
                 class="absolute w-[134px] md:w-44 xl:w-56 divide-y divide-gray-300 top-8 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div class="py-1">
-                    <MenuItem v-slot="{ active }" v-for="shop in layout.navigation[currentPage].topMenu.dropdown.options.data" :key="shop.slug">
-                        <button @click="handleClick(shop.slug)"
-                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
-                            {{ shop.name }}
+                    <MenuItem v-slot="{ active }" v-for="option in layout.navigation[props.currentPage].topMenu.dropdown.options.data" :key="option.slug">
+                        <button @click="handleClick(option)"
+                            :class="[active ? 'bg-indigo-100 text-gray-900' : 'text-gray-700', checkCurrentRoute(option.slug) ? 'font-semibold text-indigo-600' : '', 'w-full block px-4 py-2 text-sm']">
+                            {{ option.name }}
                         </button>
                     </MenuItem>
                 </div>
                 <div class="py-1 ">
                     <MenuItem v-slot="{ active }">
                         <button @click="handleClick(null)"
-                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
+                            :class="[active ? 'bg-indigo-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
                             {{ trans('All Shops') }}
                         </button>
                     </MenuItem>

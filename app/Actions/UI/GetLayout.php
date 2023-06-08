@@ -185,6 +185,7 @@ class GetLayout
 
                         'type'        => 'warehouses',
                         'options'     => WarehousesNavigationResource::collection(Warehouse::all()),
+                        'optionRoute' => 'inventory.warehouses.show',
                         'subsections' => [
                             [
                                 'label'   => __('warehouse'),

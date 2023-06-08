@@ -18,9 +18,16 @@ export const useLayoutStore = defineStore('layout', {
                 slug: null,
                 name: trans('All shops'),
                 code: trans('All')
-            }
-
-            ,
+            },
+            inventory: {
+                routeSingle: 'inventory.warehouses.show',
+                routeAll: 'inventory.warehouses.index',
+                currentData: {
+                    slug: null,
+                    name: trans('All inventories'),
+                    code: trans('All')
+                }
+            },
             tenant     : {},
         }
     ),
