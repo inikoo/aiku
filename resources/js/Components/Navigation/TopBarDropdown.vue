@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { trans } from 'laravel-vue-i18n';
 import { useLayoutStore } from '@/Stores/layout.js';
 import { router } from '@inertiajs/vue3';
-import { ref } from "vue";
 
 const layout = useLayoutStore();
 
@@ -13,14 +12,15 @@ const props = defineProps<{
     currentPage: string
 }>()
 
-console.log(route().current()) // inventory.warehouses.show
-console.log(layout[props.currentPage].routeSingle) // inventory.warehouses.show
-console.log(route().params) // { warehouse: "ed" }
+// console.log(route().current()) // inventory.warehouses.show
+// console.log(layout[props.currentPage].routeSingle) // inventory.warehouses.show
+// console.log(route().params) // { warehouse: "ed" }
+
+console.log()
 
 const isCurrentRoute = (slug: string) => {
-    if (props.currentPage == 'inventory'){
-        return route().params.warehouse == slug ? true : false 
-    }
+    // To check if the value from first key is same as slug from selected dropdown
+    return route().params[Object.keys(route().params)[0]] == slug ? true : false
 }
 
 const handleClick = (option) => {
@@ -46,7 +46,7 @@ const handleClick = (option) => {
 </script>
 
 <template>
-    <Menu as="div" class="ml-0 md:ml-8 lg:ml-0 relative inline-flex text-right w-10/12 md:w-44">
+    <Menu as="div" class="ml-0 md:ml-8 lg:ml-0 relative inline-flex text-right w-10/12 md:w-56">
         <!-- Box All Shops -->
         <MenuButton
             class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">

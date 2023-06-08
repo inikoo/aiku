@@ -6,8 +6,8 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faEmptySet, faStar, faWrench, faWarehouse } from '@/../private/pro-light-svg-icons';
-library.add(faEmptySet, faStar, faWrench, faWarehouse);
+import { faEmptySet, faStar, faWrench, faWarehouse, faStore } from '@/../private/pro-light-svg-icons';
+library.add(faEmptySet, faStar, faWrench, faWarehouse, faStore);
 import { useLocaleStore } from '@/Stores/locale.js';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
