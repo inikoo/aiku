@@ -54,10 +54,10 @@ import { router } from "@inertiajs/vue3"
 import TopBarDropdown from "@/Components/Navigation/TopBarDropdown.vue"
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt } from "@/../private/pro-light-svg-icons"
+import { faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt, faWarehouse, faMapSigns } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
-library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt)
+library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt, faWarehouse, faMapSigns)
 const layout = useLayoutStore()
 
 const props = defineProps<{
