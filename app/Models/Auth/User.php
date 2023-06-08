@@ -70,7 +70,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|User withoutTrashed()
  * @mixin Eloquent
  */
-class User extends Authenticatable implements Auditable
+class User extends Authenticatable
 {
     use HasApiTokens;
     use HasFactory;
@@ -79,7 +79,7 @@ class User extends Authenticatable implements Auditable
     use HasRoles;
     use UsesTenantConnection;
     use HasFactory;
-    use \OwenIt\Auditing\Auditable;
+//    use \OwenIt\Auditing\Auditable;
 
 
     protected $guarded = [
