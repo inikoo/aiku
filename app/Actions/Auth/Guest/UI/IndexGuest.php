@@ -15,7 +15,6 @@ use App\Http\Resources\SysAdmin\GuestResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Auth\Guest;
 use Closure;
-use DB;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -30,9 +29,7 @@ class IndexGuest extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $quotedValue=DB::connection()->getPdo()->quote($value);
-                $query->where(DB::raw("extensions.remove_accents(contact_name)"), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"))
-                ->orWhere('guests.slug', 'ILIKE', "value%");
+                $query->whereAnyWordStartWith($query, 'contact_name', $value);
             });
         });
 
