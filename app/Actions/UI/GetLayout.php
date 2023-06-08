@@ -86,8 +86,8 @@ class GetLayout
                                 'tooltip' => __('Webpages'),
                                 'icon'    => ['fal', 'fa-browser'],
                                 'route'   => [
-                                    'all'      => ['websites.dashboard'],
-                                    'selected' => ['websites.show'],
+                                    'all'      => ['websites.webpages.index'],
+                                    'selected' => ['websites.show.webpages.index'],
 
                                 ]
                             ],
