@@ -16,7 +16,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/dashboard', WebsitesDashboard::class)->name('dashboard');
 
 Route::get('/', IndexWebsites::class)->name('index');
+Route::get('/webpages', IndexWebpageVariants::class)->name('webpages.index');
+
+
 Route::get('/{website}', ShowWebsite::class)->name('show');
 Route::get('/{website}/dashboard', WebsiteDashboard::class)->name('show.dashboard');
 
-Route::get('/{website}/webpage', IndexWebpageVariants::class)->name('show.webpages.index');
+
+Route::get('/{website}/webpages', IndexWebpageVariants::class)->name('show.webpages.index');

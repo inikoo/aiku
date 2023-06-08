@@ -30,6 +30,8 @@ class GetLayout
         }
 
 
+        $shops      = ShopsNavigationResource::collection(Shop::with('website')->get()->all());
+        $websites   = WebsitesNavigationResource::collection(Website::with('shop')->get()->all());
         $navigation = [];
 
         $navigation['dashboard'] =
@@ -66,7 +68,7 @@ class GetLayout
                     'dropdown' => [
 
                         'type'        => 'websites',
-                        'options'     => WebsitesNavigationResource::collection(Website::all()),
+                        'options'     => $websites,
                         'subsections' => [
                             [
                                 'label'   => __('dashboard'),
@@ -108,7 +110,7 @@ class GetLayout
 
                     'dropdown' => [
                         'type'        => 'shops',
-                        'options'     => ShopsNavigationResource::collection(Shop::all()),
+                        'options'     => $shops,
                         'subsections' => [
                             [
                                 'label'   => __('dashboard'),

@@ -7,12 +7,14 @@
 
 namespace App\Http\Resources\UI;
 
+use App\Models\Marketing\Shop;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property string $slug
  * @property string $code
  * @property string $name
+ * @property ?Shop $shop
  *
  */
 class WebsitesNavigationResource extends JsonResource
@@ -23,6 +25,13 @@ class WebsitesNavigationResource extends JsonResource
             'slug' => $this->slug,
             'code' => $this->code,
             'name' => $this->name,
+            'shop' => $this->whenLoaded(
+                'shop',
+                function () {
+                    return $this->shop->slug;
+                }
+            )
+
         ];
     }
 }

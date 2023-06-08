@@ -7,12 +7,14 @@
 
 namespace App\Http\Resources\UI;
 
+use App\Models\Web\Website;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property string $slug
  * @property string $code
  * @property string $name
+ * @property ?Website $website
  *
  */
 class ShopsNavigationResource extends JsonResource
@@ -20,9 +22,15 @@ class ShopsNavigationResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug' => $this->slug,
-            'code' => $this->code,
-            'name' => $this->name,
+            'slug'    => $this->slug,
+            'code'    => $this->code,
+            'name'    => $this->name,
+            'website' => $this->whenLoaded(
+                'website',
+                function () {
+                    return $this->website->slug;
+                }
+            )
         ];
     }
 }
