@@ -13,16 +13,12 @@ enum WorkplaceTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case HQ     = 'hq';
-    case BRANCH = 'branch';
-
-    case HOME = 'home';
-
+    case HQ              = 'hq';
+    case BRANCH          = 'branch';
+    case HOME            = 'home';
     case GROUP_PREMISSES = 'group-premisses';
-
     case CLIENT_PREMISES = 'client-premises';
     case ROAD            = 'road';
-
-    case OTHER = 'other';
+    case OTHER           = 'other';
 
 }

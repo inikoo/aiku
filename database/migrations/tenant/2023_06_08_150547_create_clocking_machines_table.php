@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 08 Jun 2023 23:07:13 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 09 Jun 2023 03:31:21 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -14,7 +14,8 @@ return new class () extends Migration {
     {
         Schema::create('clocking_machines', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('code')->index();
+            $table->string('slug')->unique()->collation('und_ns');
+            $table->string('code')->index()->collation('und_ns');
             $table->unsignedBigInteger('workplace_id')->index();
             $table->foreign('workplace_id')->references('id')->on('workplaces');
             $table->jsonb('data');
