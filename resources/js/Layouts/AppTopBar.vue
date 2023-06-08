@@ -24,7 +24,7 @@
 		</div>
 
         <!-- Dropdown -->
-        <div v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown">
+        <div v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown && layout.navigation[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
             <TopBarDropdown :currentPage="currentUrl"/>
         </div>
 
@@ -68,6 +68,7 @@ const currentUrl = ref()
 router.on("navigate", (event) => {
 	currentUrl.value = event.detail.page.url.split("/")[1]
 })
+
 
 </script>
 
