@@ -18,9 +18,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->enum('state', ['construction', 'live', 'maintenance', 'closed'])->default('construction')->index();
-            $table->string('code')->unique()->collation('und_ns_ci');
-            $table->string('domain')->unique()->collation('und_ns_ci');
-            $table->string('name')->unique()->collation('und_ns_ci_ai');
+            $table->string('code')->unique()->collation('und_ns');
+            $table->string('domain')->unique()->collation('und_ns');
+            $table->string('name')->unique()->collation('und_ns');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->jsonb('structure');

@@ -21,13 +21,13 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
             $table=$this->contactFields(table:$table, withCompany: false, withPersonalDetails: true);
-            $table->string('worker_number')->nullable()->collation('und_ns_ci');
-            $table->string('job_title')->nullable()->collation('und_ns_ci_ai');
+            $table->string('worker_number')->nullable()->collation('und_ns');
+            $table->string('job_title')->nullable()->collation('und_ns');
             $table->string('type')->default(EmployeeTypeEnum::EMPLOYEE->value);
             $table->string('state')->default(EmployeeStateEnum::WORKING->value);
             $table->date('employment_start_at')->nullable();
             $table->date('employment_end_at')->nullable();
-            $table->string('emergency_contact', 1024)->nullable()->collation('und_ns_ci_ai');
+            $table->string('emergency_contact', 1024)->nullable()->collation('und_ns');
             $table->jsonb('salary')->nullable();
             $table->jsonb('working_hours')->nullable();
             $table->decimal('week_working_hours', 4)->default(0);

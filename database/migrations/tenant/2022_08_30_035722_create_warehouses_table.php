@@ -15,8 +15,8 @@ return new class () extends Migration {
         Schema::create('warehouses', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('code')->index()->collation('und_ns_ci');
-            $table->string('name')->collation('und_ns_ci_ai');
+            $table->string('code')->index()->collation('und_ns');
+            $table->string('name')->collation('und_ns');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();

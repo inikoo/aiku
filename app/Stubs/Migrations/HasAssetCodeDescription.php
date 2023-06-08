@@ -13,9 +13,9 @@ trait HasAssetCodeDescription
 {
     public function assertCodeDescription(Blueprint $table): Blueprint
     {
-        $table->string('code')->index()->collation('und_ns_ci');
-        $table->string('name', 255)->nullable()->collation('und_ns_ci_ai');
-        $table->text('description')->nullable()->fulltext()->collation('und_ns_ci_ai');
+        $table->string('code')->index()->collation('und_ns');
+        $table->string('name', 255)->nullable()->collation('und_ns');
+        $table->text('description')->nullable()->fulltext()->collation('und_ns');
 
         return $table;
     }

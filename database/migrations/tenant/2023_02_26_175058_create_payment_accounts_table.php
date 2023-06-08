@@ -16,9 +16,9 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedInteger('payment_service_provider_id')->index();
             $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
-            $table->string('code')->index()->collation('und_ns_ci');
+            $table->string('code')->index()->collation('und_ns');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('name')->index()->collation('und_ns_ci_ai');
+            $table->string('name')->index()->collation('und_ns');
             $table->jsonb('data');
             $table->dateTimeTz('last_used_at')->nullable();
             $table->timestampsTz();

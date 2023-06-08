@@ -18,9 +18,9 @@ return new class () extends Migration {
             $table->string('code', 2)->unique();
             $table->string('iso3', 3)->nullable()->index()->collation('und_ns');
             $table->string('phone_code')->nullable()->collation('und_ns');
-            $table->string('name')->collation('und_ns_ci_ai');
+            $table->string('name')->collation('und_ns');
             $table->string('continent')->nullable();
-            $table->string('capital')->nullable()->collation('und_ns_ci_ai');
+            $table->string('capital')->nullable()->collation('und_ns');
             $table->unsignedSmallInteger('timezone_id')->nullable()->comment('Timezone in capital')->index();
             $table->unsignedSmallInteger('currency_id')->nullable()->index();
             $table->string('type')->nullable()->index()->default('independent');

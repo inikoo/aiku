@@ -31,8 +31,8 @@ class IndexGuest extends InertiaAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $quotedValue=DB::connection()->getPdo()->quote($value);
-                $query->where(DB::raw("extensions.remove_accents(contact_name) collate \"C\""), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"));
-                //   ->orWhere('guests.slug', 'ILIKE', "$value%");
+                $query->where(DB::raw("extensions.remove_accents(contact_name)"), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"))
+                ->orWhere('guests.slug', 'ILIKE', "value%");
             });
         });
 

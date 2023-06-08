@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create('webpage_variants', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('code')->index()->collation('und_ns_ci');
+            $table->string('code')->index()->collation('und_ns');
             $table->unsignedInteger('webpage_id');
             $table->foreign('webpage_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
             $table->jsonb('components');
