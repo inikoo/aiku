@@ -28,7 +28,6 @@ use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\WebUser;
-use Database\Factories\Sales\CustomerFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -81,17 +80,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, GroupMedia> $media
- * @property-read Collection<int, Order> $orders
+ * @property-read Collection<int, \App\Models\Sales\Order> $orders
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products
  * @property-read Shop|null $shop
- * @property-read CustomerStats|null $stats
+ * @property-read \App\Models\Sales\CustomerStats|null $stats
  * @property-read Collection<int, Stock> $stocks
  * @property-read Collection<int, StoredItem> $storedItems
  * @property-read TaxNumber|null $taxNumber
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, WebUser> $webUsers
- * @method static CustomerFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Sales\CustomerFactory factory($count = null, $state = [])
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static Builder|Customer onlyTrashed()

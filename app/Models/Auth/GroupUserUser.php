@@ -17,7 +17,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read User|null $user
+ * @property-read \App\Models\Auth\User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUserUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUserUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUserUser query()

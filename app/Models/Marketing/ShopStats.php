@@ -80,7 +80,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_payments
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Shop $shop
+ * @property-read \App\Models\Marketing\Shop $shop
  * @method static Builder|ShopStats newModelQuery()
  * @method static Builder|ShopStats newQuery()
  * @method static Builder|ShopStats query()

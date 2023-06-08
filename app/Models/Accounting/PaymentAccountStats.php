@@ -48,7 +48,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_refunds_state_declined
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read PaymentAccount $paymentAccount
+ * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @method static Builder|PaymentAccountStats newModelQuery()
  * @method static Builder|PaymentAccountStats newQuery()
  * @method static Builder|PaymentAccountStats query()

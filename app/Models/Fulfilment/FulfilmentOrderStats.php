@@ -27,7 +27,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_items current number of items
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read FulfilmentOrder $fulfilmentOrder
+ * @property-read \App\Models\Fulfilment\FulfilmentOrder $fulfilmentOrder
  * @method static Builder|FulfilmentOrderStats newModelQuery()
  * @method static Builder|FulfilmentOrderStats newQuery()
  * @method static Builder|FulfilmentOrderStats query()

@@ -27,7 +27,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_items current number of items
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Order $order
+ * @property-read \App\Models\Sales\Order $order
  * @method static Builder|OrderStats newModelQuery()
  * @method static Builder|OrderStats newQuery()
  * @method static Builder|OrderStats query()

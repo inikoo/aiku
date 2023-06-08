@@ -25,7 +25,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_stored_items
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|TenantFulfilmentStats newModelQuery()
  * @method static Builder|TenantFulfilmentStats newQuery()
  * @method static Builder|TenantFulfilmentStats query()

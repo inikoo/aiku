@@ -8,7 +8,6 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Assets\Currency;
-use Database\Factories\Tenancy\GroupFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,10 +37,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Currency $currency
- * @property-read Tenant|null $owner
- * @property-read GroupProcurementStats|null $procurementStats
- * @property-read TenantCollection<int, Tenant> $tenants
- * @method static GroupFactory factory($count = null, $state = [])
+ * @property-read \App\Models\Tenancy\Tenant|null $owner
+ * @property-read \App\Models\Tenancy\GroupProcurementStats|null $procurementStats
+ * @property-read TenantCollection<int, \App\Models\Tenancy\Tenant> $tenants
+ * @method static \Database\Factories\Tenancy\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
  * @method static Builder|Group onlyTrashed()

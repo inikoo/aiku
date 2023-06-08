@@ -15,7 +15,6 @@ use App\Models\Search\UniversalSearch;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\SupplierProductFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -59,13 +58,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_type
  * @property int|null $source_id
  * @property SupplierProductQuantityStatusEnum $quantity_status
- * @property-read Agent|null $agent
- * @property-read Collection<int, HistoricSupplierProduct> $historicRecords
- * @property-read SupplierProductStats|null $stats
- * @property-read Supplier|null $supplier
+ * @property-read \App\Models\Procurement\Agent|null $agent
+ * @property-read Collection<int, \App\Models\Procurement\HistoricSupplierProduct> $historicRecords
+ * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
+ * @property-read \App\Models\Procurement\Supplier|null $supplier
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
- * @method static SupplierProductFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Procurement\SupplierProductFactory factory($count = null, $state = [])
  * @method static Builder|SupplierProduct newModelQuery()
  * @method static Builder|SupplierProduct newQuery()
  * @method static Builder|SupplierProduct onlyTrashed()

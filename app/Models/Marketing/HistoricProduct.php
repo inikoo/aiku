@@ -32,8 +32,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read Product $product
- * @property-read HistoricProductStats|null $stats
+ * @property-read \App\Models\Marketing\Product $product
+ * @property-read \App\Models\Marketing\HistoricProductStats|null $stats
  * @method static Builder|HistoricProduct newModelQuery()
  * @method static Builder|HistoricProduct newQuery()
  * @method static Builder|HistoricProduct onlyTrashed()

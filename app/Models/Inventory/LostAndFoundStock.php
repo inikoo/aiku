@@ -5,7 +5,6 @@ namespace App\Models\Inventory;
 use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Inventory\LostAndFoundStockFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,7 +25,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property LostAndFoundStockStateEnum $state
  * @property-read UniversalSearch|null $universalSearch
- * @method static LostAndFoundStockFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Inventory\LostAndFoundStockFactory factory($count = null, $state = [])
  * @method static Builder|LostAndFoundStock newModelQuery()
  * @method static Builder|LostAndFoundStock newQuery()
  * @method static Builder|LostAndFoundStock query()

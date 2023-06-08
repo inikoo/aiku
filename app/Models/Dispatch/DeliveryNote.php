@@ -17,7 +17,6 @@ use App\Models\Sales\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Dispatch\DeliveryNoteFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -71,13 +70,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read Customer $customer
- * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
+ * @property-read Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
  * @property-read Collection<int, Order> $orders
- * @property-read Shipment|null $shipments
+ * @property-read \App\Models\Dispatch\Shipment|null $shipments
  * @property-read Shop $shop
- * @property-read DeliveryNoteStats|null $stats
+ * @property-read \App\Models\Dispatch\DeliveryNoteStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
- * @method static DeliveryNoteFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Dispatch\DeliveryNoteFactory factory($count = null, $state = [])
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
  * @method static Builder|DeliveryNote onlyTrashed()

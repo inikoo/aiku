@@ -22,7 +22,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_items current number of items
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read DeliveryNote $deliveryNote
+ * @property-read \App\Models\Dispatch\DeliveryNote $deliveryNote
  * @method static Builder|DeliveryNoteStats newModelQuery()
  * @method static Builder|DeliveryNoteStats newQuery()
  * @method static Builder|DeliveryNoteStats query()

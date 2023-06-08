@@ -71,7 +71,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_provoked_unsubscribe
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Mailroom|null $mailroom
+ * @property-read \App\Models\Mail\Mailroom|null $mailroom
  * @method static Builder|MailroomStats newModelQuery()
  * @method static Builder|MailroomStats newQuery()
  * @method static Builder|MailroomStats query()

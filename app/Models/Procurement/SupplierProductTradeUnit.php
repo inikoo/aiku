@@ -25,7 +25,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Supplier $supplier
+ * @property-read \App\Models\Procurement\Supplier $supplier
  * @method static Builder|SupplierProductTradeUnit newModelQuery()
  * @method static Builder|SupplierProductTradeUnit newQuery()
  * @method static Builder|SupplierProductTradeUnit query()

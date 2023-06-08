@@ -10,7 +10,6 @@ namespace App\Models\Auth;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasRoles;
-use Database\Factories\Auth\UserFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -28,7 +27,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
-use OwenIt\Auditing\Contracts\Auditable;
 use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -51,15 +49,15 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read GroupUser|null $groupUser
+ * @property-read \App\Models\Auth\GroupUser|null $groupUser
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
- * @property-read Model|Eloquent $parent
+ * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read Collection<int, \Spatie\Permission\Models\Role> $roles
- * @property-read UserStats|null $stats
+ * @property-read \App\Models\Auth\UserStats|null $stats
  * @property-read Tenant $tenant
  * @property-read Collection<int, PersonalAccessToken> $tokens
- * @method static UserFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User onlyTrashed()
@@ -79,7 +77,7 @@ class User extends Authenticatable
     use HasRoles;
     use UsesTenantConnection;
     use HasFactory;
-//    use \OwenIt\Auditing\Auditable;
+    //    use \OwenIt\Auditing\Auditable;
 
 
     protected $guarded = [

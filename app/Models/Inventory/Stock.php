@@ -16,7 +16,6 @@ use App\Models\Media\GroupMedia;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Inventory\StockFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -71,15 +70,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read MediaCollection<int, GroupMedia> $images
- * @property-read Collection<int, Location> $locations
+ * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read MediaCollection<int, GroupMedia> $media
- * @property-read Model|Eloquent $owner
- * @property-read StockStats|null $stats
- * @property-read StockFamily|null $stockFamily
- * @property-read Collection<int, StockMovement> $stockMovements
+ * @property-read Model|\Eloquent $owner
+ * @property-read \App\Models\Inventory\StockStats|null $stats
+ * @property-read \App\Models\Inventory\StockFamily|null $stockFamily
+ * @property-read Collection<int, \App\Models\Inventory\StockMovement> $stockMovements
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
- * @method static StockFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Inventory\StockFactory factory($count = null, $state = [])
  * @method static Builder|Stock newModelQuery()
  * @method static Builder|Stock newQuery()
  * @method static Builder|Stock onlyTrashed()

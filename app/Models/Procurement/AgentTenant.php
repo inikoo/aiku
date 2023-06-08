@@ -25,7 +25,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property int|null $source_id
- * @property-read Agent $agent
+ * @property-read \App\Models\Procurement\Agent $agent
  * @method static Builder|AgentTenant newModelQuery()
  * @method static Builder|AgentTenant newQuery()
  * @method static Builder|AgentTenant query()

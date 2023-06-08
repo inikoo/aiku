@@ -64,7 +64,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_deliveries_cancelled_at_state_dispatched
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|TenantInventoryStats newModelQuery()
  * @method static Builder|TenantInventoryStats newQuery()
  * @method static Builder|TenantInventoryStats query()

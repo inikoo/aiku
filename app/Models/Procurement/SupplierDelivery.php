@@ -12,7 +12,6 @@ use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\SupplierDeliveryFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -58,10 +57,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
- * @property-read Collection<int, SupplierDeliveryItem> $items
- * @property-read Model|Eloquent $provider
- * @property-read Collection<int, PurchaseOrder> $purchaseOrders
- * @method static SupplierDeliveryFactory factory($count = null, $state = [])
+ * @property-read Collection<int, \App\Models\Procurement\SupplierDeliveryItem> $items
+ * @property-read Model|\Eloquent $provider
+ * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
+ * @method static \Database\Factories\Procurement\SupplierDeliveryFactory factory($count = null, $state = [])
  * @method static Builder|SupplierDelivery newModelQuery()
  * @method static Builder|SupplierDelivery newQuery()
  * @method static Builder|SupplierDelivery onlyTrashed()

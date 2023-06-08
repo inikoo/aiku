@@ -9,9 +9,9 @@
 return [
     [
         'webpage' => [
-            'code'  => 'home',
+            'code'     => 'home',
             'purpose'  => 'structural',
-            'type' => 'storefront',
+            'type'     => 'storefront',
         ],
         'webpage-variant' => [
             'components' => [

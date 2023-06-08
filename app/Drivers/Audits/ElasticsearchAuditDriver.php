@@ -10,7 +10,8 @@ namespace App\Drivers\Audits;
 use OwenIt\Auditing\Contracts\Audit;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class ElasticsearchAuditDriver {
+class ElasticsearchAuditDriver
+{
     /**
      * @var string|null
      */
@@ -32,8 +33,8 @@ class ElasticsearchAuditDriver {
     public function __construct()
     {
         $this->client = ClientBuilder::create()->setHosts(Config::get('audit.drivers.es.client.hosts', ['localhost:9200']))->build();
-        $this->index = Config::get('audit.drivers.es.index', 'laravel_auditing');
-        $this->type = Config::get('audit.drivers.es.type', 'audits');
+        $this->index  = Config::get('audit.drivers.es.index', 'laravel_auditing');
+        $this->type   = Config::get('audit.drivers.es.type', 'audits');
     }
 
     /**
@@ -49,7 +50,7 @@ class ElasticsearchAuditDriver {
 
         $this->storeAudit($model->toAudit());
 
-        return new $implementation;
+        return new $implementation();
     }
 
     /**
@@ -130,14 +131,15 @@ class ElasticsearchAuditDriver {
     {
         $params = [
             'index' => $this->index,
-            'type' => $this->type,
-            'id' => Uuid::uuid4(),
-            'body' => $model
+            'type'  => $this->type,
+            'id'    => Uuid::uuid4(),
+            'body'  => $model
         ];
 
         try {
             return $this->client->index($params);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
     public function searchAuditDocument($model)
@@ -146,10 +148,10 @@ class ElasticsearchAuditDriver {
 
         $params = [
             'index' => $this->index,
-            'type' => $this->type,
-            'size' => 10000 - $skip,
-            'from' => $skip,
-            'body' => [
+            'type'  => $this->type,
+            'size'  => 10000 - $skip,
+            'from'  => $skip,
+            'body'  => [
                 'query' => [
                     'bool' => [
                         'must' => [
@@ -189,8 +191,8 @@ class ElasticsearchAuditDriver {
                 $params['body'][] = [
                     'delete' => [
                         '_index' => $this->index,
-                        '_type' => $this->type,
-                        '_id' => $audit_id
+                        '_type'  => $this->type,
+                        '_id'    => $audit_id
                     ]
                 ];
 
@@ -206,9 +208,9 @@ class ElasticsearchAuditDriver {
     {
         $params = [
             'index' => $this->index,
-            'body' => [
+            'body'  => [
                 'settings' => [
-                    'number_of_shards' => 3,
+                    'number_of_shards'   => 3,
                     'number_of_replicas' => 0
                 ]
             ]
@@ -255,49 +257,49 @@ class ElasticsearchAuditDriver {
     {
         $params = [
             'index' => $this->index,
-            'type' => $this->type,
-            'body' => [
+            'type'  => $this->type,
+            'body'  => [
                 $this->type => [
                     '_source' => [
                         'enabled' => true
                     ],
                     'properties' => [
                         'event' => [
-                            'type' => 'string',
+                            'type'  => 'string',
                             'index' => 'not_analyzed'
                         ],
                         'auditable_type' => [
-                            'type' => 'string',
+                            'type'  => 'string',
                             'index' => 'not_analyzed'
                         ],
                         'ip_address' => [
-                            'type' => 'string',
+                            'type'  => 'string',
                             'index' => 'not_analyzed'
                         ],
                         'url' => [
-                            'type' => 'string',
+                            'type'  => 'string',
                             'index' => 'not_analyzed'
                         ],
                         'user_agent' => [
-                            'type' => 'string',
+                            'type'  => 'string',
                             'index' => 'not_analyzed'
                         ],
                         'created_at' => [
-                            'type' => 'date',
+                            'type'   => 'date',
                             'format' => 'yyyy-MM-dd HH:mm:ss'
                         ],
                         'new_values' => [
                             'properties' => [
                                 'created_at' => [
-                                    'type' => 'date',
+                                    'type'   => 'date',
                                     'format' => 'yyyy-MM-dd HH:mm:ss'
                                 ],
                                 'updated_at' => [
-                                    'type' => 'date',
+                                    'type'   => 'date',
                                     'format' => 'yyyy-MM-dd HH:mm:ss'
                                 ],
                                 'deleted_at' => [
-                                    'type' => 'date',
+                                    'type'   => 'date',
                                     'format' => 'yyyy-MM-dd HH:mm:ss'
                                 ]
                             ]
@@ -305,15 +307,15 @@ class ElasticsearchAuditDriver {
                         'old_values' => [
                             'properties' => [
                                 'created_at' => [
-                                    'type' => 'date',
+                                    'type'   => 'date',
                                     'format' => 'yyyy-MM-dd HH:mm:ss'
                                 ],
                                 'updated_at' => [
-                                    'type' => 'date',
+                                    'type'   => 'date',
                                     'format' => 'yyyy-MM-dd HH:mm:ss'
                                 ],
                                 'deleted_at' => [
-                                    'type' => 'date',
+                                    'type'   => 'date',
                                     'format' => 'yyyy-MM-dd HH:mm:ss'
                                 ]
                             ]

@@ -7,7 +7,6 @@
 
 namespace App\Models\SysAdmin;
 
-use Database\Factories\SysAdmin\AdminFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,8 +30,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read SysUser|null $sysUser
- * @method static AdminFactory factory($count = null, $state = [])
+ * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
+ * @method static \Database\Factories\SysAdmin\AdminFactory factory($count = null, $state = [])
  * @method static Builder|Admin newModelQuery()
  * @method static Builder|Admin newQuery()
  * @method static Builder|Admin onlyTrashed()

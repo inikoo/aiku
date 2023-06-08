@@ -36,10 +36,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property int|null $source_id
- * @property-read WebpageVariant|null $mainVariant
- * @property-read WebpageStats|null $stats
- * @property-read Collection<int, WebpageVariant> $variants
- * @property-read Website $website
+ * @property-read \App\Models\Web\WebpageVariant|null $mainVariant
+ * @property-read \App\Models\Web\WebpageStats|null $stats
+ * @property-read Collection<int, \App\Models\Web\WebpageVariant> $variants
+ * @property-read \App\Models\Web\Website $website
  * @method static Builder|Webpage newModelQuery()
  * @method static Builder|Webpage newQuery()
  * @method static Builder|Webpage query()

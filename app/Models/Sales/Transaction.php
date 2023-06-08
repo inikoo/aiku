@@ -12,7 +12,6 @@ use App\Enums\Sales\Transaction\TransactionStatusEnum;
 use App\Enums\Sales\Transaction\TransactionTypeEnum;
 use App\Models\Dispatch\DeliveryNoteItem;
 use App\Models\Marketing\Shop;
-use Database\Factories\Sales\TransactionFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -51,13 +50,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read Customer $customer
+ * @property-read \App\Models\Sales\Customer $customer
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
- * @property-read Model|Eloquent $item
- * @property-read Order|null $order
+ * @property-read Model|\Eloquent $item
+ * @property-read \App\Models\Sales\Order|null $order
  * @property-write mixed $quantity
  * @property-read Shop $shop
- * @method static TransactionFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Sales\TransactionFactory factory($count = null, $state = [])
  * @method static Builder|Transaction newModelQuery()
  * @method static Builder|Transaction newQuery()
  * @method static Builder|Transaction onlyTrashed()

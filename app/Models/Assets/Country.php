@@ -34,7 +34,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read Collection<int, Timezone> $timezones
+ * @property-read Collection<int, \App\Models\Assets\Timezone> $timezones
  * @method static Builder|Country newModelQuery()
  * @method static Builder|Country newQuery()
  * @method static Builder|Country onlyTrashed()

@@ -7,7 +7,6 @@
 
 namespace App\Models\Mail;
 
-use Database\Factories\Mail\MailroomFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,9 +25,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, Outbox> $outboxes
- * @property-read MailroomStats|null $stats
- * @method static MailroomFactory factory($count = null, $state = [])
+ * @property-read Collection<int, \App\Models\Mail\Outbox> $outboxes
+ * @property-read \App\Models\Mail\MailroomStats|null $stats
+ * @method static \Database\Factories\Mail\MailroomFactory factory($count = null, $state = [])
  * @method static Builder|Mailroom newModelQuery()
  * @method static Builder|Mailroom newQuery()
  * @method static Builder|Mailroom query()

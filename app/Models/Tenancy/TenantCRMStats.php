@@ -37,7 +37,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_orders_state_settled
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|TenantCRMStats newModelQuery()
  * @method static Builder|TenantCRMStats newQuery()
  * @method static Builder|TenantCRMStats query()

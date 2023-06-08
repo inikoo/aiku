@@ -22,16 +22,16 @@ class GetElasticsearchDocument
         if ($client = BuildElasticsearchClient::run()) {
             try {
                 $results = [];
-                $params = [
+                $params  = [
                     'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
-                    'size' => 10000
+                    'size'  => 10000
                 ];
 
                 if(! blank($query)) {
                     $params['body']['query']['match']['username'] = $query;
                 }
 
-//                $params['body']['query']['bool']['must'][0]['term']['type'] = "VISIT";
+                //                $params['body']['query']['bool']['must'][0]['term']['type'] = "VISIT";
 
                 foreach (json_decode($client->search($params), true)['hits']['hits'] as $result) {
                     $results[] = [

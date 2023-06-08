@@ -12,7 +12,6 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\PurchaseOrderFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -62,10 +61,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
- * @property-read Collection<int, PurchaseOrderItem> $items
- * @property-read Model|Eloquent $provider
- * @property-read Collection<int, SupplierDelivery> $supplierDeliveries
- * @method static PurchaseOrderFactory factory($count = null, $state = [])
+ * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
+ * @property-read Model|\Eloquent $provider
+ * @property-read Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
+ * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrder newModelQuery()
  * @method static Builder|PurchaseOrder newQuery()
  * @method static Builder|PurchaseOrder onlyTrashed()

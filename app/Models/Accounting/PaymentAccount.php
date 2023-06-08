@@ -7,7 +7,6 @@
 
 namespace App\Models\Accounting;
 
-use Database\Factories\Accounting\PaymentAccountFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -36,10 +35,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read PaymentServiceProvider $paymentServiceProvider
- * @property-read Collection<int, Payment> $payments
- * @property-read PaymentAccountStats|null $stats
- * @method static PaymentAccountFactory factory($count = null, $state = [])
+ * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
+ * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
+ * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
+ * @method static \Database\Factories\Accounting\PaymentAccountFactory factory($count = null, $state = [])
  * @method static Builder|PaymentAccount newModelQuery()
  * @method static Builder|PaymentAccount newQuery()
  * @method static Builder|PaymentAccount onlyTrashed()

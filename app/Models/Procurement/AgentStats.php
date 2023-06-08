@@ -59,7 +59,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_supplier_deliveries_status_settled_cancelled
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Agent $agent
+ * @property-read \App\Models\Procurement\Agent $agent
  * @method static Builder|AgentStats newModelQuery()
  * @method static Builder|AgentStats newQuery()
  * @method static Builder|AgentStats query()

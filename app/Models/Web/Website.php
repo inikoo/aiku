@@ -42,9 +42,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Shop $shop
- * @property-read WebsiteStats|null $stats
- * @property-read WebsiteStats|null $webStats
- * @property-read Collection<int, Webpage> $webpages
+ * @property-read \App\Models\Web\WebsiteStats|null $stats
+ * @property-read \App\Models\Web\WebsiteStats|null $webStats
+ * @property-read Collection<int, \App\Models\Web\Webpage> $webpages
  * @method static Builder|Website newModelQuery()
  * @method static Builder|Website newQuery()
  * @method static Builder|Website onlyTrashed()

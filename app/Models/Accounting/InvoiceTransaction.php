@@ -39,7 +39,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property int|null $source_alt_id
- * @property-read Model|Eloquent $item
+ * @property-read Model|\Eloquent $item
  * @property-read Transaction|null $transaction
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()

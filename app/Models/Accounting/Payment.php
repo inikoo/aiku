@@ -18,7 +18,6 @@ use App\Enums\Accounting\Payment\PaymentTypeEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Accounting\PaymentFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -56,10 +55,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property bool $with_refund
  * @property int|null $source_id
- * @property-read PaymentAccount $paymentAccount
+ * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static PaymentFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Accounting\PaymentFactory factory($count = null, $state = [])
  * @method static Builder|Payment newModelQuery()
  * @method static Builder|Payment newQuery()
  * @method static Builder|Payment onlyTrashed()

@@ -39,13 +39,13 @@ use Spatie\Multitenancy\TenantCollection;
  * @property int|null $order_column
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Model|Eloquent $model
+ * @property-read Model|\Eloquent $model
  * @property-read TenantCollection<int, Tenant> $tenants
  * @method static MediaCollection<int, static> all($columns = ['*'])
  * @method static MediaCollection<int, static> get($columns = ['*'])
  * @method static Builder|CentralMedia newModelQuery()
  * @method static Builder|CentralMedia newQuery()
- * @method static Builder|BaseMedia ordered()
+ * @method static Builder|Media ordered()
  * @method static Builder|CentralMedia query()
  * @mixin Eloquent
  */

@@ -57,7 +57,7 @@ class SetWebsiteStructuralWebpages
             return $webpage;
         }
 
-        return StoreWebpage::run($website,$webpageData, $webpageVariantData );
+        return StoreWebpage::run($website, $webpageData, $webpageVariantData);
     }
 
 

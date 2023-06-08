@@ -71,7 +71,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_provoked_unsubscribe
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Shop $shop
+ * @property-read \App\Models\Marketing\Shop $shop
  * @method static Builder|ShopMailStats newModelQuery()
  * @method static Builder|ShopMailStats newQuery()
  * @method static Builder|ShopMailStats query()

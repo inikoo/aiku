@@ -33,7 +33,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read StockFamily $stockFamily
+ * @property-read \App\Models\Inventory\StockFamily $stockFamily
  * @method static Builder|StockFamilyStats newModelQuery()
  * @method static Builder|StockFamilyStats newQuery()
  * @method static Builder|StockFamilyStats query()

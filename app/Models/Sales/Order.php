@@ -18,7 +18,6 @@ use App\Models\Marketing\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasOrder;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Sales\OrderFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -71,16 +70,16 @@ use Spatie\Sluggable\HasSlug;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
- * @property-read Customer $customer
+ * @property-read \App\Models\Sales\Customer $customer
  * @property-read CustomerClient|null $customerClient
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Payment> $payments
  * @property-read Shop $shop
- * @property-read OrderStats|null $stats
- * @property-read Collection<int, Transaction> $transactions
+ * @property-read \App\Models\Sales\OrderStats|null $stats
+ * @property-read Collection<int, \App\Models\Sales\Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
- * @method static OrderFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Sales\OrderFactory factory($count = null, $state = [])
  * @method static Builder|Order newModelQuery()
  * @method static Builder|Order newQuery()
  * @method static Builder|Order onlyTrashed()

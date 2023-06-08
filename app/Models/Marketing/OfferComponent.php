@@ -2,7 +2,6 @@
 
 namespace App\Models\Marketing;
 
-use Database\Factories\Marketing\OfferComponentFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,7 +24,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static OfferComponentFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Marketing\OfferComponentFactory factory($count = null, $state = [])
  * @method static Builder|OfferComponent newModelQuery()
  * @method static Builder|OfferComponent newQuery()
  * @method static Builder|OfferComponent onlyTrashed()

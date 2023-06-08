@@ -33,7 +33,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property-read FulfilmentOrder $FulfilmentOrder
+ * @property-read \App\Models\Fulfilment\FulfilmentOrder $FulfilmentOrder
  * @property-read Customer $customer
  * @property-read Shop $shop
  * @property-read Stock $stock

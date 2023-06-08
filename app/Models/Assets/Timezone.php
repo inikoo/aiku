@@ -29,7 +29,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, Country> $countries
+ * @property-read Collection<int, \App\Models\Assets\Country> $countries
  * @method static Builder|Timezone newModelQuery()
  * @method static Builder|Timezone newQuery()
  * @method static Builder|Timezone query()

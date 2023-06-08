@@ -34,7 +34,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_provoked_unsubscribe
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Mailshot|null $mailshot
+ * @property-read \App\Models\Mail\Mailshot|null $mailshot
  * @method static Builder|MailshotStats newModelQuery()
  * @method static Builder|MailshotStats newQuery()
  * @method static Builder|MailshotStats query()

@@ -21,7 +21,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $product_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Product $product
+ * @property-read \App\Models\Marketing\Product $product
  * @method static Builder|ProductStats newModelQuery()
  * @method static Builder|ProductStats newQuery()
  * @method static Builder|ProductStats query()

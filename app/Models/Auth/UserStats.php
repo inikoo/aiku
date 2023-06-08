@@ -23,7 +23,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_other_active_tenants
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read User $user
+ * @property-read \App\Models\Auth\User $user
  * @method static Builder|UserStats newModelQuery()
  * @method static Builder|UserStats newQuery()
  * @method static Builder|UserStats query()

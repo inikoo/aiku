@@ -33,7 +33,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property int|null $source_id
- * @property-read Model|Eloquent $stockable
+ * @property-read Model|\Eloquent $stockable
  * @method static Builder|StockMovement newModelQuery()
  * @method static Builder|StockMovement newQuery()
  * @method static Builder|StockMovement query()

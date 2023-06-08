@@ -61,7 +61,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_supplier_deliveries_status_settled_cancelled
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Group $group
+ * @property-read \App\Models\Tenancy\Group $group
  * @method static Builder|GroupProcurementStats newModelQuery()
  * @method static Builder|GroupProcurementStats newQuery()
  * @method static Builder|GroupProcurementStats query()

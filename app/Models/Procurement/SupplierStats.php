@@ -57,7 +57,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_supplier_deliveries_status_settled_cancelled
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Supplier $supplier
+ * @property-read \App\Models\Procurement\Supplier $supplier
  * @method static Builder|SupplierStats newModelQuery()
  * @method static Builder|SupplierStats newQuery()
  * @method static Builder|SupplierStats query()

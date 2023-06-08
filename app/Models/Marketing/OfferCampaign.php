@@ -2,7 +2,6 @@
 
 namespace App\Models\Marketing;
 
-use Database\Factories\Marketing\OfferCampaignFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -27,9 +26,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, OfferComponent> $offerComponent
- * @property-read Collection<int, Offer> $offers
- * @method static OfferCampaignFactory factory($count = null, $state = [])
+ * @property-read Collection<int, \App\Models\Marketing\OfferComponent> $offerComponent
+ * @property-read Collection<int, \App\Models\Marketing\Offer> $offers
+ * @method static \Database\Factories\Marketing\OfferCampaignFactory factory($count = null, $state = [])
  * @method static Builder|OfferCampaign newModelQuery()
  * @method static Builder|OfferCampaign newQuery()
  * @method static Builder|OfferCampaign onlyTrashed()

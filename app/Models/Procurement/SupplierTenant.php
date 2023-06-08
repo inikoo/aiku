@@ -26,7 +26,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property int|null $source_id
- * @property-read Supplier $supplier
+ * @property-read \App\Models\Procurement\Supplier $supplier
  * @method static Builder|SupplierTenant newModelQuery()
  * @method static Builder|SupplierTenant newQuery()
  * @method static Builder|SupplierTenant query()

@@ -17,7 +17,6 @@ use App\Models\Sales\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Accounting\InvoiceFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -56,13 +55,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read Customer $customer
- * @property-read Collection<int, InvoiceTransaction> $invoiceTransactions
+ * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Collection<int, Order> $order
  * @property-read Collection<int, Order> $orders
  * @property-read Shop $shop
- * @property-read InvoiceStats|null $stats
+ * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
- * @method static InvoiceFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])
  * @method static Builder|Invoice newModelQuery()
  * @method static Builder|Invoice newQuery()
  * @method static Builder|Invoice onlyTrashed()

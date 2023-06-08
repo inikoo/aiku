@@ -9,7 +9,6 @@ namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\HydrateTenant;
 use App\Models\Media\GroupMedia;
-use Database\Factories\Auth\GuestFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,8 +44,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read MediaCollection<int, GroupMedia> $media
- * @property-read User|null $user
- * @method static GuestFactory factory($count = null, $state = [])
+ * @property-read \App\Models\Auth\User|null $user
+ * @method static \Database\Factories\Auth\GuestFactory factory($count = null, $state = [])
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest onlyTrashed()

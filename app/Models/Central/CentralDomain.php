@@ -33,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read CentralDomainStats|null $stats
+ * @property-read \App\Models\Central\CentralDomainStats|null $stats
  * @property-read SysUser|null $sysUser
  * @property-read Tenant $tenant
  * @method static Builder|CentralDomain newModelQuery()

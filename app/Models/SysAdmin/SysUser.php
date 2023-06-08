@@ -7,7 +7,6 @@
 
 namespace App\Models\SysAdmin;
 
-use Database\Factories\SysAdmin\SysUserFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -44,8 +43,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Collection<int, PersonalAccessToken> $tokens
- * @property-read Model|Eloquent $userable
- * @method static SysUserFactory factory($count = null, $state = [])
+ * @property-read Model|\Eloquent $userable
+ * @method static \Database\Factories\SysAdmin\SysUserFactory factory($count = null, $state = [])
  * @method static Builder|SysUser newModelQuery()
  * @method static Builder|SysUser newQuery()
  * @method static Builder|SysUser onlyTrashed()

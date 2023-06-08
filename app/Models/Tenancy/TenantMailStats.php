@@ -71,7 +71,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_provoked_unsubscribe
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|TenantMailStats newModelQuery()
  * @method static Builder|TenantMailStats newQuery()
  * @method static Builder|TenantMailStats query()

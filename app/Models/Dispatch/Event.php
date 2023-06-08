@@ -26,7 +26,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * App\Models\Dispatch\Event
  *
  * @property-read Collection<int, Issue> $issues
- * @property-read Shipment $shipment
+ * @property-read \App\Models\Dispatch\Shipment $shipment
  * @method static Builder|Event newModelQuery()
  * @method static Builder|Event newQuery()
  * @method static Builder|Event onlyTrashed()

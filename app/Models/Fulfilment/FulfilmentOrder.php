@@ -49,9 +49,9 @@ use Spatie\Sluggable\HasSlug;
  * @property-read Customer $customer
  * @property-read CustomerClient|null $customerClient
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
- * @property-read Collection<int, FulfilmentOrderItem> $items
+ * @property-read Collection<int, \App\Models\Fulfilment\FulfilmentOrderItem> $items
  * @property-read Shop $shop
- * @property-read FulfilmentOrderStats|null $stats
+ * @property-read \App\Models\Fulfilment\FulfilmentOrderStats|null $stats
  * @method static Builder|FulfilmentOrder newModelQuery()
  * @method static Builder|FulfilmentOrder newQuery()
  * @method static Builder|FulfilmentOrder onlyTrashed()

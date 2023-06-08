@@ -29,7 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $cbm
  * @property int|null $currency_id
  * @property int|null $source_id
- * @property-read HistoricSupplierProductStats|null $stats
+ * @property-read \App\Models\Procurement\HistoricSupplierProductStats|null $stats
  * @method static Builder|HistoricSupplierProduct newModelQuery()
  * @method static Builder|HistoricSupplierProduct newQuery()
  * @method static Builder|HistoricSupplierProduct onlyTrashed()

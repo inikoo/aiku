@@ -50,7 +50,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_orphan_families
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|TenantMarketingStats newModelQuery()
  * @method static Builder|TenantMarketingStats newQuery()
  * @method static Builder|TenantMarketingStats query()

@@ -45,7 +45,7 @@ use Illuminate\Support\Carbon;
  * @property bool $has_agents
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|TenantStats newModelQuery()
  * @method static Builder|TenantStats newQuery()
  * @method static Builder|TenantStats query()

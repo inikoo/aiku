@@ -7,7 +7,6 @@
 
 namespace App\Models\Marketing;
 
-use Database\Factories\Marketing\ShippingZoneFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,7 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static ShippingZoneFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Marketing\ShippingZoneFactory factory($count = null, $state = [])
  * @method static Builder|ShippingZone newModelQuery()
  * @method static Builder|ShippingZone newQuery()
  * @method static Builder|ShippingZone onlyTrashed()

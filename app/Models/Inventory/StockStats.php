@@ -21,7 +21,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $stock_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Stock $stock
+ * @property-read \App\Models\Inventory\Stock $stock
  * @method static Builder|StockStats newModelQuery()
  * @method static Builder|StockStats newQuery()
  * @method static Builder|StockStats query()

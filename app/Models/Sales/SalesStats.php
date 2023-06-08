@@ -59,7 +59,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $pq5
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Model|Eloquent $model
+ * @property-read Model|\Eloquent $model
  * @method static Builder|SalesStats newModelQuery()
  * @method static Builder|SalesStats newQuery()
  * @method static Builder|SalesStats query()

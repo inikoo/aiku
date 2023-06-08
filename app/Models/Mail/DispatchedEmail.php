@@ -8,7 +8,6 @@
 namespace App\Models\Mail;
 
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
-use Database\Factories\Mail\DispatchedEmailFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -40,8 +39,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property bool $mask_as_spam
  * @property bool $provoked_unsubscribe
  * @property int|null $source_id
- * @property-read Collection<int, EmailTrackingEvent> $emailTrackingEvents
- * @method static DispatchedEmailFactory factory($count = null, $state = [])
+ * @property-read Collection<int, \App\Models\Mail\EmailTrackingEvent> $emailTrackingEvents
+ * @method static \Database\Factories\Mail\DispatchedEmailFactory factory($count = null, $state = [])
  * @method static Builder|DispatchedEmail newModelQuery()
  * @method static Builder|DispatchedEmail newQuery()
  * @method static Builder|DispatchedEmail query()

@@ -53,7 +53,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_invoices_type_refund
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|TenantAccountingStats newModelQuery()
  * @method static Builder|TenantAccountingStats newQuery()
  * @method static Builder|TenantAccountingStats query()

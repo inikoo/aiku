@@ -22,7 +22,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_items current number of items
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Invoice $invoice
+ * @property-read \App\Models\Accounting\Invoice $invoice
  * @method static Builder|InvoiceStats newModelQuery()
  * @method static Builder|InvoiceStats newQuery()
  * @method static Builder|InvoiceStats query()

@@ -25,8 +25,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property float|null $share
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Employee $employee
- * @property-read JobPosition $jobPosition
+ * @property-read \App\Models\HumanResources\Employee $employee
+ * @property-read \App\Models\HumanResources\JobPosition $jobPosition
  * @method static Builder|EmployeeJobPosition newModelQuery()
  * @method static Builder|EmployeeJobPosition newQuery()
  * @method static Builder|EmployeeJobPosition query()

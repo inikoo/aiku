@@ -8,7 +8,6 @@
 namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\SupplierDeliveryItemFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,9 +30,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property-read SupplierDelivery $supplierDelivery
- * @property-read SupplierProduct $supplierProduct
- * @method static SupplierDeliveryItemFactory factory($count = null, $state = [])
+ * @property-read \App\Models\Procurement\SupplierDelivery $supplierDelivery
+ * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct
+ * @method static \Database\Factories\Procurement\SupplierDeliveryItemFactory factory($count = null, $state = [])
  * @method static Builder|SupplierDeliveryItem newModelQuery()
  * @method static Builder|SupplierDeliveryItem newQuery()
  * @method static Builder|SupplierDeliveryItem query()

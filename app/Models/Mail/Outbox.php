@@ -9,7 +9,6 @@ namespace App\Models\Mail;
 
 use App\Actions\Utils\Abbreviate;
 use App\Models\Marketing\Shop;
-use Database\Factories\Mail\OutboxFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -39,11 +38,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read Collection<int, DispatchedEmail> $dispatchedEmails
- * @property-read Collection<int, Mailshot> $mailshots
+ * @property-read Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
+ * @property-read Collection<int, \App\Models\Mail\Mailshot> $mailshots
  * @property-read Shop|null $shop
- * @property-read OutboxStats|null $stats
- * @method static OutboxFactory factory($count = null, $state = [])
+ * @property-read \App\Models\Mail\OutboxStats|null $stats
+ * @method static \Database\Factories\Mail\OutboxFactory factory($count = null, $state = [])
  * @method static Builder|Outbox newModelQuery()
  * @method static Builder|Outbox newQuery()
  * @method static Builder|Outbox onlyTrashed()

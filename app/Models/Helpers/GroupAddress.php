@@ -36,7 +36,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read Country|null $country
  * @property-read string $formatted_address
- * @property-read Model|Eloquent $owner
+ * @property-read Model|\Eloquent $owner
  * @method static Builder|GroupAddress newModelQuery()
  * @method static Builder|GroupAddress newQuery()
  * @method static Builder|GroupAddress query()

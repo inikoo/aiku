@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int $supplier_product_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read SupplierProduct $supplierProduct
+ * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct
  * @method static Builder|SupplierProductStats newModelQuery()
  * @method static Builder|SupplierProductStats newQuery()
  * @method static Builder|SupplierProductStats query()

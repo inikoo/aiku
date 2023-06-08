@@ -18,7 +18,6 @@ use App\Models\Traits\HasGroupAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\AgentFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -69,13 +68,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read MediaCollection<int, GroupMedia> $media
  * @property-read Tenant|null $owner
- * @property-read Collection<int, SupplierProduct> $products
- * @property-read Collection<int, PurchaseOrder> $purchaseOrders
- * @property-read AgentStats|null $stats
- * @property-read Collection<int, SupplierDelivery> $supplierDeliveries
- * @property-read Collection<int, Supplier> $suppliers
+ * @property-read Collection<int, \App\Models\Procurement\SupplierProduct> $products
+ * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
+ * @property-read \App\Models\Procurement\AgentStats|null $stats
+ * @property-read Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
+ * @property-read Collection<int, \App\Models\Procurement\Supplier> $suppliers
  * @property-read UniversalSearch|null $universalSearch
- * @method static AgentFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Procurement\AgentFactory factory($count = null, $state = [])
  * @method static Builder|Agent newModelQuery()
  * @method static Builder|Agent newQuery()
  * @method static Builder|Agent onlyTrashed()

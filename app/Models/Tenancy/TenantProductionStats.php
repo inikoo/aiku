@@ -22,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_products
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|TenantProductionStats newModelQuery()
  * @method static Builder|TenantProductionStats newQuery()
  * @method static Builder|TenantProductionStats query()

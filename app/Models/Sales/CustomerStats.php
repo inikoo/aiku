@@ -35,7 +35,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_stored_items
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Customer $customer
+ * @property-read \App\Models\Sales\Customer $customer
  * @method static Builder|CustomerStats newModelQuery()
  * @method static Builder|CustomerStats newQuery()
  * @method static Builder|CustomerStats query()

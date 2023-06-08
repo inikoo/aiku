@@ -24,7 +24,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_dispatches
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Mailshot $mailshot
+ * @property-read \App\Models\Mail\Mailshot $mailshot
  * @method static Builder|EmailAddress newModelQuery()
  * @method static Builder|EmailAddress newQuery()
  * @method static Builder|EmailAddress query()

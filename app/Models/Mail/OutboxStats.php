@@ -35,7 +35,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_provoked_unsubscribe
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Outbox|null $outbox
+ * @property-read \App\Models\Mail\Outbox|null $outbox
  * @method static Builder|OutboxStats newModelQuery()
  * @method static Builder|OutboxStats newQuery()
  * @method static Builder|OutboxStats query()

@@ -18,7 +18,6 @@ use App\Models\Traits\HasGroupAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\SupplierFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -70,17 +69,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_type
  * @property int|null $source_id
  * @property-read Collection<int, GroupAddress> $addresses
- * @property-read Agent|null $agent
+ * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read Currency $currency
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, GroupMedia> $media
- * @property-read Model|Eloquent $owner
- * @property-read Collection<int, SupplierProduct> $products
- * @property-read Collection<int, PurchaseOrder> $purchaseOrders
- * @property-read SupplierStats|null $stats
- * @property-read Collection<int, SupplierDelivery> $supplierDeliveries
+ * @property-read Model|\Eloquent $owner
+ * @property-read Collection<int, \App\Models\Procurement\SupplierProduct> $products
+ * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
+ * @property-read \App\Models\Procurement\SupplierStats|null $stats
+ * @property-read Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
  * @property-read UniversalSearch|null $universalSearch
- * @method static SupplierFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Procurement\SupplierFactory factory($count = null, $state = [])
  * @method static Builder|Supplier newModelQuery()
  * @method static Builder|Supplier newQuery()
  * @method static Builder|Supplier onlyTrashed()

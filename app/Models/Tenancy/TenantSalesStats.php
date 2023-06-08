@@ -61,7 +61,7 @@ use Illuminate\Support\Carbon;
  * @property string $pq5
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read \App\Models\Tenancy\Tenant $tenant
  * @method static Builder|TenantSalesStats newModelQuery()
  * @method static Builder|TenantSalesStats newQuery()
  * @method static Builder|TenantSalesStats query()

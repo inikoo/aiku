@@ -8,7 +8,6 @@
 namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\PurchaseOrderItemFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,9 +29,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property-read PurchaseOrder $purchaseOrder
- * @property-read SupplierProduct $supplierProduct
- * @method static PurchaseOrderItemFactory factory($count = null, $state = [])
+ * @property-read \App\Models\Procurement\PurchaseOrder $purchaseOrder
+ * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct
+ * @method static \Database\Factories\Procurement\PurchaseOrderItemFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrderItem newModelQuery()
  * @method static Builder|PurchaseOrderItem newQuery()
  * @method static Builder|PurchaseOrderItem query()

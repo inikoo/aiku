@@ -11,7 +11,6 @@ use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Goods\TradeUnitFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -49,7 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read Collection<int, Product> $products
  * @property-read Collection<int, Stock> $stocks
- * @method static TradeUnitFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])
  * @method static Builder|TradeUnit newModelQuery()
  * @method static Builder|TradeUnit newQuery()
  * @method static Builder|TradeUnit onlyTrashed()
