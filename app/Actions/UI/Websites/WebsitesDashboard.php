@@ -88,7 +88,7 @@ class WebsitesDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'website.show.dashboard',
+                                'name'       => 'websites.show.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Website dashboard')
