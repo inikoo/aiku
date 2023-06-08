@@ -40,6 +40,9 @@ return new class () extends Migration {
         });
         DB::statement('CREATE INDEX ON customers USING gin (name gin_trgm_ops) ');
         DB::statement('CREATE INDEX ON customers USING gin (reference gin_trgm_ops) ');
+        DB::statement('CREATE INDEX ON customers USING gin (contact_name gin_trgm_ops) ');
+        DB::statement('CREATE INDEX ON customers USING gin (company_name gin_trgm_ops) ');
+
 
     }
 

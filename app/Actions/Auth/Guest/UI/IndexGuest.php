@@ -15,6 +15,7 @@ use App\Http\Resources\SysAdmin\GuestResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Auth\Guest;
 use Closure;
+use DB;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -29,8 +30,9 @@ class IndexGuest extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('guests.name', 'ILIKE', "%$value%")
-                    ->orWhere('guests.slug', 'ILIKE', "%$value%");
+                $quotedValue=DB::connection()->getPdo()->quote($value);
+                $query->where(DB::raw("extensions.remove_accents(contact_name) collate \"C\""), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"));
+                //   ->orWhere('guests.slug', 'ILIKE', "$value%");
             });
         });
 
@@ -38,8 +40,8 @@ class IndexGuest extends InertiaAction
 
         return QueryBuilder::for(Guest::class)
             ->defaultSort('guests.slug')
-            ->select(['id', 'slug', 'name',])
-            ->allowedSorts(['slug', 'name'])
+            ->select(['id', 'slug', 'contact_name',])
+            ->allowedSorts(['slug', 'contact_name'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -57,7 +59,7 @@ class IndexGuest extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
     }

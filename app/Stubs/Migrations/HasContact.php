@@ -13,9 +13,9 @@ trait HasContact
 {
     public function contactFields(Blueprint $table, $withCompany = true, $withPersonalDetails = false, $withWebsite = false): Blueprint
     {
-        $table->string('contact_name', 256)->nullable();
+        $table->string('contact_name', 256)->collation('und_ns_ci_ai')->nullable();
         if ($withCompany) {
-            $table->string('company_name', 256)->nullable();
+            $table->string('company_name', 256)->collation('und_ns_ci_ai')->nullable();
         }
         $table->string('email')->nullable()->collation('und_ns_ci');
         $table->string('phone')->nullable()->collation('und_ns');

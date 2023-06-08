@@ -47,17 +47,18 @@ class StoreUser
             /** @var \App\Models\Auth\User $user */
             $user = $parent->user()->create(
                 [
-                    'group_user_id' => $groupUser->id,
-                    'username'      => $groupUser->username,
-                    'password'      => $groupUser->password,
-                    'data->avatar'  => $groupUser->media_id
+                    'group_user_id'         => $groupUser->id,
+                    'username'              => $groupUser->username,
+                    'password'              => $groupUser->password,
+                    'contact_name'          => $parent->contact_name,
+                    'data->avatar'          => $groupUser->media_id
                 ]
             );
             $groupUser->tenants()
                 ->attach($tenant->id, [
                     'user_id' => $user->id,
                     'data'    => [
-                        'name' => $parent->name,
+                        'contact_name' => $parent->contact_name,
                     ]
                 ]);
 

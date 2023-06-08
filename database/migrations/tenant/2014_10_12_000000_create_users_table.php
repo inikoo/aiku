@@ -18,6 +18,7 @@ return new class () extends Migration {
             $table->boolean('status')->default(true);
             $table->string('username')->unique()->collation('und_ns_ci')->comment('mirror group_users.username');
             $table->string('password')->comment('mirror group_users.password');
+            $table->string('contact_name')->nullable()->collation('und_ns_ci_ai')->comment('no-normalised depends of parent');
             $table->string('email')->nullable()->collation('und_ns_ci')->comment('mirror group_users.email');
             $table->unsignedInteger('parent_id')->nullable();
             $table->string('parent_type')->nullable();

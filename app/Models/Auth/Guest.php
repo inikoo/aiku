@@ -82,7 +82,9 @@ class Guest extends Model implements HasMedia
             ->generateSlugsFrom(function () {
                 return head(explode(' ', trim($this->contact_name)));
             })
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(16);
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(16)
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     protected static function booted(): void
