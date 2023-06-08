@@ -73,8 +73,8 @@ class GetLayout
                                 'tooltip' => __('Dashboard'),
 
 
-                                'icon'   => ['fal', 'fa-globe'],
-                                'route'  =>
+                                'icon'  => ['fal', 'fa-globe'],
+                                'route' =>
                                     [
                                         'all'      => ['websites.dashboard'],
                                         'selected' => ['websites.show'],
@@ -86,8 +86,8 @@ class GetLayout
                                 'tooltip' => __('Webpages'),
                                 'icon'    => ['fal', 'fa-browser'],
                                 'route'   => [
-                                    'all'      => ['websites.dashboard'],
-                                    'selected' => ['websites.show'],
+                                    'all'      => ['websites.webpages.index'],
+                                    'selected' => ['websites.show.webpages.index'],
 
                                 ]
                             ],
@@ -115,8 +115,8 @@ class GetLayout
                                 'tooltip' => __('Dashboard'),
 
 
-                                'icon'   => ['fal', 'fa-tasks-alt'],
-                                'route'  =>
+                                'icon'  => ['fal', 'fa-tasks-alt'],
+                                'route' =>
                                     [
                                         'all'      => ['crm.dashboard'],
                                         'selected' => ['crm.shop.dashboard'],
@@ -185,6 +185,7 @@ class GetLayout
 
                         'type'        => 'warehouses',
                         'options'     => WarehousesNavigationResource::collection(Warehouse::all()),
+                        'selected'    => Warehouse::first()->slug,
                         'optionRoute' => 'inventory.warehouses.show',
                         'subsections' => [
                             [
@@ -195,8 +196,8 @@ class GetLayout
                                 'labelSelected'   => __('warehouse'),
                                 'tooltipSelected' => __('Warehouse'),
 
-                                'icon'   => ['fal', 'fa-warehouse'],
-                                'route'  =>
+                                'icon'  => ['fal', 'fa-warehouse'],
+                                'route' =>
                                     [
                                         'all'      => ['inventory.warehouses.index'],
                                         'selected' => ['inventory.warehouses.show'],
