@@ -9,13 +9,18 @@ namespace App\Models\Inventory;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Inventory\StockFamilyFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -30,21 +35,21 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Inventory\StockFamilyStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Stock> $stocks
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Inventory\StockFamilyFactory factory($count = null, $state = [])
+ * @property-read StockFamilyStats|null $stats
+ * @property-read Collection<int, Stock> $stocks
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static StockFamilyFactory factory($count = null, $state = [])
  * @method static Builder|StockFamily newModelQuery()
  * @method static Builder|StockFamily newQuery()
  * @method static Builder|StockFamily onlyTrashed()
  * @method static Builder|StockFamily query()
  * @method static Builder|StockFamily withTrashed()
  * @method static Builder|StockFamily withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class StockFamily extends Model
 {
@@ -66,7 +71,7 @@ class StockFamily extends Model
 
     protected $guarded = [];
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::updated(function (StockFamily $stockFamily) {
             if ($stockFamily->wasChanged('state')) {

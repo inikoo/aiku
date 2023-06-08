@@ -8,13 +8,18 @@
 namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\HydrateTenant;
+use App\Models\Media\GroupMedia;
+use Database\Factories\Auth\GuestFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -32,23 +37,23 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
- * @property \Illuminate\Support\Carbon|null $date_of_birth
+ * @property Carbon|null $date_of_birth
  * @property string|null $gender
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
- * @property-read \App\Models\Auth\User|null $user
- * @method static \Database\Factories\Auth\GuestFactory factory($count = null, $state = [])
+ * @property-read MediaCollection<int, GroupMedia> $media
+ * @property-read User|null $user
+ * @method static GuestFactory factory($count = null, $state = [])
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest onlyTrashed()
  * @method static Builder|Guest query()
  * @method static Builder|Guest withTrashed()
  * @method static Builder|Guest withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Guest extends Model implements HasMedia
 {

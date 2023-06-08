@@ -2,8 +2,10 @@
 
 namespace App\Models\Central;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
@@ -11,12 +13,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  *
  * @property int $id
  * @property int $central_domain_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static Builder|CentralDomainStats newModelQuery()
  * @method static Builder|CentralDomainStats newQuery()
  * @method static Builder|CentralDomainStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class CentralDomainStats extends Model
 {

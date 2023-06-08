@@ -8,20 +8,22 @@
 namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Procurement\HistoricSupplierProductStats
  *
  * @property int $id
  * @property int $historic_supplier_product_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static Builder|HistoricSupplierProductStats newModelQuery()
  * @method static Builder|HistoricSupplierProductStats newQuery()
  * @method static Builder|HistoricSupplierProductStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class HistoricSupplierProductStats extends Model
 {

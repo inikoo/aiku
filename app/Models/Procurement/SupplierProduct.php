@@ -11,11 +11,15 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
+use App\Models\Search\UniversalSearch;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
+use Database\Factories\Procurement\SupplierProductFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -48,26 +53,26 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property array $shared_data
  * @property array $tenant_data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property string|null $source_type
  * @property int|null $source_id
  * @property SupplierProductQuantityStatusEnum $quantity_status
- * @property-read \App\Models\Procurement\Agent|null $agent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\HistoricSupplierProduct> $historicRecords
- * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
- * @property-read \App\Models\Procurement\Supplier|null $supplier
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Procurement\SupplierProductFactory factory($count = null, $state = [])
+ * @property-read Agent|null $agent
+ * @property-read Collection<int, HistoricSupplierProduct> $historicRecords
+ * @property-read SupplierProductStats|null $stats
+ * @property-read Supplier|null $supplier
+ * @property-read Collection<int, TradeUnit> $tradeUnits
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static SupplierProductFactory factory($count = null, $state = [])
  * @method static Builder|SupplierProduct newModelQuery()
  * @method static Builder|SupplierProduct newQuery()
  * @method static Builder|SupplierProduct onlyTrashed()
  * @method static Builder|SupplierProduct query()
  * @method static Builder|SupplierProduct withTrashed()
  * @method static Builder|SupplierProduct withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class SupplierProduct extends Model
 {
@@ -100,6 +105,7 @@ class SupplierProduct extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
 

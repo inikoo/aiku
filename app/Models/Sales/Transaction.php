@@ -12,13 +12,17 @@ use App\Enums\Sales\Transaction\TransactionStatusEnum;
 use App\Enums\Sales\Transaction\TransactionTypeEnum;
 use App\Models\Dispatch\DeliveryNoteItem;
 use App\Models\Marketing\Shop;
+use Database\Factories\Sales\TransactionFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -43,24 +47,24 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $net
  * @property int|null $tax_band_id
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Sales\Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNoteItem> $deliveryNoteItems
- * @property-read Model|\Eloquent $item
- * @property-read \App\Models\Sales\Order|null $order
+ * @property-read Customer $customer
+ * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
+ * @property-read Model|Eloquent $item
+ * @property-read Order|null $order
  * @property-write mixed $quantity
  * @property-read Shop $shop
- * @method static \Database\Factories\Sales\TransactionFactory factory($count = null, $state = [])
+ * @method static TransactionFactory factory($count = null, $state = [])
  * @method static Builder|Transaction newModelQuery()
  * @method static Builder|Transaction newQuery()
  * @method static Builder|Transaction onlyTrashed()
  * @method static Builder|Transaction query()
  * @method static Builder|Transaction withTrashed()
  * @method static Builder|Transaction withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Transaction extends Model
 {
@@ -112,7 +116,7 @@ class Transaction extends Model
 
 
     /** @noinspection PhpUnused */
-    public function setQuantityAttribute($val)
+    public function setQuantityAttribute($val): void
     {
         $this->attributes['quantity'] = sprintf('%.3f', $val);
     }

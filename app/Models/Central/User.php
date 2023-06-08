@@ -7,12 +7,17 @@
 
 namespace App\Models\Central;
 
+use App\Models\Search\UniversalSearch;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasUniversalSearch;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -29,15 +34,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $remember_token
  * @property array $data
  * @property array $settings
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Tenant $tenant
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read Collection<int, PersonalAccessToken> $tokens
+ * @property-read UniversalSearch|null $universalSearch
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class User extends Authenticatable
 {

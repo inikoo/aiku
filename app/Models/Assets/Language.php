@@ -8,8 +8,10 @@
 
 namespace App\Models\Assets;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
@@ -21,12 +23,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property string|null $original_name
  * @property string|null $status
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static Builder|Language newModelQuery()
  * @method static Builder|Language newQuery()
  * @method static Builder|Language query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Language extends Model
 {

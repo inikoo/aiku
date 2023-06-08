@@ -7,9 +7,11 @@
 
 namespace App\Models\Accounting;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -18,13 +20,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $id
  * @property int $invoice_id
  * @property int $number_items current number of items
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Accounting\Invoice $invoice
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Invoice $invoice
  * @method static Builder|InvoiceStats newModelQuery()
  * @method static Builder|InvoiceStats newQuery()
  * @method static Builder|InvoiceStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class InvoiceStats extends Model
 {

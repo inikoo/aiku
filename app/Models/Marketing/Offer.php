@@ -2,9 +2,13 @@
 
 namespace App\Models\Marketing;
 
+use Database\Factories\Marketing\OfferFactory;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -19,17 +23,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Database\Factories\Marketing\OfferFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Offer newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Offer newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Offer onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Offer query()
- * @method static \Illuminate\Database\Eloquent\Builder|Offer withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Offer withoutTrashed()
- * @mixin \Eloquent
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static OfferFactory factory($count = null, $state = [])
+ * @method static Builder|Offer newModelQuery()
+ * @method static Builder|Offer newQuery()
+ * @method static Builder|Offer onlyTrashed()
+ * @method static Builder|Offer query()
+ * @method static Builder|Offer withTrashed()
+ * @method static Builder|Offer withoutTrashed()
+ * @mixin Eloquent
  */
 class Offer extends Model
 {
@@ -52,6 +56,7 @@ class Offer extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(6);
     }

@@ -7,9 +7,11 @@
 
 namespace App\Models\Marketing;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -76,13 +78,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_payment_service_providers
  * @property int $number_payment_accounts
  * @property int $number_payments
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Marketing\Shop $shop
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Shop $shop
  * @method static Builder|ShopStats newModelQuery()
  * @method static Builder|ShopStats newQuery()
  * @method static Builder|ShopStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class ShopStats extends Model
 {

@@ -9,9 +9,11 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\StockMovement\StockMovementFlowEnum;
 use App\Enums\Inventory\StockMovement\StockMovementTypeEnum;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -28,14 +30,14 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $quantity
  * @property string $amount
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int|null $source_id
- * @property-read Model|\Eloquent $stockable
+ * @property-read Model|Eloquent $stockable
  * @method static Builder|StockMovement newModelQuery()
  * @method static Builder|StockMovement newQuery()
  * @method static Builder|StockMovement query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class StockMovement extends Model
 {
@@ -59,13 +61,13 @@ class StockMovement extends Model
     }
 
     /** @noinspection PhpUnused */
-    public function setQuantityAttribute($val)
+    public function setQuantityAttribute($val): void
     {
         $this->attributes['quantity'] = sprintf('%.3f', $val);
     }
 
     /** @noinspection PhpUnused */
-    public function setAmountAttribute($val)
+    public function setAmountAttribute($val): void
     {
         $this->attributes['amount'] = sprintf('%.3f', $val);
     }

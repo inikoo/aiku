@@ -8,10 +8,13 @@
 namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
+use Database\Factories\Procurement\SupplierDeliveryItemFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Procurement\SupplierDeliveryItem
@@ -25,16 +28,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $unit_quantity
  * @property string $unit_quantity_checked
  * @property string $unit_price
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property-read \App\Models\Procurement\SupplierDelivery $supplierDelivery
- * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct
- * @method static \Database\Factories\Procurement\SupplierDeliveryItemFactory factory($count = null, $state = [])
+ * @property-read SupplierDelivery $supplierDelivery
+ * @property-read SupplierProduct $supplierProduct
+ * @method static SupplierDeliveryItemFactory factory($count = null, $state = [])
  * @method static Builder|SupplierDeliveryItem newModelQuery()
  * @method static Builder|SupplierDeliveryItem newQuery()
  * @method static Builder|SupplierDeliveryItem query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class SupplierDeliveryItem extends Model
 {

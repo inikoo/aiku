@@ -8,10 +8,14 @@
 namespace App\Models\Mail;
 
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
+use Database\Factories\Mail\DispatchedEmailFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -24,9 +28,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $recipient_type
  * @property int|null $recipient_id
  * @property DispatchedEmailStateEnum $state
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $sent_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $sent_at
  * @property string|null $first_read_at
  * @property string|null $last_read_at
  * @property string|null $first_clicked_at
@@ -36,12 +40,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property bool $mask_as_spam
  * @property bool $provoked_unsubscribe
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTrackingEvent> $emailTrackingEvents
- * @method static \Database\Factories\Mail\DispatchedEmailFactory factory($count = null, $state = [])
+ * @property-read Collection<int, EmailTrackingEvent> $emailTrackingEvents
+ * @method static DispatchedEmailFactory factory($count = null, $state = [])
  * @method static Builder|DispatchedEmail newModelQuery()
  * @method static Builder|DispatchedEmail newQuery()
  * @method static Builder|DispatchedEmail query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class DispatchedEmail extends Model
 {

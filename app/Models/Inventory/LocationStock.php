@@ -32,8 +32,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property int|null $source_stock_id
  * @property int|null $source_location_id
- * @property-read \App\Models\Inventory\Location $location
- * @property-read \App\Models\Inventory\Stock $stock
+ * @property-read Location $location
+ * @property-read Stock $stock
  * @method static Builder|LocationStock newModelQuery()
  * @method static Builder|LocationStock newQuery()
  * @method static Builder|LocationStock query()

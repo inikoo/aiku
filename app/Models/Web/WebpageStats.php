@@ -7,8 +7,11 @@
 
 namespace App\Models\Web;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -16,13 +19,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property int $webpage_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Web\WebpageVariant $webpage
- * @method static \Illuminate\Database\Eloquent\Builder|WebpageStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebpageStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebpageStats query()
- * @mixin \Eloquent
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read WebpageVariant $webpage
+ * @method static Builder|WebpageStats newModelQuery()
+ * @method static Builder|WebpageStats newQuery()
+ * @method static Builder|WebpageStats query()
+ * @mixin Eloquent
  */
 class WebpageStats extends Model
 {

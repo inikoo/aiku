@@ -10,9 +10,11 @@ namespace App\Models\Helpers;
 use App\Models\Assets\Country;
 use App\Models\Traits\IsAddress;
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Helpers\GroupAddress
@@ -30,15 +32,15 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $checksum
  * @property bool $historic
  * @property int $usage
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Country|null $country
  * @property-read string $formatted_address
- * @property-read Model|\Eloquent $owner
+ * @property-read Model|Eloquent $owner
  * @method static Builder|GroupAddress newModelQuery()
  * @method static Builder|GroupAddress newQuery()
  * @method static Builder|GroupAddress query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class GroupAddress extends Model
 {

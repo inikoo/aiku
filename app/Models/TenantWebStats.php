@@ -9,8 +9,11 @@ namespace App\Models;
 
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\TenantWebStats
@@ -19,13 +22,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $tenant_id
  * @property int $number_websites
  * @property int $number_webpages
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Tenant $tenant
- * @method static \Illuminate\Database\Eloquent\Builder|TenantWebStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantWebStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantWebStats query()
- * @mixin \Eloquent
+ * @method static Builder|TenantWebStats newModelQuery()
+ * @method static Builder|TenantWebStats newQuery()
+ * @method static Builder|TenantWebStats query()
+ * @mixin Eloquent
  */
 class TenantWebStats extends Model
 {

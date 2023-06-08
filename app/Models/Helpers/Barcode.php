@@ -9,6 +9,9 @@ namespace App\Models\Helpers;
 
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\Product;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,15 +22,15 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * App\Models\Helpers\Barcode
  *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $product
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stock
- * @method static \Illuminate\Database\Eloquent\Builder|Barcode newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Barcode newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Barcode onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Barcode query()
- * @method static \Illuminate\Database\Eloquent\Builder|Barcode withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Barcode withoutTrashed()
- * @mixin \Eloquent
+ * @property-read Collection<int, Product> $product
+ * @property-read Collection<int, Stock> $stock
+ * @method static Builder|Barcode newModelQuery()
+ * @method static Builder|Barcode newQuery()
+ * @method static Builder|Barcode onlyTrashed()
+ * @method static Builder|Barcode query()
+ * @method static Builder|Barcode withTrashed()
+ * @method static Builder|Barcode withoutTrashed()
+ * @mixin Eloquent
  */
 class Barcode extends Model
 {

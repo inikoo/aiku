@@ -7,7 +7,10 @@
 
 namespace App\Models\Auth;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Permission\Models\Role as SpatieRole;
 
@@ -17,15 +20,15 @@ use Spatie\Permission\Models\Role as SpatieRole;
  * @property int $id
  * @property string $name
  * @property string $guard_name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Auth\User> $users
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, User> $users
  * @method static Builder|Role newModelQuery()
  * @method static Builder|Role newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Role permission($permissions)
+ * @method static Builder|Role permission($permissions)
  * @method static Builder|Role query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Role extends SpatieRole
 {

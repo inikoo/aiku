@@ -8,9 +8,11 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Tenancy\TenantInventoryStats
@@ -60,13 +62,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_deliveries_cancelled_at_state_packed
  * @property int $number_deliveries_cancelled_at_state_finalised
  * @property int $number_deliveries_cancelled_at_state_dispatched
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Tenancy\Tenant $tenant
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Tenant $tenant
  * @method static Builder|TenantInventoryStats newModelQuery()
  * @method static Builder|TenantInventoryStats newQuery()
  * @method static Builder|TenantInventoryStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class TenantInventoryStats extends Model
 {

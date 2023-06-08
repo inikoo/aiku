@@ -7,9 +7,11 @@
 
 namespace App\Models\Auth;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
@@ -20,13 +22,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $tenant_id
  * @property int|null $user_id
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Auth\User|null $user
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $user
  * @method static Builder|GroupUserTenant newModelQuery()
  * @method static Builder|GroupUserTenant newQuery()
  * @method static Builder|GroupUserTenant query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class GroupUserTenant extends Pivot
 {

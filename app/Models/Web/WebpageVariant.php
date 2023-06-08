@@ -7,10 +7,12 @@
 
 namespace App\Models\Web;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -23,14 +25,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property int $webpage_id
  * @property array $components
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Web\WebpageStats|null $stats
- * @property-read \App\Models\Web\Webpage $webpage
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read WebpageStats|null $stats
+ * @property-read Webpage $webpage
  * @method static Builder|WebpageVariant newModelQuery()
  * @method static Builder|WebpageVariant newQuery()
  * @method static Builder|WebpageVariant query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class WebpageVariant extends Model
 {
@@ -51,6 +53,7 @@ class WebpageVariant extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
 

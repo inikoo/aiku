@@ -14,6 +14,7 @@ use App\Models\Sales\Customer;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Dropshipping\CustomerClientFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -50,7 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Customer|null $customer
  * @property-read Shop|null $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Dropshipping\CustomerClientFactory factory($count = null, $state = [])
+ * @method static CustomerClientFactory factory($count = null, $state = [])
  * @method static Builder|CustomerClient newModelQuery()
  * @method static Builder|CustomerClient newQuery()
  * @method static Builder|CustomerClient onlyTrashed()
@@ -91,7 +92,9 @@ class CustomerClient extends Model
 
                 return $slug;
             })
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
+            ->slugsShouldBeNoLongerThan(12);
     }
 
     protected static function booted(): void
@@ -119,6 +122,6 @@ class CustomerClient extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class)->withTrashed();
+        return $this->belongsTo(Customer::class);
     }
 }

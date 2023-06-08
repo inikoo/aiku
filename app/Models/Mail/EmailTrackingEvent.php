@@ -8,7 +8,10 @@
 namespace App\Models\Mail;
 
 use App\Enums\Mail\EmailTrackingEvent\EmailTrackingEventTypeEnum;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -19,13 +22,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $dispatched_email_id
  * @property EmailTrackingEventTypeEnum $type
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int|null $source_id
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTrackingEvent newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTrackingEvent newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTrackingEvent query()
- * @mixin \Eloquent
+ * @method static Builder|EmailTrackingEvent newModelQuery()
+ * @method static Builder|EmailTrackingEvent newQuery()
+ * @method static Builder|EmailTrackingEvent query()
+ * @mixin Eloquent
  */
 class EmailTrackingEvent extends Model
 {

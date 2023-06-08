@@ -7,11 +7,13 @@
 
 namespace App\Models\Marketing;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -27,18 +29,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $code
  * @property string|null $name
  * @property string|null $units units per outer
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Marketing\Product $product
- * @property-read \App\Models\Marketing\HistoricProductStats|null $stats
+ * @property-read Product $product
+ * @property-read HistoricProductStats|null $stats
  * @method static Builder|HistoricProduct newModelQuery()
  * @method static Builder|HistoricProduct newQuery()
  * @method static Builder|HistoricProduct onlyTrashed()
  * @method static Builder|HistoricProduct query()
  * @method static Builder|HistoricProduct withTrashed()
  * @method static Builder|HistoricProduct withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class HistoricProduct extends Model
 {
@@ -60,6 +62,7 @@ class HistoricProduct extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(64);
     }

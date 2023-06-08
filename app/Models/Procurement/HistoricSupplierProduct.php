@@ -3,10 +3,12 @@
 namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -16,8 +18,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property bool $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $deleted_at
  * @property int|null $supplier_product_id
  * @property string $cost unit cost
  * @property string|null $code
@@ -27,14 +29,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $cbm
  * @property int|null $currency_id
  * @property int|null $source_id
- * @property-read \App\Models\Procurement\HistoricSupplierProductStats|null $stats
+ * @property-read HistoricSupplierProductStats|null $stats
  * @method static Builder|HistoricSupplierProduct newModelQuery()
  * @method static Builder|HistoricSupplierProduct newQuery()
  * @method static Builder|HistoricSupplierProduct onlyTrashed()
  * @method static Builder|HistoricSupplierProduct query()
  * @method static Builder|HistoricSupplierProduct withTrashed()
  * @method static Builder|HistoricSupplierProduct withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class HistoricSupplierProduct extends Model
 {
@@ -55,6 +57,7 @@ class HistoricSupplierProduct extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(64);
     }
