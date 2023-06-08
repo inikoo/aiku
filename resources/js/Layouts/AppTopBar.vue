@@ -11,7 +11,7 @@
 		<div
 			class="flex items-center divide-x divide-gray-200 justify-center rounded overflow-hidden">
 			<Link
-                v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.subSections"
+                v-if="currentUrl && layout.navigation[currentUrl]?.topMenu && layout.navigation[currentUrl]?.topMenu?.subSections"
 				v-for="menu in layout.navigation[currentUrl].topMenu.subSections"
 				:href="route(menu.route.name)"
 				class="group flex justify-center items-center cursor-pointer space-x-1 px-4">
@@ -33,7 +33,7 @@
 			<Link
                 v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown?.subsections"
 				v-for="menu in layout.navigation[currentUrl].topMenu.dropdown.subsections"
-				:href="route(menu.route.all)"
+				:href="route(menu.route?.all)"
                 :title="menu.tooltip"
 				class="group flex justify-center items-center cursor-pointer space-x-1 px-4"
             >
@@ -54,10 +54,10 @@ import { router } from "@inertiajs/vue3"
 import TopBarDropdown from "@/Components/Navigation/TopBarDropdown.vue"
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt, faWarehouse, faMapSigns } from "@/../private/pro-light-svg-icons"
+import { faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt, faWarehouse, faMapSigns, faBrowser } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
-library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt, faWarehouse, faMapSigns)
+library.add(faNetworkWired, faTerminal, faCalendar, faStopwatch, faChessClock, faUserAlien, faCog, faBox, faBoxesAlt, faWarehouse, faMapSigns, faBrowser)
 const layout = useLayoutStore()
 
 const props = defineProps<{

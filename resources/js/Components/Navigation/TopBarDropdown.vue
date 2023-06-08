@@ -17,7 +17,7 @@ console.log(route().current()) // inventory.warehouses.show
 console.log(layout[props.currentPage].routeSingle) // inventory.warehouses.show
 console.log(route().params) // { warehouse: "ed" }
 
-const checkCurrentRoute = (slug: string) => {
+const isCurrentRoute = (slug: string) => {
     if (props.currentPage == 'inventory'){
         return route().params.warehouse == slug ? true : false 
     }
@@ -30,7 +30,7 @@ const handleClick = (option) => {
     if (option == null) {
         layout[props.currentPage].currentData = {
             slug: null,
-            name: trans('All inventories'),
+            name: layout[props.currentPage].labelShowAll,
             code: trans('All')
         }
 
@@ -67,7 +67,7 @@ const handleClick = (option) => {
                 <div class="py-1">
                     <MenuItem v-slot="{ active }" v-for="option in layout.navigation[props.currentPage].topMenu.dropdown.options.data" :key="option.slug">
                         <button @click="handleClick(option)"
-                            :class="[active ? 'bg-indigo-100 text-gray-900' : 'text-gray-700', checkCurrentRoute(option.slug) ? 'font-semibold text-indigo-600' : '', 'w-full block px-4 py-2 text-sm']">
+                            :class="[active ? 'bg-indigo-100 text-gray-900' : 'text-gray-700', isCurrentRoute(option.slug) ? 'font-semibold text-indigo-600' : '', 'w-full block px-4 py-2 text-sm']">
                             {{ option.name }}
                         </button>
                     </MenuItem>
@@ -76,7 +76,7 @@ const handleClick = (option) => {
                     <MenuItem v-slot="{ active }">
                         <button @click="handleClick(null)"
                             :class="[active ? 'bg-indigo-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
-                            {{ trans('All Shops') }}
+                            {{ trans(layout[props.currentPage].labelShowAll) }}
                         </button>
                     </MenuItem>
                 </div>

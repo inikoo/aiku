@@ -19,9 +19,30 @@ export const useLayoutStore = defineStore('layout', {
                 name: trans('All shops'),
                 code: trans('All')
             },
+            websites: {
+                routeSingle: 'websites.show',
+                routeAll: 'websites.index',
+                labelShowAll: trans('All websites'),
+                currentData: {
+                    slug: null,
+                    name: trans('All websites'),
+                    code: trans('All')
+                }
+            },
+            customers: {
+                routeSingle: 'inventory.warehouses.show',
+                routeAll: 'inventory.warehouses.index',
+                labelShowAll: trans('All Customers'),
+                currentData: {
+                    slug: null,
+                    name: trans('All customers'),
+                    code: trans('All')
+                }
+            },
             inventory: {
                 routeSingle: 'inventory.warehouses.show',
                 routeAll: 'inventory.warehouses.index',
+                labelShowAll: trans('All inventories'),
                 currentData: {
                     slug: null,
                     name: trans('All inventories'),

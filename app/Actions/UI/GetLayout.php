@@ -74,7 +74,7 @@ class GetLayout
 
 
                                 'icon'   => ['fal', 'fa-globe'],
-                                'routes' =>
+                                'route'  =>
                                     [
                                         'all'      => ['websites.dashboard'],
                                         'selected' => ['websites.show.dashboard'],
@@ -116,7 +116,7 @@ class GetLayout
 
 
                                 'icon'   => ['fal', 'fa-tasks-alt'],
-                                'routes' =>
+                                'route'  =>
                                     [
                                         'all'      => ['crm.dashboard'],
                                         'selected' => ['crm.shop.dashboard'],
