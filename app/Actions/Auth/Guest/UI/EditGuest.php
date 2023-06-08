@@ -65,7 +65,7 @@ class EditGuest extends InertiaAction
                             'title'  => __('personal information'),
                             'fields' => [
 
-                                'name' => [
+                                'contact_name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
                                     'value' => $guest->contact_name

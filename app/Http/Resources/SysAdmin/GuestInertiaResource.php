@@ -18,10 +18,10 @@ class GuestInertiaResource extends JsonResource
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         return [
-            'id'     => $this->id,
-            'slug'   => $this->slug,
-            'status' => $this->status,
-            'name'   => $this->name
+            'id'           => $this->id,
+            'slug'         => $this->slug,
+            'status'       => $this->status,
+            'contact_name' => $this->contact_name
         ];
     }
 }

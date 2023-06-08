@@ -32,6 +32,9 @@ return new class () extends Migration {
 
             $table->unsignedInteger('source_id')->nullable()->unique();
         });
+        DB::statement('CREATE INDEX ON prospects USING gin (name gin_trgm_ops) ');
+        DB::statement('CREATE INDEX ON prospects USING gin (contact_name gin_trgm_ops) ');
+        DB::statement('CREATE INDEX ON prospects USING gin (company_name gin_trgm_ops) ');
     }
 
 

@@ -9,18 +9,16 @@ namespace App\Actions\Auth\User\UI;
 
 use App\Actions\Elasticsearch\GetElasticsearchDocument;
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\Warehouse\UI\GetWarehouseShowcase;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Enums\UI\UsersTabsEnum;
-use App\Enums\UI\UserTabsEnum;
-use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\SysAdmin\UserHistoryResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -31,6 +29,9 @@ class IndexUsers extends InertiaAction
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+
+
+
             $query->where(function ($query) use ($value) {
                 $query->where('users.username', 'ILIKE', "%$value%");
             });
@@ -40,8 +41,8 @@ class IndexUsers extends InertiaAction
         return QueryBuilder::for(User::class)
             ->with('parent')
             ->defaultSort('username')
-            ->select(['username', 'parent_type', 'parent_id'])
-            ->allowedSorts(['username', 'email', 'parent_type'])
+            ->select(['username', 'parent_type', 'parent_id', 'contact_name', 'email'])
+            ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -65,7 +66,7 @@ class IndexUsers extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $users, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $users, ActionRequest $request): Response
     {
         return Inertia::render(
             'SysAdmin/Users',
@@ -76,7 +77,7 @@ class IndexUsers extends InertiaAction
                 ),
                 'title'       => __('users'),
                 'pageHead'    => [
-                    'title'  => __('users'),
+                    'title' => __('users'),
 
                     // Remember to not create new Users on IndexUsers, only in employees and guest
 
@@ -85,7 +86,7 @@ class IndexUsers extends InertiaAction
                     'usernameNoSet' => __('username no set')
                 ],
 
-                'tabs'        => [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => UsersTabsEnum::navigation(),
                 ],
@@ -105,20 +106,20 @@ class IndexUsers extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::USERS->value.'Page')
                 ->withGlobalSearch()
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'parent_type', label: __('type'), canBeHidden: false, sortable: true)
                 ->defaultSort('username');
         })->table(function (InertiaTable $table) {
-                $table
-                    ->withGlobalSearch()
-                    ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)
-                    ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
-                    ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
-                    ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)
-                    ->column(key: 'user_agent', label: __('User Agent'), canBeHidden: false, sortable: true)
-                    ->column(key: 'location', label: __('location'), canBeHidden: false)
-                    ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true);
-            });
+            $table
+                ->withGlobalSearch()
+                ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
+                ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)
+                ->column(key: 'user_agent', label: __('User Agent'), canBeHidden: false, sortable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
+                ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true);
+        });
     }
 
 

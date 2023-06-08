@@ -13,14 +13,13 @@ use App\Models\Web\WebUser;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchWebUsers extends FetchAction
 {
-    public string $commandSignature = 'fetch:web-users {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:web-users {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--d|db_suffix=} {--r|reset}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?WebUser
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?WebUser
     {
         if ($webUserData = $tenantSource->fetchWebUser($tenantSourceId)) {
             if ($webUserData['customer']) {
@@ -65,5 +64,10 @@ class FetchWebUsers extends FetchAction
         }
 
         return $query->count();
+    }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Website User Dimension')->update(['aiku_id' => null]);
     }
 }

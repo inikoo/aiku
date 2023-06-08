@@ -39,6 +39,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property bool $status
  * @property string $username mirror group_users.username
  * @property string $password mirror group_users.password
+ * @property string|null $contact_name no-normalised depends of parent
  * @property string|null $email mirror group_users.email
  * @property int|null $parent_id
  * @property string|null $parent_type

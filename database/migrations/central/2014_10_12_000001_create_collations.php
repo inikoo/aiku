@@ -21,6 +21,20 @@ return new class () extends Migration {
         DB::statement('CREATE COLLATION und_ns_ci_ai (PROVIDER = icu,DETERMINISTIC = FALSE,LOCALE = "und-u-kn-true-ks-level1");');
         DB::statement('CREATE COLLATION und_ns_ci (PROVIDER = icu,DETERMINISTIC = FALSE,LOCALE = "und-u-kn-true-ks-level2");');
         DB::statement('CREATE COLLATION und_ns (PROVIDER = icu,LOCALE = "und-u-kn-true");');
+
+
+        DB::statement('CREATE OR REPLACE FUNCTION extensions.immutable_unaccent(regdictionary, text)
+  RETURNS text
+  LANGUAGE c IMMUTABLE PARALLEL SAFE STRICT AS
+\'$libdir/unaccent\', \'unaccent_dict\';');
+
+        DB::statement("CREATE OR REPLACE FUNCTION extensions.remove_accents(text)
+  RETURNS text
+  LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT
+  BEGIN ATOMIC
+SELECT extensions.immutable_unaccent(regdictionary 'extensions.unaccent', $1);
+END;");
+
     }
 
     public function down(): void

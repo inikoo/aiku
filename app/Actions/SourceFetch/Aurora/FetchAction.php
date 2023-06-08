@@ -91,9 +91,6 @@ class FetchAction
                     $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
                 }
 
-
-
-
                 if (in_array($command->getName(), [
                     'fetch:stocks',
                     'fetch:products',
@@ -107,11 +104,9 @@ class FetchAction
                     $this->onlyNew = (bool)$command->option('only_new');
                 }
 
-
                 if (in_array($command->getName(), ['fetch:customers', 'fetch:orders', 'fetch:invoices', 'fetch:delivery-notes'])) {
                     $this->with = $command->option('with');
                 }
-
 
                 try {
                     $tenantSource = $this->getTenantSource($tenant);
@@ -121,9 +116,7 @@ class FetchAction
                     return 1;
                 }
 
-
                 $tenantSource->initialisation(app('currentTenant'), $command->option('db_suffix') ?? '');
-
 
                 if (in_array($command->getName(), [
                         'fetch:stocks',
@@ -131,13 +124,12 @@ class FetchAction
                         'fetch:orders',
                         'fetch:invoices',
                         'fetch:customers',
+                        'fetch:web-users',
                         'fetch:delivery-notes',
                         'fetch:purchase-orders'
-
                     ]) and $command->option('reset')) {
                     $this->reset();
                 }
-
 
                 $command->info('');
 
@@ -149,7 +141,6 @@ class FetchAction
                         if ($this->shop) {
                             $info .= ' shop:'.$this->shop->slug;
                         }
-
                         $command->line($info);
                         $this->progressBar = $command->getOutput()->createProgressBar($this->count() ?? 0);
                         $this->progressBar->setFormat('debug');

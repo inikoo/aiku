@@ -11,11 +11,11 @@ import TableUsers from "@/Pages/Tables/TableUsers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
-import WarehouseDashboard from "@/Pages/Inventory/WarehouseDashboard.vue";
-import TableWarehouseAreas from "@/Pages/Tables/TableWarehouseAreas.vue";
-import TableLocations from "@/Pages/Tables/TableLocations.vue";
+import { faRoad } from "@/../private/pro-light-svg-icons"
 import TableHistoryUsers from "@/Pages/Tables/TableHistoryUsers.vue";
+import { library } from "@fortawesome/fontawesome-svg-core"
 
+library.add(faRoad)
 const props = defineProps <{
     pageHead: object
     tabs: {
@@ -23,8 +23,8 @@ const props = defineProps <{
         navigation: object;
     },
     title: string
-    users: object
-    users_requests: object
+    users?: object
+    users_requests?: object
 }>()
 
 

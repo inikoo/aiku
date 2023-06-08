@@ -106,7 +106,7 @@ class ProcurementDashboard
                     [
                         [
                             'name'  => __('purchase orders'),
-                            'icon'  => ['fal', 'fa-box-full'],
+                            'icon'  => ['fal', 'fa-clipboard-list'],
                             'href'  => ['procurement.purchase-orders.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_purchase_orders
@@ -122,27 +122,6 @@ class ProcurementDashboard
 
                         ],
                     ],
-                    /*
-                    [
-                        [
-                            'name'  => __('marketplace agents'),
-                            'icon'  => ['fal', 'fa-store'],
-                            'href'  => ['procurement.marketplace.agents.index'],
-                            'index' => [
-                                'number' => $this->tenant->group->procurementStats->number_agents
-                            ]
-                        ],
-                        [
-                            'name'  => __('marketplace suppliers'),
-                            'icon'  => ['fal', 'fa-building'],
-                            'href'  => ['procurement.marketplace.suppliers.index'],
-                            'index' => [
-                                'number' => $this->tenant->group->procurementStats->number_suppliers
-                            ]
-                        ],
-                    ]
-                    */
-
                 ]
 
             ]

@@ -6,10 +6,10 @@
 				{{ props.tenantName }}
 			</span>
 		</div>
-		
+
 		<!-- Left Menu -->
 		<div
-			class="flex items-center divide-x divide-gray-200 justify-center rounded overflow-hidden">
+			class="flex items-center divide-x divide-gray-100 justify-center  overflow-hidden">
 			<Link
                 v-if="currentUrl && layout.navigation[currentUrl]?.topMenu && layout.navigation[currentUrl]?.topMenu?.subSections"
 				v-for="menu in layout.navigation[currentUrl].topMenu.subSections"
@@ -17,9 +17,9 @@
 				class="group flex justify-center items-center cursor-pointer space-x-1 px-4">
 				<FontAwesomeIcon
 					:icon="menu.icon"
-					class="h-4 w-4 p-1 text-gray-800 group-hover:bg-indigo-600 group-hover:text-white rounded opacity-60 group-hover:opacity-100"
+					class="h-3.5 w-3.5 pr-1 text-gray-600 group-hover:opacity-100  opacity-40"
 					aria-hidden="true" />
-				<span class="text-gray-800 capitalize">{{ menu.label }}</span>
+				<span class="text-gray-500 capitalize">{{ menu.label }}</span>
 			</Link>
 		</div>
 

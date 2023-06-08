@@ -240,9 +240,37 @@ class GetLayout
 
         if ($user->can('procurement.view')) {
             $navigation['procurement'] = [
-                'name'  => __('procurement'),
-                'icon'  => ['fal', 'fa-box-usd'],
-                'route' => 'procurement.dashboard'
+                'name'    => __('procurement'),
+                'icon'    => ['fal', 'fa-box-usd'],
+                'route'   => 'procurement.dashboard',
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('agents'),
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'route' => [
+                                'name' => 'procurement.agents.index',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('suppliers'),
+                            'icon'  => ['fal', 'fa-person-dolly'],
+                            'route' => [
+                                'name' => 'procurement.suppliers.index',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('purchase orders'),
+                            'icon'  => ['fal', 'fa-clipboard-list'],
+                            'route' => [
+                                'name' => 'procurement.purchase-orders.index',
+
+                            ]
+                        ],
+                    ]
+                ]
             ];
         }
         if ($user->can('accounting.view')) {
@@ -338,7 +366,6 @@ class GetLayout
                             ]
                         ],
                     ]
-
                 ]
             ];
         }
