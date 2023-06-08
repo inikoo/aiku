@@ -41,8 +41,8 @@ class IndexUsers extends InertiaAction
         return QueryBuilder::for(User::class)
             ->with('parent')
             ->defaultSort('username')
-            ->select(['username', 'parent_type', 'parent_id', 'contact_name', 'email'])
-            ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
+            ->select(['username', 'parent_type', 'parent_id', 'email'])
+            ->allowedSorts(['username', 'email', 'parent_type'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();

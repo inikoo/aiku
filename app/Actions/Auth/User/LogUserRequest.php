@@ -20,7 +20,7 @@ class LogUserRequest
     use AsAction;
     use WithTenantJob;
 
-    public function handle(Carbon $datetime, array $routeData, string $ip, string $userAgent, User $user): void
+    public function handle(Carbon $datetime, array $routeData, string $ip, string $userAgent, string $type, User $user): void
     {
         $tenant = app('currentTenant');
 
@@ -29,6 +29,7 @@ class LogUserRequest
         $parsedUserAgent = (new Browser())->parse($userAgent);
 
         $body = [
+            'type'        => $type,
             'datetime'    => $datetime,
             'tenant'      => $tenant->slug,
             'username'    => $user->username,
@@ -40,7 +41,6 @@ class LogUserRequest
             'device_type' => $parsedUserAgent->deviceType(),
             'platform'    => $this->detectWindows11($parsedUserAgent),
             'browser'     => $parsedUserAgent->browserName()
-
         ];
 
         // if platform=='Windows 10' need to check if it is actually Windows 11 see:

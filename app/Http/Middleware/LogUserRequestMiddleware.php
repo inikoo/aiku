@@ -14,6 +14,11 @@ class LogUserRequestMiddleware
     public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
+        $type = 'ACTION';
+
+        if($request->isMethod('GET')) {
+            $type = 'VISIT';
+        }
 
         if (!app()->runningUnitTests() && $user) {
             LogUserRequest::run(
@@ -25,6 +30,7 @@ class LogUserRequestMiddleware
                 ],
                 $request->ip(),
                 $request->header('User-Agent'),
+                $type,
                 $user,
             );
         }

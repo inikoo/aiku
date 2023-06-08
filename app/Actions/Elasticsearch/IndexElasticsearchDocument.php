@@ -22,7 +22,7 @@ class IndexElasticsearchDocument
 
         if ($client = BuildElasticsearchClient::run()) {
             try {
-                $res = $client->index(
+                $client->index(
                     [
                         'index' => $index,
                         'body'  => $body

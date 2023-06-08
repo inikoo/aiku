@@ -31,6 +31,8 @@ class GetElasticsearchDocument
                     $params['body']['query']['match']['username'] = $query;
                 }
 
+//                $params['body']['query']['bool']['must'][0]['term']['type'] = "VISIT";
+
                 foreach (json_decode($client->search($params), true)['hits']['hits'] as $result) {
                     $results[] = [
                         'username'      => $result['_source']['username'],
