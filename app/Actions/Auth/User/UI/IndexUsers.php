@@ -15,6 +15,7 @@ use App\Enums\UI\UsersTabsEnum;
 use App\Http\Resources\SysAdmin\UserHistoryResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -29,23 +30,41 @@ class IndexUsers extends InertiaAction
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-
-
-
             $query->where(function ($query) use ($value) {
-                $query->where('users.username', 'ILIKE', "%$value%");
+                $query->whereAnyWordStartWith('contact_name', $value)
+                    ->orWhere('users.username', 'ILIKE', "$value%");
             });
         });
+
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::USERS->value);
 
 
         return QueryBuilder::for(User::class)
             ->with('parent')
             ->defaultSort('username')
-            ->select(['username', 'parent_type', 'parent_id', 'email'])
-            ->allowedSorts(['username', 'email', 'parent_type'])
+            ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name'])
+            ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: TabsAbbreviationEnum::USERS->value.'Page'
+            )
             ->withQueryString();
+    }
+
+    public function tableStructure(?array $modelOperations = null): Closure
+    {
+        return function (InertiaTable $table) use ($modelOperations) {
+            $table
+                ->name(TabsAbbreviationEnum::USERS->value)
+                ->pageName(TabsAbbreviationEnum::USERS->value.'Page')
+                ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
+                ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'parent_type', label: __('type'), canBeHidden: false, sortable: true)
+                ->defaultSort('username');
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -100,16 +119,9 @@ class IndexUsers extends InertiaAction
                     : Inertia::lazy(fn () => UserHistoryResource::collection(GetElasticsearchDocument::run()))
 
             ]
+        )->table(
+            $this->tableStructure()
         )->table(function (InertiaTable $table) {
-            $table
-                ->name(TabsAbbreviationEnum::USERS->value)
-                ->pageName(TabsAbbreviationEnum::USERS->value.'Page')
-                ->withGlobalSearch()
-                ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'parent_type', label: __('type'), canBeHidden: false, sortable: true)
-                ->defaultSort('username');
-        })->table(function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
                 ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)

@@ -29,8 +29,8 @@ class IndexGuest extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith($query, 'contact_name', $value)
-                    ->orWhere('guests.slug', 'ILIKE', "value%");
+                $query->whereAnyWordStartWith('contact_name', $value)
+                    ->orWhere('guests.slug', 'ILIKE', "$value%");
             });
         });
 

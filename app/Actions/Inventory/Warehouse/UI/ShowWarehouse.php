@@ -47,14 +47,14 @@ class ShowWarehouse extends InertiaAction
         return Inertia::render(
             'Inventory/Warehouse',
             [
-                'title'                                 => __('warehouse'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($this->warehouse),
-                'navigation'                            => [
+                'title'                            => __('warehouse'),
+                'breadcrumbs'                      => $this->getBreadcrumbs($this->warehouse),
+                'navigation'                       => [
                     'previous' => $this->getPrevious($this->warehouse, $this->request),
                     'next'     => $this->getNext($this->warehouse, $this->request),
                 ],
-                'pageHead'    => [
-                    'icon'          =>
+                'pageHead'                         => [
+                    'icon'  =>
                         [
                             'icon'  => ['fal', 'warehouse'],
                             'title' => __('warehouse')
@@ -96,7 +96,7 @@ class ShowWarehouse extends InertiaAction
                     ]
 
                 ],
-                'tabs'        => [
+                'tabs'                             => [
 
                     'current'    => $this->tab,
                     'navigation' => WarehouseTabsEnum::navigation(),

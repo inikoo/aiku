@@ -60,7 +60,7 @@ class IndexWarehouseAreas extends InertiaAction
             ->allowedSorts(['code', 'name', 'number_locations'])
             ->allowedFilters([$globalSearch])
             ->paginate(
-                //  perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::WAREHOUSE_AREAS->value.'Page'
             )
             ->withQueryString();
@@ -116,7 +116,6 @@ class IndexWarehouseAreas extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $warehousesAreas, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Inventory/WarehouseAreas',
             [
@@ -143,8 +142,6 @@ class IndexWarehouseAreas extends InertiaAction
     }
 
 
-
-
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {
@@ -167,20 +164,20 @@ class IndexWarehouseAreas extends InertiaAction
                 (new InventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'=> 'inventory.warehouse-areas.index',
+                        'name' => 'inventory.warehouse-areas.index',
                         null
                     ]
                 )
             ),
-            'inventory.warehouses.show.warehouse-areas.index' ,
+            'inventory.warehouses.show.warehouse-areas.index',
             =>
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs(
                     $routeParameters['warehouse']
                 ),
                 $headCrumb([
-                    'name'      => 'inventory.warehouses.show.warehouse-areas.index',
-                    'parameters'=>
+                    'name'       => 'inventory.warehouses.show.warehouse-areas.index',
+                    'parameters' =>
                         [
                             $routeParameters['warehouse']->slug
                         ]

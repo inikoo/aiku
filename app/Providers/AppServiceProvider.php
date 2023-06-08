@@ -9,18 +9,8 @@
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
-use Inertia\Response;
 use Lorisleiva\Actions\Facades\Actions;
-use Inertia\Response as InertiaResponse;
-use App\InertiaTable\InertiaTable;
 
 /**
  * @method forPage(mixed $page, mixed $perPage)
@@ -43,62 +33,6 @@ class AppServiceProvider extends ServiceProvider
             Actions::registerCommands();
         }
 
-        Str::macro('possessive', function (string $string): string {
-            return $string.'\''.(
-                Str::endsWith($string, ['s', 'S']) ? '' : 's'
-            );
-        });
-
-        InertiaResponse::macro('getQueryBuilderProps', function (): array {
-            return $this->props['queryBuilderProps'] ?? [];
-        });
-
-        InertiaResponse::macro('table', function (callable $withTableBuilder = null): Response {
-            $tableBuilder = new InertiaTable(request());
-
-            if ($withTableBuilder) {
-                $withTableBuilder($tableBuilder);
-            }
-
-            return $tableBuilder->applyTo($this);
-        });
-
-        InertiaResponse::macro('whereAnyWordStartWith', function ($query, $column, $value): Response {
-            $quotedValue=DB::connection()->getPdo()->quote($value);
-            $query->where(DB::raw("extensions.remove_accents(". $column.")"), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"));
-            return $query;
-        });
-
-        Request::macro('validatedShiftToArray', function ($map = []): array {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $validated = $this->validated();
-            foreach ($map as $field => $destination) {
-                if (array_key_exists($field, $validated)) {
-                    Arr::set($validated, "$destination.$field", $validated[$field]);
-                    Arr::forget($validated, $field);
-                }
-            }
-
-            return $validated;
-        });
-
-        if (!Collection::hasMacro('paginate')) {
-
-            Collection::macro(
-                'paginate',
-                function ($perPage = 15, $page = null, $options = []) {
-                    $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
-                    return (new LengthAwarePaginator(
-                        $this->forPage($page, $perPage)->values()->all(),
-                        $this->count(),
-                        $perPage,
-                        $page,
-                        $options
-                    ))
-                        ->withPath('');
-                }
-            );
-        }
 
         Relation::morphMap(
             [
