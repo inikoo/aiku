@@ -14,6 +14,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\Response;
@@ -60,6 +61,13 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return $tableBuilder->applyTo($this);
+        });
+
+        InertiaResponse::macro('whereAnyWordStartWith', function ($query, $column, $value): Response {
+            $quotedValue=DB::connection()->getPdo()->quote($value);
+            $query->where(DB::raw("extensions.remove_accents(". $column.")"), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"))
+                ->orWhere('guests.slug', 'ILIKE', "value%");
+            return $query;
         });
 
         Request::macro('validatedShiftToArray', function ($map = []): array {
