@@ -9,10 +9,12 @@ namespace App\Models\HumanResources;
 
 use App\Actions\Utils\Abbreviate;
 use App\Models\Assets\Timezone;
+use App\Models\ClockingMachine;
 use App\Models\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -92,5 +94,9 @@ class Workplace extends Model
         return $this->morphTo('owner');
     }
 
+    public function clockingMachines(): HasMany
+    {
+        return $this->hasMany(ClockingMachine::class);
+    }
 
 }

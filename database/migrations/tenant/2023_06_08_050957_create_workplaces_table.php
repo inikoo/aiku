@@ -14,7 +14,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('workplaces', function (Blueprint $table) {
-            $table->unsignedSmallInteger('id');
+            $table->smallIncrements('id');
             $table->boolean('status')->index()->default(true);
             $table->string('type')->index()->default(WorkplaceTypeEnum::HQ->value);
             $table->string('slug')->unique()->collation('und_ns');
