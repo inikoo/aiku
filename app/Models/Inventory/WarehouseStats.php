@@ -7,9 +7,11 @@
 
 namespace App\Models\Inventory;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -24,13 +26,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_empty_locations
  * @property int $number_locations_no_stock_slots
  * @property string $stock_value
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Inventory\Warehouse $warehouse
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Warehouse $warehouse
  * @method static Builder|WarehouseStats newModelQuery()
  * @method static Builder|WarehouseStats newQuery()
  * @method static Builder|WarehouseStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class WarehouseStats extends Model
 {

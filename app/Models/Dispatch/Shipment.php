@@ -65,11 +65,16 @@ class Shipment extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     public function shipper(): BelongsTo
     {
         return $this->belongsTo(Shipper::class);
+    }
+
+    public function update_state()
+    {
     }
 }

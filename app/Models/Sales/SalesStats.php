@@ -7,9 +7,11 @@
 
 namespace App\Models\Sales;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -55,13 +57,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $pq3
  * @property string $pq4
  * @property string $pq5
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Model|\Eloquent $model
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Model|Eloquent $model
  * @method static Builder|SalesStats newModelQuery()
  * @method static Builder|SalesStats newQuery()
  * @method static Builder|SalesStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class SalesStats extends Model
 {

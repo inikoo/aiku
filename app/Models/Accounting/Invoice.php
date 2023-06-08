@@ -10,12 +10,17 @@ namespace App\Models\Accounting;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Accounting\InvoiceFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -44,26 +50,26 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $payment
  * @property array|null $paid_at
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
+ * @property-read Collection<int, Address> $addresses
  * @property-read Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $order
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
+ * @property-read Collection<int, InvoiceTransaction> $invoiceTransactions
+ * @property-read Collection<int, Order> $order
+ * @property-read Collection<int, Order> $orders
  * @property-read Shop $shop
- * @property-read \App\Models\Accounting\InvoiceStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])
+ * @property-read InvoiceStats|null $stats
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static InvoiceFactory factory($count = null, $state = [])
  * @method static Builder|Invoice newModelQuery()
  * @method static Builder|Invoice newQuery()
  * @method static Builder|Invoice onlyTrashed()
  * @method static Builder|Invoice query()
  * @method static Builder|Invoice withTrashed()
  * @method static Builder|Invoice withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Invoice extends Model
 {
@@ -88,7 +94,8 @@ class Invoice extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('number')
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     protected static function booted()

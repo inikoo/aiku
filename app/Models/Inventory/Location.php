@@ -8,8 +8,12 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Location\LocationStatusEnum;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Inventory\LocationFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -33,25 +38,25 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $stock_value
  * @property bool $is_empty
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $audited_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $audited_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
- * @property-read \App\Models\Inventory\LocationStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Stock> $stocks
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @property-read \App\Models\Inventory\Warehouse $warehouse
- * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
- * @method static \Database\Factories\Inventory\LocationFactory factory($count = null, $state = [])
+ * @property-read Collection<int, LostAndFoundStock> $lostAndFoundStocks
+ * @property-read LocationStats|null $stats
+ * @property-read Collection<int, Stock> $stocks
+ * @property-read UniversalSearch|null $universalSearch
+ * @property-read Warehouse $warehouse
+ * @property-read WarehouseArea|null $warehouseArea
+ * @method static LocationFactory factory($count = null, $state = [])
  * @method static Builder|Location newModelQuery()
  * @method static Builder|Location newQuery()
  * @method static Builder|Location onlyTrashed()
  * @method static Builder|Location query()
  * @method static Builder|Location withTrashed()
  * @method static Builder|Location withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Location extends Model
 {

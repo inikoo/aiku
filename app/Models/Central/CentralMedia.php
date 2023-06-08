@@ -8,11 +8,15 @@
 namespace App\Models\Central;
 
 use App\Models\Tenancy\Tenant;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
+use Spatie\Multitenancy\TenantCollection;
 
 /**
  * App\Models\Central\CentralMedia
@@ -33,17 +37,17 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property array $generated_conversions
  * @property array $responsive_images
  * @property int|null $order_column
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $model
- * @property-read \Spatie\Multitenancy\TenantCollection<int, Tenant> $tenants
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Model|Eloquent $model
+ * @property-read TenantCollection<int, Tenant> $tenants
  * @method static MediaCollection<int, static> all($columns = ['*'])
  * @method static MediaCollection<int, static> get($columns = ['*'])
  * @method static Builder|CentralMedia newModelQuery()
  * @method static Builder|CentralMedia newQuery()
- * @method static Builder|Media ordered()
+ * @method static Builder|BaseMedia ordered()
  * @method static Builder|CentralMedia query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class CentralMedia extends BaseMedia
 {

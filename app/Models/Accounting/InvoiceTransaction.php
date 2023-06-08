@@ -8,11 +8,13 @@
 namespace App\Models\Accounting;
 
 use App\Models\Sales\Transaction;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -32,12 +34,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $tax
  * @property int|null $tax_band_id
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property int|null $source_alt_id
- * @property-read Model|\Eloquent $item
+ * @property-read Model|Eloquent $item
  * @property-read Transaction|null $transaction
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()
@@ -45,7 +47,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|InvoiceTransaction query()
  * @method static Builder|InvoiceTransaction withTrashed()
  * @method static Builder|InvoiceTransaction withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class InvoiceTransaction extends Model
 {

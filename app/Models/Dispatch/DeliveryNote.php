@@ -10,12 +10,17 @@ namespace App\Models\Dispatch;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteTypeEnum;
+use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Dispatch\DeliveryNoteFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -48,37 +54,37 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_picks
  * @property int|null $picker_id Main picker
  * @property int|null $packer_id Main packer
- * @property \Illuminate\Support\Carbon $date
+ * @property Carbon $date
  * @property string|null $submitted_at
- * @property \Illuminate\Support\Carbon|null $assigned_at
- * @property \Illuminate\Support\Carbon|null $picking_at
- * @property \Illuminate\Support\Carbon|null $picked_at
- * @property \Illuminate\Support\Carbon|null $packing_at
- * @property \Illuminate\Support\Carbon|null $packed_at
+ * @property Carbon|null $assigned_at
+ * @property Carbon|null $picking_at
+ * @property Carbon|null $picked_at
+ * @property Carbon|null $packing_at
+ * @property Carbon|null $packed_at
  * @property string|null $finalised_at
- * @property \Illuminate\Support\Carbon|null $dispatched_at
- * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property Carbon|null $dispatched_at
+ * @property Carbon|null $cancelled_at
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
+ * @property-read Collection<int, Address> $addresses
  * @property-read Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
- * @property-read \App\Models\Dispatch\Shipment|null $shipments
+ * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
+ * @property-read Collection<int, Order> $orders
+ * @property-read Shipment|null $shipments
  * @property-read Shop $shop
- * @property-read \App\Models\Dispatch\DeliveryNoteStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Dispatch\DeliveryNoteFactory factory($count = null, $state = [])
+ * @property-read DeliveryNoteStats|null $stats
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static DeliveryNoteFactory factory($count = null, $state = [])
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
  * @method static Builder|DeliveryNote onlyTrashed()
  * @method static Builder|DeliveryNote query()
  * @method static Builder|DeliveryNote withTrashed()
  * @method static Builder|DeliveryNote withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class DeliveryNote extends Model
 {
@@ -117,7 +123,8 @@ class DeliveryNote extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('number')
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     public function getRouteKeyName(): string

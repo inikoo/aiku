@@ -7,9 +7,11 @@
 
 namespace App\Models\Inventory;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -29,13 +31,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_stocks_quantity_status_out_of_stock
  * @property int $number_stocks_quantity_status_error
  * @property string|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Inventory\StockFamily $stockFamily
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read StockFamily $stockFamily
  * @method static Builder|StockFamilyStats newModelQuery()
  * @method static Builder|StockFamilyStats newQuery()
  * @method static Builder|StockFamilyStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class StockFamilyStats extends Model
 {

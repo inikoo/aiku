@@ -8,6 +8,8 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Assets\Currency;
+use Database\Factories\Tenancy\GroupFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
+use Spatie\Multitenancy\TenantCollection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -30,21 +34,21 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property int $currency_id
  * @property int $number_tenants
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Currency $currency
- * @property-read \App\Models\Tenancy\Tenant|null $owner
- * @property-read \App\Models\Tenancy\GroupProcurementStats|null $procurementStats
- * @property-read \Spatie\Multitenancy\TenantCollection<int, \App\Models\Tenancy\Tenant> $tenants
- * @method static \Database\Factories\Tenancy\GroupFactory factory($count = null, $state = [])
+ * @property-read Tenant|null $owner
+ * @property-read GroupProcurementStats|null $procurementStats
+ * @property-read TenantCollection<int, Tenant> $tenants
+ * @method static GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
  * @method static Builder|Group onlyTrashed()
  * @method static Builder|Group query()
  * @method static Builder|Group withTrashed()
  * @method static Builder|Group withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Group extends Model
 {
@@ -59,6 +63,7 @@ class Group extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
 

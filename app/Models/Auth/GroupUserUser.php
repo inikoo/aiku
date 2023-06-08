@@ -2,8 +2,10 @@
 
 namespace App\Models\Auth;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
@@ -13,13 +15,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property int $group_user_id
  * @property int $user_id
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Auth\User|null $user
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUserUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUserUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUserUser query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class GroupUserUser extends Pivot
 {

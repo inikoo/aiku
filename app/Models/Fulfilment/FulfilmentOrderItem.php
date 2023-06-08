@@ -10,9 +10,11 @@ namespace App\Models\Fulfilment;
 use App\Models\Inventory\Stock;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -28,17 +30,17 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $quantity
  * @property string|null $notes
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property-read \App\Models\Fulfilment\FulfilmentOrder $FulfilmentOrder
+ * @property-read FulfilmentOrder $FulfilmentOrder
  * @property-read Customer $customer
  * @property-read Shop $shop
  * @property-read Stock $stock
  * @method static Builder|FulfilmentOrderItem newModelQuery()
  * @method static Builder|FulfilmentOrderItem newQuery()
  * @method static Builder|FulfilmentOrderItem query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class FulfilmentOrderItem extends Model
 {
@@ -75,7 +77,7 @@ class FulfilmentOrderItem extends Model
     }
 
     /** @noinspection PhpUnused */
-    public function setQuantityAttribute($val)
+    public function setQuantityAttribute($val): void
     {
         $this->attributes['quantity'] = sprintf('%.3f', $val);
     }

@@ -7,9 +7,13 @@
 
 namespace App\Models\Marketing;
 
+use Database\Factories\Marketing\ShippingZoneFactory;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -26,17 +30,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property array $territories
  * @property array $price
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Database\Factories\Marketing\ShippingZoneFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone query()
- * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|ShippingZone withoutTrashed()
- * @mixin \Eloquent
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static ShippingZoneFactory factory($count = null, $state = [])
+ * @method static Builder|ShippingZone newModelQuery()
+ * @method static Builder|ShippingZone newQuery()
+ * @method static Builder|ShippingZone onlyTrashed()
+ * @method static Builder|ShippingZone query()
+ * @method static Builder|ShippingZone withTrashed()
+ * @method static Builder|ShippingZone withoutTrashed()
+ * @mixin Eloquent
  */
 class ShippingZone extends Model
 {
@@ -63,6 +67,7 @@ class ShippingZone extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(6);
     }

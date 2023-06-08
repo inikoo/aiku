@@ -8,6 +8,7 @@
 namespace App\Models\Dispatch;
 
 use App\Models\Helpers\Issue;
+use Database\Factories\Dispatch\ShipperFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -42,8 +43,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Issue> $issues
- * @property-read Collection<int, \App\Models\Dispatch\Shipment> $shipments
- * @method static \Database\Factories\Dispatch\ShipperFactory factory($count = null, $state = [])
+ * @property-read Collection<int, Shipment> $shipments
+ * @method static ShipperFactory factory($count = null, $state = [])
  * @method static Builder|Shipper newModelQuery()
  * @method static Builder|Shipper newQuery()
  * @method static Builder|Shipper onlyTrashed()
@@ -74,7 +75,8 @@ class Shipper extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     public function shipments(): HasMany

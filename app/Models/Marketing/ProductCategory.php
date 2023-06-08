@@ -12,6 +12,7 @@ use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
 use App\Models\Sales\SalesStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Marketing\ProductCategoryFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -50,14 +51,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_department_id
  * @property int|null $source_family_id
  * @property-read Collection<int, ProductCategory> $departments
- * @property-read Model|\Eloquent $parent
- * @property-read Collection<int, \App\Models\Marketing\Product> $products
+ * @property-read Model|Eloquent $parent
+ * @property-read Collection<int, Product> $products
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
- * @property-read \App\Models\Marketing\Shop|null $shop
- * @property-read \App\Models\Marketing\ProductCategoryStats|null $stats
+ * @property-read Shop|null $shop
+ * @property-read ProductCategoryStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Marketing\ProductCategoryFactory factory($count = null, $state = [])
+ * @method static ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
  * @method static Builder|ProductCategory newQuery()
  * @method static Builder|ProductCategory onlyTrashed()

@@ -10,12 +10,18 @@ namespace App\Models\Procurement;
 use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Models\Assets\Currency;
+use App\Models\Helpers\GroupAddress;
+use App\Models\Media\GroupMedia;
+use App\Models\Search\UniversalSearch;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasGroupAddress;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
+use Database\Factories\Procurement\AgentFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,7 +29,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -52,29 +60,29 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property array $shared_data
  * @property array $tenant_data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property string|null $source_type
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\GroupAddress> $addresses
+ * @property-read Collection<int, GroupAddress> $addresses
  * @property-read Currency $currency
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
+ * @property-read MediaCollection<int, GroupMedia> $media
  * @property-read Tenant|null $owner
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierProduct> $products
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
- * @property-read \App\Models\Procurement\AgentStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\Supplier> $suppliers
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Procurement\AgentFactory factory($count = null, $state = [])
+ * @property-read Collection<int, SupplierProduct> $products
+ * @property-read Collection<int, PurchaseOrder> $purchaseOrders
+ * @property-read AgentStats|null $stats
+ * @property-read Collection<int, SupplierDelivery> $supplierDeliveries
+ * @property-read Collection<int, Supplier> $suppliers
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static AgentFactory factory($count = null, $state = [])
  * @method static Builder|Agent newModelQuery()
  * @method static Builder|Agent newQuery()
  * @method static Builder|Agent onlyTrashed()
  * @method static Builder|Agent query()
  * @method static Builder|Agent withTrashed()
  * @method static Builder|Agent withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Agent extends Model implements HasMedia
 {

@@ -3,8 +3,10 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -19,8 +21,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $location_id
  * @property string $notes
  * @property bool $return_requested
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $received_at
  * @property string|null $booked_in_at
  * @property string|null $settled_at
@@ -30,7 +32,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|StoredItem newModelQuery()
  * @method static Builder|StoredItem newQuery()
  * @method static Builder|StoredItem query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class StoredItem extends Model
 {

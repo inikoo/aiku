@@ -9,6 +9,8 @@ namespace App\Models\Dispatch;
 
 use App\Models\Helpers\Issue;
 use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,14 +25,14 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 /**
  * App\Models\Dispatch\Event
  *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Issue> $issues
- * @property-read \App\Models\Dispatch\Shipment $shipment
- * @method static \Illuminate\Database\Eloquent\Builder|Event newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Event newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Event onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Event query()
- * @method static \Illuminate\Database\Eloquent\Builder|Event withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Event withoutTrashed()
+ * @property-read Collection<int, Issue> $issues
+ * @property-read Shipment $shipment
+ * @method static Builder|Event newModelQuery()
+ * @method static Builder|Event newQuery()
+ * @method static Builder|Event onlyTrashed()
+ * @method static Builder|Event query()
+ * @method static Builder|Event withTrashed()
+ * @method static Builder|Event withoutTrashed()
  * @mixin Eloquent
  */
 class Event extends Model

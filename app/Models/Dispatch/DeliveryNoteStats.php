@@ -7,9 +7,11 @@
 
 namespace App\Models\Dispatch;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -18,13 +20,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $id
  * @property int $delivery_note_id
  * @property int $number_items current number of items
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Dispatch\DeliveryNote $deliveryNote
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read DeliveryNote $deliveryNote
  * @method static Builder|DeliveryNoteStats newModelQuery()
  * @method static Builder|DeliveryNoteStats newQuery()
  * @method static Builder|DeliveryNoteStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class DeliveryNoteStats extends Model
 {

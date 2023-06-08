@@ -14,9 +14,13 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Media\GroupMedia;
 use App\Models\Sales\SalesStats;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Marketing\ProductFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,7 +30,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -56,27 +62,27 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property array $settings
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\HistoricProduct> $historicRecords
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, GroupMedia> $images
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, GroupMedia> $media
+ * @property-read Collection<int, Barcode> $barcode
+ * @property-read Collection<int, HistoricProduct> $historicRecords
+ * @property-read MediaCollection<int, GroupMedia> $images
+ * @property-read MediaCollection<int, GroupMedia> $media
  * @property-read SalesStats|null $salesStats
- * @property-read \App\Models\Marketing\Shop|null $shop
- * @property-read \App\Models\Marketing\ProductStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Marketing\ProductFactory factory($count = null, $state = [])
+ * @property-read Shop|null $shop
+ * @property-read ProductStats|null $stats
+ * @property-read Collection<int, TradeUnit> $tradeUnits
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static ProductFactory factory($count = null, $state = [])
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
  * @method static Builder|Product onlyTrashed()
  * @method static Builder|Product query()
  * @method static Builder|Product withTrashed()
  * @method static Builder|Product withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Product extends Model implements HasMedia
 {

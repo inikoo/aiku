@@ -10,8 +10,11 @@ namespace App\Models\Helpers;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Helpers\SerialReference
@@ -24,13 +27,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $serial
  * @property string $format
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Tenant|null $tenant
- * @method static \Illuminate\Database\Eloquent\Builder|SerialReference newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SerialReference newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SerialReference query()
- * @mixin \Eloquent
+ * @method static Builder|SerialReference newModelQuery()
+ * @method static Builder|SerialReference newQuery()
+ * @method static Builder|SerialReference query()
+ * @mixin Eloquent
  */
 class SerialReference extends Model
 {

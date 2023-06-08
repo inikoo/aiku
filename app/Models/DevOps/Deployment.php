@@ -7,8 +7,10 @@
 
 namespace App\Models\DevOps;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
@@ -19,12 +21,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property string $hash
  * @property string $state
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static Builder|Deployment newModelQuery()
  * @method static Builder|Deployment newQuery()
  * @method static Builder|Deployment query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Deployment extends Model
 {

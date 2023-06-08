@@ -16,12 +16,16 @@ use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentSubsequentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
 use App\Models\Marketing\Shop;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Accounting\PaymentFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -47,22 +51,22 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $date Most relevant date at current state
  * @property string|null $completed_at
  * @property string|null $cancelled_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property bool $with_refund
  * @property int|null $source_id
- * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
+ * @property-read PaymentAccount $paymentAccount
  * @property-read Shop $shop
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Accounting\PaymentFactory factory($count = null, $state = [])
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static PaymentFactory factory($count = null, $state = [])
  * @method static Builder|Payment newModelQuery()
  * @method static Builder|Payment newQuery()
  * @method static Builder|Payment onlyTrashed()
  * @method static Builder|Payment query()
  * @method static Builder|Payment withTrashed()
  * @method static Builder|Payment withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Payment extends Model
 {

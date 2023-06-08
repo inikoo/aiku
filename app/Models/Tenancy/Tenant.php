@@ -20,7 +20,10 @@ use App\Models\Procurement\SupplierProductTenant;
 use App\Models\Procurement\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
 use App\Models\TenantWebStats;
+use Database\Factories\Tenancy\TenantFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -28,6 +31,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Multitenancy\Models\Tenant as SpatieTenant;
 use Spatie\Multitenancy\TenantCollection;
 use Spatie\Sluggable\HasSlug;
@@ -50,38 +55,38 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $language_id
  * @property int $timezone_id
  * @property int $currency_id tenant accounting currency
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property-read \App\Models\Tenancy\TenantAccountingStats|null $accountingStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, CentralDomain> $centralDomains
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, CentralMedia> $centralMedia
- * @property-read \App\Models\Tenancy\TenantCRMStats|null $crmStats
+ * @property-read TenantAccountingStats|null $accountingStats
+ * @property-read Collection<int, Agent> $agents
+ * @property-read Collection<int, CentralDomain> $centralDomains
+ * @property-read MediaCollection<int, CentralMedia> $centralMedia
+ * @property-read TenantCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read \App\Models\Tenancy\TenantFulfilmentStats|null $fulfilmentStats
- * @property-read \App\Models\Tenancy\Group $group
- * @property-read \App\Models\Tenancy\TenantInventoryStats|null $inventoryStats
- * @property-read \App\Models\Tenancy\TenantMailStats|null $mailStats
- * @property-read \App\Models\Tenancy\TenantMarketingStats|null $marketingStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $myAgents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $mySuppliers
- * @property-read \App\Models\Tenancy\TenantProcurementStats|null $procurementStats
- * @property-read \App\Models\Tenancy\TenantProductionStats|null $productionStats
- * @property-read \App\Models\Tenancy\TenantSalesStats|null $salesStats
- * @property-read \App\Models\Tenancy\TenantStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
+ * @property-read TenantFulfilmentStats|null $fulfilmentStats
+ * @property-read Group $group
+ * @property-read TenantInventoryStats|null $inventoryStats
+ * @property-read TenantMailStats|null $mailStats
+ * @property-read TenantMarketingStats|null $marketingStats
+ * @property-read Collection<int, Agent> $myAgents
+ * @property-read Collection<int, Supplier> $mySuppliers
+ * @property-read TenantProcurementStats|null $procurementStats
+ * @property-read TenantProductionStats|null $productionStats
+ * @property-read TenantSalesStats|null $salesStats
+ * @property-read TenantStats|null $stats
+ * @property-read Collection<int, Stock> $stocks
+ * @property-read Collection<int, SupplierProduct> $supplierProducts
+ * @property-read Collection<int, Supplier> $suppliers
  * @property-read SysUser|null $sysUser
  * @property-read TenantWebStats|null $webStats
  * @method static TenantCollection<int, static> all($columns = ['*'])
- * @method static \Database\Factories\Tenancy\TenantFactory factory($count = null, $state = [])
+ * @method static TenantFactory factory($count = null, $state = [])
  * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()
  * @method static Builder|Tenant query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Tenant extends SpatieTenant
 {
@@ -104,6 +109,7 @@ class Tenant extends SpatieTenant
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
 

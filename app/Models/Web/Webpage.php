@@ -7,11 +7,14 @@
 
 namespace App\Models\Web;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -29,18 +32,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $main_variant_id
  * @property mixed $data
  * @property mixed $settings
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Web\WebpageVariant|null $mainVariant
- * @property-read \App\Models\Web\WebpageStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebpageVariant> $variants
- * @property-read \App\Models\Web\Website $website
+ * @property-read WebpageVariant|null $mainVariant
+ * @property-read WebpageStats|null $stats
+ * @property-read Collection<int, WebpageVariant> $variants
+ * @property-read Website $website
  * @method static Builder|Webpage newModelQuery()
  * @method static Builder|Webpage newQuery()
  * @method static Builder|Webpage query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Webpage extends Model
 {
@@ -53,6 +56,7 @@ class Webpage extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
 

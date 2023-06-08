@@ -8,9 +8,11 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Tenancy\TenantAccountingStats
@@ -49,13 +51,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Tenancy\Tenant $tenant
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Tenant $tenant
  * @method static Builder|TenantAccountingStats newModelQuery()
  * @method static Builder|TenantAccountingStats newQuery()
  * @method static Builder|TenantAccountingStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class TenantAccountingStats extends Model
 {

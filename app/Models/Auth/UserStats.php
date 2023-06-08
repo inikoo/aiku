@@ -7,8 +7,11 @@
 
 namespace App\Models\Auth;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -18,13 +21,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $user_id
  * @property int $number_other_tenants
  * @property int $number_other_active_tenants
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Auth\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|UserStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserStats query()
- * @mixin \Eloquent
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User $user
+ * @method static Builder|UserStats newModelQuery()
+ * @method static Builder|UserStats newQuery()
+ * @method static Builder|UserStats query()
+ * @mixin Eloquent
  */
 class UserStats extends Model
 {
