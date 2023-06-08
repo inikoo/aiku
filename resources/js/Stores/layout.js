@@ -42,10 +42,10 @@ export const useLayoutStore = defineStore('layout', {
             inventory: {
                 routeSingle: 'inventory.warehouses.show',
                 routeAll: 'inventory.warehouses.index',
-                labelShowAll: trans('All inventories'),
+                labelShowAll: trans('All warehouses'),
                 currentData: {
                     slug: null,
-                    name: trans('All inventories'),
+                    name: trans('All warehouses'),
                     code: trans('All')
                 }
             },
