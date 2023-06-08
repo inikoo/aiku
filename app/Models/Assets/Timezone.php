@@ -8,6 +8,7 @@
 
 namespace App\Models\Assets;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -28,11 +29,11 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, \App\Models\Assets\Country> $countries
+ * @property-read Collection<int, Country> $countries
  * @method static Builder|Timezone newModelQuery()
  * @method static Builder|Timezone newQuery()
  * @method static Builder|Timezone query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Timezone extends Model
 {

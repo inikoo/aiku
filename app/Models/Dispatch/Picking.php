@@ -7,8 +7,10 @@
 
 namespace App\Models\Dispatch;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -32,12 +34,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $picked_at
  * @property string|null $packing_at
  * @property string|null $packed_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static Builder|Picking newModelQuery()
  * @method static Builder|Picking newQuery()
  * @method static Builder|Picking query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Picking extends Model
 {

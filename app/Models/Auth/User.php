@@ -10,17 +10,25 @@ namespace App\Models\Auth;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasRoles;
+use Database\Factories\Auth\UserFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -37,19 +45,19 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $remember_token
  * @property array $data
  * @property array $settings
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Auth\GroupUser|null $groupUser
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
- * @property-read \App\Models\Auth\UserStats|null $stats
+ * @property-read GroupUser|null $groupUser
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
+ * @property-read Model|Eloquent $parent
+ * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read UserStats|null $stats
  * @property-read Tenant $tenant
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
- * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
+ * @property-read Collection<int, PersonalAccessToken> $tokens
+ * @method static UserFactory factory($count = null, $state = [])
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User onlyTrashed()
@@ -58,7 +66,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|User role($roles, $guard = null)
  * @method static Builder|User withTrashed()
  * @method static Builder|User withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class User extends Authenticatable
 {

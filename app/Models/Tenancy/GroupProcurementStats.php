@@ -8,8 +8,11 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Tenancy\GroupProcurementStats
@@ -56,13 +59,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_supplier_deliveries_status_processing
  * @property int $number_supplier_deliveries_status_settled_placed
  * @property int $number_supplier_deliveries_status_settled_cancelled
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Tenancy\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupProcurementStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupProcurementStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupProcurementStats query()
- * @mixin \Eloquent
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Group $group
+ * @method static Builder|GroupProcurementStats newModelQuery()
+ * @method static Builder|GroupProcurementStats newQuery()
+ * @method static Builder|GroupProcurementStats query()
+ * @mixin Eloquent
  */
 class GroupProcurementStats extends Model
 {

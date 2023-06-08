@@ -8,8 +8,11 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Tenancy\TenantMarketingStats
@@ -45,13 +48,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_shops_state_subtype_closed_fulfilment
  * @property int $number_shops_state_subtype_closed_dropshipping
  * @property int $number_orphan_families
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Tenancy\Tenant $tenant
- * @method static \Illuminate\Database\Eloquent\Builder|TenantMarketingStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantMarketingStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantMarketingStats query()
- * @mixin \Eloquent
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Tenant $tenant
+ * @method static Builder|TenantMarketingStats newModelQuery()
+ * @method static Builder|TenantMarketingStats newQuery()
+ * @method static Builder|TenantMarketingStats query()
+ * @mixin Eloquent
  */
 class TenantMarketingStats extends Model
 {

@@ -22,7 +22,7 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * App\Models\Dispatch\Shipment
  *
- * @property-read \App\Models\Dispatch\Shipper|null $shipper
+ * @property-read Shipper|null $shipper
  * @property-read UniversalSearch|null $universalSearch
  * @method static Builder|PdfLabel newModelQuery()
  * @method static Builder|PdfLabel newQuery()
@@ -54,7 +54,8 @@ class PdfLabel extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     public function shipper(): BelongsTo

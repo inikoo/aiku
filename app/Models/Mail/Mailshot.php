@@ -9,13 +9,17 @@ namespace App\Models\Mail;
 
 use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use App\Models\Marketing\Shop;
+use Database\Factories\Mail\MailshotFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\SlugOptions;
 
@@ -27,22 +31,22 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $outbox_id
  * @property MailshotStateEnum $state
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
- * @property-read \App\Models\Mail\Outbox|null $outbox
+ * @property-read Collection<int, DispatchedEmail> $dispatchedEmails
+ * @property-read Outbox|null $outbox
  * @property-read Shop|null $shop
- * @property-read \App\Models\Mail\MailshotStats|null $stats
- * @method static \Database\Factories\Mail\MailshotFactory factory($count = null, $state = [])
+ * @property-read MailshotStats|null $stats
+ * @method static MailshotFactory factory($count = null, $state = [])
  * @method static Builder|Mailshot newModelQuery()
  * @method static Builder|Mailshot newQuery()
  * @method static Builder|Mailshot onlyTrashed()
  * @method static Builder|Mailshot query()
  * @method static Builder|Mailshot withTrashed()
  * @method static Builder|Mailshot withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Mailshot extends Model
 {
@@ -66,6 +70,7 @@ class Mailshot extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 

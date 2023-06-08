@@ -8,7 +8,10 @@
 namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Procurement\SupplierProductTenant
@@ -16,13 +19,13 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $id
  * @property int $supplier_product_id
  * @property int $tenant_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int|null $source_id
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductTenant newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductTenant newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SupplierProductTenant query()
- * @mixin \Eloquent
+ * @method static Builder|SupplierProductTenant newModelQuery()
+ * @method static Builder|SupplierProductTenant newQuery()
+ * @method static Builder|SupplierProductTenant query()
+ * @mixin Eloquent
  */
 class SupplierProductTenant extends Pivot
 {

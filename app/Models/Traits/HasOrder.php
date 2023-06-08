@@ -23,6 +23,7 @@ trait HasOrder
     {
         return SlugOptions::create()
             ->generateSlugsFrom('number')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
 

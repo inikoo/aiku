@@ -2,10 +2,15 @@
 
 namespace App\Models\Marketing;
 
+use Database\Factories\Marketing\OfferCampaignFactory;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -19,19 +24,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\OfferComponent> $offerComponent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Marketing\Offer> $offers
- * @method static \Database\Factories\Marketing\OfferCampaignFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign query()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign withoutTrashed()
- * @mixin \Eloquent
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, OfferComponent> $offerComponent
+ * @property-read Collection<int, Offer> $offers
+ * @method static OfferCampaignFactory factory($count = null, $state = [])
+ * @method static Builder|OfferCampaign newModelQuery()
+ * @method static Builder|OfferCampaign newQuery()
+ * @method static Builder|OfferCampaign onlyTrashed()
+ * @method static Builder|OfferCampaign query()
+ * @method static Builder|OfferCampaign withTrashed()
+ * @method static Builder|OfferCampaign withoutTrashed()
+ * @mixin Eloquent
  */
 class OfferCampaign extends Model
 {
@@ -55,6 +60,7 @@ class OfferCampaign extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(6);
     }

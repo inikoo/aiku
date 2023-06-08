@@ -8,9 +8,11 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Tenancy\TenantProductionStats
@@ -18,13 +20,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $tenant_id
  * @property int $number_products
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Tenancy\Tenant $tenant
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Tenant $tenant
  * @method static Builder|TenantProductionStats newModelQuery()
  * @method static Builder|TenantProductionStats newQuery()
  * @method static Builder|TenantProductionStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class TenantProductionStats extends Model
 {

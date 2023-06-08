@@ -8,8 +8,11 @@
 namespace App\Models\Tenancy;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Tenancy\TenantMailStats
@@ -66,13 +69,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_dispatched_emails_state_marked_as_spam
  * @property int $number_dispatched_emails_state_error
  * @property int $number_provoked_unsubscribe
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Tenancy\Tenant $tenant
- * @method static \Illuminate\Database\Eloquent\Builder|TenantMailStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantMailStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TenantMailStats query()
- * @mixin \Eloquent
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Tenant $tenant
+ * @method static Builder|TenantMailStats newModelQuery()
+ * @method static Builder|TenantMailStats newQuery()
+ * @method static Builder|TenantMailStats query()
+ * @mixin Eloquent
  */
 class TenantMailStats extends Model
 {

@@ -3,9 +3,14 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Inventory\LostAndFoundStockFactory;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -17,15 +22,15 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $quantity
  * @property string $stock_value
  * @property string $type
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property LostAndFoundStockStateEnum $state
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Inventory\LostAndFoundStockFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|LostAndFoundStock newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LostAndFoundStock newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LostAndFoundStock query()
- * @mixin \Eloquent
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static LostAndFoundStockFactory factory($count = null, $state = [])
+ * @method static Builder|LostAndFoundStock newModelQuery()
+ * @method static Builder|LostAndFoundStock newQuery()
+ * @method static Builder|LostAndFoundStock query()
+ * @mixin Eloquent
  */
 
 class LostAndFoundStock extends Model

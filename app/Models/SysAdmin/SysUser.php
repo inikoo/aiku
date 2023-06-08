@@ -7,14 +7,18 @@
 
 namespace App\Models\SysAdmin;
 
+use Database\Factories\SysAdmin\SysUserFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -36,12 +40,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property string|null $remember_token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
- * @property-read Model|\Eloquent $userable
- * @method static \Database\Factories\SysAdmin\SysUserFactory factory($count = null, $state = [])
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Collection<int, PersonalAccessToken> $tokens
+ * @property-read Model|Eloquent $userable
+ * @method static SysUserFactory factory($count = null, $state = [])
  * @method static Builder|SysUser newModelQuery()
  * @method static Builder|SysUser newQuery()
  * @method static Builder|SysUser onlyTrashed()
@@ -77,6 +81,7 @@ class SysUser extends Authenticatable
     {
         return SlugOptions::create()
             ->generateSlugsFrom('username')
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('username');
     }
 

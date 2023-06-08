@@ -7,9 +7,11 @@
 
 namespace App\Models\Mail;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -30,13 +32,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_dispatched_emails_state_marked_as_spam
  * @property int $number_dispatched_emails_state_error
  * @property int $number_provoked_unsubscribe
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Mail\Mailshot|null $mailshot
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Mailshot|null $mailshot
  * @method static Builder|MailshotStats newModelQuery()
  * @method static Builder|MailshotStats newQuery()
  * @method static Builder|MailshotStats query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class MailshotStats extends Model
 {

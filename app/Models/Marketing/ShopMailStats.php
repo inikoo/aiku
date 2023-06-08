@@ -7,8 +7,11 @@
 
 namespace App\Models\Marketing;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -66,13 +69,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_dispatched_emails_state_marked_as_spam
  * @property int $number_dispatched_emails_state_error
  * @property int $number_provoked_unsubscribe
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Marketing\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ShopMailStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopMailStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopMailStats query()
- * @mixin \Eloquent
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Shop $shop
+ * @method static Builder|ShopMailStats newModelQuery()
+ * @method static Builder|ShopMailStats newQuery()
+ * @method static Builder|ShopMailStats query()
+ * @mixin Eloquent
  */
 class ShopMailStats extends Model
 {

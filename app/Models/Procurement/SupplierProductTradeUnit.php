@@ -8,9 +8,11 @@
 namespace App\Models\Procurement;
 
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Procurement\SupplierProductTradeUnit
@@ -21,13 +23,13 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property float $package_quantity
  * @property float|null $carton_quantity
  * @property string|null $notes
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Procurement\Supplier $supplier
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Supplier $supplier
  * @method static Builder|SupplierProductTradeUnit newModelQuery()
  * @method static Builder|SupplierProductTradeUnit newQuery()
  * @method static Builder|SupplierProductTradeUnit query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class SupplierProductTradeUnit extends Pivot
 {

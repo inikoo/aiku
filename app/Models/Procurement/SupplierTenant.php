@@ -9,9 +9,11 @@ namespace App\Models\Procurement;
 
 use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use App\Models\Traits\UsesGroupConnection;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Procurement\SupplierTenant
@@ -21,14 +23,14 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $tenant_id
  * @property string $type sub-supplier: agents supplier
  * @property SupplierTenantStatusEnum $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int|null $source_id
- * @property-read \App\Models\Procurement\Supplier $supplier
+ * @property-read Supplier $supplier
  * @method static Builder|SupplierTenant newModelQuery()
  * @method static Builder|SupplierTenant newQuery()
  * @method static Builder|SupplierTenant query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class SupplierTenant extends Pivot
 {

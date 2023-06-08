@@ -7,9 +7,11 @@
 
 namespace App\Models\Assets;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
@@ -21,13 +23,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property string $description
  * @property int|null $parent_id
  * @property int $level
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read TariffCode|null $parent
  * @method static Builder|TariffCode newModelQuery()
  * @method static Builder|TariffCode newQuery()
  * @method static Builder|TariffCode query()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class TariffCode extends Model
 {

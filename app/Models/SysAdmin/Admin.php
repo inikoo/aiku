@@ -7,11 +7,14 @@
 
 namespace App\Models\SysAdmin;
 
+use Database\Factories\SysAdmin\AdminFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -25,18 +28,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property string $email
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
- * @method static \Database\Factories\SysAdmin\AdminFactory factory($count = null, $state = [])
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read SysUser|null $sysUser
+ * @method static AdminFactory factory($count = null, $state = [])
  * @method static Builder|Admin newModelQuery()
  * @method static Builder|Admin newQuery()
  * @method static Builder|Admin onlyTrashed()
  * @method static Builder|Admin query()
  * @method static Builder|Admin withTrashed()
  * @method static Builder|Admin withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Admin extends Model
 {

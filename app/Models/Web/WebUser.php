@@ -11,11 +11,15 @@ use App\Actions\Sales\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Enums\Web\WebUser\WebUserLoginVersionEnum;
 use App\Enums\Web\WebUser\WebUserTypeEnum;
 use App\Models\Sales\Customer;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -37,21 +41,21 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_api_tokens
  * @property array $data
  * @property array $settings
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property WebUserLoginVersionEnum $login_version
  * @property int|null $source_id
  * @property WebUserTypeEnum $state
  * @property-read Customer $customer
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, PersonalAccessToken> $tokens
  * @method static Builder|WebUser newModelQuery()
  * @method static Builder|WebUser newQuery()
  * @method static Builder|WebUser onlyTrashed()
  * @method static Builder|WebUser query()
  * @method static Builder|WebUser withTrashed()
  * @method static Builder|WebUser withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class WebUser extends Authenticatable
 {
@@ -93,10 +97,11 @@ class WebUser extends Authenticatable
 
                 return $slug;
             })
+            ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::updated(function (WebUser $webUser) {
             if ($webUser->wasChanged('status')) {

@@ -13,9 +13,13 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Marketing\Shop;
 use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -26,22 +30,22 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $date
  * @property string $description
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customer
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employee
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Shipper> $shipper
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shop
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $supplier
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouse
- * @method static \Illuminate\Database\Eloquent\Builder|Issue newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Issue newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Issue onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Issue query()
- * @method static \Illuminate\Database\Eloquent\Builder|Issue withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Issue withoutTrashed()
- * @mixin \Eloquent
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Customer> $customer
+ * @property-read Collection<int, Employee> $employee
+ * @property-read Collection<int, Shipper> $shipper
+ * @property-read Collection<int, Shop> $shop
+ * @property-read Collection<int, Supplier> $supplier
+ * @property-read Collection<int, Warehouse> $warehouse
+ * @method static Builder|Issue newModelQuery()
+ * @method static Builder|Issue newQuery()
+ * @method static Builder|Issue onlyTrashed()
+ * @method static Builder|Issue query()
+ * @method static Builder|Issue withTrashed()
+ * @method static Builder|Issue withoutTrashed()
+ * @mixin Eloquent
  */
 class Issue extends Model
 {

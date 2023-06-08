@@ -9,12 +9,14 @@ namespace App\Models\Central;
 
 use App\Models\SysAdmin\SysUser;
 use App\Models\Tenancy\Tenant;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -28,10 +30,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $website_id
  * @property string $domain
  * @property string $state
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Central\CentralDomainStats|null $stats
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read CentralDomainStats|null $stats
  * @property-read SysUser|null $sysUser
  * @property-read Tenant $tenant
  * @method static Builder|CentralDomain newModelQuery()
@@ -40,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|CentralDomain query()
  * @method static Builder|CentralDomain withTrashed()
  * @method static Builder|CentralDomain withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class CentralDomain extends Model
 {
@@ -52,7 +54,8 @@ class CentralDomain extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('slug')
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     public function getRouteKeyName(): string

@@ -12,10 +12,16 @@ use App\Enums\Sales\Order\OrderStatusEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dropshipping\CustomerClient;
+use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasOrder;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Sales\OrderFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 
@@ -59,28 +66,28 @@ use Spatie\Sluggable\HasSlug;
  * @property string $net
  * @property string $tax
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
- * @property-read \App\Models\Sales\Customer $customer
- * @property-read \App\Models\Dropshipping\CustomerClient|null $customerClient
- * @property-read \Illuminate\Database\Eloquent\Collection<int, DeliveryNote> $deliveryNotes
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
+ * @property-read Collection<int, Address> $addresses
+ * @property-read Customer $customer
+ * @property-read CustomerClient|null $customerClient
+ * @property-read Collection<int, DeliveryNote> $deliveryNotes
+ * @property-read Collection<int, Invoice> $invoices
+ * @property-read Collection<int, Payment> $payments
  * @property-read Shop $shop
- * @property-read \App\Models\Sales\OrderStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sales\Transaction> $transactions
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Sales\OrderFactory factory($count = null, $state = [])
+ * @property-read OrderStats|null $stats
+ * @property-read Collection<int, Transaction> $transactions
+ * @property-read UniversalSearch|null $universalSearch
+ * @method static OrderFactory factory($count = null, $state = [])
  * @method static Builder|Order newModelQuery()
  * @method static Builder|Order newQuery()
  * @method static Builder|Order onlyTrashed()
  * @method static Builder|Order query()
  * @method static Builder|Order withTrashed()
  * @method static Builder|Order withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Order extends Model
 {
