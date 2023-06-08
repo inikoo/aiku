@@ -1,7 +1,7 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Thu, 08 Jun 2023 14:34:48 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 08 Jun 2023 15:57:05 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
