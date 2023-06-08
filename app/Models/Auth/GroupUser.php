@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -41,20 +42,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property array|null $data
  * @property int $number_users
  * @property int $number_active_users
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read CentralMedia|null $avatar
- * @property-read MediaCollection<int, GroupMedia> $media
- * @property-read TenantCollection<int, Tenant> $tenants
- * @property-read Collection<int, User> $users
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\GroupMedia> $media
+ * @property-read \Spatie\Multitenancy\TenantCollection<int, Tenant> $tenants
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Auth\User> $users
  * @method static Builder|GroupUser newModelQuery()
  * @method static Builder|GroupUser newQuery()
  * @method static Builder|GroupUser onlyTrashed()
  * @method static Builder|GroupUser query()
  * @method static Builder|GroupUser withTrashed()
  * @method static Builder|GroupUser withoutTrashed()
- * @mixin Eloquent
+ * @mixin \Eloquent
  */
 class GroupUser extends Model implements HasMedia
 {
