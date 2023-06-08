@@ -100,7 +100,7 @@ class GetLayout
         }
 
         if ($user->can('customers.view')) {
-            $navigation['customers'] = [
+            $navigation['crm'] = [
                 'name'    => __('CRM'),
                 'icon'    => ['fal', 'fa-tasks-alt'],
                 'route'   => 'crm.dashboard',

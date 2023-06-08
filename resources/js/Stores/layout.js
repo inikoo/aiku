@@ -29,6 +29,16 @@ export const useLayoutStore = defineStore('layout', {
                     code: trans('All')
                 }
             },
+            crm: {
+                routeSingle: 'crm.shop.dashboard',
+                routeAll: 'crm.dashboard',
+                labelShowAll: trans('All websites'),
+                currentData: {
+                    slug: null,
+                    name: trans('All websites'),
+                    code: trans('All')
+                }
+            },
             customers: {
                 routeSingle: 'inventory.warehouses.show',
                 routeAll: 'inventory.warehouses.index',

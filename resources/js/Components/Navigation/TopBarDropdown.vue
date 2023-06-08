@@ -12,14 +12,8 @@ const props = defineProps<{
     currentPage: string
 }>()
 
-// console.log(route().current()) // inventory.warehouses.show
-// console.log(layout[props.currentPage].routeSingle) // inventory.warehouses.show
-// console.log(route().params) // { warehouse: "ed" }
-
-console.log()
-
 const isCurrentRoute = (slug: string) => {
-    // To check if the value from first key is same as slug from selected dropdown
+    // To check if the value from first key (of params from URL) is same as slug from selected dropdown
     return route().params[Object.keys(route().params)[0]] == slug ? true : false
 }
 
@@ -52,9 +46,7 @@ const handleClick = (option) => {
             class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
             <span class="">
                 {{ layout[props.currentPage].currentData.name }}
-                <!-- More -->
             </span>
-            <!-- <span class="inline xl:hidden">{{ layout.currentShopData.code }}</span> -->
             <FontAwesomeIcon aria-hidden="true" class="place-self-center ml-4 opacity-50 hover:opacity-100" icon="fal fa-chevron-down" />
         </MenuButton>
 
