@@ -16,14 +16,14 @@ return new class () extends Migration {
         Schema::create('shops', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('code')->unique()->collation('und_ns_ci');
-            $table->string('name')->collation('und_ns_ci_ai');
-            $table->string('company_name', 256)->nullable()->collation('und_ns_ci_ai');
-            $table->string('contact_name', 256)->nullable()->collation('und_ns_ci_ai');
-            $table->string('email')->nullable()->collation('und_ns_ci');
+            $table->string('code')->unique()->collation('und_ns');
+            $table->string('name')->collation('und_ns');
+            $table->string('company_name', 256)->nullable()->collation('und_ns');
+            $table->string('contact_name', 256)->nullable()->collation('und_ns');
+            $table->string('email')->nullable()->collation('und_ns');
             $table->string('phone')->nullable()->collation('und_ns');
             $table->string('identity_document_type')->nullable();
-            $table->string('identity_document_number')->nullable()->collation('und_ns_ci');
+            $table->string('identity_document_number')->nullable()->collation('und_ns');
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');

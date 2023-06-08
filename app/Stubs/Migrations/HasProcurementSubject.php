@@ -18,10 +18,10 @@ trait HasProcurementSubject
         $table->boolean('status')->default(true)->index();
         $table->boolean('is_private')->default(false)->index();
         $table->string('slug')->unique()->collation('und_ns');
-        $table->string('code')->index()->collation('und_ns_ci');
+        $table->string('code')->index()->collation('und_ns');
         $table->unsignedInteger('owner_id');
         $table->string('owner_type');
-        $table->string('name')->nullable()->collation('und_ns_ci_ai');
+        $table->string('name')->nullable()->collation('und_ns');
         $table->unsignedBigInteger('image_id')->nullable();
         $table->foreign('image_id')->references('id')->on('group_media');
 

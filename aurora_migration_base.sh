@@ -48,13 +48,14 @@ do
 done
 php artisan tenants:artisan 'scout:flush App\Models\Search\UniversalSearch -q'
 php artisan create:group-user awg aiku "Development Team" devel@aiku.io -a
+pg_dump -Fc -f "devops/devel/snapshots/au_init.dump" ${DB}
 for tenant in "${tenants[@]}"
 do
     php artisan create:guest "$tenant" "Aiku" external_administrator
     php artisan guest:user-from-guest-user "$tenant" aiku aiku
     php artisan user:add-roles "$tenant" aiku super-admin
 done
-pg_dump -Fc -f "devops/devel/snapshots/au_init.dump" ${DB}
+pg_dump -Fc -f "devops/devel/snapshots/au_init_tenants.dump" ${DB}
 php artisan fetch:employees  -d _base
 php artisan fetch:deleted-employees  -d _base
 php artisan fetch:guests  -d _base

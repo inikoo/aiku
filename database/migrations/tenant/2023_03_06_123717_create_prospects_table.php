@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_id')->index()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('name', 256)->nullable()->collation('und_ns_ci_ai');
+            $table->string('name', 256)->nullable()->collation('und_ns');
             $table = $this->contactFields(table: $table, withWebsite: true);
             $table->jsonb('location');
             $table->string('state')->index()->default(ProspectStateEnum::NO_CONTACTED->value);

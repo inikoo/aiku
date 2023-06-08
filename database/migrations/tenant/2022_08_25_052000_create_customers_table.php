@@ -23,8 +23,8 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedBigInteger('image_id')->nullable();
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('reference')->nullable()->collation('und_ns_ci')->comment('customer public id');
-            $table->string('name', 256)->nullable()->collation('und_ns_ci_ai');
+            $table->string('reference')->nullable()->collation('und_ns')->comment('customer public id');
+            $table->string('name', 256)->nullable()->collation('und_ns');
             $table = $this->contactFields(table: $table, withWebsite: true);
             $table->jsonb('location');
             $table->string('status')->index();
