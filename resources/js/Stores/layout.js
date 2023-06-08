@@ -32,10 +32,10 @@ export const useLayoutStore = defineStore('layout', {
             crm: {
                 routeSingle: 'crm.shop.dashboard',
                 routeAll: 'crm.dashboard',
-                labelShowAll: trans('All websites'),
+                labelShowAll: trans('All shops'),
                 currentData: {
                     slug: null,
-                    name: trans('All websites'),
+                    name: trans('All shops'),
                     code: trans('All')
                 }
             },
