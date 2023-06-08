@@ -65,8 +65,7 @@ class AppServiceProvider extends ServiceProvider
 
         InertiaResponse::macro('whereAnyWordStartWith', function ($query, $column, $value): Response {
             $quotedValue=DB::connection()->getPdo()->quote($value);
-            $query->where(DB::raw("extensions.remove_accents(". $column.")"), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"))
-                ->orWhere('guests.slug', 'ILIKE', "value%");
+            $query->where(DB::raw("extensions.remove_accents(". $column.")"), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"));
             return $query;
         });
 
