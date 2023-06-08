@@ -8,6 +8,9 @@
 ITALIC='\e[3m'
 NONE='\033[00m'
 
+DB_COLLATE=C.UTF-8
+DB_COLLATE="${2:-$DB_COLLATE}"
+
 DB=aiku
 tenants=( aw sk es aroma  )
 echo -e "🧹 Cleaning up"
@@ -25,7 +28,7 @@ rm -rf storage/app/public/tenants
 rm -rf storage/app/public/central
 echo -e "✨ Resetting database ${ITALIC}${DB}${NONE}"
 dropdb --force --if-exists ${DB}
-createdb --template=template0 --lc-collate=C.UTF-8 --lc-ctype=C.UTF-8  ${DB}
+createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}"  ${DB}
 echo "🌱 Migrating and seeding database"
 php artisan migrate --path=database/migrations/central --database=central
 php artisan db:seed
