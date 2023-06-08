@@ -1,5 +1,5 @@
 <template>
-	<div class="flex justify-between items-center gap-5">
+	<div class="flex justify-between items-center">
 		<div class="block pb-3 pl-3 xl:w-56">
 			<img class="h-4 mt-4 xl:h-6" src="/art/logo-color-trimmed.png" alt="Aiku" />
 			<span class="font-logo mb-1 mr-2 xl:hidden whitespace-nowrap text-sm">
@@ -17,14 +17,14 @@
 				class="group flex justify-center items-center cursor-pointer space-x-1 px-4">
 				<FontAwesomeIcon
 					:icon="menu.icon"
-					class="h-3.5 w-3.5 pr-1 text-gray-600 group-hover:opacity-100  opacity-40"
+					class="h-3.5 w-3.5 pr-1 text-gray-600 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
 					aria-hidden="true" />
-				<span class="text-gray-500 capitalize">{{ menu.label }}</span>
+				<span class="text-gray-600 capitalize">{{ menu.label }}</span>
 			</Link>
 		</div>
 
         <!-- Dropdown -->
-        <div v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown">
+        <div v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown && layout.navigation[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
             <TopBarDropdown :currentPage="currentUrl"/>
         </div>
 
@@ -33,15 +33,15 @@
 			<Link
                 v-if="currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown?.subsections"
 				v-for="menu in layout.navigation[currentUrl].topMenu.dropdown.subsections"
-				:href="route(menu.route?.all)"
+				:href="layout[currentUrl].currentData.slug ? route(menu.route?.selected, layout[currentUrl].currentData.slug) : route(menu.route?.all)"
                 :title="menu.tooltip"
 				class="group flex justify-center items-center cursor-pointer space-x-1 px-4"
             >
 				<FontAwesomeIcon
 					:icon="menu.icon"
-					class="h-4 w-4 p-1 text-gray-800 group-hover:bg-indigo-600 group-hover:text-white rounded opacity-60 group-hover:opacity-100"
+					class="h-3.5 w-3.5 pr-1 text-gray-600 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
 					aria-hidden="true" />
-				<span class="text-gray-800 capitalize">{{ menu.label }}</span>
+				<span class="text-gray-600 capitalize">{{ menu.label }}</span>
 			</Link>
 		</div>
 	</div>
@@ -68,6 +68,7 @@ const currentUrl = ref()
 router.on("navigate", (event) => {
 	currentUrl.value = event.detail.page.url.split("/")[1]
 })
+
 
 </script>
 

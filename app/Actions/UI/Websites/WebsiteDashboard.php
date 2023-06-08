@@ -41,9 +41,6 @@ class WebsiteDashboard
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
 
-
-
-
         return Inertia::render(
             'Web/WebsiteDashboard',
             [
@@ -58,21 +55,13 @@ class WebsiteDashboard
                 'flatTreeMaps' => [
                     [
 
-                        [
-                            'name'  => __('websites'),
-                            'icon'  => ['fal', 'fa-globe'],
-                            'href'  => ['websites.index'],
-                            'index' => [
-                                'number' => $tenant->webStats->number_websites
-                            ]
 
-                        ],
                         [
                             'name'  => __('webpages'),
                             'icon'  => ['fal', 'fa-browser'],
-                            'href'  => ['webpages.index'],
+                            'href'  => ['websites.show.webpages.index',$website->slug],
                             'index' => [
-                                'number' => $tenant->webStats->number_webpages
+                                'number' => $website->stats->number_webpages
                             ]
 
                         ],
@@ -99,7 +88,7 @@ class WebsiteDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'website.show.dashboard',
+                                'name'       => 'websites.show.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Website dashboard')

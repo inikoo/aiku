@@ -77,7 +77,7 @@ class GetLayout
                                 'route'  =>
                                     [
                                         'all'      => ['websites.dashboard'],
-                                        'selected' => ['websites.show.dashboard'],
+                                        'selected' => ['websites.show'],
 
                                     ]
                             ],
@@ -87,7 +87,7 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-browser'],
                                 'route'   => [
                                     'all'      => ['websites.dashboard'],
-                                    'selected' => ['websites.show.dashboard'],
+                                    'selected' => ['websites.show'],
 
                                 ]
                             ],
@@ -209,7 +209,7 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-map-signs'],
                                 'route'   => [
                                     'all'      => 'inventory.warehouse-areas.index',
-                                    'selected' => 'inventory.warehouse.show.warehouse-areas.index',
+                                    'selected' => 'inventory.warehouses.show.warehouse-areas.index',
 
                                 ]
                             ],
@@ -219,7 +219,7 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-inventory'],
                                 'route'   => [
                                     'all'      => 'inventory.locations.index',
-                                    'selected' => 'inventory.warehouse.show.locations.index',
+                                    'selected' => 'inventory.warehouses.show.locations.index',
 
                                 ]
                             ],
