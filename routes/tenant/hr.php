@@ -33,5 +33,6 @@ Route::get('/positions', IndexJobPosition::class)->name('job-positions.index');
 
 Route::get('/calendar', ComingSoon::class)->name('calendar');
 Route::get('/time-sheets', ComingSoon::class)->name('time-sheets.hub');
-Route::get('/clocking-machines', ComingSoon::class)->name('clocking-machines.index');
 Route::get('/working-places', ComingSoon::class)->name('working-places.index');
+
+Route::get('/clocking-machines', ComingSoon::class)->name('clocking-machines.index');
