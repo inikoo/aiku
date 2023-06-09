@@ -127,10 +127,10 @@ class IndexDepartments extends InertiaAction
                 'pageHead'    => [
                     'title'  => __('departments'),
                     'create' => $this->canEdit &&
-                        $this->routeName == 'shops.show.catalogue.hub.departments.index'
+                        $this->routeName == 'catalogue.shop.departments.index'
                     ? [
                         'route' => [
-                            'name'       => 'shops.show.catalogue.hub.departments.create',
+                            'name'       => 'catalogue.shop.departments.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('departments')
@@ -159,7 +159,7 @@ class IndexDepartments extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.show.catalogue.hub.departments.index' =>
+            'catalogue.shop.departments.index' =>
             array_merge(
                 CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', $routeParameters),
                 $headCrumb(
@@ -171,7 +171,7 @@ class IndexDepartments extends InertiaAction
                 )
             ),
 
-            'catalogue.hub.departments.index' =>
+            'catalogue.departments.index' =>
             array_merge(
                 CatalogueHub::make()->getBreadcrumbs('catalogue.hub', []),
                 $headCrumb(

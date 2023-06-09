@@ -29,6 +29,7 @@ import {
 	faChevronDown,
     faTasksAlt,
     faBullhorn,
+    faFolderTree
 } from "@/../private/pro-light-svg-icons"
 import { useLayoutStore } from "@/Stores/layout"
 
@@ -55,6 +56,7 @@ library.add(
 	faChevronDown,
     faTasksAlt,
     faBullhorn,
+    faFolderTree
 )
 
 

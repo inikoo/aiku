@@ -169,18 +169,18 @@ class ShowDepartment extends InertiaAction
 
 
         return match ($routeName) {
-            'catalogue.hub.departments.show' =>
+            'catalogue.departments.show' =>
             array_merge(
                 CatalogueHub::make()->getBreadcrumbs('catalogue.hub', []),
                 $headCrumb(
                     $routeParameters['department'],
                     [
                         'index' => [
-                            'name'       => 'catalogue.hub.departments.index',
+                            'name'       => 'catalogue.departments.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'catalogue.hub.departments.show',
+                            'name'       => 'catalogue.departments.show',
                             'parameters' => [
                                 $routeParameters['department']->slug
                             ]
@@ -189,18 +189,18 @@ class ShowDepartment extends InertiaAction
                     $suffix
                 )
             ),
-            'shops.show.catalogue.hub.departments.show' =>
+            'catalogue.shop.departments.show' =>
             array_merge(
                 CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', ['shop' => $routeParameters['shop']]),
                 $headCrumb(
                     $routeParameters['department'],
                     [
                         'index' => [
-                            'name'       => 'shops.show.catalogue.hub.departments.index',
+                            'name'       => 'catalogue.shop.departments.index',
                             'parameters' => [$routeParameters['shop']->slug]
                         ],
                         'model' => [
-                            'name'       => 'shops.show.catalogue.hub.departments.show',
+                            'name'       => 'catalogue.shop.departments.show',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                                 $routeParameters['department']->slug
@@ -233,7 +233,7 @@ class ShowDepartment extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'catalogue.hub.departments.show'=> [
+            'catalogue.departments.show'=> [
                 'label'=> $department->name,
                 'route'=> [
                     'name'      => $routeName,
@@ -242,7 +242,7 @@ class ShowDepartment extends InertiaAction
                     ]
                 ]
             ],
-            'shops.show.catalogue.hub.departments.show'=> [
+            'catalogue.shop.departments.show'=> [
                 'label'=> $department->name,
                 'route'=> [
                     'name'      => $routeName,
