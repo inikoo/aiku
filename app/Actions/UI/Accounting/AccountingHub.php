@@ -61,7 +61,7 @@ class AccountingHub extends InertiaAction
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb()
             ),
-            'shops.show.catalogue.hub' =>
+            'catalogue.shop.hub' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
                 $headCrumb([$routeParameters['shop']->slug])

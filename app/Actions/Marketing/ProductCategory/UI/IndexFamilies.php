@@ -24,9 +24,9 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexDepartments extends InertiaAction
+class IndexFamilies extends InertiaAction
 {
-    public function handle(Shop|Tenant $parent): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Tenant $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -34,7 +34,7 @@ class IndexDepartments extends InertiaAction
                     ->orWhere('product_categories.name', '=', $value);
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DEPARTMENTS->value);
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::FAMILIES->value);
 
         return QueryBuilder::for(ProductCategory::class)
             ->defaultSort('product_categories.code')
@@ -48,7 +48,7 @@ class IndexDepartments extends InertiaAction
                 'product_categories.updated_at',
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
-            ->where('is_family', false)
+            ->where('is_family', true)
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('product_categories.parent_type', 'Shop');
@@ -62,7 +62,7 @@ class IndexDepartments extends InertiaAction
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::DEPARTMENTS->value.'Page'
+                pageName: TabsAbbreviationEnum::FAMILIES->value.'Page'
             )
             ->withQueryString();
     }
@@ -72,8 +72,8 @@ class IndexDepartments extends InertiaAction
         return function (InertiaTable $table) use ($parent, $modelOperations) {
             $table
                 ->defaultSort('code')
-                ->name(TabsAbbreviationEnum::DEPARTMENTS->value)
-                ->pageName(TabsAbbreviationEnum::DEPARTMENTS->value.'Page')
+                ->name(TabsAbbreviationEnum::FAMILIES->value)
+                ->pageName(TabsAbbreviationEnum::FAMILIES->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -83,12 +83,12 @@ class IndexDepartments extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.products.edit');
+        $this->canEdit = $request->user()->can('products.edit');
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.products.view')
+                $request->user()->hasPermissionTo('products.view')
             );
     }
 
@@ -150,7 +150,7 @@ class IndexDepartments extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('departments'),
+                        'label' => __('families'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix
@@ -159,7 +159,7 @@ class IndexDepartments extends InertiaAction
         };
 
         return match ($routeName) {
-            'catalogue.shop.departments.index' =>
+            'catalogue.shop.families.index' =>
             array_merge(
                 CatalogueHub::make()->getBreadcrumbs('catalogue.shop.hub', $routeParameters),
                 $headCrumb(
@@ -171,7 +171,7 @@ class IndexDepartments extends InertiaAction
                 )
             ),
 
-            'catalogue.departments.index' =>
+            'catalogue.families.index' =>
             array_merge(
                 CatalogueHub::make()->getBreadcrumbs('catalogue.hub', []),
                 $headCrumb(

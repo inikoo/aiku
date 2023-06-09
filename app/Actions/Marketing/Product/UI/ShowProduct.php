@@ -162,18 +162,18 @@ class ShowProduct extends InertiaAction
                     $suffix
                 )
             ),
-            'shops.show.catalogue.hub.products.show' =>
+            'catalogue.shop.products.show' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', ['shop' => $routeParameters['shop']]),
+                CatalogueHub::make()->getBreadcrumbs('catalogue.shop.hub', ['shop' => $routeParameters['shop']]),
                 $headCrumb(
                     $routeParameters['product'],
                     [
                         'index' => [
-                            'name'       => 'shops.show.catalogue.hub.products.index',
+                            'name'       => 'catalogue.shop.products.index',
                             'parameters' => [$routeParameters['shop']->slug]
                         ],
                         'model' => [
-                            'name'       => 'shops.show.catalogue.hub.products.show',
+                            'name'       => 'catalogue.shop.products.show',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                                 $routeParameters['product']->slug
@@ -216,7 +216,7 @@ class ShowProduct extends InertiaAction
 
                 ]
             ],
-            'shops.show.catalogue.hub.products.show'=> [
+            'catalogue.shop.products.show'=> [
                 'label'=> $product->name,
                 'route'=> [
                     'name'      => $routeName,

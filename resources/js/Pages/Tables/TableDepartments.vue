@@ -8,9 +8,6 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Department} from "@/types/department";
-import NewItem from "@/Components/NewItem.vue";
-import { ref } from "vue";
-import Button from "@/Components/Elements/Buttons/Button.vue";
 
 const props = defineProps<{
     data: object
@@ -19,7 +16,7 @@ const props = defineProps<{
 
 function departmentRoute(department: Department) {
     switch (route().current()) {
-        case 'shops.show.catalogue.hub':
+        case 'catalogue.shop.hub':
             return route(
                 'catalogue.shop.departments.show',
                 [route().params['shop'], department.slug]);

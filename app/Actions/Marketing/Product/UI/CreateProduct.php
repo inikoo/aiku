@@ -94,7 +94,7 @@ class CreateProduct extends InertiaAction
                             ]
                         ],
                     'route' => match ($this->routeName) {
-                        'shops.show.catalogue.hub.products.create' => [
+                        'catalogue.shop.products.create' => [
                             'name'      => 'models.shop.product.store',
                             'arguments' => [$shop->slug]
                         ],

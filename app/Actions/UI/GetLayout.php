@@ -72,16 +72,32 @@ class GetLayout
                         'subsections' => [
 
                             [
+                                'label'   => __('departments'),
+                                'tooltip' => __('Departments'),
+                                'icon'    => ['fal', 'fa-folders'],
+                                'route'   => [
+                                    'all'      => ['catalogue.departments.index'],
+                                    'selected' => ['catalogue.shop.departments.index'],
+                                ]
+                            ],
+                            [
+                                'label'   => __('families'),
+                                'tooltip' => __('Families'),
+                                'icon'    => ['fal', 'fa-folder'],
+                                'route'   => [
+                                    'all'      => ['catalogue.families.index'],
+                                    'selected' => ['catalogue.shop.families.index'],
+                                ]
+                            ],
+                            [
                                 'label'   => __('products'),
                                 'tooltip' => __('Products'),
                                 'icon'    => ['fal', 'fa-cube'],
                                 'route'   => [
                                     'all'      => ['catalogue.products.index'],
                                     'selected' => ['catalogue.shop.products.index'],
-
                                 ]
                             ],
-
                         ]
                     ]
                 ],

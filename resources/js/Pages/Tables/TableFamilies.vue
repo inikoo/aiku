@@ -8,25 +8,12 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Family} from "@/types/family";
-import { ref } from "vue";
-import NewItem from "@/Components/NewItem.vue";
-import Button from "@/Components/Elements/Buttons/Button.vue";
+
 
 const props = defineProps<{
-    data: {
-        table: object
-        createInlineModel?: {
-            buttonLabel: string,
-            dialog: {
-                title: string
-                saveLabel: string
-                cancelLabel: string
-            }
-        }
-    }
+    data: object
 }>();
 
-const showSearchDialog = ref(false);
 
 function familyRoute(family: Family) {
     switch (route().current()) {
@@ -40,7 +27,7 @@ function familyRoute(family: Family) {
                 [route().params['shop'],route().params['department'], family.slug]);
         default:
             return route(
-                'catalogue.hub.families.show',
+                'catalogue.families.show',
                 [family.slug]);
     }
 }
@@ -48,17 +35,7 @@ function familyRoute(family: Family) {
 </script>
 
 <template>
-    <span v-if="data.createInlineModel"
-          class="hidden sm:block text-end">
-                <Button v-on:click="showSearchDialog = !showSearchDialog" type="secondary" action="create"
-                        class="capitalize">
-                 {{ data.createInlineModel.buttonLabel }}
-                </Button>
-        <NewItem :data="data.createInlineModel.dialog" v-if="showSearchDialog" v-on:close="showSearchDialog = false">
-        </NewItem>
-    </span>
-
-    <Table :resource="data.table" :name="'fam'" class="mt-5">
+    <Table :resource="data" :name="'fam'" class="mt-5">
         <template #cell(code)="{ item: family }">
             <Link :href="familyRoute(family)">
                 {{ family['code'] }}

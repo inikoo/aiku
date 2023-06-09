@@ -161,9 +161,9 @@ class IndexProducts extends InertiaAction
             ];
         };
         return match ($routeName) {
-            'shops.show.catalogue.hub.products.index' =>
+            'catalogue.shop.products.index' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops.show.catalogue.hub', $routeParameters),
+                CatalogueHub::make()->getBreadcrumbs('catalogue.shop.hub', $routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

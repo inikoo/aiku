@@ -92,20 +92,20 @@ class ShowShop extends InertiaAction
                                 'number' => $shop->stats->number_departments
                             ]
                         ],
-                        /*
+
                         [
                             'name'  => __('families'),
                             'icon'  => ['fal', 'fa-folder'],
-                            'href'  => ['shops.show.catalogue.hub.families.index', $shop->slug],
+                            'href'  => ['catalogue.shop.families.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_families
                             ]
                         ],
-                        */
+
                         [
                             'name'  => __('products'),
                             'icon'  => ['fal', 'fa-cube'],
-                            'href'  => ['shops.show.catalogue.hub.products.index', $shop->slug],
+                            'href'  => ['catalogue.shop.products.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_products
                             ]

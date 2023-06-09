@@ -10,7 +10,7 @@ namespace App\Actions\UI\Catalogue;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Product\UI\IndexProducts;
 use App\Actions\Marketing\ProductCategory\UI\IndexDepartments;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Marketing\ProductCategory\UI\IndexFamilies;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\CatalogueTabsEnum;
 use App\Http\Resources\Marketing\DepartmentResource;
@@ -34,7 +34,8 @@ class CatalogueHub extends InertiaAction
     {
         $this->canEdit =
             $request->user()->can('showroom.departments.edit') or
-            $request->user()->can('showroom.products.edit');
+        $request->user()->can('showroom.products.edit');
+
         return $request->user()->hasPermissionTo("showroom.view");
     }
 
@@ -68,19 +69,20 @@ class CatalogueHub extends InertiaAction
                 'label'   => Str::possessive($scope->name)
             ];
         }
+
         return Inertia::render(
             'Marketing/CatalogueHub',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'breadcrumbs'                         => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'                                 => $title,
-                'navigation'                            => [
+                'title'                               => $title,
+                'navigation'                          => [
                     'previous' => $this->getPrevious($scope, $request),
                     'next'     => $this->getNext($scope, $request),
                 ],
-                'pageHead'    => [
+                'pageHead'                            => [
                     'title'     => $title,
                     'container' => $container,
                 ],
@@ -91,46 +93,52 @@ class CatalogueHub extends InertiaAction
                 CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value ?
                     fn () => DepartmentResource::collection(IndexDepartments::run($scope))
                     : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($scope))),
-                /*
-                 CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
-                     fn () => FamilyResource::collection(IndexFamilies::run($scope))
-                     : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($scope))),
-                */
-                CatalogueTabsEnum::PRODUCTS->value    => $this->tab == CatalogueTabsEnum::PRODUCTS->value ?
+
+                CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
+                    fn () => FamilyResource::collection(IndexFamilies::run($scope))
+                    : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($scope))),
+
+                CatalogueTabsEnum::PRODUCTS->value => $this->tab == CatalogueTabsEnum::PRODUCTS->value ?
                     fn () => ProductResource::collection(IndexProducts::run($scope))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($scope))),
             ]
-        )->table(IndexDepartments::make()->tableStructure(
-            $scope,
-            match ($this->routeName) {
-                'shops.show.catalogue.hub' => [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'catalogue.shop.departments.create',
-                            'parameters' => array_values([$scope->slug])
-                        ],
-                        'label' => __('department')
-                    ] : false,
-                ],
-                default=> null
-
-            }
-        ))->table(IndexProducts::make()->tableStructure(
-            $scope,
-            match ($this->routeName) {
-                'catalogue.shop.hub' => [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'catalogue.shop.products.create',
-                            'parameters' => array_values([$scope->slug])
-                        ],
-                        'label' => __('product')
-                    ] : false
-                ],
-                default=> null
-            }
-        ));
-        //  ->table(IndexFamilies::make()->tableStructure($scope))
+        )->table(
+            IndexDepartments::make()->tableStructure(
+                $scope,
+                match ($this->routeName) {
+                    'catalogue.shop.hub' => [
+                        'createLink' => $this->canEdit ? [
+                            'route' => [
+                                'name'       => 'catalogue.shop.departments.create',
+                                'parameters' => array_values([$scope->slug])
+                            ],
+                            'label' => __('department')
+                        ] : false,
+                    ],
+                    default => null
+                }
+            )
+        )->table(
+            IndexProducts::make()->tableStructure(
+                $scope,
+                match ($this->routeName) {
+                    'catalogue.shop.hub' => [
+                        'createLink' => $this->canEdit ? [
+                            'route' => [
+                                'name'       => 'catalogue.shop.products.create',
+                                'parameters' => array_values([$scope->slug])
+                            ],
+                            'label' => __('product')
+                        ] : false
+                    ],
+                    default => null
+                }
+            )
+        )->table(
+            IndexFamilies::make()->tableStructure(
+                $scope
+            )
+        );
     }
 
 
@@ -151,34 +159,37 @@ class CatalogueHub extends InertiaAction
                 ],
             ];
         };
+
         return match ($routeName) {
             'catalogue.hub' => array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb()
             ),
-            'shops.show.catalogue.hub' =>
+            'catalogue.shop.hub' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
-                $headCrumb([$routeParameters['shop']->slug])
+                Dashboard::make()->getBreadcrumbs(),
+                $headCrumb($routeParameters)
             ),
             default => []
         };
     }
 
-    public function getPrevious(Shop | Tenant $parent, ActionRequest $request): ?array
+    public function getPrevious(Shop|Tenant $parent, ActionRequest $request): ?array
     {
         if (class_basename($parent) == 'Shop') {
             $previous = Shop::where('code', '<', $parent->code)->orderBy('code', 'desc')->first();
+
             return $this->getNavigation($previous, $request->route()->getName());
         } else {
             return null;
         }
     }
 
-    public function getNext(Shop | Tenant $parent, ActionRequest $request): ?array
+    public function getNext(Shop|Tenant $parent, ActionRequest $request): ?array
     {
         if (class_basename($parent) == 'Shop') {
             $next = Shop::where('code', '>', $parent->code)->orderBy('code')->first();
+
             return $this->getNavigation($next, $request->route()->getName());
         } else {
             return null;
@@ -190,8 +201,9 @@ class CatalogueHub extends InertiaAction
         if (!$shop) {
             return null;
         }
+
         return match ($routeName) {
-            'shops.show.catalogue.hub' => [
+            'catalogue.shop.hub' => [
                 'label' => $shop->name,
                 'route' => [
                     'name'       => $routeName,
