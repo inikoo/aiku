@@ -10,8 +10,6 @@ use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Mail\Mailroom;
-use App\Models\SysAdmin\SysUser;
-use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 
 beforeAll(function () {
@@ -26,10 +24,11 @@ test('create group using action', function () {
         'currency_id' => '1',
     ];
 
-    StoreGroup::make()->asAction($arrayData);
+    $createdGroup = StoreGroup::make()->asAction($arrayData);
 
-    $lastGroup = Group::latest()->first();
-    expect($lastGroup->code)->toBe($arrayData['code']);
+    expect($createdGroup->code)->toBe($arrayData['code']);
+
+    return $createdGroup;
 });
 
 
@@ -38,13 +37,23 @@ test('create group using command', function () {
 });
 
 
-test('add tenant to group', function () {
-    $group  = Group::latest()->first();
-    $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+test('add tenant to group', function ($group) {
+    $arrayData = [
+        'code'        => 'ABA',
+        'name'        => 'Testing Tenant',
+        'email'       => 'tenant@email.com',
+        'currency_id' => 1,
+        'country_id'  => 1,
+        'language_id' => 1,
+        'timezone_id' => 1,
+    ];
 
-    $this->assertModelExists($tenant);
-    return $tenant;
-});
+    $addedTenant = StoreTenant::make()->action($group, $arrayData);
+
+    expect($addedTenant->code)->toBe($arrayData['code'])->and($addedTenant->name)->toBe($arrayData['name']);
+
+    return $addedTenant;
+})->depends('create group using action');
 
 test('tenant has correct mailrooms', function ($tenant) {
 
@@ -54,12 +63,12 @@ test('tenant has correct mailrooms', function ($tenant) {
     expect($mailrooms->count())->toBe(3);
 
     $mailroomCustomerNotifications=Mailroom::where('code', MailroomCodeEnum::CUSTOMER_NOTIFICATION)->firstOrFail();
-    $this->assertModelExists($mailroomCustomerNotifications);
-    $mailroomMarketing=Mailroom::where('code', MailroomCodeEnum::MARKETING)->firstOrFail();
-    $this->assertModelExists($mailroomMarketing);
-    $mailroomUserNotifications=Mailroom::where('code', MailroomCodeEnum::USER_NOTIFICATION)->firstOrFail();
-    $this->assertModelExists($mailroomUserNotifications);
+    $mailroomMarketing            =Mailroom::where('code', MailroomCodeEnum::MARKETING)->firstOrFail();
+    $mailroomUserNotifications    =Mailroom::where('code', MailroomCodeEnum::USER_NOTIFICATION)->firstOrFail();
 
+    expect($mailroomCustomerNotifications->code)->toBe(MailroomCodeEnum::CUSTOMER_NOTIFICATION->value)
+        ->and($mailroomMarketing->code)->toBe(MailroomCodeEnum::MARKETING->value)
+        ->and($mailroomUserNotifications->code)->toBe(MailroomCodeEnum::USER_NOTIFICATION->value);
 
 })->depends('add tenant to group');
 
@@ -74,10 +83,15 @@ test('try to create group with duplicated code', function () {
 
 
 test('create tenant sys-user', function ($tenant) {
-    $sysUser=StoreSysUser::make()->asAction($tenant, SysUser::factory()->definition());
-    $this->assertModelExists($sysUser);
-    expect($sysUser->userable)->toBeInstanceOf(Tenant::class);
+    $arrayData = [
+        'username' => 'aiku',
+        'password' => 'hello1234',
+        'email'    => 'aiku@email.com'
+    ];
+    $sysUser=StoreSysUser::make()->asAction($tenant, $arrayData);
+
+    expect($sysUser->userable)->toBeInstanceOf(Tenant::class)
+        ->and($sysUser->username)->toBe($arrayData['username']);
+
     return $sysUser;
-})->depends(
-    'add tenant to group'
-);
+})->depends('add tenant to group');
