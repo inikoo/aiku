@@ -10,8 +10,8 @@
 		<!-- Left Menu -->
 		<div class="flex items-center divide-x divide-gray-100 justify-center overflow-hidden">
 			<Link
-				v-if=" currentUrl && layout.navigation[currentUrl]?.topMenu && layout.navigation[currentUrl]?.topMenu?.subSections "
-				v-for="menu in layout.navigation[currentUrl].topMenu.subSections"
+				v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections "
+				v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections"
 				:href="route(menu.route.name)"
 				class="group flex justify-center items-center cursor-pointer space-x-1 px-4">
 				<FontAwesomeIcon
@@ -23,7 +23,7 @@
 		</div>
 
 		<!-- Dropdown -->
-		<div v-if=" currentUrl && layout.navigation[currentUrl].topMenu && layout.navigation[currentUrl].topMenu.dropdown && layout.navigation[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
+		<div v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
 			<TopBarDropdown :currentPage="currentUrl" />
 		</div>
 
@@ -34,14 +34,14 @@
 			<Link
 				v-if="
 					currentUrl &&
-					layout.navigation[currentUrl].topMenu &&
-					layout.navigation[currentUrl].topMenu.dropdown?.subsections
+					layout.navigation?.[currentUrl]?.topMenu &&
+					layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections
 				"
-				v-for="menu in layout.navigation[currentUrl].topMenu.dropdown.subsections"
-				:href=" layout[currentUrl].currentData.slug ?
-						route(menu.route?.selected, layout[currentUrl].currentData.slug) :
-						layout.navigation[currentUrl]?.topMenu?.dropdown.options.data.length == 1 ?
-							route(menu.route?.selected, layout.navigation[currentUrl]?.topMenu?.dropdown.options.data[0].slug) :
+				v-for="menu in layout.navigation?.[currentUrl]?.topMenu.dropdown.subsections"
+				:href=" layout?.[currentUrl]?.currentData.slug ?
+						route(menu.route?.selected, layout?.[currentUrl]?.currentData.slug) :
+						layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1 ?
+							route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug) :
 							route(menu.route?.all)"
 				:title="menu.tooltip"
 				class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4 hover:font-semibold hover:text-indigo-600">
