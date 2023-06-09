@@ -402,10 +402,10 @@ class GetLayout
                             ]
                         ],
                         [
-                            'label' => __('clocking machines'),
+                            'label' => __('working place'),
                             'icon'  => ['fal', 'fa-chess-clock'],
                             'route' => [
-                                'name' => 'hr.clocking-machines.index',
+                                'name' => 'hr.working-places.index',
 
                             ]
                         ]
