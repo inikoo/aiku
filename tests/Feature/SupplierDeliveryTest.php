@@ -24,7 +24,6 @@ use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
-use App\Models\Procurement\SupplierDelivery;
 use App\Models\Procurement\SupplierDeliveryItem;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
@@ -75,7 +74,8 @@ test('create supplier product', function ($supplier) {
 
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $arrayData);
 
-    expect($supplierProduct->code)->toBe($arrayData['code'])
+    expect($supplierProduct->supplier_id)->toBe($supplier->id)
+        ->and($supplierProduct->code)->toBe($arrayData['code'])
         ->and($supplierProduct->name)->toBe($arrayData['name'])
         ->and($supplierProduct->cost)->toBeNumeric(200);
 
@@ -83,23 +83,42 @@ test('create supplier product', function ($supplier) {
 })->depends('create independent supplier');
 
 test('create purchase order', function ($supplier) {
+    $arrayData = [
+        'number'        => 12345,
+        'date'          => date('Y-m-d'),
+        'currency_id'   => 1,
+        'exchange'      => 1.40
+    ];
 
-    $purchaseOrder = StorePurchaseOrder::make()->action($supplier->fresh(), PurchaseOrder::factory()->definition());
-    $this->assertModelExists($purchaseOrder);
+    $purchaseOrder = StorePurchaseOrder::make()->action($supplier->fresh(), $arrayData);
+
+    expect($purchaseOrder->provider_id)->toBe($supplier->id)
+        ->and($purchaseOrder->number)->toBe($arrayData['number'])->and($purchaseOrder->date)->toBe($arrayData['date'])
+        ->and($purchaseOrder->currency_id)->toBeNumeric(1)->and($purchaseOrder->exchange)->toBeNumeric(1.40);
 
     return $purchaseOrder;
 })->depends('create independent supplier');
 
 test('create supplier delivery', function ($supplier) {
-    $supplierDelivery = StoreSupplierDelivery::make()->action($supplier, SupplierDelivery::factory()->definition());
-    $this->assertModelExists($supplierDelivery);
+    $arrayData = [
+        'number'    => 12345,
+        'date'      => date('Y-m-d')
+    ];
+
+    $supplierDelivery = StoreSupplierDelivery::make()->action($supplier, $arrayData);
+
+    expect($supplierDelivery->provider_id)->toBe($supplier->id)
+        ->and($supplierDelivery->number)->toBeNumeric($arrayData['number'])
+        ->and($supplierDelivery->date)->toBe($arrayData['date']);
 
     return $supplierDelivery->fresh();
 })->depends('create independent supplier');
 
 test('create supplier delivery items', function ($supplierDelivery) {
+
     $supplier = StoreSupplierDeliveryItem::run($supplierDelivery, SupplierDeliveryItem::factory()->definition());
-    $this->assertModelExists($supplier);
+
+    expect($supplier->supplier_delivery_id)->toBe($supplierDelivery->id);
 
     return $supplier;
 })->depends('create supplier delivery');
@@ -111,7 +130,7 @@ test('add items to purchase order', function ($purchaseOrder) {
         $i++;
     } while ($i <= 5);
 
-    $this->assertModelExists($items);
+    expect($items->purchaseOrder->id)->toBe($purchaseOrder->id);
 
     return $items;
 })->depends('create purchase order');
