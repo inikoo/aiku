@@ -1,24 +1,26 @@
 <template>
-	<div class="flex justify-between items-center">
-		<div class="block pb-3 pl-3 xl:w-56">
-			<img class="h-4 mt-4 xl:h-6" src="/art/logo-color-trimmed.png" alt="Aiku" />
-			<span class="font-logo mb-1 mr-2 xl:hidden whitespace-nowrap text-xs">
+	<div class="flex justify-s items-center gap-x-2">
+		<div class="md:pl-3 xl:pl-5 flex items-center h-full xl:w-56 space-x-2">
+			<img class="h-7" src="/art/logo-color-trimmed.png" alt="Aiku" />
+			<span class="font-logo hidden md:inline xl:hidden whitespace-nowrap text-xs">
 				{{ props.tenantName }}
 			</span>
 		</div>
 
 		<!-- Left Menu -->
-		<div class="text-sm lg:text-base flex items-center divide-x divide-gray-100 justify-center overflow-hidden ">
+		<div class="text-sm lg:text-base flex items-center divide-x divide-gray-100 justify-center overflow-hidden">
 			<Link
 				v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections "
 				v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections"
 				:href="route(menu.route.name)"
-				class="group flex justify-center items-center cursor-pointer py-1 space-x-0.5 lg:space-x-1 px-4 md:px-1.5 lg:px-4">
+				class="group flex justify-end items-center cursor-pointer py-1 space-x-1 px-4 md:px-4 lg:px-2"
+				:title="menu.label"	
+			>
 				<FontAwesomeIcon
 					:icon="menu.icon"
-					class="h-3.5 w-3.5 pr-1 text-gray-600 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
+					class="h-5 lg:h-3.5 w-auto text-gray-600 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
 					aria-hidden="true" />
-				<span class="hidden md:inline text-gray-600 capitalize">{{ menu.label }}</span>
+				<span class="hidden lg:inline text-gray-600 capitalize">{{ menu.label }}</span>
 			</Link>
 		</div>
 
@@ -51,9 +53,9 @@
 			>
 				<FontAwesomeIcon
 					:icon="menu.icon"
-					class="h-3.5 w-3.5 pr-1 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
+					class="h-5 lg:h-3.5 w-auto pr-1 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
 					aria-hidden="true" />
-				<span class="capitalize">{{ menu.label }}</span>
+				<span class="hidden lg:inline capitalize">{{ menu.label }}</span>
 			</Link>
 		</div>
 	</div>

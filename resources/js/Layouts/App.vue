@@ -128,19 +128,20 @@ const user = ref(usePage().props.auth.user);
                 <div class="flex h-11 lg:h-10 flex-shrink-0 border-b border-gray-200 bg-white ">
                     <div class="flex flex-1 justify-between">
                         <!-- Hamburger -->
-                        <button class="block md:hidden w-10 h-10 relative focus:outline-none bg-white" @click="sidebarOpen = !sidebarOpen">
-                            <span class="sr-only">Open sidebar</span>
-                            <div class="block w-5 absolute left-1/2 top-1/2   transform  -translate-x-1/2 -translate-y-1/2">
-                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out"
-                                      :class="{'rotate-45': sidebarOpen,' -translate-y-1.5': !sidebarOpen }"></span>
-                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-100 ease-in-out" :class="{'opacity-0': sidebarOpen } "></span>
-                                <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out"
-                                      :class="{'-rotate-45': sidebarOpen, ' translate-y-1.5': !sidebarOpen}"></span>
-                            </div>
-                        </button>
-
-                        <!-- Menu -->
-                        <AppTopBar :tenantName="layout.tenant.name"/>
+                        <div class="flex flex-1 justify-between ">
+                            <button class="block md:hidden w-10 h-10 relative focus:outline-none bg-white" @click="sidebarOpen = !sidebarOpen">
+                                <span class="sr-only">Open sidebar</span>
+                                <div class="block w-5 absolute left-1/2 top-1/2   transform  -translate-x-1/2 -translate-y-1/2">
+                                    <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out"
+                                          :class="{'rotate-45': sidebarOpen,' -translate-y-1.5': !sidebarOpen }"></span>
+                                    <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-100 ease-in-out" :class="{'opacity-0': sidebarOpen } "></span>
+                                    <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out"
+                                          :class="{'-rotate-45': sidebarOpen, ' translate-y-1.5': !sidebarOpen}"></span>
+                                </div>
+                            </button>
+                            <!-- Menu -->
+                            <AppTopBar :tenantName="layout.tenant.name"/>
+                        </div>
 
                         <!-- Avatar Group -->
                         <div class="flex items-center mr-6 space-x-3">
