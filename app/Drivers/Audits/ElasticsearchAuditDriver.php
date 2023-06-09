@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use Elastic\Elasticsearch\Client;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Str;
 use OwenIt\Auditing\Contracts\Audit;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Contracts\AuditDriver;
@@ -90,7 +89,7 @@ class ElasticsearchAuditDriver implements AuditDriver
         return $this->indexAuditDocument($model);
     }
 
-    public function indexQueueAuditDocument($model)
+    public function indexQueueAuditDocument($model): bool
     {
         dispatch((new AuditIndexQueuedModels($model))
             ->onQueue($this->syncWithSearchUsingQueue())
@@ -108,7 +107,7 @@ class ElasticsearchAuditDriver implements AuditDriver
         return $this->deleteAuditDocument($model);
     }
 
-    public function deleteQueueAuditDocument($model)
+    public function deleteQueueAuditDocument($model): bool
     {
         dispatch((new AuditDeleteQueuedModels($model))
             ->onQueue($this->syncWithSearchUsingQueue())
