@@ -110,9 +110,9 @@ class IndexProducts extends InertiaAction
                 'title'       => __('Products'),
                 'pageHead'    => [
                     'title'  => __('products'),
-                    'create' => $this->canEdit && $this->routeName == 'shops.show.catalogue.hub.products.index' ? [
+                    'create' => $this->canEdit && $this->routeName == 'catalogue.shop.products.index' ? [
                         'route' => [
-                            'name'       => 'shops.show.catalogue.hub.products.create',
+                            'name'       => 'catalogue.shop.products.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('products')

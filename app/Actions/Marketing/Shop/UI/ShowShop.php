@@ -87,7 +87,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('departments'),
                             'icon'  => ['fal', 'fa-folder-tree'],
-                            'href'  => ['shops.show.catalogue.hub.departments.index', $shop->slug],
+                            'href'  => ['catalogue.shop.departments.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_departments
                             ]
