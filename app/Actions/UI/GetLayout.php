@@ -235,9 +235,54 @@ class GetLayout
 
         if ($user->can('production.view')) {
             $navigation['production'] = [
-                'name'  => __('production'),
-                'icon'  => ['fal', 'fa-industry'],
-                'route' => 'production.dashboard'
+                'name'    => __('production'),
+                'icon'    => ['fal', 'fa-industry'],
+                'route'   => 'production.dashboard',
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('raw materials'),
+                            'icon'  => ['fal', 'fa-network-wired'],
+                            'route' => [
+                                'name' => 'hr.job-positions.index',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('employees'),
+                            'icon'  => ['fal', 'fa-terminal'],
+                            'route' => [
+                                'name' => 'hr.employees.index',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('calendar'),
+                            'icon'  => ['fal', 'fa-calendar'],
+                            'route' => [
+                                'name' => 'hr.calendar',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('time sheets'),
+                            'icon'  => ['fal', 'fa-stopwatch'],
+                            'route' => [
+                                'name' => 'hr.time-sheets.hub',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('clocking machines'),
+                            'icon'  => ['fal', 'fa-chess-clock'],
+                            'route' => [
+                                'name' => 'hr.clocking-machines.index',
+
+                            ]
+                        ]
+                    ]
+                ]
+
             ];
         }
 
@@ -293,7 +338,7 @@ class GetLayout
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'label' => __('work positions'),
+                            'label' => __('job positions'),
                             'icon'  => ['fal', 'fa-network-wired'],
                             'route' => [
                                 'name' => 'hr.job-positions.index',
