@@ -28,7 +28,7 @@ beforeEach(function () {
     $tenant->makeCurrent();
 });
 
-test('create employees successful', function () {
+test('create employee successful', function () {
     $arrayData = [
         'contact_name' => 'artha',
         'date_of_birth'=> '2019-01-01',
@@ -36,15 +36,14 @@ test('create employees successful', function () {
         'state'        => 'hired'
     ];
 
-    StoreEmployee::run($arrayData);
+    $lastEmployee = StoreEmployee::run($arrayData);
 
-    //    $this->assertDatabaseHas('employees',$arrayData);
-    $lastEmployee = Employee::latest()->first();
     expect($lastEmployee->contact_name)->toBe($arrayData['contact_name']);
+
+    return $lastEmployee;
 });
 
-test('update employees successful', function () {
-    $employee  = Employee::latest()->first();
+test('update employees successful', function ($lastEmployee) {
     $arrayData = [
         'contact_name' => 'vica',
         'date_of_birth'=> '2019-01-01',
@@ -52,27 +51,23 @@ test('update employees successful', function () {
         'state'        => 'hired'
     ];
 
-    UpdateEmployee::run($employee, $arrayData);
+    $updatedEmployee = UpdateEmployee::run($lastEmployee, $arrayData);
 
-    //    $this->assertDatabaseHas('employees',$lastEmployee);
-    $lastEmployee = Employee::latest()->first();
-    expect($lastEmployee->contact_name)->toBe($arrayData['contact_name']);
-});
+    expect($updatedEmployee->contact_name)->toBe($arrayData['contact_name']);
+})->depends('create employee successful');
 
 test('update employee working hours', function () {
-    $employee = Employee::latest()->first();
+    $lastEmployee = Employee::latest()->first();
 
-    $employee = UpdateEmployeeWorkingHours::run($employee, [10]);
+    $updatedEmployee = UpdateEmployeeWorkingHours::run($lastEmployee, [10]);
 
-    //    $this->assertDatabaseHas('employees',$employee);
-    expect($employee['working_hours'])->toBeArray(10);
+    expect($updatedEmployee['working_hours'])->toBeArray(10);
 });
 
 test('create user from employee', function () {
-    $arrayData = Employee::latest()->first();
+    $lastEmployee = Employee::latest()->first();
 
-    $lastEmployee = CreateUserFromEmployee::run($arrayData);
+    $createdEmployee = CreateUserFromEmployee::run($lastEmployee);
 
-    //    $this->assertDatabaseHas('employees',$lastEmployee);
-    expect($lastEmployee->contact_name)->toBe($arrayData->contact_name);
+    expect($createdEmployee->contact_name)->toBe($lastEmployee->contact_name);
 });

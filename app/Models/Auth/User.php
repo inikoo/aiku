@@ -8,7 +8,9 @@
 namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
+use App\Drivers\Audits\ElasticsearchAuditDriver;
 use App\Models\Tenancy\Tenant;
+use App\Models\Traits\ElasticSearchAuditable;
 use App\Models\Traits\HasRoles;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,6 +30,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -68,7 +71,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|User withoutTrashed()
  * @mixin Eloquent
  */
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
     use HasApiTokens;
     use HasFactory;
@@ -77,8 +80,10 @@ class User extends Authenticatable
     use HasRoles;
     use UsesTenantConnection;
     use HasFactory;
-    //    use \OwenIt\Auditing\Auditable;
+    use \OwenIt\Auditing\Auditable;
+    use ElasticSearchAuditable;
 
+    protected string $auditDriver = ElasticsearchAuditDriver::class;
 
     protected $guarded = [
     ];
