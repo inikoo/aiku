@@ -24,14 +24,18 @@ class GetElasticsearchDocument
                 $results = [];
                 $params  = [
                     'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
-                    'size'  => 10000
+                    'size'  => 10000,
+                    'body' => [
+                        'query' => [
+                            'bool' => [
+                                'must' => [
+                                    ['match' => ['username' => $query]],
+                                    ['match' => ['type' => 'VISIT']]
+                                ],
+                            ],
+                        ],
+                    ],
                 ];
-
-                if(! blank($query)) {
-                    $params['body']['query']['match']['username'] = $query;
-                }
-
-//                $params['body']['query']['bool']['must'][0]['term']['type'] = "VISIT";
 
                 foreach (json_decode($client->search($params), true)['hits']['hits'] as $result) {
                     $results[] = [
