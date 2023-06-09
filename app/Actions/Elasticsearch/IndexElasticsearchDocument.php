@@ -7,6 +7,7 @@
 
 namespace App\Actions\Elasticsearch;
 
+use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Exception;
@@ -16,11 +17,13 @@ class IndexElasticsearchDocument
 {
     use AsObject;
 
-    public function handle(string $index, array $body)
+    public function handle(string $index, array $body): bool
     {
         $index = config('elasticsearch.index_prefix').$index;
 
-        if ($client = BuildElasticsearchClient::run()) {
+        $client = BuildElasticsearchClient::run();
+
+        if ($client instanceof Client) {
             try {
                 $client->index(
                     [
