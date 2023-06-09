@@ -5,12 +5,22 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\HumanResources\Calendar\IndexCalendars;
+use App\Actions\HumanResources\Calendar\ShowCalendar;
+use App\Actions\HumanResources\Clocking\IndexClockings;
+use App\Actions\HumanResources\Clocking\ShowClocking;
+use App\Actions\HumanResources\ClockingMachine\IndexClockingMachines;
+use App\Actions\HumanResources\ClockingMachine\ShowClockingMachine;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 use App\Actions\HumanResources\Employee\UI\CreateEmployee;
 use App\Actions\HumanResources\Employee\UI\EditEmployee;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
-use App\Actions\HumanResources\JobPosition\IndexJobPosition;
+use App\Actions\HumanResources\JobPosition\IndexJobPositions;
+use App\Actions\HumanResources\TimeSheet\IndexTimesheets;
+use App\Actions\HumanResources\TimeSheet\ShowTimeSheet;
+use App\Actions\HumanResources\WorkingPlace\IndexWorkingPlaces;
+use App\Actions\HumanResources\WorkingPlace\ShowWorkingPlace;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -27,9 +37,9 @@ Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('
 
 
 
-Route::get('/positions', IndexJobPosition::class)->name('job-positions.index');
+Route::get('/positions', IndexJobPositions::class)->name('job-positions.index');
 //Route::get('/positions/{jobPosition}', ShowJobPosition::class)->name('employees.show');
-/*
+
 Route::get('/calendars', IndexCalendars::class)->name('calendars.index');
 Route::get('/calendars/{calendar}', ShowCalendar::class)->name('calendars.show');
 
@@ -44,5 +54,3 @@ Route::get('/clocking-machines/{clockingMachine}', ShowClockingMachine::class)->
 
 Route::get('/clocking', IndexClockings::class)->name('clockings.index');
 Route::get('/clocking/{clocking}', ShowClocking::class)->name('clockings.show');
-
-*/

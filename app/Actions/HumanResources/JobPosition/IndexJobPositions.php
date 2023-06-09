@@ -26,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
  * @property bool $canEdit
  * @property string $title
  */
-class IndexJobPosition
+class IndexJobPositions
 {
     use AsAction;
     use WithInertia;

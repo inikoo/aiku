@@ -292,7 +292,7 @@ class GetLayout
                             'label' => __('calendar'),
                             'icon'  => ['fal', 'fa-calendar'],
                             'route' => [
-                                'name' => 'hr.calendar',
+                                'name' => 'hr.calendars.index',
 
                             ]
                         ],
@@ -300,7 +300,7 @@ class GetLayout
                             'label' => __('time sheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
                             'route' => [
-                                'name' => 'hr.time-sheets.hub',
+                                'name' => 'hr.time-sheets.index',
 
                             ]
                         ],
@@ -389,7 +389,7 @@ class GetLayout
                             'label' => __('calendar'),
                             'icon'  => ['fal', 'fa-calendar'],
                             'route' => [
-                                'name' => 'hr.calendar',
+                                'name' => 'hr.calendars.index',
 
                             ]
                         ],
@@ -397,7 +397,7 @@ class GetLayout
                             'label' => __('time sheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
                             'route' => [
-                                'name' => 'hr.time-sheets.hub',
+                                'name' => 'hr.time-sheets.index',
 
                             ]
                         ],
