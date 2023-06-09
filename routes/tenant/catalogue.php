@@ -17,25 +17,37 @@ use App\Actions\Marketing\Product\UI\ShowProduct;
 use App\Actions\UI\Catalogue\CatalogueHub;
 use Illuminate\Support\Facades\Route;
 
-if (empty($parent)) {
-    $parent = 'tenant';
-}
-Route::get('/products/create', CreateProduct::class)->name('hub.products.create');
-Route::get('/departments/create', CreateDepartment::class)->name('hub.departments.create');
-//Route::get('/families/create', CreateFamily::class)->name('hub.families.create');
+Route::get('/products/create', CreateProduct::class)->name('products.create');
+//Route::get('/families/create', CreateFamily::class)->name('families.create');
+
+Route::get('/departments', [IndexDepartments::class, 'inTenant'])->name('departments.index');
+Route::get('/departments/{department}', [ShowDepartment::class, 'inTenant'])->name('departments.show');
+Route::get('/departments/{department}/edit', [EditDepartment::class, 'inTenant'])->name('departments.edit');
 
 
-Route::get('/', [CatalogueHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
-Route::get('/products', [IndexProducts::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.products.index');
-Route::get('/products/{product}', [ShowProduct::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.products.show');
-Route::get('/products/{product}/edit', [EditProduct::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.products.edit');
-Route::get('/departments', [IndexDepartments::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.departments.index');
-Route::get('/departments/{department}', [ShowDepartment::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.departments.show');
-Route::get('/departments/{department}/edit', [EditDepartment::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.departments.edit');
-//Route::get('/departments/{department}/families', [IndexFamilies::class, $parent == 'tenant' ? 'inDepartment' : 'inDepartmentInShop'])->name('hub.departments.show.families.index');
-//Route::get('/departments/{department}/families/{family}', [ShowFamily::class, $parent == 'tenant' ? 'inDepartment' : 'inDepartmentInShop'])->name('hub.departments.show.families.show');
-//Route::get('/departments/{department}/families/{family}/edit', [EditFamily::class, $parent == 'tenant' ? 'inDepartment' : 'inDepartmentInShop'])->name('hub.departments.show.families.edit');
-Route::get('/departments/{department}/products', [IndexProducts::class, $parent == 'tenant' ? 'inDepartment' : 'inDepartmentInShop'])->name('hub.departments.show.products.index');
-//Route::get('/families', [IndexFamilies::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.families.index');
-//Route::get('/families/{family}', [ShowFamily::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.families.show');
-//Route::get('/families/{family}/edit', [EditFamily::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub.families.edit');
+Route::get('/', [CatalogueHub::class, 'inTenant'])->name('hub');
+Route::get('/products', [IndexProducts::class,'inTenant'])->name('products.index');
+Route::get('/products/{product}', [ShowProduct::class, 'inTenant'])->name('products.show');
+Route::get('/products/{product}/edit', [EditProduct::class, 'inTenant'])->name('products.edit');
+
+Route::get('/{shop}', [CatalogueHub::class, 'inTenant'])->name('shop.hub');
+Route::get('/{shop}/products', [IndexProducts::class, 'inShop'])->name('shop.products.index');
+Route::get('/{shop}/products/{product}', [ShowProduct::class, 'inShop'])->name('shop.products.show');
+Route::get('/{shop}/products/{product}/edit', [EditProduct::class, 'inShop'])->name('shop.products.edit');
+
+
+
+
+Route::get('/{shop}/departments/create', CreateDepartment::class)->name('shop.departments.create');
+Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('shop.departments.index');
+Route::get('/{shop}/departments/{department}', [ShowDepartment::class, 'inShop'])->name('shop.departments.show');
+Route::get('/{shop}/departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('shop.departments.edit');
+
+
+//Route::get('/departments/{department}/families', [IndexFamilies::class, $parent == 'tenant' ? 'inDepartment' : 'inDepartmentInShop'])->name('departments.show.families.index');
+//Route::get('/departments/{department}/families/{family}', [ShowFamily::class, $parent == 'tenant' ? 'inDepartment' : 'inDepartmentInShop'])->name('departments.show.families.show');
+//Route::get('/departments/{department}/families/{family}/edit', [EditFamily::class, $parent == 'tenant' ? 'inDepartment' : 'inDepartmentInShop'])->name('departments.show.families.edit');
+Route::get('/departments/{department}/products', [IndexProducts::class,  'inDepartment' ])->name('departments.show.products.index');
+//Route::get('/families', [IndexFamilies::class, 'inShop'])->name('families.index');
+//Route::get('/families/{family}', [ShowFamily::class, 'inShop'])->name('families.show');
+//Route::get('/families/{family}/edit', [EditFamily::class, 'inShop'])->name('families.edit');

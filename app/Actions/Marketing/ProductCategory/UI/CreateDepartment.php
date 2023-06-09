@@ -50,7 +50,7 @@ class CreateDepartment extends InertiaAction
                     'title'        => __('new department'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'shops.show.catalogue.hub.departments.index',
+                            'name'       => 'catalogue.shop.departments.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -74,7 +74,7 @@ class CreateDepartment extends InertiaAction
                             ]
                         ],
                     'route' => match ($this->routeName) {
-                        'shops.show.catalogue.hub.departments.create' => [
+                        'catalogue.shop.departments.create' => [
                             'name'      => 'models.shop.department.store',
                             'arguments' => [$request->route()->parameters['shop']->slug]
                         ],

@@ -56,7 +56,7 @@ Route::prefix("{shop}/dispatch")
             require __DIR__.'/dispatch.php';
         }
     );
-
+/*
 Route::prefix("{shop}/catalogue")
     ->name("show.catalogue.")
     ->group(
@@ -65,7 +65,7 @@ Route::prefix("{shop}/catalogue")
             require __DIR__.'/catalogue.php';
         }
     );
-
+*/
 Route::prefix("{shop}/customers")
     ->name("show.customers.")
     ->group(

@@ -40,6 +40,11 @@ return [
     'shops.products.view',
     'shops.products.edit',
 
+    'products',
+    'products.view',
+    'products.edit',
+
+
     'shops.websites',
     'shops.websites.view',
     'shops.websites.edit',

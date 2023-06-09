@@ -18,6 +18,7 @@ return
             'inventory',
             'dispatch',
             'shops',
+            'products',
             'websites',
             'osm',
             'production',

@@ -30,13 +30,13 @@ const showSearchDialog = ref(false);
 
 function familyRoute(family: Family) {
     switch (route().current()) {
-        case 'shops.show.catalogue.hub.families.index':
+        case 'catalogue.shop.families.index':
             return route(
-                'shops.show.catalogue.hub.families.show',
+                'catalogue.shop.families.show',
                 [route().params['shop'], family.slug]);
-        case 'shops.show.catalogue.hub.departments.show':
+        case 'catalogue.shop.departments.show':
             return route(
-                'shops.show.catalogue.hub.departments.show.families.show',
+                'catalogue.shop.departments.show.families.show',
                 [route().params['shop'],route().params['department'], family.slug]);
         default:
             return route(

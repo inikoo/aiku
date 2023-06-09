@@ -21,11 +21,11 @@ function departmentRoute(department: Department) {
     switch (route().current()) {
         case 'shops.show.catalogue.hub':
             return route(
-                'shops.show.catalogue.hub.departments.show',
+                'catalogue.shop.departments.show',
                 [route().params['shop'], department.slug]);
         default:
             return route(
-                'catalogue.hub.departments.show',
+                'catalogue.departments.show',
                 [department.slug]);
     }
 }

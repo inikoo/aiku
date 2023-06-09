@@ -58,6 +58,38 @@ class GetLayout
             };
         }
 
+        if ($user->can('products.view')) {
+            $navigation['catalogue'] = [
+                'name'    => __('Catalogue'),
+                'icon'    => ['fal', 'fa-folder-tree'],
+                'route'   => 'catalogue.hub',
+                'topMenu' => [
+
+                    'dropdown' => [
+
+                        'type'        => 'shops',
+                        'options'     => $shops,
+                        'subsections' => [
+
+                            [
+                                'label'   => __('products'),
+                                'tooltip' => __('Products'),
+                                'icon'    => ['fal', 'fa-cube'],
+                                'route'   => [
+                                    'all'      => ['catalogue.products.index'],
+                                    'selected' => ['catalogue.shop.products.index'],
+
+                                ]
+                            ],
+
+                        ]
+                    ]
+                ],
+
+            ];
+        }
+
+
         if ($user->can('websites.view')) {
             $navigation['websites'] = [
                 'name'    => __('Websites'),

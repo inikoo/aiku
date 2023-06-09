@@ -106,43 +106,28 @@ class CatalogueHub extends InertiaAction
                 'shops.show.catalogue.hub' => [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'shops.show.catalogue.hub.departments.create',
+                            'name'       => 'catalogue.shop.departments.create',
                             'parameters' => array_values([$scope->slug])
                         ],
                         'label' => __('department')
                     ] : false,
                 ],
-                'catalogue.hub' => [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'catalogue.hub.departments.create',
-                            'parameters' => array_values([$scope->slug])
-                        ],
-                        'label' => __('department')
-                    ] : false,
-                ]
+                default=> null
+
             }
         ))->table(IndexProducts::make()->tableStructure(
             $scope,
             match ($this->routeName) {
-                'shops.show.catalogue.hub' => [
+                'catalogue.shop.hub' => [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'shops.show.catalogue.hub.products.create',
+                            'name'       => 'catalogue.shop.products.create',
                             'parameters' => array_values([$scope->slug])
                         ],
                         'label' => __('product')
                     ] : false
                 ],
-                'catalogue.hub' => [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'catalogue.hub.products.create',
-                            'parameters' => array_values([$scope->slug])
-                        ],
-                        'label' => __('product')
-                    ] : false
-                ]
+                default=> null
             }
         ));
         //  ->table(IndexFamilies::make()->tableStructure($scope))
