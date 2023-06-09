@@ -24,7 +24,7 @@
 
 		<!-- Dropdown -->
 		<div v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
-			<TopBarDropdown :currentPage="currentUrl" />
+			<TopBarMenu :currentPage="currentUrl" />
 		</div>
 
 		<!-- Right Menu -->
@@ -63,7 +63,7 @@
 import { Link } from "@inertiajs/vue3"
 import { ref } from "vue"
 import { router } from "@inertiajs/vue3"
-import TopBarDropdown from "@/Components/Navigation/TopBarDropdown.vue"
+import TopBarMenu from "@/Components/Navigation/TopBarMenu.vue"
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import {
