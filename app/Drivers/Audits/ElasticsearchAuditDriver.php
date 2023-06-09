@@ -7,15 +7,24 @@
 
 namespace App\Drivers\Audits;
 
+use App\Actions\Auth\User\LogUserRequest;
+use App\Actions\Elasticsearch\BuildElasticsearchClient;
+use Carbon\Carbon;
+use Elastic\Elasticsearch\Client;
+use hisorange\BrowserDetect\Parser as Browser;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Str;
 use OwenIt\Auditing\Contracts\Audit;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Contracts\AuditDriver;
+use OwenIt\Auditing\Models\Audit as AuditModel;
 
-class ElasticsearchAuditDriver
+class ElasticsearchAuditDriver implements AuditDriver
 {
     /**
-     * @var string|null
+     * @var Client|null
      */
-    protected ?string $client = null;
+    protected ?Client $client = null;
 
     /**
      * @var string|null
@@ -32,9 +41,9 @@ class ElasticsearchAuditDriver
      */
     public function __construct()
     {
-        $this->client = ClientBuilder::create()->setHosts(Config::get('audit.drivers.es.client.hosts', ['localhost:9200']))->build();
-        $this->index  = Config::get('audit.drivers.es.index', 'laravel_auditing');
-        $this->type   = Config::get('audit.drivers.es.type', 'audits');
+        $this->client = BuildElasticsearchClient::run();
+        $this->index  = config('elasticsearch.index_prefix') . 'user_requests_'.app('currentTenant')->group->slug;
+        $this->type   = Config::get('audit.drivers.es.type', 'ACTION');
     }
 
     /**
@@ -43,6 +52,7 @@ class ElasticsearchAuditDriver
      * @param \OwenIt\Auditing\Contracts\Auditable $model
      *
      * @return \OwenIt\Auditing\Contracts\Audit
+     * @throws \OwenIt\Auditing\Exceptions\AuditingException
      */
     public function audit(Auditable $model): Audit
     {
@@ -89,7 +99,7 @@ class ElasticsearchAuditDriver
         return true;
     }
 
-    public function destroyAudit($model)
+    public function destroyAudit($model): bool
     {
         if (Config::get('audit.queue', false)) {
             return $this->deleteQueueAuditDocument($model);
@@ -112,7 +122,7 @@ class ElasticsearchAuditDriver
      *
      * @return  string
      */
-    public function syncWithSearchUsingQueue()
+    public function syncWithSearchUsingQueue(): string
     {
         return config('audit.queue.queue');
     }
@@ -122,7 +132,7 @@ class ElasticsearchAuditDriver
      *
      * @return string
      */
-    public function syncWithSearchUsing()
+    public function syncWithSearchUsing(): string
     {
         return config('audit.queue.connection') ?: config('queue.default');
     }
@@ -132,14 +142,52 @@ class ElasticsearchAuditDriver
         $params = [
             'index' => $this->index,
             'type'  => $this->type,
-            'id'    => Uuid::uuid4(),
-            'body'  => $model
+            'body'  => $this->body($model)
         ];
 
         try {
             return $this->client->index($params);
         } catch (\Exception $e) {
         }
+    }
+
+    public function body($model): array
+    {
+        $user = request()->user();
+        $parsedUserAgent = (new Browser())->parse($model['user_agent']);
+
+        return [
+                'type'        => $this->type,
+                'datetime'    => now(),
+                'tenant'      => app('currentTenant')->slug,
+                'username'    => $user->username,
+                'route'       => $this->routes(),
+                'module'      => explode('.', $this->routes()['name'])[0],
+                'ip_address'  => request()->ip(),
+                'location'    => json_encode((new LogUserRequest())->getLocation(request()->ip())),
+                'user_agent'  => $model['user_agent'],
+                'device_type' => $parsedUserAgent->deviceType(),
+                'platform'    => (new LogUserRequest())->detectWindows11($parsedUserAgent),
+                'browser'     => $parsedUserAgent->browserName(),
+                'old_values'  => $model['old_values'],
+                'new_values'  => $model['new_values'],
+                'event'       => $model['event'],
+                'auditable_id'   => $model['auditable_id'],
+                'auditable_type' => $model['auditable_type'],
+                'user_id'     => $model['user_id'],
+                'user_type'   => $model['user_type'],
+                'tags'        => $model['tags'],
+                'url'         => $model['url'],
+            ];
+    }
+
+    public function routes(): array
+    {
+        return [
+            'name'      => request()->route()->getName(),
+            'arguments' => request()->route()->originalParameters(),
+            'url'       => request()->path()
+        ];
     }
 
     public function searchAuditDocument($model)
@@ -179,7 +227,7 @@ class ElasticsearchAuditDriver
         return $this->client->search($params);
     }
 
-    public function deleteAuditDocument($model)
+    public function deleteAuditDocument($model): bool
     {
         $audits = $this->searchAuditDocument($model);
         $audits = $audits['hits']['hits'];
