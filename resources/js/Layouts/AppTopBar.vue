@@ -74,6 +74,9 @@ import {
 	faBoxesAlt,
 	faWarehouse,
 	faMapSigns,
+	faPeopleArrows,
+	faPersonDolly,
+	faClipboardList,
 	faBrowser,
 } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -90,6 +93,9 @@ library.add(
 	faBoxesAlt,
 	faWarehouse,
 	faMapSigns,
+	faPeopleArrows,
+	faPersonDolly,
+	faClipboardList,
 	faBrowser
 )
 const layout = useLayoutStore()
@@ -101,7 +107,6 @@ const props = defineProps<{
 const currentUrl = ref()
 router.on("navigate", (event) => {
 	currentUrl.value = event.detail.page.url.split("/")[1]
-	console.log(layout.navigation[currentUrl.value]?.topMenu?.dropdown.options.data[0].slug)
 })
 </script>
 

@@ -143,7 +143,7 @@ class GetLayout
         }
 
         if ($user->can('customers.view')) {
-            $navigation['marketing'] = [
+            $navigation['customers'] = [
                 'name'  => __('Marketing'),
                 'icon'  => ['fal', 'fa-bullhorn'],
                 'route' => 'customers.index'
