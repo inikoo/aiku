@@ -28,7 +28,7 @@ beforeEach(function () {
     $tenant->makeCurrent();
 });
 
-test('create employees successful', function () {
+test('create employee successful', function () {
     $arrayData = [
         'contact_name' => 'artha',
         'date_of_birth'=> '2019-01-01',
@@ -39,10 +39,11 @@ test('create employees successful', function () {
     $lastEmployee = StoreEmployee::run($arrayData);
 
     expect($lastEmployee->contact_name)->toBe($arrayData['contact_name']);
+
+    return $lastEmployee;
 });
 
-test('update employees successful', function () {
-    $employee  = Employee::latest()->first();
+test('update employees successful', function ($lastEmployee) {
     $arrayData = [
         'contact_name' => 'vica',
         'date_of_birth'=> '2019-01-01',
@@ -50,10 +51,10 @@ test('update employees successful', function () {
         'state'        => 'hired'
     ];
 
-    $updatedEmployee = UpdateEmployee::run($employee, $arrayData);
+    $updatedEmployee = UpdateEmployee::run($lastEmployee, $arrayData);
 
     expect($updatedEmployee->contact_name)->toBe($arrayData['contact_name']);
-});
+})->depends('create employee successful');
 
 test('update employee working hours', function () {
     $lastEmployee = Employee::latest()->first();

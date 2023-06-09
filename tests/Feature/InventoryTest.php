@@ -31,7 +31,6 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationStock;
 use App\Models\Inventory\LostAndFoundStock;
 use App\Models\Inventory\Stock;
-use App\Models\Inventory\StockFamily;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Tenancy\Group;
@@ -128,8 +127,14 @@ test('create location in warehouse area', function ($warehouseArea) {
 
 
 test('create stock families', function () {
-    $stockFamily = StoreStockFamily::make()->action(StockFamily::factory()->definition());
-    $this->assertModelExists($stockFamily);
+    $arrayData = [
+        'code'  => 'ABC',
+        'name'  => 'ABC Stocks'
+    ];
+
+    $stockFamily = StoreStockFamily::make()->action($arrayData);
+
+    expect($stockFamily->code)->toBe($arrayData['code']);
 
     return $stockFamily;
 });
@@ -187,10 +192,12 @@ test('detach stock from location', function ($location, $stock) {
 test('move stock location', function () {
     $currentLocation = LocationStock::first();
     $targetLocation  = LocationStock::latest()->first();
+
     $stock           = MoveStockLocation::make()->action($currentLocation, $targetLocation, [
         'quantity' => 1
     ]);
-    $this->assertModelExists($stock);
+
+    expect($stock->quantity)->toBeNumeric(1);
 })->depends('detach stock from location');
 
 test('update location', function ($location) {
@@ -210,7 +217,8 @@ test('add found stock', function ($location) {
             'type' => LostAndFoundStockStateEnum::FOUND->value
         ])
     );
-    $this->assertModelExists($lostAndFound);
+
+    expect($lostAndFound->type)->toBe(LostAndFoundStockStateEnum::FOUND->value);
 
     return $lostAndFound;
 })->depends('create location in warehouse area');
@@ -222,7 +230,8 @@ test('add lost stock', function ($location) {
             'type' => LostAndFoundStockStateEnum::LOST->value
         ])
     );
-    $this->assertModelExists($lostAndFound);
+
+    expect($lostAndFound->type)->toBe(LostAndFoundStockStateEnum::LOST->value);
 
     return $lostAndFound;
 })->depends('create location in warehouse area');
