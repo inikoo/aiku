@@ -126,9 +126,9 @@ const user = ref(usePage().props.auth.user);
         <Disclosure as="nav" class="bg-gray-100 fixed top-0 z-20 w-full" v-slot="{ open }">
             <div class="px-0">
                 <div class="flex h-11 lg:h-10 flex-shrink-0 border-b border-gray-200 bg-white ">
-                    <div class="flex flex-1 justify-between">
-                        <!-- Hamburger -->
-                        <div class="flex flex-1 justify-between ">
+                    <div class="flex flex-1">
+                        <div class="flex flex-1 lg:justify-between space-x-2 ">
+                            <!-- Hamburger -->
                             <button class="block md:hidden w-10 h-10 relative focus:outline-none bg-white" @click="sidebarOpen = !sidebarOpen">
                                 <span class="sr-only">Open sidebar</span>
                                 <div class="block w-5 absolute left-1/2 top-1/2   transform  -translate-x-1/2 -translate-y-1/2">

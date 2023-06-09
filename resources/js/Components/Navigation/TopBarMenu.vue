@@ -40,10 +40,10 @@ const handleClick = (option) => {
 </script>
 
 <template>
-    <Menu as="div" class="ml-0 lg:ml-0 relative inline-flex text-right w-10/12 md:w-56">
+    <Menu as="div" class="ml-0 lg:ml-0 relative inline-flex text-right w-40 lg:w-56">
         <!-- Box All Shops -->
         <MenuButton
-            class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 text-sm lg:text-base text-gray-900 border border-gray-300 hover:bg-gray-50">
+            class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 px-2 text-sm lg:text-base text-gray-900 border border-gray-300 hover:bg-gray-50">
             <span class="">
                 {{ layout[props.currentPage].currentData.name }}
             </span>
@@ -55,7 +55,7 @@ const handleClick = (option) => {
             enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75"
             leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
             <MenuItems
-                class="absolute w-[134px] md:w-44 xl:w-56 divide-y divide-gray-300 top-8 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                class="absolute w-max lg:w-56 divide-y divide-gray-300 top-8 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div class="py-1">
                     <MenuItem v-slot="{ active }" v-for="option in layout.navigation[props.currentPage].topMenu.dropdown.options.data" :key="option.slug">
                         <button @click="handleClick(option)"

@@ -1,62 +1,62 @@
 <template>
-	<div class="flex justify-s items-center gap-x-2">
-		<div class="md:pl-3 xl:pl-5 flex items-center h-full xl:w-56 space-x-2">
-			<img class="h-7" src="/art/logo-color-trimmed.png" alt="Aiku" />
+	<div class="flex flex-1 items-center justify-between lg:justify-start">
+		<div class="md:pl-3 xl:pl-5 flex items-center h-full xl:w-56 space-x-2 pr-4">
+			<img class="h-7 hidden sm:inline" src="/art/logo-color-trimmed.png" alt="Aiku" />
 			<span class="font-logo hidden md:inline xl:hidden whitespace-nowrap text-xs">
 				{{ props.tenantName }}
 			</span>
 		</div>
 
 		<!-- Left Menu -->
-		<div class="text-sm lg:text-base flex items-center divide-x divide-gray-100 justify-center overflow-hidden">
-			<Link
-				v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections "
-				v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections"
-				:href="route(menu.route.name)"
-				class="group flex justify-end items-center cursor-pointer py-1 space-x-1 px-4 md:px-4 lg:px-2"
-				:title="capitalize(menu.label)"	
+		<div class="flex">
+			<div class="text-sm lg:text-base flex items-center divide-x divide-gray-100 justify-center overflow-hidden">
+				<Link
+					v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections "
+					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections"
+					:href="route(menu.route.name)"
+					class="group flex justify-end items-center cursor-pointer py-1 space-x-1 px-4 md:px-4 lg:px-2"
+					:title="capitalize(menu.label)"
+				>
+					<FontAwesomeIcon
+						:icon="menu.icon"
+						class="h-5 lg:h-3.5 w-auto text-gray-600 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
+						aria-hidden="true" />
+					<span class="hidden lg:inline text-gray-600 capitalize">{{ menu.label }}</span>
+				</Link>
+			</div>
+			<!-- Dropdown -->
+			<div v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
+				<TopBarMenu :currentPage="currentUrl" />
+			</div>
+			<!-- Right Menu -->
+			<div
+				class="text-sm lg:text-base text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
+				:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'border border-l-0 border-indigo-300' : 'border-l border-gray-100 divide-x divide-gray-100 ']"
 			>
-				<FontAwesomeIcon
-					:icon="menu.icon"
-					class="h-5 lg:h-3.5 w-auto text-gray-600 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
-					aria-hidden="true" />
-				<span class="hidden lg:inline text-gray-600 capitalize">{{ menu.label }}</span>
-			</Link>
-		</div>
-
-		<!-- Dropdown -->
-		<div v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
-			<TopBarMenu :currentPage="currentUrl" />
-		</div>
-
-		<!-- Right Menu -->
-		<div
-			class="text-sm lg:text-base text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
-			:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'border border-l-0 border-indigo-300' : 'border-l border-gray-100 divide-x divide-gray-100 ']"	
-		>
-			<!-- If the href is initial state then the menu will show all shop, but if data shop only 1 data then menu is directly to that 1 data -->
-			<Link
-				v-if="
-					currentUrl &&
-					layout.navigation?.[currentUrl]?.topMenu &&
-					layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections
-				"
-				v-for="menu in layout.navigation?.[currentUrl]?.topMenu.dropdown.subsections"
-				:href=" layout?.[currentUrl]?.currentData.slug ?
-						route(menu.route?.selected, layout?.[currentUrl]?.currentData.slug) :
-						layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1 ?
-							route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug) :
-							route(menu.route?.all)"
-				:title="menu.tooltip"
-				class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4"
-				:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : ''] "	
-			>
-				<FontAwesomeIcon
-					:icon="menu.icon"
-					class="h-5 lg:h-3.5 w-auto pr-1 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
-					aria-hidden="true" />
-				<span class="hidden lg:inline capitalize">{{ menu.label }}</span>
-			</Link>
+				<!-- If the href is initial state then the menu will show all shop, but if data shop only 1 data then menu is directly to that 1 data -->
+				<Link
+					v-if="
+						currentUrl &&
+						layout.navigation?.[currentUrl]?.topMenu &&
+						layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections
+					"
+					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.dropdown.subsections"
+					:href=" layout?.[currentUrl]?.currentData.slug ?
+							route(menu.route?.selected, layout?.[currentUrl]?.currentData.slug) :
+							layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1 ?
+								route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug) :
+								route(menu.route?.all)"
+					:title="menu.tooltip"
+					class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4"
+					:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : ''] "
+				>
+					<FontAwesomeIcon
+						:icon="menu.icon"
+						class="h-5 lg:h-3.5 w-auto pr-1 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
+						aria-hidden="true" />
+					<span class="hidden lg:inline capitalize">{{ menu.label }}</span>
+				</Link>
+			</div>
 		</div>
 	</div>
 </template>
