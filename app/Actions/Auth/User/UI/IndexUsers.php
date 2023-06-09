@@ -7,13 +7,15 @@
 
 namespace App\Actions\Auth\User\UI;
 
-use App\Actions\Elasticsearch\GetElasticsearchDocument;
+use App\Actions\Auth\UserRequest\IndexUserRequestLogs;
+use App\Actions\Auth\UserRequest\ShowUserRequestLogs;
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Enums\UI\UsersTabsEnum;
 use App\Http\Resources\SysAdmin\UserHistoryResource;
 use App\Http\Resources\SysAdmin\UserResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Auth\User;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -21,7 +23,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -115,8 +116,8 @@ class IndexUsers extends InertiaAction
                     : Inertia::lazy(fn () => UserResource::collection($users)),
 
                 UsersTabsEnum::USERS_REQUESTS->value => $this->tab == UsersTabsEnum::USERS_REQUESTS->value ?
-                    fn () => UserHistoryResource::collection(GetElasticsearchDocument::run())
-                    : Inertia::lazy(fn () => UserHistoryResource::collection(GetElasticsearchDocument::run()))
+                    fn () => UserHistoryResource::collection(IndexUserRequestLogs::run())
+                    : Inertia::lazy(fn () => UserHistoryResource::collection(IndexUserRequestLogs::run()))
 
             ]
         )->table(

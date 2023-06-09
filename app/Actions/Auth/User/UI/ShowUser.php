@@ -7,7 +7,7 @@
 
 namespace App\Actions\Auth\User\UI;
 
-use App\Actions\Elasticsearch\GetElasticsearchDocument;
+use App\Actions\Auth\UserRequest\ShowUserRequestLogs;
 use App\Actions\InertiaAction;
 use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
@@ -74,8 +74,14 @@ class ShowUser extends InertiaAction
                 ],
 
                 UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
-                    fn () => UserHistoryResource::collection(GetElasticsearchDocument::run($user->username))
-                    : Inertia::lazy(fn () => UserHistoryResource::collection(GetElasticsearchDocument::run($user->username)))
+                    fn () => UserHistoryResource::collection(ShowUserRequestLogs::run($user->username))
+                    : Inertia::lazy(fn () => UserHistoryResource::collection(ShowUserRequestLogs::run($user->username))),
+
+
+                UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
+                    fn () => UserHistoryResource::collection(ShowUserRequestLogs::run($user->username))
+                    : Inertia::lazy(fn () => UserHistoryResource::collection(ShowUserRequestLogs::run($user->username)))
+
             ]
         )->table(function (InertiaTable $table) {
             $table
