@@ -82,11 +82,9 @@ test('create customer', function ($shop) {
             'email'                    => 'vica@awadvantage.com',
             'phone'                    => '+62345555'
         ];
-        $createdCustomer = StoreCustomer::make()->action(
-            $shop,
-            $arrayData,
-            Address::factory()->definition()
-        );
+
+        $createdCustomer = StoreCustomer::make()->action($shop, $arrayData, Address::factory()->definition());
+
         expect($createdCustomer->contact_name)->toBe($arrayData['contact_name']);
     } catch (Throwable $e) {
         echo $e->getMessage();
