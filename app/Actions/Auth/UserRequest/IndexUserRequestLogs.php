@@ -9,6 +9,7 @@ namespace App\Actions\Auth\UserRequest;
 
 use App\Actions\Auth\UserRequest\Traits\WithFormattedRequestLogs;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
+use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Exception;
@@ -22,9 +23,11 @@ class IndexUserRequestLogs
     use AsObject;
     use WithFormattedRequestLogs;
 
-    public function handle($filter = 'VISIT'): LengthAwarePaginator|bool
+    public function handle($filter = 'VISIT'): LengthAwarePaginator|bool|array
     {
-        if ($client = BuildElasticsearchClient::run()) {
+        $client = BuildElasticsearchClient::run();
+
+        if ($client instanceof Client) {
             try {
                 $params  = [
                     'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
@@ -58,7 +61,7 @@ class IndexUserRequestLogs
             }
         }
 
-        return false;
+        return [];
     }
 
 }

@@ -19,26 +19,31 @@ trait WithFormattedRequestLogs {
      */
     public function format(Client $client, array $params)
     {
-        $results = [];
+        try {
+            $results = [];
 
-        foreach (json_decode($client->search($params), true)['hits']['hits'] as $result) {
-            $results[] = [
-                'username'      => $result['_source']['username'],
-                'ip_address'    => $result['_source']['ip_address'],
-                'location'      => json_decode($result['_source']['location'], true),
-                'device_type'   => $result['_source']['device_type'],
-                'module'        => $result['_source']['module'],
-                'platform'      => $result['_source']['platform'],
-                'browser'       => $result['_source']['browser'],
-                'route_name'    => $result['_source']['route']['name'],
-                'arguments'     => array_values($result['_source']['route']['arguments']),
-                'url'           => $result['_source']['route']['url'],
-                'datetime'      => $result['_source']['datetime']
-            ];
+            foreach (json_decode($client->search($params), true)['hits']['hits'] as $result) {
+                $results[] = [
+                    'username'      => $result['_source']['username'],
+                    'ip_address'    => $result['_source']['ip_address'],
+                    'location'      => json_decode($result['_source']['location'], true),
+                    'device_type'   => $result['_source']['device_type'],
+                    'module'        => $result['_source']['module'],
+                    'platform'      => $result['_source']['platform'],
+                    'browser'       => $result['_source']['browser'],
+                    'route_name'    => $result['_source']['route']['name'],
+                    'arguments'     => array_values($result['_source']['route']['arguments']),
+                    'url'           => $result['_source']['route']['url'],
+                    'datetime'      => $result['_source']['datetime']
+                ];
+            }
+
+            return collect(array_reverse($results))->paginate(
+                perPage: \request()->get('perPage') ?? config('ui.table.records_per_page')
+            )->withQueryString();
+
+        } catch (\Exception $e) {
+            return [];
         }
-
-        return collect(array_reverse($results))->paginate(
-            perPage: \request()->get('perPage') ?? config('ui.table.records_per_page')
-        )->withQueryString();
     }
 }

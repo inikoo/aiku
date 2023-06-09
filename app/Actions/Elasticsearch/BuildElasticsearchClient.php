@@ -16,16 +16,18 @@ class BuildElasticsearchClient
 {
     use AsObject;
 
-    public function handle(): ?Client
+    public function handle(): Client|Exception
     {
-
         $clientBuilder = ClientBuilder::create();
         $clientBuilder->setHosts(config('elasticsearch.hosts'));
 
         try {
-            return $clientBuilder->build();
-        } catch(Exception) {
-            return null;
+            $client = $clientBuilder->build();
+            $client->ping();
+
+            return $client;
+        } catch(Exception $e) {
+            return $e;
         }
 
     }
