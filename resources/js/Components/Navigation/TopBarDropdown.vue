@@ -43,7 +43,7 @@ const handleClick = (option) => {
     <Menu as="div" class="ml-0 md:ml-8 lg:ml-0 relative inline-flex text-right w-10/12 md:w-56">
         <!-- Box All Shops -->
         <MenuButton
-            class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 text-sm lg:text-base text-gray-900 border border-gray-300 hover:bg-gray-50">
             <span class="">
                 {{ layout[props.currentPage].currentData.name }}
             </span>
