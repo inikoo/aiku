@@ -11,7 +11,6 @@ use App\Actions\HumanResources\Employee\UI\EditEmployee;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\JobPosition\IndexJobPosition;
-use App\Actions\UI\ComingSoon;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -30,9 +29,20 @@ Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('
 
 Route::get('/positions', IndexJobPosition::class)->name('job-positions.index');
 //Route::get('/positions/{jobPosition}', ShowJobPosition::class)->name('employees.show');
+/*
+Route::get('/calendars', IndexCalendars::class)->name('calendars.index');
+Route::get('/calendars/{calendar}', ShowCalendar::class)->name('calendars.show');
 
-Route::get('/calendar', ComingSoon::class)->name('calendar');
-Route::get('/time-sheets', ComingSoon::class)->name('time-sheets.hub');
-Route::get('/working-places', ComingSoon::class)->name('working-places.index');
+Route::get('/time-sheets', IndexTimeSheets::class)->name('time-sheets.index');
+Route::get('/time-sheets/{timeSheet}', ShowTimesheet::class)->name('time-sheets.show');
 
-Route::get('/clocking-machines', ComingSoon::class)->name('clocking-machines.index');
+Route::get('/working-places', IndexWorkingPlaces::class)->name('working-places.index');
+Route::get('/working-places/{workingPlace}', ShowWorkingPlace::class)->name('working-places.show');
+
+Route::get('/clocking-machines', IndexClockingMachines::class)->name('clocking-machines.index');
+Route::get('/clocking-machines/{clockingMachine}', ShowClockingMachine::class)->name('clocking-machines.show');
+
+Route::get('/clocking', IndexClockings::class)->name('clockings.index');
+Route::get('/clocking/{clocking}', ShowClocking::class)->name('clockings.show');
+
+*/
