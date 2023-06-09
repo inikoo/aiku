@@ -20,9 +20,16 @@ beforeAll(function () {
 
 
 test('create group using action', function () {
-    $group = StoreGroup::make()->asAction(Group::factory()->definition());
+    $arrayData= [
+        'code'        => 'AB',
+        'name'        => 'Test group',
+        'currency_id' => '1',
+    ];
 
-    $this->assertModelExists($group);
+    StoreGroup::make()->asAction($arrayData);
+
+    $lastGroup = Group::latest()->first();
+    expect($lastGroup->code)->toBe($arrayData['code']);
 });
 
 
@@ -57,7 +64,6 @@ test('tenant has correct mailrooms', function ($tenant) {
 })->depends('add tenant to group');
 
 
-
 test('try to create group with wrong currency', function () {
     $this->artisan('create:group fail "Fail Inc" XXX')->assertFailed();
 });
@@ -65,6 +71,7 @@ test('try to create group with wrong currency', function () {
 test('try to create group with duplicated code', function () {
     $this->artisan('create:group fail "Fail Inc" XXX')->assertFailed();
 });
+
 
 test('create tenant sys-user', function ($tenant) {
     $sysUser=StoreSysUser::make()->asAction($tenant, SysUser::factory()->definition());
