@@ -24,10 +24,8 @@ use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
-use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierDelivery;
 use App\Models\Procurement\SupplierDeliveryItem;
-use App\Models\Procurement\SupplierProduct;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Arr;
@@ -48,8 +46,16 @@ beforeEach(function () {
 });
 
 test('create independent supplier', function () {
-    $supplier = StoreSupplier::make()->action(app('currentTenant'), Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
-    $this->assertModelExists($supplier);
+    $arrayData = [
+        'code'          => 'SUPABC',
+        'contact_name'  => 'artha',
+        'company_name'  => 'artha inc',
+        'currency_id'   => 1,
+    ];
+
+    $supplier = StoreSupplier::make()->action(app('currentTenant'), Arr::prepend($arrayData, 'supplier', 'type'));
+
+    expect($supplier->code)->toBe($arrayData['code'])->and($supplier->currency_id)->toBeNumeric(1);
 
     return $supplier;
 });
@@ -61,13 +67,23 @@ test('create purchase order while no products', function ($supplier) {
 })->depends('create independent supplier');
 
 test('create supplier product', function ($supplier) {
-    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
-    $this->assertModelExists($supplierProduct);
+    $arrayData =[
+        'code' => 'ABC',
+        'name' => 'ABC Product',
+        'cost' => 200,
+    ];
+
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, $arrayData);
+
+    expect($supplierProduct->code)->toBe($arrayData['code'])
+        ->and($supplierProduct->name)->toBe($arrayData['name'])
+        ->and($supplierProduct->cost)->toBeNumeric(200);
 
     return $supplierProduct;
 })->depends('create independent supplier');
 
 test('create purchase order', function ($supplier) {
+
     $purchaseOrder = StorePurchaseOrder::make()->action($supplier->fresh(), PurchaseOrder::factory()->definition());
     $this->assertModelExists($purchaseOrder);
 
