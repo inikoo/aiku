@@ -14,7 +14,7 @@
 				v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections"
 				:href="route(menu.route.name)"
 				class="group flex justify-end items-center cursor-pointer py-1 space-x-1 px-4 md:px-4 lg:px-2"
-				:title="menu.label"	
+				:title="capitalize(menu.label)"	
 			>
 				<FontAwesomeIcon
 					:icon="menu.icon"
@@ -66,6 +66,7 @@ import { Link } from "@inertiajs/vue3"
 import { ref } from "vue"
 import { router } from "@inertiajs/vue3"
 import TopBarMenu from "@/Components/Navigation/TopBarMenu.vue"
+import { capitalize } from "@/Composables/capitalize";
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import {
