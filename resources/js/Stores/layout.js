@@ -20,12 +20,22 @@ export const useLayoutStore = defineStore('layout', {
                 code: trans('All')
             },
             websites: {
-                routeSingle: 'websites.show',
-                routeAll: 'websites.index',
+                routeSingle: 'websites.show', // Dropdown: select 1 option
+                routeAll: 'websites.index', // Dropdown: Show all
                 labelShowAll: trans('All websites'),
                 currentData: {
                     slug: null,
                     name: trans('All websites'),
+                    code: trans('All')
+                }
+            },
+            catalogue: {
+                routeSingle: 'catalogue.products.show',
+                routeAll: 'catalogue.products.index',
+                labelShowAll: trans('All products'),
+                currentData: {
+                    slug: null,
+                    name: trans('All products'),
                     code: trans('All')
                 }
             },
