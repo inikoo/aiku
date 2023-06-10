@@ -91,8 +91,8 @@ class CatalogueHub extends InertiaAction
                     'navigation' => CatalogueTabsEnum::navigation()
                 ],
                 CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value ?
-                    fn () => DepartmentResource::collection(IndexDepartments::run($scope))
-                    : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($scope))),
+                    fn () => DepartmentResource::collection(IndexDepartments::run($scope, CatalogueTabsEnum::DEPARTMENTS->value))
+                    : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($scope, CatalogueTabsEnum::DEPARTMENTS->value))),
 
                 CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value ?
                     fn () => FamilyResource::collection(IndexFamilies::run($scope))
@@ -104,8 +104,8 @@ class CatalogueHub extends InertiaAction
             ]
         )->table(
             IndexDepartments::make()->tableStructure(
-                $scope,
-                match ($this->routeName) {
+                parent:$scope,
+                modelOperations: match ($this->routeName) {
                     'catalogue.shop.hub' => [
                         'createLink' => $this->canEdit ? [
                             'route' => [
@@ -116,7 +116,8 @@ class CatalogueHub extends InertiaAction
                         ] : false,
                     ],
                     default => null
-                }
+                },
+                prefix: CatalogueTabsEnum::DEPARTMENTS->value
             )
         )->table(
             IndexProducts::make()->tableStructure(

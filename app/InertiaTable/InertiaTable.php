@@ -101,12 +101,7 @@ class InertiaTable
         return $this;
     }
 
-    /**
-     * Collects all properties and sets the default
-     * values from the request query.
-     *
-     * @return array
-     */
+
     protected function getQueryBuilderProps(): array
     {
         return [
@@ -293,18 +288,7 @@ class InertiaTable
         return $this;
     }
 
-    /**
-     * Add a select filter to the query builder.
-     *
-     * @param  string  $key
-     * @param  array  $options
-     * @param  string|null  $label
-     * @param  string|null  $defaultValue
-     * @param  bool  $noFilterOption
-     * @param  string|null  $noFilterOptionLabel
-     *
-     * @return self
-     */
+
     public function selectFilter(string $key, array $options, string $label = null, string $defaultValue = null, bool $noFilterOption = true, string $noFilterOptionLabel = null): self
     {
         $this->filters = $this->filters->reject(function (Filter $filter) use ($key) {

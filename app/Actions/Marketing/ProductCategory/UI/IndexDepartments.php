@@ -9,7 +9,6 @@ namespace App\Actions\Marketing\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Catalogue\CatalogueHub;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
@@ -26,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDepartments extends InertiaAction
 {
-    public function handle(Shop|Tenant $parent): LengthAwarePaginator
+    public function handle(Shop|Tenant $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -34,7 +33,9 @@ class IndexDepartments extends InertiaAction
                     ->orWhere('product_categories.code', 'ilike', "$value%");
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DEPARTMENTS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(ProductCategory::class)
             ->defaultSort('product_categories.code')
@@ -62,18 +63,22 @@ class IndexDepartments extends InertiaAction
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::DEPARTMENTS->value.'Page'
+                pageName: $prefix ? $prefix.'Page' : 'page'
             )
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
             $table
                 ->defaultSort('code')
-                ->name(TabsAbbreviationEnum::DEPARTMENTS->value)
-                ->pageName(TabsAbbreviationEnum::DEPARTMENTS->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -126,15 +131,14 @@ class IndexDepartments extends InertiaAction
                 'title'       => __('Departments'),
                 'pageHead'    => [
                     'title'  => __('departments'),
-                    'create' => $this->canEdit &&
-                        $this->routeName == 'catalogue.shop.departments.index'
-                    ? [
-                        'route' => [
-                            'name'       => 'catalogue.shop.departments.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('departments')
-                    ] : false,
+                    'create' => $this->canEdit && $this->routeName == 'catalogue.shop.departments.index'
+                        ? [
+                            'route' => [
+                                'name'       => 'catalogue.shop.departments.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'label' => __('departments')
+                        ] : false,
                 ],
                 'data'        => DepartmentResource::collection($departments),
             ]

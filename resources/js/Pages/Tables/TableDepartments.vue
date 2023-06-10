@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {Department} from "@/types/department";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?:string
 }>();
 
 
@@ -31,13 +32,12 @@ function departmentRoute(department: Department) {
 
 <template>
 
-    <Table :resource="data" :name="'dep'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: department }">
             <Link :href="departmentRoute(department)">
                 {{ department['code'] }}
             </Link>
         </template>
-
     </Table>
 </template>
 
