@@ -431,7 +431,7 @@ function generateNewQueryString() {
 
             return value;
         },
-
+        encodeValuesOnly: true ,
         skipNulls: true,
         strictNullHandling: true,
     });
@@ -657,7 +657,7 @@ const handleElementsChange = function (data) {
                                             :key="`table-${name}-row-${key}-column-${column.key}`" :class="[
                                                 typeof item[column.key] == 'number' ? 'text-right' : '',
                                                 'text-sm py-4 px-6 text-gray-500 whitespace-normal min-w-fit max-w-[450px]',
-                                                
+
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
                                                 {{ item[column.key] }}
