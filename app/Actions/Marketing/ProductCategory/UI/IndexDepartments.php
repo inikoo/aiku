@@ -30,8 +30,8 @@ class IndexDepartments extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('product_categories.code', '~*', "\y$value\y")
-                    ->orWhere('product_categories.name', '=', $value);
+                $query->whereAnyWordStartWith('product_categories.name', $value)
+                    ->orWhere('product_categories.code', 'ilike', "$value%");
             });
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DEPARTMENTS->value);

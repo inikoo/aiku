@@ -32,8 +32,8 @@ class IndexWebsites extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('websites.name', 'LIKE', "%$value%")
-                    ->orWhere('websites.code', 'LIKE', "%$value%");
+                $query->whereAnyWordStartWith('websites.name', $value)
+                    ->orWhere('websites.code', 'ilike', "$value%");
             });
         });
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WEBSITES->value);

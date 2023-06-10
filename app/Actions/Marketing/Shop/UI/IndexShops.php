@@ -33,9 +33,8 @@ class IndexShops extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('shops.name', 'ILIKE', "%$value%")
-                    ->orWhere('shops.code', 'ILIKE', "%$value%")
-                    ->orWhere('shops.type', 'ILIKE', "%$value%");
+                $query->whereAnyWordStartWith('shops.name', $value)
+                    ->orWhere('shops.code', 'ilike', "$value%");
             });
         });
 
