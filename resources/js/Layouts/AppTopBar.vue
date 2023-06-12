@@ -47,9 +47,9 @@
 						layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections"
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.dropdown.subsections"
 					:href="
-						layout?.[currentUrl]?.currentData.slug
-						? route(menu.route?.selected, layout?.[currentUrl]?.currentData.slug)
-						: route().current() != layout?.[currentUrl]?.routeAll
+						layout?.navigation?.[currentUrl]?.currentData.slug
+						? route(menu.route?.selected, layout?.navigation?.[currentUrl]?.currentData.slug)
+						: currentRoute != layout?.navigation?.[currentUrl]?.route
 							? route(menu.route?.selected, route().params[Object.keys(route().params)[0]])
 							: layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1
 								? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)
@@ -124,7 +124,9 @@ const props = defineProps<{
 }>()
 
 const currentUrl = ref()
+const currentRoute = ref()
 router.on("navigate", (event) => {
+	currentRoute.value = route().current()
 	currentUrl.value = event.detail.page.url.split("/")[1]
 })
 </script>

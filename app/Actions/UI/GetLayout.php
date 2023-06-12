@@ -60,13 +60,18 @@ class GetLayout
 
         if ($user->can('products.view')) {
             $navigation['catalogue'] = [
-                'name'    => __('Catalogue'),
-                'icon'    => ['fal', 'fa-folder-tree'],
-                'route'   => 'catalogue.hub',
+                'name'        => __('Catalogue'),
+                'icon'        => ['fal', 'fa-folder-tree'],
+                'route'       => 'catalogue.hub',
+                'routeOption' => 'catalogue.shop.hub',
+                'labelShowAll'=> __('All products'),
+                'currentData' => [
+                    'slug' => null,
+                    'name' => __('All products'),
+                    'code' => __('All')
+                ],
                 'topMenu' => [
-
                     'dropdown' => [
-
                         'type'        => 'shops',
                         'options'     => $shops,
                         'subsections' => [
@@ -101,7 +106,6 @@ class GetLayout
                         ]
                     ]
                 ],
-
             ];
         }
 

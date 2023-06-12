@@ -17,23 +17,24 @@ const isCurrentRoute = (slug: string) => {
     return route().params[Object.keys(route().params)[0]] == slug ? true : false
 }
 
+
 const handleClick = (option) => {
-    layout[props.currentPage].currentData = option
+    layout.navigation[props.currentPage].currentData = option
 
     // if click 'All Inventories'
     if (option == null) {
-        layout[props.currentPage].currentData = {
+        layout.navigation[props.currentPage].currentData = {
             slug: null,
-            name: layout[props.currentPage].labelShowAll,
+            name: layout.navigation[props.currentPage].labelShowAll,
             code: trans('All')
         }
 
         // Redirect to warehouses
-        return router.get(route(`${layout[props.currentPage].routeAll}`))
+        return router.get(route(`${layout.navigation[props.currentPage].route}`))
     }
 
     // Redirect to warehouse
-    router.get(route(`${layout[props.currentPage].routeSingle}`, option.slug))
+    router.get(route(`${layout.navigation[props.currentPage].routeOption}`, option.slug))
 }
 
 
@@ -45,7 +46,7 @@ const handleClick = (option) => {
         <MenuButton
             class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 px-2 text-sm lg:text-base text-gray-900 border border-gray-300 hover:bg-gray-50">
             <span class="">
-                {{ layout[props.currentPage].currentData.name }}
+                {{ layout.navigation[props.currentPage].currentData.name }}
             </span>
             <FontAwesomeIcon aria-hidden="true" class="place-self-center ml-4 opacity-50 hover:opacity-100" icon="fal fa-chevron-down" />
         </MenuButton>
@@ -68,7 +69,7 @@ const handleClick = (option) => {
                     <MenuItem v-slot="{ active }">
                         <button @click="handleClick(null)"
                             :class="[active ? 'bg-indigo-100 text-gray-900' : 'text-gray-700', 'w-full block px-4 py-2 text-sm']">
-                            {{ trans(layout[props.currentPage].labelShowAll) }}
+                            {{ trans(layout.navigation[props.currentPage].labelShowAll) }}
                         </button>
                     </MenuItem>
                 </div>
