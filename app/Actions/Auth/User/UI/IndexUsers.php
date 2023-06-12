@@ -14,6 +14,7 @@ use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Enums\UI\UsersTabsEnum;
 use App\Http\Resources\SysAdmin\UserHistoryResource;
+use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Auth\User;
@@ -95,46 +96,34 @@ class IndexUsers extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('users'),
-                'pageHead'    => [
+                'title' => __('users'),
+                'pageHead' => [
                     'title' => __('users'),
 
                     // Remember to not create new Users on IndexUsers, only in employees and guest
 
                 ],
-                'labels'      => [
+                'labels' => [
                     'usernameNoSet' => __('username no set')
                 ],
 
                 'tabs' => [
-                    'current'    => $this->tab,
+                    'current' => $this->tab,
                     'navigation' => UsersTabsEnum::navigation(),
                 ],
 
                 UsersTabsEnum::USERS->value => $this->tab == UsersTabsEnum::USERS->value ?
-                    fn () => UserResource::collection($users)
-                    : Inertia::lazy(fn () => UserResource::collection($users)),
+                    fn() => UserResource::collection($users)
+                    : Inertia::lazy(fn() => UserResource::collection($users)),
 
                 UsersTabsEnum::USERS_REQUESTS->value => $this->tab == UsersTabsEnum::USERS_REQUESTS->value ?
-                    fn () => UserHistoryResource::collection(IndexUserRequestLogs::run())
-                    : Inertia::lazy(fn () => UserHistoryResource::collection(IndexUserRequestLogs::run()))
+                    fn() => UserRequestLogsResource::collection(IndexUserRequestLogs::run())
+                    : Inertia::lazy(fn() => UserRequestLogsResource::collection(IndexUserRequestLogs::run()))
 
             ]
-        )->table(
-            $this->tableStructure()
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
-                ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)
-                ->column(key: 'user_agent', label: __('User Agent'), canBeHidden: false, sortable: true)
-                ->column(key: 'location', label: __('location'), canBeHidden: false)
-                ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true);
-        });
+        )->table($this->tableStructure())
+            ->table(IndexUserRequestLogs::make()->tableStructure());
     }
-
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {

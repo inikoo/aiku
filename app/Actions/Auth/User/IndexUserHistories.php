@@ -1,13 +1,13 @@
 <?php
 /*
  * Author: Artha <artha@aw-advantage.com>
- * Created: Fri, 09 Jun 2023 13:52:18 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Thu, 08 Jun 2023 14:34:48 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\UserRequest;
+namespace App\Actions\Auth\User;
 
-use App\Actions\Auth\UserRequest\Traits\WithFormattedRequestLogs;
+use App\Actions\Auth\User\Traits\WithFormattedUserHistories;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\InertiaTable\InertiaTable;
@@ -17,16 +17,18 @@ use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Lorisleiva\Actions\Concerns\AsObject;
+use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class ShowUserRequestLogs
+class IndexUserHistories
 {
-    use AsObject;
-    use WithFormattedRequestLogs;
+    use AsAction;
+    use WithAttributes;
+    use WithFormattedUserHistories;
 
-    public function handle(string $query = null, $filter = 'VISIT'): LengthAwarePaginator|array|bool
+    public function handle(string $query = null, $filter = 'ACTION'): LengthAwarePaginator|array|bool
     {
         $client = BuildElasticsearchClient::run();
 
@@ -67,19 +69,21 @@ class ShowUserRequestLogs
 
         return [];
     }
-
-    public function tableStructure(): Closure
+    public function tableStructure(?array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
-                ->withGlobalSearch()
+                ->name(TabsAbbreviationEnum::HISTORY->value)
+                ->pageName(TabsAbbreviationEnum::HISTORY->value.'Page')
+                ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
-                ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)
-                ->column(key: 'user_agent', label: __('User Agent'), canBeHidden: false, sortable: true)
-                ->column(key: 'location', label: __('location'), canBeHidden: false)
+                ->column(key: 'old_values', label: __('Old Values'), canBeHidden: false, sortable: true)
+                ->column(key: 'new_values', label: __('New Values'), canBeHidden: false, sortable: true)
+                ->column(key: 'event', label: __('Event'), canBeHidden: false, sortable: true)
+                ->column(key: 'auditable_type', label: __('Auditable Type'), canBeHidden: false)
                 ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
-                ->defaultSort('datetime');;
+                ->defaultSort('username');
         };
     }
 }
