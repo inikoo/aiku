@@ -27,7 +27,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $locality
  * @property string|null $dependant_locality
  * @property string|null $administrative_area
- * @property string $country_code
+ * @property String $country_code
  * @property integer $country_id
  * @property bool $historic
  * @property int $usage
