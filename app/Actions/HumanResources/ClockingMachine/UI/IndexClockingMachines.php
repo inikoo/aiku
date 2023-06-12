@@ -5,46 +5,45 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\WorkingPlace;
+namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
-use App\Http\Resources\HumanResources\EmployeeInertiaResource;
-use App\Http\Resources\HumanResources\EmployeeResource;
-use App\Models\HumanResources\Employee;
+use App\Http\Resources\HumanResources\ClockingMachineInertiaResource;
+use App\Http\Resources\HumanResources\ClockingMachineResource;
+use App\Models\ClockingMachine;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexWorkingPlaces extends InertiaAction
+class IndexClockingMachines extends InertiaAction
 {
     public function handle(): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.contact_name', 'ILIKE', "%$value%")
-                    ->orWhere('employees.slug', 'ILIKE', "%$value%")
-                    ->orWhere('employees.state', 'ILIKE', "%$value%");
+                $query->where('clocking_machines.slug', 'ILIKE', "%$value%")
+                    ->orWhere('clocking_machines.code', 'ILIKE', "%$value%");
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::EMPLOYEES->value);
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::CLOCKING_MACHINES->value);
 
-        return QueryBuilder::for(Employee::class)
-            ->defaultSort('employees.slug')
-            ->select(['slug', 'id', 'job_title', 'contact_name', 'state'])
-            ->with('jobPositions')
-            ->allowedSorts(['slug', 'state', 'contact_name','job_title'])
-            ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
+        return QueryBuilder::for(ClockingMachine::class)
+            ->defaultSort('clocking_machines.slug')
+            ->select(['slug', 'id ', 'code'])
+            ->allowedSorts(['slug', 'code'])
+            ->allowedFilters([$globalSearch, 'slug', 'code'])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
+                pageName: TabsAbbreviationEnum::CLOCKING_MACHINES->value.'Page'
             )
             ->withQueryString();
     }
@@ -53,13 +52,10 @@ class IndexWorkingPlaces extends InertiaAction
     {
         return function (InertiaTable $table) {
             $table
-                ->name(TabsAbbreviationEnum::EMPLOYEES->value)
-                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')
+                ->name(TabsAbbreviationEnum::CLOCKING_MACHINES->value)
+                ->pageName(TabsAbbreviationEnum::CLOCKING_MACHINES->value.'Page')
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_title', label: __('position'), canBeHidden: false)
-                ->column(key: 'state', label: __('state'), canBeHidden: false)
                 ->defaultSort('slug');
         };
     }
@@ -76,30 +72,30 @@ class IndexWorkingPlaces extends InertiaAction
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $employees): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $clockingMachines): AnonymousResourceCollection
     {
-        return EmployeeResource::collection($employees);
+        return ClockingMachineResource::collection($clockingMachines);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees): \Inertia\Response
+    public function htmlResponse(LengthAwarePaginator $clockingMachines): Response
     {
         return Inertia::render(
-            'HumanResources/Employees',
+            'HumanResources/ClockingMachines',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('employees'),
+                'title'       => __('clocking machines'),
                 'pageHead'    => [
-                    'title'  => __('employees'),
+                    'title'  => __('clocking machines'),
                     'create' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'hr.employees.create',
+                            'name'       => 'hr.clocking-machines.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('employee')
+                        'label' => __('clocking machine')
                     ] : false,
                 ],
-                'data'        => EmployeeInertiaResource::collection($employees),
+                'data'        => ClockingMachineInertiaResource::collection($clockingMachines),
             ]
         )->table($this->tableStructure());
     }
@@ -122,9 +118,9 @@ class IndexWorkingPlaces extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'hr.employees.index'
+                            'name' => 'hr.clocking-machines.index'
                         ],
-                        'label' => __('employees'),
+                        'label' => __('clocking machines'),
                         'icon'  => 'fal fa-bars',
                     ],
 
