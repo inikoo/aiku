@@ -78,8 +78,6 @@ test('create working place successful', function () {
     $arrayData = [
         'name'              => 'artha nugraha',
         'type'              => 'home',
-        'owner_id'          => '1',
-        'owner_type'        => 'test'
     ];
 
     $createdWorkplace = StoreWorkingPlace::run($arrayData);
@@ -93,8 +91,6 @@ test('update working place successful', function ($createdWorkplace) {
     $arrayData = [
         'name'              => 'vica nugraha',
         'type'              => 'home',
-        'owner_id'          => '1',
-        'owner_type'        => 'testing'
     ];
 
     $updatedWorkplace = UpdateWorkingPlace::run($createdWorkplace, $arrayData);
