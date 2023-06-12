@@ -32,9 +32,10 @@ import {
     faBoxUsd,
     faTruck,
     faTerminal,
+    faInfoCircle,
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
-import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
+// import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 
 library.add(
     faInventory,
@@ -43,6 +44,7 @@ library.add(
     faBoxUsd,
     faTruck,
     faTerminal,
+    faInfoCircle,
     faCameraRetro
 );
 
@@ -65,7 +67,7 @@ const component = computed(() => {
 
 <template layout="App">
     <Head :title="title" />
-    {{ showcase }}
+    <!-- {{ showcase }} -->
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>

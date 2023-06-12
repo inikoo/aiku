@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import Multiselect from '@vueform/multiselect'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faExclamationCircle, faCheckCircle } from "../../../../private/pro-solid-svg-icons"
+import { faExclamationCircle, faCheckCircle } from "@/../private/pro-solid-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faExclamationCircle, faCheckCircle);
 

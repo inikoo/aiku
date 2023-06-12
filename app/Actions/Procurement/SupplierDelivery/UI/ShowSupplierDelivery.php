@@ -49,7 +49,7 @@ class ShowSupplierDelivery extends InertiaAction
                     'next'     => $this->getNext($this->supplierDelivery, $request),
                 ],
                 'pageHead'    => [
-                    'icon'  => 'fal people-arrows',
+                    'icon'  => ['fal', 'people-arrows'],
                     'title' => $this->supplierDelivery->id,
                     'edit'  => $this->canEdit ? [
                         'route' => [
