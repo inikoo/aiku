@@ -9,7 +9,7 @@ namespace App\Actions\UI\CRM;
 
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Catalogue\Shop;
+use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
