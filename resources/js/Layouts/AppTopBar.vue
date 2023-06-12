@@ -47,13 +47,16 @@
 						layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections"
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.dropdown.subsections"
 					:href="
-						layout?.navigation?.[currentUrl]?.currentData.slug
-						? route(menu.route?.selected, layout?.navigation?.[currentUrl]?.currentData.slug)
-						: currentRoute != layout?.navigation?.[currentUrl]?.route
-							? route(menu.route?.selected, route().params[Object.keys(route().params)[0]])
-							: layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1
-								? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)
-								: route(menu.route?.all)"
+						layout?.navigation?.[currentUrl]?.currentData.slug  // If the slug is not null
+							? route(menu.route?.selected, layout?.navigation?.[currentUrl]?.currentData.slug)  // Then the menu go to that slug
+							: currentRoute != layout?.navigation?.[currentUrl]?.route  // Check if active route is same as 'All List' slug
+								? route().params[Object.keys(route().params)[0]]  // Check if there is active parameter (for subpage)
+									? route(menu.route?.selected, route().params[Object.keys(route().params)[0]])  // If parameter exist go to that slug
+									: route(menu.route?.all)  // If parameter doesn't exist then Link is 'All list'
+								: layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1  // If list is only 1 data
+									? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data 
+									: route(menu.route?.all)  // If data is above than 1 data then Link to 'All list'
+					"
 					:title="menu.tooltip"
 					class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4"
 					:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : '']"
