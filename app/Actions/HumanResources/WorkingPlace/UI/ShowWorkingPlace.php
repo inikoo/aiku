@@ -41,16 +41,15 @@ class ShowWorkingPlace extends InertiaAction
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
 
-
         return Inertia::render(
             'HumanResources/WorkingPlace',
             [
                 'title'                                 => __('employee'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($workplace),
-                'navigation'                            => [
-                    'previous' => $this->getPrevious($workplace, $request),
-                    'next'     => $this->getNext($workplace, $request),
-                ],
+//                'navigation'                            => [
+//                    'previous' => $this->getPrevious($workplace, $request),
+//                    'next'     => $this->getNext($workplace, $request),
+//                ],
                 'pageHead'    => [
                     'title' => $workplace->name,
                     'meta'  => [

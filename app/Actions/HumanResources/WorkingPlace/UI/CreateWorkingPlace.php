@@ -63,13 +63,15 @@ class CreateWorkingPlace extends InertiaAction
                                         new Address(
                                             [
                                                 'country_id' => app('currentTenant')->country_id,
+
                                             ]
                                         )
                                     )->getArray(),
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
+
                                     ]
-                                ],
+                                ]
                             ]
                         ]
 
