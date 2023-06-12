@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import {Head, useForm} from '@inertiajs/vue3';
 import PageHeading from "@/Components/Headings/PageHeading.vue";
+import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faCodeCommit,
@@ -87,7 +88,7 @@ const webUserForm = useForm({
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <!--
       Todo: modal forms for quick creation of models

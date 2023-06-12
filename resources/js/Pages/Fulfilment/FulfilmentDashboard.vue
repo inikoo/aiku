@@ -9,6 +9,7 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import { capitalize } from "@/Composables/capitalize"
 
 defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
@@ -25,7 +26,7 @@ library.add(
 </script>
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <FlatTreeMap class="mx-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
 </template>

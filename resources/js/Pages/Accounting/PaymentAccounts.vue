@@ -8,13 +8,14 @@
 import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TablePaymentAccounts from '@/Pages/Tables/TablePaymentAccounts.vue';
+import { capitalize } from "@/Composables/capitalize"
 
 defineProps(["data", "title", "pageHead"]);
 
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <TablePaymentAccounts :data="data" />
 </template>

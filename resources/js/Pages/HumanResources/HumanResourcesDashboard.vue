@@ -8,12 +8,13 @@
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Stats from '@/Components/DataDisplay/Stats.vue';
+import { capitalize } from "@/Composables/capitalize"
 defineProps(['title','pageHead','stats'])
 
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
 
     <stats class="m-4" :stats="stats" />

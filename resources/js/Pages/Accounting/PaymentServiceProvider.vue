@@ -22,6 +22,7 @@ import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import TablePaymentAccounts from "@/Pages/Tables/TablePaymentAccounts.vue";
+import { capitalize } from "@/Composables/capitalize"
 
 const ModelChangelog = defineAsyncComponent(() => import("@/Pages/ModelChangelog.vue"));
 
@@ -59,7 +60,7 @@ const component = computed(() => {
 
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]"></component>
