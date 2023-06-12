@@ -32,16 +32,16 @@ class DeleteElasticsearchData
             $response = $client->indices()->delete($params);
 
             if ($response['acknowledged']) {
-                echo "Data successfully deleted";
+                echo "Data successfully deleted \n";
 
                 return true;
             }
 
-            echo "Delete data failed";
+            echo "Delete data failed \n";
 
             return false;
         } catch(Exception) {
-            echo "Delete data failed";
+            echo "Delete data failed \n";
 
             return false;
         }
