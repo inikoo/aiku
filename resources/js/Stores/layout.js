@@ -30,8 +30,8 @@ export const useLayoutStore = defineStore('layout', {
                 }
             },
             catalogue: {
-                routeSingle: 'catalogue.products.show',
-                routeAll: 'catalogue.products.index',
+                routeSingle: 'catalogue.shop.hub',
+                routeAll: 'catalogue.hub',
                 labelShowAll: trans('All products'),
                 currentData: {
                     slug: null,
