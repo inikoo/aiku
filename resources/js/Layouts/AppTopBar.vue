@@ -84,6 +84,8 @@ import {
 	faPeopleArrows,
 	faPersonDolly,
 	faClipboardList,
+	faFolder,
+	faFolders,
 	faBrowser,
 } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -103,6 +105,8 @@ library.add(
 	faPeopleArrows,
 	faPersonDolly,
 	faClipboardList,
+	faFolder,
+	faFolders,
 	faBrowser
 )
 const layout = useLayoutStore()

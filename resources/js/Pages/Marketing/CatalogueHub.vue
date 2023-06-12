@@ -12,7 +12,7 @@ import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {useLocaleStore} from '@/Stores/locale.js';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faCube,faFolder,faFolders,faChartLine} from "../../../private/pro-light-svg-icons";
+import {faCube,faFolder,faFolders,faChartLine} from "@/../private/pro-light-svg-icons";
 import { computed, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";

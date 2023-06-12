@@ -6,7 +6,12 @@
 
 <script setup lang="ts">
 import {ref} from "vue";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faRoad } from "@/../private/pro-solid-svg-icons"
+import { faPoop, faPaperclip } from "@/../private/pro-light-svg-icons"
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faRoad, faPoop, faPaperclip)
+
 
 const props = defineProps<{
     navigation: object,

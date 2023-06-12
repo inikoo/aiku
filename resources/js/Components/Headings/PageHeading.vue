@@ -7,7 +7,7 @@
 <script setup>
 import {Link} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faEmptySet} from '@/../private/pro-light-svg-icons';
+import {faEmptySet, faPeopleArrows} from '@/../private/pro-light-svg-icons';
 import {faPencil,faArrowLeft} from '@/../private/pro-regular-svg-icons';
 
 import {faPlus} from '@/../private/pro-solid-svg-icons';
@@ -16,7 +16,7 @@ import {useLocaleStore} from '@/Stores/locale.js';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {trans} from 'laravel-vue-i18n';
 
-library.add(faEmptySet, faPlus, faPencil,faArrowLeft);
+library.add(faEmptySet, faPeopleArrows, faPlus, faPencil,faArrowLeft);
 const props = defineProps(['data']);
 const locale = useLocaleStore();
 
@@ -55,10 +55,9 @@ const locale = useLocaleStore();
                         </Link>
                         <template v-else-if="item['emptyWithCreateAction']">
                             <FontAwesomeIcon icon="fal fa-empty-set" class="mr-2"/>
-
                                 <Button type="primary" size="xs" action="create">
-                                    {{ item['emptyWithCreateAction']['label'] }}</Button>
-
+                                    {{ item['emptyWithCreateAction']['label'] }}
+                                </Button>
                         </template>
                         <span v-else><span v-if="item.number">{{ locale.number(item.number) }}</span> {{ item.name }} </span>
                     </div>
