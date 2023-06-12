@@ -9,6 +9,9 @@ namespace App\Actions\Auth\UserRequest;
 
 use App\Actions\Auth\UserRequest\Traits\WithFormattedRequestLogs;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
+use App\Enums\UI\TabsAbbreviationEnum;
+use App\InertiaTable\InertiaTable;
+use Closure;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
@@ -64,4 +67,18 @@ class IndexUserRequestLogs
         return [];
     }
 
+    public function tableStructure(): Closure
+    {
+        return function (InertiaTable $table) {
+            $table
+                ->withGlobalSearch()
+                ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
+                ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)
+                ->column(key: 'user_agent', label: __('User Agent'), canBeHidden: false, sortable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
+                ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true);
+        };
+    }
 }

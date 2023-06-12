@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Actions\Auth\User\LogUserRequest;
+use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -14,11 +15,6 @@ class LogUserRequestMiddleware
     public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
-        $type = 'ACTION';
-
-        if($request->isMethod('GET')) {
-            $type = 'VISIT';
-        }
 
         if (!app()->runningUnitTests() && $user) {
             LogUserRequest::run(
@@ -30,7 +26,7 @@ class LogUserRequestMiddleware
                 ],
                 $request->ip(),
                 $request->header('User-Agent'),
-                $type,
+                ElasticsearchTypeEnum::VISIT->value,
                 $user,
             );
         }
