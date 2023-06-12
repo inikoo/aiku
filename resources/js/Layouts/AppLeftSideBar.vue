@@ -4,7 +4,7 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
-<script setup>
+<script setup lang="ts">
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Link } from "@inertiajs/vue3";
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -32,7 +32,6 @@ import {
     faFolderTree
 } from "@/../private/pro-light-svg-icons"
 import { useLayoutStore } from "@/Stores/layout"
-
 import { computed } from "vue";
 
 library.add(
@@ -59,34 +58,25 @@ library.add(
     faFolderTree
 )
 
-
 const layout = useLayoutStore()
-
 const props = defineProps(["currentRoute"])
-
 
 const currentModule = computed(() => {
     const route=props['currentRoute'];
     return route.substring(0, route.indexOf("."))
-
 });
 
 </script>
 
 <template>
-	<div
-		class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-gray-100 md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56">
-		<div
-			class="flex flex-grow flex-col h-screen overflow-y-auto border-r border-gray-200 bg-white pb-4">
+	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-gray-100 md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56">
+		<div class="flex flex-grow flex-col h-screen overflow-y-auto border-r border-gray-200 bg-white pb-4">
 			<div class="font-logo md:hidden xl:block py-3 text-center">
 				{{ layout.tenant.name }}
 			</div>
 
-
 			<div class="flex flex-grow flex-col pb-16">
-				<nav
-					class="flex-1 space-y-1 bg-white"
-					aria-label="Sidebar">
+				<nav class="flex-1 space-y-1 bg-white" aria-label="Sidebar">
 					<Link
 						v-for="(item, itemKey) in layout.navigation"
 						:key="itemKey"

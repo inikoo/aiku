@@ -19,46 +19,6 @@ export const useLayoutStore = defineStore('layout', {
                 name: trans('All shops'),
                 code: trans('All')
             },
-            websites: {
-                routeSingle: 'websites.show', // Dropdown: select 1 option
-                routeAll: 'websites.dashboard', // Dropdown: Show all
-                labelShowAll: trans('All websites'),
-                currentData: {
-                    slug: null,
-                    name: trans('All websites'),
-                    code: trans('All')
-                }
-            },
-            crm: {
-                routeSingle: 'crm.shop.dashboard',
-                routeAll: 'crm.dashboard',
-                labelShowAll: trans('All shops'),
-                currentData: {
-                    slug: null,
-                    name: trans('All shops'),
-                    code: trans('All')
-                }
-            },
-            customers: {
-                routeSingle: 'inventory.warehouses.show',
-                routeAll: 'inventory.warehouses.index',
-                labelShowAll: trans('All Customers'),
-                currentData: {
-                    slug: null,
-                    name: trans('All customers'),
-                    code: trans('All')
-                }
-            },
-            inventory: {
-                routeSingle: 'inventory.warehouses.show',
-                routeAll: 'inventory.warehouses.index',
-                labelShowAll: trans('All warehouses'),
-                currentData: {
-                    slug: null,
-                    name: trans('All warehouses'),
-                    code: trans('All')
-                }
-            },
             tenant     : {},
         }
     ),

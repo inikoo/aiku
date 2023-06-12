@@ -112,9 +112,16 @@ class GetLayout
 
         if ($user->can('websites.view')) {
             $navigation['websites'] = [
-                'name'    => __('Websites'),
-                'icon'    => ['fal', 'fa-globe'],
-                'route'   => 'websites.dashboard',
+                'name'          => __('Websites'),
+                'icon'          => ['fal', 'fa-globe'],
+                'route'         => 'websites.dashboard',
+                'routeOption'   => 'websites.show',
+                'labelShowAll'  => __('All websites'),
+                'currentData'   => [
+                    'slug' => null,
+                    'name' => __('All websites'),
+                    'code' => __('All')
+                ],
                 'topMenu' => [
 
                     'dropdown' => [
@@ -155,9 +162,16 @@ class GetLayout
 
         if ($user->can('customers.view')) {
             $navigation['crm'] = [
-                'name'    => __('CRM'),
-                'icon'    => ['fal', 'fa-tasks-alt'],
-                'route'   => 'crm.dashboard',
+                'name'          => __('CRM'),
+                'icon'          => ['fal', 'fa-tasks-alt'],
+                'route'         => 'crm.dashboard',
+                'routeOption'   => 'crm.shop.dashboard',
+                'labelShowAll'  => __('All shops'),
+                'currentData'   => [
+                    'slug' => null,
+                    'name' => __('All shops'),
+                    'code' => __('All')
+                ],
                 'topMenu' => [
 
                     'dropdown' => [
@@ -213,9 +227,16 @@ class GetLayout
 
         if ($user->can('inventory.view')) {
             $navigation['inventory'] = [
-                'name'    => __('inventory'),
-                'icon'    => ['fal', 'fa-inventory'],
-                'route'   => 'inventory.dashboard',
+                'name'          => __('inventory'),
+                'icon'          => ['fal', 'fa-inventory'],
+                'route'         => 'inventory.dashboard',
+                'routeOption'   => 'inventory.warehouses.show',
+                'labelShowAll'  => __('All warehouses'),
+                'currentData'   => [
+                    'slug' => null,
+                    'name' => __('All warehouses'),
+                    'code' => __('All')
+                ],
                 'topMenu' => [
                     'subSections' => [
                         [
