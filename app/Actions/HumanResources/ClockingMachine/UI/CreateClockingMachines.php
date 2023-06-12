@@ -5,22 +5,19 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee\UI;
+namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\InertiaAction;
-use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Models\HumanResources\JobPosition;
-use Exception;
+use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateEmployee extends InertiaAction
+class CreateClockingMachines extends InertiaAction
 {
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function handle(): Response
     {
@@ -28,12 +25,12 @@ class CreateEmployee extends InertiaAction
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('new employee'),
+                'title'       => __('new clocking machine'),
                 'pageHead'    => [
-                    'title'        => __('new employee'),
+                    'title'        => __('new clocking machine'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'hr.employees.index',
+                            'name'       => 'hr.clocking-machines.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -42,29 +39,16 @@ class CreateEmployee extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('personal information'),
                             'fields' => [
-                                'contact_name' => [
+                                'code' => [
                                     'type'  => 'input',
-                                    'label' => __('name'),
+                                    'label' => __('code'),
                                 ],
-                                'date_of_birth' => [
-                                    'type'  => 'date',
-                                    'label' => __('date of birth'),
-                                    'value' => ''
-                                ],
-                                'job_title' => [
+                                'workplace_id' => [
                                     'type'        => 'select',
-                                    'label'       => __(' position'),
-                                    'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
-                                    'placeholder' => 'Select a Position',
-                                    'mode'        => 'single'
-                                ],
-                                'state' => [
-                                    'type'        => 'select',
-                                    'label'       => __(' state'),
-                                    'options'     => Options::forEnum(EmployeeStateEnum::class),
-                                    'placeholder' => 'Select a State',
+                                    'label'       => __(' workplace'),
+                                    'options'     => Options::forModels(Workplace::class),
+                                    'placeholder' => 'Select a Workplace',
                                     'mode'        => 'single'
                                 ]
 
@@ -73,7 +57,7 @@ class CreateEmployee extends InertiaAction
 
                     ],
                     'route'      => [
-                            'name'       => 'models.employee.store',
+                            'name'       => 'models.clocking-machines.store',
 
                     ]
 
@@ -91,9 +75,6 @@ class CreateEmployee extends InertiaAction
     }
 
 
-    /**
-     * @throws Exception
-     */
     public function asController(ActionRequest $request): Response
     {
         $this->initialisation($request);

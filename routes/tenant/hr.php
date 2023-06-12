@@ -19,8 +19,10 @@ use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\JobPosition\IndexJobPositions;
 use App\Actions\HumanResources\TimeSheet\IndexTimesheets;
 use App\Actions\HumanResources\TimeSheet\ShowTimeSheet;
-use App\Actions\HumanResources\WorkingPlace\IndexWorkingPlaces;
-use App\Actions\HumanResources\WorkingPlace\ShowWorkingPlace;
+use App\Actions\HumanResources\WorkingPlace\UI\CreateWorkingPlace;
+use App\Actions\HumanResources\WorkingPlace\UI\EditWorkingPlace;
+use App\Actions\HumanResources\WorkingPlace\UI\IndexWorkingPlaces;
+use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -47,7 +49,9 @@ Route::get('/time-sheets', IndexTimeSheets::class)->name('time-sheets.index');
 Route::get('/time-sheets/{timeSheet}', ShowTimesheet::class)->name('time-sheets.show');
 
 Route::get('/working-places', IndexWorkingPlaces::class)->name('working-places.index');
+Route::get('/working-places/create', CreateWorkingPlace::class)->name('working-places.create');
 Route::get('/working-places/{workingPlace}', ShowWorkingPlace::class)->name('working-places.show');
+Route::get('/working-places/{workingPlace}/edit', EditWorkingPlace::class)->name('working-places.edit');
 
 Route::get('/clocking-machines', IndexClockingMachines::class)->name('clocking-machines.index');
 Route::get('/clocking-machines/{clockingMachine}', ShowClockingMachine::class)->name('clocking-machines.show');

@@ -6,12 +6,14 @@
  */
 
 use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\HumanResources\WorkingPlace\StoreWorkingPlace;
+use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use App\Models\HumanResources\Employee;
-use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 
@@ -71,3 +73,31 @@ test('create user from employee', function () {
 
     expect($createdEmployee->contact_name)->toBe($lastEmployee->contact_name);
 });
+
+test('create working place successful', function () {
+    $arrayData = [
+        'name'              => 'artha nugraha',
+        'type'              => 'home',
+        'owner_id'          => '1',
+        'owner_type'        => 'test'
+    ];
+
+    $createdWorkplace = StoreWorkingPlace::run($arrayData);
+
+    expect($createdWorkplace->name)->toBe($arrayData['name']);
+
+    return $createdWorkplace;
+});
+
+test('update working place successful', function ($createdWorkplace) {
+    $arrayData = [
+        'name'              => 'vica nugraha',
+        'type'              => 'home',
+        'owner_id'          => '1',
+        'owner_type'        => 'testing'
+    ];
+
+    $updatedWorkplace = UpdateWorkingPlace::run($createdWorkplace, $arrayData);
+
+    expect($updatedWorkplace->name)->toBe($arrayData['name']);
+})->depends('create working place successful');
