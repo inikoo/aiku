@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\Marketplace\Agent\UI;
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Enums\Procurement\AgentTenant\AgentTypeEnum;
-use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -74,7 +74,7 @@ class CreateMarketplaceAgent extends InertiaAction
                                 'address' => [
                                     'type'  => 'address',
                                     'label' => __('Address'),
-                                    'value' => AddressResource::make(
+                                    'value' => AddressFormFieldsResource::make(
                                         new Address(
                                             [
                                                 'country_id' => app('currentTenant')->country_id,

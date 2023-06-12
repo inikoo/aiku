@@ -13,7 +13,7 @@ import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import { faClock } from "../../../private/pro-solid-svg-icons";
+import { faClock } from "@/../private/pro-solid-svg-icons";
 
 library.add(
     faChartLine,

@@ -12,8 +12,12 @@ use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\UpdateUser;
+use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
+use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\HumanResources\WorkingPlace\StoreWorkingPlace;
+use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\UpdateStock;
@@ -64,6 +68,12 @@ Route::patch('/order/{order}', UpdateOrder::class)->name('order.update');
 
 Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.update');
 Route::post('/employee/', StoreEmployee::class)->name('employee.store');
+
+Route::patch('/working-place/{workingPlace}', UpdateWorkingPlace::class)->name('working-place.update');
+Route::post('/working-place/', StoreWorkingPlace::class)->name('working-place.store');
+
+Route::patch('/clocking-machines/{clockingMachine}', UpdateClockingMachine::class)->name('clocking-machines.update');
+Route::post('/clocking-machines', StoreClockingMachine::class)->name('clocking-machines.store');
 
 
 Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');

@@ -8,7 +8,6 @@
 namespace App\Actions\Auth\User\UI;
 
 use App\Actions\Auth\UserRequest\IndexUserRequestLogs;
-use App\Actions\Auth\UserRequest\ShowUserRequestLogs;
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
@@ -38,7 +37,19 @@ class IndexUsers extends InertiaAction
             });
         });
 
+
+        $elementBlueprint=[
+            'status' => ['active','inactive'],
+            'status2'=> ['active','inactive'],
+        ];
+
+        $elements = function ($query, array $elementsData) {
+
+            return $query;
+        };
+
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::USERS->value);
+
 
 
         return QueryBuilder::for(User::class)
@@ -47,6 +58,7 @@ class IndexUsers extends InertiaAction
             ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name'])
             ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
             ->allowedFilters([$globalSearch])
+            ->elements($elementBlueprint, $elements)
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::USERS->value.'Page'
@@ -96,7 +108,7 @@ class IndexUsers extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title' => __('users'),
+                'title'    => __('users'),
                 'pageHead' => [
                     'title' => __('users'),
 
@@ -108,17 +120,17 @@ class IndexUsers extends InertiaAction
                 ],
 
                 'tabs' => [
-                    'current' => $this->tab,
+                    'current'    => $this->tab,
                     'navigation' => UsersTabsEnum::navigation(),
                 ],
 
                 UsersTabsEnum::USERS->value => $this->tab == UsersTabsEnum::USERS->value ?
-                    fn() => UserResource::collection($users)
-                    : Inertia::lazy(fn() => UserResource::collection($users)),
+                    fn () => UserResource::collection($users)
+                    : Inertia::lazy(fn () => UserResource::collection($users)),
 
                 UsersTabsEnum::USERS_REQUESTS->value => $this->tab == UsersTabsEnum::USERS_REQUESTS->value ?
-                    fn() => UserRequestLogsResource::collection(IndexUserRequestLogs::run())
-                    : Inertia::lazy(fn() => UserRequestLogsResource::collection(IndexUserRequestLogs::run()))
+                    fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run())
+                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run()))
 
             ]
         )->table($this->tableStructure())

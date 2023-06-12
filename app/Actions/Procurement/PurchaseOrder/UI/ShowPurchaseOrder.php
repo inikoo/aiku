@@ -51,7 +51,11 @@ class ShowPurchaseOrder extends InertiaAction
 //                    'next'     => $this->getNext($this->purchaseOrder, $request),
 //                ],
                 'pageHead'    => [
-                    'icon'  => 'fal people-arrows',
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'people-arrows'],
+                            'title' => __('warehouse')
+                        ],
                     'title' => $this->purchaseOrder->number,
                     'edit'  => $this->canEdit ? [
                         'route' => [

@@ -17,6 +17,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -82,7 +83,7 @@ class IndexEmployees extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees): \Inertia\Response
+    public function htmlResponse(LengthAwarePaginator $employees): Response
     {
         return Inertia::render(
             'HumanResources/Employees',

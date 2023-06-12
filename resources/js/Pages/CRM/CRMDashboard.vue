@@ -13,7 +13,7 @@ import {useLocaleStore} from '@/Stores/locale.js';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
    faShoppingCart
-} from "../../../private/pro-light-svg-icons";
+} from "@/../private/pro-light-svg-icons";
 import FlatTreeMap from "@/Components/Navigation/FlatTreeMap.vue";
 
 library.add(

@@ -46,7 +46,7 @@ class ShowSupplierPurchaseOrder extends InertiaAction
                 'title'       => __('supplier purchase order'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->supplierDelivery),
                 'pageHead'    => [
-                    'icon'  => 'fal people-arrows',
+                    'icon'  => ['fal', 'people-arrows'],
                     'title' => $this->supplierDelivery->id,
                     'edit'  => $this->canEdit ? [
                         'route' => [

@@ -7,9 +7,11 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
+use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\InertiaAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\JobPosition;
+use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -18,7 +20,7 @@ use Spatie\LaravelOptions\Options;
 class CreateEmployee extends InertiaAction
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function handle(): Response
     {
@@ -89,6 +91,9 @@ class CreateEmployee extends InertiaAction
     }
 
 
+    /**
+     * @throws Exception
+     */
     public function asController(ActionRequest $request): Response
     {
         $this->initialisation($request);
@@ -100,7 +105,7 @@ class CreateEmployee extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexEmployees::make()->getBreadcrumbs(),
+            IndexClockingMachines::make()->getBreadcrumbs(),
             [
                 [
                     'type'          => 'creatingModel',

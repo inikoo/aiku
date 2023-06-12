@@ -8,10 +8,13 @@
 namespace App\Models;
 
 use App\Models\HumanResources\Workplace;
+use App\Models\Traits\HasUniversalSearch;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -24,9 +27,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property int $workplace_id
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Workplace $workplace
  * @method static Builder|ClockingMachine newModelQuery()
@@ -35,12 +38,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|ClockingMachine query()
  * @method static Builder|ClockingMachine withTrashed()
  * @method static Builder|ClockingMachine withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class ClockingMachine extends Model
 {
     use UsesTenantConnection;
     use HasSlug;
+    use HasUniversalSearch;
     use SoftDeletes;
 
     protected $casts = [
@@ -50,7 +54,6 @@ class ClockingMachine extends Model
 
     protected $attributes = [
         'data'        => '{}',
-        'location'    => '{}',
     ];
 
     protected $guarded = [];

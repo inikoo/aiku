@@ -8,7 +8,7 @@
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 
-import { faExclamationCircle ,faCheckCircle} from "../../../../private/pro-solid-svg-icons";
+import { faExclamationCircle ,faCheckCircle} from "@/../private/pro-solid-svg-icons";
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 library.add(faExclamationCircle,faCheckCircle);

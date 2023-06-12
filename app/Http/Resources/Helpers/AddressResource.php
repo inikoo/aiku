@@ -35,8 +35,6 @@ class AddressResource extends JsonResource
     public function toArray($request): array
     {
         return [
-
-
             'address_line_1'      => $this->address_line_1,
             'address_line_2'      => $this->address_line_2,
             'sorting_code'        => $this->sorting_code,
