@@ -24,31 +24,39 @@
 					<span class="hidden lg:inline text-gray-600 capitalize">{{ menu.label }}</span>
 				</Link>
 			</div>
+
 			<!-- Dropdown -->
 			<div v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
 				<TopBarMenu :currentPage="currentUrl" />
 			</div>
+			
 			<!-- Right Menu -->
 			<div
 				class="text-sm lg:text-base text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
 				:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'border border-l-0 border-indigo-300' : 'border-l border-gray-100 divide-x divide-gray-100 ']"
 			>
-				<!-- If the href is initial state then the menu will show all shop, but if data shop only 1 data then menu is directly to that 1 data -->
+				<!-- href:
+					If the slug is initial state (which is null) then the menu will show all shop,
+					but if current route is contain params (slug of options) then the links is linkselected with that params (handle for refresh page that the state is back to null),
+					if the 'show all shop' only contain 1 data then the links is directly to that 1 data
+				-->
 				<Link
-					v-if="
+					v-if=" 
 						currentUrl &&
 						layout.navigation?.[currentUrl]?.topMenu &&
-						layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections
-					"
+						layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections"
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.dropdown.subsections"
-					:href=" layout?.[currentUrl]?.currentData.slug ?
-							route(menu.route?.selected, layout?.[currentUrl]?.currentData.slug) :
-							layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1 ?
-								route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug) :
-								route(menu.route?.all)"
+					:href="
+						layout?.[currentUrl]?.currentData.slug
+						? route(menu.route?.selected, layout?.[currentUrl]?.currentData.slug)
+						: route().current() != layout?.[currentUrl]?.routeAll
+							? route(menu.route?.selected, route().params[Object.keys(route().params)[0]])
+							: layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1
+								? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)
+								: route(menu.route?.all)"
 					:title="menu.tooltip"
 					class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4"
-					:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : ''] "
+					:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : '']"
 				>
 					<FontAwesomeIcon
 						:icon="menu.icon"
