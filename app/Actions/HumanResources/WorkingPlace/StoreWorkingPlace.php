@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\WorkingPlace;
 
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\WorkingPlace\Hydrators\WorkingPlaceHydrateUniversalSearch;
 use App\Models\HumanResources\Workplace;
 use Illuminate\Http\RedirectResponse;
@@ -14,16 +15,22 @@ use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Illuminate\Support\Arr;
 
 class StoreWorkingPlace
 {
     use AsAction;
     use WithAttributes;
 
-    public function handle(array $modelData): Workplace
+    public function handle(array $modelData, array $addressData): Workplace
     {
 
         $workplace               = Workplace::create($modelData);
+        StoreAddressAttachToModel::run($workplace, $addressData, ['scope' => 'contact']);
+
+        $workplace->location = $workplace->getLocation();
+        $workplace->save();
+
         WorkingPlaceHydrateUniversalSearch::dispatch($workplace);
 
         return $workplace;
@@ -45,10 +52,13 @@ class StoreWorkingPlace
     public function asController(ActionRequest $request): Workplace
     {
 
-        //dd($request->all());
         $request->validate();
+        $validated=$request->validated();
 
-        return $this->handle($request->validated());
+        return $this->handle(
+            modelData: Arr::except($validated, 'address'),
+            addressData: Arr::only($validated, 'address')
+        );
     }
 
     public function htmlResponse(Workplace $workplace): RedirectResponse
