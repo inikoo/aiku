@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\WorkingPlace;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\WorkingPlace\Hydrators\WorkingPlaceHydrateUniversalSearch;
 use App\Models\HumanResources\Workplace;
+use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,7 +25,6 @@ class StoreWorkingPlace
 
     public function handle(array $modelData, array $addressData): Workplace
     {
-
         $workplace               = Workplace::create($modelData);
         StoreAddressAttachToModel::run($workplace, $addressData, ['scope' => 'contact']);
 
@@ -46,6 +46,7 @@ class StoreWorkingPlace
         return [
             'name'       => ['required', 'max:255'],
             'type'       => ['required'],
+            'address'    => ['required', new ValidAddress()]
         ];
     }
 

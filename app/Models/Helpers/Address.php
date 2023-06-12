@@ -9,11 +9,11 @@ namespace App\Models\Helpers;
 
 use App\Models\Assets\Country;
 use App\Models\Traits\IsAddress;
+use Database\Factories\Helpers\AddressFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
@@ -27,17 +27,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $locality
  * @property string|null $dependant_locality
  * @property string|null $administrative_area
- * @property string|null $country_code
- * @property int|null $country_id
- * @property string|null $checksum
  * @property bool $historic
  * @property int $usage
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
  * @property-read Country|null $country
  * @property-read string $formatted_address
- * @property-read Model|\Eloquent $owner
- * @method static \Database\Factories\Helpers\AddressFactory factory($count = null, $state = [])
+ * @property-read Model|Eloquent $owner
+ * @method static AddressFactory factory($count = null, $state = [])
  * @method static Builder|Address newModelQuery()
  * @method static Builder|Address newQuery()
  * @method static Builder|Address query()
@@ -57,12 +52,10 @@ class Address extends Model
     {
         static::created(
             function (Address $address) {
-                if ($country = (new Country())->firstWhere('id', $address->country_id)) {
-                    $address->country_code = $country->code;
-
-                    $address->checksum = $address->getChecksum();
-                    $address->save();
-                }
+                //                if ($country = (new Country())->firstWhere('id', $address->country_id)) {
+                //                    $address->country_code = $country->code;
+                //                    $address->save();
+                //                }
             }
         );
     }
