@@ -27,6 +27,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $locality
  * @property string|null $dependant_locality
  * @property string|null $administrative_area
+ * @property string $country_code
+ * @property integer $country_id
  * @property bool $historic
  * @property int $usage
  * @property-read Country|null $country
@@ -52,10 +54,10 @@ class Address extends Model
     {
         static::created(
             function (Address $address) {
-                //                if ($country = (new Country())->firstWhere('id', $address->country_id)) {
-                //                    $address->country_code = $country->code;
-                //                    $address->save();
-                //                }
+                if ($country = (new Country())->firstWhere('id', $address->country_id)) {
+                    $address->country_code = $country->code;
+                    $address->save();
+                }
             }
         );
     }

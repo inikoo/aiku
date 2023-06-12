@@ -7,13 +7,11 @@
 
 namespace App\Http\Resources\Helpers;
 
-use App\Http\Resources\Assets\CountryResource;
 use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  *
- * @property string $id
  * @property string $address_line_1
  * @property string $address_line_2
  * @property string $sorting_code
@@ -34,7 +32,6 @@ class AddressFormFieldsResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'address_id'          => $this->id,
             'address_line_1'      => $this->address_line_1,
             'address_line_2'      => $this->address_line_2,
             'sorting_code'        => $this->sorting_code,
@@ -44,10 +41,6 @@ class AddressFormFieldsResource extends JsonResource
             'administrative_area' => $this->administrative_area,
             'country_code'        => $this->country_code,
             'country_id'          => $this->country_id,
-//            'country'             => $this->whenLoaded(
-//                'country',
-//                CountryResource::make($this->country)
-//            ),
         ];
     }
 
