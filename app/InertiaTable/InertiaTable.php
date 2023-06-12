@@ -34,12 +34,10 @@ class InertiaTable
         $this->filters         = new Collection();
         $this->modelOperations = new Collection();
 
-
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);
         }
     }
-
 
     public static function defaultGlobalSearch(bool|string $label = 'Search...'): void
     {
@@ -244,13 +242,7 @@ class InertiaTable
         return $this;
     }
 
-    /**
-     * Helper method to add a global search input.
-     *
-     * @param  string|null  $label
-     *
-     * @return self
-     */
+
     public function withGlobalSearch(string $label = null): self
     {
         return $this->searchInput('global', $label ?: __('Search...'));
@@ -264,15 +256,6 @@ class InertiaTable
     }
 
 
-    /**
-     * Add a search input to query builder.
-     *
-     * @param  string  $key
-     * @param  string|null  $label
-     * @param  string|null  $defaultValue
-     *
-     * @return self
-     */
     public function searchInput(string $key, string $label = null, string $defaultValue = null): self
     {
         $this->searchInputs = $this->searchInputs->reject(function (SearchInput $searchInput) use ($key) {
