@@ -12,7 +12,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
 import { faRoad } from "@/../private/pro-light-svg-icons"
-import TableHistoryUsers from "@/Pages/Tables/TableHistoryUsers.vue";
+import TableUserRequestLogs from "@/Pages/Tables/TableUserRequestLogs.vue";
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 library.add(faRoad)
@@ -35,7 +35,7 @@ const component = computed(() => {
 
     const components = {
         users: TableUsers,
-        users_requests: TableHistoryUsers
+        users_requests: TableUserRequestLogs
     };
     return components[currentTab.value];
 

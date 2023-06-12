@@ -9,6 +9,7 @@ namespace App\Drivers\Audits;
 
 use App\Actions\Auth\User\LogUserRequest;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
+use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
 use Carbon\Carbon;
 use Elastic\Elasticsearch\Client;
 use hisorange\BrowserDetect\Parser as Browser;
@@ -42,7 +43,7 @@ class ElasticsearchAuditDriver implements AuditDriver
     {
         $this->client = BuildElasticsearchClient::run();
         $this->index  = config('elasticsearch.index_prefix') . 'user_requests_'.app('currentTenant')->group->slug;
-        $this->type   = Config::get('audit.drivers.es.type', 'ACTION');
+        $this->type   = Config::get('audit.drivers.es.type', ElasticsearchTypeEnum::ACTION->value);
     }
 
     /**

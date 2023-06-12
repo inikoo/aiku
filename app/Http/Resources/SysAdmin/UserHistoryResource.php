@@ -17,19 +17,20 @@ class UserHistoryResource extends JsonResource
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         return [
-            'username'        => $this['username'],
-            'ip_address'      => $this['ip_address'],
-            'route_name'      => $this['route_name'],
-            'route_parameter' => $this['arguments'],
-            'module'          => Str::title($this['module']),
-            'datetime'        => $this['datetime'],
-            'location'        => $this['location'],
-            'user_agent'      => [
-                $this['device_type'],
-                $this['platform'],
-                $this['browser']
-            ],
-            'url'             => $this['url'],
+            'username'       => $this['username'],
+            'ip_address'     => $this['ip_address'],
+            'datetime'       => $this['datetime'],
+            'url'            => $this['url'],
+            'type'           => $this['type'],
+            'tenant'         => app('currentTenant')->slug,
+            'old_values'     => $this['old_values'],
+            'new_values'     => $this['new_values'],
+            'event'          => $this['event'],
+            'auditable_id'   => $this['auditable_id'],
+            'auditable_type' => $this['auditable_type'],
+            'user_id'     => $this['user_id'],
+            'user_type'   => $this['user_type'],
+            'tags'        => $this['tags']
         ];
     }
 }

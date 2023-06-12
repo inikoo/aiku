@@ -7,15 +7,19 @@
 
 namespace App\Actions\Auth\User\UI;
 
+use App\Actions\Auth\User\IndexUserHistories;
 use App\Actions\Auth\UserRequest\ShowUserRequestLogs;
 use App\Actions\InertiaAction;
 use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Enums\UI\UserTabsEnum;
 use App\Http\Resources\SysAdmin\UserHistoryResource;
+use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Auth\User;
+use Closure;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -74,26 +78,17 @@ class ShowUser extends InertiaAction
                 ],
 
                 UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
-                    fn () => UserHistoryResource::collection(ShowUserRequestLogs::run($user->username))
-                    : Inertia::lazy(fn () => UserHistoryResource::collection(ShowUserRequestLogs::run($user->username))),
+                    fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
+                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
 
 
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
-                    fn () => UserHistoryResource::collection(ShowUserRequestLogs::run($user->username))
-                    : Inertia::lazy(fn () => UserHistoryResource::collection(ShowUserRequestLogs::run($user->username)))
+                    fn () => UserHistoryResource::collection(IndexUserHistories::run($user->username))
+                    : Inertia::lazy(fn () => UserHistoryResource::collection(IndexUserHistories::run($user->username)))
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
-                ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)
-                ->column(key: 'user_agent', label: __('User Agent'), canBeHidden: false, sortable: true)
-                ->column(key: 'location', label: __('location'), canBeHidden: false)
-                ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
-                ->defaultSort('datetime');
-        });
+        )->table(ShowUserRequestLogs::make()->tableStructure())
+            ->table(IndexUserHistories::make()->tableStructure());
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
