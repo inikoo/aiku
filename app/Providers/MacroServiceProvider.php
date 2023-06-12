@@ -56,6 +56,36 @@ class MacroServiceProvider extends ServiceProvider
             return $this->where(DB::raw("extensions.remove_accents(". $column.")"), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"));
         });
 
+        Builder::macro('elements', function (array $blueprint, callable $elementBuilder): Builder {
+
+            $elementsData=[];
+            if(request()->has('elements')) {
+
+
+
+                $validKeys=array_keys($blueprint);
+                $elements =request()->get('elements');
+                foreach($elements as $key=>$values) {
+                    if(in_array($key, $validKeys)) {
+
+                        $validatedValues     =array_intersect($blueprint[$key], explode(',', $values));
+                        $countValidatedValues=count($validatedValues);
+                        if($countValidatedValues>0 and $countValidatedValues<count($blueprint[$key])) {
+                            $elementsData[$key]=$validatedValues;
+                        }
+
+                    }
+                }
+
+
+            }
+
+            if(count($elementsData)) {
+                $elementBuilder($this, $elementsData);
+            }
+            return $this;
+        });
+
         Request::macro('validatedShiftToArray', function ($map = []): array {
             /** @noinspection PhpUndefinedMethodInspection */
             $validated = $this->validated();
