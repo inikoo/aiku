@@ -15,6 +15,7 @@ use App\Models\Auth\User;
 use App\Models\Helpers\Issue;
 use App\Models\Media\GroupMedia;
 use App\Models\Search\UniversalSearch;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -76,7 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Employee withoutTrashed()
  * @mixin Eloquent
  */
-class Employee extends Model implements HasMedia
+class Employee extends Model implements HasMedia, Auditable
 {
     use UsesTenantConnection;
     use HasSlug;
@@ -84,6 +86,7 @@ class Employee extends Model implements HasMedia
     use HasUniversalSearch;
     use HasPhoto;
     use HasFactory;
+    use HasHistory;
 
     protected $casts = [
         'data'                => 'array',

@@ -153,14 +153,12 @@ class ElasticsearchAuditDriver implements AuditDriver
 
     public function body($model): array
     {
-        $user = request()->user();
         $parsedUserAgent = (new Browser())->parse($model['user_agent']);
 
         return [
                 'type'        => $this->type,
                 'datetime'    => now(),
                 'tenant'      => app('currentTenant')->slug,
-                'username'    => $user->username,
                 'route'       => $this->routes(),
                 'module'      => explode('.', $this->routes()['name'])[0],
                 'ip_address'  => request()->ip(),

@@ -11,6 +11,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Drivers\Audits\ElasticsearchAuditDriver;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\ElasticSearchAuditable;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -80,10 +81,7 @@ class User extends Authenticatable implements Auditable
     use HasRoles;
     use UsesTenantConnection;
     use HasFactory;
-    use \OwenIt\Auditing\Auditable;
-    use ElasticSearchAuditable;
-
-    protected string $auditDriver = ElasticsearchAuditDriver::class;
+    use HasHistory;
 
     protected $guarded = [
     ];

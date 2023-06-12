@@ -9,6 +9,7 @@ namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\HydrateTenant;
 use App\Models\Media\GroupMedia;
+use App\Models\Traits\HasHistory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
@@ -54,13 +56,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Guest withoutTrashed()
  * @mixin Eloquent
  */
-class Guest extends Model implements HasMedia
+class Guest extends Model implements HasMedia, Auditable
 {
     use HasSlug;
     use InteractsWithMedia;
     use SoftDeletes;
     use UsesTenantConnection;
     use HasFactory;
+    use HasHistory;
 
     protected $casts = [
         'data'          => 'array',

@@ -24,7 +24,6 @@ trait WithFormattedUserHistories {
 
             foreach (json_decode($client->search($params), true)['hits']['hits'] as $result) {
                 $results[] = [
-                    'username'      => $result['_source']['username'],
                     'ip_address'    => $result['_source']['ip_address'],
                     'arguments'     => array_values($result['_source']['route']['arguments']),
                     'url'           => $result['_source']['route']['url'],

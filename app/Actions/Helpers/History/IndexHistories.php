@@ -1,14 +1,15 @@
 <?php
 /*
  * Author: Artha <artha@aw-advantage.com>
- * Created: Thu, 08 Jun 2023 14:34:48 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Mon, 12 Jun 2023 16:00:25 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\User;
+namespace App\Actions\Helpers\History;
 
 use App\Actions\Auth\User\Traits\WithFormattedUserHistories;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
+use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\InertiaTable\InertiaTable;
 use Closure;
@@ -22,13 +23,13 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class IndexUserHistories
+class IndexHistories
 {
     use AsAction;
     use WithAttributes;
     use WithFormattedUserHistories;
 
-    public function handle(string $query = null, $filter = 'ACTION'): LengthAwarePaginator|array|bool
+    public function handle($model): LengthAwarePaginator|array|bool
     {
         $client = BuildElasticsearchClient::run();
 
@@ -41,9 +42,12 @@ class IndexUserHistories
                         'query' => [
                             'bool' => [
                                 'must' => [
-                                    ['match' => ['username' => $query]],
-                                    ['match' => ['type' => $filter]]
+                                    ['match' => ['auditable_type' => $model]],
+                                    ['match' => ['type' => ElasticsearchTypeEnum::ACTION->value]],
                                 ],
+                                'should' => [
+                                    ['match' => ['user_id' => auth()->user()->id]],
+                                ]
                             ],
                         ],
                     ],
@@ -69,21 +73,22 @@ class IndexUserHistories
 
         return [];
     }
+
     public function tableStructure(?array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) {
             $table
                 ->name(TabsAbbreviationEnum::HISTORY->value)
                 ->pageName(TabsAbbreviationEnum::HISTORY->value.'Page')
-                ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
                 ->column(key: 'old_values', label: __('Old Values'), canBeHidden: false, sortable: true)
                 ->column(key: 'new_values', label: __('New Values'), canBeHidden: false, sortable: true)
                 ->column(key: 'event', label: __('Event'), canBeHidden: false, sortable: true)
                 ->column(key: 'auditable_type', label: __('Auditable Type'), canBeHidden: false)
+                ->column(key: 'auditable_id', label: __('Auditable ID'), canBeHidden: false)
                 ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
-                ->defaultSort('username');
+                ->defaultSort('ip_address');
         };
     }
 }

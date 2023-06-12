@@ -7,19 +7,16 @@
 
 namespace App\Actions\Auth\User\UI;
 
-use App\Actions\Auth\User\IndexUserHistories;
 use App\Actions\Auth\UserRequest\ShowUserRequestLogs;
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Enums\UI\UserTabsEnum;
-use App\Http\Resources\SysAdmin\UserHistoryResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
-use App\InertiaTable\InertiaTable;
 use App\Models\Auth\User;
-use Closure;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -83,12 +80,12 @@ class ShowUser extends InertiaAction
 
 
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
-                    fn () => UserHistoryResource::collection(IndexUserHistories::run($user->username))
-                    : Inertia::lazy(fn () => UserHistoryResource::collection(IndexUserHistories::run($user->username)))
+                    fn () => HistoryResource::collection(IndexHistories::run(class_basename($user)))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run(class_basename($user))))
 
             ]
         )->table(ShowUserRequestLogs::make()->tableStructure())
-            ->table(IndexUserHistories::make()->tableStructure());
+            ->table(IndexHistories::make()->tableStructure());
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

@@ -7,10 +7,11 @@
 
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
-use App\Actions\HumanResources\WorkingPlace\StoreWorkingPlace;
 use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Models\Helpers\Address;
+use App\Models\HumanResources\Workplace;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use App\Models\HumanResources\Employee;
@@ -76,13 +77,12 @@ test('create user from employee', function () {
 
 test('create working place successful', function () {
     $arrayData = [
-        'name'              => 'artha nugraha',
-        'type'              => 'home',
-        'owner_id'          => '1',
-        'owner_type'        => 'test'
+        'name'  => 'artha',
+        'type'  => 'branch'
     ];
+    $addressData = Address::create(Address::factory()->definition())->toArray();
 
-    $createdWorkplace = StoreWorkingPlace::run($arrayData);
+    $createdWorkplace = Workplace::create($arrayData, $addressData);
 
     expect($createdWorkplace->name)->toBe($arrayData['name']);
 
@@ -93,8 +93,6 @@ test('update working place successful', function ($createdWorkplace) {
     $arrayData = [
         'name'              => 'vica nugraha',
         'type'              => 'home',
-        'owner_id'          => '1',
-        'owner_type'        => 'testing'
     ];
 
     $updatedWorkplace = UpdateWorkingPlace::run($createdWorkplace, $arrayData);

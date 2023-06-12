@@ -40,6 +40,9 @@ return new class () extends Migration {
 
     public function down(): void
     {
+        Schema::table('clockings', function (Blueprint $table) {
+            $table->dropForeign('clockings_time_tracking_id_foreign');
+        });
         Schema::dropIfExists('time_trackings');
     }
 };

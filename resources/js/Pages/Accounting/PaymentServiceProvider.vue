@@ -37,6 +37,7 @@ const props = defineProps<{
     },
     payment_accounts?: object
     payments?: object,
+    history: object
 
 }>();
 
@@ -50,7 +51,7 @@ const component = computed(() => {
         payment_accounts: TablePaymentAccounts,
         payments: TablePayments,
         details: ModelDetails,
-        history: ModelChangelog
+        history: TableHistories
     };
     return components[currentTab.value];
 

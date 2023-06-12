@@ -12,12 +12,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
 use JsonSerializable;
 
-class UserHistoryResource extends JsonResource
+class HistoryResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         return [
-            'username'       => $this['username'],
             'ip_address'     => $this['ip_address'],
             'datetime'       => $this['datetime'],
             'url'            => $this['url'],

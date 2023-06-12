@@ -10,7 +10,7 @@ namespace App\Actions\HumanResources\WorkingPlace\UI;
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
-use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use Exception;
 use Inertia\Inertia;
@@ -56,20 +56,22 @@ class CreateWorkingPlace extends InertiaAction
                                     'placeholder' => 'Select a Type',
                                     'mode'        => 'single',
                                 ],
-                                'address_id'      => [
+                                'address'      => [
                                     'type'    => 'address',
                                     'label'   => __('Address'),
-                                    'value'   => AddressResource::make(
+                                    'value'   => AddressFormFieldsResource::make(
                                         new Address(
                                             [
                                                 'country_id' => app('currentTenant')->country_id,
+
                                             ]
                                         )
                                     )->getArray(),
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
+
                                     ]
-                                ],
+                                ]
                             ]
                         ]
 

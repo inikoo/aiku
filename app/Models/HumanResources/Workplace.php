@@ -10,7 +10,7 @@ namespace App\Models\HumanResources;
 use App\Actions\Utils\Abbreviate;
 use App\Models\Assets\Timezone;
 use App\Models\ClockingMachine;
-use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -56,7 +56,7 @@ class Workplace extends Model
     use HasSlug;
     use HasUniversalSearch;
     use SoftDeletes;
-    use HasAddress;
+    use HasTenantAddress;
 
     protected $casts = [
         'data'        => 'array',
