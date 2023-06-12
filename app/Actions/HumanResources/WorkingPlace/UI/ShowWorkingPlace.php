@@ -72,18 +72,18 @@ class ShowWorkingPlace extends InertiaAction
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => WorkingPlaceTabsEnum::navigation()
-                ]
-//                WorkingPlaceTabsEnum::SHOWCASE->value => $this->tab == WorkingPlaceTabsEnum::SHOWCASE->value ?
-//                    fn () => GetWorkingPlaceShowcase::run($workplace)
-//                    : Inertia::lazy(fn () => GetWorkingPlaceShowcase::run($workplace)),
-//
-//                WorkingPlaceTabsEnum::CLOCKING_MACHINES->value       => $this->tab == WorkingPlaceTabsEnum::CLOCKING_MACHINES->value ?
-//                    fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))
-//                    : Inertia::lazy(fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))),
-//                WorkingPlaceTabsEnum::CLOCKINGS->value => $this->tab == WorkingPlaceTabsEnum::CLOCKINGS->value
-//                    ?
-//                    fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))
-//                    : Inertia::lazy(fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))),
+                ],
+                WorkingPlaceTabsEnum::SHOWCASE->value => $this->tab == WorkingPlaceTabsEnum::SHOWCASE->value ?
+                    fn () => GetWorkingPlaceShowcase::run($workplace)
+                    : Inertia::lazy(fn () => GetWorkingPlaceShowcase::run($workplace)),
+
+                WorkingPlaceTabsEnum::CLOCKING_MACHINES->value       => $this->tab == WorkingPlaceTabsEnum::CLOCKING_MACHINES->value ?
+                    fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))
+                    : Inertia::lazy(fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))),
+                WorkingPlaceTabsEnum::CLOCKINGS->value => $this->tab == WorkingPlaceTabsEnum::CLOCKINGS->value
+                    ?
+                    fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))
+                    : Inertia::lazy(fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))),
 
             ]
         );
