@@ -58,7 +58,7 @@ class StoreWorkingPlace
 
         return $this->handle(
             modelData: Arr::except($validated, 'address'),
-            addressData: Arr::only($validated, 'address')
+            addressData: Arr::only($validated, 'address')['address']
         );
     }
 
