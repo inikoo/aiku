@@ -5,19 +5,20 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee\UI;
+namespace App\Actions\HumanResources\WorkingPlace\UI;
 
-use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
+use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
-use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Models\HumanResources\JobPosition;
+use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
+use App\Http\Resources\Helpers\AddressResource;
+use App\Models\Helpers\Address;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateEmployee extends InertiaAction
+class CreateWorkingPlace extends InertiaAction
 {
     /**
      * @throws Exception
@@ -28,12 +29,12 @@ class CreateEmployee extends InertiaAction
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('new employee'),
+                'title'       => __('new workplace'),
                 'pageHead'    => [
-                    'title'        => __('new employee'),
+                    'title'        => __('new workplace'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'hr.employees.index',
+                            'name'       => 'hr.working-places.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -42,38 +43,39 @@ class CreateEmployee extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('personal information'),
+                            'title'  => __('name'),
                             'fields' => [
-                                'contact_name' => [
+                                'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
                                 ],
-                                'date_of_birth' => [
-                                    'type'  => 'date',
-                                    'label' => __('date of birth'),
-                                    'value' => ''
-                                ],
-                                'job_title' => [
+                                'type' => [
                                     'type'        => 'select',
-                                    'label'       => __(' position'),
-                                    'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
-                                    'placeholder' => 'Select a Position',
-                                    'mode'        => 'single'
+                                    'label'       => __(' type'),
+                                    'options'     => Options::forEnum(WorkplaceTypeEnum::class),
+                                    'placeholder' => 'Select a Type',
+                                    'mode'        => 'single',
                                 ],
-                                'state' => [
-                                    'type'        => 'select',
-                                    'label'       => __(' state'),
-                                    'options'     => Options::forEnum(EmployeeStateEnum::class),
-                                    'placeholder' => 'Select a State',
-                                    'mode'        => 'single'
-                                ]
-
+                                'address_id'      => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressResource::make(
+                                        new Address(
+                                            [
+                                                'country_id' => app('currentTenant')->country_id,
+                                            ]
+                                        )
+                                    )->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ]
+                                ],
                             ]
                         ]
 
                     ],
                     'route'      => [
-                            'name'       => 'models.employee.store',
+                            'name'       => 'models.working-place.store',
 
                     ]
 
@@ -105,12 +107,12 @@ class CreateEmployee extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexClockingMachines::make()->getBreadcrumbs(),
+            IndexWorkingPlaces::make()->getBreadcrumbs(),
             [
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating employee'),
+                        'label' => __('creating workplace'),
                     ]
                 ]
             ]

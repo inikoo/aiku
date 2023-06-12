@@ -7,8 +7,8 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\HumanResources\Employee\StoreEmployee;
-use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
+use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\Utils\StoreImage;
 use App\Models\HumanResources\Employee;
@@ -25,12 +25,12 @@ class FetchEmployees extends FetchAction
     {
         if ($employeeData = $tenantSource->fetchEmployee($tenantSourceId)) {
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
-                $employee = UpdateEmployee::run(
+                $employee = UpdateClockingMachine::run(
                     employee:  $employee,
                     modelData: $employeeData['employee']
                 );
             } else {
-                $employee = StoreEmployee::run(
+                $employee = StoreClockingMachine::run(
                     modelData:    $employeeData['employee'],
                 );
             }

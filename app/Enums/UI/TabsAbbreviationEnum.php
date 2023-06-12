@@ -48,6 +48,10 @@ enum TabsAbbreviationEnum: string
     case MARKETPLACE_SUPPLIERS              = 'mps';
     case PROSPECTS                          = 'pro';
     case EMPLOYEES                          = 'emp';
+
+    case WORKING_PLACES                      = 'wrkplc';
+
+    case CLOCKING_MACHINES                  = 'clkmc';
     case ITEMS                              = 'itms';
     case CUSTOMER_NOTES_HISTORY             = 'cnh';
     case SENT_EMAILS                        = 'se';

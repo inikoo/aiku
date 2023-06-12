@@ -5,22 +5,25 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\WorkingPlace;
+namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
+use App\Enums\UI\ClockingMachineTabsEnum;
 use App\Enums\UI\EmployeeTabsEnum;
+use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Models\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowWorkingPlace extends InertiaAction
+class ShowClockingMachine extends InertiaAction
 {
-    public function handle(Employee $employee): Employee
+    public function handle(ClockingMachine $clockingMachine): ClockingMachine
     {
-        return $employee;
+        return $clockingMachine;
     }
 
 
@@ -31,42 +34,33 @@ class ShowWorkingPlace extends InertiaAction
         return $request->user()->hasPermissionTo("hr.view");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
-        return $this->handle($employee);
+        $this->initialisation($request)->withTab(ClockingMachineTabsEnum::values());
+        return $this->handle($clockingMachine);
     }
 
-    public function htmlResponse(Employee $employee, ActionRequest $request): Response
+    public function htmlResponse(ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
         return Inertia::render(
             'HumanResources/Employee',
             [
                 'title'                                 => __('employee'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($employee),
+                'breadcrumbs'                           => $this->getBreadcrumbs($clockingMachine),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($employee, $request),
-                    'next'     => $this->getNext($employee, $request),
+                    'previous' => $this->getPrevious($clockingMachine, $request),
+                    'next'     => $this->getNext($clockingMachine, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $employee->contact_name,
+                    'title' => $clockingMachine->slug,
                     'meta'  => [
                         [
-                            'name'     => $employee->worker_number,
+                            'name'     => $clockingMachine->code,
                             'leftIcon' => [
                                 'icon'    => 'fal fa-id-card',
-                                'tooltip' => __('Worker number')
+                                'tooltip' => __('Code')
                             ]
                         ],
-
-                        $employee->user ?
-                            [
-                                'name'     => $employee->user->username,
-                                'leftIcon' => [
-                                    'icon'    => 'fal fa-user',
-                                    'tooltip' => __('User')
-                                ]
-                            ] : []
                     ],
                     'edit'  => $this->canEdit ? [
                         'route' => [
@@ -77,19 +71,19 @@ class ShowWorkingPlace extends InertiaAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => EmployeeTabsEnum::navigation()
+                    'navigation' => ClockingMachineTabsEnum::navigation()
                 ]
             ]
         );
     }
 
 
-    public function jsonResponse(Employee $employee): EmployeeResource
+    public function jsonResponse(ClockingMachine $clockingMachine): ClockingMachineResource
     {
-        return new EmployeeResource($employee);
+        return new ClockingMachineResource($clockingMachine);
     }
 
-    public function getBreadcrumbs(Employee $employee, $suffix = null): array
+    public function getBreadcrumbs(ClockingMachine $clockingMachine, $suffix = null): array
     {
         return array_merge(
             (new HumanResourcesDashboard())->getBreadcrumbs(),
@@ -99,16 +93,16 @@ class ShowWorkingPlace extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'hr.employees.index',
+                                'name' => 'hr.clocking-machines.index',
                             ],
-                            'label' => __('employees')
+                            'label' => __('clocking machines')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'hr.employees.show',
-                                'parameters' => [$employee->slug]
+                                'name'       => 'hr.clocking-machines.show',
+                                'parameters' => [$clockingMachine->slug]
                             ],
-                            'label' => $employee->worker_number,
+                            'label' => $clockingMachine->code,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -118,31 +112,31 @@ class ShowWorkingPlace extends InertiaAction
         );
     }
 
-    public function getPrevious(Employee $employee, ActionRequest $request): ?array
+    public function getPrevious(ClockingMachine $clockingMachine, ActionRequest $request): ?array
     {
-        $previous = Employee::where('slug', '<', $employee->slug)->orderBy('slug', 'desc')->first();
+        $previous = ClockingMachine::where('slug', '<', $clockingMachine->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Employee $employee, ActionRequest $request): ?array
+    public function getNext(ClockingMachine $clockingMachine, ActionRequest $request): ?array
     {
-        $next = Employee::where('slug', '>', $employee->slug)->orderBy('slug')->first();
+        $next = ClockingMachine::where('slug', '>', $clockingMachine->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Employee $employee, string $routeName): ?array
+    private function getNavigation(?ClockingMachine $clockingMachine, string $routeName): ?array
     {
-        if(!$employee) {
+        if(!$clockingMachine) {
             return null;
         }
         return match ($routeName) {
-            'hr.employees.show'=> [
-                'label'=> $employee->contact_name,
+            'hr.clocking-machines.show'=> [
+                'label'=> $clockingMachine->code,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'employee'=> $employee->slug
+                        'clocking-machine'=> $clockingMachine->slug
                     ]
 
                 ]
