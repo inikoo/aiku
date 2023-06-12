@@ -56,6 +56,7 @@ class StoreWorkingPlace
         $request->validate();
         $validated=$request->validated();
 
+
         return $this->handle(
             modelData: Arr::except($validated, 'address'),
             addressData: Arr::only($validated, 'address')['address']
@@ -64,6 +65,6 @@ class StoreWorkingPlace
 
     public function htmlResponse(Workplace $workplace): RedirectResponse
     {
-        return Redirect::route('hr.working-places.index', $workplace->slug);
+        return Redirect::route('hr.working-places.show', $workplace->slug);
     }
 }
