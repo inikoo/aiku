@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps<{
     data: string[]
@@ -21,7 +22,7 @@ const browserIcon  = '/browsers/'+browserName.toLowerCase()+'.png';
 </script>
 
 <template>
-    <img class="inline pr-2 w-6" :src='deviceIcon' :alt="deviceType"   :title='deviceType'  />
-    <img class="inline pr-2 w-6" :src='platformIcon' :alt="platformName"   :title='platformName'  />
-    <img class="inline pr-1 w-6" :src='browserIcon' :alt="browserName"   :title='browserName'  />
+    <img class="inline pr-2 w-6" :src='deviceIcon' :alt="deviceType"   :title='capitalize(deviceType)'  />
+    <img class="inline pr-2 w-6" :src='platformIcon' :alt="platformName"   :title='capitalize(platformName)'  />
+    <img class="inline pr-1 w-6" :src='browserIcon' :alt="browserName"   :title='capitalize(browserName)'  />
 </template>

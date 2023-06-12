@@ -57,7 +57,7 @@
 									? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data 
 									: route(menu.route?.all)  // If data is above than 1 data then Link to 'All list'
 					"
-					:title="menu.tooltip"
+					:title="capitalize(menu.tooltip)"
 					class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4"
 					:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : '']"
 				>
@@ -77,7 +77,7 @@ import { Link } from "@inertiajs/vue3"
 import { ref } from "vue"
 import { router } from "@inertiajs/vue3"
 import TopBarMenu from "@/Components/Navigation/TopBarMenu.vue"
-import { capitalize } from "@/Composables/capitalize";
+import { capitalize } from "@/Composables/capitalize"
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import {

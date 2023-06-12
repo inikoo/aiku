@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { capitalize } from "@/Composables/capitalize"
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import FieldForm from '@/Components/Forms/FieldForm.vue';
@@ -57,7 +58,7 @@ const current = ref(0)
 
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
 
     <!-- If overflow-hidden, affect to Multiselect on Address -->

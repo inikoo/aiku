@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps<{
     data: string[]
@@ -19,7 +20,7 @@ const flag= '/flags/'+countryCode.toLowerCase()+'.png'  ;
 </script>
 
 <template>
-    <img class="inline pr-1" :src='flag' :alt="countryCode"   :title='countryName'  /> {{addressLocation}}
+    <img class="inline pr-1" :src='flag' :alt="countryCode"   :title='capitalize(countryName)'  /> {{addressLocation}}
 </template>
 
 

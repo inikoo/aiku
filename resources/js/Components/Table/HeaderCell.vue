@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { faYinYang } from "@/../private/pro-light-svg-icons";
+import { capitalize } from "@/Composables/capitalize"
 
 library.add(faYinYang);
 
@@ -36,7 +37,7 @@ function onClick() {
       <span class="flex flex-row items-center">
         <slot name="label">
             <template v-if="typeof cell.label === 'object'">
-                <font-awesome-icon v-if="cell.label.type==='icon'" :title="cell.label.tooltip" aria-hidden="true" :icon="cell.label.data" size="lg" />
+                <font-awesome-icon v-if="cell.label.type==='icon'" :title="capitalize(cell.label.tooltip)" aria-hidden="true" :icon="cell.label.data" size="lg" />
 
             </template>
             <span v-else class="first-letter:uppercase">{{ cell.label }}</span>

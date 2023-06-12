@@ -30,6 +30,7 @@ import {trans} from "laravel-vue-i18n";
 import Address from "@/Components/Forms/Fields/Address.vue";
 import Country from "@/Components/Forms/Fields/Country.vue";
 import Currency from "@/Components/Forms/Fields/Currency.vue";
+import { capitalize } from "@/Composables/capitalize"
 
 const getComponent = (componentName) => {
 
@@ -66,7 +67,7 @@ const handleFormSubmit = () => {
 </script>
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
 
     <form class="space-y-8 pb-32 px-5" @submit.prevent="handleFormSubmit">

@@ -12,6 +12,7 @@ import {faPencil,faArrowLeft} from '@/../private/pro-regular-svg-icons';
 
 import {faPlus} from '@/../private/pro-solid-svg-icons';
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import { capitalize } from "@/Composables/capitalize"
 import {useLocaleStore} from '@/Stores/locale.js';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {trans} from 'laravel-vue-i18n';
@@ -28,12 +29,12 @@ const locale = useLocaleStore();
             <h2 class="font-bold text-gray-900 text-2xl tracking-tight capitalize">
 
                 <span v-if="data.container" class="text-indigo-500 font-medium mr-2">
-                    <FontAwesomeIcon v-if="data.container.icon" :title="data.container.tooltip" aria-hidden="true"
+                    <FontAwesomeIcon v-if="data.container.icon" :title="capitalize(data.container.tooltip)" aria-hidden="true"
                                      :icon="data.container.icon" size="xs" />
                     {{ data.container.label }}
                 </span>
 
-                <FontAwesomeIcon v-if="data.icon" :title="data.icon.title" aria-hidden="true"
+                <FontAwesomeIcon v-if="data.icon" :title="capitalize(data.icon.title)" aria-hidden="true"
                                  :icon="data.icon.icon" size="xs" class="pr-2"/>
                 {{ data.title }}
             </h2>
@@ -43,7 +44,7 @@ const locale = useLocaleStore();
                          class="mt-2 flex items-center text-sm text-gray-500">
                         <FontAwesomeIcon
                             v-if="item['leftIcon']"
-                            :title="item['leftIcon']['tooltip']"
+                            :title="capitalize(item['leftIcon']['tooltip'])"
                             aria-hidden="true"
                             :icon="item['leftIcon']['icon']"
                             size="lg"

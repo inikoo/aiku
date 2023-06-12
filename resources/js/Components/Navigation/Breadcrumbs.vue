@@ -11,6 +11,7 @@ import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight } from "@/../private/pro-solid-svg-icons";
+import { capitalize } from "@/Composables/capitalize"
 
 library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight);
 
@@ -314,7 +315,7 @@ router.on('navigate', (event) => {
             <div v-if="props.navigation.previous || props.navigation.next" class="grid grid-flow-col justify-end pr-2 space-x-2 text-sm text-gray-700 font-semibold">
                 <div class="flex justify-center items-center w-8">
                     <Link v-if="props.navigation.previous" :href="route(props.navigation.previous?.route.name, props.navigation.previous?.route.parameters)  + urlParameter" class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
-                        :title="props.navigation.previous?.label"
+                        :title="capitalize(props.navigation.previous?.label)"
                     >
                         <FontAwesomeIcon icon="fas fa-arrow-left" class="" aria-hidden="true" />
                     </Link>
@@ -322,7 +323,7 @@ router.on('navigate', (event) => {
                 </div>
                 <div class="flex justify-center items-center w-8">
                     <Link v-if="props.navigation.next" class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
-                        :title="props.navigation.next?.label"
+                        :title="capitalize(props.navigation.next?.label)"
                         :href="route(props.navigation.next?.route.name, props.navigation.next?.route.parameters) + urlParameter" 
                     >
                         <FontAwesomeIcon icon="fas fa-arrow-right" class="" aria-hidden="true" />
