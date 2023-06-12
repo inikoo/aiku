@@ -34,9 +34,6 @@ const formatDate = (dateIso: Date) => {
 
 <template>
     <Table :resource="data" class="mt-5" name="hst">
-        <template #cell(username)="{ item: user }">
-            <template v-if="user.username">{{ user.username }}</template>
-        </template>
         <template #cell(datetime)="{ item: user }">
             {{ formatDate(user.datetime) }}
         </template>

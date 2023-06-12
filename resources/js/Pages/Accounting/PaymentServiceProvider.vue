@@ -22,6 +22,7 @@ import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import TablePaymentAccounts from "@/Pages/Tables/TablePaymentAccounts.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import("@/Pages/ModelChangelog.vue"));
 
@@ -36,6 +37,7 @@ const props = defineProps<{
     },
     payment_accounts?: object
     payments?: object,
+    history: object
 
 }>();
 
@@ -49,7 +51,7 @@ const component = computed(() => {
         payment_accounts: TablePaymentAccounts,
         payments: TablePayments,
         details: ModelDetails,
-        history: ModelChangelog
+        history: TableHistories
     };
     return components[currentTab.value];
 

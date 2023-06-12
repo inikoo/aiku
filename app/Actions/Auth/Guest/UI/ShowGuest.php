@@ -7,10 +7,12 @@
 
 namespace App\Actions\Auth\Guest\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\GuestTabsEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Auth\Guest;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -63,9 +65,13 @@ class ShowGuest extends InertiaAction
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => GuestTabsEnum::navigation()
-                ]
+                ],
+
+                GuestTabsEnum::HISTORY->value => $this->tab == GuestTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run(class_basename($guest)))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run(class_basename($guest))))
             ]
-        );
+        )->table(IndexHistories::make()->tableStructure());
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

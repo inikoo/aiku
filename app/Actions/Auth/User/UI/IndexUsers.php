@@ -13,7 +13,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Enums\UI\UsersTabsEnum;
-use App\Http\Resources\SysAdmin\UserHistoryResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\InertiaTable\InertiaTable;

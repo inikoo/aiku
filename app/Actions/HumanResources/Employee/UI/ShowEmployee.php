@@ -7,10 +7,12 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\HumanResources\Employee;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -78,9 +80,13 @@ class ShowEmployee extends InertiaAction
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => EmployeeTabsEnum::navigation()
-                ]
+                ],
+
+                EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run(class_basename($employee)))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run(class_basename($employee))))
             ]
-        );
+        )->table(IndexHistories::make()->tableStructure());
     }
 
 
