@@ -22,8 +22,7 @@ class StoreWorkingPlace
 
     public function handle(array $modelData): Workplace
     {
-        $modelData['owner_id']   = app('currentTenant')->id;
-        $modelData['owner_type'] = 'Tenant';
+
         $workplace               = Workplace::create($modelData);
         WorkingPlaceHydrateUniversalSearch::dispatch($workplace);
 
@@ -45,6 +44,8 @@ class StoreWorkingPlace
 
     public function asController(ActionRequest $request): Workplace
     {
+
+        //dd($request->all());
         $request->validate();
 
         return $this->handle($request->validated());

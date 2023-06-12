@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
-use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
@@ -112,7 +112,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                 'address'      => [
                                     'type'    => 'address',
                                     'label'   => __('Address'),
-                                    'value'   => AddressResource::make(
+                                    'value'   => AddressFormFieldsResource::make(
                                         new Address(
                                             [
                                                 'country_id' => app('currentTenant')->country_id,

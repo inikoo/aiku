@@ -9,6 +9,7 @@ namespace App\Actions\Sales\Order\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
@@ -82,7 +83,7 @@ class CreateOrder extends InertiaAction
                                     'billing_address'      => [
                                         'type'    => 'address',
                                         'label'   => __('Address'),
-                                        'value'   => AddressResource::make(
+                                        'value'   => AddressFormFieldsResource::make(
                                             new Address(
                                                 [
                                                     'country_id' => $shop->country_id,
