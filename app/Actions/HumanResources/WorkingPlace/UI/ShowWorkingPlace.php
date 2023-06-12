@@ -40,6 +40,8 @@ class ShowWorkingPlace extends InertiaAction
 
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
+
+
         return Inertia::render(
             'HumanResources/WorkingPlace',
             [

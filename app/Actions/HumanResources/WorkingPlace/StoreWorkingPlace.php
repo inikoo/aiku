@@ -22,7 +22,9 @@ class StoreWorkingPlace
 
     public function handle(array $modelData): Workplace
     {
-        $workplace = Workplace::create($modelData);
+        $modelData['owner_id']   = app('currentTenant')->id;
+        $modelData['owner_type'] = 'Tenant';
+        $workplace               = Workplace::create($modelData);
         WorkingPlaceHydrateUniversalSearch::dispatch($workplace);
 
         return $workplace;
@@ -33,14 +35,11 @@ class StoreWorkingPlace
         return $request->user()->hasPermissionTo("hr.edit");
     }
 
-
     public function rules(): array
     {
         return [
             'name'       => ['required', 'max:255'],
             'type'       => ['required'],
-            'owner_id'   => ['required'],
-            'owner_type' => ['required']
         ];
     }
 
@@ -53,6 +52,6 @@ class StoreWorkingPlace
 
     public function htmlResponse(Workplace $workplace): RedirectResponse
     {
-        return Redirect::route('hr.working-places.show', $workplace->slug);
+        return Redirect::route('hr.working-places.index', $workplace->slug);
     }
 }

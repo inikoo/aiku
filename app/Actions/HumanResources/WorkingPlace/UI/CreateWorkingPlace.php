@@ -7,8 +7,11 @@
 
 namespace App\Actions\HumanResources\WorkingPlace\UI;
 
+use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
+use App\Http\Resources\Helpers\AddressResource;
+use App\Models\Helpers\Address;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -52,22 +55,21 @@ class CreateWorkingPlace extends InertiaAction
                                     'options'     => Options::forEnum(WorkplaceTypeEnum::class),
                                     'placeholder' => 'Select a Type',
                                     'mode'        => 'single',
-                                ]
-                            ]
-                        ],
-                        [
-                            'title'  => __('Owner'),
-                            'fields' => [
-                                'owner_id' => [
-                                    'type'        => 'input',
-                                    'label'       => __('owner'),
-                                    'placeholder' => 'Owner'
                                 ],
-                                'owner_type' => [
-                                    'type'        => 'input',
-                                    'label'       => __('type'),
-                                    'placeholder' => 'Type'
-                                ]
+                                'address_id'      => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressResource::make(
+                                        new Address(
+                                            [
+                                                'country_id' => app('currentTenant')->country_id,
+                                            ]
+                                        )
+                                    )->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ]
+                                ],
                             ]
                         ]
 

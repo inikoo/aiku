@@ -49,7 +49,11 @@ class ShowPaymentServiceProvider extends InertiaAction
                     'next'     => $this->getNext($paymentServiceProvider, $request),
                 ],
                 'pageHead'    => [
-                    'icon'  => ['fal', 'fa-cash-register'],
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'fa-cash-register'],
+                            'title' => __('payment service provider')
+                        ],
                     'title' => $paymentServiceProvider->slug,
                     'meta'  => [
                         [

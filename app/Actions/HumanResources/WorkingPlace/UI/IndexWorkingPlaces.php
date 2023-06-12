@@ -37,7 +37,7 @@ class IndexWorkingPlaces extends InertiaAction
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WORKING_PLACES->value);
 
         return QueryBuilder::for(Workplace::class)
-            ->defaultSort('workplaces.slug')
+            ->defaultSort('slug')
             ->select(['slug', 'id', 'name', 'type'])
             ->allowedSorts(['slug','name'])
             ->allowedFilters([$globalSearch, 'slug', 'name', 'type'])

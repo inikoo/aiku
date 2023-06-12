@@ -16,12 +16,12 @@ const props = defineProps<{
 }>()
 
 
-function workingPlaceRoute(workingPlace: Workplace) {
+function workingPlaceRoute(workplace: Workplace) {
     switch (route().current()) {
         case 'hr.working-places.index':
             return route(
                 'hr.working-places.show',
-                [workingPlace.slug]);
+                [workplace.slug]);
 
     }
 }
