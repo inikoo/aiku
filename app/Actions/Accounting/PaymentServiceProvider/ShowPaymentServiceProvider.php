@@ -97,8 +97,8 @@ class ShowPaymentServiceProvider extends InertiaAction
                     : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($paymentServiceProvider))),
 
                 PaymentServiceProviderTabsEnum::HISTORY->value => $this->tab == PaymentServiceProviderTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run(class_basename($paymentServiceProvider)))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run(class_basename($paymentServiceProvider))))
+                    fn () => HistoryResource::collection(IndexHistories::run($paymentServiceProvider))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($paymentServiceProvider)))
             ]
         )->table(IndexPaymentAccounts::make()->tableStructure())
             ->table(IndexPayments::make()->tableStructure())

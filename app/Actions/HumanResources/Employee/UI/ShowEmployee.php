@@ -83,8 +83,8 @@ class ShowEmployee extends InertiaAction
                 ],
 
                 EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run(class_basename($employee)))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run(class_basename($employee))))
+                    fn () => HistoryResource::collection(IndexHistories::run($employee))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($employee)))
             ]
         )->table(IndexHistories::make()->tableStructure());
     }

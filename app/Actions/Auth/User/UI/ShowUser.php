@@ -80,8 +80,8 @@ class ShowUser extends InertiaAction
 
 
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run(class_basename($user)))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run(class_basename($user))))
+                    fn () => HistoryResource::collection(IndexHistories::run($user))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($user)))
 
             ]
         )->table(ShowUserRequestLogs::make()->tableStructure())
