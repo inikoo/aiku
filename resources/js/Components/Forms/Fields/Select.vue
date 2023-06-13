@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
-import { ref, computed } from "vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle } from "@/../private/pro-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -16,8 +15,8 @@ const props = defineProps<{
     fieldName: any
     options: string[]
     fieldData: {
-        placeholder: string,
-        required: boolean,
+        placeholder: string
+        required: boolean
         mode: string
     }
 }>()
