@@ -12,6 +12,7 @@ const props = defineProps<{
     type: string,
     form: Object,
     fieldName: string,
+    placeholder?: string,
 }>()
 defineEmits(['update:modelValue'])
 const inputValue = ref(props.modelValue ? props.modelValue : '')
@@ -27,7 +28,7 @@ const handleChange = (form) => {
 <template>
     <div class="relative">
         <input :type="type" v-model.trim="inputValue" @input="$emit('update:modelValue', inputValue), handleChange(form)"
-            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" />
+            :placeholder="placeholder" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" />
         <div v-if="form.errors[fieldName] || form.recentlySuccessful"
             class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none">
             <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500"

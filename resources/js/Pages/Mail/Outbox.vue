@@ -15,6 +15,7 @@ import {
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue';
+import { capitalize } from "@/Composables/capitalize"
 
 library.add(faFolder, faCube, faCreditCard);
 
@@ -25,7 +26,7 @@ const props = defineProps(['title', 'pageHead', 'outbox', 'flatTreeMaps']);
 
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
      <FlatTreeMap class="mx-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
 </template>

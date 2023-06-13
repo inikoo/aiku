@@ -70,13 +70,11 @@ class EditShop extends InertiaAction
                                     'type'     => 'input',
                                     'label'    => __('code'),
                                     'value'    => $shop->code,
-                                    'required' => true
                                 ],
                                 'name' => [
                                     'type'     => 'input',
                                     'label'    => __('label'),
                                     'value'    => $shop->name,
-                                    'required' => true
                                 ],
                                 'type' => [
                                     'type'         => 'select',
@@ -86,6 +84,7 @@ class EditShop extends InertiaAction
                                     'options'      => Options::forEnum(ShopTypeEnum::class),
                                     'required'     => true,
                                     'mode'         => 'single',
+                                    'optional'     => true,
 
                                 ],
                                 'subtype' => [
@@ -96,6 +95,7 @@ class EditShop extends InertiaAction
                                     'options'      => Options::forEnum(ShopSubtypeEnum::class),
                                     'required'     => true,
                                     'mode'         => 'single',
+                                    'optional'     => true,
                                 ],
                             ]
                         ],
@@ -104,26 +104,25 @@ class EditShop extends InertiaAction
                             'icon'   => 'fa-light fa-fingerprint',
                             'fields' => [
                                 'country_id'  => [
-                                    'type'     => 'country',
-                                    'label'    => __('country'),
-                                    'value'    => $shop->country_id,
-                                    'options'  => GetCountriesOptions::run(),
-                                    'required' => true
-
+                                    'type'          => 'select',
+                                    'label'         => __('country'),
+                                    'placeholder'   => __('Select your country'),
+                                    'value'         => $shop->country_id,
+                                    'options'       => GetCountriesOptions::run(),
                                 ],
                                 'currency_id' => [
-                                    'type'     => 'currency',
-                                    'label'    => __('currency'),
-                                    'value'    => $shop->currency_id,
-                                    'options'  => GetCurrenciesOptions::run(),
-                                    'required' => true
+                                    'type'          => 'select',
+                                    'label'         => __('currency'),
+                                    'placeholder'   => __('Select your currency'),
+                                    'value'         => $shop->currency_id,
+                                    'options'       => GetCurrenciesOptions::run(),
                                 ],
                                 'language_id' => [
-                                    'type'     => 'select',
-                                    'label'    => __('language'),
-                                    'value'    => $shop->language_id,
-                                    'options'  => GetLanguagesOptions::run(),
-                                    'required' => true
+                                    'type'          => 'select',
+                                    'label'         => __('language'),
+                                    'placeholder'   => __('Select your language'),
+                                    'value'         => $shop->language_id,
+                                    'options'       => GetLanguagesOptions::run(),
                                 ],
 
                             ]

@@ -11,6 +11,7 @@ import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import TablePurchaseOrderItems from "@/Pages/Tables/TablePurchaseOrderItems.vue";
+import { capitalize } from "@/Composables/capitalize"
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -68,7 +69,7 @@ const component = computed(() => {
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <!-- {{ showcase }} -->
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>

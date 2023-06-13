@@ -8,6 +8,7 @@
 import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableOutboxes from "@/Pages/Tables/TableOutboxes.vue";
+import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps<{
     data: object
@@ -19,7 +20,7 @@ const props = defineProps<{
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <TableOutboxes :data="data" />
 </template>

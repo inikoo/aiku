@@ -8,6 +8,7 @@
 import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
+import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps<{
     data: object
@@ -18,7 +19,7 @@ const props = defineProps<{
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <TableMailshots :data="data"/>
 

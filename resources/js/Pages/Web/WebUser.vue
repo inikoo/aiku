@@ -9,6 +9,7 @@ import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faGlobe} from '@/../private/pro-light-svg-icons';
+import { capitalize } from "@/Composables/capitalize"
 
 library.add(faGlobe);
 
@@ -20,7 +21,7 @@ const props = defineProps(['title', 'pageHead', 'customer']);
 
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
 
 </template>

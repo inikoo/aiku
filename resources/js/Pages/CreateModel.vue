@@ -9,6 +9,10 @@ import {Head, useForm} from '@inertiajs/vue3';
 
 import Select from '@/Components/Forms/Fields/Select.vue'
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faExclamationCircle, faCheckCircle, faAsterisk } from "@/../private/pro-solid-svg-icons"
+import { library } from "@fortawesome/fontawesome-svg-core"
+library.add(faExclamationCircle, faAsterisk, faCheckCircle)
 
 const props = defineProps<{
     title: string,
@@ -32,8 +36,7 @@ import Country from "@/Components/Forms/Fields/Country.vue";
 import Currency from "@/Components/Forms/Fields/Currency.vue";
 import { capitalize } from "@/Composables/capitalize"
 
-const getComponent = (componentName) => {
-
+const getComponent = (componentName: string) => {
     const components = {
         'input': Input,
         'phone': Phone,
@@ -87,7 +90,7 @@ const handleFormSubmit = () => {
                     <dl class="divide-y divide-green-200  ">
                         <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                             <dt class="text-sm font-medium text-gray-500 capitalize">
-                                {{ fieldData.label }}
+                                <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="!fieldData.optional" :icon="['fas', 'asterisk']" class="font-light text-[6px] text-red-400"/>{{ fieldData.label }}</div>
                             </dt>
 
                             <dd class="sm:col-span-2  ">

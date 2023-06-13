@@ -23,6 +23,7 @@ import {
 import TableMarketplaceSuppliers from "@/Pages/Tables/TableMarketplaceSuppliers.vue";
 import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
 import MarketplaceAgentShowcase from "@/Pages/Procurement/MarketplaceAgentShowcase.vue";
+import { capitalize } from "@/Composables/capitalize"
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -69,7 +70,7 @@ const component = computed(() => {
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>

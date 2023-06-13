@@ -1,8 +1,15 @@
 <template>
     <div class="">
         <div class="relative">
-            <Multiselect :class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }" v-model="form[fieldName]"
-                :options="props.options" :placeholder="multiselectPlaceholder" :searchable="true" :canClear="!props.fieldData.required" :canDeselect="!props.fieldData.required" required="true" />
+            <Multiselect
+                v-model="form[fieldName]"
+                :options="props.options"
+                :class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
+                :placeholder="props.fieldData.placeholder ?? 'Select your currency'"
+                :searchable="true"
+                :canClear="!!props.fieldData.optional"
+                :canDeselect="!!props.fieldData.optional"
+            />
             <div v-if="form.errors[fieldName] || form.recentlySuccessful"
                 class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">
                 <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500"
@@ -22,8 +29,14 @@ import { faExclamationCircle, faCheckCircle } from "@/../private/pro-solid-svg-i
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faExclamationCircle, faCheckCircle);
 
-const props = defineProps<{ 'form', 'fieldName', 'options', fieldData?: any }>()
-const multiselectPlaceholder = "Select your currency"
+const props = defineProps<{
+    'form',
+    'fieldName',
+    'options',
+    fieldData?: {
+        placeholder: string,
+        optional: boolean,
+} }>()
 
 // Note:
 // Value of the currency (form[fieldName]) is a number

@@ -13,13 +13,14 @@ defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faFlask} from '@/../private/pro-light-svg-icons';
+import { capitalize } from "@/Composables/capitalize"
 
 library.add(faFlask);
 
 </script>
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <FlatTreeMap class="mx-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
 </template>

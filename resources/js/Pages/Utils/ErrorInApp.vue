@@ -8,6 +8,7 @@
 <script setup>
 
 import Error from '@/Pages/Utils/Error.vue';
+import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps({
                               status     : Number,
@@ -18,7 +19,7 @@ const props = defineProps({
 </script>
 
 <template layout="App">
-   <Error :status="status"  :title="title"  :description="description" ></Error>
+   <Error :status="status"  :title="capitalize(title)"  :description="description" ></Error>
 </template>
 
 

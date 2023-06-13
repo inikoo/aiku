@@ -25,6 +25,7 @@ import { faDiagramNext } from "@fortawesome/free-solid-svg-icons";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
 import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import { capitalize } from "@/Composables/capitalize"
 library.add(
     faFolder,
     faCube,
@@ -77,7 +78,7 @@ const component = computed(() => {
 
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>
