@@ -27,8 +27,7 @@ class StoreEmployee
         $employee = Employee::create($modelData);
         EmployeeHydrateWeekWorkingHours::run($employee);
         TenantHydrateEmployees::dispatch(app('currentTenant'));
-        EmployeeHydrateUniversalSearch::dispatch($employee);
-
+        // EmployeeHydrateUniversalSearch::dispatch($employee);
         return $employee;
     }
 
