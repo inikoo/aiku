@@ -8,13 +8,14 @@
 import {Head, Link} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Table from '@/Components/Table/Table.vue';
+import { capitalize } from "@/Composables/capitalize"
 
 defineProps(['mailrooms', 'title', 'pageHead']);
 
 </script>
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Table :resource="mailrooms" class="mt-5">
 

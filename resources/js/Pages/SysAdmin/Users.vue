@@ -14,6 +14,7 @@ import {useTabChange} from "@/Composables/tab-change";
 import { faRoad } from "@/../private/pro-light-svg-icons"
 import TableUserRequestLogs from "@/Pages/Tables/TableUserRequestLogs.vue";
 import { library } from "@fortawesome/fontawesome-svg-core"
+import { capitalize } from "@/Composables/capitalize"
 
 library.add(faRoad)
 const props = defineProps <{
@@ -44,7 +45,7 @@ const component = computed(() => {
 </script>
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>

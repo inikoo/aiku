@@ -16,6 +16,7 @@ import TableHistories from "@/Pages/Tables/TableHistories.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile } from "@/../private/pro-light-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
+import { capitalize } from "@/Composables/capitalize"
 
 library.add(
     faIdCard,
@@ -58,7 +59,7 @@ const component = computed(() => {
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>

@@ -13,6 +13,7 @@ import {
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import { capitalize } from "@/Composables/capitalize"
 
 library.add(faFolder, faCube);
 
@@ -23,7 +24,7 @@ const props = defineProps(['title', 'pageHead', 'delivery_note']);
 
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
 </template>
 

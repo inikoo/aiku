@@ -9,6 +9,7 @@ import { Head } from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from "@/../private/pro-light-svg-icons";
 import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
+import { capitalize } from "@/Composables/capitalize"
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
@@ -67,7 +68,7 @@ const component = computed(() => {
 
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>

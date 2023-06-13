@@ -25,6 +25,7 @@ import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableSupplierDeliveries from "@/Pages/Tables/TableSupplierDeliveries.vue";
 import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 import SupplierShowcase from "@/Pages/Procurement/SupplierShowcase.vue";
+import { capitalize } from "@/Composables/capitalize"
 library.add(
     faInventory,
     faWarehouse,
@@ -96,7 +97,7 @@ const getErrors = () => {
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>

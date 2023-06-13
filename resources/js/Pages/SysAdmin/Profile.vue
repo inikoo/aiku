@@ -18,6 +18,7 @@ import Theme from "@/Components/Forms/Fields/Theme.vue"
 import ColorMode from "@/Components/Forms/Fields/ColorMode.vue"
 import FieldForm from '@/Components/Forms/FieldForm.vue'
 import Avatar from '@/Components/Forms/Fields/Avatar.vue'
+import { capitalize } from "@/Composables/capitalize"
 
 const profileForm = useForm({
     username: props.profile.username,
@@ -44,7 +45,7 @@ const current = ref(props["pageBody"].current)
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <div class="ml-0 max-w-screen-xl">
         <div class="overflow-hidden rounded-lg bg-white shadow">
             <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">

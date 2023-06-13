@@ -28,6 +28,7 @@ import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableLocations from "@/Pages/Tables/TableLocations.vue";
 import StockShowcase from "@/Pages/Inventory/StockShowcase.vue";
+import { capitalize } from "@/Composables/capitalize"
 library.add(
     faInventory,
     faBox,
@@ -81,7 +82,7 @@ const component = computed(() => {
 
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>
