@@ -10,6 +10,7 @@ namespace App\Models\Procurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Helpers\Address;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -73,13 +75,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|PurchaseOrder withoutTrashed()
  * @mixin Eloquent
  */
-class PurchaseOrder extends Model
+class PurchaseOrder extends Model implements Auditable
 {
     use UsesGroupConnection;
     use SoftDeletes;
     use HasTenantAddress;
     use HasSlug;
     use HasFactory;
+    use HasHistory;
 
 
     protected $casts = [

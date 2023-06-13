@@ -22,7 +22,8 @@ const props = defineProps<{
         navigation: object;
     },
     showcase: object,
-    items: object
+    items: object,
+    history: object
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -35,6 +36,7 @@ import {
     faInfoCircle,
     faCameraRetro
 } from "@/../private/pro-light-svg-icons";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 // import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 
 library.add(
@@ -55,7 +57,7 @@ const component = computed(() => {
 
     const components = {
         showcase: ModelDetails,
-        history: ModelChangelog,
+        history: TableHistories,
         items: TablePurchaseOrderItems
     };
 

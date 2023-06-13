@@ -7,12 +7,14 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\PurchaseOrderItem\UI\IndexPurchaseOrderItems;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\PurchaseOrderTabsEnum;
 use App\Http\Resources\Procurement\PurchaseOrderItemResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Procurement\PurchaseOrder;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -77,8 +79,13 @@ class ShowPurchaseOrder extends InertiaAction
                 PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ?
                     fn () => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($this->purchaseOrder))
                     : Inertia::lazy(fn () =>  PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($this->purchaseOrder))),
+
+                PurchaseOrderTabsEnum::HISTORY->value => $this->tab == PurchaseOrderTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($this->purchaseOrder))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($this->purchaseOrder)))
             ]
-        )->table(IndexPurchaseOrderItems::make()->tableStructure());
+        )->table(IndexPurchaseOrderItems::make()->tableStructure())
+            ->table(IndexHistories::make()->tableStructure());
     }
 
     public function jsonResponse(): PurchaseOrderResource
