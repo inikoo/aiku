@@ -27,6 +27,35 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexUsers extends InertiaAction
 {
+    public function __construct()
+    {
+        $this->elementGroups =
+            [
+                'status' => [
+                    'label'    => __('Status'),
+                    'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
+                    'engine'   => function ($query, $elements) {
+                        $query->where('status', array_pop($elements) === 'active');
+                    }
+
+                ],
+                'type'   => [
+                    'label'    => __('Type'),
+                    'elements' => ['employee' => __('Employee'), 'guest' => __('Guest')],
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn(
+                            'parent_type',
+                            Arr::map($elements, function (string $value, string $key) {
+                                return ucfirst($value);
+                            })
+                        );
+                    }
+
+                ],
+            ];
+    }
+
+
     public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -37,40 +66,27 @@ class IndexUsers extends InertiaAction
         });
 
 
-        $elementBlueprint = [
-            'status'      => ['active', 'inactive'],
-            'parent_type' => ['guest', 'employee']
-        ];
-
-        $elements = function ($query, $elementsData) {
-            foreach ($elementsData as $elementType => $elements) {
-                if ($elementType == 'status') {
-                    $query->where('status', array_pop($elements) === 'active');
-                } elseif ($elementType == 'parent_type') {
-                    $query->whereIn(
-                        'parent_type',
-                        Arr::map($elements, function (string $value, string $key) {
-                            return ucfirst($value);
-                        })
-                    );
-                }
-            }
-
-            return $query;
-        };
-
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
 
-        return QueryBuilder::for(User::class)
-            ->with('parent')
+        $queryBuilder = QueryBuilder::for(User::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+
+        return $queryBuilder->with('parent')
             ->defaultSort('username')
             ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name'])
             ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
             ->allowedFilters([$globalSearch])
-            ->elements($elementBlueprint, $elements)
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: $prefix ? $prefix.'Page' : 'page'
@@ -86,8 +102,18 @@ class IndexUsers extends InertiaAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
+
+            foreach ($this->elementGroups as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
+
             $table
-                ->withElements()
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
@@ -149,9 +175,11 @@ class IndexUsers extends InertiaAction
                     : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run()))
 
             ]
-        )->table($this->tableStructure(
-            prefix:'users'
-        ))
+        )->table(
+            $this->tableStructure(
+                prefix: 'users'
+            )
+        )
             ->table(IndexUserRequestLogs::make()->tableStructure());
     }
 
@@ -159,7 +187,7 @@ class IndexUsers extends InertiaAction
     {
         $this->initialisation($request)->withTab(UsersTabsEnum::values());
 
-        return $this->handle(prefix:'users');
+        return $this->handle(prefix: 'users');
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

@@ -20,6 +20,7 @@ class InertiaAction
     protected ?string $routeName        = null;
     protected array $originalParameters = [];
     protected ?string $tab              = null;
+    protected array $elementGroups      =[];
 
     protected bool $canEdit = false;
     private array $rawInputs;
