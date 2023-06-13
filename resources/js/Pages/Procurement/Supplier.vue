@@ -25,6 +25,7 @@ import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableSupplierDeliveries from "@/Pages/Tables/TableSupplierDeliveries.vue";
 import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 import SupplierShowcase from "@/Pages/Procurement/SupplierShowcase.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 library.add(
     faInventory,
     faWarehouse,
@@ -55,7 +56,8 @@ const props = defineProps<{
     supplier_products?: object,
     purchase_orders?: object,
     deliveries?:object,
-    errors?: object
+    errors?: object,
+    history?: object,
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -70,7 +72,7 @@ const component = computed(() => {
         purchase_orders: TablePurchaseOrders,
         deliveries: TableSupplierDeliveries,
         details: ModelDetails,
-        history: ModelChangelog
+        history: TableHistories
     };
     return components[currentTab.value];
 

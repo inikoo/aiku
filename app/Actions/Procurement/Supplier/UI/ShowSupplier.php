@@ -7,17 +7,20 @@
 
 namespace App\Actions\Procurement\Supplier\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Enums\UI\AgentTabsEnum;
 use App\Enums\UI\SupplierTabsEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\SupplierDeliveryResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Inertia\Inertia;
@@ -142,11 +145,16 @@ class ShowSupplier extends InertiaAction
                 SupplierTabsEnum::DELIVERIES->value => $this->tab == SupplierTabsEnum::DELIVERIES->value ?
                     fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($supplier))
                     : Inertia::lazy(fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($supplier))),
+
+                SupplierTabsEnum::HISTORY->value => $this->tab == SupplierTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($supplier))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($supplier)))
             ]
         )->table(IndexSupplierProducts::make()->tableStructure())
         ->table(IndexSupplierProducts::make()->tableStructure())
         ->table(IndexPurchaseOrders::make()->tableStructure())
-        ->table(IndexSupplierDeliveries::make()->tableStructure());
+        ->table(IndexSupplierDeliveries::make()->tableStructure())
+        ->table(IndexHistories::make()->tableStructure());
     }
 
 
