@@ -46,14 +46,15 @@ class CreateWorkingPlace extends InertiaAction
                             'title'  => __('name'),
                             'fields' => [
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
+                                    'type'          => 'input',
+                                    'label'         => __('name'),
+                                    'placeholder'   => __('Input your name'),
                                 ],
                                 'type' => [
                                     'type'        => 'select',
                                     'label'       => __(' type'),
                                     'options'     => Options::forEnum(WorkplaceTypeEnum::class),
-                                    'placeholder' => 'Select a Type',
+                                    'placeholder' => 'Select a type',
                                     'mode'        => 'single',
                                 ],
                                 'address'      => [
@@ -70,7 +71,7 @@ class CreateWorkingPlace extends InertiaAction
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
 
-                                    ]
+                                    ],
                                 ]
                             ]
                         ]

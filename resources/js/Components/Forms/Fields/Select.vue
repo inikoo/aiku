@@ -16,25 +16,24 @@ const props = defineProps<{
     options: string[]
     fieldData: {
         placeholder: string
-        required: boolean
+        optional: boolean
         mode: string
     }
 }>()
-const placeholder = "Select your option"
 </script>
 
 <template>
 	<div class="">
 		<div class="relative">
 			<Multiselect
-				:class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
 				v-model="form[fieldName]"
+				:class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
 				:options="props.options"
-				:placeholder="props.fieldData.placeholder ? props.fieldData.placeholder : placeholder"
-				:canClear="!props.fieldData.required"
+				:placeholder="props.fieldData.placeholder ?? 'Select your option'"
+				:canClear="!!props.fieldData.optional"
 				:mode="props.fieldData.mode ? props.fieldData.mode : 'single'"
 				:closeOnSelect="props.fieldData.mode == 'multiple' ? false : true"
-				:canDeselect="false"
+				:canDeselect="!!props.fieldData.optional"
 				:hideSelected="false" />
 			<div
 				v-if="form.errors[fieldName] || form.recentlySuccessful"

@@ -14,7 +14,7 @@ const props = defineProps<{
     options: any
     fieldData: {
         placeholder: string
-        required: boolean
+        optional: boolean
     }
 }>()
 
@@ -43,11 +43,11 @@ console.log(props.form)
         <!-- Country Options -->
         <div class="col-span-2">
             <div class="relative">
-                <Multiselect :options="countries" v-model="addressValues['country_id']" searchable
-                    :placeholder="props.fieldData.placeholder ?? 'Select a country'"
-                    :canClear="props.fieldData.required ?? true"
+                <Multiselect searchable :options="countries" v-model="addressValues['country_id']"
                     :class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }" 
-                    :canDeselect="false"
+                    :placeholder="props.fieldData.placeholder ?? 'Select a country'"
+                    :canClear="!!props.fieldData.optional"
+                    :canDeselect="!!props.fieldData.optional"
 				    :hideSelected="false"
                 />
                 <div v-if="form.errors[fieldName] || form.recentlySuccessful"
