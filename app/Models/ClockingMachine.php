@@ -31,6 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read Workplace $workplace
  * @method static Builder|ClockingMachine newModelQuery()
  * @method static Builder|ClockingMachine newQuery()

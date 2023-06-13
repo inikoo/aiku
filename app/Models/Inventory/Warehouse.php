@@ -9,6 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Models\Helpers\Issue;
 use App\Models\Search\UniversalSearch;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -51,13 +53,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Warehouse withoutTrashed()
  * @mixin Eloquent
  */
-class Warehouse extends Model
+class Warehouse extends Model implements Auditable
 {
     use HasSlug;
     use SoftDeletes;
     use UsesTenantConnection;
     use HasUniversalSearch;
     use HasFactory;
+    use HasHistory;
 
     protected $casts = [
         'data'     => 'array',

@@ -15,6 +15,7 @@ use App\Models\Media\GroupMedia;
 use App\Models\Search\UniversalSearch;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasGroupAddress;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Sluggable\HasSlug;
@@ -88,7 +90,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Supplier withoutTrashed()
  * @mixin Eloquent
  */
-class Supplier extends Model implements HasMedia
+class Supplier extends Model implements HasMedia, Auditable
 {
     use UsesGroupConnection;
     use SoftDeletes;
@@ -97,6 +99,7 @@ class Supplier extends Model implements HasMedia
     use HasUniversalSearch;
     use HasPhoto;
     use HasFactory;
+    use HasHistory;
 
     protected $casts = [
         'shared_data' => 'array',

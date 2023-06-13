@@ -21,6 +21,7 @@ import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { capitalize } from "@/Composables/capitalize"
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 library.add(faCoins, faChartLine, faInfoCircle,faMoneyCheckAlt);
 
@@ -34,6 +35,7 @@ const props = defineProps<{
         navigation: object;
     }
     payments?: object;
+    history: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -44,7 +46,7 @@ const component = computed(() => {
     const components = {
         payments: TablePayments,
         details: ModelDetails,
-        history: ModelChangelog,
+        history: TableHistories
     };
     return components[currentTab.value];
 

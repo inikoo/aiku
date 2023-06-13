@@ -18,6 +18,6 @@ class StoreAddress
 
     public function handle($data): Model|Address
     {
-        return Address::create($data);
+        return Address::create(array_diff_key($data, array_flip(['id'])));
     }
 }

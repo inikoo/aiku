@@ -11,6 +11,7 @@ import { faBox, faExchange, faInventory } from "@/../private/pro-light-svg-icons
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { capitalize } from "@/Composables/capitalize"
 
@@ -28,7 +29,8 @@ const props = defineProps<{
     tabs: {
         current: string;
         navigation: object;
-    }
+    },
+    history: object
 
 }>()
 
@@ -39,7 +41,7 @@ const component = computed(() => {
 
     const components = {
         details: ModelDetails,
-        history: ModelChangelog,
+        history: TableHistories,
     };
     return components[currentTab.value];
 

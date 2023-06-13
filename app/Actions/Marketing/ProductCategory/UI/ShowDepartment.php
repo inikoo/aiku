@@ -7,6 +7,7 @@
 
 namespace App\Actions\Marketing\ProductCategory\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Marketing\Product\UI\IndexProducts;
@@ -18,6 +19,7 @@ use App\Http\Resources\Marketing\DepartmentResource;
 
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use Inertia\Inertia;
@@ -94,9 +96,14 @@ class ShowDepartment extends InertiaAction
                 DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
                     fn () => CustomerResource::collection(IndexCustomers::run($department))
                     : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($department))),
+
                 DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($department))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($department))),
+
+                DepartmentTabsEnum::HISTORY->value => $this->tab == DepartmentTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($department))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($department))),
 
                 /*
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
@@ -134,7 +141,8 @@ class ShowDepartment extends InertiaAction
         )->table(IndexCustomers::make()->tableStructure($department))
             ->table(IndexMailshots::make()->tableStructure($department))
 //            ->table(IndexFamilies::make()->tableStructure($department))
-            ->table(IndexProducts::make()->tableStructure($department));
+            ->table(IndexProducts::make()->tableStructure($department))
+            ->table(IndexHistories::make()->tableStructure());
     }
 
 

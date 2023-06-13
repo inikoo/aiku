@@ -23,6 +23,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import TablePaymentAccounts from "@/Pages/Tables/TablePaymentAccounts.vue";
 import { capitalize } from "@/Composables/capitalize"
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import("@/Pages/ModelChangelog.vue"));
 

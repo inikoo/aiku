@@ -8,6 +8,7 @@
 namespace App\Models\Web;
 
 use App\Models\Marketing\Shop;
+use App\Models\Traits\HasHistory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -53,11 +55,12 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Website withoutTrashed()
  * @mixin Eloquent
  */
-class Website extends Model
+class Website extends Model implements Auditable
 {
     use UsesTenantConnection;
     use HasSlug;
     use SoftDeletes;
+    use HasHistory;
 
     protected $casts = [
         'data'      => 'array',

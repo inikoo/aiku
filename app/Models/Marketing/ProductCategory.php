@@ -11,6 +11,7 @@ use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
 use App\Models\Sales\SalesStats;
 use App\Models\Search\UniversalSearch;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -66,13 +68,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|ProductCategory withoutTrashed()
  * @mixin Eloquent
  */
-class ProductCategory extends Model
+class ProductCategory extends Model implements Auditable
 {
     use HasSlug;
     use SoftDeletes;
     use UsesTenantConnection;
     use HasUniversalSearch;
     use HasFactory;
+    use HasHistory;
 
     protected $guarded = [];
 

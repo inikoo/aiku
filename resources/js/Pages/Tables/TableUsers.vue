@@ -9,14 +9,13 @@ import { Link } from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import { User } from "@/types/user";
 import { trans } from "laravel-vue-i18n";
-// import {ref,computed} from 'vue'
 
-// import TableElements from '@/Components/Table/TableElements.vue'
 
 const props = defineProps<{
-    data: object
-    // changeElements: any
-    // abcdef: any
+    data: object,
+    tab?:string
+
+
 }>()
 
 
@@ -29,48 +28,13 @@ function userRoute(user: User) {
     }
 }
 
-// const fakeElements = ref([
-//     {
-//         key: 0,
-//         label: 'hello',
-//         show: true,
-//         count: 5,
-//     },
-//     {
-//         key: 1,
-//         label: 'world',
-//         show: false,
-//         count: 13,
-//     },
-//     {
-//         key: 2,
-//         label: 'bye',
-//         show: true,
-//         count: 23,
-//     },
-// ])
-// const compFakeElements = computed(() => {
-//     return fakeElements.value.filter((i) =>
-//         i.show == false
-//     )
-// })
 
 
 </script>
 
 <template>
-    <!--
-    <Table :resource="data" :name="'dep'" class="mt-5">
-        <template #cell(code)="{ item: department }">
-            <Link :href="departmentRoute(department)">
-                {{ department['code'] }}
-            </Link>
-        </template>
 
-    </Table>
-    -->
-    <!-- {{ compFakeElements }} -->
-    <Table :resource="data" name="user" class="mt-5">
+    <Table :resource="data" :name="tab"  class="mt-5">
         <template #cell(username)="{ item: user }">
             <Link :href="userRoute(user)">
             <template v-if="user.username">{{ user.username }}</template>

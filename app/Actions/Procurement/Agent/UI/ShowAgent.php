@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Agent\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
@@ -14,10 +15,12 @@ use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\IndexSupplierPurchaseOrders;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\AgentTabsEnum;
+use App\Enums\UI\UserTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -120,9 +123,14 @@ class ShowAgent extends InertiaAction
                 AgentTabsEnum::PURCHASE_ORDERS->value => $this->tab == AgentTabsEnum::PURCHASE_ORDERS->value ?
                     fn () => PurchaseOrderResource::collection(IndexSupplierPurchaseOrders::run($agent))
                     : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexSupplierPurchaseOrders::run($agent))),
+
+                AgentTabsEnum::HISTORY->value => $this->tab == AgentTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($agent))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($agent)))
             ]
         )->table(IndexSuppliers::make()->tableStructure())
             ->table(IndexSupplierProducts::make()->tableStructure())
+            ->table(IndexHistories::make()->tableStructure())
             ->table(IndexPurchaseOrders::make()->tableStructure());
     }
 

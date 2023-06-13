@@ -68,8 +68,8 @@ class ShowGuest extends InertiaAction
                 ],
 
                 GuestTabsEnum::HISTORY->value => $this->tab == GuestTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run(class_basename($guest)))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run(class_basename($guest))))
+                    fn () => HistoryResource::collection(IndexHistories::run($guest))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($guest)))
             ]
         )->table(IndexHistories::make()->tableStructure());
     }

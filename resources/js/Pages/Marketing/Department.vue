@@ -24,6 +24,7 @@ import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
 import { faDiagramNext } from "@fortawesome/free-solid-svg-icons";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 import { capitalize } from "@/Composables/capitalize"
 library.add(
     faFolder,
@@ -53,6 +54,7 @@ const props = defineProps<{
     families?: object;
     customers?: object;
     mailshots?: object;
+    history: object;
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -66,7 +68,7 @@ const component = computed(() => {
         mailshots: TableMailshots,
         customers: TableCustomers,
         details: ModelDetails,
-        history: ModelChangelog,
+        history: TableHistories,
     };
     return components[currentTab.value];
 
