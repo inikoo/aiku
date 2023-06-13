@@ -16,6 +16,8 @@ import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableLocations from "@/Pages/Tables/TableLocations.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
+
 library.add(
     faInventory,
     faWarehouse,
@@ -34,6 +36,7 @@ const props = defineProps<{
         navigation: object;
     }
     locations?: object;
+    history?: object;
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -44,7 +47,7 @@ const component = computed(() => {
     const components = {
         locations: TableLocations,
         details: ModelDetails,
-        history: ModelChangelog,
+        history: TableHistories,
     };
     return components[currentTab.value];
 
