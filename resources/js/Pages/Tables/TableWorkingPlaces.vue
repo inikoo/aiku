@@ -8,7 +8,6 @@
 // import {ref} from 'vue'
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import WorkingPlace from "@/Pages/HumanResources/WorkingPlace.vue";
 import {Workplace} from "@/types/workplace";
 
 const props = defineProps<{
@@ -16,7 +15,7 @@ const props = defineProps<{
 }>()
 
 
-function workingPlaceRoute(workplace: Workplace) {
+function workplaceRoute(workplace: Workplace) {
     switch (route().current()) {
         case 'hr.working-places.index':
             return route(
@@ -30,7 +29,7 @@ function workingPlaceRoute(workplace: Workplace) {
 <template>
     <Table :resource="data" :name="'wrkplc'" class="mt-5"  >
         <template #cell(slug)="{ item: workplace }">
-            <Link :href="workingPlaceRoute(workplace)">
+            <Link :href="workplaceRoute(workplace)">
                 {{ workplace['slug'] }}
             </Link>
         </template>

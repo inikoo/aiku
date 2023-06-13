@@ -82,6 +82,7 @@ class IndexWorkingPlaces extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $workplace): Response
     {
+
         return Inertia::render(
             'HumanResources/WorkingPlaces',
             [
