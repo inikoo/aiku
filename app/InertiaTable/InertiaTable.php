@@ -107,26 +107,23 @@ class InertiaTable
             'columns'                         => $this->transformColumns(),
             'hasHiddenColumns'                => $this->columns->filter->hidden->isNotEmpty(),
             'hasToggleableColumns'            => $this->columns->filter->canBeHidden->isNotEmpty(),
-
-            'filters'           => $this->transformFilters(),
-            'hasFilters'        => $this->filters->isNotEmpty(),
-            'hasEnabledFilters' => $this->filters->filter->value->isNotEmpty(),
-
-            'searchInputs'                => $searchInputs              = $this->transformSearchInputs(),
-            'searchInputsWithoutGlobal'   => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
-            'hasSearchInputs'             => $searchInputsWithoutGlobal->isNotEmpty(),
-            'hasSearchInputsWithValue'    => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
-            'hasSearchInputsWithoutValue' => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
-
-            'globalSearch'    => $this->searchInputs->firstWhere('key', 'global'),
-            'cursor'          => $this->query('cursor'),
-            'sort'            => $this->query('sort', $this->defaultSort) ?: null,
-            'defaultSort'     => $this->defaultSort,
-            'page'            => Paginator::resolveCurrentPage($this->pageName),
-            'pageName'        => $this->pageName,
-            'perPageOptions'  => $this->perPageOptions,
-            'elements'        => $this->transformElementGroups(),
-            'modelOperations' => $this->modelOperations
+            'filters'                         => $this->transformFilters(),
+            'hasFilters'                      => $this->filters->isNotEmpty(),
+            'hasEnabledFilters'               => $this->filters->filter->value->isNotEmpty(),
+            'searchInputs'                    => $searchInputs              = $this->transformSearchInputs(),
+            'searchInputsWithoutGlobal'       => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
+            'hasSearchInputs'                 => $searchInputsWithoutGlobal->isNotEmpty(),
+            'hasSearchInputsWithValue'        => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
+            'hasSearchInputsWithoutValue'     => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
+            'globalSearch'                    => $this->searchInputs->firstWhere('key', 'global'),
+            'cursor'                          => $this->query('cursor'),
+            'sort'                            => $this->query('sort', $this->defaultSort) ?: null,
+            'defaultSort'                     => $this->defaultSort,
+            'page'                            => Paginator::resolveCurrentPage($this->pageName),
+            'pageName'                        => $this->pageName,
+            'perPageOptions'                  => $this->perPageOptions,
+            'elementGroups'                   => $this->transformElementGroups(),
+            'modelOperations'                 => $this->modelOperations
         ];
     }
 
@@ -185,8 +182,7 @@ class InertiaTable
 
         return $elementGroups->map(function (ElementGroup $elementGroup) use ($queryElements) {
             if (array_key_exists($elementGroup->key, $queryElements)) {
-
-                $elementGroup->elements = explode(',', $queryElements[$elementGroup->key]);
+                $elementGroup->values = explode(',', $queryElements[$elementGroup->key]);
             }
 
             return $elementGroup;
@@ -233,7 +229,6 @@ class InertiaTable
         )->values();
 
 
-
         return $this;
     }
 
@@ -277,13 +272,6 @@ class InertiaTable
     public function withModelOperations(array $modelOperations = null): self
     {
         $this->modelOperations = collect($modelOperations);
-
-        return $this;
-    }
-
-    public function withElements(array $elements = null): self
-    {
-        $this->elements = collect($elements);
 
         return $this;
     }
