@@ -68,7 +68,7 @@ class EditWorkingPlace extends InertiaAction
                                 ],
                                 'type' => [
                                     'type'        => 'select',
-                                    'label'       => __(' type'),
+                                    'label'       => __('type'),
                                     'options'     => Options::forEnum(WorkplaceTypeEnum::class),
                                     'placeholder' => 'Select a Type',
                                     'mode'        => 'single',

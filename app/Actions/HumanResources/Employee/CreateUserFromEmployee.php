@@ -40,7 +40,7 @@ class CreateUserFromEmployee
     {
         $this->newPassword = $password ?? (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello');
         $modelData         = [
-            'username' => $username ?? $employee->code,
+            'username' => $username ?? $employee->slug,
             'password' => $this->newPassword
         ];
 

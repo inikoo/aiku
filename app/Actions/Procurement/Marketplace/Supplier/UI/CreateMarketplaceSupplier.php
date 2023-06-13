@@ -244,7 +244,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                         */
 
                         [
-                            'title'  => __('xxxx'),
+                            'title'  => __('currency'),
                             'fields' => [
 
                                 'currency_id'    => [

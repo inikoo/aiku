@@ -77,7 +77,7 @@ class EditClockingMachine extends InertiaAction
                                 ],
                                 'job_title' => [
                                     'type'        => 'select',
-                                    'label'       => __(' position'),
+                                    'label'       => __('position'),
                                     'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
                                     'placeholder' => 'Select a Position',
                                     'mode'        => 'single',
@@ -85,7 +85,7 @@ class EditClockingMachine extends InertiaAction
                                 ],
                                 'state' => [
                                     'type'        => 'select',
-                                    'label'       => __(' state'),
+                                    'label'       => __('state'),
                                     'options'     => Options::forEnum(EmployeeStateEnum::class),
                                     'placeholder' => 'Select a State',
                                     'mode'        => 'single',
