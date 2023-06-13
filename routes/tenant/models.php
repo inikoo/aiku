@@ -69,7 +69,7 @@ Route::patch('/order/{order}', UpdateOrder::class)->name('order.update');
 Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.update');
 Route::post('/employee/', StoreEmployee::class)->name('employee.store');
 
-Route::patch('/working-place/{workingPlace}', UpdateWorkingPlace::class)->name('working-place.update');
+Route::patch('/working-place/{workplace}', UpdateWorkingPlace::class)->name('working-place.update');
 Route::post('/working-place/', StoreWorkingPlace::class)->name('working-place.store');
 
 Route::patch('/clocking-machines/{clockingMachine}', UpdateClockingMachine::class)->name('clocking-machines.update');

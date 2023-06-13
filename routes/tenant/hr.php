@@ -7,8 +7,8 @@
 
 use App\Actions\HumanResources\Calendar\IndexCalendars;
 use App\Actions\HumanResources\Calendar\ShowCalendar;
-use App\Actions\HumanResources\Clocking\IndexClockings;
-use App\Actions\HumanResources\Clocking\ShowClocking;
+use App\Actions\HumanResources\Clocking\UI\IndexClockings;
+use App\Actions\HumanResources\Clocking\UI\ShowClocking;
 use App\Actions\HumanResources\ClockingMachine\IndexClockingMachines;
 use App\Actions\HumanResources\ClockingMachine\ShowClockingMachine;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
@@ -50,8 +50,8 @@ Route::get('/time-sheets/{timeSheet}', ShowTimesheet::class)->name('time-sheets.
 
 Route::get('/working-places', IndexWorkingPlaces::class)->name('working-places.index');
 Route::get('/working-places/create', CreateWorkingPlace::class)->name('working-places.create');
-Route::get('/working-places/{workingPlace}', ShowWorkingPlace::class)->name('working-places.show');
-Route::get('/working-places/{workingPlace}/edit', EditWorkingPlace::class)->name('working-places.edit');
+Route::get('/working-places/{workplace}', ShowWorkingPlace::class)->name('working-places.show');
+Route::get('/working-places/{workplace}/edit', EditWorkingPlace::class)->name('working-places.edit');
 
 Route::get('/clocking-machines', IndexClockingMachines::class)->name('clocking-machines.index');
 Route::get('/clocking-machines/{clockingMachine}', ShowClockingMachine::class)->name('clocking-machines.show');
