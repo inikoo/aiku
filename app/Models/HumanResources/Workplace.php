@@ -34,14 +34,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $address_id
  * @property array $data
  * @property array $location
- * @property string $owner_type
- * @property int $owner_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
  * @property-read Model|\Eloquent $owner
  * @property-read Timezone|null $timezone
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Workplace newModelQuery()
  * @method static Builder|Workplace newQuery()
  * @method static Builder|Workplace onlyTrashed()

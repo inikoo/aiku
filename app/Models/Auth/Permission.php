@@ -27,9 +27,9 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
  * @property-read Collection<int, \App\Models\Auth\User> $users
  * @method static Builder|Permission newModelQuery()
  * @method static Builder|Permission newQuery()
- * @method static Builder|Permission permission($permissions)
+ * @method static \Illuminate\Database\Eloquent\Builder|Permission permission($permissions)
  * @method static Builder|Permission query()
- * @method static Builder|Permission role($roles, $guard = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Permission role($roles, $guard = null)
  * @mixin Eloquent
  */
 class Permission extends SpatiePermission

@@ -48,6 +48,7 @@ class CreateWorkingPlace extends InertiaAction
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
+
                                 ],
                                 'type' => [
                                     'type'        => 'select',
@@ -70,7 +71,7 @@ class CreateWorkingPlace extends InertiaAction
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
 
-                                    ]
+                                    ],
                                 ]
                             ]
                         ]

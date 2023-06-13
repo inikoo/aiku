@@ -30,7 +30,6 @@ class MacroServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-
         Str::macro('possessive', function (string $string): string {
             return $string.'\''.(
                 Str::endsWith($string, ['s', 'S']) ? '' : 's'
@@ -52,37 +51,33 @@ class MacroServiceProvider extends ServiceProvider
         });
 
         Builder::macro('whereAnyWordStartWith', function (string $column, string $value): Builder {
-            $quotedValue=DB::connection()->getPdo()->quote($value);
-            return $this->where(DB::raw("extensions.remove_accents(". $column.")"), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"));
+            $quotedValue = DB::connection()->getPdo()->quote($value);
+
+            return $this->where(DB::raw("extensions.remove_accents(".$column.")"), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"));
         });
 
-        Builder::macro('elements', function (array $blueprint, callable $elementBuilder): Builder {
+        Builder::macro('whereElementGroup', function (string $key, array $allowedElements, callable $engine, ?string $prefix = null): Builder {
+            $elementsData = null;
 
-            $elementsData=[];
-            if(request()->has('elements')) {
+            $argumentName = ($prefix ? $prefix.'_' : '').'elements';
+            if (request()->has("$argumentName.$key")) {
+                $elements = explode(',', request()->input("$argumentName.$key"));
 
 
+                $validatedElements = array_intersect($allowedElements, $elements);
 
-                $validKeys=array_keys($blueprint);
-                $elements =request()->get('elements');
-                foreach($elements as $key=>$values) {
-                    if(in_array($key, $validKeys)) {
 
-                        $validatedValues     =array_intersect($blueprint[$key], explode(',', $values));
-                        $countValidatedValues=count($validatedValues);
-                        if($countValidatedValues>0 and $countValidatedValues<count($blueprint[$key])) {
-                            $elementsData[$key]=$validatedValues;
-                        }
-
-                    }
+                $countValidatedElements = count($validatedElements);
+                if ($countValidatedElements > 0 and $countValidatedElements < count($allowedElements)) {
+                    $elementsData = $validatedElements;
                 }
-
-
             }
 
-            if(count($elementsData)) {
-                $elementBuilder($this, $elementsData);
+
+            if ($elementsData) {
+                $engine($this, $elementsData);
             }
+
             return $this;
         });
 
@@ -100,11 +95,11 @@ class MacroServiceProvider extends ServiceProvider
         });
 
         if (!Collection::hasMacro('paginate')) {
-
             Collection::macro(
                 'paginate',
                 function ($perPage = 15, $page = null, $options = []) {
                     $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+
                     return (new LengthAwarePaginator(
                         $this->forPage($page, $perPage)->values()->all(),
                         $this->count(),

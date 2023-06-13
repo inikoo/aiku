@@ -23,7 +23,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_empty_stock_slots
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Location $location
+ * @property-read \App\Models\Inventory\Location $location
  * @method static Builder|LocationStats newModelQuery()
  * @method static Builder|LocationStats newQuery()
  * @method static Builder|LocationStats query()

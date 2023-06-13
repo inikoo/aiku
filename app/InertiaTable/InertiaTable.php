@@ -16,7 +16,7 @@ class InertiaTable
     private Request $request;
     private Collection $columns;
     private Collection $searchInputs;
-    private Collection $elements;
+    private Collection $elementGroups;
     private Collection $filters;
     private string $defaultSort = '';
 
@@ -30,7 +30,7 @@ class InertiaTable
         $this->request         = $request;
         $this->columns         = new Collection();
         $this->searchInputs    = new Collection();
-        $this->elements        = new Collection();
+        $this->elementGroups   = new Collection();
         $this->filters         = new Collection();
         $this->modelOperations = new Collection();
 
@@ -107,26 +107,23 @@ class InertiaTable
             'columns'                         => $this->transformColumns(),
             'hasHiddenColumns'                => $this->columns->filter->hidden->isNotEmpty(),
             'hasToggleableColumns'            => $this->columns->filter->canBeHidden->isNotEmpty(),
-
-            'filters'           => $this->transformFilters(),
-            'hasFilters'        => $this->filters->isNotEmpty(),
-            'hasEnabledFilters' => $this->filters->filter->value->isNotEmpty(),
-
-            'searchInputs'                => $searchInputs              = $this->transformSearchInputs(),
-            'searchInputsWithoutGlobal'   => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
-            'hasSearchInputs'             => $searchInputsWithoutGlobal->isNotEmpty(),
-            'hasSearchInputsWithValue'    => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
-            'hasSearchInputsWithoutValue' => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
-
-            'globalSearch'    => $this->searchInputs->firstWhere('key', 'global'),
-            'cursor'          => $this->query('cursor'),
-            'sort'            => $this->query('sort', $this->defaultSort) ?: null,
-            'defaultSort'     => $this->defaultSort,
-            'page'            => Paginator::resolveCurrentPage($this->pageName),
-            'pageName'        => $this->pageName,
-            'perPageOptions'  => $this->perPageOptions,
-            'elements'        => $this->transformElements(),
-            'modelOperations' => $this->modelOperations
+            'filters'                         => $this->transformFilters(),
+            'hasFilters'                      => $this->filters->isNotEmpty(),
+            'hasEnabledFilters'               => $this->filters->filter->value->isNotEmpty(),
+            'searchInputs'                    => $searchInputs              = $this->transformSearchInputs(),
+            'searchInputsWithoutGlobal'       => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
+            'hasSearchInputs'                 => $searchInputsWithoutGlobal->isNotEmpty(),
+            'hasSearchInputsWithValue'        => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
+            'hasSearchInputsWithoutValue'     => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
+            'globalSearch'                    => $this->searchInputs->firstWhere('key', 'global'),
+            'cursor'                          => $this->query('cursor'),
+            'sort'                            => $this->query('sort', $this->defaultSort) ?: null,
+            'defaultSort'                     => $this->defaultSort,
+            'page'                            => Paginator::resolveCurrentPage($this->pageName),
+            'pageName'                        => $this->pageName,
+            'perPageOptions'                  => $this->perPageOptions,
+            'elementGroups'                   => $this->transformElementGroups(),
+            'modelOperations'                 => $this->modelOperations
         ];
     }
 
@@ -174,22 +171,21 @@ class InertiaTable
         });
     }
 
-    protected function transformElements(): Collection
+    protected function transformElementGroups(): Collection
     {
-        $elements = $this->elements;
-
+        $elementGroups = $this->elementGroups;
         $queryElements = $this->query('elements', []);
 
         if (empty($queryElements)) {
-            return $elements;
+            return $elementGroups;
         }
 
-        return $elements->map(function (CheckFilter $elements) use ($queryElements) {
-            if (array_key_exists($elements->key, $queryElements)) {
-                $elements->value = $queryElements[$elements->key];
+        return $elementGroups->map(function (ElementGroup $elementGroup) use ($queryElements) {
+            if (array_key_exists($elementGroup->key, $queryElements)) {
+                $elementGroup->values = explode(',', $queryElements[$elementGroup->key]);
             }
 
-            return $elements;
+            return $elementGroup;
         });
     }
 
@@ -209,6 +205,31 @@ class InertiaTable
 
             return $searchInput;
         });
+    }
+
+
+    public function elementGroup(string $key, array|string $label, array $elements): self
+    {
+        if (is_string($label)) {
+            $label = $label ?: Str::headline($key);
+            $key   = $key ?: Str::kebab($label);
+        } else {
+            $key = $key ?: Str::kebab($label['tooltip']);
+        }
+
+
+        $this->elementGroups = $this->elementGroups->reject(function (ElementGroup $column) use ($key) {
+            return $column->key === $key;
+        })->push(
+            new ElementGroup(
+                key: $key,
+                label: $label,
+                elements: $elements
+            )
+        )->values();
+
+
+        return $this;
     }
 
 

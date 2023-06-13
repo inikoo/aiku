@@ -8,9 +8,7 @@
 namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
-use App\Drivers\Audits\ElasticsearchAuditDriver;
 use App\Models\Tenancy\Tenant;
-use App\Models\Traits\ElasticSearchAuditable;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
 use Eloquent;
@@ -53,6 +51,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read array $es_audits
  * @property-read \App\Models\Auth\GroupUser|null $groupUser
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read Model|\Eloquent $parent
