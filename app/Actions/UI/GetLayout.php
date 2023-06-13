@@ -31,7 +31,19 @@ class GetLayout
 
 
         $shops      = ShopsNavigationResource::collection(Shop::with('website')->get()->all());
+
+
+
         $websites   = WebsitesNavigationResource::collection(Website::with('shop')->get()->all());
+
+
+        $selectedWarehouse=0;
+        $warehouses       =Warehouse::all();
+        $numberWarehouses =$warehouses->count();
+        if($numberWarehouses>0) {
+            $selectedWarehouse=Warehouse::first()->slug;
+        }
+
         $navigation = [];
 
         $navigation['dashboard'] =
@@ -259,8 +271,8 @@ class GetLayout
                     'dropdown'    => [
 
                         'type'        => 'warehouses',
-                        'options'     => WarehousesNavigationResource::collection(Warehouse::all()),
-                        'selected'    => Warehouse::first()->slug,
+                        'options'     => WarehousesNavigationResource::collection($warehouses),
+                        'selected'    => $selectedWarehouse,
                         'optionRoute' => 'inventory.warehouses.show',
                         'subsections' => [
                             [
