@@ -20,9 +20,11 @@ enum EmployeeStateEnum: string
     public static function labels(): array
     {
         return [
-            'hired'         => 'Hired',
-            'working'       => 'Working',
-            'left'          => 'Left',
+            'hired'         => __('Hired'),
+            'working'       => __('Working'),
+            'left'          => __('Left'),
         ];
     }
+
+
 }

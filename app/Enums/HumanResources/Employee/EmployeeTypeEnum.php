@@ -17,4 +17,16 @@ enum EmployeeTypeEnum: string
     case VOLUNTEER       = 'volunteer';
     case TEMPORAL_WORKER = 'temporal-worker';
     case WORK_EXPERIENCE = 'work-experience';
+
+    public static function labels(): array
+    {
+        return [
+            'employee'        => __('employee'),
+            'volunteer'       => __('volunteer'),
+            'temporal-worker' => __('temporal worker'),
+            'work-experience' => __('work experience'),
+
+        ];
+    }
+
 }
