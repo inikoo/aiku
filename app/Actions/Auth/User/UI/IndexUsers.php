@@ -10,9 +10,7 @@ namespace App\Actions\Auth\User\UI;
 use App\Actions\Auth\UserRequest\IndexUserRequestLogs;
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Enums\UI\UsersTabsEnum;
-use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\InertiaTable\InertiaTable;
@@ -20,6 +18,7 @@ use App\Models\Auth\User;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexUsers extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,18 +37,31 @@ class IndexUsers extends InertiaAction
         });
 
 
-        $elementBlueprint=[
-            'status' => ['active','inactive'],
-            'status2'=> ['active','inactive'],
+        $elementBlueprint = [
+            'status'      => ['active', 'inactive'],
+            'parent_type' => ['guest', 'employee']
         ];
 
-        $elements = function ($query, array $elementsData) {
+        $elements = function ($query, $elementsData) {
+            foreach ($elementsData as $elementType => $elements) {
+                if ($elementType == 'status') {
+                    $query->where('status', array_pop($elements) === 'active');
+                } elseif ($elementType == 'parent_type') {
+                    $query->whereIn(
+                        'parent_type',
+                        Arr::map($elements, function (string $value, string $key) {
+                            return ucfirst($value);
+                        })
+                    );
+                }
+            }
 
             return $query;
         };
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::USERS->value);
-
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
 
         return QueryBuilder::for(User::class)
@@ -61,17 +73,21 @@ class IndexUsers extends InertiaAction
             ->elements($elementBlueprint, $elements)
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::USERS->value.'Page'
+                pageName: $prefix ? $prefix.'Page' : 'page'
             )
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::USERS->value)
-                ->pageName(TabsAbbreviationEnum::USERS->value.'Page')
+                ->withElements()
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
@@ -108,14 +124,14 @@ class IndexUsers extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'    => __('users'),
-                'pageHead' => [
+                'title'       => __('users'),
+                'pageHead'    => [
                     'title' => __('users'),
 
                     // Remember to not create new Users on IndexUsers, only in employees and guest
 
                 ],
-                'labels' => [
+                'labels'      => [
                     'usernameNoSet' => __('username no set')
                 ],
 
@@ -133,7 +149,9 @@ class IndexUsers extends InertiaAction
                     : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run()))
 
             ]
-        )->table($this->tableStructure())
+        )->table($this->tableStructure(
+            prefix:'users'
+        ))
             ->table(IndexUserRequestLogs::make()->tableStructure());
     }
 
@@ -141,7 +159,7 @@ class IndexUsers extends InertiaAction
     {
         $this->initialisation($request)->withTab(UsersTabsEnum::values());
 
-        return $this->handle();
+        return $this->handle(prefix:'users');
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
