@@ -13,6 +13,7 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnu
 use App\Models\Goods\TradeUnit;
 use App\Models\Search\UniversalSearch;
 use App\Models\Tenancy\Tenant;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -73,13 +75,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|SupplierProduct withoutTrashed()
  * @mixin Eloquent
  */
-class SupplierProduct extends Model
+class SupplierProduct extends Model implements Auditable
 {
     use UsesGroupConnection;
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
     use HasFactory;
+    use HasHistory;
 
     protected $casts = [
         'shared_data'            => 'array',
