@@ -47,6 +47,8 @@ class InertiaTable
 
     private function query(string $key, mixed $default = null): string|array|null
     {
+        //dd($this->name);
+        //dd($this->name);
         return $this->request->query(
             $this->name === 'default' ? $key : "{$this->name}_$key",
             $default
@@ -178,6 +180,8 @@ class InertiaTable
     {
         $elements = $this->elements;
 
+        //dd($elements->all());
+        //dd($this->query('elements', []));
         $queryElements = $this->query('elements', []);
 
         if (empty($queryElements)) {
@@ -252,6 +256,12 @@ class InertiaTable
     {
         $this->modelOperations = collect($modelOperations);
 
+        return $this;
+    }
+
+    public function withElements(array $elements = null): self
+    {
+        $this->elements = collect($elements);
         return $this;
     }
 
