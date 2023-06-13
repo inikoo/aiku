@@ -9,6 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\Search\UniversalSearch;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -57,13 +59,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Location withoutTrashed()
  * @mixin Eloquent
  */
-class Location extends Model
+class Location extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
     use UsesTenantConnection;
     use HasUniversalSearch;
     use HasFactory;
+    use HasHistory;
 
     protected $casts = [
         'data'       => 'array',

@@ -7,11 +7,13 @@
 
 namespace App\Actions\Inventory\Location\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\LocationTabsEnum;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -102,8 +104,12 @@ class ShowLocation extends InertiaAction
                 LocationTabsEnum::SHOWCASE->value => $this->tab == LocationTabsEnum::SHOWCASE->value ?
                     fn () => GetLocationShowcase::run($location)
                     : Inertia::lazy(fn () => GetLocationShowcase::run($location)),
+
+                LocationTabsEnum::HISTORY->value => $this->tab == LocationTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($location))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($location)))
             ]
-        );
+        )->table(IndexHistories::make()->tableStructure());
     }
 
 
