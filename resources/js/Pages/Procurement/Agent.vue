@@ -40,10 +40,12 @@ const props = defineProps<{
     suppliers?: object
     supplier_products?: object,
     purchase_orders?: object,
-    errors?: object
+    errors?: object,
+    history: object
 }>()
 import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
 import {useForm} from "@inertiajs/vue3";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 library.add(
     faInventory,
@@ -68,7 +70,7 @@ const component = computed(() => {
         supplier_products: TableSupplierProducts,
         purchase_orders: TablePurchaseOrders,
         details: ModelDetails,
-        history: ModelChangelog
+        history: TableHistories
     };
     return components[currentTab.value];
 
