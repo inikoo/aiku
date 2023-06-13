@@ -12,7 +12,7 @@ const props = defineProps<{
     type: string,
     form: Object,
     fieldName: string,
-    placeholder: string,
+    placeholder?: string,
 }>()
 defineEmits(['update:modelValue'])
 const inputValue = ref(props.modelValue ? props.modelValue : '')
