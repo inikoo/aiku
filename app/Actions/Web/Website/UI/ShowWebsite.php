@@ -7,6 +7,7 @@
 
 namespace App\Actions\Web\Website\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
@@ -15,6 +16,7 @@ use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
 use App\Enums\UI\WebsiteTabsEnum;
 use App\Http\Resources\Marketing\WebpageResource;
 use App\Http\Resources\Marketing\WebsiteResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Marketing\Shop;
 use App\Models\Web\Website;
 use Inertia\Inertia;
@@ -76,8 +78,13 @@ class ShowWebsite extends InertiaAction
                 WebsiteTabsEnum::WEBPAGES->value => $this->tab == WebsiteTabsEnum::WEBPAGES->value ?
                     fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))
                     : Inertia::lazy(fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))),
+
+                WebsiteTabsEnum::CHANGELOG->value => $this->tab == WebsiteTabsEnum::CHANGELOG->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($website))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($website)))
             ]
-        )->table(IndexWebpageVariants::make()->tableStructure($website));
+        )->table(IndexWebpageVariants::make()->tableStructure($website))
+            ->table(IndexHistories::make()->tableStructure());
     }
 
 

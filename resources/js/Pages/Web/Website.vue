@@ -15,6 +15,7 @@ import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { faClock } from "@/../private/pro-solid-svg-icons";
 import TableWebpages from "@/Pages/Tables/TableWebpages.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 library.add(
     faChartLine,
@@ -38,6 +39,7 @@ const props = defineProps<{
         navigation: object;
     }
     webpages: string;
+    changelog: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -48,7 +50,7 @@ const component = computed(() => {
     const components = {
         webpages: TableWebpages,
         details: ModelDetails,
-        history: ModelChangelog,
+        changelog: TableHistories,
     };
     return components[currentTab.value];
 
