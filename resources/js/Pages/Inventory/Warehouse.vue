@@ -14,6 +14,7 @@ import {computed, defineAsyncComponent, ref} from "vue";
 import WarehouseDashboard from "@/Pages/Inventory/WarehouseDashboard.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableLocations from "@/Pages/Tables/TableLocations.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 import TableWarehouseAreas from "@/Pages/Tables/TableWarehouseAreas.vue";
 import {useTabChange} from "@/Composables/tab-change";
 
@@ -30,6 +31,7 @@ const props = defineProps<{
     warehouse_areas?: object
     locations?: object,
     dashboard?: object,
+    history: object
 
 }>()
 
@@ -44,7 +46,7 @@ const component = computed(() => {
         warehouse_areas: TableWarehouseAreas,
         locations: TableLocations,
         details: ModelDetails,
-        history: ModelChangelog
+        history: TableHistories
     };
     return components[currentTab.value];
 
