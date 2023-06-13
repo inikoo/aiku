@@ -9,11 +9,13 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Enums\UI\PaymentAccountTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Http\Resources\Accounting\PaymentResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Marketing\Shop;
@@ -123,9 +125,13 @@ class ShowPaymentAccount extends InertiaAction
                     fn () => PaymentResource::collection(IndexPayments::run($this->paymentAccount))
                     : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($this->paymentAccount))),
 
+                PaymentAccountTabsEnum::HISTORY->value => $this->tab == PaymentAccountTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($paymentAccount))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($paymentAccount)))
 
             ]
-        )->table(IndexPayments::make()->tableStructure());
+        )->table(IndexPayments::make()->tableStructure())
+            ->table(IndexHistories::make()->tableStructure());
     }
 
 
