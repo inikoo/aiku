@@ -107,12 +107,12 @@ return [
                                ]) : [],
         ],
 
-        'for_backup'  => [
+        'backup'  => [
             'driver'         => 'pgsql',
             'url'            => env('DATABASE_URL'),
             'host'           => env('DB_HOST', '127.0.0.1'),
             'port'           => env('DB_PORT', '5432'),
-            'database'       => env('DB_DATABASE', 'aiku'),
+            'database'       => env('DB_DATABASE', 'backup_history'),
             'username'       => env('DB_USERNAME', 'aiku'),
             'password'       => env('DB_PASSWORD', ''),
             'charset'        => 'utf8',

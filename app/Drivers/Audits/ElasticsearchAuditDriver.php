@@ -10,6 +10,7 @@ namespace App\Drivers\Audits;
 use App\Actions\Auth\User\LogUserRequest;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
+use App\Models\Backup\BackupHistory;
 use Carbon\Carbon;
 use Elastic\Elasticsearch\Client;
 use hisorange\BrowserDetect\Parser as Browser;
@@ -141,12 +142,19 @@ class ElasticsearchAuditDriver implements AuditDriver
     {
         $params = [
             'index' => $this->index,
-            'type'  => $this->type,
             'body'  => $this->body($model)
         ];
 
         try {
             return $this->client->index($params);
+        } catch (\Exception $e) {
+        }
+    }
+
+    public function storeToDatabase(array $params): void
+    {
+        try {
+            BackupHistory::create($params);
         } catch (\Exception $e) {
         }
     }
