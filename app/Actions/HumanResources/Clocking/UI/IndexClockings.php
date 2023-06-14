@@ -1,73 +1,125 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 Mar 2023 19:12:29 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Wed, 15 Mar 2023 11:34:32 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
 namespace App\Actions\HumanResources\Clocking\UI;
 
+use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\InertiaAction;
+use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
-use App\Http\Resources\HumanResources\EmployeeInertiaResource;
-use App\Http\Resources\HumanResources\EmployeeResource;
-use App\InertiaTable\InertiaTable;
-use App\Models\HumanResources\Employee;
+use App\Http\Resources\HumanResources\ClockingResource;
+use App\Models\HumanResources\Clocking;
+use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Workplace;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexClockings extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.contact_name', 'ILIKE', "%$value%")
-                    ->orWhere('employees.slug', 'ILIKE', "%$value%")
-                    ->orWhere('employees.state', 'ILIKE', "%$value%");
+                $query->where('clockings.slug', 'ILIKE', "%$value%");
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::EMPLOYEES->value);
 
-        return QueryBuilder::for(Employee::class)
-            ->defaultSort('employees.slug')
-            ->select(['slug', 'id', 'job_title', 'contact_name', 'state'])
-            ->with('jobPositions')
-            ->allowedSorts(['slug', 'state', 'contact_name','job_title'])
-            ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
+        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::CLOCKINGS->value);
+
+        return QueryBuilder::for(Clocking::class)
+            ->defaultSort('clockings.slug')
+            ->select(
+                [
+                    'clockings.id',
+                    'clockings.type',
+                    'clockings.slug',
+                    'workplaces.slug as workplace_slug',
+                    'clocking_machines.slug as clocking_machine_slug',
+                    'clocking_machine_id'
+                ]
+            )
+            ->leftJoin('workplaces', 'clockings.workplace_id', 'workplaces.id')
+            ->leftJoin('clocking_machines', 'clockings.clocking_machine_id', 'clocking_machines.id')
+            ->when($parent, function ($query) use ($parent) {
+                switch (class_basename($parent)) {
+                    case 'ClockingMachine':
+                        $query->where('clockings.clocking_machine_id', $parent->id);
+                        break;
+                    case 'Workplace':
+                        $query->where('locations.workplace_id', $parent->id);
+                        break;
+                }
+            })
+            ->allowedSorts(['slug','type'])
+            ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
+                pageName: TabsAbbreviationEnum::CLOCKINGS->value.'Page'
             )
             ->withQueryString();
     }
 
+
     public function tableStructure(?array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations)  {
+        return function (InertiaTable $table) use ($modelOperations) {
             $table
-                ->name(TabsAbbreviationEnum::EMPLOYEES->value)
-                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')
+                ->name(TabsAbbreviationEnum::CLOCKINGS->value)
+                ->pageName(TabsAbbreviationEnum::CLOCKINGS->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_title', label: __('position'), canBeHidden: false)
-                ->column(key: 'state', label: __('state'), canBeHidden: false)
+                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
     }
 
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle(parent: app('currentTenant'));
+    }
+
+    public function inWorkplace(Workplace $workplace, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle(parent: $workplace);
+    }
+
+    public function inClockingMachine(ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle(parent: $clockingMachine);
+    }
+
+
+    public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle(parent: $clockingMachine);
+    }
+
+
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit = $request->user()->can('hr.clockings.edit');
 
         return
             (
@@ -76,61 +128,124 @@ class IndexClockings extends InertiaAction
             );
     }
 
-
-    public function jsonResponse(LengthAwarePaginator $employees): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $clockings): AnonymousResourceCollection
     {
-        return EmployeeResource::collection($employees);
+        return ClockingResource::collection($clockings);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees): \Inertia\Response
+    public function htmlResponse(LengthAwarePaginator $clockings, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Employees',
+            'HumanResources/Clockings',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('employees'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'title'       => __('Clockings'),
                 'pageHead'    => [
-                    'title'  => __('employees'),
-                    'create' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'hr.employees.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('employee')
-                    ] : false,
+                    'title'  => __('clockings'),
+                    'create' => $this->canEdit
+                    && (
+                        $this->routeName == 'hr.working-places.show.clockings.index' or
+                        $this->routeName == 'hr.working-places.show.clocking-machines.show.clockings.index'
+                    )
+                        ? [
+                            'route' => match ($this->routeName) {
+                                'hr.working-places.show.clockings.index' => [
+                                    'name'       => 'hr.working-places.show.clockings.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                default => [
+                                    'name'       => 'hr.working-places.show.working-places.show.clockings.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            },
+                            'label' => __('clockings')
+                        ] : false,
                 ],
-                'data'        => EmployeeInertiaResource::collection($employees),
+                'data'        => ClockingResource::collection($clockings),
+
+
             ]
         )->table($this->tableStructure());
     }
 
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $this->initialisation($request);
-
-        return $this->handle();
-    }
-
-
-    public function getBreadcrumbs(): array
-    {
-        return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
-            [
+        $headCrumb = function (array $routeParameters = []) {
+            return [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => [
-                            'name' => 'hr.employees.index'
-                        ],
-                        'label' => __('employees'),
-                        'icon'  => 'fal fa-bars',
+                        'route' => $routeParameters,
+                        'label' => __('clockings'),
+                        'icon'  => 'fal fa-bars'
                     ],
+                ],
+            ];
+        };
 
-                ]
-            ]
-        );
+        return match ($routeName) {
+            'hr.clockings.index' =>
+            array_merge(
+                (new HumanResourcesDashboard())->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => 'hr.clockings.index',
+                        null
+                    ]
+                )
+            ),
+            'hr.working-places.show.clockings.index' =>
+            array_merge(
+                (new ShowWorkingPlace())->getBreadcrumbs($routeParameters['workplace']),
+                $headCrumb([
+                    'name'       => 'hr.working-places.show.clockings.index',
+                    'parameters' =>
+                        [
+                            $routeParameters['workplace']->slug
+                        ]
+                ])
+            ),
+            'hr.clocking-machines.show.clockings.index' =>
+            array_merge(
+                (new ShowWarehouseArea())->getBreadcrumbs(
+                    'hr.clocking-machines.show',
+                    [
+                        'clockingMachine' => $routeParameters['clockingMachine']
+                    ]
+                ),
+                $headCrumb([
+                    'name'       => 'hr.clocking-machines.show.clockings.index',
+                    'parameters' =>
+                        [
+                            $routeParameters['clockingMachine']->slug
+                        ]
+                ])
+            ),
+            'hr.working-places.show.clocking-machines.show.clockings.index' =>
+            array_merge(
+                (new ShowWarehouseArea())->getBreadcrumbs(
+                    'hr.working-places.show.clocking-machines.show',
+                    [
+                        'workplace'       => $routeParameters['workplace'],
+                        'clockingMachine' => $routeParameters['clockingMachine']
+                    ]
+                ),
+                $headCrumb([
+                    'name'       => 'hr.working-places.show.clocking-machines.show.clockings.index',
+                    'parameters' =>
+                        [
+                            $routeParameters['workplace']->slug,
+                            $routeParameters['clockingMachine']->slug,
+
+                        ]
+                ])
+            ),
+
+            default => []
+        };
     }
 }

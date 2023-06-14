@@ -8,7 +8,7 @@
 
 namespace App\Http\Resources\HumanResources;
 
-use App\Models\ClockingMachine;
+use App\Models\HumanResources\ClockingMachine;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;

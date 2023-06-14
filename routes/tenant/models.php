@@ -74,7 +74,7 @@ Route::post('/working-place/', StoreWorkingPlace::class)->name('working-place.st
 
 Route::patch('/clocking-machines/{clockingMachine}', UpdateClockingMachine::class)->name('clocking-machines.update');
 Route::post('/clocking-machines', StoreClockingMachine::class)->name('clocking-machines.store');
-
+Route::post('/working-place/{workplace}/clocking-machine', StoreClockingMachine::class)->name('working-place.clocking-machine.store');
 
 Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
 Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');

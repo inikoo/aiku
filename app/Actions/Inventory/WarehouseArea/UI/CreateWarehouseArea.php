@@ -104,6 +104,7 @@ class CreateWarehouseArea extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
+
         return array_merge(
             IndexWarehouseAreas::make()->getBreadcrumbs(
                 routeName: preg_replace('/create$/', 'index', $routeName),

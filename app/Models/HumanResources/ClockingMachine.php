@@ -5,9 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\HumanResources;
 
-use App\Models\HumanResources\Workplace;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read UniversalSearch|null $universalSearch
  * @property-read Workplace $workplace
  * @method static Builder|ClockingMachine newModelQuery()
  * @method static Builder|ClockingMachine newQuery()

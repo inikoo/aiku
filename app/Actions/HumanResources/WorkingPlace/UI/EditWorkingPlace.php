@@ -7,9 +7,13 @@
 
 namespace App\Actions\HumanResources\WorkingPlace\UI;
 
+use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
+use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
+use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -36,14 +40,14 @@ class EditWorkingPlace extends InertiaAction
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function htmlResponse(Workplace $workplace): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('employee'),
+                'title'       => __('working place'),
                 'breadcrumbs' => $this->getBreadcrumbs($workplace),
                 'pageHead'    => [
                     'title'    => $workplace->name,
@@ -61,43 +65,42 @@ class EditWorkingPlace extends InertiaAction
                             'title'  => __('name'),
                             'fields' => [
                                 'name' => [
-                                    'type'        => 'input',
-                                    'label'       => __('name'),
-                                    'placeholder' => 'Name',
-                                    'value'       => $workplace->name
+                                    'type'          => 'input',
+                                    'label'         => __('name'),
+                                    'placeholder'   => __('Input your name'),
+                                    'value'         => $workplace->name
                                 ],
                                 'type' => [
                                     'type'        => 'select',
                                     'label'       => __('type'),
                                     'options'     => Options::forEnum(WorkplaceTypeEnum::class),
-                                    'placeholder' => 'Select a Type',
+                                    'placeholder' => 'Select a type',
                                     'mode'        => 'single',
                                     'value'       => $workplace->type
+                                ],
+                                'address'      => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressFormFieldsResource::make(
+                                        new Address(
+                                            [
+                                                'country_id' => app('currentTenant')->country_id,
+
+                                            ]
+                                        )
+                                    )->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+
+                                    ],
                                 ]
                             ]
                         ],
-                        [
-                            'title'  => __('Owner'),
-                            'fields' => [
-                                'owner_id' => [
-                                    'type'        => 'input',
-                                    'label'       => __('owner'),
-                                    'placeholder' => 'Owner IDs',
-                                    'value'       => $workplace->owner_id
-                                ],
-                                'owner_type' => [
-                                    'type'        => 'input',
-                                    'label'       => __('type'),
-                                    'placeholder' => 'Owner Type',
-                                    'value'       => $workplace->owner_type
-                                ]
-                            ]
-                        ]
 
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'models.employee.update',
+                            'name'       => 'models.working-place.update',
                             'parameters' => $workplace->slug
 
                         ],

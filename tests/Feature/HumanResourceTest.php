@@ -80,9 +80,9 @@ test('create working place successful', function () {
         'name'  => 'artha',
         'type'  => 'branch'
     ];
-    $addressData = Address::create(Address::factory()->definition())->toArray();
 
-    $createdWorkplace = Workplace::create($arrayData, $addressData);
+
+    $createdWorkplace = Workplace::create($arrayData);
 
     expect($createdWorkplace->name)->toBe($arrayData['name']);
 
@@ -94,8 +94,8 @@ test('update working place successful', function ($createdWorkplace) {
         'name'              => 'vica nugraha',
         'type'              => 'home',
     ];
-
-    $updatedWorkplace = UpdateWorkingPlace::run($createdWorkplace, $arrayData);
+    $addressData      = Address::create(Address::factory()->definition())->toArray();
+    $updatedWorkplace = UpdateWorkingPlace::run($createdWorkplace, $arrayData, $addressData);
 
     expect($updatedWorkplace->name)->toBe($arrayData['name']);
 })->depends('create working place successful');

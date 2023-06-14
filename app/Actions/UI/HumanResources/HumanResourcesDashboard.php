@@ -52,9 +52,9 @@ class HumanResourcesDashboard
                         'href' => ['hr.employees.index']
                     ],
                     [
-                        'name' => __('clocking-machines'),
-                        'stat' => $tenant->stats->number_clo,
-                        'href' => ['hr.clocking-machines.index']
+                        'name' => __('working places'),
+                        'stat' => $tenant->stats->number_employees_state_working,
+                        'href' => ['hr.working-places.index']
                     ]
                 ]
 

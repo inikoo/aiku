@@ -52,6 +52,8 @@ enum TabsAbbreviationEnum: string
     case WORKING_PLACES                      = 'wrkplc';
 
     case CLOCKING_MACHINES                  = 'clkmc';
+
+    case CLOCKINGS                          = 'clk';
     case ITEMS                              = 'itms';
     case CUSTOMER_NOTES_HISTORY             = 'cnh';
     case SENT_EMAILS                        = 'se';

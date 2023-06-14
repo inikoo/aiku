@@ -16,12 +16,10 @@ enum WorkingPlaceTabsEnum: string
     use HasTabs;
 
     case SHOWCASE           = 'showcase';
-    case HISTORY            = 'history';
-    case DATA               = 'data';
     case CLOCKING_MACHINES  = 'clocking_machines';
     case CLOCKINGS          = 'clockings';
-    case ATTACHMENTS        = 'attachments';
-    case IMAGES             = 'images';
+    case HISTORY            = 'history';
+    case DATA               = 'data';
 
 
     public function blueprint(): array
@@ -33,19 +31,7 @@ enum WorkingPlaceTabsEnum: string
             ],
             WorkingPlaceTabsEnum::CLOCKINGS => [
                 'title' => __('clocking'),
-                'icon'  => 'fal fa-database',
-            ],
-            WorkingPlaceTabsEnum::IMAGES => [
-                'title' => __('images'),
-                'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            WorkingPlaceTabsEnum::ATTACHMENTS => [
-                'title' => __('attachments'),
-                'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon',
-                'align' => 'right',
+                'icon'  => 'fal fa-clock',
             ],
             WorkingPlaceTabsEnum::DATA => [
                 'title' => __('database'),

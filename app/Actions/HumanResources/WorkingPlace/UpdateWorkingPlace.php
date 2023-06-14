@@ -7,19 +7,28 @@
 
 namespace App\Actions\HumanResources\WorkingPlace;
 
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\WorkingPlace\Hydrators\WorkingPlaceHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
 use App\Models\HumanResources\Workplace;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateWorkingPlace
 {
     use WithActionUpdate;
 
-    public function handle(Workplace $workplace, array $modelData): Workplace
+    public function handle(Workplace $workplace, array $modelData, array $addressData): Workplace
     {
         $workplace =  $this->update($workplace, $modelData, ['data']);
+
+        if($addressData) {
+            StoreAddressAttachToModel::run($workplace, $addressData, ['scope' => 'contact']);
+
+            $workplace->location = $workplace->getLocation();
+            $workplace->save();
+        }
 
         WorkingPlaceHydrateUniversalSearch::dispatch($workplace);
         return $workplace;
@@ -34,18 +43,25 @@ class UpdateWorkingPlace
     public function rules(): array
     {
         return [
-            'name'      => ['required'],
-            'type'      => ['required'],
-            'owner_id'  => ['numeric','required'],
-            'owner_type'=> ['required']
+            'name'       => ['sometimes','required', 'max:255'],
+            'type'       => ['sometimes','required'],
+            'address'    => ['sometimes','required']
         ];
     }
 
     public function asController(Workplace $workplace, ActionRequest $request): Workplace
     {
         $request->validate();
-
-        return $this->handle($workplace, $request->all());
+        $validated=$request->validated();
+        if (array_key_exists('address', $validated)) {
+            return $this->handle(
+                $workplace,
+                modelData: Arr::except($validated, 'address'),
+                addressData: Arr::only($validated, 'address')['address']
+            );
+        } else {
+            return $this->handle($workplace, modelData: $validated, addressData: []);
+        }
     }
 
 

@@ -4,8 +4,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-export interface ClockingMachine {
+export interface Clocking {
     slug: string
-    code: string,
+    type: string,
     workplace_slug: string,
+    clocking_machine_slug: string,
 }

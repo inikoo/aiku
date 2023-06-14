@@ -21,4 +21,17 @@ enum WorkplaceTypeEnum: string
     case ROAD            = 'road';
     case OTHER           = 'other';
 
+    public static function labels(): array
+    {
+        return [
+            'hq'                => __('HQ'),
+            'branch'            => __('Branch'),
+            'home'              => __('Home'),
+            'group-premisses'   => __('Group Premisses'),
+            'client-premises'   => __('Client Premisses'),
+            'road'              => __('Road'),
+            'other'             => __('Other'),
+        ];
+    }
+
 }

@@ -16,11 +16,19 @@ const props = defineProps<{
 
 function clockingMachineRoute(clockingMachine : ClockingMachine) {
     switch (route().current()) {
+        case 'hr.working-places.show':
+        case 'hr.working-places.show.clocking-machines.index':
+            return route(
+                "hr.working-places.show.clocking-machines.show",
+                [
+                    clockingMachine.workplace_slug,
+                    clockingMachine.slug
+                ]);
         case 'hr.clocking-machines.index':
+        default:
             return route(
                 'hr.clocking-machines.show',
                 [clockingMachine.slug]);
-
     }
 }
 

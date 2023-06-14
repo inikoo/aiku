@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\WorkingPlace\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
@@ -15,6 +16,7 @@ use App\Enums\UI\WorkingPlaceTabsEnum;
 use App\Http\Resources\HumanResources\ClockingResource;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -42,7 +44,6 @@ class ShowWorkingPlace extends InertiaAction
 
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'HumanResources/WorkingPlace',
             [
@@ -52,7 +53,7 @@ class ShowWorkingPlace extends InertiaAction
                     'previous' => $this->getPrevious($workplace, $request),
                     'next'     => $this->getNext($workplace, $request),
                 ],
-                'pageHead'     => [
+                'pageHead'                         => [
                     'icon'  =>
                         [
                             'icon'  => ['fal', 'chess-clock'],
@@ -77,7 +78,7 @@ class ShowWorkingPlace extends InertiaAction
                             ],
                             'leftIcon' => [
                                 'icon'    => [ 'fal', 'clock'],
-                                'tooltip' => __('working places')
+                                'tooltip' => __('clocking machines')
                             ]
                         ],
                         [
@@ -88,8 +89,8 @@ class ShowWorkingPlace extends InertiaAction
                                 $workplace->slug
                             ],
                             'leftIcon' => [
-                                'icon'    => 'fal fa-clock',
-                                'tooltip' => __('locations')
+                                'icon'    => [ 'fal', 'clock'],
+                                'tooltip' => __('clockings')
                             ]
                         ]
                     ]
@@ -99,7 +100,6 @@ class ShowWorkingPlace extends InertiaAction
 
                     'current'    => $this->tab,
                     'navigation' => WorkingPlaceTabsEnum::navigation(),
-
 
                 ],
                 WorkingPlaceTabsEnum::SHOWCASE->value => $this->tab == WorkingPlaceTabsEnum::SHOWCASE->value ?
@@ -114,6 +114,9 @@ class ShowWorkingPlace extends InertiaAction
                     fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))
                     : Inertia::lazy(fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))),
 
+                WorkingPlaceTabsEnum::HISTORY->value => $this->tab == WorkingPlaceTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($workplace))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($workplace)))
             ]
         )->table(
             IndexClockings::make()->tableStructure(
@@ -123,7 +126,7 @@ class ShowWorkingPlace extends InertiaAction
                             'name'       => 'hr.working-places.show.clockings.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('location')
+                        'label' => __('clocking')
                     ] : false,
                 ]
             ),
@@ -135,11 +138,11 @@ class ShowWorkingPlace extends InertiaAction
                             'name'       => 'hr.working-places.show.clocking-machines.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('area')
+                        'label' => __('machine')
                     ] : false,
                 ]
             )
-        );
+        )->table(IndexHistories::make()->tableStructure());
     }
 
 
@@ -150,7 +153,6 @@ class ShowWorkingPlace extends InertiaAction
 
     public function getBreadcrumbs(Workplace $workplace, $suffix = null): array
     {
-
         return array_merge(
             (new HumanResourcesDashboard())->getBreadcrumbs(),
             [
@@ -169,7 +171,7 @@ class ShowWorkingPlace extends InertiaAction
                                 'name'       => 'hr.working-places.show',
                                 'parameters' => [$workplace->slug]
                             ],
-                            'label' => $workplace->name,
+                            'label' => $workplace->slug,
                             'icon'  => 'fal fa-bars'
                         ],
                     ],

@@ -9,7 +9,6 @@ namespace App\Models\HumanResources;
 
 use App\Actions\Utils\Abbreviate;
 use App\Models\Assets\Timezone;
-use App\Models\ClockingMachine;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Builder;

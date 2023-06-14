@@ -1,33 +1,36 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
+  - Created: Sun, 19 Mar 2023 16:45:18 Malaysia Time, Kuala Lumpur, Malaysia
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
-// import {ref} from 'vue'
+const props = defineProps<{
+    data: object
+}>()
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Workplace} from "@/types/workplace";
 
-const props = defineProps<{
-    data: object
-}>()
-
 
 function workplaceRoute(workplace: Workplace) {
     switch (route().current()) {
+
         case 'hr.working-places.index':
             return route(
                 'hr.working-places.show',
-                [workplace.slug]);
-
+                [workplace.slug, workplace.slug]);
     }
+
 }
+
+
+
 </script>
 
+
 <template>
-    <Table :resource="data" :name="'wrkplc'" class="mt-5"  >
+    <Table :resource="data" :name="'wrkplc'" class="mt-5">
         <template #cell(slug)="{ item: workplace }">
             <Link :href="workplaceRoute(workplace)">
                 {{ workplace['slug'] }}

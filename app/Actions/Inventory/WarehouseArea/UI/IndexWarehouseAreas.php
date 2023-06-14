@@ -157,7 +157,6 @@ class IndexWarehouseAreas extends InertiaAction
             ];
         };
 
-
         return match ($routeName) {
             'inventory.warehouse-areas.index' =>
             array_merge(

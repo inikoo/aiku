@@ -15,37 +15,19 @@ enum ClockingMachineTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE                       = 'showcase';
-    case HISTORY                        = 'history';
-    case DATA                           = 'data';
-    case TODAY_TIMESHEETS               = 'today_timesheets';
-    case TIMESHEETS                     = 'timesheets';
-    case ATTACHMENTS                    = 'attachments';
-    case IMAGES                         = 'images';
+    case SHOWCASE            = 'showcase';
+    case CLOCKINGS           = 'clockings';
+
+    case HISTORY             = 'history';
+    case DATA                = 'data';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            ClockingMachineTabsEnum::TODAY_TIMESHEETS => [
-                'title' => __('today time sheets'),
-                'icon'  => 'fal fa-database',
-            ],
-            ClockingMachineTabsEnum::IMAGES => [
-                'title' => __('images'),
-                'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            ClockingMachineTabsEnum::ATTACHMENTS => [
-                'title' => __('attachments'),
-                'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            ClockingMachineTabsEnum::TIMESHEETS => [
-                'title' => __('time sheets'),
-                'icon'  => 'fal fa-database',
+            ClockingMachineTabsEnum::CLOCKINGS => [
+                'title' => __('clockings'),
+                'icon'  => 'fal fa-clock',
             ],
             ClockingMachineTabsEnum::DATA => [
                 'title' => __('database'),
@@ -60,7 +42,7 @@ enum ClockingMachineTabsEnum: string
                 'align' => 'right',
             ],
             ClockingMachineTabsEnum::SHOWCASE => [
-                'title' => __('employee'),
+                'title' => __('clocking machine'),
                 'icon'  => 'fas fa-info-circle',
             ],
         };

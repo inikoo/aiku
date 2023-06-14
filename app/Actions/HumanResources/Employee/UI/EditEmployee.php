@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -37,7 +38,7 @@ class EditEmployee extends InertiaAction
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function htmlResponse(Employee $employee): Response
     {
