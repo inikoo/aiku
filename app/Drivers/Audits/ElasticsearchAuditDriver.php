@@ -9,6 +9,7 @@ namespace App\Drivers\Audits;
 
 use App\Actions\Auth\User\LogUserRequest;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
+use App\Actions\Elasticsearch\IndexElasticsearchDocument;
 use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
 use App\Models\Backup\BackupHistory;
 use Carbon\Carbon;
@@ -43,7 +44,7 @@ class ElasticsearchAuditDriver implements AuditDriver
     public function __construct()
     {
         $this->client = BuildElasticsearchClient::run();
-        $this->index  = config('elasticsearch.index_prefix') . 'user_requests_'.app('currentTenant')->group->slug;
+        $this->index  = 'user_requests_'.app('currentTenant')->group->slug;
         $this->type   = Config::get('audit.drivers.es.type', ElasticsearchTypeEnum::ACTION->value);
     }
 
@@ -84,38 +85,12 @@ class ElasticsearchAuditDriver implements AuditDriver
     {
         $model['created_at'] = Carbon::now()->toDateTimeString();
 
-        if (Config::get('audit.queue', false)) {
-            return $this->indexQueueAuditDocument($model);
-        }
-
         return $this->indexAuditDocument($model);
-    }
-
-    public function indexQueueAuditDocument($model): bool
-    {
-        dispatch((new AuditIndexQueuedModels($model))
-            ->onQueue($this->syncWithSearchUsingQueue())
-            ->onConnection($this->syncWithSearchUsing()));
-
-        return true;
     }
 
     public function destroyAudit($model): bool
     {
-        if (Config::get('audit.queue', false)) {
-            return $this->deleteQueueAuditDocument($model);
-        }
-
         return $this->deleteAuditDocument($model);
-    }
-
-    public function deleteQueueAuditDocument($model): bool
-    {
-        dispatch((new AuditDeleteQueuedModels($model))
-            ->onQueue($this->syncWithSearchUsingQueue())
-            ->onConnection($this->syncWithSearchUsing()));
-
-        return true;
     }
 
     /**
@@ -140,23 +115,8 @@ class ElasticsearchAuditDriver implements AuditDriver
 
     public function indexAuditDocument($model)
     {
-        $params = [
-            'index' => $this->index,
-            'type'  => $this->type,
-            'body'  => $this->body($model)
-        ];
-
         try {
-            $this->storeToDatabase($params);
-            return $this->client->index($params);
-        } catch (\Exception $e) {
-        }
-    }
-
-    public function storeToDatabase(array $params): void
-    {
-        try {
-            BackupHistory::create($params);
+            return IndexElasticsearchDocument::dispatch($this->index, $this->body($model), $this->type);
         } catch (\Exception $e) {
         }
     }
