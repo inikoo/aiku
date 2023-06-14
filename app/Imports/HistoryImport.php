@@ -8,10 +8,12 @@
 namespace App\Imports;
 
 use App\Actions\Auth\User\StoreUserHistories;
+use App\Actions\Elasticsearch\BuildElasticsearchClient;
+use App\Actions\Elasticsearch\StoreElasticsearchDocument;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 
-class UserHistoryImport implements ToCollection
+class HistoryImport implements ToCollection
 {
     /**
     * @param Collection $collection
@@ -19,20 +21,12 @@ class UserHistoryImport implements ToCollection
     public function collection(Collection $collection): void
     {
         $i = 0;
+
         foreach ($collection as $row) {
             if ($i > 0) {
-                $userHistories = [
-                    'user_id'    => $row[0],
-                    'event'      => $row[1],
-                    'old_values' => $row[2],
-                    'new_values' => $row[3],
-                    'url'        => $row[4],
-                    'ip_address' => $row[5],
-                    'user_agent' => $row[6],
-                ];
-
-                StoreUserHistories::run($userHistories);
+                StoreElasticsearchDocument::dispatch($row[0], $row[2], $row[1]);
             }
+
             $i++;
         }
     }
