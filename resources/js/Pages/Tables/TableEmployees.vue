@@ -48,6 +48,7 @@ const fakeElements = [
     },
 ];
 //@elementChange="(dataFilter) => changeElements(dataFilter)"
+console.log(props.data)
 </script>
 
 <template>

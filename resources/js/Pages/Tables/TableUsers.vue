@@ -13,7 +13,7 @@ import { trans } from "laravel-vue-i18n";
 
 const props = defineProps<{
     data: object,
-    tab?:string
+    tab?:string,
 
 
 }>()
@@ -29,7 +29,27 @@ function userRoute(user: User) {
 }
 
 
-
+// const fakeElements = [
+//     {
+//         key: 0,
+//         label: 'Terima Kasih',
+//         show: false,
+//         count: 11,
+//     },
+//     {
+//         key: 1,
+//         label: 'Selamat Tinggal',
+//         show: true,
+//         count: 7,
+//     },
+//     {
+//         key: 2,
+//         label: 'Welcome',
+//         show: true,
+//         count: 23,
+//     },
+// ];
+// console.log(props.data)
 </script>
 
 <template>
@@ -37,8 +57,8 @@ function userRoute(user: User) {
     <Table :resource="data" :name="tab"  class="mt-5">
         <template #cell(username)="{ item: user }">
             <Link :href="userRoute(user)">
-            <template v-if="user.username">{{ user.username }}</template>
-            <span v-else class="italic">{{ trans('Not set') }}</span>
+                <template v-if="user.username">{{ user.username }}</template>
+                <span v-else class="italic">{{ trans('Not set') }}</span>
             </Link>
         </template>
         <template #cell(name)="{ item: user }">

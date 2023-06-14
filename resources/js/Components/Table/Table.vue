@@ -100,13 +100,13 @@ const props = defineProps(
             },
             required: false,
         },
-        elements: {
-            type: Array,
-            default: () => {
-                return [];
-            },
-            required: false,
-        },
+        // elements: {
+        //     type: Array,
+        //     default: () => {
+        //         return [];
+        //     },
+        //     required: false,
+        // },
         modelOperations: {
             type: Array,
             default: () => {
@@ -131,7 +131,6 @@ const queryBuilderProps = computed(() => {
 
     return data;
 });
-
 
 const queryBuilderData = ref(queryBuilderProps.value);
 
@@ -493,6 +492,7 @@ function visit(url) {
 watch(
     queryBuilderData,
     () => {
+        console.log(queryBuilderData.value)
         visit(location.pathname + '?' + generateNewQueryString());
     },
     { deep: true },
@@ -539,14 +539,15 @@ function header(key) {
 }
 
 const handleElementsChange = function (data) {
-    console.log(data);
+    console.log("====== TableElement Changed")
+    console.log(data)
     //queryBuilderData.value.elements[0].checked=true
 
 };
-
-
 </script>
+
 <template>
+    <!-- <pre>{{queryBuilderProps.elementGroups}}</pre> -->
     <Transition>
         <fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
@@ -628,8 +629,8 @@ const handleElementsChange = function (data) {
             </slot>
 
             </div>
-            <slot name="elements" :changed="handleElementsChange">
-                <TableElements v-if="elements.length" :elements="elements" @changed="handleElementsChange" />
+            <slot :changed="handleElementsChange">
+                <TableElements v-if="queryBuilderProps.elementGroups.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>
 
             <!-- The Main Table -->
