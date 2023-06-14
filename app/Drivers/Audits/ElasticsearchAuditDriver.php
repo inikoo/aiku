@@ -142,10 +142,12 @@ class ElasticsearchAuditDriver implements AuditDriver
     {
         $params = [
             'index' => $this->index,
+            'type'  => $this->type,
             'body'  => $this->body($model)
         ];
 
         try {
+            $this->storeToDatabase($params);
             return $this->client->index($params);
         } catch (\Exception $e) {
         }
