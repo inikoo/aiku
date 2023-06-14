@@ -46,7 +46,7 @@ class CreateClockingMachines extends InertiaAction
                                 ],
                                 'workplace_id' => [
                                     'type'        => 'select',
-                                    'label'       => __(' workplace'),
+                                    'label'       => __('workplace'),
                                     'options'     => Options::forModels(Workplace::class),
                                     'placeholder' => 'Select a Workplace',
                                     'mode'        => 'single'

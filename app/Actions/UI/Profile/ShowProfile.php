@@ -117,28 +117,9 @@ class ShowProfile
                             "avatar" => [
                                 "type"  => "avatar",
                                 "label" => __("photo"),
-                                "value" => __(""),
+                                "value" => '',
                             ],
-                            "toggle" => [
-                                "type"  => "toggle",
-                                "label" => __("toggle"),
-                                "value" => __("Use this toggle to on/off."),
-                            ],
-                            "select" => [
-                                "type"  => "select",
-                                "label" => __("select"),
-                                "value" => __("Select your option"),
-                            ],
-                            "radio" => [
-                                "type"  => "radio",
-                                "label" => __("who are you?"),
-                                "value" => __("tell us do you offensive or not"),
-                            ],
-                            "rich text" => [
-                                "type"  => "texteditor",
-                                "label" => __("text editor"),
-                                "value" => __("this is text editor"),
-                            ],
+
                         ],
                     ],
                     [

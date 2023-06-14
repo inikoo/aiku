@@ -13,10 +13,7 @@ import {
     faBoxUsd,
     faTerminal,
     faPeopleArrows,
-    faMapSigns,
-    faMoneyBill,
-    faHandReceiving,
-    faPoop, faClipboard, faTruck, faCameraRetro, faPaperclip, faPaperPlane, faClock,
+    faClipboard, faTruck, faCameraRetro,
     faPersonDolly
 } from "@/../private/pro-light-svg-icons";
 import Tabs from "@/Components/Navigation/Tabs.vue";
@@ -26,6 +23,7 @@ import {useTabChange} from "@/Composables/tab-change";
 import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
+import { capitalize } from "@/Composables/capitalize"
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -96,7 +94,7 @@ const getErrors = () => {
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <!-- {{ typeof props.errors.purchase_orders }} -->
     <PageHeading :data="pageHead"></PageHeading>
     <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>

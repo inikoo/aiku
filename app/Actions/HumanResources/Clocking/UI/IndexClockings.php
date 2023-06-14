@@ -5,20 +5,20 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Clocking;
+namespace App\Actions\HumanResources\Clocking\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Employee;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -49,13 +49,14 @@ class IndexClockings extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure(?array $modelOperations = null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($modelOperations)  {
             $table
                 ->name(TabsAbbreviationEnum::EMPLOYEES->value)
                 ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')
                 ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_title', label: __('position'), canBeHidden: false)

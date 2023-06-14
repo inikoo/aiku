@@ -17,6 +17,7 @@ import TableLocations from "@/Pages/Tables/TableLocations.vue";
 import TableHistories from "@/Pages/Tables/TableHistories.vue";
 import TableWarehouseAreas from "@/Pages/Tables/TableWarehouseAreas.vue";
 import {useTabChange} from "@/Composables/tab-change";
+import { capitalize } from "@/Composables/capitalize"
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 library.add(faInventory, faWarehouse, faMapSigns, faChartLine);
@@ -56,7 +57,7 @@ const component = computed(() => {
 
 
 <template layout="App">
-    <Head :title="title"/>
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>

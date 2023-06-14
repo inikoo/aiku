@@ -7,8 +7,8 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
-use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
+use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Models\HumanResources\Employee;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
@@ -23,12 +23,12 @@ class FetchDeletedEmployees extends FetchAction
     {
         if ($employeeData = $tenantSource->fetchDeletedEmployee($tenantSourceId)) {
             if ($employee = Employee::withTrashed()->where('source_id', $employeeData['employee']['source_id'])->first()) {
-                $employee = UpdateClockingMachine::run(
+                $employee = UpdateEmployee::run(
                     employee:  $employee,
                     modelData: $employeeData['employee']
                 );
             } else {
-                $employee = StoreClockingMachine::run(
+                $employee = StoreEmployee::run(
                     modelData:    $employeeData['employee'],
                 );
             }

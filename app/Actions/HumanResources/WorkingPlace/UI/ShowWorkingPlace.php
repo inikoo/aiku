@@ -7,10 +7,12 @@
 
 namespace App\Actions\HumanResources\WorkingPlace\UI;
 
-use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\InertiaAction;
+use App\Actions\HumanResources\Clocking\UI\IndexClockings;
+use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\WorkingPlaceTabsEnum;
+use App\Http\Resources\HumanResources\ClockingResource;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
 use App\Models\HumanResources\Workplace;
@@ -44,61 +46,100 @@ class ShowWorkingPlace extends InertiaAction
         return Inertia::render(
             'HumanResources/WorkingPlace',
             [
-                'title'                                 => __('employee'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($workplace),
-//                'navigation'                            => [
-//                    'previous' => $this->getPrevious($workplace, $request),
-//                    'next'     => $this->getNext($workplace, $request),
-//                ],
-                'pageHead'    => [
-                    'title' => $workplace->name,
-                    'meta'  => [
+                'title'                            => __('working place'),
+                'breadcrumbs'                      => $this->getBreadcrumbs($workplace),
+                'navigation'                       => [
+                    'previous' => $this->getPrevious($workplace, $request),
+                    'next'     => $this->getNext($workplace, $request),
+                ],
+                'pageHead'     => [
+                    'icon'  =>
                         [
-                            'name'     => $workplace->name,
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-id-card',
-                                'tooltip' => __('Worker number')
-                            ]
+                            'icon'  => ['fal', 'chess-clock'],
+                            'title' => __('working place')
                         ],
-                    ],
+                    'title' => $workplace->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
+
+
+                    'meta' => [
+                        [
+                            'name'     => trans_choice('clocking machine|clocking machines', 0 /*$workplace->stats->number_clocking_machines */),
+                            'number'   => 0/* $workplace->stats->number_clocking_machines */,
+                            'href'     => [
+                                'hr.working-places.show.clocking-machines.index',
+                                $workplace->slug
+                            ],
+                            'leftIcon' => [
+                                'icon'    => [ 'fal', 'clock'],
+                                'tooltip' => __('working places')
+                            ]
+                        ],
+                        [
+                            'name'     => trans_choice('clocking|clockings', 0 /* $workplace->stats->number_clockings */),
+                            'number'   => 0/* $workplace->stats->number_clockings */,
+                            'href'     => [
+                                'hr.working-places.show.clockings.index',
+                                $workplace->slug
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-clock',
+                                'tooltip' => __('locations')
+                            ]
+                        ]
+                    ]
+
                 ],
-                'tabs'        => [
+                'tabs'                             => [
+
                     'current'    => $this->tab,
-                    'navigation' => WorkingPlaceTabsEnum::navigation()
+                    'navigation' => WorkingPlaceTabsEnum::navigation(),
+
+
                 ],
                 WorkingPlaceTabsEnum::SHOWCASE->value => $this->tab == WorkingPlaceTabsEnum::SHOWCASE->value ?
                     fn () => GetWorkingPlaceShowcase::run($workplace)
                     : Inertia::lazy(fn () => GetWorkingPlaceShowcase::run($workplace)),
 
-                WorkingPlaceTabsEnum::CLOCKING_MACHINES->value       => $this->tab == WorkingPlaceTabsEnum::CLOCKING_MACHINES->value ?
-                    fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))
-                    : Inertia::lazy(fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))),
-                WorkingPlaceTabsEnum::CLOCKINGS->value => $this->tab == WorkingPlaceTabsEnum::CLOCKINGS->value
+                WorkingPlaceTabsEnum::CLOCKINGS->value       => $this->tab == WorkingPlaceTabsEnum::CLOCKINGS->value ?
+                    fn () => ClockingResource::collection(IndexClockings::run($workplace))
+                    : Inertia::lazy(fn () => ClockingResource::collection(IndexClockings::run($workplace))),
+                WorkingPlaceTabsEnum::CLOCKING_MACHINES->value => $this->tab == WorkingPlaceTabsEnum::CLOCKING_MACHINES->value
                     ?
                     fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))
                     : Inertia::lazy(fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))),
 
             ]
+        )->table(
+            IndexClockings::make()->tableStructure(
+                [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'hr.working-places.show.clockings.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('location')
+                    ] : false,
+                ]
+            ),
+        )->table(
+            IndexClockingMachines::make()->tableStructure(
+                [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'hr.working-places.show.clocking-machines.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('area')
+                    ] : false,
+                ]
+            )
         );
-        //        ->table(
-        //            IndexClockingMachines::make()->tableStructure(
-        //                [
-        //                    'createLink' => $this->canEdit ? [
-        //                        'route' => [
-        //                            'name'       => 'hr.working-places.show.clocking-machines.create',
-        //                            'parameters' => array_values($this->originalParameters)
-        //                        ],
-        //                        'label' => __('clocking machines')
-        //                    ] : false,
-        //                ]
-        //            ),
-        //        );
     }
 
 
@@ -109,6 +150,7 @@ class ShowWorkingPlace extends InertiaAction
 
     public function getBreadcrumbs(Workplace $workplace, $suffix = null): array
     {
+
         return array_merge(
             (new HumanResourcesDashboard())->getBreadcrumbs(),
             [
@@ -119,7 +161,8 @@ class ShowWorkingPlace extends InertiaAction
                             'route' => [
                                 'name' => 'hr.working-places.index',
                             ],
-                            'label' => __('working places')
+                            'label' => __('working place'),
+                            'icon'  => 'fal fa-bars'
                         ],
                         'model' => [
                             'route' => [
@@ -163,9 +206,8 @@ class ShowWorkingPlace extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'workPlace' => $workplace->slug
+                        'workplace' => $workplace->slug
                     ]
-
                 ]
             ]
         };

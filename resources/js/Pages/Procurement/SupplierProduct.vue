@@ -40,6 +40,7 @@ import {
 import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
+import { capitalize } from "@/Composables/capitalize"
 import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 library.add(
@@ -76,7 +77,7 @@ const component = computed(() => {
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>

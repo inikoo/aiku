@@ -556,8 +556,8 @@ const handleElementsChange = function (data) {
                 <div class="flex border border-indigo-100 rounded-lg">
                     <div class="grid justify-end items-center text-base font-normal text-gray-700"
                         title="Results">
-                        <div v-if="resourceMeta.total" class="px-2 ">{{ locale.number(resourceMeta.total) }}{{ $t(resourceMeta.total > 1 ? ' records' : ' record') }}</div>
-                        <div v-else class="px-2 ">{{ locale.number(0) }}{{ $t(' record') }}</div>
+                        <div v-if="resourceMeta.total" class="px-2 ">{{ locale.number(resourceMeta.total) }} {{ $t(resourceMeta.total > 1 ? 'records' : 'record') }}</div>
+                        <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
                     </div>
                     <!-- Button -->
                     <div v-if="queryBuilderProps.modelOperations.createLink">

@@ -5,12 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Clocking;
+namespace App\Actions\HumanResources\Clocking\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\Employee;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,9 +19,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowClocking extends InertiaAction
 {
-    public function handle(Employee $employee): Employee
+    public function handle(Clocking $clocking): Clocking
     {
-        return $employee;
+        return $clocking;
     }
 
 
@@ -31,10 +32,10 @@ class ShowClocking extends InertiaAction
         return $request->user()->hasPermissionTo("hr.view");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(Clocking $clocking, ActionRequest $request): Clocking
     {
         $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
-        return $this->handle($employee);
+        return $this->handle($clocking);
     }
 
     public function htmlResponse(Employee $employee, ActionRequest $request): Response

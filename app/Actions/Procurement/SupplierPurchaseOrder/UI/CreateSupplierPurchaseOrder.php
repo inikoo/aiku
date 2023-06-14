@@ -36,7 +36,7 @@ class CreateSupplierPurchaseOrder extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __(' create supplier purchase order'),
+                            'title'  => __('create supplier purchase order'),
                             'fields' => [
 
                                 'number' => [

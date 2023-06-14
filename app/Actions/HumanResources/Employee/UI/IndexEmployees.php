@@ -9,6 +9,8 @@ namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
@@ -25,34 +27,89 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexEmployees extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function __construct()
+    {
+        $this->elementGroups =
+            [
+                'state' => [
+                    'label'    => __('State'),
+                    'elements' => EmployeeStateEnum::labels(),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('state', $elements);
+                    }
+
+                ],
+                'type'  => [
+                    'label'    => __('Type'),
+                    'elements' => EmployeeTypeEnum::labels(),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('type', $elements);
+                    }
+
+                ],
+            ];
+    }
+
+
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.contact_name', 'ILIKE', "%$value%")
-                    ->orWhere('employees.slug', 'ILIKE', "%$value%")
-                    ->orWhere('employees.state', 'ILIKE', "%$value%");
+                $query->whereAnyWordStartWith('employees.contact_name', $value)
+                    ->orWhere('employees.slug', 'ILIKE', "$value%");
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::EMPLOYEES->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
-        return QueryBuilder::for(Employee::class)
+        $queryBuilder=QueryBuilder::for(Employee::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+
+
+        return $queryBuilder
             ->defaultSort('employees.slug')
             ->select(['slug', 'id', 'job_title', 'contact_name', 'state'])
             ->with('jobPositions')
-            ->allowedSorts(['slug', 'state', 'contact_name','job_title'])
+            ->allowedSorts(['slug', 'state', 'contact_name', 'job_title'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
+                pageName: $prefix ? $prefix.'Page' : 'page'
             )
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure($prefix=null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($prefix) {
+
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+            foreach ($this->elementGroups as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
+
+
             $table
                 ->name(TabsAbbreviationEnum::EMPLOYEES->value)
                 ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')

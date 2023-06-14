@@ -28,7 +28,7 @@ enum ClockingMachineTabsEnum: string
     {
         return match ($this) {
             ClockingMachineTabsEnum::TODAY_TIMESHEETS => [
-                'title' => __('today timesheets'),
+                'title' => __('today time sheets'),
                 'icon'  => 'fal fa-database',
             ],
             ClockingMachineTabsEnum::IMAGES => [
@@ -44,7 +44,7 @@ enum ClockingMachineTabsEnum: string
                 'align' => 'right',
             ],
             ClockingMachineTabsEnum::TIMESHEETS => [
-                'title' => __('timesheets'),
+                'title' => __('time sheets'),
                 'icon'  => 'fal fa-database',
             ],
             ClockingMachineTabsEnum::DATA => [

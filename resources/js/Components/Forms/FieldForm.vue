@@ -9,9 +9,10 @@
 import { useForm } from '@inertiajs/vue3';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faSave } from '@/../private/pro-light-svg-icons';
+import { faAsterisk } from '@/../private/pro-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 
-library.add(faSave);
+library.add(faSave, faAsterisk);
 import Input from '@/Components/Forms/Fields/Input.vue';
 import Phone from '@/Components/Forms/Fields/Phone.vue';
 import Date from '@/Components/Forms/Fields/Date.vue';
@@ -36,7 +37,7 @@ const props = defineProps<{
         type: string,
         label: string,
         value: any,
-        required?: boolean
+        optional?: boolean
 
     },
     args: {
@@ -97,7 +98,7 @@ if (props['fieldData']['hasOther']) {
 }
 //}
 const form = useForm(formFields);
-form['type'] = 'edit';
+form['fieldType'] = 'edit';
 
 </script>
 
@@ -106,7 +107,7 @@ form['type'] = 'edit';
         <dl class="divide-y divide-gray-200 max-w-2xl ">
             <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                 <dt class="text-sm font-medium text-gray-500 capitalize">
-                    {{ fieldData.label }}<span v-if="fieldData.required" class="text-xs text-red-600">*</span>
+                    <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="!fieldData.optional" :icon="['fas', 'asterisk']" class="font-light text-[6px] text-red-400"/>{{ fieldData.label }}</div>
                 </dt>
                 <dd class="sm:col-span-2  ">
                     <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">

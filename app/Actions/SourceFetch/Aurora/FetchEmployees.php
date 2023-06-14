@@ -7,36 +7,34 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
-use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
+use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\Utils\StoreImage;
 use App\Models\HumanResources\Employee;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchEmployees extends FetchAction
 {
     public string $commandSignature = 'fetch:employees {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Employee
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Employee
     {
         if ($employeeData = $tenantSource->fetchEmployee($tenantSourceId)) {
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
-                $employee = UpdateClockingMachine::run(
-                    employee:  $employee,
+                $employee = UpdateEmployee::run(
+                    employee: $employee,
                     modelData: $employeeData['employee']
                 );
             } else {
-                $employee = StoreClockingMachine::run(
-                    modelData:    $employeeData['employee'],
+                $employee = StoreEmployee::run(
+                    modelData: $employeeData['employee'],
                 );
             }
 
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);
-
 
 
             $employee->jobPositions()->sync($employeeData['job-positions']);
@@ -46,7 +44,6 @@ class FetchEmployees extends FetchAction
                     StoreImage::run($employee, $profileImage['image_path'], $profileImage['filename']);
                 }
             }
-
 
 
             return $employee;

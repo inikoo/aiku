@@ -9,16 +9,16 @@ namespace App\Actions\HumanResources\Employee\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\HumanResources\Employee;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class EmployeeHydrateUniversalSearch implements ShouldBeUnique
+class EmployeeHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
 
     public function handle(Employee $employee): void
     {
+
         $employee->universalSearch()->create(
             [
                 'primary_term'   => $employee->contact_name,
@@ -27,8 +27,5 @@ class EmployeeHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(Employee $employee): int
-    {
-        return $employee->id;
-    }
+
 }

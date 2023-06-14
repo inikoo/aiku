@@ -28,7 +28,7 @@ enum EmployeeTabsEnum: string
     {
         return match ($this) {
             EmployeeTabsEnum::TODAY_TIMESHEETS => [
-                'title' => __('today timesheets'),
+                'title' => __('today time sheets'),
                 'icon'  => 'fal fa-database',
             ],
             EmployeeTabsEnum::IMAGES => [
@@ -44,7 +44,7 @@ enum EmployeeTabsEnum: string
                 'align' => 'right',
             ],
             EmployeeTabsEnum::TIMESHEETS => [
-                'title' => __('timesheets'),
+                'title' => __('time sheets'),
                 'icon'  => 'fal fa-database',
             ],
             EmployeeTabsEnum::DATA => [

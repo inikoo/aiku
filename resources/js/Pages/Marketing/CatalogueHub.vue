@@ -19,6 +19,7 @@ import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
 import TableDepartments from "@/Pages/Tables/TableDepartments.vue";
+import { capitalize } from "@/Composables/capitalize"
 library.add(faCube,faFolder,faFolders,faChartLine);
 
 
@@ -53,7 +54,7 @@ const component = computed(() => {
 </script>
 
 <template layout="App">
-    <Head :title="title" />
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]" :tab="currentTab"  ></component>

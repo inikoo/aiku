@@ -171,7 +171,7 @@ class CreateStockFamily extends InertiaAction
                             'fields' => [
                                 'cpnp_number' => [
                                     'type'  => 'input',
-                                    'label' => __('cpnp number'),
+                                    'label' => __('CPNP number'),
                                     'value' => ''
                                 ],
                                 'ufi' => [

@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
-import { ref, computed } from "vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle } from "@/../private/pro-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -16,26 +15,25 @@ const props = defineProps<{
     fieldName: any
     options: string[]
     fieldData: {
-        placeholder: string,
-        required: boolean,
+        placeholder: string
+        optional: boolean
         mode: string
     }
 }>()
-const placeholder = "Select your option"
 </script>
 
 <template>
 	<div class="">
 		<div class="relative">
 			<Multiselect
-				:class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
 				v-model="form[fieldName]"
+				:class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
 				:options="props.options"
-				:placeholder="props.fieldData.placeholder ? props.fieldData.placeholder : placeholder"
-				:canClear="!props.fieldData.required"
+				:placeholder="props.fieldData.placeholder ?? 'Select your option'"
+				:canClear="!!props.fieldData.optional"
 				:mode="props.fieldData.mode ? props.fieldData.mode : 'single'"
 				:closeOnSelect="props.fieldData.mode == 'multiple' ? false : true"
-				:canDeselect="false"
+				:canDeselect="!!props.fieldData.optional"
 				:hideSelected="false" />
 			<div
 				v-if="form.errors[fieldName] || form.recentlySuccessful"
