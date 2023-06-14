@@ -48,7 +48,7 @@ class LogUserRequest
         // https://stackoverflow.com/questions/68614445/how-to-detect-windows-11-from-user-agent
 
 
-        IndexElasticsearchDocument::run(index: $index, body: $body);
+        IndexElasticsearchDocument::dispatch(index: $index, body: $body);
     }
 
     public function getLocation(string $ip): false|array|null

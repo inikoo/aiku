@@ -86,6 +86,21 @@ return [
             'sslmode'        => 'prefer',
         ],
 
+        'backup' => [
+            'driver'         => 'pgsql',
+            'url'            => env('DATABASE_URL'),
+            'host'           => env('DB_HOST', '127.0.0.1'),
+            'port'           => env('DB_PORT', '5432'),
+            'database'       => env('DB_DATABASE', 'backup_history'),
+            'username'       => env('DB_USERNAME', 'aiku'),
+            'password'       => env('DB_PASSWORD', ''),
+            'charset'        => 'utf8',
+            'prefix'         => '',
+            'prefix_indexes' => true,
+            'search_path'    => env('DB_SEARCH_PATH', ''),
+            'sslmode'        => 'prefer',
+        ],
+
         'aurora' => [
             'driver'         => env('AURORA_DB_DRIVER', 'mysql'),
             //'url'            => env('DATABASE_URL'),
@@ -112,7 +127,7 @@ return [
             'url'            => env('DATABASE_URL'),
             'host'           => env('DB_HOST', '127.0.0.1'),
             'port'           => env('DB_PORT', '5432'),
-            'database'       => env('DB_DATABASE', 'aiku'),
+            'database'       => env('DB_DATABASE', 'backup_history'),
             'username'       => env('DB_USERNAME', 'aiku'),
             'password'       => env('DB_PASSWORD', ''),
             'charset'        => 'utf8',

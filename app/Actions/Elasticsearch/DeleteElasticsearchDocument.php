@@ -12,7 +12,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class DeleteElasticsearchData
+class DeleteElasticsearchDocument
 {
     use AsObject;
     use AsAction;

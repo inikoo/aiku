@@ -17,7 +17,7 @@ use Exception;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class IndexElasticsearchDocument
+class StoreElasticsearchDocument
 {
     use AsAction;
     use AsObject;
@@ -35,8 +35,6 @@ class IndexElasticsearchDocument
                     'type' => $type,
                     'body'  => $body
                 ];
-
-                BackupHistory::create($params);
 
                 return $client->index($params);
             } catch (ClientResponseException $e) {
