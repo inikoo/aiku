@@ -98,7 +98,7 @@ if (props['fieldData']['hasOther']) {
 }
 //}
 const form = useForm(formFields);
-form['type'] = 'edit';
+form['fieldType'] = 'edit';
 
 </script>
 

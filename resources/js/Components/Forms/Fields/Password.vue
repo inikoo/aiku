@@ -15,7 +15,7 @@ library.add(faExclamationCircle, faCheckCircle, faEye, faEyeSlash);
 const props = defineProps(['form', 'fieldName', 'options', 'fieldData']);
 
 const handleChange = (form) => {
-    if (form.type === 'edit') {
+    if (form.fieldType === 'edit') {
         form.clearErrors();
     }
 }

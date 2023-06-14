@@ -18,7 +18,7 @@ defineEmits(['update:modelValue'])
 const inputValue = ref(props.modelValue ? props.modelValue : '')
 
 const handleChange = (form) => {
-    if (form.type === 'edit') {
+    if (form.fieldType === 'edit') {
         form.clearErrors()
     }
 }
