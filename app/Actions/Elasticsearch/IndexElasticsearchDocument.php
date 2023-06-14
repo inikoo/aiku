@@ -7,17 +7,22 @@
 
 namespace App\Actions\Elasticsearch;
 
+use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
+use App\Models\Backup\BackupHistory;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
+use Elastic\Elasticsearch\Response\Elasticsearch;
 use Exception;
+use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class IndexElasticsearchDocument
 {
+    use AsAction;
     use AsObject;
 
-    public function handle(string $index, array $body): bool
+    public function handle(string $index, array $body, string $type = ElasticsearchTypeEnum::VISIT->value): bool|Elasticsearch
     {
         $index = config('elasticsearch.index_prefix').$index;
 
@@ -25,14 +30,15 @@ class IndexElasticsearchDocument
 
         if ($client instanceof Client) {
             try {
-                $client->index(
-                    [
-                        'index' => $index,
-                        'body'  => $body
-                    ]
-                );
+                $params = [
+                    'index' => $index,
+                    'type' => $type,
+                    'body'  => $body
+                ];
 
-                return true;
+                BackupHistory::create($params);
+
+                return $client->index($params);
             } catch (ClientResponseException $e) {
                 //dd($e->getMessage());
                 // manage the 4xx error

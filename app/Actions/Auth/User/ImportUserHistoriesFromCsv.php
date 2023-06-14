@@ -7,7 +7,7 @@
 
 namespace App\Actions\Auth\User;
 
-use App\Imports\UserHistoryImport;
+use App\Imports\HistoryImport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -23,7 +23,7 @@ class ImportUserHistoriesFromCsv
     public function handle(string $filename): void
     {
         Excel::import(
-            new UserHistoryImport(),
+            new HistoryImport(),
             Storage::disk('datasets')->path($filename),
             null,
             \Maatwebsite\Excel\Excel::CSV
