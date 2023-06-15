@@ -17,14 +17,13 @@ use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchUsers extends FetchAction
 {
     public string $commandSignature = 'fetch:users {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?User
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?User
     {
         if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
             if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {

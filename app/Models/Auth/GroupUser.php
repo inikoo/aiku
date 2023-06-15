@@ -37,7 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $about
  * @property bool $status
- * @property int|null $media_id
+ * @property int|null $avatar_id
  * @property array|null $data
  * @property int $number_users
  * @property int $number_active_users
@@ -90,7 +90,7 @@ class GroupUser extends Model implements HasMedia
 
     public function avatar(): HasOne
     {
-        return $this->hasOne(CentralMedia::class, 'id', 'media_id');
+        return $this->hasOne(CentralMedia::class, 'id', 'avatar_id');
     }
 
     public function tenants(): BelongsToMany

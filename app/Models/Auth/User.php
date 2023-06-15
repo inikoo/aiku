@@ -12,7 +12,6 @@ use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
-use Database\Factories\Auth\UserFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -42,13 +41,16 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property bool $status
  * @property string $username mirror group_users.username
  * @property string $password mirror group_users.password
- * @property string|null $contact_name no-normalised depends of parent
+ * @property UserAuthTypeEnum $auth_type
+ * @property string|null $contact_name no-normalised depends on parent
  * @property string|null $email mirror group_users.email
  * @property int|null $parent_id
  * @property string|null $parent_type
  * @property string|null $remember_token
  * @property array $data
  * @property array $settings
+ * @property int $language_id
+ * @property int|null $avatar_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -63,7 +65,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \App\Models\Auth\UserStats|null $stats
  * @property-read Tenant $tenant
  * @property-read Collection<int, PersonalAccessToken> $tokens
- * @method static UserFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User onlyTrashed()

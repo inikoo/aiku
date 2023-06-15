@@ -30,7 +30,7 @@ class SetGroupUserAvatar
 
             $avatarID = $groupMedia->id;
 
-            $groupUser->update(['media_id' => $avatarID]);
+            $groupUser->update(['avatar_id' => $avatarID]);
         } catch(Exception) {
             //
         }
