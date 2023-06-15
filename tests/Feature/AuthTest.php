@@ -8,6 +8,7 @@
 namespace Tests\Feature;
 
 use App\Actions\Auth\GroupUser\DeleteGroupUser;
+use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\GroupUser\UpdateGroupUserStatus;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
@@ -91,8 +92,13 @@ test('create user for guest', function ($guest) {
 
     $userData = User::factory()->definition();
     Arr::set($userData, 'email', $guest->email);
+
+
+    $groupUser=StoreGroupUser::make()->action($userData);
+    expect($groupUser)->toBeInstanceOf(GroupUser::class);
+
     /** @noinspection PhpUnhandledExceptionInspection */
-    $user = StoreUser::make()->action($guest, null, $userData);
+    $user = StoreUser::make()->action($guest, $groupUser);
 
     $this->assertModelExists($user);
     expect($user->password)->toBe('1234567')

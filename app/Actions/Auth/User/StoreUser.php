@@ -110,7 +110,7 @@ class StoreUser
     /**
      * @throws \Throwable
      */
-    public function action(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData): User|ValidationException
+    public function action(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData=[]): User|ValidationException
     {
         $this->asAction  = true;
         $this->groupUser = $groupUser;
