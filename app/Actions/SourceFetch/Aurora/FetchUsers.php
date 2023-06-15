@@ -10,6 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\Auth\User\UpdateUser;
+use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
 use App\Services\Tenant\SourceTenantService;
@@ -28,6 +29,7 @@ class FetchUsers extends FetchAction
         if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
             if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                 $user = UpdateUser::run($user, $userData['user']);
+
             } else {
                 $groupUser = GroupUser::where('username', $userData['user']['username'])->first();
                 if (!$groupUser) {
@@ -40,12 +42,10 @@ class FetchUsers extends FetchAction
                 }
 
 
-                $user = StoreUser::run($userData['parent'], $groupUser);
-                $user->update(
-                    [
-                        'source_id'=> $userData['user']['source_id']
-                    ]
-                );
+                $user = StoreUser::run(parent:$userData['parent'], groupUser:$groupUser, objectData:[
+                    'source_id'=> $userData['user']['source_id'],
+                    'auth_type'=> UserAuthTypeEnum::AURORA
+                ]);
 
 
                 DB::connection('aurora')->table('User Dimension')

@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\GroupUser;
 
 use App\Actions\WithActionUpdate;
-use App\Enums\Auth\SynchronisableUserFields;
+use App\Enums\Auth\User\SynchronisableUserFields;
 use App\Models\Auth\GroupUser;
 use App\Rules\AlphaDashDot;
 use Illuminate\Support\Arr;

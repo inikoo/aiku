@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Enums\Auth\GuestTypeEnum;
+use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Stubs\Migrations\HasContact;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

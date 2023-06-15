@@ -9,7 +9,7 @@ namespace App\Actions\Auth\User;
 
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
 use App\Actions\WithActionUpdate;
-use App\Enums\Auth\SynchronisableUserFields;
+use App\Enums\Auth\User\SynchronisableUserFields;
 use App\Models\Auth\User;
 use App\Rules\AlphaDashDot;
 use Illuminate\Http\RedirectResponse;

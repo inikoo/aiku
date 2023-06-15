@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\Guest;
 
 use App\Actions\WithActionUpdate;
-use App\Enums\Auth\GuestTypeEnum;
+use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\Auth\Guest;
 use Illuminate\Validation\Rule;
