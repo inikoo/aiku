@@ -81,10 +81,7 @@ class IndexEmployees extends InertiaAction
             ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'contact_name', 'job_title'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: $prefix ? $prefix.'Page' : 'page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
