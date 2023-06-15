@@ -24,7 +24,7 @@ class LogUserRequest
     {
         $tenant = app('currentTenant');
 
-        $index = 'user_requests_'.$tenant->group->slug;
+        $index =  config('elasticsearch.index_prefix') . 'user_requests_'.$tenant->group->slug;
 
         $parsedUserAgent = (new Browser())->parse($userAgent);
 

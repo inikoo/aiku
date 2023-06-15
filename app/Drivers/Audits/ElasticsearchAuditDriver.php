@@ -44,7 +44,7 @@ class ElasticsearchAuditDriver implements AuditDriver
     public function __construct()
     {
         $this->client = BuildElasticsearchClient::run();
-        $this->index  = 'user_requests_'.app('currentTenant')->group->slug;
+        $this->index  =  config('elasticsearch.index_prefix') . 'user_requests_'.app('currentTenant')->group->slug;
         $this->type   = Config::get('audit.drivers.es.type', ElasticsearchTypeEnum::ACTION->value);
     }
 

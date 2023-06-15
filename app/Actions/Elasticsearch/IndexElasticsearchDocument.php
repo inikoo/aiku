@@ -23,26 +23,26 @@ class IndexElasticsearchDocument
     use AsAction;
     use AsObject;
 
-    public function handle(string $index, array $body, string $type = ElasticsearchTypeEnum::VISIT->value): bool|Elasticsearch
+    public function handle(string $index, array $body, string $type = ElasticsearchTypeEnum::VISIT->value, bool $isRestore = false): bool|Elasticsearch
     {
-        $index = config('elasticsearch.index_prefix').$index;
-
         $client = BuildElasticsearchClient::run();
 
         if ($client instanceof Client) {
             try {
                 $params = [
                     'index' => $index,
-                    'type' => $type,
+                    'type'  => $type,
                     'body'  => $body
                 ];
 
-                if($type == ElasticsearchTypeEnum::VISIT->value) {
-                    VisitHistory::create($params);
-                }
+                if (!$isRestore) {
+                    if ($type == ElasticsearchTypeEnum::VISIT->value) {
+                        VisitHistory::create($params);
+                    }
 
-                if($type == ElasticsearchTypeEnum::ACTION->value) {
-                    ActionHistory::create($params);
+                    if ($type == ElasticsearchTypeEnum::ACTION->value) {
+                        ActionHistory::create($params);
+                    }
                 }
 
                 return $client->index($params);
