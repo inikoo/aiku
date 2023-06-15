@@ -11,6 +11,8 @@ use App\Actions\Auth\User\LogUserRequest;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Actions\Elasticsearch\IndexElasticsearchDocument;
 use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
+use App\Models\Auth\User;
+use App\Models\Backup\ActionHistory;
 use Carbon\Carbon;
 use Elastic\Elasticsearch\Client;
 use hisorange\BrowserDetect\Parser as Browser;
@@ -123,28 +125,31 @@ class ElasticsearchAuditDriver implements AuditDriver
     public function body($model): array
     {
         $parsedUserAgent = (new Browser())->parse($model['user_agent']);
+        $user = User::find($model['user_id']);
 
         return [
-                'type'           => $this->type,
-                'datetime'       => now(),
-                'tenant'         => app('currentTenant')->slug,
-                'route'          => $this->routes(),
-                'module'         => explode('.', $this->routes()['name'])[0],
-                'ip_address'     => request()->ip(),
-                'location'       => json_encode((new LogUserRequest())->getLocation(request()->ip())),
-                'user_agent'     => $model['user_agent'],
-                'device_type'    => $parsedUserAgent->deviceType(),
-                'platform'       => (new LogUserRequest())->detectWindows11($parsedUserAgent),
-                'browser'        => $parsedUserAgent->browserName(),
-                'old_values'     => $model['old_values'],
-                'new_values'     => $model['new_values'],
-                'event'          => $model['event'],
+                'type'        => $this->type,
+                'datetime'    => now(),
+                'tenant'      => app('currentTenant')->slug,
+                'route'       => $this->routes(),
+                'module'      => explode('.', $this->routes()['name'])[0],
+                'ip_address'  => request()->ip(),
+                'location'    => json_encode((new LogUserRequest())->getLocation(request()->ip())),
+                'user_agent'  => $model['user_agent'],
+                'device_type' => $parsedUserAgent->deviceType(),
+                'platform'    => (new LogUserRequest())->detectWindows11($parsedUserAgent),
+                'browser'     => $parsedUserAgent->browserName(),
+                'old_values'  => $model['old_values'],
+                'new_values'  => $model['new_values'],
+                'event'       => $model['event'],
                 'auditable_id'   => $model['auditable_id'],
                 'auditable_type' => $model['auditable_type'],
-                'user_id'        => $model['user_id'],
-                'user_type'      => $model['user_type'],
-                'tags'           => $model['tags'],
-                'url'            => $model['url'],
+                'user_id'     => $model['user_id'],
+                'slug'        => $user->username,
+                'user_name'   => $user->contact_name,
+                'user_type'   => $model['user_type'],
+                'tags'        => $model['tags'],
+                'url'         => $model['url'],
             ];
     }
 

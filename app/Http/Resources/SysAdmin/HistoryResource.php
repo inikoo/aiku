@@ -9,6 +9,7 @@ namespace App\Http\Resources\SysAdmin;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 use JsonSerializable;
 
 class HistoryResource extends JsonResource
@@ -26,9 +27,11 @@ class HistoryResource extends JsonResource
             'event'          => $this['event'],
             'auditable_id'   => $this['auditable_id'],
             'auditable_type' => $this['auditable_type'],
-            'user_id'        => $this['user_id'],
-            'user_type'      => $this['user_type'],
-            'tags'           => $this['tags']
+            'user_id'     => $this['user_id'],
+            'user_type'   => $this['user_type'],
+            'slug'        => $this['slug'],
+            'user_name'   => $this['user_name'],
+            'tags'        => $this['tags']
         ];
     }
 }
