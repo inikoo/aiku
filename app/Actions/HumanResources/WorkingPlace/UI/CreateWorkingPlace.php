@@ -48,7 +48,7 @@ class CreateWorkingPlace extends InertiaAction
                                 'name' => [
                                     'type'          => 'input',
                                     'label'         => __('name'),
-                                    'placeholder'   => __('Input your name'),
+                                    'placeholder'   => __(''),
                                 ],
                                 'type' => [
                                     'type'        => 'select',

@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+
 const props = defineProps<{
     data: object
 }>()
@@ -12,19 +13,16 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Workplace} from "@/types/workplace";
 
-
 function workplaceRoute(workplace: Workplace) {
     switch (route().current()) {
-
         case 'hr.working-places.index':
             return route(
                 'hr.working-places.show',
-                [workplace.slug, workplace.slug]);
+                [workplace.slug]);
+
     }
 
 }
-
-
 
 </script>
 

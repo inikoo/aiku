@@ -1,8 +1,8 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 Mar 2023 19:09:33 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Mon, 13 Mar 2023 15:34:29 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
@@ -12,58 +12,47 @@ use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
-class CreateClockingMachines extends InertiaAction
+class CreateClockingMachine extends InertiaAction
 {
-    /**
-     * @throws \Exception
-     */
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => __('new clocking machine'),
                 'pageHead'    => [
                     'title'        => __('new clocking machine'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'hr.clocking-machines.index',
+                            'name'       => 'hr.working-places.show.clocking-machines.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
 
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
+                            'title'  => __('create clocking machine'),
                             'fields' => [
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
+                                    'type'        => 'input',
+                                    'label'       => __('code'),
+                                    'placeholder' => 'Input Code'
                                 ],
-                                'workplace_id' => [
-                                    'type'        => 'select',
-                                    'label'       => __('workplace'),
-                                    'options'     => Options::forModels(Workplace::class),
-                                    'placeholder' => 'Select a Workplace',
-                                    'mode'        => 'single'
-                                ]
-
                             ]
-                        ]
-
+                        ],
                     ],
-                    'route'      => [
-                            'name'       => 'models.clocking-machines.store',
-
+                    'route'     => [
+                        'name'      => 'models.working-place.clocking-machine.store',
+                        'arguments' => [$request->route()->parameters['workplace']->slug]
                     ]
-
                 ],
-
-
 
             ]
         );
@@ -71,31 +60,35 @@ class CreateClockingMachines extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('hr.edit');
+        return $request->user()->can('hr.clocking-machines.edit');
     }
 
 
-    public function asController(ActionRequest $request): Response
+    public function asController(Workplace $workplace, ActionRequest $request): Response
     {
         $this->initialisation($request);
 
-        return $this->handle();
+        return $this->handle($request);
     }
 
 
-    public function getBreadcrumbs(): array
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
+
         return array_merge(
-            IndexClockingMachines::make()->getBreadcrumbs(),
+            IndexClockingMachines::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
             [
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating employee'),
+                        'label' => __('creating clocking machines'),
                     ]
                 ]
             ]
         );
     }
-
 }

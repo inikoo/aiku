@@ -1,19 +1,25 @@
 <!--
   -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Thu, 08 Sept 2022 00:38:38 Malaysia Time, Kuala Lumpur, Malaysia
+  -  Created: Fri, 16 Sept 2022 12:56:59 Malaysia Time, Kuala Lumpur, Malaysia
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
-import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from "@/../private/pro-light-svg-icons";
-import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
-import { router } from '@inertiajs/vue3'
-import { capitalize } from "@/Composables/capitalize"
-
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
+
+import {library} from '@fortawesome/fontawesome-svg-core';
+import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBuilding, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from "@/../private/pro-light-svg-icons";
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import { computed, defineAsyncComponent, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import TableClockings from "@/Pages/Tables/TableClockings.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
+
+import { capitalize } from "@/Composables/capitalize"
+import {faCheckCircle} from "../../../private/pro-solid-svg-icons";
 library.add(
     faIdCard,
     faUser,
@@ -30,18 +36,9 @@ library.add(
     faClock,
     faPaperclip,
     faTimes,
-    faCameraRetro
-)
-import { computed, defineAsyncComponent, ref } from "vue";
-import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableClockings from "@/Pages/Tables/TableClockings.vue";
-
-
-const createClockingMachine = () =>{
-    router.post(route('hr.clocking-machines.store',props['clocking-machine'].data.id), {})
-}
+    faCameraRetro,
+    faBuilding
+);
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -54,7 +51,6 @@ const props = defineProps<{
     }
     clockings?: object;
     history?: object;
-
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -65,16 +61,13 @@ const component = computed(() => {
     const components = {
         clockings: TableClockings,
         details: ModelDetails,
-        history: ModelChangelog,
+        history: TableHistories,
     };
     return components[currentTab.value];
 
 });
 
-
-
 </script>
-
 
 <template layout="App">
     <Head :title="capitalize(title)" />

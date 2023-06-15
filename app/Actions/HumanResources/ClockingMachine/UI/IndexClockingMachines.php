@@ -31,14 +31,14 @@ class IndexClockingMachines extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('clocking_machines.code', 'ILIKE', "%$value%");
+                $query->where('clocking_machines.slug', 'ILIKE', "%$value%");
             });
         });
 
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::CLOCKING_MACHINES->value);
 
         return QueryBuilder::for(ClockingMachine::class)
-            ->defaultSort('clocking_machines.code')
+            ->defaultSort('clocking_machines.slug')
             ->select(
                 [
                     'clocking_machines.id',
@@ -53,8 +53,8 @@ class IndexClockingMachines extends InertiaAction
                     $query->where('clocking_machines.workplace_id', $parent->id);
                 }
             })
-            ->allowedSorts(['code'])
-            ->allowedFilters([$globalSearch])
+            ->allowedSorts(['slug','code'])
+            ->allowedFilters([$globalSearch], 'slug', 'code')
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
                 pageName: TabsAbbreviationEnum::CLOCKING_MACHINES->value.'Page'
@@ -70,8 +70,8 @@ class IndexClockingMachines extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::CLOCKING_MACHINES->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('slug');
         };
     }
 

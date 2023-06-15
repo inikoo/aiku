@@ -5,14 +5,12 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {ClockingMachine} from "@/types/clocking-machine";
-
 const props = defineProps<{
     data: object
 }>()
-
+import {Link} from '@inertiajs/vue3';
+import Table from '@/Components/Table/Table.vue';
+import {ClockingMachine} from "@/types/clocking-machine";
 
 function clockingMachineRoute(clockingMachine : ClockingMachine) {
     switch (route().current()) {
@@ -28,11 +26,11 @@ function clockingMachineRoute(clockingMachine : ClockingMachine) {
         default:
             return route(
                 'hr.clocking-machines.show',
-                [clockingMachine.slug]);
+                [
+                    clockingMachine.slug
+                ]);
     }
 }
-
-
 </script>
 
 <template>

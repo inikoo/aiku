@@ -56,7 +56,7 @@ class ShowWorkingPlace extends InertiaAction
                 'pageHead'                         => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'chess-clock'],
+                            'icon'  => ['fal', 'building'],
                             'title' => __('working place')
                         ],
                     'title' => $workplace->name,
@@ -77,7 +77,7 @@ class ShowWorkingPlace extends InertiaAction
                                 $workplace->slug
                             ],
                             'leftIcon' => [
-                                'icon'    => [ 'fal', 'clock'],
+                                'icon'    => [ 'fal', 'chess-clock'],
                                 'tooltip' => __('clocking machines')
                             ]
                         ],
@@ -138,7 +138,7 @@ class ShowWorkingPlace extends InertiaAction
                             'name'       => 'hr.working-places.show.clocking-machines.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('machine')
+                        'label' => __('clocking machine')
                     ] : false,
                 ]
             )
