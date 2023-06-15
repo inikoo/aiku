@@ -60,6 +60,8 @@ class MacroServiceProvider extends ServiceProvider
             $elementsData = null;
 
             $argumentName = ($prefix ? $prefix.'_' : '').'elements';
+
+
             if (request()->has("$argumentName.$key")) {
                 $elements = explode(',', request()->input("$argumentName.$key"));
 
@@ -72,6 +74,7 @@ class MacroServiceProvider extends ServiceProvider
                     $elementsData = $validatedElements;
                 }
             }
+
 
 
             if ($elementsData) {
