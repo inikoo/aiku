@@ -11,7 +11,7 @@ use App\Actions\Auth\User\LogUserRequest;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Actions\Elasticsearch\IndexElasticsearchDocument;
 use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
-use App\Models\Backup\BackupHistory;
+use App\Models\Backup\ActionHistory;
 use Carbon\Carbon;
 use Elastic\Elasticsearch\Client;
 use hisorange\BrowserDetect\Parser as Browser;
