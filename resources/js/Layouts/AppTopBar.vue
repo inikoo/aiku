@@ -14,7 +14,7 @@
 					v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections "
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections"
 					:href="route(menu.route.name)"
-					class="group flex justify-end items-center cursor-pointer py-1  lg:space-x-14 px-14 md:px-14 lg:px-14"
+					class="group flex justify-end items-center cursor-pointer py-1  lg:space-x-4 px-14 md:px-14 lg:px-14"
 					:title="capitalize(menu.label)"
 				>
 					<FontAwesomeIcon

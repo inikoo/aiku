@@ -123,7 +123,7 @@ const props = defineProps({
   perPageOptions: {
     type: Array,
     default() {
-      return () => [15, 30, 50, 100];
+      return () => [10 , 15, 30, 50, 100, 500 , 1000];
     },
     required: false
   },
