@@ -9,10 +9,9 @@ namespace App\Actions\Procurement\Agent\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Procurement\Agent;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class AgentHydrateUniversalSearch implements ShouldBeUnique
+class AgentHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class AgentHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(Agent $agent): int
-    {
-        return $agent->id;
-    }
 }

@@ -9,10 +9,9 @@ namespace App\Actions\Marketing\Shop\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Marketing\Shop;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateUniversalSearch implements ShouldBeUnique
+class ShopHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class ShopHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(Shop $shop): int
-    {
-        return $shop->id;
-    }
 }

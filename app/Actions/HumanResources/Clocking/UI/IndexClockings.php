@@ -59,7 +59,7 @@ class IndexClockings extends InertiaAction
                         $query->where('clockings.clocking_machine_id', $parent->id);
                         break;
                     case 'Workplace':
-                        $query->where('locations.workplace_id', $parent->id);
+                        $query->where('clockings.workplace_id', $parent->id);
                         break;
                 }
             })

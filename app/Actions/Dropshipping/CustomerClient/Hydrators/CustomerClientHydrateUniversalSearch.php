@@ -9,10 +9,9 @@ namespace App\Actions\Dropshipping\CustomerClient\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Dropshipping\CustomerClient;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CustomerClientHydrateUniversalSearch implements ShouldBeUnique
+class CustomerClientHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class CustomerClientHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(CustomerClient $customerClient): int
-    {
-        return $customerClient->id;
-    }
 }

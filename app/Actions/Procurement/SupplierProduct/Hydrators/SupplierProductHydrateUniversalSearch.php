@@ -9,10 +9,9 @@ namespace App\Actions\Procurement\SupplierProduct\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Procurement\SupplierProduct;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SupplierProductHydrateUniversalSearch implements ShouldBeUnique
+class SupplierProductHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class SupplierProductHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(SupplierProduct $supplierProduct): int
-    {
-        return $supplierProduct->id;
-    }
 }

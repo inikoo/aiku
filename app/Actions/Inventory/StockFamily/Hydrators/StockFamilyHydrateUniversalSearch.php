@@ -9,10 +9,9 @@ namespace App\Actions\Inventory\StockFamily\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Inventory\StockFamily;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StockFamilyHydrateUniversalSearch implements ShouldBeUnique
+class StockFamilyHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class StockFamilyHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(StockFamily $stockFamily): int
-    {
-        return $stockFamily->id;
-    }
 }

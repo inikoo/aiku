@@ -9,10 +9,9 @@ namespace App\Actions\Accounting\Invoice\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Accounting\Invoice;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class InvoiceHydrateUniversalSearch implements ShouldBeUnique
+class InvoiceHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class InvoiceHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(Invoice $invoice): int
-    {
-        return $invoice->id;
-    }
 }

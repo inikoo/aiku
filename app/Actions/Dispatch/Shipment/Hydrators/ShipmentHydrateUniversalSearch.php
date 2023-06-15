@@ -9,10 +9,9 @@ namespace App\Actions\Dispatch\Shipment\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Dispatch\Shipment;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShipmentHydrateUniversalSearch implements ShouldBeUnique
+class ShipmentHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class ShipmentHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(Shipment $shipment): int
-    {
-        return $shipment->id;
-    }
 }

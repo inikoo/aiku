@@ -9,10 +9,9 @@ namespace App\Actions\Sales\Customer\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Sales\Customer;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CustomerHydrateUniversalSearch implements ShouldBeUnique
+class CustomerHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class CustomerHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(Customer $customer): int
-    {
-        return $customer->id;
-    }
 }

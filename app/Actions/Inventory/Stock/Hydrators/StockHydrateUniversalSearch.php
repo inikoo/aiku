@@ -9,10 +9,9 @@ namespace App\Actions\Inventory\Stock\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Inventory\Stock;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StockHydrateUniversalSearch implements ShouldBeUnique
+class StockHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -21,14 +20,10 @@ class StockHydrateUniversalSearch implements ShouldBeUnique
     {
         $stock->universalSearch()->create(
             [
-                'primary_term'   => $stock->quantity.' '.$stock->code,
+                'primary_term'   => $stock->quantity_in_locations.' '.$stock->code,
                 'secondary_term' => $stock->units_per_pack.' '.$stock->units_per_carton
             ]
         );
     }
 
-    public function getJobUniqueId(Stock $stock): int
-    {
-        return $stock->id;
-    }
 }

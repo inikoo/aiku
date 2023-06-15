@@ -9,10 +9,9 @@ namespace App\Actions\Dispatch\DeliveryNote\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Dispatch\DeliveryNote;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class DeliveryNoteHydrateUniversalSearch implements ShouldBeUnique
+class DeliveryNoteHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class DeliveryNoteHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(DeliveryNote $deliveryNote): int
-    {
-        return $deliveryNote->id;
-    }
 }

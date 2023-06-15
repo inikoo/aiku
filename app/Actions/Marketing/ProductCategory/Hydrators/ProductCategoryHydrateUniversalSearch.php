@@ -9,10 +9,9 @@ namespace App\Actions\Marketing\ProductCategory\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Marketing\ProductCategory;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductCategoryHydrateUniversalSearch implements ShouldBeUnique
+class ProductCategoryHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class ProductCategoryHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(ProductCategory $productCategory): int
-    {
-        return $productCategory->id;
-    }
 }

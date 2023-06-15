@@ -9,10 +9,9 @@ namespace App\Actions\Inventory\Location\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Inventory\Location;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class LocationHydrateUniversalSearch implements ShouldBeUnique
+class LocationHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -26,8 +25,4 @@ class LocationHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(Location $location): int
-    {
-        return $location->id;
-    }
 }

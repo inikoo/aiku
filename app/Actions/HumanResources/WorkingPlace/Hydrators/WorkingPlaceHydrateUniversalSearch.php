@@ -9,10 +9,9 @@ namespace App\Actions\HumanResources\WorkingPlace\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\HumanResources\Workplace;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class WorkingPlaceHydrateUniversalSearch implements ShouldBeUnique
+class WorkingPlaceHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
@@ -27,8 +26,4 @@ class WorkingPlaceHydrateUniversalSearch implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(Workplace $workplace): int
-    {
-        return $workplace->id;
-    }
 }
