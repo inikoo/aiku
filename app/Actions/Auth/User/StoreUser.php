@@ -8,7 +8,6 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\Auth\GroupUser\Hydrators\GroupUserHydrateTenants;
-use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
@@ -35,24 +34,23 @@ class StoreUser
     /**
      * @throws \Throwable
      */
-    public function handle(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData = []): User|ValidationException
+    public function handle(Guest|Employee $parent, GroupUser $groupUser, array $objectData = []): User|ValidationException
     {
-        if (!$groupUser) {
-            $groupUser = StoreGroupUser::run($objectData);
-        }
-
         $tenant = app('currentTenant');
 
-        $user = DB::transaction(function () use ($groupUser, $tenant, $parent) {
+        $user = DB::transaction(function () use ($groupUser, $tenant, $parent, $objectData) {
             /** @var \App\Models\Auth\User $user */
+
+            $dataFromGroupUser = [
+                'group_user_id' => $groupUser->id,
+                'username'      => $groupUser->username,
+                'password'      => $groupUser->password,
+                'contact_name'  => $parent->contact_name,
+                'avatar_id'     => $groupUser->avatar_id
+            ];
+
             $user = $parent->user()->create(
-                [
-                    'group_user_id'         => $groupUser->id,
-                    'username'              => $groupUser->username,
-                    'password'              => $groupUser->password,
-                    'contact_name'          => $parent->contact_name,
-                    'data->avatar'          => $groupUser->media_id
-                ]
+                array_merge($objectData, $dataFromGroupUser)
             );
             $groupUser->tenants()
                 ->attach($tenant->id, [

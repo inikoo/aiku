@@ -9,12 +9,11 @@ namespace App\Http\Resources\UI;
 
 use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Arr;
 
 /**
  * @property string $username
  * @property string $email
- * @property array $data
+ * @property mixed $avatar_id
  */
 class LoggedUserResource extends JsonResource
 {
@@ -25,7 +24,7 @@ class LoggedUserResource extends JsonResource
         return [
             'username' => $this->username,
             'email'    => $this->email,
-            'avatar'   => Arr::get($this->data, 'avatar'),
+            'avatar'   => $this->avatar_id
         ];
     }
 }

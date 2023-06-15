@@ -84,7 +84,7 @@ class IndexUsers extends InertiaAction
 
         return $queryBuilder->with('parent')
             ->defaultSort('username')
-            ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name'])
+            ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name','avatar_id'])
             ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
             ->allowedFilters([$globalSearch])
             ->paginate(
@@ -115,6 +115,7 @@ class IndexUsers extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->column(key: 'avatar', label: ['fal','fa-user-circle'])
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'parent_type', label: __('type'), canBeHidden: false, sortable: true)

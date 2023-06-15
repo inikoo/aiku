@@ -28,7 +28,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string $stock_value
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Warehouse $warehouse
+ * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @method static Builder|WarehouseStats newModelQuery()
  * @method static Builder|WarehouseStats newQuery()
  * @method static Builder|WarehouseStats query()
