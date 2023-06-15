@@ -23,7 +23,11 @@ class UserHydrateAuth implements ShouldBeUnique
         $stats = [];
         $numberLogins = $user->stats->number_logins;
 
+<<<<<<< Updated upstream
         if(auth()->check()) {
+=======
+        if(! auth()->check()) {
+>>>>>>> Stashed changes
             $stats = [
                 'login_at' => now(),
                 'last_login' => now(),
@@ -34,7 +38,11 @@ class UserHydrateAuth implements ShouldBeUnique
         if(! auth()->check()) {
             $stats = [
                 'login_at' => now(),
+<<<<<<< Updated upstream
 //                'failed_login' => request()->ip(),
+=======
+                'failed_login' => request()->ip(),
+>>>>>>> Stashed changes
                 'failed_login_at' => now()
             ];
         }
