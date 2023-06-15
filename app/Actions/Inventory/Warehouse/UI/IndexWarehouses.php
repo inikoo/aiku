@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
  */
 class IndexWarehouses extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -36,7 +36,9 @@ class IndexWarehouses extends InertiaAction
                     ->orWhere('warehouses.code', 'LIKE', "%$value%");
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WAREHOUSE->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(Warehouse::class)
             ->defaultSort('warehouses.code')
@@ -50,10 +52,7 @@ class IndexWarehouses extends InertiaAction
             ->leftJoin('warehouse_stats', 'warehouse_stats.warehouse_id', 'warehouses.id')
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::WAREHOUSE->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 

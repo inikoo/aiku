@@ -87,10 +87,7 @@ class IndexUsers extends InertiaAction
             ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name','avatar_id'])
             ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: $prefix ? $prefix.'Page' : 'page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
