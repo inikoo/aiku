@@ -8,6 +8,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\Auth\User\Hydrators\UserHydrateAuth;
 use App\Http\Controllers\Controller;
 use App\Models\Auth\User;
 use App\Providers\RouteServiceProvider;
@@ -48,6 +49,8 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+
+        UserHydrateAuth::dispatch($user);
 
         return redirect(RouteServiceProvider::HOME);
     }

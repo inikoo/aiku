@@ -50,14 +50,14 @@ class LoginRequest extends FormRequest
         )) {
             RateLimiter::hit($this->throttleKey());
 
-            UserHydrateAuth::dispatch(User::where($this->validated()['email'])->first());
+            UserHydrateAuth::run(User::where('username', $this->validated()['username'])->first());
 
             throw ValidationException::withMessages([
                                                         'username' => trans('auth.failed'),
                                                     ]);
         }
 
-        UserHydrateAuth::dispatch(User::where($this->validated()['email'])->first());
+        UserHydrateAuth::run(User::where('username', $this->validated()['username'])->first());
         RateLimiter::clear($this->throttleKey());
     }
 
