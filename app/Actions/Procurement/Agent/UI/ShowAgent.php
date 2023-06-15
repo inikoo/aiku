@@ -15,7 +15,6 @@ use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\IndexSupplierPurchaseOrders;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\AgentTabsEnum;
-use App\Enums\UI\UserTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\SupplierProductResource;

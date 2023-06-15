@@ -7,8 +7,6 @@
 
 namespace App\Imports;
 
-use App\Actions\Auth\User\StoreUserHistories;
-use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Actions\Elasticsearch\StoreElasticsearchDocument;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
