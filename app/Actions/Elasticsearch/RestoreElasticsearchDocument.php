@@ -24,14 +24,14 @@ class RestoreElasticsearchDocument
     public function handle(): void
     {
         try {
-            $actionHistories = ActionHistory::all();
+            $actionHistories = ActionHistory::orderBy('id', 'ASC')->get();
             foreach ($actionHistories as $actionHistory) {
-                IndexElasticsearchDocument::run($actionHistory->index, $actionHistory->body, $actionHistory->type, true);
+                IndexElasticsearchDocument::dispatch($actionHistory->index, $actionHistory->body, $actionHistory->type, true);
             }
 
-            $visitHistories = VisitHistory::all();
+            $visitHistories = VisitHistory::orderBy('id', 'ASC')->get();
             foreach ($visitHistories as $visitHistory) {
-                IndexElasticsearchDocument::run($visitHistory->index, $visitHistory->body, $visitHistory->type, true);
+                IndexElasticsearchDocument::dispatch($visitHistory->index, $visitHistory->body, $visitHistory->type, true);
             }
 
             echo "Success import data \n";
