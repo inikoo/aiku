@@ -15,10 +15,7 @@ export interface Employee {
     gender: string
     worker_number: string
     job_title: string
-
     emergency_contact: string;
-
     type: string
     state: string
-
 }

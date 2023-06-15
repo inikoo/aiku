@@ -11,7 +11,6 @@ use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\CRM\CRMDashboard;
 use App\Actions\UI\Dashboard\Dashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Marketing\Shop;
@@ -28,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexCustomers extends InertiaAction
 {
-    public function handle(Tenant|Shop $parent): LengthAwarePaginator
+    public function handle(Tenant|Shop $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,7 +37,10 @@ class IndexCustomers extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::CUSTOMERS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
 
         return QueryBuilder::for(Customer::class)
             ->defaultSort('customers.reference')
@@ -60,19 +62,23 @@ class IndexCustomers extends InertiaAction
             })
             ->allowedSorts(['reference', 'name', 'number_active_clients'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::CUSTOMERS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
             $table
-                ->name(TabsAbbreviationEnum::CUSTOMERS->value)
-                ->pageName(TabsAbbreviationEnum::CUSTOMERS->value.'Page');
+                ->withModelOperations($modelOperations)
+                ->withGlobalSearch();
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
