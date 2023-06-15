@@ -19,6 +19,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property int $user_id
+ * @property int $number_logins
  * @property int $number_other_tenants
  * @property int $number_other_active_tenants
  * @property Carbon|null $created_at
