@@ -8,9 +8,11 @@
 namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
+use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
+use Database\Factories\Auth\UserFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -61,7 +63,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \App\Models\Auth\UserStats|null $stats
  * @property-read Tenant $tenant
  * @property-read Collection<int, PersonalAccessToken> $tokens
- * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
+ * @method static UserFactory factory($count = null, $state = [])
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User onlyTrashed()
@@ -92,15 +94,16 @@ class User extends Authenticatable implements Auditable
     ];
 
     protected $casts = [
-        'data'         => 'array',
-        'settings'     => 'array',
-        'status'       => 'boolean'
+        'data'      => 'array',
+        'settings'  => 'array',
+        'status'    => 'boolean',
+        'auth_type' => UserAuthTypeEnum::class
     ];
 
 
     protected $attributes = [
-        'data'         => '{}',
-        'settings'     => '{}',
+        'data'     => '{}',
+        'settings' => '{}',
     ];
 
 
@@ -117,7 +120,6 @@ class User extends Authenticatable implements Auditable
             }
         });
     }
-
 
 
     public function parent(): MorphTo
@@ -141,6 +143,7 @@ class User extends Authenticatable implements Auditable
     {
         return $this->hasOne(UserStats::class);
     }
+
     public function getRouteKeyName(): string
     {
         return 'username';

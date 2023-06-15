@@ -7,17 +7,17 @@
 
 namespace App\Actions\Auth\Guest;
 
-use App\Enums\Auth\GuestTypeEnum;
+use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\Auth\Guest;
 use App\Models\Tenancy\Tenant;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 
 class StoreGuest
 {

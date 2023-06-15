@@ -32,10 +32,15 @@ class FetchAuroraUser extends FetchAurora
     protected function parseModel(): void
     {
         $this->parsedData['user'] = [
-            'source_id' => $this->auroraModelData->{'User Key'},
-            'username'  => Str::lower($this->auroraModelData->{'User Handle'}),
-            'status'    => $this->auroraModelData->{'User Active'} == 'Yes',
-            //   'language_id' => $this->parseLanguageID($this->auroraModelData->{'User Preferred Locale'}),
+            'source_id'  => $this->auroraModelData->{'User Key'},
+            'username'   => Str::lower($this->auroraModelData->{'User Handle'}),
+            'status'     => $this->auroraModelData->{'User Active'} == 'Yes',
+            'created_at' => $this->auroraModelData->{'User Created'},
+
+            'data' => [
+                'aurora_password'=> $this->auroraModelData->{'User Password'}
+            ],
+            'language_id' => $this->parseLanguageID($this->auroraModelData->{'User Preferred Locale'}),
         ];
 
         $this->parsedData['parent'] = null;

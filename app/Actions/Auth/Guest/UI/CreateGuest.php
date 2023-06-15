@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\Guest\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\Auth\GuestTypeEnum;
+use App\Enums\Auth\Guest\GuestTypeEnum;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
