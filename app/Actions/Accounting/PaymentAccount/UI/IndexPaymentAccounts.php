@@ -29,7 +29,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPaymentAccounts extends InertiaAction
 {
-    public function handle(Shop|Tenant|PaymentServiceProvider $parent): LengthAwarePaginator
+    public function handle(Shop|Tenant|PaymentServiceProvider $parent,$prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,7 +38,9 @@ class IndexPaymentAccounts extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PAYMENT_ACCOUNTS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(PaymentAccount::class)
             ->defaultSort('payment_accounts.code')
@@ -57,10 +59,7 @@ class IndexPaymentAccounts extends InertiaAction
             })
             ->allowedSorts(['code', 'name', 'number_payments'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::PAYMENT_ACCOUNTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 

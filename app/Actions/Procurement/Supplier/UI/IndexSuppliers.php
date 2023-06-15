@@ -25,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSuppliers extends InertiaAction
 {
-    public function handle(Agent|Tenant $parent): LengthAwarePaginator
+    public function handle(Agent|Tenant $parent, $prefix=null ): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -34,7 +34,9 @@ class IndexSuppliers extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIERS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(Supplier::class)
             ->defaultSort('suppliers.code')
@@ -58,10 +60,7 @@ class IndexSuppliers extends InertiaAction
             })
             ->allowedSorts(['code', 'name', 'agent_name','supplier_locations','number_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::SUPPLIERS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
