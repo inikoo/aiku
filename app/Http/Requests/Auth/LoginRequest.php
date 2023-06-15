@@ -37,7 +37,7 @@ class LoginRequest extends FormRequest
      *
      * @return void
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function authenticate(): void
     {
@@ -50,22 +50,16 @@ class LoginRequest extends FormRequest
         )) {
             RateLimiter::hit($this->throttleKey());
 
-<<<<<<< Updated upstream
-            UserHydrateAuth::run(User::where('username', $this->validated()['username'])->first());
-=======
+
             UserHydrateAuth::dispatch(User::where($this->validated()['email'])->first());
->>>>>>> Stashed changes
 
             throw ValidationException::withMessages([
                                                         'username' => trans('auth.failed'),
                                                     ]);
         }
 
-<<<<<<< Updated upstream
-        UserHydrateAuth::run(User::where('username', $this->validated()['username'])->first());
-=======
+
         UserHydrateAuth::dispatch(User::where($this->validated()['email'])->first());
->>>>>>> Stashed changes
         RateLimiter::clear($this->throttleKey());
     }
 
@@ -74,7 +68,7 @@ class LoginRequest extends FormRequest
      *
      * @return void
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function ensureIsNotRateLimited(): void
     {
