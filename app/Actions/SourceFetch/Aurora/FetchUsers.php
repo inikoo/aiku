@@ -10,6 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\Auth\User\UpdateUser;
+use App\Actions\Auth\User\UserSyncRoles;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
@@ -53,7 +54,11 @@ class FetchUsers extends FetchAction
                     ->where('User Key', $user->source_id)
                     ->update(['aiku_id' => $user->id]);
 
+
+
+
             }
+            UserSyncRoles::make()->action($user, $userData['roles']);
 
 
             return $user;
