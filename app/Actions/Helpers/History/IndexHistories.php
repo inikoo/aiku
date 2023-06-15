@@ -17,7 +17,6 @@ use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -34,7 +33,7 @@ class IndexHistories
     {
         $client = BuildElasticsearchClient::run();
 
-        $auditableId = $model->id;
+        $auditableId   = $model->id;
         $auditableType = class_basename($model);
 
         if ($client instanceof Client) {
@@ -42,7 +41,7 @@ class IndexHistories
                 $params  = [
                     'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
                     'size'  => 10000,
-                    'body' => [
+                    'body'  => [
                         'query' => [
                             'bool' => [
                                 'must' => [
