@@ -8,7 +8,7 @@
 namespace App\Actions\Elasticsearch;
 
 use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
-use App\Models\Backup\BackupHistory;
+use App\Models\Backup\ActionHistory;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;

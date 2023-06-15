@@ -88,16 +88,16 @@ return [
 
         'backup' => [
             'driver'         => 'pgsql',
-            'url'            => env('DATABASE_URL'),
-            'host'           => env('DB_HOST', '127.0.0.1'),
-            'port'           => env('DB_PORT', '5432'),
-            'database'       => env('DB_DATABASE', 'backup_history'),
-            'username'       => env('DB_USERNAME', 'aiku'),
-            'password'       => env('DB_PASSWORD', ''),
+            'url'            => env('BACKUP_DATABASE_URL'),
+            'host'           => env('DB_BACKUP_HOST', '127.0.0.1'),
+            'port'           => env('DB_BACKUP_PORT', '5432'),
+            'database'       => env('DB_BACKUP_DATABASE', 'backup_elasticsearch'),
+            'username'       => env('DB_BACKUP_USERNAME', 'aiku'),
+            'password'       => env('DB_BACKUP_PASSWORD', ''),
             'charset'        => 'utf8',
             'prefix'         => '',
             'prefix_indexes' => true,
-            'search_path'    => env('DB_SEARCH_PATH', ''),
+            'search_path'    => env('DB_BACKUP_SEARCH_PATH', 'public'),
             'sslmode'        => 'prefer',
         ],
 
