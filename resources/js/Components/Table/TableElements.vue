@@ -11,25 +11,33 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits(['changed'])
-const isChecked = ref([]);
+const isChecked = ref({})
+
+// to store the props to valid data for query
+props.elements.forEach(item => {
+  const key = item.key;
+  const values = Object.keys(item.elements);
+  
+  isChecked.value[key] = values;
+});
 
 const handleCheckboxChange = (key: string, element: string) => {
-    if (isChecked.value.includes(key)) {
-        isChecked.value = isChecked.value.filter((item) => item !== key);
+    if (isChecked.value[element].includes(key)) {
+        isChecked.value[element] = isChecked.value[element].filter((item) => item !== key);
     } else {
-        isChecked.value.push(key);
+        isChecked.value[element].push(key);
     }
     
     emits('changed', isChecked.value)
 }
 
-const doubleClick = (key: string) => {
-    if (isChecked.value.includes(key)) {
-        isChecked.value = []
+const doubleClick = (key: string, element: string) => {
+    if (isChecked.value[element].includes(key)) {
+        isChecked.value[element] = []
     } else {
-        isChecked.value = props.elements.flatMap(obj => Object.keys(obj.elements))
+        isChecked.value[element] = props.elements.flatMap(obj => Object.keys(obj.elements))
     }
-    emits('changed', isChecked.value)
+    emits('changed', isChecked.value[element])
 }
 
 </script>
@@ -40,9 +48,9 @@ const doubleClick = (key: string) => {
             <div
                 v-for="(value, key, index) of element.elements" :key="key"
                 class="relative w-full cursor-pointer py-2 select-none hover:bg-gray-200"
-                :class="{ 'bg-indigo-200 hover:bg-indigo-300': isChecked.includes(key) }"
+                :class="{ 'bg-indigo-200 hover:bg-indigo-300': isChecked[element.key].includes(key) }"
                 @click="handleCheckboxChange(key, element.key)"
-                @dblclick="doubleClick(key)"
+                @dblclick="doubleClick(key, element.key)"
             >
                 <div class="grid justify-center grid-flow-col items-center text-gray-800 capitalize">
                     {{ value }}

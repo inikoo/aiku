@@ -133,6 +133,11 @@ const queryBuilderProps = computed(() => {
 });
 
 const queryBuilderData = ref(queryBuilderProps.value);
+queryBuilderData.value.elementFilter = {
+    // 'state': ['left'],
+    // 'type': ['volunteer', 'employee']
+}
+console.log("queryBuilderProps.value", queryBuilderProps.value)
 
 const pageName = computed(() => {
     return queryBuilderProps.value.pageName;
@@ -240,7 +245,7 @@ const canBeReset = computed(() => {
     const prefix = props.name === 'default' ? '' : props.name + '_';
     let dirty = false;
 
-    forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
+    forEach(['filter', 'columns', 'cursor', 'sort', 'elementGroups'], (key) => {
         const value = queryStringData[prefix + key];
 
         if (key === 'sort' && value === queryBuilderProps.value.defaultSort) {
@@ -367,7 +372,8 @@ function getColumnsForQuery() {
 function dataForNewQueryString() {
     const filterForQuery = getFilterForQuery();
     const columnsForQuery = getColumnsForQuery();
-
+    console.log("filterForQuery", filterForQuery)
+    console.log("columnsForQuery", columnsForQuery)
     const queryData = {};
 
     if (Object.keys(filterForQuery).length > 0) {
@@ -382,6 +388,10 @@ function dataForNewQueryString() {
     const page = queryBuilderData.value.page;
     const sort = queryBuilderData.value.sort;
     const perPage = queryBuilderData.value.perPage;
+    const elementFilter = queryBuilderData.value.elementFilter
+
+    console.log(queryBuilderData.value)
+    console.log(cursor, page, sort, perPage, elementFilter)
 
     if (cursor) {
         queryData.cursor = cursor;
@@ -398,24 +408,30 @@ function dataForNewQueryString() {
     if (sort) {
         queryData.sort = sort;
     }
-
+    if (elementFilter) {
+        queryData.elements = elementFilter // the begining of add new filter
+    }
+    console.log("queryData", queryData)
     return queryData;
 }
 
 function generateNewQueryString() {
-    console.log("GenerateNewQueryString ////////////////")
+    console.log("=============================================")
     const queryStringData = qs.parse(location.search.substring(1));
-    console.log(queryStringData)
+    console.log("queryStringData", queryStringData)
     
     const prefix = props.name === 'default' ? '' : props.name + '_';
-    console.log(prefix)
+    console.log("prefix ", prefix)
 
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
         delete queryStringData[prefix + key];
     });
 
+    console.log("pageName.value", pageName.value)
+    console.log("(queryStringData)", queryStringData)
     delete queryStringData[pageName.value];
 
+    console.log("dataForNewQueryString or queryData", dataForNewQueryString())
     forEach(dataForNewQueryString(), (value, key) => {
         if (key === 'page') {
             queryStringData[pageName.value] = value;
@@ -423,27 +439,33 @@ function generateNewQueryString() {
             queryStringData.perPage = value;
         } else {
             queryStringData[prefix + key] = value;
+            console.log("!!!!!", queryStringData)
+            console.log("!!!!!", [prefix + key])
         }
     });
+    console.log("queryStringData", queryStringData)
+    console.log("-=-=-=-=-==", qs.stringify(queryStringData))
     let query = qs.stringify(queryStringData, {
-        filter(prefix, value) {
-            if (typeof value === 'object' && value !== null) {
-                return pickBy(value);
-            }
+        // filter(prefix, value) {
+        //         if (typeof value === 'object' && value !== null) {
+        //         return pickBy(value);
+        //     }
 
-            return value;
-        },
+        //     return value;
+        // },
         encodeValuesOnly: true ,
         skipNulls: true,
         strictNullHandling: true,
+        arrayFormat: 'comma', // for elementGroups
     });
+    console.log("query", query)
 
     if (!query || query === pageName.value + '=1') {
         query = '';
     }
 
     console.log(query);
-    console.log("GenerateNewQueryString ====================");
+    console.log("==============================================");
     return query;
 }
 
@@ -545,8 +567,9 @@ function header(key) {
 
 const handleElementsChange = (data) => {
     // console.log("====== TableElement Changed")
-    // console.log(data)
-    visit(location.pathname + '?elements[state]=' + data)
+    console.log(data)
+    queryBuilderData.value.elementFilter = data
+    // visit(location.pathname + '?elements[state]=' + data)
     //queryBuilderData.value.elements[0].checked=true
 
 };
@@ -635,7 +658,7 @@ const handleElementsChange = (data) => {
             </slot>
 
             </div>
-            <slot :changed="handleElementsChange">
+            <slot @changed="handleElementsChange">
                 <TableElements v-if="queryBuilderProps.elementGroups.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>
 
