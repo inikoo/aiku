@@ -403,9 +403,12 @@ function dataForNewQueryString() {
 }
 
 function generateNewQueryString() {
+    console.log("GenerateNewQueryString ////////////////")
     const queryStringData = qs.parse(location.search.substring(1));
-
+    console.log(queryStringData)
+    
     const prefix = props.name === 'default' ? '' : props.name + '_';
+    console.log(prefix)
 
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
         delete queryStringData[prefix + key];
@@ -440,6 +443,7 @@ function generateNewQueryString() {
     }
 
     console.log(query);
+    console.log("GenerateNewQueryString ====================");
     return query;
 }
 
@@ -447,6 +451,8 @@ const isVisiting = ref(false);
 const visitCancelToken = ref(null);
 
 function visit(url) {
+    // console.log("on visit")
+    // console.log(url)
     if (!url) {
         return;
     }
@@ -492,7 +498,6 @@ function visit(url) {
 watch(
     queryBuilderData,
     () => {
-        console.log(queryBuilderData.value)
         visit(location.pathname + '?' + generateNewQueryString());
     },
     { deep: true },
@@ -538,9 +543,10 @@ function header(key) {
     return columnData;
 }
 
-const handleElementsChange = function (data) {
-    console.log("====== TableElement Changed")
-    console.log(data)
+const handleElementsChange = (data) => {
+    // console.log("====== TableElement Changed")
+    // console.log(data)
+    visit(location.pathname + '?elements[state]=' + data)
     //queryBuilderData.value.elements[0].checked=true
 
 };

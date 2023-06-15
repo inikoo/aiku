@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 const props = defineProps<{
     // elements: Array<{
     //     key: number
@@ -13,21 +13,25 @@ const props = defineProps<{
 const emits = defineEmits(['changed'])
 const isChecked = ref([]);
 
-const handleCheckboxChange = (value: string) => {
-    if (isChecked.value.includes(value)) {
-        isChecked.value = isChecked.value.filter((item) => item !== value);
+const handleCheckboxChange = (key: string, element: string) => {
+    if (isChecked.value.includes(key)) {
+        isChecked.value = isChecked.value.filter((item) => item !== key);
     } else {
-        isChecked.value.push(value);
+        isChecked.value.push(key);
     }
+    
+    emits('changed', isChecked.value)
 }
 
-const doubleClick = (value: string) => {
-    if (isChecked.value.includes(value)) {
+const doubleClick = (key: string) => {
+    if (isChecked.value.includes(key)) {
         isChecked.value = []
     } else {
-        isChecked.value = props.elements.flatMap(obj => Object.values(obj.elements))
+        isChecked.value = props.elements.flatMap(obj => Object.keys(obj.elements))
     }
+    emits('changed', isChecked.value)
 }
+
 </script>
 
 <template>
@@ -36,9 +40,9 @@ const doubleClick = (value: string) => {
             <div
                 v-for="(value, key, index) of element.elements" :key="key"
                 class="relative w-full cursor-pointer py-2 select-none hover:bg-gray-200"
-                :class="{ 'bg-indigo-200 hover:bg-indigo-300': isChecked.includes(value) }"
-                @click="handleCheckboxChange(value)"
-                @dblclick="doubleClick(value)"
+                :class="{ 'bg-indigo-200 hover:bg-indigo-300': isChecked.includes(key) }"
+                @click="handleCheckboxChange(key, element.key)"
+                @dblclick="doubleClick(key)"
             >
                 <div class="grid justify-center grid-flow-col items-center text-gray-800 capitalize">
                     {{ value }}

@@ -7,8 +7,8 @@
 			</span>
 		</div>
 
-		<!-- Left Menu -->
 		<div class="flex">
+			<!-- Left Menu -->
 			<div class="text-sm lg:text-base flex items-center divide-x divide-gray-100 justify-center overflow-hidden">
 				<Link
 					v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections "
@@ -98,6 +98,7 @@ import {
 	faFolder,
 	faFolders,
 	faBrowser,
+	faBuilding,
 } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
@@ -118,7 +119,8 @@ library.add(
 	faClipboardList,
 	faFolder,
 	faFolders,
-	faBrowser
+	faBrowser,
+	faBuilding
 )
 const layout = useLayoutStore()
 
