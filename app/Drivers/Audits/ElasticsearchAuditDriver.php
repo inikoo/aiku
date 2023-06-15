@@ -11,6 +11,7 @@ use App\Actions\Auth\User\LogUserRequest;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Actions\Elasticsearch\IndexElasticsearchDocument;
 use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
+use App\Models\Auth\User;
 use App\Models\Backup\ActionHistory;
 use Carbon\Carbon;
 use Elastic\Elasticsearch\Client;
@@ -124,6 +125,7 @@ class ElasticsearchAuditDriver implements AuditDriver
     public function body($model): array
     {
         $parsedUserAgent = (new Browser())->parse($model['user_agent']);
+        $user = User::find($model['user_id']);
 
         return [
                 'type'        => $this->type,
@@ -143,6 +145,8 @@ class ElasticsearchAuditDriver implements AuditDriver
                 'auditable_id'   => $model['auditable_id'],
                 'auditable_type' => $model['auditable_type'],
                 'user_id'     => $model['user_id'],
+                'slug'        => $user->username,
+                'user_name'   => $user->contact_name,
                 'user_type'   => $model['user_type'],
                 'tags'        => $model['tags'],
                 'url'         => $model['url'],

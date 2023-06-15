@@ -41,14 +41,14 @@ return
             'hr.payroll',
             'hr.attendance',
         ],
-        'human-resources-admin' => [
+        'human-resources-manager' => [
             'hr.view',
             'hr.edit',
             'hr.payroll',
             'hr.attendance',
         ],
 
-        'distribution-admin'             => [
+        'distribution-manager'             => [
             'inventory',
             'fulfilment'
         ],
@@ -58,7 +58,7 @@ return
             'inventory.warehouses.stock',
             'fulfilment.view'
         ],
-        'distribution-dispatcher-admin'  => [
+        'distribution-dispatcher-manager'  => [
 
             'inventory.stocks.view',
             'inventory.warehouses.view',
@@ -81,13 +81,36 @@ return
             'shops',
         ],
 
-        'customer-services' => [
+        'shop-clerk' => [
+            'shops',
+        ],
+
+        'customer-services-clerk' => [
+            'shops.view',
+            'customers',
+            'osm'
+        ],
+        'customer-services-manager' => [
             'shops.view',
             'customers',
             'osm'
         ],
 
-        'webmaster' => [
+        'accountant-clerk' => [
+
+        ],
+
+        'accountant-manager' => [
+            'shops.view',
+            'websites'
+        ],
+
+        'webmaster-clerk' => [
+            'shops.view',
+            'websites'
+        ],
+
+        'webmaster-manager' => [
             'shops.view',
             'websites'
         ],
@@ -100,13 +123,37 @@ return
             'production.view',
         ],
 
-        'procurement' => [
+        'procurement-manager' => [
             'procurement',
         ],
 
+        'procurement-clerk' => [
+            'procurement',
+        ],
+
+        'business-intelligence-analyst'=> [
+
+        ],
+
+        'marketing-broadcaster-clerk'=> [
+
+        ],
+
+        'marketing-broadcaster-manager'=> [
+
+        ],
 
         'guest'      => [
 
         ],
+
+        'fulfilment-manager' => [
+
+        ],
+
+        'fulfilment-worker' => [
+
+        ],
+
 
     ];

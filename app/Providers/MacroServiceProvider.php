@@ -76,13 +76,36 @@ class MacroServiceProvider extends ServiceProvider
             }
 
 
-
             if ($elementsData) {
                 $engine($this, $elementsData);
             }
 
             return $this;
         });
+
+        Builder::macro('withPaginator', function ($prefix) {
+            $perPage = config('ui.table.records_per_page');
+
+            $argumentName = ($prefix ? $prefix.'_' : '').'perPage';
+            if (request()->has($argumentName)) {
+                $inputtedPerPage = (int)request()->input($argumentName);
+
+                if ($inputtedPerPage < 10) {
+                    $perPage = 10;
+                } elseif ($inputtedPerPage > 1000) {
+                    $perPage = 1000;
+                } else {
+                    $perPage = $inputtedPerPage;
+                }
+            }
+
+
+            return $this->paginate(
+                perPage: $perPage,
+                pageName: $prefix ? $prefix.'Page' : 'page'
+            );
+        });
+
 
         Request::macro('validatedShiftToArray', function ($map = []): array {
             /** @noinspection PhpUndefinedMethodInspection */

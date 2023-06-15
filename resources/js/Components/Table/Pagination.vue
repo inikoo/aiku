@@ -55,7 +55,7 @@
       </div>
 
       <!-- Group of Button Page -->
-      <div>
+      <div v-if="HideButton">
         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
           <!-- Button Page: Back -->
           <component :is="previousPageUrl ? 'a' : 'div'" :class="{
@@ -120,10 +120,10 @@ const props = defineProps({
     type: Function,
     required: false,
   },
-  perPageOptions: {
+   30: {
     type: Array,
     default() {
-      return () => [15, 30, 50, 100];
+      return () => [10 , 15, 30, 50, 100, 500 , 1000];
     },
     required: false
   },
@@ -154,6 +154,11 @@ const hasLinks = computed(() => {
 
 const hasPagination = computed(() => {
   return Object.keys(pagination.value).length > 0;
+});
+
+const HideButton = computed(() => {
+  console.log(pagination.value)
+  return pagination.value.total > pagination.value.per_page
 });
 
 const pagination = computed(() => {

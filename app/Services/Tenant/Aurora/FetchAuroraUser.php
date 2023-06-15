@@ -8,6 +8,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -37,8 +38,8 @@ class FetchAuroraUser extends FetchAurora
             'status'     => $this->auroraModelData->{'User Active'} == 'Yes',
             'created_at' => $this->auroraModelData->{'User Created'},
 
-            'data' => [
-                'aurora_password'=> $this->auroraModelData->{'User Password'}
+            'data'        => [
+                'aurora_password' => $this->auroraModelData->{'User Password'}
             ],
             'language_id' => $this->parseLanguageID($this->auroraModelData->{'User Preferred Locale'}),
         ];
@@ -96,24 +97,50 @@ class FetchAuroraUser extends FetchAurora
             return [$key => false];
         })->all();
 
-        if ($this->auroraModelData->{'User Active'} == 'Yes' and $this->auroraModelData->{'Staff Currently Working'} ?? false == 'Yes') {
-            $staffPositions = explode(',', $this->auroraModelData->staff_positions);
-            if (in_array('PICK', $staffPositions)) {
-                $roles['picker'] = true;
-                $roles['packer'] = true;
-            }
-            if (in_array('WAHM', $staffPositions)) {
-                $roles['supervisor'] = true;
-            }
 
-            if (count($roles) == 0) {
-                if (in_array('DIR', $staffPositions)) {
-                    $roles['observer'] = true;
-                } else {
-                    $roles['guest'] = true;
-                }
+        $auroraRoles = [];
+
+        foreach (DB::connection('aurora')->table('User Group User Bridge')->where('User Key', $this->auroraModelData->{'User Key'})->select('User Group Key')->get() as $auRole) {
+            $role = match ($auRole->{'User Group Key'}) {
+                1, 15 => 'system-admin',
+                6  => 'human-resources-clerk',
+                20 => 'human-resources-manager',
+                8  => 'procurement-clerk',
+                21, 28 => 'procurement-manager',
+                4 => 'production-operative',
+                27, 7 => 'production-manager',
+                3  => 'distribution-clerk',
+                22 => 'distribution-manager',
+
+                23 => 'accountant-manager',
+
+                17 => 'distribution-dispatcher-manager',
+                24 => 'distribution-dispatcher-picker',
+                25 => 'distribution-dispatcher-packer',
+
+
+                16 => 'customer-services-manager',
+                2  => 'customer-services-clerk',
+                18 => 'shop-manager',
+                9  => 'shop-clerk',
+
+                14, 5 => 'business-intelligence-analyst',
+                29 => 'marketing-broadcaster-clerk',
+                30 => 'marketing-broadcaster-manager',
+                32 => 'fulfilment-manager',
+                31 => 'fulfilment-clerk',
+
+                default => $auRole->{'User Group Key'},
+            };
+
+            if (Arr::has($roles, $role)) {
+                $roles[$role] = true;
             }
+            //else{
+            //    print "$role\n";
+            //}
         }
+
 
         $this->parsedData['roles'] = array_keys(
             collect($roles)->filter(function ($value) {

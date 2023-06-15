@@ -29,6 +29,8 @@ class HistoryResource extends JsonResource
             'auditable_type' => $this['auditable_type'],
             'user_id'     => $this['user_id'],
             'user_type'   => $this['user_type'],
+            'slug'        => $this['slug'],
+            'user_name'   => $this['user_name'],
             'tags'        => $this['tags']
         ];
     }

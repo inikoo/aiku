@@ -5,7 +5,9 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Actions\Auth\UI\AuthSession\Login;
+use App\Actions\Auth\UI\AuthSession\Logout;
+use App\Actions\Auth\UI\AuthSession\ShowLogin;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
@@ -21,10 +23,10 @@ Route::middleware('guest')->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+    Route::get('login', ShowLogin::class)
                 ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
+    Route::post('login', Login::class)->name('login.store');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
                 ->name('password.request');
@@ -56,6 +58,5 @@ Route::middleware('auth')->group(function () {
 
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store'])->name('password.confirm.store');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-                ->name('logout');
+    Route::post('logout', Logout::class)->name('logout');
 });

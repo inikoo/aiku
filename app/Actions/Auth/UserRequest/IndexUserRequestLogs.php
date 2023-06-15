@@ -9,7 +9,6 @@ namespace App\Actions\Auth\UserRequest;
 
 use App\Actions\Auth\UserRequest\Traits\WithFormattedRequestLogs;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\InertiaTable\InertiaTable;
 use Closure;
 use Elastic\Elasticsearch\Client;
@@ -35,7 +34,7 @@ class IndexUserRequestLogs
                 $params  = [
                     'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
                     'size'  => 10000,
-                    'body' => [
+                    'body'  => [
                         'query' => [
                             'bool' => [
                                 'must' => [
