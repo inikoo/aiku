@@ -62,7 +62,7 @@ class EditWarehouse extends InertiaAction
                                 ],
                                 'name' => [
                                     'type'  => 'input',
-                                    'label' => __('label'),
+                                    'label' => __('name'),
                                     'value' => $warehouse->name
                                 ],
                             ]
