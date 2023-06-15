@@ -9,7 +9,6 @@ namespace App\Actions\Auth\UserRequest;
 
 use App\Actions\Auth\UserRequest\Traits\WithFormattedRequestLogs;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\InertiaTable\InertiaTable;
 use Closure;
 use Elastic\Elasticsearch\Client;
@@ -35,7 +34,7 @@ class ShowUserRequestLogs
                 $params  = [
                     'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
                     'size'  => 10000,
-                    'body' => [
+                    'body'  => [
                         'query' => [
                             'bool' => [
                                 'must' => [
@@ -79,7 +78,8 @@ class ShowUserRequestLogs
                 ->column(key: 'user_agent', label: __('User Agent'), canBeHidden: false, sortable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
-                ->defaultSort('datetime');;
+                ->defaultSort('datetime');
+            ;
         };
     }
 }

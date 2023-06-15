@@ -5,12 +5,12 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
 namespace App\Actions\Auth\UserRequest\Traits;
 
 use Elastic\Elasticsearch\Client;
 
-trait WithFormattedRequestLogs {
+trait WithFormattedRequestLogs
+{
     /**
      * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Elastic\Elasticsearch\Exception\ClientResponseException

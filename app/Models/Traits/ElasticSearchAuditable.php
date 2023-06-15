@@ -19,15 +19,15 @@ trait ElasticSearchAuditable
         $index  = config('elasticsearch.index_prefix') . 'user_requests_'.app('currentTenant')->group->slug;
         $type   = Config::get('audit.drivers.es.type', 'ACTION');
 
-        $from = ($page - 1) * $perPage;
+        $from  = ($page - 1) * $perPage;
         $order = $sort === 'latest' ? 'desc' : 'asc';
 
         $params = [
             'index' => $index,
-            'type' => $type,
-            'size' => $perPage,
-            'from' => $from,
-            'body' => [
+            'type'  => $type,
+            'size'  => $perPage,
+            'from'  => $from,
+            'body'  => [
                 'query' => [
                     'bool' => [
                         'must' => [
@@ -54,22 +54,22 @@ trait ElasticSearchAuditable
         ];
 
         $results = $client->search($params);
-        $hits = $results['hits'];
+        $hits    = $results['hits'];
 
         $collection = Collection::make();
 
         foreach ($hits['hits'] as $key => $result) {
-            $audit['id'] = $result['_id'];
-            $audit = array_merge($audit, $result['_source']);
+            $audit['id']    = $result['_id'];
+            $audit          = array_merge($audit, $result['_source']);
             $audit['score'] = $result['_score'];
 
             $collection->put($key, $audit);
         }
 
         return [
-            'total' => $hits['total'],
+            'total'    => $hits['total'],
             'per_page' => $perPage,
-            'data' => $collection
+            'data'     => $collection
         ];
     }
 

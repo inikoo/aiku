@@ -18,7 +18,7 @@ class RestoreElasticsearchDocument
     use AsObject;
     use AsAction;
 
-    public string $commandSignature = 'elasticsearch:restore';
+    public string $commandSignature   = 'elasticsearch:restore';
     public string $commandDescription = 'Restore the data from backup database';
 
     public function handle(): void
@@ -43,6 +43,6 @@ class RestoreElasticsearchDocument
 
     public function asCommand(): void
     {
-       $this->handle();
+        $this->handle();
     }
 }
