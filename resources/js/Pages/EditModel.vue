@@ -14,9 +14,9 @@ import FieldForm from '@/Components/Forms/FieldForm.vue';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint } from "@/../private/pro-light-svg-icons"
+import { faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage } from "@/../private/pro-light-svg-icons"
 
-library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint)
+library.add(faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage)
 
 const props = defineProps<{
     title: string,
@@ -64,7 +64,7 @@ const current = ref(0)
     <!-- If overflow-hidden, affect to Multiselect on Address -->
     <div class="rounded-lg bg-white shadow">
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
-            
+
             <!-- Left Tab: Navigation -->
             <aside class="py-0 lg:col-span-3 lg:h-full">
                 <nav role="navigation" class="space-y-1">

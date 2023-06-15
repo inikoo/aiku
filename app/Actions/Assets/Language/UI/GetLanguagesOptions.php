@@ -14,11 +14,11 @@ class GetLanguagesOptions
 {
     use AsObject;
 
-    public function handle(): array
+    public function handle($languages): array
     {
         $selectOptions = [];
         /** @var Language $language */
-        foreach (Language::all() as $language) {
+        foreach ($languages as $language) {
             $selectOptions[$language->id] =
                 [
                     'label' => $language->name,
@@ -27,4 +27,15 @@ class GetLanguagesOptions
 
         return $selectOptions;
     }
+
+    public function all(): array
+    {
+        return $this->handle(Language::all());
+    }
+
+    public function translated(): array
+    {
+        return $this->handle(Language::where('status', true)->get());
+    }
+
 }

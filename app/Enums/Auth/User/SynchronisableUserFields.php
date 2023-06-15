@@ -16,4 +16,6 @@ enum SynchronisableUserFields: string
     case USERNAME             = 'username';
     case PASSWORD             = 'password';
     case EMAIL                = 'email';
+    case ABOUT                = 'about';
+
 }
