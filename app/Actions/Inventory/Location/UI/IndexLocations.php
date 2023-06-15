@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexLocations extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle($parent,$prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,7 +37,9 @@ class IndexLocations extends InertiaAction
         });
 
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::LOCATIONS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(Location::class)
             ->defaultSort('locations.code')
@@ -66,10 +68,7 @@ class IndexLocations extends InertiaAction
             })
             ->allowedSorts(['code'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::LOCATIONS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
