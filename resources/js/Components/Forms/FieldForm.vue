@@ -107,7 +107,7 @@ form['fieldType'] = 'edit';
         <dl class="divide-y divide-gray-200 max-w-2xl ">
             <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                 <dt class="text-sm font-medium text-gray-500 capitalize">
-                    <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="!fieldData.optional" :icon="['fas', 'asterisk']" class="font-light text-[6px] text-red-400"/>{{ fieldData.label }}</div>
+                    <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="!fieldData.optional" :icon="['fas', 'asterisk']" class="font-light text-[12px] text-red-400 mr-1"/>{{ fieldData.label }}</div>
                 </dt>
                 <dd class="sm:col-span-2  ">
                     <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">

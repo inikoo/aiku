@@ -63,6 +63,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
+ * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read array $es_audits
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
  * @property-read Model|\Eloquent $provider
  * @property-read Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries

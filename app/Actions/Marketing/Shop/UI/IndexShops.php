@@ -29,7 +29,7 @@ use Spatie\QueryBuilder\QueryBuilder;
  */
 class IndexShops extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,17 +38,17 @@ class IndexShops extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SHOPS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
 
         return QueryBuilder::for(Shop::class)
             ->defaultSort('shops.code')
             ->select(['code', 'id', 'name', 'slug','type','subtype'])
             ->allowedSorts(['code', 'name','type','subtype'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::SHOPS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 

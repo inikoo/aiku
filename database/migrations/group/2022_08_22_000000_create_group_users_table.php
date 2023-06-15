@@ -1,3 +1,4 @@
+
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
@@ -20,7 +21,8 @@ return new class () extends Migration {
             $table->string('name')->nullable();
             $table->string('about')->nullable();
             $table->boolean('status')->default(true)->index();
-            $table->unsignedInteger('media_id')->nullable();
+            $table->unsignedInteger('avatar_id')->nullable();
+            $table->foreign('avatar_id')->references('id')->on('group_media');
             $table->jsonb('data')->nullable();
             $table->unsignedSmallInteger('number_users')->default(0);
             $table->unsignedSmallInteger('number_active_users')->default(0);

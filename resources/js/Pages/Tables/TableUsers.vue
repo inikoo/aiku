@@ -29,27 +29,6 @@ function userRoute(user: User) {
 }
 
 
-// const fakeElements = [
-//     {
-//         key: 0,
-//         label: 'Terima Kasih',
-//         show: false,
-//         count: 11,
-//     },
-//     {
-//         key: 1,
-//         label: 'Selamat Tinggal',
-//         show: true,
-//         count: 7,
-//     },
-//     {
-//         key: 2,
-//         label: 'Welcome',
-//         show: true,
-//         count: 23,
-//     },
-// ];
-// console.log(props.data)
 </script>
 
 <template>
@@ -57,7 +36,7 @@ function userRoute(user: User) {
     <Table :resource="data" :name="tab"  class="mt-5">
         <template #cell(username)="{ item: user }">
             <Link :href="userRoute(user)">
-                <template v-if="user.username">{{ user.username }}</template>
+                <template v-if="user['username']">{{ user['username'] }}</template>
                 <span v-else class="italic">{{ trans('Not set') }}</span>
             </Link>
         </template>
@@ -70,10 +49,7 @@ function userRoute(user: User) {
             <Link v-else-if="user['parent_type'] === 'Guest'" :href="route('sysadmin.guests.show', user['parent']['slug'])">
             {{ trans('Guest') }}</Link>
         </template>
-        <!-- <template #tableElements>
-            {{ props.abcdef }}
-            <TableElements :elements="fakeElements" v-model="fakeElements" />
-        </template> -->
+
     </Table>
 </template>
 

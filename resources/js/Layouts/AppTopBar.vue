@@ -8,13 +8,13 @@
 		</div>
 
 		<!-- Left Menu -->
-		<div class="flex">
-			<div class="text-sm lg:text-base flex items-center divide-x divide-gray-100 justify-center overflow-hidden">
+		<div class="flex w-full">
+			<div class="text-sm lg:text-base flex items-center divide-x divide-gray-100 min-w-max">
 				<Link
 					v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections "
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections"
 					:href="route(menu.route.name)"
-					class="group flex justify-end items-center cursor-pointer py-1 space-x-1 px-4 md:px-4 lg:px-2"
+					class="group flex justify-end items-center cursor-pointer py-1  lg:space-x-4 px-14 md:px-14 lg:px-14"
 					:title="capitalize(menu.label)"
 				>
 					<FontAwesomeIcon
@@ -32,7 +32,7 @@
 			
 			<!-- Right Menu -->
 			<div
-				class="text-sm lg:text-base text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
+				class="text-sm lg:text-base text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid min-w-max"
 				:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'border border-l-0 border-indigo-300' : 'border-l border-gray-100 divide-x divide-gray-100 ']"
 			>
 				<!-- href:
@@ -58,7 +58,7 @@
 									: route(menu.route?.all)  // If data is above than 1 data then Link to 'All list'
 					"
 					:title="capitalize(menu.tooltip)"
-					class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4"
+					class="group flex justify-center items-center cursor-pointer py-1  lg:space-x-4 px-14 grow"
 					:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : '']"
 				>
 					<FontAwesomeIcon
@@ -98,6 +98,7 @@ import {
 	faFolder,
 	faFolders,
 	faBrowser,
+	faBuilding,
 } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
@@ -118,7 +119,8 @@ library.add(
 	faClipboardList,
 	faFolder,
 	faFolders,
-	faBrowser
+	faBrowser,
+	faBuilding
 )
 const layout = useLayoutStore()
 
@@ -134,4 +136,10 @@ router.on("navigate", (event) => {
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.center-content{
+	width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+</style>

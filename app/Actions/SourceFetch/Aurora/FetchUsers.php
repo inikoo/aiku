@@ -10,6 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\Auth\User\UpdateUser;
+use App\Actions\Auth\User\UserSyncRoles;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
@@ -17,17 +18,18 @@ use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchUsers extends FetchAction
 {
     public string $commandSignature = 'fetch:users {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?User
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?User
     {
         if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
             if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
+
+
                 $user = UpdateUser::run($user, $userData['user']);
 
             } else {
@@ -52,7 +54,11 @@ class FetchUsers extends FetchAction
                     ->where('User Key', $user->source_id)
                     ->update(['aiku_id' => $user->id]);
 
+
+
+
             }
+            UserSyncRoles::make()->action($user, $userData['roles']);
 
 
             return $user;

@@ -5,15 +5,14 @@
   -->
 
 <script setup lang="ts">
-// import {ref} from 'vue'
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Employee} from "@/types/employee";
 import JobPositionBadges from "@/Components/Elements/Badges/JobPositionBadges.vue";
-// import TableElements from "@/Components/Table/TableElements.vue";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?:string
 }>()
 
 
@@ -27,32 +26,10 @@ function employeeRoute(employee: Employee) {
     }
 }
 
-const fakeElements = [
-    {
-        key: 0,
-        label: 'Terima Kasih',
-        show: false,
-        count: 11,
-    },
-    {
-        key: 1,
-        label: 'Selamat Tinggal',
-        show: true,
-        count: 7,
-    },
-    {
-        key: 2,
-        label: 'Welcome',
-        show: true,
-        count: 23,
-    },
-];
-//@elementChange="(dataFilter) => changeElements(dataFilter)"
-console.log(props.data)
 </script>
 
 <template>
-    <Table :resource="data" :name="'emp'" class="mt-5"  :elements="fakeElements"  >
+    <Table :resource="data" :name="tab" class="mt-5"   >
         <template #cell(slug)="{ item: employee }">
             <Link :href="employeeRoute(employee)">
                 {{ employee['slug'] }}

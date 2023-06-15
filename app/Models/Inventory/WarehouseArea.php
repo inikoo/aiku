@@ -40,6 +40,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read array $es_audits
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read \App\Models\Inventory\WarehouseAreaStats|null $stats
  * @property-read UniversalSearch|null $universalSearch

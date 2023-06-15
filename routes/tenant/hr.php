@@ -22,6 +22,7 @@ use App\Actions\HumanResources\Employee\UI\EditEmployee;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\JobPosition\IndexJobPositions;
+use App\Actions\HumanResources\JobPosition\ShowJobPosition;
 use App\Actions\HumanResources\TimeSheet\IndexTimesheets;
 use App\Actions\HumanResources\TimeSheet\ShowTimeSheet;
 use App\Actions\HumanResources\WorkingPlace\UI\CreateWorkingPlace;
@@ -45,7 +46,7 @@ Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('
 
 
 Route::get('/positions', IndexJobPositions::class)->name('job-positions.index');
-//Route::get('/positions/{jobPosition}', ShowJobPosition::class)->name('employees.show');
+Route::get('/positions/{jobPosition}', ShowJobPosition::class)->name('job-positions.show');
 
 Route::get('/calendars', IndexCalendars::class)->name('calendars.index');
 Route::get('/calendars/{calendar}', ShowCalendar::class)->name('calendars.show');

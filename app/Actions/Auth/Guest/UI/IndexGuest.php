@@ -25,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexGuest extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -34,17 +34,16 @@ class IndexGuest extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::GUEST->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(Guest::class)
             ->defaultSort('guests.slug')
             ->select(['id', 'slug', 'contact_name',])
             ->allowedSorts(['slug', 'contact_name'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::GUEST->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 

@@ -11,7 +11,6 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
@@ -82,16 +81,16 @@ class IndexEmployees extends InertiaAction
             ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'contact_name', 'job_title'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: $prefix ? $prefix.'Page' : 'page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($prefix=null): Closure
+
+
+    public function tableStructure(?array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+
 
 
             if ($prefix) {
@@ -111,8 +110,7 @@ class IndexEmployees extends InertiaAction
 
 
             $table
-                ->name(TabsAbbreviationEnum::EMPLOYEES->value)
-                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')
+                ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)

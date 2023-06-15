@@ -48,7 +48,7 @@ class CreateUserFromEmployee
         $centralUser = StoreGroupUser::run($modelData);
 
         /** @var User $user */
-        $user = StoreUser::run($employee, $centralUser, $modelData);
+        $user = StoreUser::run($employee, $centralUser);
         foreach ($employee->jobPositions as $jobPosition) {
             $user->assignJoBPositionRoles($jobPosition);
         }

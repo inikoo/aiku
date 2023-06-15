@@ -18,20 +18,20 @@ class RestoreElasticsearchDocument
     use AsObject;
     use AsAction;
 
-    public string $commandSignature = 'elasticsearch:restore';
+    public string $commandSignature   = 'elasticsearch:restore';
     public string $commandDescription = 'Restore the data from backup database';
 
     public function handle(): void
     {
         try {
-            $actionHistories = ActionHistory::all();
+            $actionHistories = ActionHistory::orderBy('id', 'ASC')->get();
             foreach ($actionHistories as $actionHistory) {
-                IndexElasticsearchDocument::run($actionHistory->index, $actionHistory->body, $actionHistory->type, true);
+                IndexElasticsearchDocument::dispatch($actionHistory->index, $actionHistory->body, $actionHistory->type, true);
             }
 
-            $visitHistories = VisitHistory::all();
+            $visitHistories = VisitHistory::orderBy('id', 'ASC')->get();
             foreach ($visitHistories as $visitHistory) {
-                IndexElasticsearchDocument::run($visitHistory->index, $visitHistory->body, $visitHistory->type, true);
+                IndexElasticsearchDocument::dispatch($visitHistory->index, $visitHistory->body, $visitHistory->type, true);
             }
 
             echo "Success import data \n";
@@ -43,6 +43,6 @@ class RestoreElasticsearchDocument
 
     public function asCommand(): void
     {
-       $this->handle();
+        $this->handle();
     }
 }

@@ -17,7 +17,6 @@ use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -34,7 +33,7 @@ class IndexHistories
     {
         $client = BuildElasticsearchClient::run();
 
-        $auditableId = $model->id;
+        $auditableId   = $model->id;
         $auditableType = class_basename($model);
 
         if ($client instanceof Client) {
@@ -42,7 +41,7 @@ class IndexHistories
                 $params  = [
                     'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
                     'size'  => 10000,
-                    'body' => [
+                    'body'  => [
                         'query' => [
                             'bool' => [
                                 'must' => [
@@ -86,6 +85,9 @@ class IndexHistories
                 ->name(TabsAbbreviationEnum::HISTORY->value)
                 ->pageName(TabsAbbreviationEnum::HISTORY->value.'Page')
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'user_id', label: __('User ID'), canBeHidden: false, sortable: true)
+                ->column(key: 'slug', label: __('Slug'), canBeHidden: false, sortable: true)
+                ->column(key: 'user_name', label: __('User Name'), canBeHidden: false, sortable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
                 ->column(key: 'old_values', label: __('Old Values'), canBeHidden: false, sortable: true)
                 ->column(key: 'new_values', label: __('New Values'), canBeHidden: false, sortable: true)
