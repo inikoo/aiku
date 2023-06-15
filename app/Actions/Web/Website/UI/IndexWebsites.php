@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWebsites extends InertiaAction
 {
-    public function handle(Tenant|Shop $parent): LengthAwarePaginator
+    public function handle(Tenant|Shop $parent, $prefix=null ): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -36,7 +36,10 @@ class IndexWebsites extends InertiaAction
                     ->orWhere('websites.code', 'ilike', "$value%");
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WEBSITES->value);
+        if ($prefix) {
+
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(Website::class)
             ->defaultSort('websites.code')
@@ -50,11 +53,7 @@ class IndexWebsites extends InertiaAction
             })
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::WEBSITES->value.'Page'
-            )
-
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
