@@ -21,13 +21,8 @@ return new class () extends Migration {
             $table->datetime('login_at')->nullable();
             $table->datetime('last_active')->nullable();
             $table->datetime('last_login')->nullable();
-<<<<<<< Updated upstream
 
-            $table->string('failed_login')->nullable();
-
-=======
             $table->datetime('failed_login')->nullable();
->>>>>>> Stashed changes
             $table->datetime('failed_login_at')->nullable();
             $table->datetime('active')->nullable();
 
