@@ -10,7 +10,6 @@ namespace App\Actions\Auth\User\Hydrators;
 use App\Actions\WithTenantJob;
 use App\Models\Auth\User;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UserHydrateAuth implements ShouldBeUnique
@@ -20,17 +19,14 @@ class UserHydrateAuth implements ShouldBeUnique
 
     public function handle(User $user): void
     {
-        $stats = [];
+        $stats        = [];
         $numberLogins = $user->stats->number_logins;
 
-<<<<<<< Updated upstream
         if(auth()->check()) {
-=======
-        if(! auth()->check()) {
->>>>>>> Stashed changes
+
             $stats = [
-                'login_at' => now(),
-                'last_login' => now(),
+                'login_at'      => now(),
+                'last_login'    => now(),
                 'number_logins' => $numberLogins + 1
             ];
         }
@@ -38,11 +34,10 @@ class UserHydrateAuth implements ShouldBeUnique
         if(! auth()->check()) {
             $stats = [
                 'login_at' => now(),
-<<<<<<< Updated upstream
 //                'failed_login' => request()->ip(),
-=======
+
                 'failed_login' => request()->ip(),
->>>>>>> Stashed changes
+
                 'failed_login_at' => now()
             ];
         }
