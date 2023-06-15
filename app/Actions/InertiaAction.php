@@ -20,9 +20,11 @@ class InertiaAction
     protected ?string $routeName        = null;
     protected array $originalParameters = [];
     protected ?string $tab              = null;
-    protected array $elementGroups      =[];
+    protected array $elementGroups      = [];
 
     protected bool $canEdit = false;
+
+    protected int $perPage = 50;
     private array $rawInputs;
 
     public function initialisation(ActionRequest $request): static

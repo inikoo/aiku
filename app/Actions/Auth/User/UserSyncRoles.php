@@ -26,9 +26,7 @@ class UserSyncRoles
 
     public function handle(User $user, array $roles): User
     {
-        foreach ($roles as $role) {
-            $user->syncRoles($role);
-        }
+        $user->syncRoles($roles);
 
         return $user;
     }
@@ -53,7 +51,6 @@ class UserSyncRoles
 
     public function afterValidator(Validator $validator): void
     {
-
         $roles = [];
         foreach ($this->get('role_names') as $roleName) {
             /** @var Role $role */
@@ -66,8 +63,6 @@ class UserSyncRoles
 
 
         $this->set('roles', $roles);
-
-
     }
 
 

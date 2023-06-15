@@ -7,6 +7,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Actions\Auth\User\Hydrators\UserHydrateAuth;
+use App\Models\Auth\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -48,11 +50,14 @@ class LoginRequest extends FormRequest
         )) {
             RateLimiter::hit($this->throttleKey());
 
+            UserHydrateAuth::dispatch(User::where($this->validated()['email'])->first());
+
             throw ValidationException::withMessages([
                                                         'username' => trans('auth.failed'),
                                                     ]);
         }
 
+        UserHydrateAuth::dispatch(User::where($this->validated()['email'])->first());
         RateLimiter::clear($this->throttleKey());
     }
 

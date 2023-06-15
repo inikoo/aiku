@@ -7,48 +7,46 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
+use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
-use App\Actions\UI\WithInertia;
 use App\Http\Resources\HumanResources\JobPositionResource;
-use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-/**
- * @property array $breadcrumbs
- * @property bool $canEdit
- * @property string $title
- */
-class IndexJobPositions
+class IndexJobPositions extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
-    public function handle(): LengthAwarePaginator
+    public function handle(string $prefix = null): LengthAwarePaginator
     {
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.slug', 'LIKE', "%$value%")
-                    ->orWhere('employees.contact_name', 'LIKE', "%$value%");
+                $query->whereAnyWordStartWith('job_positions.contact_name', $value)
+                    ->orWhere('job_positions.slug', 'ILIKE', "$value%");
             });
         });
 
 
-        return QueryBuilder::for(Employee::class)
+        return QueryBuilder::for(JobPosition::class)
             ->defaultSort('job_positions.slug')
-            ->select(['slug', 'id', 'contact_name'])
-            ->allowedSorts(['slug', 'contact_name'])
+            ->select(['slug', 'id', 'name', 'number_employees'])
+            ->allowedSorts(['slug', 'name', 'number_employees'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
-            ->withQueryString();
+            ->paginate(
+                perPage: $this->perPage ?? config('ui.table.records_per_page'),
+                pageName: $prefix ? $prefix.'Page' : 'page'
+            )->withQueryString();
     }
 
     public function authorize(ActionRequest $request): bool
@@ -66,8 +64,27 @@ class IndexJobPositions
         return JobPositionResource::collection($this->handle());
     }
 
+    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
 
-    public function htmlResponse(LengthAwarePaginator $jobPositions)
+
+            $table
+                ->withModelOperations($modelOperations)
+                ->withGlobalSearch()
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_employees', label: __('employees'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('slug');
+        };
+    }
+
+    public function htmlResponse(LengthAwarePaginator $jobPositions): Response
     {
         return Inertia::render(
             'HumanResources/JobPositions',
@@ -77,25 +94,18 @@ class IndexJobPositions
                 'pageHead'    => [
                     'title' => __('positions'),
                 ],
-                'jobPositions'   => JobPositionResource::collection($jobPositions),
+                'data'        => JobPositionResource::collection($jobPositions),
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_positions', label: __('position'), canBeHidden: false, sortable: true, searchable: true)
-
-                ->defaultSort('code');
-        });
+        )->table($this->tableStructure());
     }
 
 
-    public function asController(Request $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
+        $this->initialisation($request);
+        $this->perPage = 100;
 
         return $this->handle();
     }
@@ -105,12 +115,17 @@ class IndexJobPositions
         return array_merge(
             (new HumanResourcesDashboard())->getBreadcrumbs(),
             [
-                'hr.employees.index' => [
-                    'route'      => 'hr.employees.index',
-                    'modelLabel' => [
-                        'label' => __('employees')
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'hr.job-positions.index'
+                        ],
+                        'label' => __('positions'),
+                        'icon'  => 'fal fa-bars',
                     ],
-                ],
+
+                ]
             ]
         );
     }

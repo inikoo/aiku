@@ -94,11 +94,7 @@ class IndexEmployees extends InertiaAction
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
 
-            if ($prefix) {
-                $table
-                    ->name($prefix)
-                    ->pageName($prefix.'Page');
-            }
+
 
             if ($prefix) {
                 $table

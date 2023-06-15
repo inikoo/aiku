@@ -21,11 +21,11 @@ class JobPositionResource extends JsonResource
 
 
         return [
-            'id'         => $jobPosition->id,
-            'slug'       => $jobPosition->slug,
-            'code'       => $jobPosition->name,
-            'created_at' => $jobPosition->created_at,
-            'updated_at' => $jobPosition->updated_at,
+            'id'               => $jobPosition->id,
+            'slug'             => $jobPosition->slug,
+            'name'             => $jobPosition->name,
+            'number_employees' => $jobPosition->number_employees
+
         ];
     }
 }

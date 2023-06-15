@@ -28,3 +28,4 @@ prod-diff.sh
 /public/tenants/
 /hash
 /create_aurora_tenants.sh
+load_aurora_db.sh
