@@ -7,22 +7,23 @@
 
 namespace App\Actions\HumanResources\ClockingMachine;
 
-use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
+use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
-use App\Http\Resources\HumanResources\EmployeeResource;
-use App\Models\HumanResources\Employee;
+use App\Http\Resources\HumanResources\ClockingMachineResource;
+use App\Models\HumanResources\ClockingMachine;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateClockingMachine
 {
     use WithActionUpdate;
 
-    public function handle(Employee $employee, array $modelData): Employee
+    public function handle(ClockingMachine $clockingMachine, array $modelData): ClockingMachine
     {
-        $employee =  $this->update($employee, $modelData, ['data', 'salary',]);
+        $clockingMachine =  $this->update($clockingMachine, $modelData, ['data']);
 
-        EmployeeHydrateUniversalSearch::dispatch($employee);
-        return $employee;
+        ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
+
+        return $clockingMachine;
     }
 
 
@@ -34,23 +35,20 @@ class UpdateClockingMachine
     public function rules(): array
     {
         return [
-            'contact_name'  => ['sometimes','required'],
-            'date_of_birth' => ['sometimes','date'],
-            'job_title'     => ['sometimes','required'],
-            'state'         => ['sometimes','required'],
+            'code'  => ['sometimes','required'],
         ];
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $request->validate();
 
-        return $this->handle($employee, $request->all());
+        return $this->handle($clockingMachine, $request->all());
     }
 
 
-    public function jsonResponse(Employee $employee): EmployeeResource
+    public function jsonResponse(ClockingMachine $clockingMachine): ClockingMachineResource
     {
-        return new EmployeeResource($employee);
+        return new ClockingMachineResource($clockingMachine);
     }
 }

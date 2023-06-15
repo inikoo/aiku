@@ -456,7 +456,7 @@ class GetLayout
                         ],
                         [
                             'label' => __('working place'),
-                            'icon'  => ['fal', 'fa-chess-clock'],
+                            'icon'  => ['fal', 'fa-building'],
                             'route' => [
                                 'name' => 'hr.working-places.index',
 

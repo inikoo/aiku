@@ -5,6 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
+use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
@@ -99,3 +101,25 @@ test('update working place successful', function ($createdWorkplace) {
 
     expect($updatedWorkplace->name)->toBe($arrayData['name']);
 })->depends('create working place successful');
+
+test('create clocking machines', function ($createdWorkplace) {
+    $arrayData =[
+        'code' => 'ABC'
+    ];
+
+    $clockingMachine = StoreClockingMachine::run($createdWorkplace, $arrayData);
+    expect($clockingMachine->code)->toBe($arrayData['code']);
+
+    return $clockingMachine;
+})->depends('create working place successful');
+
+
+test('update clocking machines', function ($createdClockingMachine) {
+    $arrayData = [
+        'code'              => 'ABCED',
+    ];
+
+    $updatedClockingMachine = UpdateClockingMachine::run($createdClockingMachine, $arrayData);
+
+    expect($updatedClockingMachine->code)->toBe($arrayData['code']);
+})->depends('create clocking machines');

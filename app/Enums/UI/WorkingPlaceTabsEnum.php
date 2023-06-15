@@ -27,7 +27,7 @@ enum WorkingPlaceTabsEnum: string
         return match ($this) {
             WorkingPlaceTabsEnum::CLOCKING_MACHINES => [
                 'title' => __('clocking machines'),
-                'icon'  => 'fal fa-database',
+                'icon'  => 'fal fa-chess-clock',
             ],
             WorkingPlaceTabsEnum::CLOCKINGS => [
                 'title' => __('clocking'),
