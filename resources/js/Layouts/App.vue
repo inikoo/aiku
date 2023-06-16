@@ -127,7 +127,7 @@ const user = ref(usePage().props.auth.user);
             <div class="px-0">
                 <div class="flex h-11 lg:h-10 flex-shrink-0 border-b border-gray-200 bg-white ">
                     <div class="flex flex-1">
-                        <div class="flex flex-1 lg:justify-between space-x-2 ">
+                        <div class="flex flex-1 lg:justify-between">
                             <!-- Hamburger -->
                             <button class="block md:hidden w-10 h-10 relative focus:outline-none bg-white" @click="sidebarOpen = !sidebarOpen">
                                 <span class="sr-only">Open sidebar</span>
