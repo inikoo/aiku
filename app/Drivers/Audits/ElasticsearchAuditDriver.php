@@ -15,6 +15,7 @@ use App\Models\Auth\User;
 use App\Models\Backup\ActionHistory;
 use Carbon\Carbon;
 use Elastic\Elasticsearch\Client;
+use Exception;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Facades\Config;
 use OwenIt\Auditing\Contracts\Audit;
@@ -25,9 +26,9 @@ use OwenIt\Auditing\Models\Audit as AuditModel;
 class ElasticsearchAuditDriver implements AuditDriver
 {
     /**
-     * @var Client|null
+     * @var Client|Exception|null
      */
-    protected ?Client $client = null;
+    protected Client|Exception|null $client = null;
 
     /**
      * @var string|null
@@ -278,6 +279,7 @@ class ElasticsearchAuditDriver implements AuditDriver
         $params = [
             'index' => $this->index,
             'type'  => $this->type,
+            'need_restore' => $this->client instanceof Exception,
             'body'  => [
                 $this->type => [
                     '_source' => [
