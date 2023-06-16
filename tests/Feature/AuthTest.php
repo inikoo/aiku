@@ -26,6 +26,7 @@ use App\Models\Auth\User;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -73,6 +74,7 @@ test('create guest', function () {
     $guest = StoreGuest::make()->action(
         $guestData
     );
+
     $this->assertModelExists($guest);
 
     return $guest;
@@ -181,45 +183,54 @@ test('make sure a group user can be only attaches once in each tenant', function
 
 
 test('add user roles', function ($user) {
-    $addRole = UserAddRoles::make()->action($user, ['super-admin', 'system-admin']);
+    expect($user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
 
-    $this->assertModelExists($addRole);
+    $user = UserAddRoles::make()->action($user, ['super-admin', 'system-admin']);
+
+    expect($user->hasRole(['super-admin', 'system-admin']))->toBeTrue();
 })->depends('create user for guest');
 
 test('remove user roles', function ($user) {
-    $removeRole = UserRemoveRoles::make()->action($user, ['super-admin', 'system-admin']);
+    $user = UserRemoveRoles::make()->action($user, ['super-admin', 'system-admin']);
 
-    $this->assertModelExists($removeRole);
+    expect($user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
 })->depends('create user for guest');
 
 test('sync user roles', function ($user) {
-    $syncRole = UserSyncRoles::make()->action($user, ['super-admin', 'system-admin']);
+    $user = UserSyncRoles::make()->action($user, ['super-admin', 'system-admin']);
 
-    $this->assertModelExists($syncRole);
+    expect($user->hasRole(['super-admin', 'system-admin']))->toBeTrue();
 })->depends('create user for guest');
 
 test('user change status if group user status is false  ', function ($user) {
-    $addRole = UpdateUserStatus::make()->action($user, [
+    expect($user->status)->toBeTrue();
+
+    $user = UpdateUserStatus::make()->action($user, [
         'status' => false
     ]);
 
-    $this->assertModelExists($addRole);
+    expect($user->status)->toBeFalse();
 })->depends('create user for guest');
 
 test('group status change status', function ($user) {
     $groupUser = $user->groupUser;
 
-    $status = UpdateGroupUserStatus::make()->action($groupUser, [
+    expect($groupUser->status)->toBeTrue();
+
+    $groupUser = UpdateGroupUserStatus::make()->action($groupUser, [
         'status' => false
     ]);
 
-    $this->assertModelExists($status);
+    expect($groupUser->status)->toBeFalse();
 })->depends('update user password');
 
 test('delete group user', function ($user) {
     $groupUser = $user->groupUser;
+    $this->assertModelExists($groupUser);
 
-    $deleteGroupUser = DeleteGroupUser::make()->action($groupUser);
+    DeleteGroupUser::make()->action($groupUser);
 
-    expect($deleteGroupUser)->toBe(true);
+    $groupUser = $user->groupUser;
+
+    expect($groupUser->deleted_at)->toBeInstanceOf(Carbon::class);
 })->depends('update user password');
