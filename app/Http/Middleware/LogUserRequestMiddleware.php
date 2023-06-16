@@ -14,6 +14,7 @@ class LogUserRequestMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        /* @var \App\Models\Auth\User $user */
         $user = $request->user();
 
         if (!app()->runningUnitTests() && $user) {
@@ -29,6 +30,8 @@ class LogUserRequestMiddleware
                 ElasticsearchTypeEnum::VISIT->value,
                 $user,
             );
+
+            $user->stats->update(['last_active_at' => now()]);
         }
 
         return $next($request);
