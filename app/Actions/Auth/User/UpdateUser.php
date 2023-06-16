@@ -38,10 +38,12 @@ class UpdateUser
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->asAction) {
+            return true;
+        }
         return  $request->user()->can('sysadmin.edit');
 
     }
-
 
     public function rules(): array
     {
