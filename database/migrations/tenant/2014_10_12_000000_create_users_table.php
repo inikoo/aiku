@@ -22,6 +22,7 @@ return new class () extends Migration {
             $table->string('auth_type')->default(UserAuthTypeEnum::DEFAULT->value);
             $table->string('contact_name')->nullable()->collation('und_ns')->comment('no-normalised depends on parent');
             $table->string('email')->nullable()->collation('und_ns')->comment('mirror group_users.email');
+            $table->text('about')->nullable();
             $table->unsignedInteger('parent_id')->nullable();
             $table->string('parent_type')->nullable();
             $table->rememberToken();

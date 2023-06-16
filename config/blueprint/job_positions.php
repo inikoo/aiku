@@ -11,63 +11,63 @@ return [
 
     'positions' => [
 
-        'dir'   => [
-            'slug' => 'dir',
+        'dir'      => [
+            'code' => 'dir',
             'name' => 'director',
 
             'roles' => [
                 'super-admin'
             ]
         ],
-        'hr-m'  => [
-            'slug'  => 'hr-m',
+        'hr-m'     => [
+            'code'  => 'hr-m',
             'grade' => 'manager',
             'name'  => 'Human resources supervisor',
             'roles' => [
                 'human-resources-admin'
             ]
         ],
-        'hr-c'  => [
-            'slug'  => 'hr-c',
+        'hr-c'     => [
+            'code'  => 'hr-c',
             'name'  => 'Human resources clerk',
             'grade' => 'clerk',
             'roles' => [
                 'human-resources-clerk'
             ]
         ],
-        'acc'   => [
-            'slug'  => 'acc',
+        'acc'      => [
+            'code'  => 'acc',
             'name'  => 'Accounts',
             'roles' => [
                 'guest'
             ]
         ],
-        'mrk-m' => [
-            'slug'  => 'mrk-m',
+        'mrk-m'    => [
+            'code'  => 'mrk-m',
             'grade' => 'manager',
             'name'  => 'Marketing supervisor',
             'roles' => [
                 'guest'
             ]
         ],
-        'mrk-c' => [
-            'slug'  => 'mrk-c',
+        'mrk-c'    => [
+            'code'  => 'mrk-c',
             'grade' => 'clerk',
             'name'  => 'Marketing clerk',
             'roles' => [
                 'guest'
             ]
         ],
-        'web-m' => [
-            'slug'  => 'web-m',
+        'web-m'    => [
+            'code'  => 'web-m',
             'grade' => 'manager',
             'name'  => 'Webmaster supervisor',
             'roles' => [
                 'guest'
             ]
         ],
-        'web-c' => [
-            'slug'  => 'web-c',
+        'web-c'    => [
+            'code'  => 'web-c',
             'grade' => 'clerk',
             'name'  => 'Webmaster clerk',
             'roles' => [
@@ -75,14 +75,14 @@ return [
             ]
         ],
         'buy'      => [
-            'slug'  => 'buy',
+            'code'  => 'buy',
             'name'  => 'Buyer',
             'roles' => [
                 'guest'
             ]
         ],
         'wah-m'    => [
-            'slug'       => 'wah-m',
+            'code'       => 'wah-m',
             'team'       => 'warehouse',
             'department' => 'procurement',
             'name'       => 'Warehouse supervisor',
@@ -91,7 +91,7 @@ return [
             ]
         ],
         'wah-sk'   => [
-            'slug'       => 'wah-sk',
+            'code'       => 'wah-sk',
             'team'       => 'warehouse',
             'department' => 'warehouse',
 
@@ -101,7 +101,7 @@ return [
             ]
         ],
         'wah-sc'   => [
-            'slug'       => 'wah-sc',
+            'code'       => 'wah-sc',
             'name'       => 'Stock Controller',
             'team'       => 'warehouse',
             'department' => 'warehouse',
@@ -110,7 +110,7 @@ return [
             ]
         ],
         'dist-m'   => [
-            'slug'       => 'dist-m',
+            'code'       => 'dist-m',
             'name'       => 'Dispatch supervisor',
             'team'       => 'warehouse',
             'department' => 'warehouse',
@@ -119,7 +119,7 @@ return [
             ]
         ],
         'dist-pik' => [
-            'slug'       => 'dist-pik',
+            'code'       => 'dist-pik',
             'team'       => 'warehouse',
             'department' => 'warehouse',
             'name'       => 'Picker',
@@ -128,7 +128,7 @@ return [
             ]
         ],
         'dist-pak' => [
-            'slug'       => 'dist-pak',
+            'code'       => 'dist-pak',
             'team'       => 'warehouse',
             'department' => 'warehouse',
             'name'       => 'Packer',
@@ -137,7 +137,7 @@ return [
             ]
         ],
         'prod-m'   => [
-            'slug'       => 'prod-m',
+            'code'       => 'prod-m',
             'team'       => 'production',
             'department' => 'production',
             'name'       => 'Production supervisor',
@@ -146,7 +146,7 @@ return [
             ]
         ],
         'prod-w'   => [
-            'slug'       => 'prod-w',
+            'code'       => 'prod-w',
             'team'       => 'production',
             'department' => 'production',
             'name'       => 'Production operative',
@@ -155,7 +155,7 @@ return [
             ]
         ],
         'cus-m'    => [
-            'slug'  => 'cus-m',
+            'code'  => 'cus-m',
             'grade' => 'manager',
             'name'  => 'Customer service supervisor',
             'roles' => [
@@ -163,7 +163,7 @@ return [
             ]
         ],
         'cus-c'    => [
-            'slug'  => 'cus-c',
+            'code'  => 'cus-c',
             'grade' => 'clerk',
             'name'  => 'Customer service',
             'roles' => [

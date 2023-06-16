@@ -26,6 +26,7 @@ class UserSyncRoles
 
     public function handle(User $user, array $roles): User
     {
+
         $user->syncRoles($roles);
 
         return $user;
@@ -44,7 +45,7 @@ class UserSyncRoles
     public function rules(): array
     {
         return [
-            'role_names' => ['required', 'array'],
+            'role_names' => ['present', 'array','min:0'],
 
         ];
     }
@@ -80,11 +81,10 @@ class UserSyncRoles
             ]
         );
         $this->validateAttributes();
-
         return $this->handle($user, $this->get('roles'));
     }
 
-    public string $commandSignature = 'user:add-roles {tenant : tenant slug} {user : User username} {roles* : list of roles}';
+    public string $commandSignature = 'user:sync-roles {tenant : tenant slug} {user : User username} {roles* : list of roles}';
 
 
     public function asCommand(Command $command): int

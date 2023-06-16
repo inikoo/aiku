@@ -137,7 +137,6 @@ queryBuilderData.value.elementFilter = {
     // 'state': ['left'],
     // 'type': ['volunteer', 'employee']
 }
-console.log("queryBuilderProps.value", queryBuilderProps.value)
 
 const pageName = computed(() => {
     return queryBuilderProps.value.pageName;
@@ -372,8 +371,6 @@ function getColumnsForQuery() {
 function dataForNewQueryString() {
     const filterForQuery = getFilterForQuery();
     const columnsForQuery = getColumnsForQuery();
-    console.log("filterForQuery", filterForQuery)
-    console.log("columnsForQuery", columnsForQuery)
     const queryData = {};
 
     if (Object.keys(filterForQuery).length > 0) {
@@ -389,9 +386,6 @@ function dataForNewQueryString() {
     const sort = queryBuilderData.value.sort;
     const perPage = queryBuilderData.value.perPage;
     const elementFilter = queryBuilderData.value.elementFilter
-
-    console.log(queryBuilderData.value)
-    console.log(cursor, page, sort, perPage, elementFilter)
 
     if (cursor) {
         queryData.cursor = cursor;
@@ -411,27 +405,20 @@ function dataForNewQueryString() {
     if (elementFilter) {
         queryData.elements = elementFilter // the begining of add new filter
     }
-    console.log("queryData", queryData)
     return queryData;
 }
 
 function generateNewQueryString() {
-    console.log("=============================================")
     const queryStringData = qs.parse(location.search.substring(1));
-    console.log("queryStringData", queryStringData)
     
     const prefix = props.name === 'default' ? '' : props.name + '_';
-    console.log("prefix ", prefix)
 
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
         delete queryStringData[prefix + key];
     });
 
-    console.log("pageName.value", pageName.value)
-    console.log("(queryStringData)", queryStringData)
     delete queryStringData[pageName.value];
 
-    console.log("dataForNewQueryString or queryData", dataForNewQueryString())
     forEach(dataForNewQueryString(), (value, key) => {
         if (key === 'page') {
             queryStringData[pageName.value] = value;
@@ -439,12 +426,8 @@ function generateNewQueryString() {
             queryStringData.perPage = value;
         } else {
             queryStringData[prefix + key] = value;
-            console.log("!!!!!", queryStringData)
-            console.log("!!!!!", [prefix + key])
         }
     });
-    console.log("queryStringData", queryStringData)
-    console.log("-=-=-=-=-==", qs.stringify(queryStringData))
     let query = qs.stringify(queryStringData, {
         // filter(prefix, value) {
         //         if (typeof value === 'object' && value !== null) {
@@ -458,14 +441,11 @@ function generateNewQueryString() {
         strictNullHandling: true,
         arrayFormat: 'comma', // for elementGroups
     });
-    console.log("query", query)
 
     if (!query || query === pageName.value + '=1') {
         query = '';
     }
 
-    console.log(query);
-    console.log("==============================================");
     return query;
 }
 
@@ -567,7 +547,6 @@ function header(key) {
 
 const handleElementsChange = (data) => {
     // console.log("====== TableElement Changed")
-    console.log(data)
     queryBuilderData.value.elementFilter = data
     // visit(location.pathname + '?elements[state]=' + data)
     //queryBuilderData.value.elements[0].checked=true
