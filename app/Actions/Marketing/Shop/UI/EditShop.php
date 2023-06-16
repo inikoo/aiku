@@ -84,8 +84,6 @@ class EditShop extends InertiaAction
                                     'options'      => Options::forEnum(ShopTypeEnum::class),
                                     'required'     => true,
                                     'mode'         => 'single',
-                                    'optional'     => true,
-
                                 ],
                                 'subtype' => [
                                     'type'         => 'select',
@@ -95,7 +93,6 @@ class EditShop extends InertiaAction
                                     'options'      => Options::forEnum(ShopSubtypeEnum::class),
                                     'required'     => true,
                                     'mode'         => 'single',
-                                    'optional'     => true,
                                 ],
                             ]
                         ],

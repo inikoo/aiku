@@ -14,7 +14,7 @@ const props = defineProps<{
     options: any
     fieldData: {
         placeholder: string
-        optional: boolean
+        required: boolean
     }
 }>()
 
@@ -45,9 +45,7 @@ const handleChange = () => props.form.clearErrors();
                 <Multiselect searchable :options="countries" v-model="addressValues['country_id']"
                     :class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
                     :placeholder="props.fieldData.placeholder ?? 'Select a country'"
-                    :canClear="!!props.fieldData.optional"
-                    :canDeselect="!!props.fieldData.optional"
-				    :hideSelected="false"
+                    :canClear="props.fieldData.required ?? true"
                 />
                 <div v-if="form.errors[fieldName] || form.recentlySuccessful"
                     class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">
