@@ -41,10 +41,10 @@ const handleClick = (option) => {
 </script>
 
 <template>
-    <Menu as="div" class="ml-0 lg:ml-0 relative inline-flex text-right w-40 lg:w-56">
+    <Menu as="div" class="ml-0 lg:ml-0 relative inline-flex text-right text-sm text-gray-800 w-40 lg:w-48">
         <!-- Box All Shops -->
         <MenuButton
-            class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 px-2 text-sm lg:text-base text-gray-900 border border-gray-300 hover:bg-gray-50">
+            class="inline-flex place-self-center w-full justify-center gap-x-1.5 bg-white py-1 px-2 text-gray-800 border border-gray-300 hover:bg-gray-50">
             <span class="">
                 {{ layout.navigation[props.currentPage].currentData.name }}
             </span>

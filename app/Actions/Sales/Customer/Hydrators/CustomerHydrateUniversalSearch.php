@@ -7,6 +7,7 @@
 
 namespace App\Actions\Sales\Customer\Hydrators;
 
+use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,11 +16,15 @@ class CustomerHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
+    use WithRoutes;
 
     public function handle(Customer $customer): void
     {
         $customer->universalSearch()->create(
             [
+                'section' => 'CRM',
+                'route' => $this->routes(),
+                'icon' => 'fa-cash-register',
                 'primary_term'   => $customer->name.' '.$customer->email,
                 'secondary_term' => $customer->contact_name.' '.$customer->company_name
             ]

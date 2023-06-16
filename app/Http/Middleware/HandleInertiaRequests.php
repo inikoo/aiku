@@ -11,7 +11,9 @@ namespace App\Http\Middleware;
 use App\Actions\UI\GetFirstLoadProps;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\UI\LoggedUserResource;
+use App\Http\Resources\UniversalSearch\UniversalSearchResource;
 use App\Models\Marketing\Product;
+use App\Models\Search\UniversalSearch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
@@ -78,8 +80,8 @@ class HandleInertiaRequests extends Middleware
                 'searchResults'     => function () use ($request) {
                     $query=$request->session()->get('fastSearchQuery');
                     if ($query) {
-                        $items = Product::search($query)->paginate(5);
-                        return ProductResource::collection($items);
+                        $items = UniversalSearch::search($query)->paginate(5);
+                        return UniversalSearchResource::collection($items);
                     } else {
                         return ['data' => []];
                     }

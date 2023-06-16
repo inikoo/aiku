@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier\Hydrators;
 
+use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Procurement\Supplier;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,11 +16,15 @@ class SupplierHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
+    use WithRoutes;
 
     public function handle(Supplier $supplier): void
     {
         $supplier->universalSearch()->create(
             [
+                'section' => 'Procurement',
+                'route' => $this->routes(),
+                'icon' => 'fa-person-dolly',
                 'primary_term'   => $supplier->name.' '.$supplier->email,
                 'secondary_term' => $supplier->company_name.' '.$supplier->contact_name
             ]

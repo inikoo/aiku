@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\SupplierProduct\Hydrators;
 
+use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Procurement\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,11 +16,15 @@ class SupplierProductHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
+    use WithRoutes;
 
     public function handle(SupplierProduct $supplierProduct): void
     {
         $supplierProduct->universalSearch()->create(
             [
+                'section' => 'Procurement',
+                'route' => $this->routes(),
+                'icon' => 'fa-box-usd',
                 'primary_term'   => $supplierProduct->name,
                 'secondary_term' => $supplierProduct->code
             ]
