@@ -16,6 +16,7 @@ return new class () extends Migration {
             $table->id();
             $table->string('index');
             $table->string('type');
+            $table->boolean('synced')->default(false);
             $table->jsonb('body');
             $table->timestampsTz();
         });

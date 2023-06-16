@@ -1,14 +1,15 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 Mar 2023 19:13:28 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Wed, 15 Mar 2023 08:39:50 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
+use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\ClockingMachineTabsEnum;
@@ -16,18 +17,13 @@ use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\ClockingResource;
 use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowClockingMachine extends InertiaAction
 {
-    public function handle(ClockingMachine $clockingMachine): ClockingMachine
-    {
-        return $clockingMachine;
-    }
-
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('hr.clocking-machines.edit');
@@ -35,10 +31,18 @@ class ShowClockingMachine extends InertiaAction
         return $request->user()->hasPermissionTo("hr.view");
     }
 
-    public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function inTenant(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $this->initialisation($request)->withTab(ClockingMachineTabsEnum::values());
-        return $this->handle($clockingMachine);
+
+        return $clockingMachine;
+    }
+
+    public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    {
+        $this->initialisation($request)->withTab(ClockingMachineTabsEnum::values());
+
+        return $clockingMachine;
     }
 
     public function htmlResponse(ClockingMachine $clockingMachine, ActionRequest $request): Response
@@ -47,7 +51,10 @@ class ShowClockingMachine extends InertiaAction
             'HumanResources/ClockingMachine',
             [
                 'title'                                 => __('clocking machine'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($clockingMachine),
+                'breadcrumbs'                           => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($clockingMachine, $request),
                     'next'     => $this->getNext($clockingMachine, $request),
@@ -55,20 +62,20 @@ class ShowClockingMachine extends InertiaAction
                 'pageHead'                              => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'clock'],
-                            'title' => __('clocking machine')
+                            'icon'  => ['fal', 'fa-chess-clock'],
+                            'title' => __('clocking machines')
                         ],
-                    'title' => $clockingMachine->slug,
+                    'title' => $clockingMachine->code,
                     'edit'  => $this->canEdit ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
                     'meta'  => [
                         [
                             'name'     => trans_choice('clocking|clockings', 0/*$clockingMachine->stats->number_clockings*/),
-                            'number'   => 0/*$clockingMachine->stats->number_locations*/,
+                            'number'   => 0/*$clockingMachine->stats->number_clockings*/,
                             'href'     =>
                                 match ($this->routeName) {
                                     'hr.working-places.show.clocking-machines.show' => [
@@ -76,7 +83,7 @@ class ShowClockingMachine extends InertiaAction
                                         [$clockingMachine->workplace->slug, $clockingMachine->slug]
                                     ],
                                     default => [
-                                        'hr.working-places.show.clockings.index',
+                                        'hr.clocking-machines.show.clockings.index',
                                         $clockingMachine->slug
                                     ]
                                 }
@@ -84,14 +91,14 @@ class ShowClockingMachine extends InertiaAction
 
                             ,
                             'leftIcon' => [
-                                'icon'    => ['fal', 'clock'],
+                                'icon'    => 'fal fa-clock',
                                 'tooltip' => __('clockings')
                             ]
                         ]
-                    ],
+                    ]
 
                 ],
-                'tabs'        => [
+                'tabs'                                  => [
                     'current'    => $this->tab,
                     'navigation' => ClockingMachineTabsEnum::navigation()
                 ],
@@ -106,8 +113,9 @@ class ShowClockingMachine extends InertiaAction
                 ClockingMachineTabsEnum::HISTORY->value => $this->tab == ClockingMachineTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($clockingMachine))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($clockingMachine)))
+
             ]
-        );
+        )->table(IndexClockings::make()->tableStructure())->table(IndexHistories::make()->tableStructure());
     }
 
 
@@ -116,64 +124,117 @@ class ShowClockingMachine extends InertiaAction
         return new ClockingMachineResource($clockingMachine);
     }
 
-    public function getBreadcrumbs(ClockingMachine $clockingMachine, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
-            [
+        $headCrumb = function (ClockingMachine $clockingMachine, array $routeParameters, $suffix) {
+            return [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
-                            'route' => [
-                                'name' => 'hr.clocking-machines.index',
-                            ],
+                            'route' => $routeParameters['index'],
                             'label' => __('clocking machines')
                         ],
                         'model' => [
-                            'route' => [
-                                'name'       => 'hr.clocking-machines.show',
-                                'parameters' => [$clockingMachine->slug]
-                            ],
-                            'label' => $clockingMachine->code,
+                            'route' => $routeParameters['model'],
+                            'label' => $clockingMachine->slug,
                         ],
                     ],
                     'suffix'         => $suffix,
 
                 ],
-            ]
-        );
+            ];
+        };
+
+        return match ($routeName) {
+            'hr.clocking-machines.show' =>
+            array_merge(
+                (new HumanResourcesDashboard())->getBreadcrumbs(),
+                $headCrumb(
+                    $routeParameters['clockingMachine'],
+                    [
+                        'index' => [
+                            'name'       => 'hr.clocking-machines.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'hr.clocking-machines.show',
+                            'parameters' => [
+                                $routeParameters['clockingMachine']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'hr.working-places.show.clocking-machines.show' =>
+            array_merge(
+                (new ShowWorkingPlace())->getBreadcrumbs($routeParameters['workplace']),
+                $headCrumb(
+                    $routeParameters['clockingMachine'],
+                    [
+                        'index' => [
+                            'name'       => 'hr.working-places.show.clocking-machines.index',
+                            'parameters' => [$routeParameters['workplace']->slug]
+                        ],
+                        'model' => [
+                            'name'       => 'hr.working-places.show.clocking-machines.show',
+                            'parameters' => [
+                                $routeParameters['workplace']->slug,
+                                $routeParameters['clockingMachine']->slug
+                            ]
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
 
     public function getPrevious(ClockingMachine $clockingMachine, ActionRequest $request): ?array
     {
         $previous = ClockingMachine::where('slug', '<', $clockingMachine->slug)->orderBy('slug', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(ClockingMachine $clockingMachine, ActionRequest $request): ?array
     {
         $next = ClockingMachine::where('slug', '>', $clockingMachine->slug)->orderBy('slug')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?ClockingMachine $clockingMachine, string $routeName): ?array
     {
-        if(!$clockingMachine) {
+        if (!$clockingMachine) {
             return null;
         }
+
         return match ($routeName) {
-            'hr.clocking-machines.show'=> [
-                'label'=> $clockingMachine->code,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'clocking-machine'=> $clockingMachine->slug
+            'hr.clocking-machines.show' => [
+                'label' => $clockingMachine->code,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'clockingMachine' => $clockingMachine->slug
+                    ]
+
+                ]
+            ],
+            'hr.working-places.show.clocking-machines.show' => [
+                'label' => $clockingMachine->code,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'workplace'         => $clockingMachine->workplace->slug,
+                        'clockingMachine'   => $clockingMachine->slug
                     ]
 
                 ]
             ]
         };
     }
+
 }

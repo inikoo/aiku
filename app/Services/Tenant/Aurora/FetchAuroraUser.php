@@ -100,6 +100,8 @@ class FetchAuroraUser extends FetchAurora
 
         $auroraRoles = [];
 
+
+
         foreach (DB::connection('aurora')->table('User Group User Bridge')->where('User Key', $this->auroraModelData->{'User Key'})->select('User Group Key')->get() as $auRole) {
             $role = match ($auRole->{'User Group Key'}) {
                 1, 15 => 'system-admin',

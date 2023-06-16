@@ -58,6 +58,7 @@ class FetchUsers extends FetchAction
 
 
             }
+
             UserSyncRoles::make()->action($user, $userData['roles']);
 
 

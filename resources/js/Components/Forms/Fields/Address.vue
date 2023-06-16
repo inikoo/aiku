@@ -34,7 +34,6 @@ const addressFields = (countryID: number) => {
 }
 const handleChange = () => props.form.clearErrors();
 
-console.log(props.form)
 </script>
 
 <template>
@@ -44,7 +43,7 @@ console.log(props.form)
         <div class="col-span-2">
             <div class="relative">
                 <Multiselect searchable :options="countries" v-model="addressValues['country_id']"
-                    :class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }" 
+                    :class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
                     :placeholder="props.fieldData.placeholder ?? 'Select a country'"
                     :canClear="!!props.fieldData.optional"
                     :canDeselect="!!props.fieldData.optional"

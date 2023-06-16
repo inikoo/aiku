@@ -11,6 +11,7 @@ use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateU
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
+use App\Rules\CaseSensitive;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateClockingMachine
@@ -20,6 +21,7 @@ class UpdateClockingMachine
     public function handle(ClockingMachine $clockingMachine, array $modelData): ClockingMachine
     {
         $clockingMachine =  $this->update($clockingMachine, $modelData, ['data']);
+
 
         ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
 
@@ -35,7 +37,7 @@ class UpdateClockingMachine
     public function rules(): array
     {
         return [
-            'code'  => ['sometimes','required'],
+            'code'  => ['sometimes','required', new CaseSensitive('clocking_machines')],
         ];
     }
 

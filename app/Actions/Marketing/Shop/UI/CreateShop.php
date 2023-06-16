@@ -112,7 +112,7 @@ class CreateShop extends InertiaAction
                                     'type'        => 'select',
                                     'label'       => __('language'),
                                     'placeholder' => 'Select a Language',
-                                    'options'     => GetLanguagesOptions::run(),
+                                    'options'     => GetLanguagesOptions::make()->all(),
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],

@@ -8,13 +8,13 @@
 		</div>
 
 		<!-- Left Menu -->
-		<div class="flex w-full">
-			<div class="text-sm lg:text-base flex items-center divide-x divide-gray-100 min-w-max">
+		<div class="flex">
+			<div class="text-sm lg:text-base flex items-center divide-x divide-gray-100 justify-center overflow-hidden">
 				<Link
 					v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections "
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections"
 					:href="route(menu.route.name)"
-					class="group flex justify-end items-center cursor-pointer py-1  lg:space-x-4 px-14 md:px-14 lg:px-14"
+					class="group flex justify-end items-center cursor-pointer py-1 space-x-1 px-4 md:px-4 lg:px-2"
 					:title="capitalize(menu.label)"
 				>
 					<FontAwesomeIcon
@@ -29,10 +29,10 @@
 			<div v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
 				<TopBarMenu :currentPage="currentUrl" />
 			</div>
-			
+
 			<!-- Right Menu -->
 			<div
-				class="text-sm lg:text-base text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid min-w-max"
+				class="text-sm lg:text-base text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
 				:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'border border-l-0 border-indigo-300' : 'border-l border-gray-100 divide-x divide-gray-100 ']"
 			>
 				<!-- href:
@@ -41,7 +41,7 @@
 					if the 'show all shop' only contain 1 data then the links is directly to that 1 data
 				-->
 				<Link
-					v-if=" 
+					v-if="
 						currentUrl &&
 						layout.navigation?.[currentUrl]?.topMenu &&
 						layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections"
@@ -54,11 +54,11 @@
 									? route(menu.route?.selected, route().params[Object.keys(route().params)[0]])  // If parameter exist go to that slug
 									: route(menu.route?.all)  // If parameter doesn't exist then Link is 'All list'
 								: layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1  // If list is only 1 data
-									? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data 
+									? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data
 									: route(menu.route?.all)  // If data is above than 1 data then Link to 'All list'
 					"
 					:title="capitalize(menu.tooltip)"
-					class="group flex justify-center items-center cursor-pointer py-1  lg:space-x-4 px-14 grow"
+					class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4"
 					:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : '']"
 				>
 					<FontAwesomeIcon
@@ -78,7 +78,7 @@ import { ref } from "vue"
 import { router } from "@inertiajs/vue3"
 import TopBarMenu from "@/Components/Navigation/TopBarMenu.vue"
 import { capitalize } from "@/Composables/capitalize"
-import { useLayoutStore } from "@/Stores/layout"
+import { useLayoutStore } from "@/Stores/layout.js"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import {
 	faNetworkWired,
@@ -98,7 +98,7 @@ import {
 	faFolder,
 	faFolders,
 	faBrowser,
-	faBuilding,
+    faBuilding
 } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
@@ -120,7 +120,7 @@ library.add(
 	faFolder,
 	faFolders,
 	faBrowser,
-	faBuilding
+    faBuilding
 )
 const layout = useLayoutStore()
 
@@ -136,10 +136,4 @@ router.on("navigate", (event) => {
 })
 </script>
 
-<style scoped>
-.center-content{
-	width: 100%;
-    align-items: center;
-    justify-content: center;
-}
-</style>
+<style scoped></style>

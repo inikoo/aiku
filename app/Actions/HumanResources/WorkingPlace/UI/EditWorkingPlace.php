@@ -62,7 +62,7 @@ class EditWorkingPlace extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('name'),
+                            'title'  => __('edit working place'),
                             'fields' => [
                                 'name' => [
                                     'type'          => 'input',

@@ -120,14 +120,14 @@ const props = defineProps({
     type: Function,
     required: false,
   },
-   30: {
+  perPageOptions: {
     type: Array,
     default() {
       return () => [10 , 15, 30, 50, 100, 500 , 1000];
     },
     required: false
-  },
-  onPerPageChange: {
+    },
+    onPerPageChange: {
     type: Function,
     default() {
       return () => { };
@@ -157,7 +157,6 @@ const hasPagination = computed(() => {
 });
 
 const HideButton = computed(() => {
-  console.log(pagination.value)
   return pagination.value.total > pagination.value.per_page
 });
 

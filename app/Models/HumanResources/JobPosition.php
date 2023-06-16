@@ -7,11 +7,17 @@
 
 namespace App\Models\HumanResources;
 
+use App\Models\Auth\Role;
+use App\Models\Traits\HasHistory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\HumanResources\JobPosition
@@ -33,20 +39,39 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @method static Builder|JobPosition query()
  * @mixin Eloquent
  */
-class JobPosition extends Model
+class JobPosition extends Model implements Auditable
 {
     use UsesTenantConnection;
+    use HasSlug;
+    use HasHistory;
+
 
     protected $casts = [
         'data'  => 'array',
-        'roles' => 'array',
     ];
 
     protected $attributes = [
         'data'  => '{}',
-        'roles' => '{}',
     ];
 
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
+            ->slugsShouldBeNoLongerThan(8);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     protected $guarded = [];
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class)->withTimestamps();
+    }
 }

@@ -3,10 +3,9 @@ mysql dw_base < dw_base.sql
 mysql sk_base < sk_base.sql
 mysql es_base < es_base.sql
 mysql aroma_base < aroma_base.sql
-echo "base done :+1:"
-bzip2 -f -d *_crm.sql.bz2
+echo "base done 👍🏼"
 mysql dw_crm < dw_crm.sql
 mysql sk_crm < sk_crm.sql
 mysql es_crm < es_crm.sql
 mysql aroma_crm < aroma_crm.sql
-echo "crm done :+1:"
+echo "crm done 👍🏽"

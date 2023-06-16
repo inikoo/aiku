@@ -7,9 +7,11 @@
 
 namespace App\Models\Auth;
 
+use App\Models\HumanResources\JobPosition;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Permission\Models\Role as SpatieRole;
@@ -26,11 +28,16 @@ use Spatie\Permission\Models\Role as SpatieRole;
  * @property-read Collection<int, \App\Models\Auth\User> $users
  * @method static Builder|Role newModelQuery()
  * @method static Builder|Role newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Role permission($permissions)
+ * @method static Builder|Role permission($permissions)
  * @method static Builder|Role query()
  * @mixin Eloquent
  */
 class Role extends SpatieRole
 {
     use UsesTenantConnection;
+
+    public function jobPositions(): BelongsToMany
+    {
+        return $this->belongsToMany(JobPosition::class);
+    }
 }
