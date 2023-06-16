@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatch\DeliveryNote\Hydrators;
 
+use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Dispatch\DeliveryNote;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,11 +16,15 @@ class DeliveryNoteHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
+    use WithRoutes;
 
     public function handle(DeliveryNote $deliveryNote): void
     {
         $deliveryNote->universalSearch()->create(
             [
+                'section' => 'Dispatch',
+                'route' => $this->routes(),
+                'icon' => 'fa-box-usd',
                 'primary_term'   => $deliveryNote->number,
                 'secondary_term' => $deliveryNote->email
             ]
