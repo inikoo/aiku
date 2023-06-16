@@ -20,7 +20,7 @@ class DeleteGroupUser
 
     private bool $trusted = false;
 
-    public function handle(GroupUser $groupUser): bool
+    public function handle(GroupUser $groupUser): GroupUser
     {
         if (!$groupUser->status) {
             $this->update($groupUser, [
@@ -31,10 +31,13 @@ class DeleteGroupUser
                 DeleteUser::make()->action($user);
             }
 
-            return $groupUser->delete();
+
+            $groupUser->delete();
+
+            return $groupUser;
         }
 
-        return false;
+        return $groupUser;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -46,12 +49,12 @@ class DeleteGroupUser
         return $request->user()->hasPermissionTo("sysadmin.edit");
     }
 
-    public function asController(GroupUser $groupUser, ActionRequest $request): bool
+    public function asController(GroupUser $groupUser, ActionRequest $request): GroupUser
     {
         return $this->handle($groupUser);
     }
 
-    public function action(GroupUser $groupUser): bool
+    public function action(GroupUser $groupUser): GroupUser
     {
         return $this->handle($groupUser);
     }
