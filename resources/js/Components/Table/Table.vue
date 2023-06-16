@@ -581,6 +581,10 @@ const handleElementsChange = (data) => {
         <fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
             <!-- Wrapper -->
+            
+            <slot @changed="handleElementsChange">
+                <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
+            </slot>
             <div class="grid grid-flow-col justify-between flex-nowrap px-4">
                 <!-- Result Number -->
                 <div class="flex border border-indigo-100 rounded-lg">
@@ -658,9 +662,6 @@ const handleElementsChange = (data) => {
             </slot>
 
             </div>
-            <slot @changed="handleElementsChange">
-                <TableElements v-if="queryBuilderProps.elementGroups.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
-            </slot>
 
             <!-- The Main Table -->
             <slot name="tableWrapper" :meta="resourceMeta">
