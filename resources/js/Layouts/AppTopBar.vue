@@ -61,7 +61,7 @@
 					class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4"
 					:class="[
 						layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : '',
-						menu.route.all == 'inventory.warehouses.index' || menu.route.selected != 'inventory.warehouses.show' ? 'border-r border-gray-300' : ''
+						menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug ? 'border-l-4 border-l-transparent border-r border-r-gray-200' : ''
 					]"
 				>
 					<FontAwesomeIcon
