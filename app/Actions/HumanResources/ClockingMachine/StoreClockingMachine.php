@@ -58,7 +58,13 @@ class StoreClockingMachine
 
     public function htmlResponse(ClockingMachine $clockingMachine): RedirectResponse
     {
-        return Redirect::route('hr.working-places.show.clocking-machines.index', $clockingMachine->workplace->slug);
+        return Redirect::route(
+            'hr.working-places.show.clocking-machines.show',
+            [
+                'workplace'       => $clockingMachine->workplace->slug,
+                'clockingMachine' => $clockingMachine->slug
+            ]
+        );
     }
 
     public function action(Workplace $workplace, array $objectData): ClockingMachine

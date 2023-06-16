@@ -9,14 +9,19 @@ namespace App\Models\HumanResources;
 
 use App\Actions\Utils\Abbreviate;
 use App\Models\Assets\Timezone;
+use App\Models\Helpers\Address;
+use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -33,21 +38,22 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $address_id
  * @property array $data
  * @property array $location
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Address> $addresses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\HumanResources\ClockingMachine> $clockingMachines
- * @property-read Model|\Eloquent $owner
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Collection<int, Address> $addresses
+ * @property-read Collection<int, ClockingMachine> $clockingMachines
+ * @property-read Collection<int, Clocking> $clockings
+ * @property-read Model|Eloquent $owner
  * @property-read Timezone|null $timezone
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read UniversalSearch|null $universalSearch
  * @method static Builder|Workplace newModelQuery()
  * @method static Builder|Workplace newQuery()
  * @method static Builder|Workplace onlyTrashed()
  * @method static Builder|Workplace query()
  * @method static Builder|Workplace withTrashed()
  * @method static Builder|Workplace withoutTrashed()
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Workplace extends Model
 {
@@ -99,6 +105,11 @@ class Workplace extends Model
     public function clockingMachines(): HasMany
     {
         return $this->hasMany(ClockingMachine::class);
+    }
+
+    public function clockings(): HasMany
+    {
+        return $this->hasMany(Clocking::class);
     }
 
 }

@@ -8,60 +8,58 @@
 namespace App\Actions\HumanResources\Clocking\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\Location\UI\ShowLocation;
-use App\Enums\UI\ClockingMachineTabsEnum;
+use App\Enums\UI\LocationTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
-use App\Models\HumanResources\Clocking;
-use App\Models\HumanResources\ClockingMachine;
-use App\Models\HumanResources\Workplace;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditClocking extends InertiaAction
 {
-    public function handle(Clocking $clocking): Clocking
+    public function handle(Location $location): Location
     {
-        return $clocking;
+        return $location;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.clocking.edit');
-        return $request->user()->hasPermissionTo("hr.working-places.view");
+        $this->canEdit = $request->user()->can('inventory.locations.edit');
+        return $request->user()->hasPermissionTo("inventory.warehouses.view");
     }
 
-    public function inTenant(Clocking $clocking, ActionRequest $request): Clocking
+    public function inTenant(Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
 
-        return $this->handle($clocking);
+        return $this->handle($location);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplace(Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
+    public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
-        return $this->handle($clocking);
+        return $this->handle($location);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inClockingMachine(ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
 
-        return $this->handle($clocking);
+        return $this->handle($location);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseInWarehouseArea(Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request)->withTab(ClockingMachineTabsEnum::values());
-        return $this->handle($clocking);
+        $this->initialisation($request)->withTab(LocationTabsEnum::values());
+        return $this->handle($location);
     }
 
-    public function htmlResponse(Clocking $clocking, ActionRequest $request): Response
+    public function htmlResponse(Location $location, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -72,7 +70,7 @@ class EditClocking extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead' => [
-                    'title'    => $clocking->slug,
+                    'title'    => $location->code,
                     'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
@@ -91,7 +89,7 @@ class EditClocking extends InertiaAction
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => $clocking->type
+                                    'value' => $location->code
                                 ],
                             ]
                         ]
@@ -99,8 +97,8 @@ class EditClocking extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'       => 'models.clocking.update',
-                            'parameters' => $clocking->slug
+                            'name'       => 'models.location.update',
+                            'parameters' => $location->slug
 
                         ],
                     ]
@@ -116,7 +114,7 @@ class EditClocking extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowLocation::make()->getBreadcrumbs(
+        return ShowClocking::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '(' . __('editing') . ')'

@@ -7,9 +7,9 @@
 
 namespace App\Actions\HumanResources\Clocking\UI;
 
+use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\ClockingResource;
@@ -32,7 +32,8 @@ class IndexClockings extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('clockings.slug', 'ILIKE', "%$value%");
+                $query->where('clockings.slug', 'ILIKE', "%$value%")
+                    ->orWhere('clockings.type', 'ILIKE', "%$value%");
             });
         });
 
@@ -158,7 +159,7 @@ class IndexClockings extends InertiaAction
                                     'parameters' => array_values($this->originalParameters)
                                 ],
                                 default => [
-                                    'name'       => 'hr.working-places.show.working-places.show.clockings.create',
+                                    'name'       => 'hr.working-places.show.clocking-machines.show.clockings.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             },
@@ -186,7 +187,6 @@ class IndexClockings extends InertiaAction
                 ],
             ];
         };
-
         return match ($routeName) {
             'hr.clockings.index' =>
             array_merge(
@@ -211,7 +211,7 @@ class IndexClockings extends InertiaAction
             ),
             'hr.clocking-machines.show.clockings.index' =>
             array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs(
+                (new ShowClockingMachine())->getBreadcrumbs(
                     'hr.clocking-machines.show',
                     [
                         'clockingMachine' => $routeParameters['clockingMachine']
@@ -227,7 +227,7 @@ class IndexClockings extends InertiaAction
             ),
             'hr.working-places.show.clocking-machines.show.clockings.index' =>
             array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs(
+                (new ShowClockingMachine())->getBreadcrumbs(
                     'hr.working-places.show.clocking-machines.show',
                     [
                         'workplace'       => $routeParameters['workplace'],
