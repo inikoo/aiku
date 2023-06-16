@@ -39,19 +39,19 @@ class IndexUsers extends InertiaAction
                     }
 
                 ],
-                // 'type'   => [
-                //     'label'    => __('Type'),
-                //     'elements' => ['employee' => __('Employee'), 'guest' => __('Guest')],
-                //     'engine'   => function ($query, $elements) {
-                //         $query->whereIn(
-                //             'parent_type',
-                //             Arr::map($elements, function (string $value, string $key) {
-                //                 return ucfirst($value);
-                //             })
-                //         );
-                //     }
+                'type'   => [
+                    'label'    => __('Type'),
+                    'elements' => ['employee' => __('Employee'), 'guest' => __('Guest')],
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn(
+                            'parent_type',
+                            Arr::map($elements, function (string $value, string $key) {
+                                return ucfirst($value);
+                            })
+                        );
+                    }
 
-                // ],
+                ],
             ];
     }
 
