@@ -7,6 +7,7 @@
 
 namespace App\Actions\Central\User\Hydrators;
 
+use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Central\User;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,11 +16,15 @@ class UserHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
+    use WithRoutes;
 
     public function handle(User $user): void
     {
         $user->universalSearch()->create(
             [
+                'section' => 'Sysadmin',
+                'route' => $this->routes(),
+                'icon' => 'fa-users',
                 'primary_term'   => $user->username,
                 'secondary_term' => $user->email
             ]

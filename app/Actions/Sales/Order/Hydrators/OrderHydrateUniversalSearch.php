@@ -7,6 +7,7 @@
 
 namespace App\Actions\Sales\Order\Hydrators;
 
+use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Sales\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,11 +16,15 @@ class OrderHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
+    use WithRoutes;
 
     public function handle(Order $order): void
     {
         $order->universalSearch()->create(
             [
+                'section' => 'CRM',
+                'route' => $this->routes(),
+                'icon' => 'fa-money-check-alt',
                 'primary_term'   => $order->customer_id.' '.$order->number,
                 'secondary_term' => $order->shop_id.' '.$order->date
             ]

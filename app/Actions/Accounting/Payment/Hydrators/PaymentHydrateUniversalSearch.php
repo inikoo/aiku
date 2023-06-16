@@ -7,6 +7,7 @@
 
 namespace App\Actions\Accounting\Payment\Hydrators;
 
+use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Accounting\Payment;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,11 +16,15 @@ class PaymentHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
+    use WithRoutes;
 
     public function handle(Payment $payment): void
     {
         $payment->universalSearch()->create(
             [
+                'section' => 'Accounting',
+                'route' => $this->routes(),
+                'icon' => 'fa-coins',
                 'primary_term'   => $payment->amount.' '.$payment->reference,
                 'secondary_term' => $payment->customer_id.' '.$payment->date
             ]
