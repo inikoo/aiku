@@ -19,13 +19,13 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('number_logins')->default(0);
             $table->datetime('login_at')->nullable();
-            $table->datetime('last_active')->nullable();
-            $table->datetime('last_login')->nullable();
+            $table->string('last_login')->nullable();
 
+            $table->datetime('last_active_at')->nullable();
+            $table->boolean('active')->default(false);
 
-            $table->datetime('failed_login')->nullable();
+            $table->string('failed_login')->nullable();
             $table->datetime('failed_login_at')->nullable();
-            $table->datetime('active')->nullable();
 
             $table->unsignedSmallInteger('number_other_tenants')->default(0);
             $table->unsignedSmallInteger('number_other_active_tenants')->default(0);
