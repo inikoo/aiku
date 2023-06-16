@@ -52,15 +52,18 @@ const doubleClick = (key: string, element: string) => {
 </script>
 
 <template>
-    <div class="px-4 flex items-center text-xs justify-between border-y border-gray-200">
+    <div class="px-4 -mt-2 flex items-center text-xs justify-between border-b border-gray-200">
         <Menu as="div" class="relative inline-block text-left" v-slot="{ open }">
             <!-- Initial button -->
             <div class="w-24 min-w-min">
-                <MenuButton class="inline-flex relative w-full justify-start items-center rounded-md pr-6 py-1 font-medium text-gray-800 capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-opacity-75">
+                <MenuButton v-if="props.elements.length > 1" class="inline-flex relative w-full justify-start items-center rounded-md pr-6 py-1 font-medium text-gray-800 capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-opacity-75">
                     {{ selectedElement }}
                     <FontAwesomeIcon icon="far fa-chevron-up" class="absolute right-2 transition-all duration-200 ease-in-out" :class="[open ? '' : 'rotate-180']" aria-hidden="true" />
                     <!-- <ChevronDownIcon class="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100" aria-hidden="true" /> -->
                 </MenuButton>
+                <div v-else class="inline-flex relative w-full justify-start items-center rounded-md pr-6 py-1 font-medium text-gray-800 capitalize">
+                    {{ selectedElement }}
+                </div>
             </div>
 
             <!-- List of button -->
@@ -73,6 +76,7 @@ const doubleClick = (key: string, element: string) => {
                     <div class="">
                         <MenuItem v-for="element in props.elements" v-slot="{ active }" @click="selectedElement = element.key"
                             :class="[selectedElement == element.key ? 'bg-gray-100' : '']"
+                            :disabled="selectedElement == element.key"
                         >
                             <button :class="[
                                 active ? 'bg-gray-300' : 'text-gray-800',
@@ -91,7 +95,7 @@ const doubleClick = (key: string, element: string) => {
         <div class="grid justify-items-center grid-flow-col auto-cols-auto divide-x-1 divide-gray-300 rounded overflow-hidden">
             <div
                 v-for="(value, key, index) of props.elements.find(obj => obj.key === selectedElement).elements" :key="key"
-                class="flex items-center gap-x-1 w-full px-3 cursor-pointer py-1 select-none "
+                class="flex items-center gap-x-1 w-full px-3 cursor-pointer py-2 select-none "
                 :class="{ '': isChecked[props.elements.find(obj => obj.key === selectedElement).key].includes(key) }"
                 @click="handleCheckboxChange(key, props.elements.find(obj => obj.key === selectedElement).key)"
                 @dblclick="doubleClick(key, props.elements.find(obj => obj.key === selectedElement).key)"
@@ -101,7 +105,7 @@ const doubleClick = (key: string, element: string) => {
                 <div 
                     :class="[
                         isChecked[props.elements.find(obj => obj.key === selectedElement).key].includes(key) ? 'text-gray-800' : 'text-gray-400',
-                        'grid justify-center grid-flow-col items-center capitalize']">
+                        'grid justify-center grid-flow-col items-center capitalize hover:text-gray-600']">
                     {{ value }}
                 </div>
             </div>

@@ -583,7 +583,7 @@ const handleElementsChange = (data) => {
             <!-- Wrapper -->
             
             <slot @changed="handleElementsChange">
-                <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
+                <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>
             <div class="grid grid-flow-col justify-between flex-nowrap px-4">
                 <!-- Result Number -->
