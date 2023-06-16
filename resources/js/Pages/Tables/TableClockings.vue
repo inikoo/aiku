@@ -13,7 +13,6 @@ const props = defineProps<{
     data: object
 }>()
 
-
 function clockingRoute(clocking: Clocking) {
     switch (route().current()) {
         case 'hr.clocking-machines.show':
@@ -49,7 +48,7 @@ function clockingRoute(clocking: Clocking) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'loc'" class="mt-5">
+    <Table :resource="data" :name="'clk'" class="mt-5">
         <template #cell(slug)="{ item: clocking }">
             <Link :href="clockingRoute(clocking)">
                 {{ clocking['slug'] }}

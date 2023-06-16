@@ -8,8 +8,8 @@
 namespace App\Actions\HumanResources\Clocking\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Inventory\Warehouse;
-use App\Models\Inventory\WarehouseArea;
+use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,12 +25,12 @@ class CreateClocking extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'    => __('new location'),
+                'title'    => __('new clocking'),
                 'pageHead' => [
-                    'title'        => __('new location'),
+                    'title'        => __('new clocking'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'inventory.warehouses.show.locations.index',
+                            'name'       => 'hr.working-places.show.clockings.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -41,10 +41,9 @@ class CreateClocking extends InertiaAction
                         [
                             'title'  => __('id'),
                             'fields' => [
-
-                                'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
+                                'type' => [
+                                    'type'  => 'select',
+                                    'label' => __('type'),
                                     'value' => ''
                                 ],
                                 'flag' => [
@@ -54,69 +53,16 @@ class CreateClocking extends InertiaAction
                                 ],
                             ]
                         ],
-                        [
-                            'title'  => __('capacity'),
-                            'icon'   => 'fa-light fa-phone',
-                            'fields' => [
-                                'quantity' => [
-                                    'type'  => 'input',
-                                    'label' => __('quantity'),
-                                    'value' => '',
-                                ],
-                                'max_weight' => [
-                                    'type'  => 'input',
-                                    'label' => __('max weight (kg)'),
-                                    'value' => '',
-                                ],
-                                'max_volume' => [
-                                    'type'  => 'input',
-                                    'label' => __('max volume (m³)'),
-                                    'value' => '',
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('warehouse area'),
-                            'fields' => [
-                                'warehouse_area_slug' => [
-                                    'type'  => 'input',
-                                    'label' => __('area'),
-                                    'value' => '',
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('picking pipelines'),
-                            'fields' => [
-                                'dropshipping_area' => [
-                                    'type'  => 'input',
-                                    'label' => __('DS'),
-                                    'value' => '',
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('operations'),
-                            'fields' => [
-                                'delete_at' => [
-                                    'type'  => 'input',
-                                    'label' => __('delete location'),
-                                    'value' => '',
-                                ],
-                            ]
-                        ],
-
-
                     ],
                     'route' => match ($this->routeName) {
-                        'inventory.warehouses.show.locations.create' => [
-                            'name'      => 'models.warehouse.location.store',
-                            'arguments' => [$request->route()->parameters['warehouse']->slug]
+                        'hr.working-places.show.clockings.create' => [
+                            'name'      => 'models.working-place.clocking.store',
+                            'arguments' => [$request->route()->parameters['workplace']->slug]
                         ],
                         default => [
-                            'name'      => 'models.warehouse-area.location.store',
+                            'name'      => 'models.clocking-machine.clocking.store',
                             'arguments' => [
-                                $request->route()->parameters['warehouseArea']->slug
+                                $request->route()->parameters['clockingMachine']->slug
                             ]
                         ]
                     }
@@ -132,7 +78,7 @@ class CreateClocking extends InertiaAction
     }
 
 
-    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): Response
+    public function inWorkplace(Workplace $workplace, ActionRequest $request): Response
     {
         $this->initialisation($request);
 
@@ -140,7 +86,7 @@ class CreateClocking extends InertiaAction
     }
 
 
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): Response
+    public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
         $this->initialisation($request);
 
@@ -151,7 +97,7 @@ class CreateClocking extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexLocations::make()->getBreadcrumbs(
+            IndexClockings::make()->getBreadcrumbs(
                 routeName: preg_replace('/create$/', 'index', $routeName),
                 routeParameters: $routeParameters,
             ),
@@ -159,7 +105,7 @@ class CreateClocking extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating location'),
+                        'label' => __('creating clocking'),
                     ]
                 ]
             ]

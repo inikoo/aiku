@@ -8,27 +8,25 @@
 
 namespace App\Http\Resources\HumanResources;
 
-use App\Models\HumanResources\ClockingMachine;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
+/**
+ * @property int $id
+ * @property string $slug
+ * @property string $code
+ * @property string $workplace_slug
+ */
 class ClockingMachineResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
     {
-        /** @var ClockingMachine $clockingMachine */
-        $clockingMachine = $this;
-
-
         return [
-            'id'            => $clockingMachine->id,
-            'slug'          => $clockingMachine->slug,
-            'code'          => $clockingMachine->code,
-            'workplace_id'  => $clockingMachine->workplace_id,
-            'data'          => $clockingMachine->data,
-            'created_at'    => $clockingMachine->created_at,
-            'updated_at'    => $clockingMachine->updated_at,
+            'id'                => $this->id,
+            'slug'              => $this->slug,
+            'code'              => $this->code,
+            'workplace_slug'    => $this->workplace_slug,
         ];
     }
 }

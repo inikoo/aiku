@@ -7,14 +7,14 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Models\Inventory\WarehouseArea;
+use App\Models\HumanResources\ClockingMachine;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetClockingMachineShowcase
 {
     use AsObject;
 
-    public function handle(WarehouseArea $warehouseArea): array
+    public function handle(ClockingMachine $clockingMachine): array
     {
         return [
             [
