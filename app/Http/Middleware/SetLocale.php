@@ -7,6 +7,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Assets\Language;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -17,15 +18,15 @@ class SetLocale
     public function handle(Request $request, Closure $next)
     {
         /** @var \App\Models\Auth\User $user */
-
         if ($user = auth()->user()) {
-            $locale =Arr::get($user->settings, 'language');
+            $language=Language::find($user->language_id);
+            $locale  =$language->code;
         } else {
             $locale = Cookie::get('language');
+        }
 
-            if (!$locale) {
-                $locale = substr(locale_accept_from_http(Arr::get($_SERVER, 'HTTP_ACCEPT_LANGUAGE', 'en')), 0, 2);
-            }
+        if (!$locale) {
+            $locale = substr(locale_accept_from_http(Arr::get($_SERVER, 'HTTP_ACCEPT_LANGUAGE', 'en')), 0, 2);
         }
 
 

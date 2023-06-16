@@ -7,26 +7,24 @@
 
 namespace App\Actions\UI\Profile;
 
+use App\Actions\Auth\GroupUser\UpdateGroupUser;
 use App\Actions\WithActionUpdate;
-use App\Http\Resources\SysAdmin\UserResource;
+use App\Enums\Auth\User\SynchronisableUserFields;
 use App\Models\Auth\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property User $user
- */
 class UpdateProfile
 {
     use WithActionUpdate;
+
+    private bool $asAction = false;
 
     /**
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
@@ -34,62 +32,64 @@ class UpdateProfile
      */
     public function handle(User $user, array $modelData, ?UploadedFile $avatar): User
     {
-        if (Arr::has($modelData, 'password')) {
-            $modelData['password'] = Hash::make($modelData['password']);
-        }
 
-        $user = $this->update($user, $modelData, ['profile', 'settings']);
+
+        UpdateGroupUser::run(
+            $user->groupUser,
+            Arr::only($modelData, SynchronisableUserFields::values())
+        );
 
         if ($avatar) {
-            $user->addMedia($avatar)
+            $user->groupUser->addMedia($avatar)
                 ->preservingOriginal()
                 ->usingFileName(Str::orderedUuid().'.'.$avatar->extension())
                 ->toMediaCollection('profile', 'group');
         }
 
-        return $user;
+
+
+        $user->refresh();
+
+
+
+        return $this->update($user, Arr::except($modelData, SynchronisableUserFields::values()), ['profile', 'settings']);
     }
 
 
-    public function rules(ActionRequest $request): array
+    public function rules(): array
     {
         return [
-            'username' => ['sometimes', 'required', 'alpha_dash', Rule::unique('users', 'username')->ignore($request->user())],
-            'about'    => 'sometimes|nullable|string',
-            'email'    => 'sometimes|nullable|email',
-            'password' => ['sometimes', 'required', Password::min(8)->uncompromised()],
-            'language' => 'sometimes|required|exists:languages,code',
-            'avatar'   => [
+            'password'    => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'email'       => 'sometimes|required|email|unique:App\Models\Auth\GroupUser,email',
+            'about'       => 'sometimes|nullable|string',
+            'language_id' => ['sometimes', 'required', 'exists:central.languages,id'],
+            'avatar'      => [
                 'sometimes',
                 'nullable',
                 File::image()
                     ->max(12 * 1024)
             ],
+
+
         ];
     }
 
 
-    /**
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
-     */
     public function asController(ActionRequest $request): User
     {
-        $validated = $request->validatedShiftToArray([
-                                                         'language' => 'settings',
-                                                     ]);
+        $this->fillFromRequest($request);
+
+        $validated = $this->validateAttributes();
+
 
 
         return $this->handle($request->user(), Arr::except($validated, 'avatar'), Arr::get($validated, 'avatar'));
     }
 
-    public function htmlResponse(): RedirectResponse
+
+
+    public function htmlResponse(User $user): RedirectResponse
     {
         return Redirect::route('profile.show');
-    }
-
-    public function jsonResponse(User $user): UserResource
-    {
-        return new UserResource($user);
     }
 }

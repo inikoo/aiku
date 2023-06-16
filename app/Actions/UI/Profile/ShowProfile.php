@@ -115,8 +115,7 @@ class ShowProfile
                 ],
                 "args"      => [
                     "updateRoute" => [
-                        "name"       => "models.user.update",
-                        "parameters" => $user->username,
+                        "name"       => "models.profile.update"
                     ],
                 ],
             ],
