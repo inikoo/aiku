@@ -119,7 +119,7 @@ class EditShop extends InertiaAction
                                     'label'         => __('language'),
                                     'placeholder'   => __('Select your language'),
                                     'value'         => $shop->language_id,
-                                    'options'       => GetLanguagesOptions::run(),
+                                    'options'       => GetLanguagesOptions::make()->all(),
                                 ],
 
                             ]

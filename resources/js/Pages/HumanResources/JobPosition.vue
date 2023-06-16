@@ -1,45 +1,28 @@
 <!--
-  -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Thu, 08 Sept 2022 00:38:38 Malaysia Time, Kuala Lumpur, Malaysia
-  -  Copyright (c) 2022, Raul A Perusquia Flores
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Fri, 16 Jun 2023 11:39:33 Malaysia Time, Pantai Lembeng, Bali, Id
+  - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBuilding, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from "@/../private/pro-light-svg-icons";
-import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
+import { faUserHardHat, faClock,faTerminal} from "@/../private/pro-light-svg-icons";
+
 import { capitalize } from "@/Composables/capitalize"
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 library.add(
-    faIdCard,
-    faUser,
-    faCheckCircle,
-    faSignature,
-    faEnvelope,
-    faPhone,
-    faIdCard,
-    faBirthdayCake,
-    faVenusMars,
-    faHashtag,
-    faHeading,
-    faHospitalUser,
+    faUserHardHat,
     faClock,
-    faPaperclip,
-    faTimes,
-    faCameraRetro,
-    faBuilding
+    faTerminal
 )
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableClockingMachine from "@/Pages/Tables/TableClockingMachines.vue";
-import TableClockings from "@/Pages/Tables/TableClockings.vue";
-
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -49,10 +32,8 @@ const props = defineProps<{
     tabs: {
         current: string;
         navigation: object;
-    }
-    clocking_machines?: object;
-    clockings?: object;
-    history?: object;
+    },
+    history: object
 
 }>()
 
@@ -62,16 +43,12 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        clocking_machines: TableClockingMachine,
-        clockings: TableClockings,
         details: ModelDetails,
         history: TableHistories,
     };
     return components[currentTab.value];
 
 });
-
-
 
 </script>
 

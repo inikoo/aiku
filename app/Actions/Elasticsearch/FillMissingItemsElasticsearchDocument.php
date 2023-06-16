@@ -13,12 +13,12 @@ use Exception;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class SyncElasticsearchDocument
+class FillMissingItemsElasticsearchDocument
 {
     use AsObject;
     use AsAction;
 
-    public string $commandSignature   = 'elasticsearch:sync';
+    public string $commandSignature   = 'elasticsearch:fill-missing-items';
     public string $commandDescription = 'Sync the data from backup database';
 
     public function handle(): void

@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Profile;
 
+use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\UserResource;
@@ -41,78 +42,27 @@ class ShowProfile
             "pageHead"    => [
                 "title" => __("My Profile"),
             ],
-            "profile"  => $user->only("username", "email", "avatar", "about"),
-            "pageBody" => [
-                "current" => "profile",
-                "layout"  => [
-                    "profile" => [
-                        "title" => __("Profile"),
-                        "notes" => __(
-                            "This information will be synchronised in all your workspaces."
-                        ),
-                        "icon"    => "fa-light fa-user-circle",
-                        "current" => true,
-                        "fields"  => [
-                            "username" => [
-                                "label" => __("Username"),
-                            ],
-                            "about" => [
-                                "label" => __("About"),
-                                "notes" => __("Brief description for your profile."),
-                            ],
-                            "avatar" => [
-                                "label" => __("avatar"),
-                                "info"  => __("user photo or icon"),
-                            ],
-                        ],
-                    ],
-                    "password" => [
-                        "title"  => __("Password"),
-                        "icon"   => "fa-light fa-key",
-                        "fields" => [
-                            "password" => [
-                                "label" => __("Password"),
-                            ],
-                        ],
-                    ],
-                    "workplaces" => [
-                        "title" => __("Workplaces"),
-                        "icon"  => "fa-light fa-clone",
-                    ],
-                    "appearance" => [
-                        "title"  => __("Appearance"),
-                        "icon"   => "fa-light fa-paint-brush",
-                        "fields" => [
-                            "colormode" => [
-                                "label" => __("Turn Dark Mode"),
-                            ],
-                            "theme" => [
-                                "label" => __("Select Theme"),
-                            ],
-                        ],
-                    ],
-                ],
-            ],
+
 
             "formData" => [
                 "blueprint" => [
                     [
-                        "title" => __("profile"),
-                        "icon"  => "fa-light fa-user-circle",
-                        "notes" => __(
+                        "title"   => __("profile"),
+                        "icon"    => "fa-light fa-user-circle",
+                        "notes"   => __(
                             "This information will be synchronised in all your workspaces."
                         ),
                         "current" => true,
                         "fields"  => [
-                            "email" => [
+                            "email"  => [
                                 "type"  => "input",
                                 "label" => __("email"),
                                 "value" => $user->email,
                             ],
-                            "about" => [
+                            "about"  => [
                                 "type"  => "textarea",
                                 "label" => __("about"),
-                                "value" => __("This is a dummy data for About"),
+                                "value" => $user->about,
                             ],
                             "avatar" => [
                                 "type"  => "avatar",
@@ -129,7 +79,20 @@ class ShowProfile
                             "password" => [
                                 "type"  => "password",
                                 "label" => __("password"),
-                                "value" => "asd",
+                                "value" => "",
+                            ],
+                        ],
+                    ],
+                    [
+                        "title"  => __("language"),
+                        "icon"   => "fal fa-language",
+                        "fields" => [
+                            "language_id" => [
+                                "type"    => "language",
+                                "label"   => __("language"),
+                                "value"   => $user->language_id,
+                                'options' => GetLanguagesOptions::make()->translated(),
+
                             ],
                         ],
                     ],
@@ -142,7 +105,7 @@ class ShowProfile
                                 "label" => __("turn dark mode"),
                                 "value" => "",
                             ],
-                            "theme" => [
+                            "theme"     => [
                                 "type"  => "theme",
                                 "label" => __("choose your theme"),
                                 "value" => "",
@@ -150,10 +113,9 @@ class ShowProfile
                         ],
                     ],
                 ],
-                "args" => [
+                "args"      => [
                     "updateRoute" => [
-                        "name"       => "models.user.update",
-                        "parameters" => $user->username,
+                        "name"       => "models.profile.update"
                     ],
                 ],
             ],

@@ -8,21 +8,23 @@
 
 use App\Actions\HumanResources\Calendar\IndexCalendars;
 use App\Actions\HumanResources\Calendar\ShowCalendar;
+use App\Actions\HumanResources\Clocking\UI\CreateClocking;
 use App\Actions\HumanResources\Clocking\UI\EditClocking;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
-use App\Actions\HumanResources\Clocking\UI\CreateClocking;
 use App\Actions\HumanResources\Clocking\UI\ShowClocking;
-use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\HumanResources\ClockingMachine\UI\CreateClockingMachine;
-use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\EditClockingMachine;
+use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
+use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 use App\Actions\HumanResources\Employee\UI\CreateEmployee;
 use App\Actions\HumanResources\Employee\UI\EditEmployee;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
-use App\Actions\HumanResources\JobPosition\IndexJobPositions;
-use App\Actions\HumanResources\JobPosition\ShowJobPosition;
+use App\Actions\HumanResources\JobPosition\UI\CreateJobPosition;
+use App\Actions\HumanResources\JobPosition\UI\EditJobPosition;
+use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
+use App\Actions\HumanResources\JobPosition\UI\ShowJobPosition;
 use App\Actions\HumanResources\TimeSheet\IndexTimesheets;
 use App\Actions\HumanResources\TimeSheet\ShowTimeSheet;
 use App\Actions\HumanResources\WorkingPlace\UI\CreateWorkingPlace;
@@ -46,7 +48,10 @@ Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('
 
 
 Route::get('/positions', IndexJobPositions::class)->name('job-positions.index');
+Route::get('/employees/create', CreateJobPosition::class)->name('job-positions.create');
 Route::get('/positions/{jobPosition}', ShowJobPosition::class)->name('job-positions.show');
+Route::get('/positions/{jobPosition}/edit', EditJobPosition::class)->name('job-positions.edit');
+
 
 Route::get('/calendars', IndexCalendars::class)->name('calendars.index');
 Route::get('/calendars/{calendar}', ShowCalendar::class)->name('calendars.show');

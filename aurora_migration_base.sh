@@ -22,6 +22,7 @@ rm -rf devops/devel/snapshots/*
 rm -rf public/tenants
 rm -rf public/central
 rm -rf storage/app/tenants
+rm -rf storage/app/tenants
 rm -rf storage/app/tenant
 rm -rf storage/app/central
 rm -rf storage/app/group

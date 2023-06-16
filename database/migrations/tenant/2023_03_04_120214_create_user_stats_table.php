@@ -22,7 +22,6 @@ return new class () extends Migration {
             $table->string('last_login')->nullable();
 
             $table->datetime('last_active_at')->nullable();
-            $table->boolean('active')->default(false);
 
             $table->string('failed_login')->nullable();
             $table->datetime('failed_login_at')->nullable();
