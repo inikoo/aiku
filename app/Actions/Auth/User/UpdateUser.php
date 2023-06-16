@@ -19,9 +19,6 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property \App\Models\Auth\User $user
- */
 class UpdateUser
 {
     use WithActionUpdate;
@@ -39,14 +36,10 @@ class UpdateUser
         return $this->update($user, Arr::except($modelData, SynchronisableUserFields::values()), ['profile', 'settings']);
     }
 
-    public function authorize(User $user, ActionRequest $request): bool
+    public function authorize(ActionRequest $request): bool
     {
-        if ($user->id == $request->user()) {
-            return true;
-        }
-
         return  $request->user()->can('sysadmin.edit');
-        ;
+
     }
 
 

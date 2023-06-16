@@ -48,6 +48,7 @@ use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Customer\UpdateCustomer;
 use App\Actions\Sales\Order\StoreOrder;
 use App\Actions\Sales\Order\UpdateOrder;
+use App\Actions\UI\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/shop/', StoreShop::class)->name('shop.store');
@@ -117,6 +118,8 @@ Route::patch('/payment-account/{paymentAccount}', UpdatePaymentAccount::class)->
 Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
 
 Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
+Route::patch('/profile', UpdateProfile::class)->name('profile.update');
+
 
 Route::patch('/guest/{guest}', UpdateGuest::class)->name('guest.update');
 Route::post('/guest/', StoreGuest::class)->name('guest.store');
