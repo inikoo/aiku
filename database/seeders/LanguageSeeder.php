@@ -16,7 +16,7 @@ class LanguageSeeder extends Seeder
 {
     public function run(): void
     {
-        $validLanguages=['en','es','sk','zh-CN','id'];
+        $validLanguages=['en','es','sk','zh-Hans','id','ja','sk','fr','de'];
 
 
         /*
@@ -45,7 +45,7 @@ class LanguageSeeder extends Seeder
                                      ],
                                  ],
                 ['code'],
-                ['name']
+                ['name','status']
             );
         }
     }

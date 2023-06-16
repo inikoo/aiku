@@ -90,7 +90,7 @@ const handleFormSubmit = () => {
                     <dl class="divide-y divide-green-200  ">
                         <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                             <dt class="text-sm font-medium text-gray-500 capitalize">
-                                <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="!fieldData.optional" :icon="['fas', 'asterisk']" class="font-light text-[6px] text-red-400"/>{{ fieldData.label }}</div>
+                                <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="!fieldData.required" :icon="['fas', 'asterisk']" class="font-light text-[12px] text-red-400 mr-1"/>{{ fieldData.label }}</div>
                             </dt>
 
                             <dd class="sm:col-span-2  ">
