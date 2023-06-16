@@ -15,6 +15,7 @@ return new class () extends Migration {
         Schema::create('universal_searches', function (Blueprint $table) {
             $table->id();
             $table->nullableMorphs('model');
+            $table->string('section')->nullable();
             $table->string('primary_term');
             $table->string('secondary_term')->nullable();
             $table->timestampsTz();

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\Warehouse\Hydrators;
 
+use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,11 +16,15 @@ class WarehouseHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
+    use WithRoutes;
 
     public function handle(Warehouse $warehouse): void
     {
         $warehouse->universalSearch()->create(
             [
+                'section' => 'StockFamily',
+                'route' => $this->routes(),
+                'icon' => 'fa-warehouse',
                 'primary_term'   => $warehouse->name,
                 'secondary_term' => $warehouse->code
             ]

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Leads\Prospect\Hydrators;
 
+use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Leads\Prospect;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,11 +16,15 @@ class ProspectHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
+    use WithRoutes;
 
     public function handle(Prospect $prospect): void
     {
         $prospect->universalSearch()->create(
             [
+                'section' => 'Leads',
+                'route' => $this->routes(),
+                'icon' => 'fa-map-signs',
                 'primary_term'   => $prospect->name.' '.$prospect->email,
                 'secondary_term' => $prospect->contact_name.' '.$prospect->company_name
             ]
