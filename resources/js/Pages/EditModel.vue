@@ -101,7 +101,7 @@ const current = ref(0)
                             </p>
                         </div>
                         <FieldForm class=" pt-4 sm:pt-5 px-6 " v-for="(fieldData, field ) in formData['blueprint'][current].fields"
-                            :field="field" :fieldData="fieldData" :args="formData['args']" />
+                         :key="field" :field="field" :fieldData="fieldData" :args="formData.args" />
                     </div>
                 </div>
             </div>

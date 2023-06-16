@@ -9,10 +9,9 @@ namespace App\Actions\Inventory\Warehouse\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Inventory\Warehouse;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class WarehouseHydrateLocations implements ShouldBeUnique
+class WarehouseHydrateLocations
 {
     use AsAction;
     use WithTenantJob;
@@ -31,10 +30,5 @@ class WarehouseHydrateLocations implements ShouldBeUnique
 
             ]
         );
-    }
-
-    public function getJobUniqueId(Warehouse $warehouse): int
-    {
-        return $warehouse->id;
     }
 }

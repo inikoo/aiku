@@ -27,38 +27,39 @@ class IndexElasticsearchDocument
     {
         $client = BuildElasticsearchClient::run();
 
-        if ($client instanceof Client) {
-            try {
-                $params = [
-                    'index' => $index,
-                    'type'  => $type,
-                    'body'  => $body
-                ];
+        $params = [
+            'index' => $index,
+            'type'  => $type,
+            'synced' => !($client instanceof Exception),
+            'body'  => $body
+        ];
 
-                if (!$isRestore) {
-                    if ($type == ElasticsearchTypeEnum::VISIT->value) {
-                        VisitHistory::create($params);
-                    }
-
-                    if ($type == ElasticsearchTypeEnum::ACTION->value) {
-                        ActionHistory::create($params);
-                    }
-                }
-
-                return $client->index($params);
-            } catch (ClientResponseException $e) {
-                //dd($e->getMessage());
-                // manage the 4xx error
-                return false;
-            } catch (ServerResponseException $e) {
-                //dd($e->getMessage());
-                // manage the 5xx error
-                return false;
-            } catch (Exception $e) {
-                //dd($e->getMessage());
-                // eg. network error like NoNodeAvailableException
-                return false;
+        if (!$isRestore) {
+            if ($type == ElasticsearchTypeEnum::VISIT->value) {
+                VisitHistory::create($params);
             }
+
+            if ($type == ElasticsearchTypeEnum::ACTION->value) {
+                ActionHistory::create($params);
+            }
+        }
+
+        try {
+            if ($client instanceof Client) {
+                return $client->index($params);
+            }
+        } catch (ClientResponseException $e) {
+            //dd($e->getMessage());
+            // manage the 4xx error
+            return false;
+        } catch (ServerResponseException $e) {
+            //dd($e->getMessage());
+            // manage the 5xx error
+            return false;
+        } catch (Exception $e) {
+            //dd($e->getMessage());
+            // eg. network error like NoNodeAvailableException
+            return false;
         }
 
         return false;

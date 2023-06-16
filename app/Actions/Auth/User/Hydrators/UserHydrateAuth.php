@@ -34,10 +34,7 @@ class UserHydrateAuth implements ShouldBeUnique
         if(! auth()->check()) {
             $stats = [
                 'login_at' => now(),
-//                'failed_login' => request()->ip(),
-
                 'failed_login' => request()->ip(),
-
                 'failed_login_at' => now()
             ];
         }

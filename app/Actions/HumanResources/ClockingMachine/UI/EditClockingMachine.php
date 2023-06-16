@@ -1,116 +1,114 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 Mar 2023 19:14:54 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Mon, 13 Mar 2023 15:09:31 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\InertiaAction;
-use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Models\HumanResources\Employee;
-use App\Models\HumanResources\JobPosition;
+use App\Http\Resources\HumanResources\ClockingMachineResource;
+use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
 class EditClockingMachine extends InertiaAction
 {
-    public function handle(Employee $employee): Employee
+    public function handle(ClockingMachine $clockingMachine): ClockingMachine
     {
-        return $employee;
+        return $clockingMachine;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.edit");
+        $this->canEdit = $request->user()->can('hr.clocking-machines.edit');
+        return $request->user()->hasPermissionTo("hr.working-places.edit");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $this->initialisation($request);
 
-        return $this->handle($employee);
+        return $this->handle($clockingMachine);
+    }
+
+    public function inTenant(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    {
+        $this->initialisation($request);
+
+        return $this->handle($clockingMachine);
+    }
+
+    public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    {
+        $this->initialisation($request);
+        return $this->handle($clockingMachine);
     }
 
 
-    /**
-     * @throws \Exception
-     */
-    public function htmlResponse(Employee $employee): Response
+
+    public function htmlResponse(ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('employee'),
-                'breadcrumbs' => $this->getBreadcrumbs($employee),
+                'title'       => __('clocking machines'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'pageHead'    => [
-                    'title'    => $employee->contact_name,
-                    'exitEdit' => [
+                    'title'     => $clockingMachine->code,
+                    'exitEdit'  => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters),
+                            'parameters' => array_values($this->originalParameters)
                         ]
                     ],
-                ],
 
+
+                ],
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('personal information'),
+                            'title'  => __('edit clocking machine'),
                             'fields' => [
-
-                                'contact_name' => [
-                                    'type'        => 'input',
-                                    'label'       => __('name'),
-                                    'placeholder' => 'Name',
-                                    'value'       => $employee->contact_name
-                                ],
-                                'date_of_birth' => [
-                                    'type'        => 'date',
-                                    'label'       => __('date of birth'),
-                                    'placeholder' => 'Date Of Birth',
-                                    'value'       => $employee->date_of_birth
-                                ],
-                                'job_title' => [
-                                    'type'        => 'select',
-                                    'label'       => __('position'),
-                                    'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
-                                    'placeholder' => 'Select a Position',
-                                    'mode'        => 'single',
-                                    'value'       => $employee->job_title
-                                ],
-                                'state' => [
-                                    'type'        => 'select',
-                                    'label'       => __('state'),
-                                    'options'     => Options::forEnum(EmployeeStateEnum::class),
-                                    'placeholder' => 'Select a State',
-                                    'mode'        => 'single',
-                                    'value'       => $employee->state
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'value' => $clockingMachine->code
                                 ]
                             ]
                         ]
 
                     ],
-                    'args'      => [
+                    'args' => [
                         'updateRoute' => [
-                            'name'       => 'models.employee.update',
-                            'parameters' => $employee->slug
+                            'name'      => 'models.clocking-machine.update',
+                            'parameters'=> $clockingMachine->slug
 
                         ],
                     ]
-
-                ],
+                ]
 
             ]
         );
     }
 
-    public function getBreadcrumbs(Employee $employee): array
+    public function jsonResponse(ClockingMachine $clockingMachine): ClockingMachineResource
     {
-        return ShowEmployee::make()->getBreadcrumbs(employee:$employee, suffix: '('.__('editing').')');
+        return new ClockingMachineResource($clockingMachine);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowClockingMachine::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }

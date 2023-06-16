@@ -5,13 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\WarehouseArea\Hydrators;
+namespace App\Actions\HumanResources\ClockingMachine\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Models\Inventory\WarehouseArea;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class WarehouseAreaHydrateLocations
+class ClockingMachineHydrateClockings
 {
     use AsAction;
     use WithTenantJob;

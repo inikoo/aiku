@@ -89,4 +89,6 @@ Route::get('/clocking-machines/{clockingMachine}', ShowClockingMachine::class)->
 Route::get('/clocking-machines/{clockingMachine}/edit', EditClockingMachine::class)->name('clocking-machines.edit');
 
 Route::get('/clocking', IndexClockings::class)->name('clockings.index');
+Route::get('/clocking/create', CreateClocking::class)->name('clockings.create');
 Route::get('/clocking/{clocking}', ShowClocking::class)->name('clockings.show');
+Route::get('/clocking/{clocking}/edit', EditClocking::class)->name('clockings.edit');

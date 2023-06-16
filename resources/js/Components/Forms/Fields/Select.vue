@@ -13,13 +13,14 @@ library.add(faExclamationCircle, faCheckCircle)
 const props = defineProps<{
     form: any
     fieldName: any
-    options: string[]
+    options: string[] | object
     fieldData: {
         placeholder: string
         optional: boolean
         mode: string
     }
 }>()
+
 </script>
 
 <template>

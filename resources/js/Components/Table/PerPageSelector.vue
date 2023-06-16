@@ -39,7 +39,7 @@ const props = defineProps({
     options: {
         type: Array,
         default() {
-            return [10, 15, 30, 50, 100, 500, 1000];
+            return [10, 50, 100, 500, 1000];
         },
         required: false,
     },

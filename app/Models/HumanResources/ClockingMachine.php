@@ -8,13 +8,18 @@
 namespace App\Models\HumanResources;
 
 use App\Models\Search\UniversalSearch;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -32,7 +37,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read UniversalSearch|null $universalSearch
- * @property-read \App\Models\HumanResources\Workplace $workplace
+ * @property-read Collection<int, Clocking> $clockings
+ * @property-read Workplace $workplace
  * @method static Builder|ClockingMachine newModelQuery()
  * @method static Builder|ClockingMachine newQuery()
  * @method static Builder|ClockingMachine onlyTrashed()
@@ -41,12 +47,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|ClockingMachine withoutTrashed()
  * @mixin Eloquent
  */
-class ClockingMachine extends Model
+class ClockingMachine extends Model implements Auditable
 {
-    use UsesTenantConnection;
-    use HasSlug;
-    use HasUniversalSearch;
     use SoftDeletes;
+    use HasSlug;
+    use UsesTenantConnection;
+    use HasUniversalSearch;
+    use HasFactory;
+    use HasHistory;
 
     protected $casts = [
         'data'        => 'array',
@@ -76,5 +84,10 @@ class ClockingMachine extends Model
     public function workplace(): BelongsTo
     {
         return $this->belongsTo(Workplace::class);
+    }
+
+    public function clockings(): HasMany
+    {
+        return $this->hasMany(Clocking::class);
     }
 }
