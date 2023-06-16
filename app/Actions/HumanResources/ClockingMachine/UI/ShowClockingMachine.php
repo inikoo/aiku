@@ -115,7 +115,19 @@ class ShowClockingMachine extends InertiaAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($clockingMachine)))
 
             ]
-        )->table(IndexClockings::make()->tableStructure())->table(IndexHistories::make()->tableStructure());
+        )->table(
+            IndexClockings::make()->tableStructure(
+                [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'hr.clocking-machines.show.clockings.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('clocking')
+                    ] : false,
+                ]
+            ),
+        )->table(IndexHistories::make()->tableStructure());
     }
 
 

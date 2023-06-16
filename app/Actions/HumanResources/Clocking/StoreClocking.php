@@ -8,6 +8,7 @@
 namespace App\Actions\HumanResources\Clocking;
 
 use App\Actions\HumanResources\Clocking\Hydrators\ClockingHydrateUniversalSearch;
+use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
@@ -26,13 +27,16 @@ class StoreClocking
 
     public function handle(ClockingMachine|Workplace $parent, array $modelData): Clocking
     {
+
         if (class_basename($parent::class) == 'ClockingMachine') {
             $modelData['workplace_id'] = $parent->workplace_id;
+        } else {
+            $modelData['workplace_id'] = $parent->id;
         }
-
+        $modelData['clocked_at'] = date('Y-m-d H:i:s');
+        $modelData['type']       = ClockingTypeEnum::MANUAL;
         /** @var Clocking $clocking */
         $clocking = $parent->clockings()->create($modelData);
-
         ClockingHydrateUniversalSearch::dispatch($clocking);
 
         return $clocking;
@@ -43,12 +47,12 @@ class StoreClocking
         if($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("hr.working-place.edit");
+        return $request->user()->hasPermissionTo("hr.working-places.edit");
     }
     public function rules(): array
     {
         return [
-            'type'         => ['required'],
+            'generator_id'         => ['required'],
         ];
     }
 
@@ -75,7 +79,7 @@ class StoreClocking
                 $clocking->slug
             ]);
         } else {
-            return Redirect::route('hr.working-places.show.clocking-machines.show.clockings.show', [
+            return Redirect::route('hr.working-places.show.warehouse-areas.show.clockings.show', [
                 $clocking->workplace->slug,
                 $clocking->clockingMachine->slug,
                 $clocking->slug
