@@ -1,15 +1,16 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 12 Sept 2022 17:45:29 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 16 Jun 2023 09:33:11 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\JobPosition;
+namespace App\Actions\HumanResources\JobPosition\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Http\Resources\HumanResources\JobPositionResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\JobPosition;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -17,7 +18,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 

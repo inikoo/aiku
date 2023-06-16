@@ -432,7 +432,7 @@ class GetLayout
                         ],
                         [
                             'label' => __('employees'),
-                            'icon'  => ['fal', 'fa-terminal'],
+                            'icon'  => ['fal', 'fa-user-hard-hat'],
                             'route' => [
                                 'name' => 'hr.employees.index',
 
