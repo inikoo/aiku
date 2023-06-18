@@ -9,10 +9,12 @@ namespace App\Actions\HumanResources\Clocking\UI;
 
 use App\Actions\InertiaAction;
 use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateClocking extends InertiaAction
 {
@@ -41,18 +43,22 @@ class CreateClocking extends InertiaAction
                         [
                             'title'  => __('id'),
                             'fields' => [
-                                'type' => [
-                                    'type'  => 'select',
-                                    'label' => __('type'),
-                                    'value' => ''
+                                'generator_id' => [
+                                    'type'        => 'select',
+                                    'label'       => __('employee'),
+                                    'placeholder' => 'Select A Employee',
+                                    'options'     => Options::forModels(Employee::class, 'contact_name', 'id'),
+                                    'required'    => true
                                 ],
-                                'flag' => [
-                                    'type'  => 'input',
-                                    'label' => __('flag'),
-                                    'value' => ''
+                                'clocked_at' => [
+                                    'type'     => 'date',
+                                    'label'    => __('clocked at'),
+                                    'required' => true
                                 ],
                             ]
                         ],
+
+
                     ],
                     'route' => match ($this->routeName) {
                         'hr.working-places.show.clockings.create' => [
@@ -74,11 +80,18 @@ class CreateClocking extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('inventory');
+        return $request->user()->can('hr');
     }
 
 
     public function inWorkplace(Workplace $workplace, ActionRequest $request): Response
+    {
+        $this->initialisation($request);
+
+        return $this->handle($request);
+    }
+
+    public function inClockingMachine(ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
         $this->initialisation($request);
 

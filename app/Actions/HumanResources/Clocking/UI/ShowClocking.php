@@ -35,8 +35,8 @@ class ShowClocking extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.locations.edit');
-        return $request->user()->hasPermissionTo("inventory.view");
+        $this->canEdit = $request->user()->can('hr.clockings.edit');
+        return $request->user()->hasPermissionTo("hr.view");
     }
 
 
@@ -69,9 +69,9 @@ class ShowClocking extends InertiaAction
     {
 
         return Inertia::render(
-            'Inventory/Location',
+            'HumanResources/Clocking',
             [
-                'title'       => __('location'),
+                'title'       => __('clocking'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
@@ -286,7 +286,7 @@ class ShowClocking extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'inventory.locations.show'=> [
+            'inventory.clockings.show'=> [
                 'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,
@@ -296,35 +296,35 @@ class ShowClocking extends InertiaAction
 
                 ]
             ],
-            'inventory.warehouse-areas.show.locations.show' => [
+            'inventory.warehouse-areas.show.clockings.show' => [
                 'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'warehouseArea' => $clocking->warehouseArea->slug,
+                        'warehouseArea' => $clocking->clockingMachine->slug,
                         'location'      => $clocking->slug
                     ]
 
                 ]
             ],
-            'inventory.warehouses.show.locations.show'=> [
-                'label'=> $clocking->code,
+            'inventory.warehouses.show.clockings.show'=> [
+                'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'warehouse' => $clocking->warehouse->slug,
+                        'warehouse' => $clocking->workplace->slug,
                         'location'  => $clocking->slug
                     ]
 
                 ]
             ],
-            'inventory.warehouses.show.warehouse-areas.show.locations.show' => [
-                'label'=> $clocking->code,
+            'inventory.warehouses.show.warehouse-areas.show.clockings.show' => [
+                'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'warehouse'     => $clocking->warehouse->slug,
-                        'warehouseArea' => $clocking->warehouseArea->slug,
+                        'warehouse'     => $clocking->workplace->slug,
+                        'warehouseArea' => $clocking->clockingMachine->slug,
                         'location'      => $clocking->slug
                     ]
 

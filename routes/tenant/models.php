@@ -82,7 +82,8 @@ Route::post('/working-place/{workplace}/clocking-machine', StoreClockingMachine:
 Route::patch('/clocking/{clocking}', UpdateClocking::class)->name('clocking.update');
 Route::post('/clocking', StoreClocking::class)->name('clocking.store');
 Route::post('/working-place/{workplace}/clocking', StoreClocking::class)->name('working-place.clocking.store');
-Route::post('/working-place/{workplace}/clocking-machine/{clocking-machine}/clocking', StoreClocking::class)->name('working-place.clocking-machine.clocking.store');
+Route::post('/clocking-machine/{clockingMachine}/clocking', StoreClocking::class, 'inClockingMachine')->name('clocking-machine.clocking.store');
+Route::post('/working-place/{workplace}/clocking-machine/{clockingMachine}/clocking', StoreClocking::class)->name('working-place.clocking-machine.clocking.store');
 
 Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
 Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');
