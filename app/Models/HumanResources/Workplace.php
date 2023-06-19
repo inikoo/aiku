@@ -42,9 +42,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Collection<int, Address> $addresses
- * @property-read Collection<int, ClockingMachine> $clockingMachines
- * @property-read Collection<int, Clocking> $clockings
- * @property-read Model|Eloquent $owner
+ * @property-read Collection<int, \App\Models\HumanResources\ClockingMachine> $clockingMachines
+ * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
+ * @property-read Model|\Eloquent $owner
  * @property-read Timezone|null $timezone
  * @property-read UniversalSearch|null $universalSearch
  * @method static Builder|Workplace newModelQuery()

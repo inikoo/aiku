@@ -72,14 +72,14 @@ class GetLayout
 
         if ($user->can('products.view')) {
             $navigation['catalogue'] = [
-                'name'        => __('Catalogue'),
+                'name'        => __('Products'),
                 'icon'        => ['fal', 'fa-folder-tree'],
                 'route'       => 'catalogue.hub',
                 'routeOption' => 'catalogue.shop.hub',
-                'labelShowAll'=> __('All products'),
+                'labelShowAll'=> __('All shops'),
                 'currentData' => [
                     'slug' => null,
-                    'name' => __('All products'),
+                    'name' => __('All shops'),
                     'code' => __('All')
                 ],
                 'topMenu' => [

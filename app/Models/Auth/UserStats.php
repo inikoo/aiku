@@ -20,6 +20,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $id
  * @property int $user_id
  * @property int $number_logins
+ * @property string|null $last_login_at
+ * @property string|null $last_login_ip
+ * @property string|null $last_active_at
+ * @property int $number_failed_logins
+ * @property string|null $last_failed_login_ip
+ * @property string|null $last_failed_login_at
  * @property int $number_other_tenants
  * @property int $number_other_active_tenants
  * @property Carbon|null $created_at

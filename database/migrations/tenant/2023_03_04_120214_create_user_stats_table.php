@@ -17,14 +17,15 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('user_id')->index();
             $table->foreign('user_id')->references('id')->on('users');
 
-            $table->unsignedSmallInteger('number_logins')->default(0);
-            $table->datetime('login_at')->nullable();
-            $table->string('last_login')->nullable();
+            $table->unsignedInteger('number_logins')->default(0);
+            $table->datetime('last_login_at')->nullable();
+            $table->string('last_login_ip')->nullable();
 
             $table->datetime('last_active_at')->nullable();
 
-            $table->string('failed_login')->nullable();
-            $table->datetime('failed_login_at')->nullable();
+            $table->unsignedInteger('number_failed_logins')->default(0);
+            $table->string('last_failed_login_ip')->nullable();
+            $table->datetime('last_failed_login_at')->nullable();
 
             $table->unsignedSmallInteger('number_other_tenants')->default(0);
             $table->unsignedSmallInteger('number_other_active_tenants')->default(0);
