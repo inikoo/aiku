@@ -11,7 +11,6 @@ use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Inventory\LocationFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -47,13 +46,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
- * @property-read Collection<int, LostAndFoundStock> $lostAndFoundStocks
- * @property-read LocationStats|null $stats
- * @property-read Collection<int, Stock> $stocks
+ * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
+ * @property-read \App\Models\Inventory\LocationStats|null $stats
+ * @property-read Collection<int, \App\Models\Inventory\Stock> $stocks
  * @property-read UniversalSearch|null $universalSearch
- * @property-read Warehouse $warehouse
- * @property-read WarehouseArea|null $warehouseArea
- * @method static LocationFactory factory($count = null, $state = [])
+ * @property-read \App\Models\Inventory\Warehouse $warehouse
+ * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
+ * @method static \Database\Factories\Inventory\LocationFactory factory($count = null, $state = [])
  * @method static Builder|Location newModelQuery()
  * @method static Builder|Location newQuery()
  * @method static Builder|Location onlyTrashed()

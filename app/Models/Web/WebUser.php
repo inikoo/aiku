@@ -46,6 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property WebUserLoginVersionEnum $login_version
  * @property int|null $source_id
+ * @property string|null $source_password source password
  * @property WebUserTypeEnum $state
  * @property-read Customer $customer
  * @property-read Collection<int, PersonalAccessToken> $tokens
