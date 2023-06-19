@@ -1,7 +1,7 @@
 <template>
     <footer class="z-20 fixed w-screen bg-gray-800 bottom-0 right-0  text-white grid justify-end">
         <!-- Outer background -->
-        <div class="fixed z-40 right-0 top-0 bg-gray-800/30 w-screen h-screen cursor-pointer" @click="isFooter = !isFooter"
+        <div class="fixed z-40 right-0 top-0 bg-gray-800/30 w-screen h-screen" @click="isFooter = !isFooter"
             :class="[isFooter ? '' : 'hidden']"></div>
         <div class="flex items-end flex-row-reverse text-sm">
 
