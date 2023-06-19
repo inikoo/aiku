@@ -10,6 +10,7 @@ use App\Actions\Auth\Guest\UI\CreateGuest;
 use App\Actions\Auth\Guest\UI\EditGuest;
 use App\Actions\Auth\Guest\UI\IndexGuest;
 use App\Actions\Auth\Guest\UI\ShowGuest;
+use App\Actions\Auth\User\ExportUsers;
 use App\Actions\Auth\User\UI\CreateUser;
 use App\Actions\Auth\User\UI\EditUser;
 use App\Actions\Auth\User\UI\IndexUsers;
@@ -23,6 +24,7 @@ Route::get('/', SysAdminDashboard::class)->name('dashboard');
 Route::get('/settings', SysAdminSettings::class)->name('settings');
 
 Route::get('/users', IndexUsers::class)->name('users.index');
+Route::get('/users/export', ExportUsers::class)->name('users.export');
 
 Route::get('/users/create', CreateUser::class)->name('users.create');
 Route::get('/users/{user}', ShowUser::class)->name('users.show');
