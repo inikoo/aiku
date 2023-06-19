@@ -7,22 +7,17 @@
 
             <!-- Footer List -->
             <div v-for="footer in footerList"
-                class="relative flex z-50 select-none justify-center w-40 min-w-min cursor-pointer hover:bg-gray-600 "
+                class="relative flex z-50 select-none justify-center w-40 min-w-min cursor-pointer hover:bg-gray-700 "
                 :class="[isFooter == footer.key ? 'bg-gray-700' : 'bg-gray-800']"
                 @click="isFooter == footer.key ? isFooter = !isFooter : isFooter = footer.key"
             >
                 <p>{{ footer.key }}</p>
                 
                 <!-- Footer Active: Box -->
-                <div class="z-0 h-0 shadow-lg bg-yellow-500 absolute w-full bottom-5 flex-row items-start transition-all duration-100 ease-in-out"
-                    :class="[isFooter == footer.key ? 'h-64' : 'h-0 items-center hidden']"
+                <div class="absolute bottom-5 w-full overflow-hidden rounded-t"
+                    :class="[isFooter == footer.key ? 'h-max' : 'h-0']"
                 >
-                    {{ footer.label }}
-                    <div class="grid bg-red-500 justify-center text-center">
-                        <div v-for="option in footer.options" class="flex hover:bg-gray-600">
-                            {{ option }}
-                        </div>
-                    </div>
+                    <FooterLanguageTab :active="isFooter == footer.key" :options="footer.options" />
                 </div>
             </div>
         </div>
@@ -31,6 +26,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import FooterLanguageTab from '@/Components/Footer/FooterLanguageTab.vue'
 
 const footerList = ref([
     {
