@@ -36,6 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property array $data
  * @property array $structure
+ * @property bool $in_maintenance
  * @property int|null $current_layout_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

@@ -37,9 +37,9 @@ trait WithFormattedUserHistories
                     'auditable_type' => $result['_source']['auditable_type'],
                     'slug'           => $result['_source']['slug'],
                     'user_name'      => $result['_source']['user_name'],
-                    'user_id'     => $result['_source']['user_id'],
-                    'user_type'   => $result['_source']['user_type'],
-                    'tags'        => $result['_source']['tags']
+                    'user_id'        => $result['_source']['user_id'],
+                    'user_type'      => $result['_source']['user_type'],
+                    'tags'           => $result['_source']['tags']
                 ];
             }
 

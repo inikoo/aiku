@@ -21,13 +21,13 @@ class InvoiceHydrateUniversalSearch
         $invoice->universalSearch()->create(
             [
                 'section' => 'Accounting',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'accounting.invoices.show',
                     'arguments' => [
                         $invoice->slug
                     ]
                 ]),
-                'icon' => 'fa-file-invoice-dollar',
+                'icon'           => 'fa-file-invoice-dollar',
                 'primary_term'   => $invoice->number.' '.$invoice->order_id,
                 'secondary_term' => $invoice->shop_id.' '.$invoice->customer_id
             ]

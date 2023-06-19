@@ -21,13 +21,13 @@ class ProspectHydrateUniversalSearch
         $prospect->universalSearch()->create(
             [
                 'section' => 'Leads',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'procurement.agents.show',
                     'arguments' => [
                         $prospect->slug
                     ]
                 ]),
-                'icon' => 'fa-map-signs',
+                'icon'           => 'fa-map-signs',
                 'primary_term'   => $prospect->name.' '.$prospect->email,
                 'secondary_term' => $prospect->contact_name.' '.$prospect->company_name
             ]

@@ -21,14 +21,14 @@ class LocationHydrateUniversalSearch
         $location->universalSearch()->create(
             [
                 'section' => 'Inventory',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'inventory.warehouses.show.locations.show',
                     'arguments' => [
                         $location->warehouse->slug,
                         $location->slug
                     ]
                 ]),
-                'icon' => 'fa-inventory',
+                'icon'           => 'fa-inventory',
                 'primary_term'   => $location->code,
             ]
         );

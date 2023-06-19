@@ -21,13 +21,13 @@ class ClockingMachineHydrateUniversalSearch
         $clockingMachine->universalSearch()->create(
             [
                 'section' => 'HumanResources',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'hr.clocking-machines.show',
                     'arguments' => [
                         $clockingMachine->slug
                     ]
                 ]),
-                'icon' => 'fa-chess-clock',
+                'icon'           => 'fa-chess-clock',
                 'primary_term'   => $clockingMachine->code,
                 'secondary_term' => $clockingMachine->workplace_id
             ]

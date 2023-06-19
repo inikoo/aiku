@@ -21,13 +21,13 @@ class StockFamilyHydrateUniversalSearch
         $stockFamily->universalSearch()->create(
             [
                 'section' => 'StockFamily',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'inventory.stock-families.show',
                     'arguments' => [
                         $stockFamily->slug
                     ]
                 ]),
-                'icon' => 'fa-boxes-alt',
+                'icon'           => 'fa-boxes-alt',
                 'primary_term'   => $stockFamily->name,
                 'secondary_term' => $stockFamily->code
             ]

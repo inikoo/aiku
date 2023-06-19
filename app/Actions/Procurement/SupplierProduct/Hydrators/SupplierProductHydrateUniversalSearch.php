@@ -21,13 +21,13 @@ class SupplierProductHydrateUniversalSearch
         $supplierProduct->universalSearch()->create(
             [
                 'section' => 'Procurement',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'procurement.supplier-products.show',
                     'arguments' => [
                         $supplierProduct->slug
                     ]
                 ]),
-                'icon' => 'fa-box-usd',
+                'icon'           => 'fa-box-usd',
                 'primary_term'   => $supplierProduct->name,
                 'secondary_term' => $supplierProduct->code
             ]

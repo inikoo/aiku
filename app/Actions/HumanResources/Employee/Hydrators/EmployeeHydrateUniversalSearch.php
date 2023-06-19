@@ -22,13 +22,13 @@ class EmployeeHydrateUniversalSearch
         $employee->universalSearch()->create(
             [
                 'section' => 'HumanResources',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'hr.employees.show',
                     'arguments' => [
                         $employee->slug
                     ]
                 ]),
-                'icon' => 'fa-user-hard-hat',
+                'icon'           => 'fa-user-hard-hat',
                 'primary_term'   => $employee->contact_name,
                 'secondary_term' => $employee->email
             ]

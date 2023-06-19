@@ -9,10 +9,8 @@
 namespace App\Http\Middleware;
 
 use App\Actions\UI\GetFirstLoadProps;
-use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Http\Resources\UniversalSearch\UniversalSearchResource;
-use App\Models\Marketing\Product;
 use App\Models\Search\UniversalSearch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
