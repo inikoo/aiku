@@ -106,7 +106,7 @@ const doubleClick = (key: string, element: string) => {
                     :class="[
                         isChecked[props.elements.find(obj => obj.key === selectedElement).key].includes(key) ? 'text-gray-800' : 'text-gray-400',
                         'grid justify-center grid-flow-col items-center capitalize hover:text-gray-600']">
-                    {{ value }}
+                    {{ typeof value == 'string' ? value : `${value[0]} (${value[1]})` }}
                 </div>
             </div>
         </div>
