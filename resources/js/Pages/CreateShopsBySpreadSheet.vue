@@ -9,19 +9,18 @@
   import PageHeading from '@/Components/Headings/PageHeading.vue';
   import TableShops from "@/Pages/Tables/TableShops.vue";
   import { capitalize } from "@/Composables/capitalize"
-  
+
   const props = defineProps <{
       pageHead: object
       title: string
       data:object
   }>()
-  
+
   </script>
-  
+
   <template layout="App">
       <Head :title="capitalize(title)"/>
-      <!-- <PageHeading :data="pageHead"></PageHeading> -->
-      <TableShops :data="{...pageHead,...data}" />
+      <PageHeading :data="pageHead"></PageHeading>
+      {{data}}
   </template>
-  
-  
+
