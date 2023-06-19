@@ -23,7 +23,6 @@ Route::get('/', SysAdminDashboard::class)->name('dashboard');
 Route::get('/settings', SysAdminSettings::class)->name('settings');
 
 Route::get('/users', IndexUsers::class)->name('users.index');
-Route::get('/users/export', IndexUsers::class)->name('users.index');
 
 Route::get('/users/create', CreateUser::class)->name('users.create');
 Route::get('/users/{user}', ShowUser::class)->name('users.show');
