@@ -1,4 +1,5 @@
 <template>
+  <!-- A looping Field: if search data on table table by label -->
   <div
     v-for="(searchInput, key) in searchInputs"
     v-show="searchInput.value !== null || isForcedVisible(searchInput.key)"
@@ -8,7 +9,7 @@
     <div class="flex rounded-md shadow-sm relative mt-3">
       <label
         :for="searchInput.key"
-        class="inline-flex items-center px-4 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+        class="inline-flex items-center px-4 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm capitalize"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

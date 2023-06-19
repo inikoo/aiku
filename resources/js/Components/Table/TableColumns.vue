@@ -30,6 +30,7 @@ const props = defineProps({
     dusk="columns-dropdown"
     :active="hasHiddenColumns"
   >
+    <!-- Buttons beside of Search Table -->
     <template #button>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -71,6 +72,7 @@ const props = defineProps({
               <FontAwesomeIcon v-if="(typeof column.label != 'string')" :icon="column.label" aria-hidden="true" />
             </p>
 
+            <!-- Switch Toggle -->
             <button
               type="button"
               class="ml-4 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-light-blue-500"
