@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {Website} from "@/types/website";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?:string
 }>()
 
 
@@ -30,7 +31,7 @@ function websiteRoute(website: Website) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'webs'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: website }">
             <Link :href="websiteRoute(website)">
                 {{ website['code'] }}

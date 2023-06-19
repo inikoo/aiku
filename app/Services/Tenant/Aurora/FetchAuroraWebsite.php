@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Web\Website\WebsiteStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebsite extends FetchAurora
@@ -16,8 +17,9 @@ class FetchAuroraWebsite extends FetchAurora
         $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Website Store Key'});
 
         $status = match ($this->auroraModelData->{'Website Status'}) {
-            'Closed' => 'closed',
-            default  => 'construction',
+            'Active' => WebsiteStateEnum::LIVE,
+            'Closed' => WebsiteStateEnum::CLOSED,
+            default  => WebsiteStateEnum::IN_PROCESS,
         };
 
 

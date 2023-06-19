@@ -70,9 +70,9 @@ pg_dump -Fc -f "devops/devel/snapshots/au_hr.dump" ${DB}
 php artisan fetch:users  -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_users.dump" ${DB}
 php artisan fetch:shops -d _base
+php artisan fetch:websites -d _base
 php artisan fetch:payment-service-providers -d _base
 php artisan fetch:payment-accounts -d _base
-php artisan fetch:websites -d _base
 pg_dump -Fc -f "devops/devel/snapshots/au_shops.dump" ${DB}
 php artisan fetch:shippers -d _base
 php artisan fetch:warehouses -d _base
