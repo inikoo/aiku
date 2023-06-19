@@ -17,6 +17,7 @@ use App\Actions\HumanResources\ClockingMachine\UI\EditClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
+use App\Actions\HumanResources\Employee\ExportEmployees;
 use App\Actions\HumanResources\Employee\UI\CreateEmployee;
 use App\Actions\HumanResources\Employee\UI\EditEmployee;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
@@ -37,6 +38,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HumanResourcesDashboard::class)->name('dashboard');
 Route::get('/employees', IndexEmployees::class)->name('employees.index');
 Route::get('/employees/create', CreateEmployee::class)->name('employees.create');
+
+Route::get('/employees/export', ExportEmployees::class)->name('employees.export');
+
 Route::get('/employees/{employee}', ShowEmployee::class)->name('employees.show');
 Route::get('/employees/{employee}/edit', EditEmployee::class)->name('employees.edit');
 
