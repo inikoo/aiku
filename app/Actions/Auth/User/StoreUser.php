@@ -15,6 +15,7 @@ use App\Models\Auth\User;
 use App\Models\HumanResources\Employee;
 use App\Rules\AlphaDashDot;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
@@ -92,7 +93,7 @@ class StoreUser
             return [];
         } else {
             return [
-                'username' => ['required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username'],
+                'username' => ['required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username', Rule::notIn(['export', 'create'])],
                 'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
                 'email'    => ['required', 'email', 'unique:App\Models\SysAdmin\SysUser,email']
             ];
