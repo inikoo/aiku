@@ -19,6 +19,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import Button from "@/Components/Elements/Buttons/Button.vue";
 import SearchBar from "@/Components/SearchBar.vue";
+import AppFooter from "@/Layouts/AppFooter.vue"
 import { usePage } from "@inertiajs/vue3";
 import { useLayoutStore } from "@/Stores/layout";
 
@@ -118,6 +119,7 @@ const sidebarOpen = ref(false);
 const showSearchDialog = ref(false);
 
 const user = ref(usePage().props.auth.user);
+
 
 </script>
 
@@ -266,6 +268,7 @@ const user = ref(usePage().props.auth.user);
         </main>
 
     </div>
+        <AppFooter />
 
 </template>
 
