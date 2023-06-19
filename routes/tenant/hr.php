@@ -12,6 +12,7 @@ use App\Actions\HumanResources\Clocking\UI\CreateClocking;
 use App\Actions\HumanResources\Clocking\UI\EditClocking;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Clocking\UI\ShowClocking;
+use App\Actions\HumanResources\ClockingMachine\ExportWorkingPlaces;
 use App\Actions\HumanResources\ClockingMachine\UI\CreateClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\EditClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
@@ -61,6 +62,7 @@ Route::get('/time-sheets/{timeSheet}', ShowTimesheet::class)->name('time-sheets.
 
 Route::get('/working-places', IndexWorkingPlaces::class)->name('working-places.index');
 Route::get('/working-places/create', CreateWorkingPlace::class)->name('working-places.create');
+Route::get('/working-places/export', ExportWorkingPlaces::class)->name('working-places.export');
 Route::get('/working-places/{workplace}', ShowWorkingPlace::class)->name('working-places.show');
 Route::get('/working-places/{workplace}/edit', EditWorkingPlace::class)->name('working-places.edit');
 
