@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Auth\Guest\ExportGuests;
 use App\Actions\Auth\Guest\UI\CreateGuest;
 use App\Actions\Auth\Guest\UI\EditGuest;
 use App\Actions\Auth\Guest\UI\IndexGuest;
@@ -32,6 +33,7 @@ Route::get('/users/{user}/edit', EditUser::class)->name('users.edit');
 
 Route::get('/guests', IndexGuest::class)->name('guests.index');
 Route::get('/guests/create', CreateGuest::class)->name('guests.create');
+Route::get('/guests/export', ExportGuests::class)->name('guests.export');
 
 Route::get('/guests/{guest}', ShowGuest::class)->name('guests.show');
 Route::get('/guests/{guest}/edit', EditGuest::class)->name('guests.edit');
