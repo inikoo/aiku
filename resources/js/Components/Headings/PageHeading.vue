@@ -20,7 +20,7 @@ import {trans} from 'laravel-vue-i18n';
 library.add(faEmptySet, faPeopleArrows, faPlus, faPencil,faArrowLeft);
 const props = defineProps(['data']);
 const locale = useLocaleStore();
-
+console.log(props)
 
 </script>
 <template>
