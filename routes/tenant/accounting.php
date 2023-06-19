@@ -15,6 +15,7 @@ use App\Actions\Accounting\Payment\UI\ShowPayment;
 use App\Actions\Accounting\PaymentAccount\UI\CreatePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
+use App\Actions\Accounting\PaymentServiceProvider\ExportPaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\IndexPaymentServiceProviders;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\UI\Accounting\AccountingDashboard;
@@ -33,6 +34,7 @@ if ($parent == 'tenant') {
 
 
     Route::get('/providers', IndexPaymentServiceProviders::class)->name('payment-service-providers.index');
+    Route::get('/providers/export', ExportPaymentServiceProvider::class)->name('payment-service-providers.export');
     Route::get('/providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');
     Route::get('/providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');
     Route::get('/providers/{paymentServiceProvider}/accounts', [IndexPaymentAccounts::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.index');
