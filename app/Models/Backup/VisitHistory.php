@@ -4,15 +4,13 @@ namespace App\Models\Backup;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
- * @property int $id
- * @property string|null $type
- * @property string|null $index
- * @property array|null $body
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * App\Models\Backup\VisitHistory
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|VisitHistory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VisitHistory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VisitHistory query()
  * @mixin Eloquent
  */
 

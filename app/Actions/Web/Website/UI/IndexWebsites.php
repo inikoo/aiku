@@ -8,14 +8,11 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Http\Resources\Marketing\WebsiteResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Marketing\Shop;
-use App\Models\Tenancy\Tenant;
 use App\Models\Web\Website;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -28,45 +25,82 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWebsites extends InertiaAction
 {
-    public function handle(Tenant|Shop $parent, $prefix=null ): LengthAwarePaginator
+    public function __construct()
+    {
+        $this->elementGroups =
+            [
+                'state' => [
+                    'label'    => __('State'),
+                    'elements' => array_merge_recursive(
+                        WebsiteStateEnum::labels(),
+                        WebsiteStateEnum::count()
+                    ),
+
+                    'engine' => function ($query, $elements) {
+                        $query->whereIn('websites.state', $elements);
+                    }
+
+                ]
+            ];
+    }
+
+
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('websites.name', $value)
+                    ->orWhere('websites.domain', 'ilike', "%$value%")
                     ->orWhere('websites.code', 'ilike', "$value%");
             });
         });
         if ($prefix) {
-
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(Website::class)
-            ->defaultSort('websites.code')
-            ->select(['websites.code',  'websites.name', 'websites.slug'])
-            ->when(true, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Shop') {
-                    $query->where('websites.shop_id', $parent->id);
-                    $query->leftJoin('shops', 'shops.id', 'websites.shop_id');
-                    $query->addSelect('shops.slug as shop_slug');
-                }
-            })
+        $queryBuilder = QueryBuilder::for(Website::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+
+        return $queryBuilder->defaultSort('websites.code')
+            ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'in_maintenance', 'websites.state'])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+            foreach ($this->elementGroups as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table
-                ->name(TabsAbbreviationEnum::WEBSITES->value)
-                ->pageName(TabsAbbreviationEnum::WEBSITES->value.'Page');
-            $table
+                ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], sortable: true)
+                ->column(key: 'code', label: __('code'), sortable: true)
+                ->column(key: 'name', label: __('name'), sortable: true)
+                ->column(key: 'domain', label: __('domain'), sortable: true)
                 ->defaultSort('code');
         };
     }
@@ -89,8 +123,6 @@ class IndexWebsites extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $websites, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
-
         return Inertia::render(
             'Web/Websites',
             [
@@ -105,19 +137,15 @@ class IndexWebsites extends InertiaAction
                 'data'        => WebsiteResource::collection($websites),
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure());
     }
 
 
     public function asController(): LengthAwarePaginator
     {
-        return $this->handle(app('currentTenant'));
+        return $this->handle();
     }
 
-    public function inShop(Shop $shop): LengthAwarePaginator
-    {
-        return $this->handle($shop);
-    }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
@@ -146,22 +174,6 @@ class IndexWebsites extends InertiaAction
                 ),
             ),
 
-
-            'shops.show.websites.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs(
-                    ['shop'=>$routeParameters['shop']]
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'shops.show.websites.index',
-                        'parameters' =>
-                            [
-                                $routeParameters['shop']->slug
-                            ]
-                    ]
-                )
-            ),
             default => []
         };
     }

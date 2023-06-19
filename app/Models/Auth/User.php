@@ -44,6 +44,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property UserAuthTypeEnum $auth_type
  * @property string|null $contact_name no-normalised depends on parent
  * @property string|null $email mirror group_users.email
+ * @property string|null $about
  * @property int|null $parent_id
  * @property string|null $parent_type
  * @property string|null $remember_token
@@ -55,6 +56,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property string|null $source_password source password
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
  * @property-read \App\Models\Auth\GroupUser|null $groupUser

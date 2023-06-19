@@ -17,8 +17,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $primary_term
  * @property string $model_id
  * @property string $model_type
- *
+ * @property string $icon
+ * @property string $route
+ * @property string $section
  */
+
 class UniversalSearchResource extends JsonResource
 {
     public function toArray($request): array
@@ -27,6 +30,9 @@ class UniversalSearchResource extends JsonResource
             'id' => $this->id,
             'model_type' => $this->model_type,
             'model_id' => $this->model_id,
+            'section'  => $this->section,
+            'icon'  => $this->icon,
+            'route' => json_decode($this->route, true),
             'primary_term' => $this->primary_term,
             'secondary_term' => $this->secondary_term,
             'created_at' => $this->created_at,

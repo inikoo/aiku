@@ -24,16 +24,20 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
+ * @property string $code
  * @property string $name
  * @property string|null $department
  * @property string|null $team
- * @property array $roles
  * @property array $data
  * @property int $number_employees
+ * @property int $number_roles
  * @property float $number_work_time
  * @property string|null $share_work_time
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read array $es_audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @method static Builder|JobPosition newModelQuery()
  * @method static Builder|JobPosition newQuery()
  * @method static Builder|JobPosition query()

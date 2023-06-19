@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\Hydrators;
 
-use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\HumanResources\ClockingMachine;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -16,15 +15,19 @@ class ClockingMachineHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
-    use WithRoutes;
 
     public function handle(ClockingMachine $clockingMachine): void
     {
         $clockingMachine->universalSearch()->create(
             [
                 'section' => 'HumanResources',
-                'route' => $this->routes(),
-                'icon' => 'fa-chess-clock',
+                'route'   => json_encode([
+                    'name'      => 'hr.clocking-machines.show',
+                    'arguments' => [
+                        $clockingMachine->slug
+                    ]
+                ]),
+                'icon'           => 'fa-chess-clock',
                 'primary_term'   => $clockingMachine->code,
                 'secondary_term' => $clockingMachine->workplace_id
             ]

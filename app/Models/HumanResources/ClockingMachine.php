@@ -36,9 +36,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
+ * @property-read array $es_audits
  * @property-read UniversalSearch|null $universalSearch
- * @property-read Collection<int, Clocking> $clockings
- * @property-read Workplace $workplace
+ * @property-read \App\Models\HumanResources\Workplace $workplace
  * @method static Builder|ClockingMachine newModelQuery()
  * @method static Builder|ClockingMachine newQuery()
  * @method static Builder|ClockingMachine onlyTrashed()

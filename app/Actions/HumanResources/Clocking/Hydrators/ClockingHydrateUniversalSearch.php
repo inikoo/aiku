@@ -22,9 +22,9 @@ class ClockingHydrateUniversalSearch
     {
         $clocking->universalSearch()->create(
             [
-                'section' => 'HumanResources',
-                'route' => $this->routes(),
-                'icon' => 'fa-clock',
+                'section'        => 'HumanResources',
+                'route'          => $this->routes(),
+                'icon'           => 'fa-clock',
                 'primary_term'   => $clocking->slug,
             ]
         );

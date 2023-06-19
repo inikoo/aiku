@@ -39,7 +39,6 @@ class HydrateTenant extends HydrateModel
     {
         /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant = app('currentTenant');
-
         TenantHydrateEmployees::run($tenant);
         $this->guestsStats();
         TenantHydrateWarehouse::run($tenant);

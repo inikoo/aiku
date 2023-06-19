@@ -180,6 +180,8 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
+        \Matchish\ScoutElasticSearch\ElasticSearchServiceProvider::class,
+
         /*
          * Package Service Providers...
          */

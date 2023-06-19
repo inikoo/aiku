@@ -28,10 +28,10 @@ class IndexElasticsearchDocument
         $client = BuildElasticsearchClient::run();
 
         $params = [
-            'index' => $index,
-            'type'  => $type,
+            'index'  => $index,
+            'type'   => $type,
             'synced' => !($client instanceof Exception),
-            'body'  => $body
+            'body'   => $body
         ];
 
         if (!$isRestore) {

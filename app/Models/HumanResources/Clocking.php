@@ -40,8 +40,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $deleted_by_type
  * @property int|null $deleted_by_id
  * @property int|null $source_id
- * @property-read Workplace $workplace
- * @property-read ClockingMachine|null $clockingMachine
+ * @property-read \App\Models\HumanResources\ClockingMachine|null $clockingMachine
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\HumanResources\Workplace|null $workplace
  * @method static Builder|Clocking newModelQuery()
  * @method static Builder|Clocking newQuery()
  * @method static Builder|Clocking onlyTrashed()

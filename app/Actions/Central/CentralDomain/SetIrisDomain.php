@@ -18,7 +18,7 @@ class SetIrisDomain
 {
     use AsAction;
 
-    public string $commandSignature = 'set:iris-domain {--d|domain= : central domain slug}';
+    public string $commandSignature = 'iris:set-domain {--d|domain= : central domain slug}';
 
     public function handle(CentralDomain $centralDomain): PromiseInterface|Response
     {

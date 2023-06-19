@@ -7,7 +7,6 @@
 
 namespace App\Actions\Dropshipping\CustomerClient\Hydrators;
 
-use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -16,15 +15,19 @@ class CustomerClientHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
-    use WithRoutes;
 
     public function handle(CustomerClient $customerClient): void
     {
         $customerClient->universalSearch()->create(
             [
                 'section' => 'Procurement',
-                'route' => $this->routes(),
-                'icon' => 'fa-box-usd',
+                'route'   => json_encode([
+                    'name'      => '', // TODO: Need get route name
+                    'arguments' => [
+                        $customerClient->slug
+                    ]
+                ]),
+                'icon'           => 'fa-box-usd',
                 'primary_term'   => $customerClient->name.' '.$customerClient->email,
                 'secondary_term' => $customerClient->contact_name.' '.$customerClient->company_name
             ]
