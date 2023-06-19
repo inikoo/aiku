@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\Employee\Hydrators;
 
-use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -16,7 +15,6 @@ class EmployeeHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
-    use WithRoutes;
 
     public function handle(Employee $employee): void
     {
@@ -24,7 +22,12 @@ class EmployeeHydrateUniversalSearch
         $employee->universalSearch()->create(
             [
                 'section' => 'HumanResources',
-                'route' => $this->routes(),
+                'route' => json_encode([
+                    'name'      => 'hr.employees.show',
+                    'arguments' => [
+                        $employee->slug
+                    ]
+                ]),
                 'icon' => 'fa-user-hard-hat',
                 'primary_term'   => $employee->contact_name,
                 'secondary_term' => $employee->email

@@ -7,7 +7,6 @@
 
 namespace App\Actions\Inventory\Stock\Hydrators;
 
-use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Inventory\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -16,14 +15,18 @@ class StockHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
-    use WithRoutes;
 
     public function handle(Stock $stock): void
     {
         $stock->universalSearch()->create(
             [
                 'section' => 'Inventory',
-                'route' => $this->routes(),
+                'route' => json_encode([
+                    'name'      => 'inventory.stocks.show',
+                    'arguments' => [
+                        $stock->slug
+                    ]
+                ]),
                 'icon' => 'fa-inventory',
                 'primary_term'   => $stock->quantity_in_locations.' '.$stock->code,
                 'secondary_term' => $stock->units_per_pack.' '.$stock->units_per_carton

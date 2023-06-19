@@ -16,14 +16,18 @@ class ShipmentHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
-    use WithRoutes;
 
     public function handle(Shipment $shipment): void
     {
         $shipment->universalSearch()->create(
             [
                 'section' => 'Dispatch',
-                'route' => $this->routes(),
+                'route' => json_encode([
+                    'name'      => '', // TODO: Need to know the route name
+                    'arguments' => [
+                        $shipment->slug
+                    ]
+                ]),
                 'icon' => 'fa-box-usd',
                 'primary_term'   => $shipment->code,
                 'secondary_term' => $shipment->tracking

@@ -16,14 +16,19 @@ class DeliveryNoteHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
-    use WithRoutes;
 
     public function handle(DeliveryNote $deliveryNote): void
     {
         $deliveryNote->universalSearch()->create(
             [
                 'section' => 'Dispatch',
-                'route' => $this->routes(),
+                'route' => json_encode([
+                    'name'      => 'shops.show.delivery-notes.show',
+                    'arguments' => [
+                        $deliveryNote->shop->slug,
+                        $deliveryNote->slug
+                    ]
+                ]),
                 'icon' => 'fa-box-usd',
                 'primary_term'   => $deliveryNote->number,
                 'secondary_term' => $deliveryNote->email

@@ -21,13 +21,13 @@ class CustomerHydrateUniversalSearch
         $customer->universalSearch()->create(
             [
                 'section' => 'CRM',
-                'route'   => [
-                    'crm.shop.customers.show',
-                    [
+                'route'   => json_encode([
+                    'name'      => 'crm.shop.customers.show',
+                    'arguments' => [
                         $customer->shop->slug,
                         $customer->slug
                     ]
-                ],
+                ]),
                 'icon'           => 'fa-cash-register',
                 'primary_term'   => $customer->name.' '.$customer->email,
                 'secondary_term' => $customer->contact_name.' '.$customer->company_name

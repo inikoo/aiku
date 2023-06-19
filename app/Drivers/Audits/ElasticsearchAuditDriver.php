@@ -26,9 +26,9 @@ use OwenIt\Auditing\Models\Audit as AuditModel;
 class ElasticsearchAuditDriver implements AuditDriver
 {
     /**
-     * @var Client|Exception|null
+     * @var Client|null
      */
-    protected Client|Exception|null $client = null;
+    protected Client|null $client = null;
 
     /**
      * @var string|null
@@ -62,7 +62,9 @@ class ElasticsearchAuditDriver implements AuditDriver
     {
         $implementation = Config::get('audit.implementation', AuditModel::class);
 
-        $this->storeAudit($model->toAudit());
+        if(!app()->runningUnitTests()) {
+            $this->storeAudit($model->toAudit());
+        }
 
         return new $implementation();
     }

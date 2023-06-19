@@ -16,6 +16,8 @@ return new class () extends Migration {
             $table->id();
             $table->nullableMorphs('model');
             $table->string('section')->nullable();
+            $table->jsonb('route')->nullable();
+            $table->string('icon')->nullable();
             $table->string('primary_term');
             $table->string('secondary_term')->nullable();
             $table->timestampsTz();

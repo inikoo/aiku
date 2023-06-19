@@ -149,6 +149,7 @@ test('create delivery note item', function ($customer, $order, $deliveryNote) {
     try {
         $stock            = StoreStock::make()->action($customer, Stock::factory()->definition());
         $transaction      = StoreTransaction::make()->action($order, Transaction::factory()->definition());
+
         $deliveryNoteData = [
             'delivery_note_id'  => $deliveryNote->id,
             'stock_id'          => $stock->id,
@@ -162,6 +163,7 @@ test('create delivery note item', function ($customer, $order, $deliveryNote) {
         echo $e->getMessage();
         $deliveryNoteItem = null;
     }
+
     return $deliveryNoteItem;
 })->depends('create customer', 'create order', 'create delivery note');
 

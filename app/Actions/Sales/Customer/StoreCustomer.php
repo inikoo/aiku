@@ -84,7 +84,7 @@ class StoreCustomer
         ShopHydrateCustomers::dispatch($customer->shop)->delay($this->hydratorsDelay);
         ShopHydrateCustomerInvoices::dispatch($customer->shop)->delay($this->hydratorsDelay);
         TenantHydrateCustomers::dispatch(app('currentTenant'))->delay($this->hydratorsDelay);
-        CustomerHydrateUniversalSearch::dispatch($customer);
+//        CustomerHydrateUniversalSearch::dispatch($customer);
 
 
         return $customer;
