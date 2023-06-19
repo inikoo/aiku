@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexUsers extends InertiaAction
 {
-    public function __construct()
+    protected function getElementGroups(): void
     {
         $this->elementGroups =
             [

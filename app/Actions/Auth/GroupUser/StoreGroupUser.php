@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -45,7 +46,7 @@ class StoreGroupUser
     public function rules(): array
     {
         return [
-            'username' => ['required', new AlphaDashDot(), 'unique:App\Models\Auth\GroupUser,username'],
+            'username' => ['required', new AlphaDashDot(), 'unique:App\Models\Auth\GroupUser,username', Rule::notIn(['export', 'create'])],
             'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             'email'    => ['required', 'email', 'unique:App\Models\SysAdmin\SysUser,email']
         ];

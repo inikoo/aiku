@@ -88,6 +88,8 @@ class GetLayout
                         'options'     => $shops,
                         'subsections' => [
 
+
+
                             [
                                 'label'   => __('departments'),
                                 'tooltip' => __('Departments'),

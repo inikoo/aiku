@@ -25,6 +25,7 @@ use App\Models\Auth\Guest;
 use App\Models\Auth\User;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -91,10 +92,7 @@ test('update guest', function ($guest) {
 test('create user for guest', function ($guest) {
     Hash::shouldReceive('make')->andReturn('1234567');
 
-
     $userData = User::factory()->definition();
-    Arr::set($userData, 'email', $guest->email);
-
 
     $groupUser=StoreGroupUser::make()->action($userData);
     expect($groupUser)->toBeInstanceOf(GroupUser::class);
@@ -107,6 +105,24 @@ test('create user for guest', function ($guest) {
         ->and($user->groupUser->password)->toBe('1234567')
         ->and($user->parent)->toBeInstanceOf(Guest::class);
     return $user;
+})->depends('create guest');
+
+test('create user for guest with create username', function () {
+    $userData = User::factory()->definition();
+    Arr::set($userData, 'username', 'create');
+
+    expect(function () use ($userData) {
+        StoreGroupUser::make()->action($userData);
+    })->toThrow(ValidationException::class);
+})->depends('create guest');
+
+test('create user for guest with export username', function () {
+    $userData = User::factory()->definition();
+    Arr::set($userData, 'username', 'export');
+
+    expect(function () use ($userData) {
+        StoreGroupUser::make()->action($userData);
+    })->toThrow(ValidationException::class);
 })->depends('create guest');
 
 test('update user password', function ($user) {

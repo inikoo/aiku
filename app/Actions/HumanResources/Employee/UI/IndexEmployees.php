@@ -26,13 +26,17 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexEmployees extends InertiaAction
 {
-    public function __construct()
+    protected function getElementGroups(): void
     {
         $this->elementGroups =
             [
                 'state' => [
                     'label'    => __('State'),
-                    'elements' => EmployeeStateEnum::labels(),
+                    'elements' => array_merge_recursive(
+                        EmployeeStateEnum::labels(),
+                        EmployeeStateEnum::count()
+                    ),
+
                     'engine'   => function ($query, $elements) {
                         $query->whereIn('state', $elements);
                     }

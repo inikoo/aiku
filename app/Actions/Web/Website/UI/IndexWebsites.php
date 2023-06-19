@@ -25,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWebsites extends InertiaAction
 {
-    public function __construct()
+    protected function getElementGroups(): void
     {
         $this->elementGroups =
             [
@@ -141,8 +141,10 @@ class IndexWebsites extends InertiaAction
     }
 
 
-    public function asController(): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
+
+        $this->initialisation($request);
         return $this->handle();
     }
 

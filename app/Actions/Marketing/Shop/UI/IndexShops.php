@@ -109,6 +109,12 @@ class IndexShops extends InertiaAction
                         ],
                         'label'=> __('shop')
                     ] : false,
+                    'editRow'  => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'shops.create-multiple',
+                            'parameters' => array_values($this->originalParameters)
+                        ]
+                    ] : false,
                 ],
                 'data'       => ShopResource::collection($shops),
 

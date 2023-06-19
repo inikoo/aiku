@@ -119,7 +119,6 @@ const props = defineProps(
 
 const app = getCurrentInstance();
 const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
-
 const updates = ref(0);
 
 const queryBuilderProps = computed(() => {
@@ -145,6 +144,7 @@ const pageName = computed(() => {
 const forcedVisibleSearchInputs = ref([]);
 
 const tableFieldset = ref(null);
+console.log('queryBuilderProps',props)
 
 const hasOnlyData = computed(() => {
     if (queryBuilderProps.value.hasToggleableColumns) {
@@ -586,6 +586,14 @@ const handleElementsChange = (data) => {
 
                 <!-- Search Group -->
                 <div class="flex flex-row justify-end items-start flex-nowrap space-x-2">
+                    <div>
+                        <Link :href="route(props.resource.editRow.route.name,props.resource.editRow.route.parameters)">
+                        <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent  border-indigo-500">
+                                New Row
+                        </Button>
+                        </Link>
+                     </div>
+
                     <div class="order-2 sm:order-1 mr-2 sm:mr-4" v-if="queryBuilderProps.hasFilters">
                         <slot name="tableFilter" :has-filters="queryBuilderProps.hasFilters"
                             :has-enabled-filters="queryBuilderProps.hasEnabledFilters" :filters="queryBuilderProps.filters"
