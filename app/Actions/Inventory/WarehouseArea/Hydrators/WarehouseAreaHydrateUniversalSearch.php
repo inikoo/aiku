@@ -21,14 +21,14 @@ class WarehouseAreaHydrateUniversalSearch
         $warehouseArea->universalSearch()->create(
             [
                 'section' => 'Inventory',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'inventory.warehouses.show.warehouse-areas.show',
                     'arguments' => [
                         $warehouseArea->warehouse->slug,
                         $warehouseArea->slug
                     ]
                 ]),
-                'icon' => 'fa-map-signs',
+                'icon'           => 'fa-map-signs',
                 'primary_term'   => $warehouseArea->name,
                 'secondary_term' => $warehouseArea->code
             ]

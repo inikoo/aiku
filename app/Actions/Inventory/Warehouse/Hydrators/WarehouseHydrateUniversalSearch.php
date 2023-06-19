@@ -21,13 +21,13 @@ class WarehouseHydrateUniversalSearch
         $warehouse->universalSearch()->create(
             [
                 'section' => 'Inventory',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'inventory.warehouses.show',
                     'arguments' => [
                         $warehouse->slug
                     ]
                 ]),
-                'icon' => 'fa-warehouse',
+                'icon'           => 'fa-warehouse',
                 'primary_term'   => $warehouse->name,
                 'secondary_term' => $warehouse->code
             ]

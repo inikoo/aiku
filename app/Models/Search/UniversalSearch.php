@@ -18,6 +18,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property string|null $model_type
  * @property int|null $model_id
  * @property string|null $section
+ * @property mixed|null $route
+ * @property string|null $icon
  * @property string $primary_term
  * @property string|null $secondary_term
  * @property Carbon|null $created_at

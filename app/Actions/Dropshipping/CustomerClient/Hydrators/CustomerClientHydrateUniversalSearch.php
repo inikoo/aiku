@@ -21,13 +21,13 @@ class CustomerClientHydrateUniversalSearch
         $customerClient->universalSearch()->create(
             [
                 'section' => 'Procurement',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => '', // TODO: Need get route name
                     'arguments' => [
                         $customerClient->slug
                     ]
                 ]),
-                'icon' => 'fa-box-usd',
+                'icon'           => 'fa-box-usd',
                 'primary_term'   => $customerClient->name.' '.$customerClient->email,
                 'secondary_term' => $customerClient->contact_name.' '.$customerClient->company_name
             ]

@@ -21,13 +21,13 @@ class PaymentHydrateUniversalSearch
         $payment->universalSearch()->create(
             [
                 'section' => 'Accounting',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'accounting.payments.show',
                     'arguments' => [
                         $payment->slug
                     ]
                 ]),
-                'icon' => 'fa-coins',
+                'icon'           => 'fa-coins',
                 'primary_term'   => $payment->amount.' '.$payment->reference,
                 'secondary_term' => $payment->customer_id.' '.$payment->date
             ]

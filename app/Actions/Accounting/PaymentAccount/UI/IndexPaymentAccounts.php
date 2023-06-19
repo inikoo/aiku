@@ -29,7 +29,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPaymentAccounts extends InertiaAction
 {
-    public function handle(Shop|Tenant|PaymentServiceProvider $parent,$prefix=null): LengthAwarePaginator
+    public function handle(Shop|Tenant|PaymentServiceProvider $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

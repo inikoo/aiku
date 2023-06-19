@@ -7,7 +7,6 @@
 
 namespace App\Actions\Dispatch\DeliveryNote\Hydrators;
 
-use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Dispatch\DeliveryNote;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,14 +21,14 @@ class DeliveryNoteHydrateUniversalSearch
         $deliveryNote->universalSearch()->create(
             [
                 'section' => 'Dispatch',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'shops.show.delivery-notes.show',
                     'arguments' => [
                         $deliveryNote->shop->slug,
                         $deliveryNote->slug
                     ]
                 ]),
-                'icon' => 'fa-box-usd',
+                'icon'           => 'fa-box-usd',
                 'primary_term'   => $deliveryNote->number,
                 'secondary_term' => $deliveryNote->email
             ]

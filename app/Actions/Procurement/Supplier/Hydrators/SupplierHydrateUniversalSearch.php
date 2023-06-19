@@ -21,13 +21,13 @@ class SupplierHydrateUniversalSearch
         $supplier->universalSearch()->create(
             [
                 'section' => 'Procurement',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'procurement.agents.show',
                     'arguments' => [
                         $supplier->slug
                     ]
                 ]),
-                'icon' => 'fa-person-dolly',
+                'icon'           => 'fa-person-dolly',
                 'primary_term'   => $supplier->name.' '.$supplier->email,
                 'secondary_term' => $supplier->company_name.' '.$supplier->contact_name
             ]

@@ -24,13 +24,13 @@ class UniversalSearchResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
-            'model_type' => $this->model_type,
-            'model_id' => $this->model_id,
-            'primary_term' => $this->primary_term,
+            'id'             => $this->id,
+            'model_type'     => $this->model_type,
+            'model_id'       => $this->model_id,
+            'primary_term'   => $this->primary_term,
             'secondary_term' => $this->secondary_term,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at'     => $this->created_at,
+            'updated_at'     => $this->updated_at,
         ];
     }
 }

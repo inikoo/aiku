@@ -7,7 +7,6 @@
 
 namespace App\Actions\Dispatch\Shipment\Hydrators;
 
-use App\Actions\WithRoutes;
 use App\Actions\WithTenantJob;
 use App\Models\Dispatch\Shipment;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,13 +21,13 @@ class ShipmentHydrateUniversalSearch
         $shipment->universalSearch()->create(
             [
                 'section' => 'Dispatch',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => '', // TODO: Need to know the route name
                     'arguments' => [
                         $shipment->slug
                     ]
                 ]),
-                'icon' => 'fa-box-usd',
+                'icon'           => 'fa-box-usd',
                 'primary_term'   => $shipment->code,
                 'secondary_term' => $shipment->tracking
             ]

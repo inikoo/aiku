@@ -21,14 +21,14 @@ class OrderHydrateUniversalSearch
         $order->universalSearch()->create(
             [
                 'section' => 'CRM',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'customers.show.orders.show',
                     'arguments' => [
                         $order->customer->slug,
                         $order->slug
                     ]
                 ]),
-                'icon' => 'fa-money-check-alt',
+                'icon'           => 'fa-money-check-alt',
                 'primary_term'   => $order->customer_id.' '.$order->number,
                 'secondary_term' => $order->shop_id.' '.$order->date
             ]

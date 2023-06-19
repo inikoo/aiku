@@ -21,13 +21,13 @@ class AgentHydrateUniversalSearch
         $agent->universalSearch()->create(
             [
                 'section' => 'Procurement',
-                'route' => json_encode([
+                'route'   => json_encode([
                     'name'      => 'procurement.agents.show',
                     'arguments' => [
                         $agent->slug
                     ]
                 ]),
-                'icon' => 'fa-people-arrows',
+                'icon'           => 'fa-people-arrows',
                 'primary_term'   => $agent->name.' '.$agent->email,
                 'secondary_term' => $agent->company_name.' '.$agent->contact_name
             ]
