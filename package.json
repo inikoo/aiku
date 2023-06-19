@@ -32,6 +32,7 @@
         "@fortawesome/vue-fontawesome": "^3.0.1",
         "@headlessui/vue": "^1.7.0",
         "@inertiajs/vue3": "^1.0.0",
+        "@revolist/revogrid": "^4.4.0-next.36",
         "@tiptap/extension-character-count": "^2.0.3",
         "@tiptap/extension-list-item": "^2.0.3",
         "@tiptap/extension-placeholder": "^2.0.3",

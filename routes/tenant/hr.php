@@ -37,18 +37,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HumanResourcesDashboard::class)->name('dashboard');
 Route::get('/employees', IndexEmployees::class)->name('employees.index');
 Route::get('/employees/create', CreateEmployee::class)->name('employees.create');
-
 Route::get('/employees/{employee}', ShowEmployee::class)->name('employees.show');
 Route::get('/employees/{employee}/edit', EditEmployee::class)->name('employees.edit');
 
 Route::post('/employees/{employee}/user', ShowEmployee::class)->name('employees.show.user');
 Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('employees.show.user.store');
 
-
-
-
 Route::get('/positions', IndexJobPositions::class)->name('job-positions.index');
-Route::get('/employees/create', CreateJobPosition::class)->name('job-positions.create');
+Route::get('/positions/create', CreateJobPosition::class)->name('job-positions.create');
 Route::get('/positions/{jobPosition}', ShowJobPosition::class)->name('job-positions.show');
 Route::get('/positions/{jobPosition}/edit', EditJobPosition::class)->name('job-positions.edit');
 

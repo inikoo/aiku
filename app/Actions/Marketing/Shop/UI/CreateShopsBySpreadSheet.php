@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
  * @property bool $canEdit
  * @property string $title
  */
-class IndexShops extends InertiaAction
+class CreateShopsBySpreadSheet extends InertiaAction
 {
     public function handle($prefix=null): LengthAwarePaginator
     {
@@ -98,7 +98,6 @@ class IndexShops extends InertiaAction
         return Inertia::render(
             'Marketing/Shops',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('shops'),
                 'pageHead'    => [
                     'title'   => __('shops'),
@@ -123,25 +122,4 @@ class IndexShops extends InertiaAction
         )->table($this->tableStructure($parent));
     }
 
-    public function getBreadcrumbs($suffix=null): array
-    {
-        return
-            array_merge(
-                (new Dashboard())->getBreadcrumbs(),
-                [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name' => 'shops.index'
-                            ],
-                            'label' => __('shops'),
-                            'icon'  => 'fal fa-bars'
-                        ],
-                        'suffix'=> $suffix
-
-                    ]
-                ]
-            );
-    }
 }

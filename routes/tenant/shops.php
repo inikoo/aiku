@@ -13,6 +13,7 @@ use App\Actions\Leads\Prospect\IndexProspects;
 use App\Actions\Marketing\Shop\UI\CreateShop;
 use App\Actions\Marketing\Shop\UI\EditShop;
 use App\Actions\Marketing\Shop\UI\IndexShops;
+use App\Actions\Marketing\Shop\UI\CreateShopsBySpreadSheet;
 use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\Web\Website\UI\IndexWebsites;
 use App\Actions\Web\Website\UI\RedirectToShopWebsite;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexShops::class)->name('index');
 Route::get('/create', CreateShop::class)->name('create');
+Route::get('/create-multiple', CreateShopsBySpreadSheet::class)->name('create-multiple');
+
 Route::get('/{shop}', ShowShop::class)->name('show');
 Route::get('/{shop}/edit', EditShop::class)->name('edit');
 
