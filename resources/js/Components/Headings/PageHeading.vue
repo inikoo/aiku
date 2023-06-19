@@ -96,7 +96,7 @@ const locale = useLocaleStore();
 
             <span v-if="data['cancelCreate']" class="">
                 <Link :href="route(data['cancelCreate']['route']['name'],data['cancelCreate']['route']['parameters'])">
-                <Button type='secondary' action="cancel" class="capitalize">
+                <Button type='danger' action="cancel" class="capitalize">
                    {{ trans('Cancel') }}
                 </Button>
                 </Link>

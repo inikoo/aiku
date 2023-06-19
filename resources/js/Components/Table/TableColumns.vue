@@ -1,5 +1,10 @@
 <script setup>
-import ButtonWithDropdown from "./ButtonWithDropdown.vue";
+import ButtonWithDropdown from "./ButtonWithDropdown.vue"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faYinYang, faUserCircle } from "@/../private/pro-light-svg-icons"
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faYinYang, faUserCircle)
+
 
 const props = defineProps({
     columns: {
@@ -60,9 +65,10 @@ const props = defineProps({
             class="py-2 flex items-center justify-between"
           >
             <p
-              class="text-sm text-gray-900"
+              class="text-sm text-gray-900 capitalize"
             >
-              {{ column.label }}
+              {{ typeof column.label == 'string' ? column.label : ''}}
+              <FontAwesomeIcon v-if="(typeof column.label != 'string')" :icon="column.label" aria-hidden="true" />
             </p>
 
             <button
