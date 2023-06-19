@@ -46,6 +46,9 @@ switch (props.type) {
     case 'primary':
         typeClass = 'border-transparent bg-indigo-600 text-white hover:bg-indigo-700';
         break;
+    case 'danger':
+        typeClass = 'border-red-400 text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2';
+        break;
 }
 
 

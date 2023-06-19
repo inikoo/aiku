@@ -1,5 +1,10 @@
 <script setup>
-import ButtonWithDropdown from "./ButtonWithDropdown.vue";
+import ButtonWithDropdown from "./ButtonWithDropdown.vue"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faYinYang, faUserCircle } from "@/../private/pro-light-svg-icons"
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faYinYang, faUserCircle)
+
 
 const props = defineProps({
     columns: {
@@ -25,6 +30,7 @@ const props = defineProps({
     dusk="columns-dropdown"
     :active="hasHiddenColumns"
   >
+    <!-- Buttons beside of Search Table -->
     <template #button>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -60,11 +66,13 @@ const props = defineProps({
             class="py-2 flex items-center justify-between"
           >
             <p
-              class="text-sm text-gray-900"
+              class="text-sm text-gray-900 capitalize"
             >
-              {{ column.label }}
+              {{ typeof column.label == 'string' ? column.label : ''}}
+              <FontAwesomeIcon v-if="(typeof column.label != 'string')" :icon="column.label" aria-hidden="true" />
             </p>
 
+            <!-- Switch Toggle -->
             <button
               type="button"
               class="ml-4 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-light-blue-500"
