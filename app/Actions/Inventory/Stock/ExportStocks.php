@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\Inventory\StockFamiliesExport;
 use App\Exports\Inventory\StocksExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,7 +27,7 @@ class ExportStocks
     {
         $type = $objectData['type'];
 
-        return $this->export(new StocksExport, 'stocks', $type);
+        return $this->export(new StocksExport(), 'stocks', $type);
     }
 
     /**

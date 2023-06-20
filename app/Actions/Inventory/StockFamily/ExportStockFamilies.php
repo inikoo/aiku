@@ -27,7 +27,7 @@ class ExportStockFamilies
     {
         $type = $objectData['type'];
 
-        return $this->export(new StockFamiliesExport, 'stock-families', $type);
+        return $this->export(new StockFamiliesExport(), 'stock-families', $type);
     }
 
     /**

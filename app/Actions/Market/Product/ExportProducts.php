@@ -27,7 +27,7 @@ class ExportProducts
     {
         $type = $objectData['type'];
 
-        return $this->export(new AgentsExport, 'products', $type);
+        return $this->export(new AgentsExport(), 'products', $type);
     }
 
     /**

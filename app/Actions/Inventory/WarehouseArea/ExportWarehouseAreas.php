@@ -9,7 +9,6 @@ namespace App\Actions\Inventory\WarehouseArea;
 
 use App\Actions\Traits\WithExportData;
 use App\Exports\Inventory\WarehouseAreasExport;
-use App\Exports\Procurement\AgentsExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -28,7 +27,7 @@ class ExportWarehouseAreas
     {
         $type = $objectData['type'];
 
-        return $this->export(new WarehouseAreasExport, 'warehouse-areas', $type);
+        return $this->export(new WarehouseAreasExport(), 'warehouse-areas', $type);
     }
 
     /**

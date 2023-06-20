@@ -19,7 +19,7 @@ use App\Actions\UI\Mail\MailHub;
 use Illuminate\Support\Facades\Route;
 
 //if (empty($parent)) {
-    $parent = 'tenant';
+$parent = 'tenant';
 //}
 
 Route::get('/mailshots/create', CreateMailshot::class)->name('mailshots.create');

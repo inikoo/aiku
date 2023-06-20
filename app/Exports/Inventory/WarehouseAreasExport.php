@@ -7,7 +7,6 @@
 
 namespace App\Exports\Inventory;
 
-use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;

@@ -27,7 +27,7 @@ class ExportPaymentAccounts
     {
         $type = $objectData['type'];
 
-        return $this->export(new PaymentAccountsExport, 'payment-accounts', $type);
+        return $this->export(new PaymentAccountsExport(), 'payment-accounts', $type);
     }
 
     /**
