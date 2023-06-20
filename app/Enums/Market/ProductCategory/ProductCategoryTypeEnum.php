@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Marketing\ProductCategory;
+namespace App\Enums\Market\ProductCategory;
 
 use App\Enums\EnumHelperTrait;
 

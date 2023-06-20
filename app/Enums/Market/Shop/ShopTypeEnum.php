@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Marketing\Shop;
+namespace App\Enums\Market\Shop;
 
 use App\Enums\EnumHelperTrait;
 

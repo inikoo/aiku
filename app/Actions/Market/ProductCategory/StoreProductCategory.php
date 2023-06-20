@@ -9,7 +9,7 @@ namespace App\Actions\Market\ProductCategory;
 
 use App\Actions\Market\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
-use App\Enums\Marketing\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;

@@ -8,9 +8,9 @@
 namespace App\Models\Marketing;
 
 use App\Actions\Tenancy\Tenant\HydrateTenant;
-use App\Enums\Marketing\Shop\ShopStateEnum;
-use App\Enums\Marketing\Shop\ShopSubtypeEnum;
-use App\Enums\Marketing\Shop\ShopTypeEnum;
+use App\Enums\Market\Shop\ShopStateEnum;
+use App\Enums\Market\Shop\ShopSubtypeEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;

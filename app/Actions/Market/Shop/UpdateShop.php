@@ -9,8 +9,8 @@ namespace App\Actions\Market\Shop;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
-use App\Enums\Marketing\Shop\ShopSubtypeEnum;
-use App\Enums\Marketing\Shop\ShopTypeEnum;
+use App\Enums\Market\Shop\ShopSubtypeEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Models\Marketing\Shop;
 use Illuminate\Validation\Rule;

@@ -7,9 +7,9 @@
 
 namespace App\Models\Marketing;
 
-use App\Enums\Marketing\Product\ProductStateEnum;
-use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
-use App\Enums\Marketing\Product\ProductTypeEnum;
+use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductTradeUnitCompositionEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Media\GroupMedia;

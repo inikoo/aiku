@@ -20,7 +20,7 @@ use App\Actions\Market\ProductCategory\UpdateProductCategory;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
-use App\Enums\Marketing\Product\ProductTypeEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Marketing\Offer;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;

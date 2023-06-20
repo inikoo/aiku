@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Shop\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use Illuminate\Contracts\Queue\ShouldBeUnique;

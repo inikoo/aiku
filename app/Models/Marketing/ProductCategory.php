@@ -8,7 +8,7 @@
 namespace App\Models\Marketing;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
-use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Models\Sales\SalesStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasHistory;

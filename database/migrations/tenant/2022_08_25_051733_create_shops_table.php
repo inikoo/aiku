@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-use App\Enums\Marketing\Shop\ShopStateEnum;
+use App\Enums\Market\Shop\ShopStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

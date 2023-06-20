@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Marketing\Family;
+namespace App\Enums\Market\Family;
 
 use App\Enums\EnumHelperTrait;
 

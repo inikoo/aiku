@@ -14,7 +14,7 @@ use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Enums\Marketing\Shop\ShopSubtypeEnum;
+use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;

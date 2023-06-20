@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Product\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\Marketing\Product\ProductTypeEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
 use Exception;
