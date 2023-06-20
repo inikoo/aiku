@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Http\Resources\Marketing;
+namespace App\Http\Resources\Market;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 

@@ -15,7 +15,7 @@ use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Enums\UI\StockTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\StockResource;
-use App\Http\Resources\Marketing\ProductResource;
+use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Inventory\Stock;
 use Inertia\Inertia;

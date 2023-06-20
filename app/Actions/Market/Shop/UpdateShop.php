@@ -11,7 +11,7 @@ use App\Actions\Market\Shop\Hydrators\ShopHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
-use App\Http\Resources\Marketing\ShopResource;
+use App\Http\Resources\Market\ShopResource;
 use App\Models\Marketing\Shop;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;

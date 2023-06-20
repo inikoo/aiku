@@ -16,7 +16,7 @@ use App\Actions\Sales\Order\UI\IndexOrders;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\Http\Resources\Marketing\ProductResource;
+use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Shop;

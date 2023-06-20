@@ -5,12 +5,12 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Http\Resources\Marketing;
+namespace App\Http\Resources\Market;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $offer_campaign_id
+ * @property int $shop_id
  * @property string $slug
  * @property string $code
  * @property string $data
@@ -19,18 +19,18 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $name
  *
  */
-class OfferComponentResource extends JsonResource
+class OfferCampaignResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
-            'offer_campaign_id' => $this->offer_campaign_id,
-            'slug'              => $this->slug,
-            'code'              => $this->code,
-            'name'              => $this->name,
-            'data'              => $this->data,
-            'created_at'        => $this->created_at,
-            'updated_at'        => $this->updated_at,
+            'shop_id'    => $this->shop_id,
+            'slug'       => $this->slug,
+            'code'       => $this->code,
+            'name'       => $this->name,
+            'data'       => $this->data,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

@@ -8,7 +8,7 @@
 namespace App\Actions\Market\ShippingZone;
 
 use App\Actions\WithActionUpdate;
-use App\Http\Resources\Marketing\ShippingZoneResource;
+use App\Http\Resources\Market\ShippingZoneResource;
 use App\Models\Marketing\ShippingZone;
 use Lorisleiva\Actions\ActionRequest;
 

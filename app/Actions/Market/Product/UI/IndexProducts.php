@@ -10,7 +10,7 @@ namespace App\Actions\Market\Product\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Catalogue\CatalogueHub;
-use App\Http\Resources\Marketing\ProductResource;
+use App\Http\Resources\Market\ProductResource;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;

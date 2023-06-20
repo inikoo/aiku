@@ -14,7 +14,7 @@ use App\Actions\Sales\Order\UI\IndexOrders;
 use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Marketing\ProductResource;
+use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Marketing\Product;

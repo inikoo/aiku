@@ -1,34 +1,34 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 18 Apr 2023 15:23:04 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ *  Author: Jonathan lopez <raul@inikoo.com>
+ *  Created: Sat, 22 Oct 2022 18:53:15 British Summer Time, Sheffield, UK
+ *  Copyright (c) 2022, inikoo
  */
 
-namespace App\Http\Resources\Marketing;
+namespace App\Http\Resources\Market;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $shop_id
  * @property string $slug
  * @property string $code
- * @property string $data
  * @property mixed $created_at
  * @property mixed $updated_at
  * @property string $name
+ * @property string $state
+ * @property integer $image_id
  *
  */
-class OfferCampaignResource extends JsonResource
+class FamilyShowcaseResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
-            'shop_id'    => $this->shop_id,
             'slug'       => $this->slug,
+            'image_id'   => $this->image_id,
             'code'       => $this->code,
             'name'       => $this->name,
-            'data'       => $this->data,
+            'state'      => $this->state,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
