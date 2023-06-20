@@ -9,33 +9,29 @@
 
 return
     [
-        'super-admin'           => [
+        'super-admin' => [
             'tenant',
-            'showroom',
-            'customers',
-            'sysadmin',
-            'hr',
-            'inventory',
-            'dispatch',
+            'business_intelligence',
             'shops',
-            'products',
             'websites',
-            'osm',
+            'crm',
+            'marketing',
+            'dispatch',
+            'inventory',
             'production',
             'procurement',
-            'fulfilment',
             'accounting',
-            'shops',
-            'mail'
-        ],
-
-        'system-admin'          => [
+            'hr',
             'sysadmin',
-            'look-and-field',
+            'fulfilment',
+        ],
+
+        'system-admin' => [
+            'sysadmin',
         ],
 
 
-        'human-resources-clerk' => [
+        'human-resources-clerk'   => [
             'hr.view',
             'hr.edit',
             'hr.payroll',
@@ -48,29 +44,29 @@ return
             'hr.attendance',
         ],
 
-        'distribution-manager'             => [
+        'distribution-manager'            => [
             'inventory',
             'fulfilment'
         ],
-        'distribution-clerk'             => [
+        'distribution-clerk'              => [
             'inventory.stocks',
             'inventory.warehouses.view',
             'inventory.warehouses.stock',
             'fulfilment.view'
         ],
-        'distribution-dispatcher-manager'  => [
+        'distribution-dispatcher-manager' => [
 
             'inventory.stocks.view',
             'inventory.warehouses.view',
             'dispatch',
         ],
-        'distribution-dispatcher-picker' => [
+        'distribution-dispatcher-picker'  => [
 
             'inventory.stocks.view',
             'inventory.warehouses.view',
             'dispatch.pick',
         ],
-        'distribution-dispatcher-packer' => [
+        'distribution-dispatcher-packer'  => [
 
             'inventory.stocks.view',
             'inventory.warehouses.view',
@@ -85,24 +81,21 @@ return
             'shops',
         ],
 
-        'customer-services-clerk' => [
+        'customer-services-clerk'   => [
             'shops.view',
-            'customers',
-            'osm'
+            'crm',
         ],
         'customer-services-manager' => [
             'shops.view',
-            'customers',
-            'osm'
+            'crm',
         ],
 
         'accountant-clerk' => [
-
+            'accounting',
         ],
 
         'accountant-manager' => [
-            'shops.view',
-            'websites'
+            'accounting',
         ],
 
         'webmaster-clerk' => [
@@ -116,11 +109,11 @@ return
         ],
 
         'production-manager' => [
-            'production.view',
+            'production',
         ],
 
         'production-worker' => [
-            'production.view',
+            'production',
         ],
 
         'procurement-manager' => [
@@ -131,28 +124,28 @@ return
             'procurement',
         ],
 
-        'business-intelligence-analyst'=> [
+        'business-intelligence-analyst' => [
 
         ],
 
-        'marketing-broadcaster-clerk'=> [
+        'marketing-broadcaster-clerk' => [
 
         ],
 
-        'marketing-broadcaster-manager'=> [
+        'marketing-broadcaster-manager' => [
 
         ],
 
-        'guest'      => [
+        'guest' => [
 
         ],
 
         'fulfilment-manager' => [
-
+            'fulfilment'
         ],
 
         'fulfilment-worker' => [
-
+            'fulfilment'
         ],
 
 
