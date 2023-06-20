@@ -9,7 +9,6 @@ namespace App\Actions\Auth\Guest\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\SysAdmin\GuestInertiaResource;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\InertiaTable\InertiaTable;
@@ -47,12 +46,14 @@ class IndexGuest extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure($prefix = null): Closure
     {
-        return function (InertiaTable $table) {
-            $table
-                ->name(TabsAbbreviationEnum::GUEST->value)
-                ->pageName(TabsAbbreviationEnum::GUEST->value.'Page');
+        return function (InertiaTable $table) use ($prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)

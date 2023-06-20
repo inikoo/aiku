@@ -9,7 +9,6 @@ namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Inventory\InventoryDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
 use Closure;
@@ -56,12 +55,14 @@ class IndexWarehouses extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::WAREHOUSE->value)
-                ->pageName(TabsAbbreviationEnum::WAREHOUSE->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -85,7 +86,7 @@ class IndexWarehouses extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        return $this->handle();
+        return $this->handle(prefix: 'warehouses');
     }
 
 
@@ -117,7 +118,7 @@ class IndexWarehouses extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($parent, prefix: 'warehouses'));
     }
 
     public function getBreadcrumbs($suffix=null): array
