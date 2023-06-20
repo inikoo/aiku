@@ -5,16 +5,17 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\PaymentServiceProvider;
+namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\Accounting\PaymentServiceProviderExport;
+use App\Exports\Procurement\AgentsExport;
+use App\Exports\Procurement\SuppliersExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class ExportPaymentServiceProvider
+class ExportSuppliers
 {
     use AsAction;
     use WithAttributes;
@@ -27,7 +28,7 @@ class ExportPaymentServiceProvider
     {
         $type = $objectData['type'];
 
-        return $this->export(new PaymentServiceProviderExport(), 'payment-service-providers', $type);
+        return $this->export(new SuppliersExport, 'suppliers', $type);
     }
 
     /**

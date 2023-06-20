@@ -53,7 +53,7 @@ class GetLayout
             ];
 
 
-        if ($user->can('shops.view')) {
+        if ($user->can('business_intelligence.view')) {
             $navigation['business_intelligence'] = [
                 'name'         => __('Business Intelligence'),
                 'icon'         => ['fal', 'fa-lightbulb'],
@@ -206,7 +206,7 @@ class GetLayout
             ];
         }
 
-        if ($user->can('customers.view')) {
+        if ($user->can('crm.view')) {
             $navigation['crm'] = [
                 'name'         => __('CRM'),
                 'icon'         => ['fal', 'fa-tasks-alt'],
@@ -254,8 +254,8 @@ class GetLayout
             ];
         }
 
-        if ($user->can('customers.view')) {
-            $navigation['customers'] = [
+        if ($user->can('marketing.view')) {
+            $navigation['marketing'] = [
                 'name'  => __('Marketing'),
                 'icon'  => ['fal', 'fa-bullhorn'],
                 'route' => 'customers.index'
@@ -263,7 +263,7 @@ class GetLayout
         }
 
 
-        if ($user->can('dispatch')) {
+        if ($user->can('dispatch.view')) {
             $navigation['dispatch'] = [
                 'name'  => __('Dispatch'),
                 'icon'  => ['fal', 'fa-conveyor-belt-alt'],

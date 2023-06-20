@@ -14,6 +14,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableHistories from "@/Pages/Tables/TableHistories.vue";
 import { capitalize } from "@/Composables/capitalize"
+import TableGuests from "@/Pages/Tables/TableGuests.vue";
 
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
@@ -25,6 +26,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
+    guests?: object
     history: object
 
 }>()
@@ -35,6 +37,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        guests: TableGuests,
         details: ModelDetails,
         history: TableHistories
     };

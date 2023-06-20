@@ -11,28 +11,8 @@ return [
     'tenant',
     'tenant.view',
 
-
-    'sysadmin',
-    'sysadmin.view',
-    'sysadmin.create',
-    'sysadmin.edit',
-    'sysadmin.delete',
-    'sysadmin.look-and-field',
-
-    'showroom',
-    'showroom.products',
-    'showroom.website',
-
-    'customers',
-    'customers.view',
-    'customers.edit',
-
-    'hr',
-    'hr.view',
-    'hr.edit',
-    'hr.payroll',
-    'hr.attendance',
-
+    'business_intelligence',
+    'business_intelligence.view',
 
     'shops',
     'shops.view',
@@ -40,28 +20,28 @@ return [
     'shops.products.view',
     'shops.products.edit',
 
-    'products',
-    'products.view',
-    'products.edit',
-
-
-    'shops.websites',
-    'shops.websites.view',
-    'shops.websites.edit',
-    'shops.orders',
-    'shops.orders.view',
-    'shops.orders.edit',
-
-
-    'accounting',
-    'accounting.view',
-    'accounting.edit',
-
     'websites',
     'websites.view',
     'websites.edit',
 
+    'crm',
+    'crm.view',
+    'crm.orders',
+    'crm.orders.view',
+    'crm.orders.edit',
+    'crm.customers',
+    'crm.customers.view',
+    'crm.customers.edit',
+
+    'marketing',
+    'marketing.view',
+
+    'dispatch',
+    'dispatch.pick',
+    'dispatch.pack',
+
     'inventory',
+    'inventory.view',
     'inventory.stocks',
     'inventory.stocks.edit',
     'inventory.stocks.view',
@@ -72,25 +52,35 @@ return [
     'inventory.warehouses.dispatch.pick',
     'inventory.warehouses.dispatch.pack',
 
-    'fulfilment',
-    'fulfilment.edit',
-    'fulfilment.view',
-
     'production',
     'production.edit',
     'production.view',
-
-    'dispatch',
-    'dispatch.pick',
-    'dispatch.pack',
 
     'procurement',
     'procurement.edit',
     'procurement.view',
 
-    'mail',
-    'mail.edit',
-    'mail.view',
+    'accounting',
+    'accounting.view',
+    'accounting.edit',
+
+    'hr',
+    'hr.view',
+    'hr.edit',
+    'hr.payroll',
+    'hr.attendance',
+
+
+    'sysadmin',
+    'sysadmin.view',
+    'sysadmin.create',
+    'sysadmin.edit',
+    'sysadmin.delete',
+    'sysadmin.look-and-field',
+
+    'fulfilment',
+    'fulfilment.edit',
+    'fulfilment.view',
 
 
 ];

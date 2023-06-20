@@ -14,6 +14,7 @@ use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
 use App\Models\Auth\User;
 use Carbon\Carbon;
 use Elastic\Elasticsearch\Client;
+use Elastic\Transport\Exception\NoNodeAvailableException;
 use Exception;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Facades\Config;
@@ -25,9 +26,9 @@ use OwenIt\Auditing\Models\Audit as AuditModel;
 class ElasticsearchAuditDriver implements AuditDriver
 {
     /**
-     * @var Client|null
+     * @var Client|null|NoNodeAvailableException
      */
-    protected Client|null $client = null;
+    protected Client|null|NoNodeAvailableException  $client = null;
 
     /**
      * @var string|null
