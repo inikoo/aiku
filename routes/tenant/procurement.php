@@ -14,6 +14,7 @@ use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
+use App\Actions\Procurement\Supplier\ExportSuppliers;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Actions\Procurement\Supplier\UI\ShowSupplier;
 use App\Actions\Procurement\SupplierDelivery\UI\CreateSupplierDelivery;
@@ -30,6 +31,9 @@ use App\Actions\UI\Procurement\ProcurementDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ProcurementDashboard::class)->name('dashboard');
+
+Route::get('/suppliers/export', ExportSuppliers::class)->name('suppliers.export');
+
 Route::get('/suppliers', IndexSuppliers::class)->name('suppliers.index');
 Route::get('/suppliers/{supplier}', ShowSupplier::class)->name('suppliers.show');
 
