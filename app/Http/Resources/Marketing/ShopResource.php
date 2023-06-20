@@ -7,13 +7,29 @@
 
 namespace App\Http\Resources\Marketing;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $code
+ * @property int $id
+ * @property string $slug
+ * @property string $name
+ * @property string $warehouse_area_slug
+ * @property mixed $type
+ * @property mixed $subtype
+ */
 class ShopResource extends JsonResource
 {
-    public function toArray($request): array|\JsonSerializable|Arrayable
+    public function toArray($request): array
     {
-        return parent::toArray($request);
+        return [
+            'id'      => $this->id,
+            'slug'    => $this->slug,
+            'code'    => $this->code,
+            'name'    => $this->name,
+            'type'    => $this->type,
+            'subtype' => $this->subtype,
+
+        ];
     }
 }

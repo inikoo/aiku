@@ -11,18 +11,19 @@ import {Product} from "@/types/product";
 
 const props = defineProps<{
     data: object
+    tab?:string,
 }>()
 
 
 function productRoute(product: Product) {
     switch (route().current()) {
-        case 'catalogue.shop.hub.products.index':
+        case 'shops.show.hub.products.index':
             return route(
-                'catalogue.shop.products.show',
+                'shops.show.products.show',
                 [route().params['shop'], product.slug]);
         default:
             return route(
-                'catalogue.products.show',
+                'shops.show.products.show',
                 [product.slug]);
     }
 }
@@ -32,7 +33,7 @@ function productRoute(product: Product) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'prod'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: product }">
             <Link :href="productRoute(product)">
                 {{ product['code'] }}

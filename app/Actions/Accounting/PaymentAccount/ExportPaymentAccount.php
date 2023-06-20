@@ -8,16 +8,11 @@
 namespace App\Actions\Accounting\PaymentAccount;
 
 use App\Actions\Traits\WithExportData;
-use App\Enums\Helpers\Export\ExportTypeEnum;
 use App\Exports\Accounting\PaymentAccountExport;
-use App\Exports\Accounting\PaymentServiceProviderExport;
-use App\Exports\HumanResources\WorkingPlacesExport;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use App\Exports\User\UsersExport;
 
 class ExportPaymentAccount
 {
@@ -32,7 +27,7 @@ class ExportPaymentAccount
     {
         $type = $objectData['type'];
 
-        return $this->export(new PaymentAccountExport, 'payment-accounts', $type);
+        return $this->export(new PaymentAccountExport(), 'payment-accounts', $type);
     }
 
     /**

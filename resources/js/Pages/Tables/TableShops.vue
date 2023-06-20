@@ -9,7 +9,8 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Shop} from "@/types/shop";
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?:string,
 }>()
 
 
@@ -25,7 +26,7 @@ function shopRoute(shop: Shop) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'shops'" class="mt-5">
+    <Table :resource="data" :name="tab"  class="mt-5">
         <template #cell(code)="{ item: shop }">
             <Link :href="shopRoute(shop)">
                 {{ shop['code'] }}

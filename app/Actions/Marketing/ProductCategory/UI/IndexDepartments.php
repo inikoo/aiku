@@ -8,6 +8,7 @@
 namespace App\Actions\Marketing\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Shop\UI\IndexShops;
 use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Http\Resources\Marketing\DepartmentResource;
 use App\Models\Marketing\ProductCategory;
@@ -61,10 +62,7 @@ class IndexDepartments extends InertiaAction
             })
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: $prefix ? $prefix.'Page' : 'page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
@@ -131,10 +129,10 @@ class IndexDepartments extends InertiaAction
                 'title'       => __('Departments'),
                 'pageHead'    => [
                     'title'  => __('departments'),
-                    'create' => $this->canEdit && $this->routeName == 'catalogue.shop.departments.index'
+                    'create' => $this->canEdit && $this->routeName == 'shops.show.departments.index'
                         ? [
                             'route' => [
-                                'name'       => 'catalogue.shop.departments.create',
+                                'name'       => 'shops.show.departments.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('departments')
@@ -163,9 +161,9 @@ class IndexDepartments extends InertiaAction
         };
 
         return match ($routeName) {
-            'catalogue.shop.departments.index' =>
+            'shops.departments.index' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('catalogue.shop.hub', $routeParameters),
+                IndexShops::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,
@@ -175,9 +173,9 @@ class IndexDepartments extends InertiaAction
                 )
             ),
 
-            'catalogue.departments.index' =>
+            'shops.show.departments.index' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('catalogue.hub', []),
+                CatalogueHub::make()->getBreadcrumbs('shops', []),
                 $headCrumb(
                     [
                         'name'       => $routeName,

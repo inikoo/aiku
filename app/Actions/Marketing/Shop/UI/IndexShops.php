@@ -8,8 +8,14 @@
 namespace App\Actions\Marketing\Shop\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Product\UI\IndexProducts;
+use App\Actions\Marketing\ProductCategory\UI\IndexDepartments;
+use App\Actions\Marketing\ProductCategory\UI\IndexFamilies;
 use App\Actions\UI\Dashboard\Dashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
+use App\Enums\UI\ShopsTabsEnum;
+use App\Http\Resources\Marketing\DepartmentResource;
+use App\Http\Resources\Marketing\FamilyResource;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Marketing\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Marketing\Shop;
@@ -52,14 +58,21 @@ class IndexShops extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($prefix): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::SHOPS->value)
-                ->pageName(TabsAbbreviationEnum::SHOPS->value.'Page');
+        return function (InertiaTable $table) use ($prefix) {
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+
             $table
                 ->withGlobalSearch()
+                ->withModelOperations()
+
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
@@ -81,7 +94,7 @@ class IndexShops extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(ShopsTabsEnum::values());
         return $this->handle();
     }
 
@@ -93,7 +106,8 @@ class IndexShops extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $shops, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
+        $scope=app('currentTenant');
 
         return Inertia::render(
             'Marketing/Shops',
@@ -107,20 +121,48 @@ class IndexShops extends InertiaAction
                             'name'       => 'shops.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('shop')
-                    ] : false,
-                    'editRow'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'shops.create-multiple',
-                            'parameters' => array_values($this->originalParameters)
+                        'label'    => __('shop'),
+                        'withMulti'=> [
+                            'route' => [
+                                'name'       => 'shops.create-multi',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
                         ]
                     ] : false,
+
                 ],
-                'data'       => ShopResource::collection($shops),
+
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => ShopsTabsEnum::navigation(),
+                ],
+
+
+                ShopsTabsEnum::SHOPS->value => $this->tab == ShopsTabsEnum::SHOPS->value ?
+                    fn () => ShopResource::collection($shops)
+                    : Inertia::lazy(fn () => ShopResource::collection($shops)),
+
+                ShopsTabsEnum::DEPARTMENTS->value => $this->tab == ShopsTabsEnum::DEPARTMENTS->value ?
+                    fn () => DepartmentResource::collection(IndexDepartments::run($scope, ShopsTabsEnum::DEPARTMENTS->value))
+                    : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($scope, ShopsTabsEnum::DEPARTMENTS->value))),
+
+                ShopsTabsEnum::FAMILIES->value => $this->tab == ShopsTabsEnum::FAMILIES->value ?
+                    fn () => FamilyResource::collection(IndexFamilies::run($scope))
+                    : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($scope))),
+
+                ShopsTabsEnum::PRODUCTS->value => $this->tab == ShopsTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(IndexProducts::run($scope))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($scope))),
+
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure(prefix: 'shops'))
+            ->table(IndexDepartments::make()->tableStructure(parent:$scope, prefix: 'departments'))
+            ->table(IndexFamilies::make()->tableStructure(parent:$scope, prefix: 'families'))
+            ->table(IndexDepartments::make()->tableStructure(parent:$scope, prefix: 'products'));
+
+
     }
 
     public function getBreadcrumbs($suffix=null): array
