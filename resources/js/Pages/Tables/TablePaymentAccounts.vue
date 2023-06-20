@@ -63,7 +63,7 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
             </Link>
         </template>
 
-        <template #cell(number_locations)="{ item: paymentAccount }">
+        <template #cell(number_payments)="{ item: paymentAccount }">
             <Link :href="paymentsRoute(paymentAccount)">
                 {{ paymentAccount['number_payments'] }}
             </Link>

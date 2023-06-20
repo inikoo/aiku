@@ -88,21 +88,25 @@ class ShowPaymentServiceProvider extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => PaymentServiceProviderTabsEnum::navigation()
                 ],
-                PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value ?
-                    fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($paymentServiceProvider))
-                    : Inertia::lazy(fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($paymentServiceProvider))),
+                PaymentServiceProviderTabsEnum::SHOWCASE->value => $this->tab == PaymentServiceProviderTabsEnum::SHOWCASE->value ?
+                    fn () => GetPaymentServiceProviderShowcase::run($paymentServiceProvider)
+                    : Inertia::lazy(fn () => GetPaymentServiceProviderShowcase::run($paymentServiceProvider)),
 
                 PaymentServiceProviderTabsEnum::PAYMENTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENTS->value ?
                     fn () => PaymentResource::collection(IndexPayments::run($paymentServiceProvider))
                     : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($paymentServiceProvider))),
+                PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value ?
+                    fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($paymentServiceProvider))
+                    : Inertia::lazy(fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($paymentServiceProvider))),
 
                 PaymentServiceProviderTabsEnum::HISTORY->value => $this->tab == PaymentServiceProviderTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($paymentServiceProvider))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($paymentServiceProvider)))
             ]
-        )->table(IndexPaymentAccounts::make()->tableStructure())
-            ->table(IndexPayments::make()->tableStructure())
-            ->table(IndexHistories::make()->tableStructure());
+        )
+        ->table(IndexPayments::make()->tableStructure())
+        ->table(IndexPaymentAccounts::make()->tableStructure())
+        ->table(IndexHistories::make()->tableStructure());
     }
     public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProviderResource
     {

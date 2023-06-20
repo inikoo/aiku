@@ -43,7 +43,13 @@ class IndexPaymentAccounts extends InertiaAction
 
         return QueryBuilder::for(PaymentAccount::class)
             ->defaultSort('payment_accounts.code')
-            ->select(['payment_accounts.code', 'payment_accounts.slug', 'payment_accounts.name', 'payment_service_providers.slug as payment_service_providers_slug', 'number_payments'])
+            ->select([
+                'payment_accounts.code as code',
+                'payment_accounts.name',
+                'payment_service_providers.slug as payment_service_providers_slug',
+                'number_payments',
+                'payment_accounts.slug as slug',
+            ])
             ->leftJoin('payment_account_stats', 'payment_accounts.id', 'payment_account_stats.payment_account_id')
             ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
             ->when(true, function ($query) use ($parent) {

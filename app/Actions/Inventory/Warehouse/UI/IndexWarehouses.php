@@ -47,7 +47,8 @@ class IndexWarehouses extends InertiaAction
                 'warehouses.name',
                 'warehouse_stats.number_warehouse_areas',
                 'warehouse_stats.number_locations',
-                'warehouses.slug as slug'])
+                'warehouses.slug as slug'
+            ])
             ->leftJoin('warehouse_stats', 'warehouse_stats.warehouse_id', 'warehouses.id')
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
             ->allowedFilters([$globalSearch])
