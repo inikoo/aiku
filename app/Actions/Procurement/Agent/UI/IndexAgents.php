@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Enums\UI\AgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\AgentTenant;
 use Closure;
@@ -81,7 +82,7 @@ class IndexAgents extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->routeName = $request->route()->getName();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(AgentTabsEnum::values());
 
         return $this->handle();
     }
