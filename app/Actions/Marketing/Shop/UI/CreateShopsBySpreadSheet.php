@@ -39,13 +39,14 @@ class CreateShopsBySpreadSheet extends InertiaAction
     public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'CreateShopsBySpreadSheet',
+            'CreateModelBySpreadSheet',
             [
                 'title'     => __('shops'),
                 'pageHead'  => [
                     'title' => __('Upload shops'),
                 ],
                 'sheetData' => [
+
                     'columns' => [
                         [
                             'id'       => 'code',
@@ -63,11 +64,10 @@ class CreateShopsBySpreadSheet extends InertiaAction
                         ],
                     ],
                 ],
-                'formData'  => [
-                    'route' => [
-                        'name' => 'models.shop.store-multi',
-                    ]
+                'saveRoute' => [
+                    'name' => 'models.shop.store-multi',
                 ]
+
             ]
         );
     }

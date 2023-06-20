@@ -1,10 +1,18 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Tue, 20 Jun 2023 10:16:56 Malaysia Time, Pantai Lembeng, Bali, Id
+  - Copyright (c) 2023, Raul A Perusquia Flores
+  -->
+
 <script setup lang="ts">
-import {  ref, computed, onMounted } from 'vue';
+import {  ref } from 'vue';
 import VGrid from '@revolist/vue3-datagrid';
 import { cloneDeep } from 'lodash';
-import Button from './Elements/Buttons/Button.vue';
+import Button from '../Elements/Buttons/Button.vue';
 
 const props = defineProps({
+    actionRoute: Object,
+    theme: String,
     data: {
         type: Object,
         required: true,
@@ -28,8 +36,7 @@ const props = defineProps({
                     prop: 'details',
                     name: 'Second',
                 },
-            ],
-            theme: 'compact',
+            ]
         }),
     },
 });
@@ -91,7 +98,7 @@ const setData = ref(addMultipleRows());
     <Button  @click="handleSave" >Save</Button>
     </div>
     <div>
-        <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" :theme="props.data.theme"
+        <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" :theme="theme"
             :source="setData" :columns="props.data.columns"></v-grid>
     </div>
 </template>
