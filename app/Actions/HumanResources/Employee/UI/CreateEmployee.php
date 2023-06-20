@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
-use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\InertiaAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\JobPosition;
@@ -105,7 +104,7 @@ class CreateEmployee extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexClockingMachines::make()->getBreadcrumbs(),
+            IndexEmployees::make()->getBreadcrumbs(),
             [
                 [
                     'type'          => 'creatingModel',

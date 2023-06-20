@@ -27,7 +27,7 @@ class ExportGuests
     {
         $type = $objectData['type'];
 
-        return $this->export(new GuestsExport, 'guests', $type);
+        return $this->export(new GuestsExport(), 'guests', $type);
     }
 
     /**

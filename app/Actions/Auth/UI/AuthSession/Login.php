@@ -10,7 +10,6 @@ namespace App\Actions\Auth\UI\AuthSession;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Session;
 use Lorisleiva\Actions\Concerns\AsController;
 
@@ -30,9 +29,11 @@ class Login
 
         /** @var \App\Models\Auth\User $user */
         $user   = auth()->user();
-        $locale = Arr::get($user->settings, 'language');
 
-        app()->setLocale($locale);
+        $language = $user->language;
+        if($language) {
+            app()->setLocale($language);
+        }
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }

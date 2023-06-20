@@ -54,9 +54,6 @@ function clockingRoute(clocking: Clocking) {
                 {{ clocking['slug'] }}
             </Link>
         </template>
-        <template #cell(type)="{ item: clocking }">
-            {{ clocking['type'] }}
-        </template>
     </Table>
 </template>
 

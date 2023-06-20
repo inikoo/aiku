@@ -31,8 +31,7 @@ class IndexClockingMachines extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('clocking_machines.slug', 'ILIKE', "%$value%")
-                    ->orWhere('clocking_machines.code', 'ILIKE', "%$value%");
+                $query->where('clocking_machines.code', 'ILIKE', "%$value%");
             });
         });
 
@@ -41,10 +40,10 @@ class IndexClockingMachines extends InertiaAction
         }
 
         return QueryBuilder::for(ClockingMachine::class)
-            ->defaultSort('clocking_machines.slug')
+            ->defaultSort('clocking_machines.code')
             ->select(
                 [
-                    'clocking_machines.code',
+                    'clocking_machines.code as code',
                     'clocking_machines.id',
                     'clocking_machines.slug',
                     'workplaces.slug as workplace_slug',
@@ -56,7 +55,7 @@ class IndexClockingMachines extends InertiaAction
                     $query->where('clocking_machines.workplace_id', $parent->id);
                 }
             })
-            ->allowedSorts(['slug', 'code'])
+            ->allowedSorts(['code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -70,14 +69,14 @@ class IndexClockingMachines extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::CLOCKING_MACHINES->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('slug');
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('code');
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.clocking-machines.edit');
+        $this->canEdit = $request->user()->can('hr.working-places.edit');
 
         return
             (

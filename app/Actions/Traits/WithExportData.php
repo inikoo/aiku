@@ -45,7 +45,7 @@ trait WithExportData
     {
         $filename = now()->format('Y-m-d') . '-' . $prefix . '-' . rand(111, 999) . '.xlsx';
 
-        return Excel::download($callback, $filename,\Maatwebsite\Excel\Excel::XLSX);
+        return Excel::download($callback, $filename, \Maatwebsite\Excel\Excel::XLSX);
     }
 
     /**
@@ -56,7 +56,7 @@ trait WithExportData
     {
         $filename = now()->format('Y-m-d') . '-' . $prefix . '-' . rand(111, 999) . '.csv';
 
-        return Excel::download($callback, $filename,\Maatwebsite\Excel\Excel::CSV);
+        return Excel::download($callback, $filename, \Maatwebsite\Excel\Excel::CSV);
     }
 
     /**
@@ -67,7 +67,7 @@ trait WithExportData
     {
         $filename = now()->format('Y-m-d') . '-' . $prefix . '-' . rand(111, 999) . '.pdf';
 
-        return Excel::download($callback, $filename,\Maatwebsite\Excel\Excel::DOMPDF);
+        return Excel::download($callback, $filename, \Maatwebsite\Excel\Excel::DOMPDF);
     }
 
     public function rules(): array

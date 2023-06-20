@@ -7,8 +7,10 @@
 
 namespace App\Actions\UI;
 
+use App\Actions\Assets\Language\UI\GetLanguagesOptions;
+use App\Http\Resources\Assets\LanguageResource;
+use App\Models\Assets\Language;
 use App\Models\Auth\User;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -18,12 +20,25 @@ class GetFirstLoadProps
 
     public function handle(?User $user): array
     {
+        if ($user) {
+            $language = $user->language;
+        } else {
+            $language = Language::where('code', App::currentLocale())->first();
+        }
+        if (!$language) {
+            $language = Language::where('code', 'en')->first();
+        }
+
+
         return [
-            'tenant'   => app('currentTenant') ? app('currentTenant')->only('name', 'code') : null,
-            'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
+            'tenant'     => app('currentTenant') ? app('currentTenant')->only('name', 'code') : null,
+            'localeData' =>
+                [
+                    'language'        => LanguageResource::make($language)->getArray(),
+                    'languageOptions' => GetLanguagesOptions::make()->translated(),
+                ],
 
-
-            'layoutCurrentShopSlug'   => function () use ($user) {
+            'layoutCurrentShopSlug' => function () use ($user) {
                 if ($user) {
                     return GetCurrentShopSlug::run($user);
                 } else {
@@ -32,7 +47,7 @@ class GetFirstLoadProps
             },
 
 
-            'layoutShopsList'   => function () use ($user) {
+            'layoutShopsList' => function () use ($user) {
                 if ($user) {
                     return GetShops::run($user);
                 } else {
@@ -40,7 +55,7 @@ class GetFirstLoadProps
                 }
             },
 
-            'layout'   => function () use ($user) {
+            'layout' => function () use ($user) {
                 if ($user) {
                     return GetLayout::run($user);
                 } else {
@@ -48,7 +63,5 @@ class GetFirstLoadProps
                 }
             }
         ];
-
-
     }
 }

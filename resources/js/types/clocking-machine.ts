@@ -6,6 +6,5 @@
 
 export interface ClockingMachine {
     slug: string
-    code: string,
     workplace_slug: string,
 }

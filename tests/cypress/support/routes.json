@@ -1609,8 +1609,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub.products.create": {
-    "name": "shops.show.catalogue.hub.products.create",
+  "shops.show.shops.products.create": {
+    "name": "shops.show.shops.products.create",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\CreateProduct",
     "uri": "shops/{shop}/catalogue/products/create",
@@ -1619,8 +1619,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub.departments.create": {
-    "name": "shops.show.catalogue.hub.departments.create",
+  "shops.show.shops.departments.create": {
+    "name": "shops.show.shops.departments.create",
     "domain": null,
     "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\CreateDepartment",
     "uri": "shops/{shop}/catalogue/departments/create",
@@ -1629,8 +1629,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub": {
-    "name": "shops.show.catalogue.hub",
+  "shops.show.shops": {
+    "name": "shops.show.shops",
     "domain": null,
     "action": "App\\Actions\\UI\\Catalogue\\CatalogueHub@inShopInDepartment",
     "uri": "shops/{shop}/catalogue",
@@ -1639,8 +1639,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub.products.index": {
-    "name": "shops.show.catalogue.hub.products.index",
+  "shops.show.shops.products.index": {
+    "name": "shops.show.shops.products.index",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\IndexProducts@inShop",
     "uri": "shops/{shop}/catalogue/products",
@@ -1649,8 +1649,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub.products.show": {
-    "name": "shops.show.catalogue.hub.products.show",
+  "shops.show.shops.products.show": {
+    "name": "shops.show.shops.products.show",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\ShowProduct@inShop",
     "uri": "shops/{shop}/catalogue/products/{product}",
@@ -1659,8 +1659,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub.products.edit": {
-    "name": "shops.show.catalogue.hub.products.edit",
+  "shops.show.shops.products.edit": {
+    "name": "shops.show.shops.products.edit",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\EditProduct@inShop",
     "uri": "shops/{shop}/catalogue/products/{product}/edit",
@@ -1669,8 +1669,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub.departments.index": {
-    "name": "shops.show.catalogue.hub.departments.index",
+  "shops.show.shops.departments.index": {
+    "name": "shops.show.shops.departments.index",
     "domain": null,
     "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\IndexDepartments@inShop",
     "uri": "shops/{shop}/catalogue/departments",
@@ -1679,8 +1679,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub.departments.show": {
-    "name": "shops.show.catalogue.hub.departments.show",
+  "shops.show.shops.departments.show": {
+    "name": "shops.show.shops.departments.show",
     "domain": null,
     "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\ShowDepartment@inShop",
     "uri": "shops/{shop}/catalogue/departments/{department}",
@@ -1689,8 +1689,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub.departments.edit": {
-    "name": "shops.show.catalogue.hub.departments.edit",
+  "shops.show.shops.departments.edit": {
+    "name": "shops.show.shops.departments.edit",
     "domain": null,
     "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\EditDepartment@inShop",
     "uri": "shops/{shop}/catalogue/departments/{department}/edit",
@@ -1699,8 +1699,8 @@
       "HEAD"
     ]
   },
-  "shops.show.catalogue.hub.departments.show.products.index": {
-    "name": "shops.show.catalogue.hub.departments.show.products.index",
+  "shops.show.shops.departments.show.products.index": {
+    "name": "shops.show.shops.departments.show.products.index",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\IndexProducts@inDepartmentInShop",
     "uri": "shops/{shop}/catalogue/departments/{department}/products",
@@ -3111,8 +3111,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub.products.create": {
-    "name": "catalogue.hub.products.create",
+  "shops.products.create": {
+    "name": "shops.products.create",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\CreateProduct",
     "uri": "catalogue/products/create",
@@ -3121,8 +3121,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub.departments.create": {
-    "name": "catalogue.hub.departments.create",
+  "shops.departments.create": {
+    "name": "shops.departments.create",
     "domain": null,
     "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\CreateDepartment",
     "uri": "catalogue/departments/create",
@@ -3131,8 +3131,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub": {
-    "name": "catalogue.hub",
+  "shops": {
+    "name": "shops",
     "domain": null,
     "action": "App\\Actions\\UI\\Catalogue\\CatalogueHub@inTenant",
     "uri": "catalogue",
@@ -3141,8 +3141,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub.products.index": {
-    "name": "catalogue.hub.products.index",
+  "shops.products.index": {
+    "name": "shops.products.index",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\IndexProducts@inTenant",
     "uri": "catalogue/products",
@@ -3151,8 +3151,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub.products.show": {
-    "name": "catalogue.hub.products.show",
+  "shops.products.show": {
+    "name": "shops.products.show",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\ShowProduct@inTenant",
     "uri": "catalogue/products/{product}",
@@ -3161,8 +3161,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub.products.edit": {
-    "name": "catalogue.hub.products.edit",
+  "shops.products.edit": {
+    "name": "shops.products.edit",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\EditProduct@inTenant",
     "uri": "catalogue/products/{product}/edit",
@@ -3171,8 +3171,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub.departments.index": {
-    "name": "catalogue.hub.departments.index",
+  "shops.departments.index": {
+    "name": "shops.departments.index",
     "domain": null,
     "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\IndexDepartments@inTenant",
     "uri": "catalogue/departments",
@@ -3181,8 +3181,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub.departments.show": {
-    "name": "catalogue.hub.departments.show",
+  "shops.departments.show": {
+    "name": "shops.departments.show",
     "domain": null,
     "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\ShowDepartment@inTenant",
     "uri": "catalogue/departments/{department}",
@@ -3191,8 +3191,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub.departments.edit": {
-    "name": "catalogue.hub.departments.edit",
+  "shops.departments.edit": {
+    "name": "shops.departments.edit",
     "domain": null,
     "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\EditDepartment@inTenant",
     "uri": "catalogue/departments/{department}/edit",
@@ -3201,8 +3201,8 @@
       "HEAD"
     ]
   },
-  "catalogue.hub.departments.show.products.index": {
-    "name": "catalogue.hub.departments.show.products.index",
+  "shops.departments.show.products.index": {
+    "name": "shops.departments.show.products.index",
     "domain": null,
     "action": "App\\Actions\\Marketing\\Product\\UI\\IndexProducts@inDepartment",
     "uri": "catalogue/departments/{department}/products",

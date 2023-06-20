@@ -57,11 +57,11 @@ class AccountingHub extends InertiaAction
 
 
         return match ($routeName) {
-            'catalogue.hub' => array_merge(
+            'shops' => array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb()
             ),
-            'catalogue.shop.hub' =>
+            'shops.show.hub' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
                 $headCrumb([$routeParameters['shop']->slug])

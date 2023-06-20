@@ -25,7 +25,6 @@ use App\Models\Auth\Guest;
 use App\Models\Auth\User;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
-use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;

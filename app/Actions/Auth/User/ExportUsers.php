@@ -8,8 +8,6 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\Traits\WithExportData;
-use App\Enums\Helpers\Export\ExportTypeEnum;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -29,7 +27,7 @@ class ExportUsers
     {
         $type = $objectData['type'];
 
-        return $this->export(new UsersExport, 'users', $type);
+        return $this->export(new UsersExport(), 'users', $type);
     }
 
     /**

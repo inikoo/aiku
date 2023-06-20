@@ -50,9 +50,14 @@ class CreateClocking extends InertiaAction
                                     'options'     => Options::forModels(Employee::class, 'contact_name', 'id'),
                                     'required'    => true
                                 ],
-                                'clocked_at' => [
+                                'date' => [
                                     'type'     => 'date',
-                                    'label'    => __('clocked at'),
+                                    'label'    => __('date'),
+                                    'required' => true
+                                ],
+                                'time' => [
+                                    'type'     => 'time',
+                                    'label'    => __('time'),
                                     'required' => true
                                 ],
                             ]
@@ -90,14 +95,6 @@ class CreateClocking extends InertiaAction
 
         return $this->handle($request);
     }
-
-    public function inClockingMachine(ClockingMachine $clockingMachine, ActionRequest $request): Response
-    {
-        $this->initialisation($request);
-
-        return $this->handle($request);
-    }
-
 
     public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
