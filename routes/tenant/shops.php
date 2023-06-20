@@ -6,23 +6,23 @@
  */
 
 
-use App\Actions\Marketing\Product\UI\CreateProduct;
-use App\Actions\Marketing\Product\UI\EditProduct;
-use App\Actions\Marketing\Product\UI\IndexProducts;
-use App\Actions\Marketing\Product\UI\ShowProduct;
-use App\Actions\Marketing\ProductCategory\UI\CreateDepartment;
-use App\Actions\Marketing\ProductCategory\UI\CreateFamily;
-use App\Actions\Marketing\ProductCategory\UI\EditDepartment;
-use App\Actions\Marketing\ProductCategory\UI\EditFamily;
-use App\Actions\Marketing\ProductCategory\UI\IndexDepartments;
-use App\Actions\Marketing\ProductCategory\UI\IndexFamilies;
-use App\Actions\Marketing\ProductCategory\UI\ShowDepartment;
-use App\Actions\Marketing\ProductCategory\UI\ShowFamily;
-use App\Actions\Marketing\Shop\UI\CreateShop;
-use App\Actions\Marketing\Shop\UI\EditShop;
-use App\Actions\Marketing\Shop\UI\IndexShops;
-use App\Actions\Marketing\Shop\UI\CreateShopsBySpreadSheet;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Product\UI\CreateProduct;
+use App\Actions\Market\Product\UI\EditProduct;
+use App\Actions\Market\Product\UI\IndexProducts;
+use App\Actions\Market\Product\UI\ShowProduct;
+use App\Actions\Market\ProductCategory\UI\CreateDepartment;
+use App\Actions\Market\ProductCategory\UI\CreateFamily;
+use App\Actions\Market\ProductCategory\UI\EditDepartment;
+use App\Actions\Market\ProductCategory\UI\EditFamily;
+use App\Actions\Market\ProductCategory\UI\IndexDepartments;
+use App\Actions\Market\ProductCategory\UI\IndexFamilies;
+use App\Actions\Market\ProductCategory\UI\ShowDepartment;
+use App\Actions\Market\ProductCategory\UI\ShowFamily;
+use App\Actions\Market\Shop\UI\CreateShop;
+use App\Actions\Market\Shop\UI\EditShop;
+use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\Market\Shop\UI\CreateShopsBySpreadSheet;
+use App\Actions\Market\Shop\UI\ShowShop;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexShops::class)->name('index');

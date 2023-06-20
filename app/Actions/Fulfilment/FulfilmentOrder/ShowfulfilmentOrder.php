@@ -11,7 +11,7 @@ use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\Sales\Order\UI\GetOrderShowcase;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\OrderTabsEnum;

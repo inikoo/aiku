@@ -11,7 +11,7 @@ use App\Actions\Dispatch\Shipment\UpdateShipment;
 use App\Actions\Dispatch\Shipper\StoreShipper;
 use App\Actions\Dispatch\Shipper\UpdateShipper;
 use App\Actions\Inventory\Stock\StoreStock;
-use App\Actions\Marketing\Shop\StoreShop;
+use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Sales\Customer\StoreCustomer;
 use App\Actions\Sales\Order\StoreOrder;
 use App\Actions\Sales\Transaction\StoreTransaction;

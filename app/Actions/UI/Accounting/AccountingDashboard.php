@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Accounting;
 
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Marketing\Shop;

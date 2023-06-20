@@ -9,8 +9,8 @@ namespace App\Actions\Sales\Customer;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomerInvoices;
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomers;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomerInvoices;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;

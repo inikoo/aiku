@@ -9,7 +9,7 @@ namespace App\Actions\Web\WebpageVariant;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
-use App\Actions\Marketing\Product\UI\IndexProducts;
+use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Enums\UI\WebpageTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;

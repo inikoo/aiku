@@ -7,7 +7,7 @@
 
 namespace App\Models\Sales;
 
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateCustomerInvoices;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Enums\Sales\Customer\CustomerStateEnum;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
 use App\Enums\Sales\Customer\CustomerTradeStateEnum;

@@ -7,7 +7,7 @@
 
 namespace App\Models\Marketing;
 
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateDepartments;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
 use App\Models\Sales\SalesStats;
 use App\Models\Search\UniversalSearch;

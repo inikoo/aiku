@@ -7,7 +7,7 @@
 
 namespace App\Actions\Sales\Order;
 
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateOrders;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
 use App\Actions\WithActionUpdate;
 use App\Enums\Sales\Order\OrderStateEnum;

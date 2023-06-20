@@ -9,7 +9,7 @@ namespace App\Models\Accounting;
 
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
-use App\Actions\Marketing\Shop\Hydrators\ShopHydratePayments;
+use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;

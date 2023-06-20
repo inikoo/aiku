@@ -9,7 +9,7 @@ namespace App\Actions\Inventory\Stock\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
-use App\Actions\Marketing\Product\UI\IndexProducts;
+use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Enums\UI\StockTabsEnum;

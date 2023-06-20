@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\CustomerResource;

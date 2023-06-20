@@ -7,7 +7,7 @@
 
 namespace App\Models\Accounting;
 
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateInvoices;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Assets\Currency;

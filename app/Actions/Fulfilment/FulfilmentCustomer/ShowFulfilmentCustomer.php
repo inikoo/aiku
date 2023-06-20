@@ -9,8 +9,8 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
-use App\Actions\Marketing\Product\UI\IndexProducts;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Product\UI\IndexProducts;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\Sales\Customer\UI\GetCustomerShowcase;
 use App\Actions\Sales\Order\UI\IndexOrders;
 use App\Actions\UI\Dashboard\Dashboard;
