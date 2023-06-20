@@ -5,7 +5,7 @@ import { useLocaleStore } from "@/Stores/locale";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const locale = useLocaleStore();
-
+console.log(locale.languageOptions)
 const tabLanguage = ref({
     'key': 'xx',
     'label': 'Change your language',
