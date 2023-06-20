@@ -10,6 +10,7 @@ import TableFilter from '@/Components/Table/TableFilter.vue';
 import TableSearchRows from '@/Components/Table/TableSearchRows.vue';
 import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import EmptyState from '@/Components/Common/EmptyState.vue'
 import { Link } from "@inertiajs/vue3"
 
 import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from 'vue';
@@ -551,13 +552,13 @@ const handleElementsChange = (data) => {
     // visit(location.pathname + '?elements[state]=' + data)
     //queryBuilderData.value.elements[0].checked=true
 
-};
+}
 </script>
 
 <template>
-    <!-- <pre>{{queryBuilderProps.elementGroups}}</pre> -->
     <Transition>
-        <fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
+        <EmptyState v-if="resourceMeta.total == 0" />
+        <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
             <!-- Wrapper -->
             
