@@ -9,6 +9,7 @@
 use App\Actions\Procurement\Agent\ExportAgents;
 use App\Actions\Procurement\Agent\UI\IndexAgents;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
+use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
@@ -45,6 +46,8 @@ Route::get('/agents/{agent}/supplier-purchase-orders/{supplierPurchaseOrder}', S
 
 Route::get('/supplier-products', IndexSupplierProducts::class)->name('supplier-products.index');
 Route::get('/supplier-products/{supplierProduct}', ShowSupplierProduct::class)->name('supplier-products.show');
+
+Route::get('/purchase-orders/export', ExportPurchaseOrders::class)->name('purchase-orders.export');
 
 Route::get('/purchase-orders', IndexPurchaseOrders::class)->name('purchase-orders.index');
 Route::get('/purchase-orders/create', CreatePurchaseOrder::class)->name('purchase-orders.create');
