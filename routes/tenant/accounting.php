@@ -8,6 +8,7 @@
 
 use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Invoice\ShowInvoice;
+use App\Actions\Accounting\Payment\ExportPayment;
 use App\Actions\Accounting\Payment\UI\CreatePayment;
 use App\Actions\Accounting\Payment\UI\EditPayment;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
@@ -60,6 +61,8 @@ Route::get('/accounts/{paymentAccount}/payments', [IndexPayments::class, $parent
 Route::get('/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, $parent == 'tenant' ? 'inPaymentAccount' : 'inPaymentAccountInShop'])->name('payment-accounts.show.payments.show');
 Route::get('/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, $parent == 'tenant' ? 'inPaymentAccount' : 'inPaymentAccountInShop'])->name('payment-accounts.show.payments.edit');
 
+
+Route::get('/payments/export', ExportPayment::class)->name('payments.index');
 
 Route::get('/payments', [IndexPayments::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('payments.index');
 Route::get('/payments/{payment}', [ShowPayment::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('payments.show');

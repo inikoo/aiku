@@ -15,7 +15,9 @@ use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentSubsequentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
+use App\Models\Assets\Currency;
 use App\Models\Marketing\Shop;
+use App\Models\Sales\Customer;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -56,6 +58,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $with_refund
  * @property int|null $source_id
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
+ * @property-read Customer $customer
+ * @property-read Currency $currency
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\PaymentFactory factory($count = null, $state = [])
@@ -136,5 +140,15 @@ class Payment extends Model
     public function paymentAccount(): BelongsTo
     {
         return $this->belongsTo(PaymentAccount::class);
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
     }
 }

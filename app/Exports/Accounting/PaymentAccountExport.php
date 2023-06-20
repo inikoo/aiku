@@ -34,7 +34,7 @@ class PaymentAccountExport implements FromQuery, WithMapping, ShouldAutoSize, Wi
         return [
             '#',
             'Slug',
-            'name',
+            'Name',
             'Type',
             'Last Used At'
         ];
