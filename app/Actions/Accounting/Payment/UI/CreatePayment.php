@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Currency;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;

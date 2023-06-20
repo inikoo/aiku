@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Marketing\ShopMailStats
+ * App\Models\Market\ShopMailStats
  *
  * @property int $id
  * @property int $shop_id
@@ -71,7 +71,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_provoked_unsubscribe
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Marketing\Shop $shop
+ * @property-read \App\Models\Market\Shop $shop
  * @method static Builder|ShopMailStats newModelQuery()
  * @method static Builder|ShopMailStats newQuery()
  * @method static Builder|ShopMailStats query()

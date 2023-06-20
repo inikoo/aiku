@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +13,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Marketing\Offer
+ * App\Models\Market\Offer
  *
  * @property int $id
  * @property int $shop_id

@@ -16,7 +16,7 @@ use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentSubsequentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
 use App\Models\Assets\Currency;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;

@@ -13,7 +13,7 @@ use App\Actions\UI\Mail\MailHub;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Marketing\HistoricProductStats
+ * App\Models\Market\HistoricProductStats
  *
  * @property int $id
  * @property int $historic_product_id

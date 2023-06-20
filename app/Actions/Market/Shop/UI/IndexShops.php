@@ -18,7 +18,7 @@ use App\Http\Resources\Market\FamilyResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Market\ShopResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

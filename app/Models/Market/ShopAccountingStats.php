@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Marketing\ShopAccountingStats
+ * App\Models\Market\ShopAccountingStats
  *
  * @property int $id
  * @property int $shop_id
@@ -53,7 +53,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_refunds_state_declined
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Marketing\Shop $shop
+ * @property-read \App\Models\Market\Shop $shop
  * @method static Builder|ShopAccountingStats newModelQuery()
  * @method static Builder|ShopAccountingStats newQuery()
  * @method static Builder|ShopAccountingStats query()

@@ -21,12 +21,12 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Market\Product\ProductTypeEnum;
-use App\Models\Marketing\Offer;
-use App\Models\Marketing\OfferCampaign;
-use App\Models\Marketing\OfferComponent;
-use App\Models\Marketing\Product;
-use App\Models\Marketing\ProductCategory;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Offer;
+use App\Models\Market\OfferCampaign;
+use App\Models\Market\OfferComponent;
+use App\Models\Market\Product;
+use App\Models\Market\ProductCategory;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 

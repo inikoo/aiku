@@ -9,8 +9,8 @@ namespace App\Actions\Market\ProductCategory\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Enums\Market\Product\ProductStateEnum;
-use App\Models\Marketing\Product;
-use App\Models\Marketing\ProductCategory;
+use App\Models\Market\Product;
+use App\Models\Market\ProductCategory;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;

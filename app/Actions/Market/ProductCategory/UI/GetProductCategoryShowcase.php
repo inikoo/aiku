@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\ProductCategory\UI;
 
-use App\Models\Marketing\ProductCategory;
+use App\Models\Market\ProductCategory;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetProductCategoryShowcase

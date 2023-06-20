@@ -12,7 +12,7 @@ use App\Actions\InertiaAction;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use Inertia\Inertia;
 use Inertia\Response;

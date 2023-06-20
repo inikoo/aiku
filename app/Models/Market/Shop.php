@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use App\Actions\Tenancy\Tenant\HydrateTenant;
 use App\Enums\Market\Shop\ShopStateEnum;
@@ -52,7 +52,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Marketing\Shop
+ * App\Models\Market\Shop
  *
  * @property int $id
  * @property string $slug
@@ -81,28 +81,28 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\Marketing\ShopAccountingStats|null $accountingStats
+ * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
  * @property-read Country $country
  * @property-read ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read Collection<int, Customer> $customers
- * @property-read Collection<int, \App\Models\Marketing\ProductCategory> $departments
+ * @property-read Collection<int, \App\Models\Market\ProductCategory> $departments
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
- * @property-read \App\Models\Marketing\ShopMailStats|null $mailStats
- * @property-read Collection<int, \App\Models\Marketing\OfferCampaign> $offerCampaigns
+ * @property-read \App\Models\Market\ShopMailStats|null $mailStats
+ * @property-read Collection<int, \App\Models\Market\OfferCampaign> $offerCampaigns
  * @property-read Collection<int, Order> $orders
  * @property-read Collection<int, Outbox> $outboxes
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
  * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read Collection<int, Payment> $payments
- * @property-read Collection<int, \App\Models\Marketing\Product> $products
+ * @property-read Collection<int, \App\Models\Market\Product> $products
  * @property-read Collection<int, Prospect> $prospects
  * @property-read Collection<int, SerialReference> $serialReferences
- * @property-read Collection<int, \App\Models\Marketing\ShippingZoneSchema> $shippingZoneSchemas
- * @property-read \App\Models\Marketing\ShopStats|null $stats
+ * @property-read Collection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
+ * @property-read \App\Models\Market\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Website|null $website

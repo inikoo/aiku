@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Web\InertiaTableWebUserResource;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Tenancy\Tenant;
 use App\Models\Web\Website;

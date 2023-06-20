@@ -8,7 +8,7 @@
 namespace App\Actions\Market\ProductCategory\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Models\Marketing\ProductCategory;
+use App\Models\Market\ProductCategory;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ProductCategoryHydrateUniversalSearch

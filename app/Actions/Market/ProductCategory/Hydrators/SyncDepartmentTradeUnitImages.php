@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\ProductCategory\Hydrators;
 
-use App\Models\Marketing\ProductCategory;
+use App\Models\Market\ProductCategory;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SyncDepartmentTradeUnitImages

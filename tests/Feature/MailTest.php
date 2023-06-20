@@ -15,7 +15,7 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Models\Mail\Mailshot;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 

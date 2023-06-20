@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Product\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Models\Marketing\Product;
+use App\Models\Market\Product;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 

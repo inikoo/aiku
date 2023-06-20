@@ -12,7 +12,7 @@ use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Http\Resources\UI\WebsitesNavigationResource;
 use App\Models\Auth\User;
 use App\Models\Inventory\Warehouse;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 

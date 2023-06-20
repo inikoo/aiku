@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Product\UI;
 
 use App\Actions\Market\Shop\UI\IndexShops;
-use App\Models\Marketing\Product;
+use App\Models\Market\Product;
 
 trait HasUIProduct
 {

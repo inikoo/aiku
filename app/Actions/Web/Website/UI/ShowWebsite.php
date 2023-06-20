@@ -17,7 +17,7 @@ use App\Enums\UI\WebsiteTabsEnum;
 use App\Http\Resources\Market\WebpageResource;
 use App\Http\Resources\Market\WebsiteResource;
 use App\Http\Resources\SysAdmin\HistoryResource;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;

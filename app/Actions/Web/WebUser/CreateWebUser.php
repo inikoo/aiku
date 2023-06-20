@@ -10,7 +10,7 @@ namespace App\Actions\Web\WebUser;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\Web\WebUser\WebUserTypeEnum;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Tenancy\Tenant;
 use App\Models\Web\Website;

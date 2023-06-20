@@ -22,7 +22,7 @@ use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Auth\Guest;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;

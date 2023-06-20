@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\Central\CentralDomain\StoreCentralDomain;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 

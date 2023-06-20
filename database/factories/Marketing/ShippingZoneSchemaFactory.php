@@ -5,7 +5,7 @@ namespace Database\Factories\Marketing;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Marketing\ShippingZoneSchema>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Market\ShippingZoneSchema>
  */
 class ShippingZoneSchemaFactory extends Factory
 {

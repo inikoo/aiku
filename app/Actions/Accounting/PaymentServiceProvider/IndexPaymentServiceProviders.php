@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

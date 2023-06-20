@@ -10,7 +10,7 @@ namespace App\Actions\Market\Shop;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePaymentAccounts;
 use App\Actions\WithActionUpdate;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 
 class AttachPaymentAccountToShop
 {

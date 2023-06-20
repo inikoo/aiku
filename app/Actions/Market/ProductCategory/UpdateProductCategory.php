@@ -10,7 +10,7 @@ namespace App\Actions\Market\ProductCategory;
 use App\Actions\Market\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Market\DepartmentResource;
-use App\Models\Marketing\ProductCategory;
+use App\Models\Market\ProductCategory;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateProductCategory

@@ -18,8 +18,8 @@ use App\Http\Resources\Market\DepartmentResource;
 
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
-use App\Models\Marketing\ProductCategory;
-use App\Models\Marketing\Shop;
+use App\Models\Market\ProductCategory;
+use App\Models\Market\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

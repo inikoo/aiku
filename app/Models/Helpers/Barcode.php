@@ -8,7 +8,7 @@
 namespace App\Models\Helpers;
 
 use App\Models\Inventory\Stock;
-use App\Models\Marketing\Product;
+use App\Models\Market\Product;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

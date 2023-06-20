@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
@@ -31,7 +31,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Marketing\Department
+ * App\Models\Market\Department
  *
  * @property int $id
  * @property string $slug
@@ -55,11 +55,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, ProductCategory> $departments
  * @property-read array $es_audits
  * @property-read Model|\Eloquent $parent
- * @property-read Collection<int, \App\Models\Marketing\Product> $products
+ * @property-read Collection<int, \App\Models\Market\Product> $products
  * @property-read SalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
- * @property-read \App\Models\Marketing\Shop|null $shop
- * @property-read \App\Models\Marketing\ProductCategoryStats|null $stats
+ * @property-read \App\Models\Market\Shop|null $shop
+ * @property-read \App\Models\Market\ProductCategoryStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Marketing\ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()

@@ -9,7 +9,7 @@ namespace App\Actions\Market\Shop\Hydrators;
 
 use App\Actions\WithTenantJob;
 use App\Enums\Sales\Customer\CustomerTradeStateEnum;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;

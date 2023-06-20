@@ -10,7 +10,7 @@ namespace App\Models\Helpers;
 use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;
 use Eloquent;

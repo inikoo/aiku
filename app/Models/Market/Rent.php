@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,18 +9,17 @@ use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Marketing\HistoricRent
+ * App\Models\Market\Rent
  *
  * @property int $id
- * @property int $rent_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static Builder|HistoricRent newModelQuery()
- * @method static Builder|HistoricRent newQuery()
- * @method static Builder|HistoricRent query()
+ * @method static Builder|Rent newModelQuery()
+ * @method static Builder|Rent newQuery()
+ * @method static Builder|Rent query()
  * @mixin Eloquent
  */
-class HistoricRent extends Model
+class Rent extends Model
 {
     use UsesTenantConnection;
 }

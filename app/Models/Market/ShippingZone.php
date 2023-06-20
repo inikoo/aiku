@@ -1,6 +1,11 @@
 <?php
+/*
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Tue, 18 Apr 2023 14:55:08 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,39 +18,46 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Marketing\OfferComponent
+ * App\Models\Market\ShippingZone
  *
  * @property int $id
- * @property int $offer_campaign_id
+ * @property int $shop_id
+ * @property int $shipping_zone_schema_id
+ * @property bool $status
  * @property string $slug
  * @property string $code
  * @property string $name
- * @property array $data
+ * @property array $territories
+ * @property array $price
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static \Database\Factories\Marketing\OfferComponentFactory factory($count = null, $state = [])
- * @method static Builder|OfferComponent newModelQuery()
- * @method static Builder|OfferComponent newQuery()
- * @method static Builder|OfferComponent onlyTrashed()
- * @method static Builder|OfferComponent query()
- * @method static Builder|OfferComponent withTrashed()
- * @method static Builder|OfferComponent withoutTrashed()
+ * @method static \Database\Factories\Marketing\ShippingZoneFactory factory($count = null, $state = [])
+ * @method static Builder|ShippingZone newModelQuery()
+ * @method static Builder|ShippingZone newQuery()
+ * @method static Builder|ShippingZone onlyTrashed()
+ * @method static Builder|ShippingZone query()
+ * @method static Builder|ShippingZone withTrashed()
+ * @method static Builder|ShippingZone withoutTrashed()
  * @mixin Eloquent
  */
-class OfferComponent extends Model
+class ShippingZone extends Model
 {
     use SoftDeletes;
     use UsesTenantConnection;
     use HasSlug;
     use HasFactory;
 
+
     protected $casts = [
-        'data' => 'array'
+        'territories' => 'array',
+        'price'       => 'array',
+        'status'      => 'boolean',
     ];
 
     protected $attributes = [
-        'data' => '{}'
+        'territories' => '{}',
+        'price'       => '{}',
     ];
 
     protected $guarded = [];

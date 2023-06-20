@@ -18,7 +18,7 @@ use App\Http\Resources\Market\DepartmentResource;
 use App\Http\Resources\Market\FamilyResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Market\ShopResource;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;

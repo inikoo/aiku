@@ -11,7 +11,7 @@ use App\Actions\Traits\WithElasticsearch;
 use App\Actions\WithTenantJob;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;

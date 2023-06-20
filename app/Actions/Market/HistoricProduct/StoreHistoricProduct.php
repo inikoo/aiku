@@ -8,8 +8,8 @@
 
 namespace App\Actions\Market\HistoricProduct;
 
-use App\Models\Marketing\HistoricProduct;
-use App\Models\Marketing\Product;
+use App\Models\Market\HistoricProduct;
+use App\Models\Market\Product;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 

@@ -9,7 +9,7 @@ namespace App\Actions\Market\Product;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\WithActionUpdate;
-use App\Models\Marketing\Product;
+use App\Models\Market\Product;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 

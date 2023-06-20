@@ -14,7 +14,7 @@ use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Lead\ProspectResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Leads\Prospect;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

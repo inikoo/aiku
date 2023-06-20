@@ -54,10 +54,10 @@ use App\Models\Leads\Prospect;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
-use App\Models\Marketing\HistoricProduct;
-use App\Models\Marketing\Product;
-use App\Models\Marketing\ProductCategory;
-use App\Models\Marketing\Shop;
+use App\Models\Market\HistoricProduct;
+use App\Models\Market\Product;
+use App\Models\Market\ProductCategory;
+use App\Models\Market\Shop;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\AgentTenant;
 use App\Models\Procurement\Supplier;
@@ -75,8 +75,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      != '' && $value != '0000-00-00 00:00:00'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 

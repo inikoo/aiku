@@ -18,7 +18,7 @@ use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use Inertia\Inertia;
 use Inertia\Response;

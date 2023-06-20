@@ -10,7 +10,7 @@ namespace App\Actions\Market\ProductCategory;
 use App\Actions\HydrateModel;
 use App\Actions\Market\ProductCategory\Hydrators\ProductCategoryHydrateProducts;
 use App\Actions\Market\ProductCategory\Hydrators\ProductCategoryHydrateSubdepartments;
-use App\Models\Marketing\ProductCategory;
+use App\Models\Market\ProductCategory;
 use Illuminate\Support\Collection;
 
 class HydrateProductCategory extends HydrateModel

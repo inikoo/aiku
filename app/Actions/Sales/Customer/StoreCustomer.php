@@ -16,7 +16,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Sales\Customer\CustomerStatusEnum;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;

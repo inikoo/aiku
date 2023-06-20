@@ -12,7 +12,7 @@ use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

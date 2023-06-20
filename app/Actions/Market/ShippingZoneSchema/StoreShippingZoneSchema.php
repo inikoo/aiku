@@ -7,8 +7,8 @@
 
 namespace App\Actions\Market\ShippingZoneSchema;
 
-use App\Models\Marketing\ShippingZoneSchema;
-use App\Models\Marketing\Shop;
+use App\Models\Market\ShippingZoneSchema;
+use App\Models\Market\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

@@ -18,7 +18,7 @@ use App\Actions\Market\Shop\Hydrators\ShopHydratePaymentAccounts;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateSales;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Illuminate\Support\Collection;
 
 class HydrateShop extends HydrateModel

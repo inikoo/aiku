@@ -11,7 +11,7 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\Leads\Prospect;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Sales\Customer;

@@ -9,8 +9,8 @@ namespace App\Actions\Market\ShippingZoneSchema;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Market\ShippingZoneSchemaResource;
-use App\Models\Marketing\ShippingZone;
-use App\Models\Marketing\ShippingZoneSchema;
+use App\Models\Market\ShippingZone;
+use App\Models\Market\ShippingZoneSchema;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateShippingZoneSchema

@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,13 +15,13 @@ use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Marketing\ProductStats
+ * App\Models\Market\ProductStats
  *
  * @property int $id
  * @property int $product_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Marketing\Product $product
+ * @property-read \App\Models\Market\Product $product
  * @method static Builder|ProductStats newModelQuery()
  * @method static Builder|ProductStats newQuery()
  * @method static Builder|ProductStats query()

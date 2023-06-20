@@ -9,8 +9,8 @@ namespace App\Actions\Market\Product\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Sales\Customer\UI\ShowCustomer;
-use App\Models\Marketing\Product;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Product;
+use App\Models\Market\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

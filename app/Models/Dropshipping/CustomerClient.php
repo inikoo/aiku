@@ -9,7 +9,7 @@ namespace App\Models\Dropshipping;
 
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;

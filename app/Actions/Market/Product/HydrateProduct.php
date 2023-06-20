@@ -9,7 +9,7 @@ namespace App\Actions\Market\Product;
 
 use App\Actions\HydrateModel;
 use App\Actions\Market\Product\Hydrators\ProductInitialiseImageID;
-use App\Models\Marketing\Product;
+use App\Models\Market\Product;
 use Illuminate\Support\Collection;
 
 class HydrateProduct extends HydrateModel

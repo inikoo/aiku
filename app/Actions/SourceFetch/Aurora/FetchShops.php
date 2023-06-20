@@ -14,7 +14,7 @@ use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\UpdateShop;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

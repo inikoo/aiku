@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTradeUnitCompositionEnum;
@@ -37,7 +37,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Marketing\Product
+ * App\Models\Market\Product
  *
  * @property int $id
  * @property string $slug
@@ -66,12 +66,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Barcode> $barcode
- * @property-read Collection<int, \App\Models\Marketing\HistoricProduct> $historicRecords
+ * @property-read Collection<int, \App\Models\Market\HistoricProduct> $historicRecords
  * @property-read MediaCollection<int, GroupMedia> $images
  * @property-read MediaCollection<int, GroupMedia> $media
  * @property-read SalesStats|null $salesStats
- * @property-read \App\Models\Marketing\Shop|null $shop
- * @property-read \App\Models\Marketing\ProductStats|null $stats
+ * @property-read \App\Models\Market\Shop|null $shop
+ * @property-read \App\Models\Market\ProductStats|null $stats
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Marketing\ProductFactory factory($count = null, $state = [])

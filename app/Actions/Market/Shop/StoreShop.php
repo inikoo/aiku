@@ -15,7 +15,7 @@ use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Mail\Mailroom;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;

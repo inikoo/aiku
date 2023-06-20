@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Marketing\ShopStats
+ * App\Models\Market\ShopStats
  *
  * @property int $id
  * @property int $shop_id
@@ -80,7 +80,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_payments
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Marketing\Shop $shop
+ * @property-read \App\Models\Market\Shop $shop
  * @method static Builder|ShopStats newModelQuery()
  * @method static Builder|ShopStats newQuery()
  * @method static Builder|ShopStats query()

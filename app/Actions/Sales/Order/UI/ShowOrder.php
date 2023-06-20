@@ -18,7 +18,7 @@ use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Http\Resources\Sales\OrderResource;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use Inertia\Inertia;

@@ -12,7 +12,7 @@ use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Search\UniversalSearch;

@@ -22,7 +22,7 @@ use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Transaction;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;

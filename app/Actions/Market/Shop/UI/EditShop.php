@@ -13,7 +13,7 @@ use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\InertiaAction;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;

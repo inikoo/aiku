@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use App\Models\DevOps\Deployment;
 use Eloquent;
@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Marketing\DepartmentStats
+ * App\Models\Market\DepartmentStats
  *
  * @property int $id
  * @property int $product_category_id

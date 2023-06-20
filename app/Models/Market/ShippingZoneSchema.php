@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Marketing;
+namespace App\Models\Market;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,7 +20,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Marketing\ShippingZoneSchema
+ * App\Models\Market\ShippingZoneSchema
  *
  * @property int $id
  * @property int $shop_id
@@ -30,7 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, \App\Models\Marketing\ShippingZone> $shippingZone
+ * @property-read Collection<int, \App\Models\Market\ShippingZone> $shippingZone
  * @method static \Database\Factories\Marketing\ShippingZoneSchemaFactory factory($count = null, $state = [])
  * @method static Builder|ShippingZoneSchema newModelQuery()
  * @method static Builder|ShippingZoneSchema newQuery()

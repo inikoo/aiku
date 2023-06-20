@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Product;
 
-use App\Models\Marketing\Product;
+use App\Models\Market\Product;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SyncProductTradeUnits

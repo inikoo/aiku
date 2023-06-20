@@ -7,8 +7,8 @@
 
 namespace App\Actions\Market\Offer;
 
-use App\Models\Marketing\Offer;
-use App\Models\Marketing\OfferCampaign;
+use App\Models\Market\Offer;
+use App\Models\Market\OfferCampaign;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
