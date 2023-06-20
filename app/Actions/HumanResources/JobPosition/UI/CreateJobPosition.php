@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\InertiaAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\JobPosition;
@@ -28,7 +27,7 @@ class CreateJobPosition extends InertiaAction
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('new employee'),
+                'title'       => __('new job position'),
                 'pageHead'    => [
                     'title'        => __('new employee'),
                     'cancelCreate' => [
@@ -42,9 +41,9 @@ class CreateJobPosition extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('personal information'),
+                            'title'  => __('creating job positions'),
                             'fields' => [
-                                'contact_name' => [
+                                'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
                                 ],
@@ -105,7 +104,7 @@ class CreateJobPosition extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexClockingMachines::make()->getBreadcrumbs(),
+            IndexJobPositions::make()->getBreadcrumbs(),
             [
                 [
                     'type'          => 'creatingModel',

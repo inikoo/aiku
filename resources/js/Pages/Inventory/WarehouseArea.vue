@@ -39,7 +39,6 @@ const props = defineProps<{
     locations?: object;
     history?: object;
 }>()
-
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 

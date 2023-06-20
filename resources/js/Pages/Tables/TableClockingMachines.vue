@@ -8,6 +8,7 @@
 const props = defineProps<{
     data: object
 }>()
+
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {ClockingMachine} from "@/types/clocking-machine";
@@ -26,18 +27,16 @@ function clockingMachineRoute(clockingMachine : ClockingMachine) {
         default:
             return route(
                 'hr.clocking-machines.show',
-                [
-                    clockingMachine.slug
-                ]);
+                [clockingMachine.slug]);
     }
 }
 </script>
 
 <template>
     <Table :resource="data" :name="'clkmc'" class="mt-5" >
-        <template #cell(slug)="{ item: clockingMachine }">
+        <template #cell(code)="{ item: clockingMachine }">
             <Link :href="clockingMachineRoute(clockingMachine)">
-                {{ clockingMachine['slug'] }}
+                {{ clockingMachine['code'] }}
             </Link>
         </template>
     </Table>

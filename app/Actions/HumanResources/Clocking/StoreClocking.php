@@ -35,6 +35,7 @@ class StoreClocking
         }
         $modelData['clocked_at'] = date('Y-m-d H:i:s');
         $modelData['type']       = ClockingTypeEnum::MANUAL;
+
         /** @var Clocking $clocking */
         $clocking = $parent->clockings()->create($modelData);
         ClockingHydrateUniversalSearch::dispatch($clocking);
@@ -79,7 +80,7 @@ class StoreClocking
                 $clocking->slug
             ]);
         } else {
-            return Redirect::route('hr.working-places.show.warehouse-areas.show.clockings.show', [
+            return Redirect::route('hr.working-places.show.clocking-machines.show.clockings.show', [
                 $clocking->workplace->slug,
                 $clocking->clockingMachine->slug,
                 $clocking->slug
