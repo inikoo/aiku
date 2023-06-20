@@ -144,7 +144,6 @@ const pageName = computed(() => {
 const forcedVisibleSearchInputs = ref([]);
 
 const tableFieldset = ref(null);
-console.log('queryBuilderProps',props)
 
 const hasOnlyData = computed(() => {
     if (queryBuilderProps.value.hasToggleableColumns) {

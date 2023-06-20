@@ -8,7 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faEmptySet, faPeopleArrows} from '@/../private/pro-light-svg-icons';
-import {faPencil,faArrowLeft } from '@/../private/pro-regular-svg-icons';
+import {faPencil,faArrowLeft, faBorderAll} from '@/../private/pro-regular-svg-icons';
 
 import {faPlus} from '@/../private/pro-solid-svg-icons';
 import Button from '@/Components/Elements/Buttons/Button.vue';
@@ -17,10 +17,9 @@ import {useLocaleStore} from '@/Stores/locale.js';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {trans} from 'laravel-vue-i18n';
 
-library.add(faEmptySet, faPeopleArrows, faPlus, faPencil,faArrowLeft);
+library.add(faEmptySet, faPeopleArrows, faPlus, faPencil,faArrowLeft, faBorderAll);
 const props = defineProps(['data']);
 const locale = useLocaleStore();
-console.log('heqad',props)
 
 </script>
 <template>
@@ -78,10 +77,10 @@ console.log('heqad',props)
                 </Link>
             </span>
 
-            <span v-if="data['create'] && data['create']['withMulti']">
+            <div v-if="data['create'] && data['create']['withMulti']" class="flex">
                 <Link :href="route(data['create']['withMulti']['route']['name'],data['create']['withMulti']['route']['parameters'])">
-            <Button type="secondary" class="capitalize rounded-r-none">
-                tes
+            <Button type="secondary"  class="capitalize rounded-r-none custom-button">
+                <FontAwesomeIcon icon="far fa-border-all" />
             </Button>
                  </Link>
                 <Link :href="route(data['create']['route']['name'], data['create']['route']['parameters'])">
@@ -89,7 +88,7 @@ console.log('heqad',props)
                 {{ data['create']['label'] }}
             </Button>
                 </Link>
-            </span>
+            </div>
 
             <span v-if="data['create'] && !data['create']['withMulti']" class="">
                 <Link :href="route(data['create']['route']['name'], data['create']['route']['parameters'])">
@@ -150,5 +149,11 @@ console.log('heqad',props)
         </div>
     </div>
 </template>
+
+<style>
+.custom-button{
+    font-size: 1.24rem;
+    }
+</style>
 
 
