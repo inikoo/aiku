@@ -9,7 +9,6 @@ namespace App\Actions\Inventory\Location;
 
 use App\Actions\Traits\WithExportData;
 use App\Exports\Inventory\LocationsExport;
-use App\Exports\Inventory\WarehousesExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -28,7 +27,7 @@ class ExportLocations
     {
         $type = $objectData['type'];
 
-        return $this->export(new LocationsExport, 'locations', $type);
+        return $this->export(new LocationsExport(), 'locations', $type);
     }
 
     /**

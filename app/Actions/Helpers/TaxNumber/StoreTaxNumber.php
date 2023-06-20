@@ -8,7 +8,7 @@
 namespace App\Actions\Helpers\TaxNumber;
 
 use App\Models\Helpers\TaxNumber;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 

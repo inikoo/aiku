@@ -7,7 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Enums\Marketing\Product\ProductTypeEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraService extends FetchAurora

@@ -11,7 +11,7 @@ use App\Actions\fromIris;
 use App\Http\Resources\Fulfilment\FulfilmentOrderResource;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Product;
+use App\Models\Market\Product;
 use App\Models\Web\WebUser;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;

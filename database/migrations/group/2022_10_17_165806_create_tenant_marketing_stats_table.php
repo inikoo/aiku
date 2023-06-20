@@ -5,9 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Marketing\Shop\ShopStateEnum;
-use App\Enums\Marketing\Shop\ShopSubtypeEnum;
-use App\Enums\Marketing\Shop\ShopTypeEnum;
+use App\Enums\Market\Shop\ShopStateEnum;
+use App\Enums\Market\Shop\ShopSubtypeEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Marketing\HistoricProduct\StoreHistoricProduct;
-use App\Actions\Marketing\HistoricProduct\UpdateHistoricProduct;
-use App\Models\Marketing\HistoricProduct;
+use App\Actions\Market\HistoricProduct\StoreHistoricProduct;
+use App\Actions\Market\HistoricProduct\UpdateHistoricProduct;
+use App\Models\Market\HistoricProduct;
 use App\Services\Tenant\SourceTenantService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;

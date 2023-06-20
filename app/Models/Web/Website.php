@@ -7,7 +7,7 @@
 
 namespace App\Models\Web;
 
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Traits\HasHistory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

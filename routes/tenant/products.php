@@ -6,10 +6,10 @@
  */
 
 
-use App\Actions\Marketing\Product\UI\CreateProduct;
-use App\Actions\Marketing\Product\UI\EditProduct;
-use App\Actions\Marketing\Product\UI\IndexProducts;
-use App\Actions\Marketing\Product\UI\ShowProduct;
+use App\Actions\Market\Product\UI\CreateProduct;
+use App\Actions\Market\Product\UI\EditProduct;
+use App\Actions\Market\Product\UI\IndexProducts;
+use App\Actions\Market\Product\UI\ShowProduct;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexProducts::class)->name('index');

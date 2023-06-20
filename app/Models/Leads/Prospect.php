@@ -11,7 +11,7 @@ use App\Actions\Helpers\ReadableRandomStringGenerator;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\Leads\Prospect\ProspectStateEnum;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;

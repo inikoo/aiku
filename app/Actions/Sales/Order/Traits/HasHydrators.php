@@ -7,7 +7,7 @@
 
 namespace App\Actions\Sales\Order\Traits;
 
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateOrders;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\Sales\Order\HydrateOrder;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
 use App\Models\Sales\Order;

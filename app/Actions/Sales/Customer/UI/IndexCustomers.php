@@ -8,12 +8,12 @@
 namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\CRM\CRMDashboard;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Tenancy\Tenant;
 use Closure;

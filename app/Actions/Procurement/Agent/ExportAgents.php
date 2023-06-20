@@ -27,7 +27,7 @@ class ExportAgents
     {
         $type = $objectData['type'];
 
-        return $this->export(new AgentsExport, 'agents', $type);
+        return $this->export(new AgentsExport(), 'agents', $type);
     }
 
     /**

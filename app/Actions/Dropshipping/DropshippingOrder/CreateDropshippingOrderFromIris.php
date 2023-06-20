@@ -12,7 +12,7 @@ use App\Actions\SourceFetch\Aurora\FetchOrders;
 use App\Actions\WithTenantSource;
 use App\Http\Resources\Sales\DropshippingOrderResource;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Product;
+use App\Models\Market\Product;
 use App\Models\Sales\Order;
 use App\Models\Web\WebUser;
 use Exception;

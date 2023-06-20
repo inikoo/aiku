@@ -11,7 +11,7 @@ use App\Enums\Sales\Transaction\TransactionStateEnum;
 use App\Enums\Sales\Transaction\TransactionStatusEnum;
 use App\Enums\Sales\Transaction\TransactionTypeEnum;
 use App\Models\Dispatch\DeliveryNoteItem;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

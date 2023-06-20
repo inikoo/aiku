@@ -8,7 +8,7 @@
 namespace App\Actions\Sales\Customer\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use Inertia\Inertia;
 use Inertia\Response;

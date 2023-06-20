@@ -5,8 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Enums\Marketing\Family\FamilyStateEnum;
-use App\Enums\Marketing\Product\ProductStateEnum;
+use App\Enums\Market\Family\FamilyStateEnum;
+use App\Enums\Market\Product\ProductStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

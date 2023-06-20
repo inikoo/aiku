@@ -10,7 +10,7 @@ namespace App\Actions\Mail\Outbox\UI;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Outbox;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

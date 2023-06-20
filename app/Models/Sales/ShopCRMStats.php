@@ -7,7 +7,7 @@
 
 namespace App\Models\Sales;
 
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

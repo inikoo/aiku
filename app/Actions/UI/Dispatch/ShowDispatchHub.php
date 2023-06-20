@@ -7,10 +7,10 @@
 
 namespace App\Actions\UI\Dispatch;
 
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Str;
 use Inertia\Inertia;

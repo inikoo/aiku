@@ -12,7 +12,7 @@ use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Http\Resources\UI\WebsitesNavigationResource;
 use App\Models\Auth\User;
 use App\Models\Inventory\Warehouse;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -53,7 +53,7 @@ class GetLayout
             ];
 
 
-        if ($user->can('business_intelligence.view')) {
+        if ($user->can('business-intelligence.view')) {
             $navigation['business_intelligence'] = [
                 'name'         => __('Business Intelligence'),
                 'icon'         => ['fal', 'fa-lightbulb'],
@@ -258,7 +258,7 @@ class GetLayout
             $navigation['marketing'] = [
                 'name'  => __('Marketing'),
                 'icon'  => ['fal', 'fa-bullhorn'],
-                'route' => 'customers.index'
+                'route' => 'marketing.hub'
             ];
         }
 

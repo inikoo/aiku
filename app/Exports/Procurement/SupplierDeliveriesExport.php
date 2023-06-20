@@ -7,7 +7,6 @@
 
 namespace App\Exports\Procurement;
 
-use App\Models\Procurement\Agent;
 use App\Models\Procurement\SupplierDelivery;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;

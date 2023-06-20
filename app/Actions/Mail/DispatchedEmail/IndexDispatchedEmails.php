@@ -16,7 +16,7 @@ use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

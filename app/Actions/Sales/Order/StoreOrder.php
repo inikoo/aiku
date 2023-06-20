@@ -10,12 +10,12 @@ namespace App\Actions\Sales\Order;
 
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateOrders;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\Sales\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use Illuminate\Http\RedirectResponse;

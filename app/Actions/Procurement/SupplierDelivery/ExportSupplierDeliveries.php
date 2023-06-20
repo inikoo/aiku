@@ -8,7 +8,6 @@
 namespace App\Actions\Procurement\SupplierDelivery;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\Procurement\AgentsExport;
 use App\Exports\Procurement\SupplierDeliveriesExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,7 +27,7 @@ class ExportSupplierDeliveries
     {
         $type = $objectData['type'];
 
-        return $this->export(new SupplierDeliveriesExport, 'supplier-deliveries', $type);
+        return $this->export(new SupplierDeliveriesExport(), 'supplier-deliveries', $type);
     }
 
     /**

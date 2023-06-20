@@ -10,7 +10,7 @@ namespace App\Actions\Leads\Prospect;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Leads\Prospect\Hydrators\ProspectHydrateUniversalSearch;
 use App\Models\Leads\Prospect;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

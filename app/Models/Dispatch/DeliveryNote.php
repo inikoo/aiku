@@ -11,7 +11,7 @@ use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Search\UniversalSearch;

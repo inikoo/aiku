@@ -14,7 +14,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasOrder;
 use App\Models\Traits\HasUniversalSearch;

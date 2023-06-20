@@ -7,8 +7,8 @@
 
 namespace Database\Factories\Marketing;
 
-use App\Enums\Marketing\Shop\ShopSubtypeEnum;
-use App\Enums\Marketing\Shop\ShopTypeEnum;
+use App\Enums\Market\Shop\ShopSubtypeEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ShopFactory extends Factory

@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\Invoice;
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateInvoices;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Models\Accounting\Invoice;
 use App\Models\Helpers\Address;

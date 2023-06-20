@@ -6,9 +6,9 @@
  */
 
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Marketing\ProductCategory\ProductCategoryStateEnum;
-use App\Enums\Marketing\Family\FamilyStateEnum;
-use App\Enums\Marketing\Product\ProductStateEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Market\Family\FamilyStateEnum;
+use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Sales\Customer\CustomerStateEnum;
 use App\Enums\Sales\Customer\CustomerTradeStateEnum;
 use App\Enums\Sales\Order\OrderStateEnum;

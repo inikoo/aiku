@@ -7,7 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Enums\Marketing\Shop\ShopTypeEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

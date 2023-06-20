@@ -8,10 +8,10 @@
 namespace App\Actions\UI\Accounting;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\CatalogueTabsEnum;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Lorisleiva\Actions\ActionRequest;
 
 class AccountingHub extends InertiaAction
