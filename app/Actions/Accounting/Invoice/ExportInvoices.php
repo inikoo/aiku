@@ -5,10 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\PaymentServiceProvider;
+namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Traits\WithExportData;
 use App\Enums\Helpers\Export\ExportTypeEnum;
+use App\Exports\Accounting\InvoiceExport;
+use App\Exports\Accounting\PaymentAccountExport;
+use App\Exports\Accounting\PaymentExport;
 use App\Exports\Accounting\PaymentServiceProviderExport;
 use App\Exports\HumanResources\WorkingPlacesExport;
 use Illuminate\Validation\Rule;
@@ -18,7 +21,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Exports\User\UsersExport;
 
-class ExportPaymentServiceProvider
+class ExportInvoices
 {
     use AsAction;
     use WithAttributes;
@@ -31,7 +34,7 @@ class ExportPaymentServiceProvider
     {
         $type = $objectData['type'];
 
-        return $this->export(new PaymentServiceProviderExport, 'payment-service-providers', $type);
+        return $this->export(new InvoiceExport, 'invoices', $type);
     }
 
     /**
