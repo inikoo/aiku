@@ -9,18 +9,49 @@ import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import TableShops from "@/Pages/Tables/TableShops.vue";
 import { capitalize } from "@/Composables/capitalize"
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import { computed, ref } from "vue";
+
+import TableDepartments from "@/Pages/Tables/TableDepartments.vue";
+import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
+import TableProducts from "@/Pages/Tables/TableProducts.vue";
+import { useTabChange } from "@/Composables/tab-change";
 
 const props = defineProps <{
     pageHead: object
+    tabs: {
+        current: string;
+        navigation: object;
+    },
     title: string
-    data:object
+    shops?: object
+    departments?: object
+    families?: object
+    products?: object
+
 }>()
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        shops: TableShops,
+        departments: TableDepartments,
+        families: TableFamilies,
+        products: TableProducts,
+    };
+    return components[currentTab.value];
+
+});
 
 </script>
 
 <template layout="App">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableShops :data="{...pageHead,...data}" />
+    <Tabs :current="currentTab" :navigation="tabs['navigation']"  @update:tab="handleTabUpdate"/>
+    <component :is="component" :tab="currentTab"  :data="props[currentTab]"></component>
 </template>
 

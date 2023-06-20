@@ -12,22 +12,23 @@ import {Family} from "@/types/family";
 
 const props = defineProps<{
     data: object
+    tab?:string,
 }>();
 
 
 function familyRoute(family: Family) {
     switch (route().current()) {
-        case 'catalogue.shop.families.index':
+        case 'shops.show.families.index':
             return route(
-                'catalogue.shop.families.show',
+                'shops.show.families.show',
                 [route().params['shop'], family.slug]);
-        case 'catalogue.shop.departments.show':
+        case 'shops.show.departments.show':
             return route(
-                'catalogue.shop.departments.show.families.show',
+                'shops.show.departments.show.families.show',
                 [route().params['shop'],route().params['department'], family.slug]);
         default:
             return route(
-                'catalogue.families.show',
+                'shops.families.show',
                 [family.slug]);
     }
 }
@@ -35,7 +36,7 @@ function familyRoute(family: Family) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'fam'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: family }">
             <Link :href="familyRoute(family)">
                 {{ family['code'] }}

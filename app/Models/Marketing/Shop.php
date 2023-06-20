@@ -17,7 +17,6 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
-use App\Models\Catalogue\ShopCRMStats;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
@@ -29,6 +28,7 @@ use App\Models\Sales\Customer;
 use App\Models\Sales\Order;
 use App\Models\Sales\PaymentAccountShop;
 use App\Models\Sales\PaymentServiceProviderShop;
+use App\Models\Sales\ShopCRMStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
@@ -84,7 +84,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Marketing\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
  * @property-read Country $country
- * @property-read ShopCRMStats|null $crmStats
+ * @property-read \App\Models\Sales\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read Collection<int, Customer> $customers
  * @property-read Collection<int, \App\Models\Marketing\ProductCategory> $departments

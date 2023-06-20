@@ -39,7 +39,7 @@ class CreateProduct extends InertiaAction
                         'route' => [
                             'name' => match ($this->routeName) {
                                 'shops.show.products.create'    => 'shops.show.products.index',
-                                'catalogue.hub.products.create' => 'catalogue.hub',
+                                'shops.products.create'         => 'shops',
                                 default                         => preg_replace('/create$/', 'index', $this->routeName)
                             },
                             'parameters' => array_values($this->originalParameters)
@@ -94,7 +94,7 @@ class CreateProduct extends InertiaAction
                             ]
                         ],
                     'route' => match ($this->routeName) {
-                        'catalogue.shop.products.create' => [
+                        'shops.show.products.create' => [
                             'name'      => 'models.shop.product.store',
                             'arguments' => [$shop->slug]
                         ],
