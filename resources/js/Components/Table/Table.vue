@@ -11,6 +11,7 @@ import TableSearchRows from '@/Components/Table/TableSearchRows.vue';
 import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import EmptyState from '@/Components/Common/EmptyState.vue'
+import TableDownload from '@/Components/Table/TableDownload.vue'
 import { Link } from "@inertiajs/vue3"
 
 import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from 'vue';
@@ -620,6 +621,17 @@ const handleElementsChange = (data) => {
                             :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue
                                 " :on-add="showSearchInput" />
                     </slot>
+
+                    <!-- Button: Download Table -->
+                    <slot name="tableDownload" :has-search-inputs="queryBuilderProps.hasSearchInputs"
+                        :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
+                        :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :on-add="showSearchInput">
+                        <TableDownload v-if="queryBuilderProps.hasSearchInputs" class="order-4"
+                            :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue
+                                " :on-add="showSearchInput" />
+                    </slot>
+
+                    <!-- Button: Switch toggle filter the column of table -->
                     <slot name="tableColumns" :has-columns="queryBuilderProps.hasToggleableColumns"
                         :columns="queryBuilderProps.columns" :has-hidden-columns="queryBuilderProps.hasHiddenColumns"
                         :on-change="changeColumnStatus">
