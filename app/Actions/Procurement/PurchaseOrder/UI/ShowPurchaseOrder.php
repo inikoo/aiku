@@ -22,6 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 /**
  * @property PurchaseOrder $purchaseOrder
+ * @property ActionRequest $request
  */
 class ShowPurchaseOrder extends InertiaAction
 {
@@ -35,6 +36,7 @@ class ShowPurchaseOrder extends InertiaAction
     public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): void
     {
         $this->initialisation($request)->withTab(PurchaseOrderTabsEnum::values());
+        $this->request       = $request;
         $this->purchaseOrder = $purchaseOrder;
 
     }
@@ -46,12 +48,12 @@ class ShowPurchaseOrder extends InertiaAction
         return Inertia::render(
             'Procurement/PurchaseOrder',
             [
-                'title'       => __('purchase order'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->purchaseOrder),
-//                'navigation'                            => [
-//                    'previous' => $this->getPrevious($this->purchaseOrder, $request),
-//                    'next'     => $this->getNext($this->purchaseOrder, $request),
-//                ],
+                'title'                                 => __('purchase order'),
+                'breadcrumbs'                           => $this->getBreadcrumbs($this->purchaseOrder),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($this->purchaseOrder, $this->request),
+                    'next'     => $this->getNext($this->purchaseOrder, $this->request),
+                ],
                 'pageHead'    => [
                     'icon'  =>
                         [

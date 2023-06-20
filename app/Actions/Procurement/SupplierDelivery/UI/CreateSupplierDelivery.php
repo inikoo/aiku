@@ -44,11 +44,16 @@ class CreateSupplierDelivery extends InertiaAction
                                     'label' => __('number'),
                                     'value' => ''
                                 ],
+                                'date' => [
+                                    'type'  => 'date',
+                                    'label' => __('date'),
+                                    'value' => ''
+                                ],
                             ]
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.supplier-delivery.update',
+                        'name'       => 'models.supplier-delivery.store',
                     ]
                 ],
 

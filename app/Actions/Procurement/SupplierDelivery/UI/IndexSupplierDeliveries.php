@@ -9,13 +9,13 @@ namespace App\Actions\Procurement\SupplierDelivery\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierDeliveryResource;
 use App\Models\Procurement\SupplierDelivery;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -23,7 +23,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSupplierDeliveries extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -31,26 +31,28 @@ class IndexSupplierDeliveries extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIER_DELIVERIES->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(SupplierDelivery::class)
             ->defaultSort('supplier_deliveries.number')
             ->select(['slug', 'number'])
             ->allowedSorts(['number'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::SUPPLIERS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations = null): Closure
+    public function tableStructure(array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::SUPPLIER_DELIVERIES->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIER_DELIVERIES->value.'Page')
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
@@ -84,17 +86,12 @@ class IndexSupplierDeliveries extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters == [] ? app('currentTenant') : last($request->route()->paramenters());
-
         return Inertia::render(
             'Procurement/SupplierDeliveries',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('supplier deliveries'),
                 'pageHead'    => [
                     'title'  => __('supplier deliveries'),

@@ -11,7 +11,8 @@ import {Agent} from "@/types/agent";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 
@@ -27,7 +28,7 @@ function agentRoute(agent: Agent) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'ag'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: agent }">
             <Link :href="agentRoute(agent)">
                 {{ agent['code'] }}

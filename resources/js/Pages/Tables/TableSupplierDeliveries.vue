@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import SupplierDeliveries from "@/Pages/Procurement/SupplierDeliveries.vue";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 
@@ -30,7 +31,7 @@ function supplierDeliveryRoute(supplierDelivery: SupplierDeliveries) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'spd'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(number)="{ item: supplierDelivery }">
             <Link :href="supplierDeliveryRoute(supplierDelivery)">
                 {{ supplierDelivery['number'] }}
