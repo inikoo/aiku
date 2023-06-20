@@ -7,7 +7,8 @@
 <script setup lang="ts">
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 import { Link } from "@inertiajs/vue3";
@@ -56,7 +57,7 @@ function locationsRoute(warehouseArea: WarehouseArea) {
 
 
 <template>
-    <Table :resource="data" :name="'wa'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: warehouseArea }">
             <Link :href="warehouseAreaRoute(warehouseArea)">
                 {{ warehouseArea["code"] }}

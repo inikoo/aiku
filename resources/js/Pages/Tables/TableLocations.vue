@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {Location} from "@/types/location";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?:string,
 }>()
 
 
@@ -49,7 +50,7 @@ function locationRoute(location: Location) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'loc'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: location }">
             <Link :href="locationRoute(location)">
                 {{ location['code'] }}
