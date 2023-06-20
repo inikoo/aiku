@@ -17,6 +17,7 @@ use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
 use App\Actions\Procurement\Supplier\ExportSuppliers;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Actions\Procurement\Supplier\UI\ShowSupplier;
+use App\Actions\Procurement\SupplierDelivery\ExportSupplierDeliveries;
 use App\Actions\Procurement\SupplierDelivery\UI\CreateSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UI\EditSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
@@ -62,6 +63,8 @@ Route::get('/supplier-purchase-orders', IndexSupplierPurchaseOrders::class)->nam
 Route::get('/supplier-purchase-orders/create', CreateSupplierPurchaseOrder::class)->name('supplier-purchase-orders.create');
 Route::get('/supplier-purchase-orders/{supplierPurchaseOrder}', ShowSupplierPurchaseOrder::class)->name('supplier-purchase-orders.show');
 Route::get('/supplier-purchase-orders/{supplierPurchaseOrder}/edit', EditSupplierPurchaseOrder::class)->name('supplier-purchase-orders.edit');
+
+Route::get('/supplier-deliveries/export', ExportSupplierDeliveries::class)->name('supplier-deliveries.index');
 
 Route::get('/supplier-deliveries', IndexSupplierDeliveries::class)->name('supplier-deliveries.index');
 Route::get('/supplier-deliveries/create', CreateSupplierDelivery::class)->name('supplier-deliveries.create');
