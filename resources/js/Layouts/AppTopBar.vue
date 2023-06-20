@@ -53,7 +53,7 @@
 					:class="[
 						layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : '',
 						menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug ? 'border-l-4 border-l-transparent border-r border-r-gray-200' : '',
-						route(currentRoute) == generateLink(menu) ? 'text-indigo-600' : 'text-gray-600'
+						route(currentRoute, route().params) == generateLink(menu) ? 'text-indigo-600' : 'text-gray-600'
 					]"
 				>
 					<FontAwesomeIcon
@@ -155,6 +155,8 @@ const generateLink = (menu) => {
 				? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data
 				: route(menu.route?.all)  // If data is above than 1 data then Link to 'All list'
 }
+
+console.log(route().params)
 </script>
 
 <style scoped></style>
