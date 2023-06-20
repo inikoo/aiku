@@ -29,7 +29,7 @@ import {
 	faChevronDown,
     faTasksAlt,
     faBullhorn,
-    faFolderTree
+    faLightbulb
 } from "@/../private/pro-light-svg-icons"
 import { useLayoutStore } from "@/Stores/layout"
 import { computed } from "vue";
@@ -55,7 +55,7 @@ library.add(
 	faChevronDown,
     faTasksAlt,
     faBullhorn,
-    faFolderTree
+    faLightbulb
 )
 
 const layout = useLayoutStore()

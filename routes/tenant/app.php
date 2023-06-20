@@ -22,6 +22,9 @@ Route::middleware([
         Route::prefix("account")
             ->name("account.")
             ->group(__DIR__."/account.php");
+        Route::prefix("bi")
+            ->name("business_intelligence.")
+            ->group(__DIR__."/business_intelligence.php");
         Route::prefix("crm")
             ->name("crm.")
             ->group(__DIR__."/crm.php");

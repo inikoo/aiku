@@ -5,16 +5,16 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\PaymentAccount;
+namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\Accounting\PaymentAccountExport;
+use App\Exports\Procurement\AgentsExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class ExportPaymentAccount
+class ExportAgents
 {
     use AsAction;
     use WithAttributes;
@@ -27,7 +27,7 @@ class ExportPaymentAccount
     {
         $type = $objectData['type'];
 
-        return $this->export(new PaymentAccountExport(), 'payment-accounts', $type);
+        return $this->export(new AgentsExport, 'agents', $type);
     }
 
     /**

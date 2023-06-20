@@ -10,6 +10,7 @@ namespace App\Models\Accounting;
 use App\Actions\Marketing\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Marketing\Shop;
 use App\Models\Sales\Customer;
@@ -59,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Order> $order
  * @property-read Collection<int, Order> $orders
  * @property-read Shop $shop
+ * @property-read Currency $currency
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])
@@ -112,6 +114,11 @@ class Invoice extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
     }
 
     public function shop(): BelongsTo

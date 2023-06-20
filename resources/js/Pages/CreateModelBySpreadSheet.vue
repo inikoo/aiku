@@ -1,3 +1,9 @@
+<!--
+  -  Author: Raul Perusquia <raul@inikoo.com>
+  -  Created: Fri, 20 june 2022 09:34:00 Central European Summer Time, Kuala Lumpur, Malaysia
+  -  Copyright (c) 2022, Raul A Perusquia Flores
+  -->
+
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
@@ -22,7 +28,6 @@ const props = defineProps<{
         arguments?:Array<string>
     }
 }>();
-console.log("test", props);
 </script>
 
 <template layout="App">
@@ -30,7 +35,7 @@ console.log("test", props);
     <PageHeading :data="pageHead"></PageHeading>
     <SpreadSheet
         :data="{ columns: props.sheetData.columns, value: [] }"
-        :theme="'compact'"
+        :theme="'material'"
         :actionRoute="saveRoute"
     ></SpreadSheet>
 </template>

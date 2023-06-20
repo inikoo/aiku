@@ -5,40 +5,21 @@
   -->
 
 <script setup lang="ts">
-import {  ref } from 'vue';
+import { ref, onBeforeMount  } from 'vue';
 import VGrid from '@revolist/vue3-datagrid';
 import { cloneDeep } from 'lodash';
 import Button from '../Elements/Buttons/Button.vue';
-
+import { faSave, faPlus } from '@/../private/pro-regular-svg-icons';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { router } from '@inertiajs/vue3'
+library.add(faSave,faPlus);
 const props = defineProps({
-    actionRoute: Object,
-    theme: String,
-    data: {
-        type: Object,
-        required: true,
-        default: () => ({
-            value: [
-                {
-                    name: '',
-                    details: '',
-                },
-                {
-                    name: '',
-                    details: '',
-                },
-            ],
-            columns: [
-                {
-                    prop: 'name',
-                    name: 'First',
-                },
-                {
-                    prop: 'details',
-                    name: 'Second',
-                },
-            ]
-        }),
-    },
+  actionRoute: Object,
+  theme: String,
+  data: {
+    type: Object,
+  },
 });
 
 const addMultipleRows = () => {
@@ -51,28 +32,28 @@ const addMultipleRows = () => {
     }
     result.push(data);
   }
-  return result;
+  setData.value =  [...setData.value,...result];
 };
 
 
 let vgrid = ref()
-  let gRowIndex = ref(0)
-  let gColName = ref('')
+let gRowIndex = ref(0)
+let gColName = ref('')
 
-  const onBeforeEditStart = (e: CustomEvent<{rowIndex: number, prop: string}>) => {
-    gRowIndex.value = e.detail.rowIndex
-    gColName.value = e.detail.prop
-  }
+const onBeforeEditStart = (e: CustomEvent<{ rowIndex: number, prop: string }>) => {
+  gRowIndex.value = e.detail.rowIndex
+  gColName.value = e.detail.prop 
+}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onFocusOut = async (e: any) => { // I don't know about this event, no docs
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    let viewData = await vgrid.value.$el.getVisibleSource()
-    viewData[gRowIndex.value][gColName.value] = e.target.value
-    const set = vgrid.value.source;
-  }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const onFocusOut = async (e: any) => { // I don't know about this event, no docs
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  let viewData = await vgrid.value.$el.getVisibleSource()
+  viewData[gRowIndex.value][gColName.value] = e.target.value
+  setData.value = vgrid.value.source;
+}
 
-  const handleSave = () => {
+const handleSave = () => {
   const editableRows = [];
   for (const row of setData.value) {
     let isRowEditable = false;
@@ -86,25 +67,63 @@ let vgrid = ref()
       editableRows.push(row);
     }
   }
-  console.log(editableRows)
+  router.post(props.actionRoute.name, editableRows);
 };;
 
-const setData = ref(addMultipleRows());
-
+onBeforeMount(() => {
+  addMultipleRows();
+});
+const setData = ref([]);
 </script>
 
 <template>
-    <div class="flex justify-end">
-    <Button  @click="handleSave" >Save</Button>
+   <div class="flex justify-end gap-x-3.5">
+    <div class="py-4 px-0 ">
+      <Button type="white" @click="addMultipleRows">
+        <span class="flex gap-3 items-center">
+          <FontAwesomeIcon icon="far fa-plus" />
+          <span>Add Row</span>
+        </span>
+      </Button>
     </div>
-    <div>
-        <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" :theme="theme"
-            :source="setData" :columns="props.data.columns"></v-grid>
+    <div class="py-4 px-0 ">
+      <Button type="white">
+        <span class="flex gap-2 items-center">
+          <span>Cancel</span>
+        </span>
+      </Button>
     </div>
+    <div class="py-4 pr-5 pl-0">
+      <Button @click="handleSave">
+        <span class="flex gap-3 items-center">
+          <FontAwesomeIcon icon="far fa-save" />
+          <span>Save</span>
+        </span>
+      </Button>
+    </div>
+  </div>
+
+  <div class="py-0.5">
+    <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" :theme="theme" :source="setData"
+      :columns="props.data.columns" class="custom-grid" />
+  </div>
 </template>
 
 <style>
 revo-grid {
-    height: 800px;
+  height: 650px;
+  box-shadow: 0 1px 0 0 #f1f1f1, 0 1px 0 0 #f1f1f1 inset;
+}
+
+.custom-grid .rgHeaderCell {
+  border-right: solid 1px #f1f1f1;
+}
+
+.custom-grid .rgCell {
+  border-right: solid 1px #f1f1f1;
+}
+
+.custom-grid revo-grid[theme="material"] revogr-data .rgRow {
+  box-shadow: 0 -1px 0 0 #f1f1f1 inset;
 }
 </style>
