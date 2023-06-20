@@ -7,7 +7,8 @@
 <script setup lang="ts">
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
@@ -15,7 +16,6 @@ import {PaymentAccount} from "@/types/payment-account";
 
 
 function paymentAccountRoute(paymentAccount: PaymentAccount) {
-    console.log(route().current())
     switch (route().current()) {
         case 'shops.show.accounting.payment-accounts.index':
             return route(
@@ -56,7 +56,7 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
 
 
 <template>
-    <Table :resource="data" :name="'pa'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: paymentAccount }">
             <Link :href="paymentAccountRoute(paymentAccount)">
                 {{ paymentAccount['code'] }}

@@ -10,7 +10,6 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -63,18 +62,19 @@ class IndexPaymentAccounts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure($prefix=null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::PAYMENT_ACCOUNTS->value)
-                ->pageName(TabsAbbreviationEnum::PAYMENT_ACCOUNTS->value.'Page')
                 ->withGlobalSearch()
-                ->defaultSort('code');
-
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->defaultSort('code')
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
