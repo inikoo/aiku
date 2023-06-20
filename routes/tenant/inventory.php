@@ -18,6 +18,7 @@ use App\Actions\Inventory\StockFamily\UI\CreateStockFamily;
 use App\Actions\Inventory\StockFamily\UI\EditStockFamily;
 use App\Actions\Inventory\StockFamily\UI\IndexStockFamilies;
 use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
+use App\Actions\Inventory\Warehouse\ExportWarehouses;
 use App\Actions\Inventory\Warehouse\UI\CreateWarehouse;
 use App\Actions\Inventory\Warehouse\UI\EditWarehouse;
 use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
@@ -30,6 +31,8 @@ use App\Actions\UI\Inventory\InventoryDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', InventoryDashboard::class)->name('dashboard');
+
+Route::get('/warehouses/export', ExportWarehouses::class)->name('warehouses.export');
 
 Route::get('/warehouses', IndexWarehouses::class)->name('warehouses.index');
 Route::get('/warehouses/create', CreateWarehouse::class)->name('warehouses.create');
