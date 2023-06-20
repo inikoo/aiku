@@ -7,7 +7,7 @@
 
 namespace App\Models\Accounting;
 
-use App\Models\Sales\Transaction;
+use App\Models\OMS\Transaction;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -40,7 +40,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int|null $source_id
  * @property int|null $source_alt_id
  * @property-read Model|\Eloquent $item
- * @property-read Transaction|null $transaction
+ * @property-read \App\Models\OMS\Transaction|null $transaction
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()
  * @method static Builder|InvoiceTransaction onlyTrashed()

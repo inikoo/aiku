@@ -5,13 +5,13 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Market\Family\FamilyStateEnum;
 use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Sales\Customer\CustomerStateEnum;
-use App\Enums\Sales\Customer\CustomerTradeStateEnum;
-use App\Enums\Sales\Order\OrderStateEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\OMS\Order\OrderStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

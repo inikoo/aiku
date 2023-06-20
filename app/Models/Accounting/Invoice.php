@@ -7,14 +7,14 @@
 
 namespace App\Models\Accounting;
 
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
-use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Assets\Currency;
+use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
-use App\Models\Sales\Customer;
-use App\Models\Sales\Order;
+use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;

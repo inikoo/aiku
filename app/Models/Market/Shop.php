@@ -14,9 +14,13 @@ use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Accounting\PaymentServiceProviderShop;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
+use App\Models\CRM\Customer;
+use App\Models\CRM\ShopCRMStats;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
@@ -24,11 +28,7 @@ use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Leads\Prospect;
 use App\Models\Mail\Outbox;
-use App\Models\Sales\Customer;
-use App\Models\Sales\Order;
-use App\Models\Sales\PaymentAccountShop;
-use App\Models\Sales\PaymentServiceProviderShop;
-use App\Models\Sales\ShopCRMStats;
+use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
@@ -84,16 +84,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
  * @property-read Country $country
- * @property-read ShopCRMStats|null $crmStats
+ * @property-read \App\Models\CRM\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read Collection<int, Customer> $customers
+ * @property-read Collection<int, \App\Models\CRM\Customer> $customers
  * @property-read Collection<int, \App\Models\Market\ProductCategory> $departments
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats
  * @property-read Collection<int, \App\Models\Market\OfferCampaign> $offerCampaigns
- * @property-read Collection<int, Order> $orders
+ * @property-read Collection<int, \App\Models\OMS\Order> $orders
  * @property-read Collection<int, Outbox> $outboxes
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
  * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders

@@ -30,7 +30,7 @@ class ShowDispatchHub
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("osm.view");
+        return $request->user()->hasPermissionTo("oms.view");
     }
 
     public function inTenant(): Tenant

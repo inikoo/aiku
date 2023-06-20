@@ -7,20 +7,20 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
+use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\Sales\Customer\UI\GetCustomerShowcase;
-use App\Actions\Sales\Order\UI\IndexOrders;
+use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
+use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use App\Models\Sales\Customer;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -35,7 +35,7 @@ class ShowFulfilmentCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('customers.edit');
+        $this->canEdit = $request->user()->can('crm.customers.edit');
 
         return $request->user()->hasPermissionTo("shops.customers.view");
     }
@@ -124,7 +124,7 @@ class ShowFulfilmentCustomer extends InertiaAction
 
 
         return Inertia::render(
-            'Sales/Customer',
+            'CRM/Customer',
             [
                 'title'       => __('customer'),
                 'breadcrumbs' => $this->getBreadcrumbs(

@@ -5,8 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-use App\Enums\Sales\Customer\CustomerStateEnum;
-use App\Enums\Sales\Customer\CustomerTradeStateEnum;
+use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Stubs\Migrations\HasContact;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

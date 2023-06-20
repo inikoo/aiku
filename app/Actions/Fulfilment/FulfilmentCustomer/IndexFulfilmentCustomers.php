@@ -13,8 +13,8 @@ use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use App\Models\Sales\Customer;
 use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -88,12 +88,12 @@ class IndexFulfilmentCustomers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('customers.edit');
+        $this->canEdit = $request->user()->can('crm.customers.edit');
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('customers.view')
+                $request->user()->hasPermissionTo('crm.customers.view')
             );
     }
 
@@ -124,7 +124,7 @@ class IndexFulfilmentCustomers extends InertiaAction
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
-            'Sales/Customers',
+            'CRM/Customers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

@@ -7,16 +7,15 @@
 
 namespace App\Actions\Market\ProductCategory\UI;
 
+use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Market\Product\UI\IndexProducts;
-use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\DepartmentResource;
-
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\SysAdmin\HistoryResource;
@@ -94,7 +93,7 @@ class ShowDepartment extends InertiaAction
                     : Inertia::lazy(fn () => GetProductCategoryShowcase::run($department)),
 
                 DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(IndexCustomers::run($department))
+                    fn () => CustomerResource::collection(\App\Actions\CRM\Customer\UI\IndexCustomers::run($department))
                     : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($department))),
 
                 DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?

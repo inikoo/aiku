@@ -7,10 +7,10 @@
 
 
 use App\Actions\Accounting\Invoice\IndexInvoices;
+use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Leads\Prospect\IndexProspects;
-use App\Actions\Sales\Customer\UI\IndexCustomers;
-use App\Actions\Sales\Order\UI\IndexOrders;
+use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\UI\CRM\CRMDashboard;
 
 Route::get('/', [CRMDashboard::class,'inTenant'])->name('dashboard');

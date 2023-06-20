@@ -87,7 +87,7 @@ class IndexProspects extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('customers.view')
+                $request->user()->hasPermissionTo('crm.customers.view')
             );
     }
 

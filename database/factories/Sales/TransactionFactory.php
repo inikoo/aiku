@@ -7,11 +7,11 @@
 
 namespace Database\Factories\Sales;
 
-use App\Enums\Sales\Transaction\TransactionTypeEnum;
+use App\Enums\OMS\Transaction\TransactionTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Sales\Transaction>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\OMS\Transaction>
  */
 class TransactionFactory extends Factory
 {

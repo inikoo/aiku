@@ -27,7 +27,7 @@ class ShowMailroom extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("mail.view");
+        return $request->user()->hasPermissionTo('marketing.view');
     }
 
     public function inTenant(Mailroom $mailroom): void

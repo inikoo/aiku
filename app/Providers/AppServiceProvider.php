@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
                 'GroupUser'       => 'App\Models\Auth\GroupUser',
                 'Employee'        => 'App\Models\HumanResources\Employee',
                 'Guest'           => 'App\Models\Auth\Guest',
-                'Customer'        => 'App\Models\Sales\Customer',
+                'Customer'        => 'App\Models\CRM\Customer',
                 'Prospect'        => 'App\Models\Deals\Prospect',
                 'Shop'            => 'App\Models\Market\Shop',
                 'Tenant'          => 'App\Models\Tenancy\Tenant',
@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
                 'Supplier'        => 'App\Models\Procurement\Supplier',
                 'WebUser'         => 'App\Models\Web\WebUser',
                 'CentralDomain'   => 'App\Models\Central\CentralDomain',
-                'Order'           => 'App\Models\Sales\Order',
+                'Order'           => 'App\Models\OMS\Order',
                 'Agent'           => 'App\Models\Procurement\Agent',
                 'Location'        => 'App\Models\Inventory\Location',
                 'TradeUnit'       => 'App\Models\Goods\TradeUnit'

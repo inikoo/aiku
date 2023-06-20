@@ -8,7 +8,6 @@
 namespace App\Actions\Market\Product\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
@@ -100,7 +99,7 @@ class EditProduct extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowCustomer::make()->getBreadcrumbs(
+        return \App\Actions\CRM\Customer\UI\ShowCustomer::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'

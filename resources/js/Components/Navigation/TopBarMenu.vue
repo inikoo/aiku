@@ -6,6 +6,54 @@ import { trans } from 'laravel-vue-i18n';
 import { useLayoutStore } from '@/Stores/layout.js';
 import { router } from '@inertiajs/vue3';
 
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+    faDollyFlatbedAlt,
+    faConveyorBeltAlt,
+    faUsers,
+    faUserHardHat,
+    faBars,
+    faUsersCog,
+    faTachometerAltFast,
+    faInventory,
+    faStoreAlt,
+    faUser,
+    faIndustry,
+    faParachuteBox,
+    faDollyEmpty,
+    faShoppingCart,
+    faAbacus,
+    faChevronDown,
+    faCube,
+    faGlobe,
+    faFileInvoiceDollar,
+    faTruck
+} from "@/../private/pro-light-svg-icons";
+library.add(
+    faDollyFlatbedAlt,
+    faConveyorBeltAlt,
+    faUsers,
+    faUserHardHat,
+    faBars,
+    faUsersCog,
+    faTachometerAltFast,
+    faInventory,
+    faStoreAlt,
+    faUser,
+    faIndustry,
+    faParachuteBox,
+    faDollyEmpty,
+    faShoppingCart,
+    faAbacus,
+    faChevronDown,
+    faCube,
+    faGlobe,
+    faFileInvoiceDollar,
+    faTruck
+
+);
+
+
 const layout = useLayoutStore();
 
 const props = defineProps<{

@@ -10,9 +10,9 @@ namespace App\Models\Leads;
 use App\Actions\Helpers\ReadableRandomStringGenerator;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\Leads\Prospect\ProspectStateEnum;
+use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
-use App\Models\Sales\Customer;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
@@ -51,7 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
- * @property-read Customer|null $customer
+ * @property-read \App\Models\CRM\Customer|null $customer
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Leads\ProspectFactory factory($count = null, $state = [])

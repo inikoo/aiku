@@ -15,6 +15,7 @@ return
             'shops',
             'websites',
             'crm',
+            'oms',
             'marketing',
             'dispatch',
             'inventory',
@@ -84,10 +85,12 @@ return
         'customer-services-clerk'   => [
             'shops.view',
             'crm',
+            'oms'
         ],
         'customer-services-manager' => [
             'shops.view',
             'crm',
+            'oms'
         ],
 
         'accountant-clerk' => [
@@ -126,6 +129,8 @@ return
 
         'business-intelligence-analyst' => [
             'business-intelligence',
+            'crm.view',
+            'oms.view'
 
         ],
 

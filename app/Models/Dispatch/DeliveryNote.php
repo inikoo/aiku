@@ -10,10 +10,10 @@ namespace App\Models\Dispatch;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteTypeEnum;
+use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
-use App\Models\Sales\Customer;
-use App\Models\Sales\Order;
+use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
@@ -69,7 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
- * @property-read Customer $customer
+ * @property-read \App\Models\CRM\Customer $customer
  * @property-read Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
  * @property-read Collection<int, Order> $orders
  * @property-read \App\Models\Dispatch\Shipment|null $shipments

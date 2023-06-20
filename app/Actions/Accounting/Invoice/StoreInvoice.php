@@ -8,14 +8,14 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
-use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Models\Accounting\Invoice;
+use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
-use App\Models\Sales\Customer;
-use App\Models\Sales\Order;
+use App\Models\OMS\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreInvoice

@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
-use App\Actions\Sales\Order\UI\ShowOrder;
+use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\UI\Accounting\AccountingDashboard;
 
 trait HasUIPayment
@@ -64,7 +64,7 @@ trait HasUIPayment
                 )
             ),
             'orders.show,payments.show' => array_merge(
-                (new ShowOrder())->getBreadcrumbs(
+                (new \App\Actions\OMS\Order\UI\ShowOrder())->getBreadcrumbs(
                     'orders.show',
                     [
                         'order' => $routeParameters['order']

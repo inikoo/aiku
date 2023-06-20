@@ -13,9 +13,9 @@ import { capitalize } from "@/Composables/capitalize"
 defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faPeopleArrows, faBoxUsd, faPersonDolly, faTruck, faClipboardList} from '@/../private/pro-light-svg-icons';
+import {faPeopleArrows, faBoxUsd, faPersonDolly, faTruckContainer, faClipboardList} from '@/../private/pro-light-svg-icons';
 
-library.add(faPeopleArrows, faBoxUsd, faPersonDolly, faTruck, faClipboardList);
+library.add(faPeopleArrows, faBoxUsd, faPersonDolly, faTruckContainer, faClipboardList);
 
 </script>
 

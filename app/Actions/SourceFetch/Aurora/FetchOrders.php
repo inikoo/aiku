@@ -9,11 +9,11 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
-use App\Actions\Sales\Order\StoreOrder;
-use App\Actions\Sales\Order\UpdateOrder;
-use App\Enums\Sales\Transaction\TransactionTypeEnum;
+use App\Actions\OMS\Order\StoreOrder;
+use App\Actions\OMS\Order\UpdateOrder;
+use App\Enums\OMS\Transaction\TransactionTypeEnum;
 use App\Models\Accounting\Payment;
-use App\Models\Sales\Order;
+use App\Models\OMS\Order;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

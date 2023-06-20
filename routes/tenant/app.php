@@ -58,9 +58,9 @@ Route::middleware([
         Route::prefix("search")
             ->name("search.")
             ->group(__DIR__."/search.php");
-        Route::prefix("osm")
-            ->name("osm.")
-            ->group(__DIR__."/osm.php");
+        Route::prefix("oms")
+            ->name("oms.")
+            ->group(__DIR__."/oms.php");
         Route::prefix("dispatch")
             ->name("dispatch.")
             ->group(__DIR__."/dispatch.php");

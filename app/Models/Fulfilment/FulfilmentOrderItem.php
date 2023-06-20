@@ -7,9 +7,9 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Models\CRM\Customer;
 use App\Models\Inventory\Stock;
 use App\Models\Market\Shop;
-use App\Models\Sales\Customer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -34,7 +34,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Fulfilment\FulfilmentOrder $FulfilmentOrder
- * @property-read Customer $customer
+ * @property-read \App\Models\CRM\Customer $customer
  * @property-read Shop $shop
  * @property-read Stock $stock
  * @method static Builder|FulfilmentOrderItem newModelQuery()

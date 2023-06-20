@@ -7,11 +7,11 @@
 
 namespace App\Actions\Dropshipping\CustomerClient;
 
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
-use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
+use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Sales\Customer;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

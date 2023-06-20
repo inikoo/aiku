@@ -7,15 +7,12 @@
 
 namespace App\Actions\Web\WebpageVariant;
 
+use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Market\Product\UI\IndexProducts;
-use App\Actions\Sales\Customer\UI\IndexCustomers;
 use App\Enums\UI\WebpageTabsEnum;
-use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\WebpageResource;
-use App\Http\Resources\Market\ProductResource;
-use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\Web\WebpageVariant;

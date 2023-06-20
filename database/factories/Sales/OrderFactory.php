@@ -10,7 +10,7 @@ namespace Database\Factories\Sales;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Sales\Order>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\OMS\Order>
  */
 class OrderFactory extends Factory
 {

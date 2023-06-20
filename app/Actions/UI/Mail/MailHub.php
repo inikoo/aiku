@@ -24,7 +24,7 @@ class MailHub extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("mail.view");
+        return $request->user()->hasPermissionTo('marketing.view');
     }
 
 
@@ -56,9 +56,9 @@ class MailHub extends InertiaAction
                     $routeName,
                     $routeParameters
                 ),
-                'title'       => __('mail'),
+                'title'       => __('marketing'),
                 'pageHead'    => [
-                    'title' => __('mail'),
+                    'title' => __('marketing'),
                 ],
 
 
@@ -69,7 +69,7 @@ class MailHub extends InertiaAction
                             [
                                 'name'  => __('mailroom'),
                                 'icon'  => ['fal', 'fa-mailbox'],
-                                'href'  => ['mail.mailrooms.index'],
+                                'href'  => ['marketing.mailrooms.index'],
                                 'index' => [
                                     'number' => $routeParameters['shop']
                                 ]
@@ -78,7 +78,7 @@ class MailHub extends InertiaAction
                             [
                                 'name'  => __('outboxes'),
                                 'icon'  => ['fal', 'fa-inbox-out'],
-                                'href'  => ['mail.outboxes.index'],
+                                'href'  => ['marketing.outboxes.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -87,7 +87,7 @@ class MailHub extends InertiaAction
                             [
                                 'name'  => __('mailshots'),
                                 'icon'  => ['fal', 'fa-mail-bulk'],
-                                'href'  => ['mail.mailshots.index'],
+                                'href'  => ['marketing.mailshots.index'],
                                 'index' => [
                                     'number' => $this->outbox
 
@@ -97,7 +97,7 @@ class MailHub extends InertiaAction
                             [
                                 'name'  => __('dispatched emails'),
                                 'icon'  => ['fal', 'fa-envelope'],
-                                'href'  => ['mail.dispatched-emails.index'],
+                                'href'  => ['marketing.dispatched-emails.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -112,7 +112,7 @@ class MailHub extends InertiaAction
                             [
                                 'name'  => __('mailroom'),
                                 'icon'  => ['fal', 'fa-mailbox'],
-                                'href'  => ['mail.mailrooms.index'],
+                                'href'  => ['marketing.mailrooms.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -121,7 +121,7 @@ class MailHub extends InertiaAction
                             [
                                 'name'  => __('outboxes'),
                                 'icon'  => ['fal', 'fa-inbox-out'],
-                                'href'  => ['mail.outboxes.index'],
+                                'href'  => ['marketing.outboxes.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -130,7 +130,7 @@ class MailHub extends InertiaAction
                             [
                                 'name'  => __('mailshots'),
                                 'icon'  => ['fal', 'fa-mail-bulk'],
-                                'href'  => ['mail.mailshots.index'],
+                                'href'  => ['marketing.mailshots.index'],
                                 'index' => [
                                     'number' => $this->outbox
 
@@ -140,7 +140,7 @@ class MailHub extends InertiaAction
                             [
                                 'name'  => __('dispatched emails'),
                                 'icon'  => ['fal', 'fa-envelope'],
-                                'href'  => ['mail.dispatched-emails.index'],
+                                'href'  => ['marketing.dispatched-emails.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -177,7 +177,7 @@ class MailHub extends InertiaAction
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'       => 'mail.hub',
+                        'name'       => 'marketing.hub',
                         'parameters' => []
                     ]
                 )
@@ -187,7 +187,7 @@ class MailHub extends InertiaAction
                 (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'shops.show.mail.hub',
+                        'name'       => 'marketing.shops.show.mail.hub',
                         'parameters' => $routeParameters['shop']->slug
                     ]
                 )

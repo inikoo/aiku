@@ -9,8 +9,6 @@ namespace App\Actions\Market\Product\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
-use App\Actions\Sales\Customer\UI\IndexCustomers;
-use App\Actions\Sales\Order\UI\IndexOrders;
 use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
@@ -88,12 +86,12 @@ class ShowProduct extends InertiaAction
                     : Inertia::lazy(fn () => GetProductShowcase::run($product)),
 
                 ProductTabsEnum::ORDERS->value => $this->tab == ProductTabsEnum::ORDERS->value ?
-                    fn () => OrderResource::collection(IndexOrders::run($product))
-                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product))),
+                    fn () => OrderResource::collection(\App\Actions\OMS\Order\UI\IndexOrders::run($product))
+                    : Inertia::lazy(fn () => OrderResource::collection(\App\Actions\OMS\Order\UI\IndexOrders::run($product))),
 
                 ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(IndexCustomers::run($product))
-                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($product))),
+                    fn () => CustomerResource::collection(\App\Actions\CRM\Customer\UI\IndexCustomers::run($product))
+                    : Inertia::lazy(fn () => CustomerResource::collection(\App\Actions\CRM\Customer\UI\IndexCustomers::run($product))),
 
                 ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($product))
@@ -106,8 +104,8 @@ class ShowProduct extends InertiaAction
                 */
 
             ]
-        )->table(IndexOrders::make()->tableStructure($product))
-            ->table(IndexCustomers::make()->tableStructure($product))
+        )->table(\App\Actions\OMS\Order\UI\IndexOrders::make()->tableStructure($product))
+            ->table(\App\Actions\CRM\Customer\UI\IndexCustomers::make()->tableStructure($product))
             ->table(IndexMailshots::make()->tableStructure($product));
     }
 

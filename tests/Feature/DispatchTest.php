@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Dispatch\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dispatch\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatch\DeliveryNote\UpdateDeliveryNote;
@@ -12,9 +13,8 @@ use App\Actions\Dispatch\Shipper\StoreShipper;
 use App\Actions\Dispatch\Shipper\UpdateShipper;
 use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Market\Shop\StoreShop;
-use App\Actions\Sales\Customer\StoreCustomer;
-use App\Actions\Sales\Order\StoreOrder;
-use App\Actions\Sales\Transaction\StoreTransaction;
+use App\Actions\OMS\Order\StoreOrder;
+use App\Actions\OMS\Transaction\StoreTransaction;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
@@ -23,7 +23,7 @@ use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
 use App\Models\Market\Shop;
-use App\Models\Sales\Transaction;
+use App\Models\OMS\Transaction;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Throwable;

@@ -5,8 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-use App\Enums\Sales\Transaction\TransactionStateEnum;
-use App\Enums\Sales\Transaction\TransactionStatusEnum;
+use App\Enums\OMS\Transaction\TransactionStateEnum;
+use App\Enums\OMS\Transaction\TransactionStatusEnum;
 use App\Stubs\Migrations\HasSalesTransactionParents;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

@@ -7,8 +7,8 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
-use App\Models\Sales\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;

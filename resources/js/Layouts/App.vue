@@ -30,33 +30,7 @@ import { Link } from "@inertiajs/vue3";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faHome,
-    faDollyFlatbedAlt,
     faConveyorBeltAlt,
-    faUsers,
-    faUserHardHat,
-    faBars,
-    faUsersCog,
-    faTachometerAltFast,
-    faInventory,
-    faStoreAlt,
-    faUser,
-    faIndustry,
-    faParachuteBox,
-    faDollyEmpty,
-    faShoppingCart,
-    faAbacus, faChevronDown, faCube, faGlobe,faLanguage
-} from "@/../private/pro-light-svg-icons";
-
-
-
-import AppLeftSideBar from "@/Layouts/AppLeftSideBar.vue";
-import AppTopBar from "@/Layouts/AppTopBar.vue";
-
-library.add(
-    faHome,
-    faDollyFlatbedAlt,
-    faConveyorBeltAlt,
-    faUsers,
     faUserHardHat,
     faBars,
     faUsersCog,
@@ -70,7 +44,29 @@ library.add(
     faShoppingCart,
     faAbacus,
     faChevronDown,
-    faCube,
+    faGlobe,
+    faLanguage
+} from "@/../private/pro-light-svg-icons";
+
+import AppLeftSideBar from "@/Layouts/AppLeftSideBar.vue";
+import AppTopBar from "@/Layouts/AppTopBar.vue";
+
+library.add(
+    faHome,
+    faConveyorBeltAlt,
+    faUserHardHat,
+    faBars,
+    faUsersCog,
+    faTachometerAltFast,
+    faInventory,
+    faStoreAlt,
+    faUser,
+    faIndustry,
+    faParachuteBox,
+    faDollyEmpty,
+    faShoppingCart,
+    faAbacus,
+    faChevronDown,
     faGlobe,
     faLanguage
 );

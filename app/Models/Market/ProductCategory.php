@@ -9,7 +9,7 @@ namespace App\Models\Market;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
-use App\Models\Sales\SalesStats;
+use App\Models\BI\SalesStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -56,8 +56,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read array $es_audits
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Market\Product> $products
- * @property-read SalesStats|null $salesStats
- * @property-read SalesStats|null $salesTenantCurrencyStats
+ * @property-read \App\Models\BI\SalesStats|null $salesStats
+ * @property-read \App\Models\BI\SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductCategoryStats|null $stats
  * @property-read UniversalSearch|null $universalSearch

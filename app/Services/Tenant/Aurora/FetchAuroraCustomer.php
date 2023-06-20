@@ -7,8 +7,8 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Enums\Sales\Customer\CustomerStateEnum;
-use App\Enums\Sales\Customer\CustomerStatusEnum;
+use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
