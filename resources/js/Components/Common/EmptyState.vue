@@ -7,7 +7,7 @@ library.add(faPlus, faCactus, faIslandTropical, faSkullCow)
 </script>
 
 <template>
-    <div class="text-center border-t border-gray-200 pt-8">
+    <div class="text-center border-gray-200 pt-14">
         <FontAwesomeIcon icon="far fa-cactus" class="mx-auto h-12 w-12 text-gray-500" aria-hidden="true" />
         <FontAwesomeIcon icon="far fa-island-tropical" class="mx-auto h-12 w-12 text-gray-500" aria-hidden="true" />
         <FontAwesomeIcon icon="far fa-skull-cow" class="mx-auto h-12 w-12 text-gray-500" aria-hidden="true" />

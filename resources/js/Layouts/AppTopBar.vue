@@ -149,14 +149,12 @@ const generateLink = (menu) => {
 		? route(menu.route?.selected, layout?.navigation?.[currentUrl]?.currentData.slug)  // Then the menu go to that slug
 		: currentRoute != layout?.navigation?.[currentUrl]?.route  // Check if active route is same as 'All List' slug
 			? route().params[Object.keys(route().params)[0]]  // Check if there is active parameter (for subpage)
-				? route(menu.route?.selected, route().params[Object.keys(route().params)[0]])  // If parameter exist go to that slug
+				? route(menu.route?.selected, route().params)  // If parameter exist go to that slug
 				: route(menu.route?.all)  // If parameter doesn't exist then Link is 'All list'
 			: layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1  // If list is only 1 data
 				? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data
 				: route(menu.route?.all)  // If data is above than 1 data then Link to 'All list'
 }
-
-console.log(route().params)
 </script>
 
 <style scoped></style>
