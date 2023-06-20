@@ -27,7 +27,7 @@ import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableHistories from "@/Pages/Tables/TableHistories.vue";
-import ShopShowcase from "@/Pages/Marketing/ShopShowcase.vue";
+import ShopShowcase from "@/Pages/Market/ShopShowcase.vue";
 
 library.add(faChartLine, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice, faStickyNote);
 

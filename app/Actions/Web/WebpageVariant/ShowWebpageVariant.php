@@ -66,7 +66,7 @@ class ShowWebpageVariant extends InertiaAction
 
 
         return Inertia::render(
-            'Marketing/WebpageVariant',
+            'Market/WebpageVariant',
             [
                 'title'       => __('webpage variant'),
                 'breadcrumbs' => $this->getBreadcrumbs($webpageVariant),

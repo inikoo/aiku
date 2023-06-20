@@ -58,7 +58,7 @@ class ShowFamily extends InertiaAction
         //        $this->validateAttributes();
 
         return Inertia::render(
-            'Marketing/Department',
+            'Market/Department',
             [
                 'title'                              => __('department'),
                 'breadcrumbs'                        => $this->getBreadcrumbs(
