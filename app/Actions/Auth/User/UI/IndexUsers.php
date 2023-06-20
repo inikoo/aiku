@@ -10,7 +10,6 @@ namespace App\Actions\Auth\User\UI;
 use App\Actions\Auth\UserRequest\IndexUserRequestLogs;
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Enums\Helpers\Export\ExportTypeEnum;
 use App\Enums\UI\UsersTabsEnum;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
@@ -162,14 +161,6 @@ class IndexUsers extends InertiaAction
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => UsersTabsEnum::navigation(),
-                ],
-
-                'exports' => [
-                    'route' => 'sysadmin.users.export',
-                    'options' => [
-                        ExportTypeEnum::XLSX->value,
-                        ExportTypeEnum::CSV->value
-                    ]
                 ],
 
                 UsersTabsEnum::USERS->value => $this->tab == UsersTabsEnum::USERS->value ?

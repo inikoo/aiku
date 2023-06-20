@@ -145,7 +145,7 @@ const locale = useLocaleStore();
                     </MenuItems>
                 </transition>
             </Menu> -->
-            
+
         </div>
     </div>
 </template>

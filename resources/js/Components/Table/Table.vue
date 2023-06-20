@@ -22,10 +22,8 @@ import findKey from 'lodash-es/findKey';
 import forEach from 'lodash-es/forEach';
 import isEqual from 'lodash-es/isEqual';
 import map from 'lodash-es/map';
-import pickBy from 'lodash-es/pickBy';
 
 import {useLocaleStore} from '@/Stores/locale.js';
-import {trans} from 'laravel-vue-i18n';
 const locale = useLocaleStore();
 
 const props = defineProps(
@@ -116,7 +114,13 @@ const props = defineProps(
             },
             required: false,
         },
-
+        prefix:{
+            type: String,
+            default: () => {
+                return '';
+            },
+            required: false,
+        }
     });
 
 const app = getCurrentInstance();
@@ -132,6 +136,7 @@ const queryBuilderProps = computed(() => {
 
     return data;
 });
+
 
 const queryBuilderData = ref(queryBuilderProps.value);
 queryBuilderData.value.elementFilter = {
@@ -411,7 +416,7 @@ function dataForNewQueryString() {
 
 function generateNewQueryString() {
     const queryStringData = qs.parse(location.search.substring(1));
-    
+
     const prefix = props.name === 'default' ? '' : props.name + '_';
 
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
@@ -454,8 +459,6 @@ const isVisiting = ref(false);
 const visitCancelToken = ref(null);
 
 function visit(url) {
-    // console.log("on visit")
-    // console.log(url)
     if (!url) {
         return;
     }
@@ -547,7 +550,6 @@ function header(key) {
 }
 
 const handleElementsChange = (data) => {
-    // console.log("====== TableElement Changed")
     queryBuilderData.value.elementFilter = data
     // visit(location.pathname + '?elements[state]=' + data)
     //queryBuilderData.value.elements[0].checked=true
@@ -561,7 +563,7 @@ const handleElementsChange = (data) => {
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
             <!-- Wrapper -->
-            
+
             <slot @changed="handleElementsChange">
                 <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>

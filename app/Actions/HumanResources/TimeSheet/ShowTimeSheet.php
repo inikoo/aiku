@@ -40,7 +40,7 @@ class ShowTimeSheet extends InertiaAction
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Employee',
+            'HumanResources/TimeSheet',
             [
                 'title'                                 => __('employee'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($employee),
@@ -49,7 +49,7 @@ class ShowTimeSheet extends InertiaAction
                     'next'     => $this->getNext($employee, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $employee->contact_name,
+                    'title' => $employee->slug,
                     'meta'  => [
                         [
                             'name'     => $employee->worker_number,

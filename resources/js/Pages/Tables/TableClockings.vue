@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {Clocking} from "@/types/clocking";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 function clockingRoute(clocking: Clocking) {
@@ -48,7 +49,7 @@ function clockingRoute(clocking: Clocking) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'clk'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(slug)="{ item: clocking }">
             <Link :href="clockingRoute(clocking)">
                 {{ clocking['slug'] }}

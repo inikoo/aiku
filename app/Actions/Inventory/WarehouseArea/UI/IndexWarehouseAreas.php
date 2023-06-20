@@ -109,13 +109,13 @@ class IndexWarehouseAreas extends InertiaAction
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $warehousesAreas): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $warehouseAreas): AnonymousResourceCollection
     {
-        return WarehouseAreaResource::collection($warehousesAreas);
+        return WarehouseAreaResource::collection($warehouseAreas);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $warehousesAreas, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $warehouseAreas, ActionRequest $request): Response
     {
         return Inertia::render(
             'Inventory/WarehouseAreas',
@@ -135,7 +135,7 @@ class IndexWarehouseAreas extends InertiaAction
                         'label' => __('warehouse area')
                     ] : false,
                 ],
-                'data'        => WarehouseAreaResource::collection($warehousesAreas)
+                'data'        => WarehouseAreaResource::collection($warehouseAreas)
 
 
             ]

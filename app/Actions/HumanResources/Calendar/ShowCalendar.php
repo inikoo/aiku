@@ -40,19 +40,19 @@ class ShowCalendar extends InertiaAction
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Employee',
+            'HumanResources/Calendar',
             [
-                'title'                                 => __('employee'),
+                'title'                                 => __('calendar'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($employee),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($employee, $request),
                     'next'     => $this->getNext($employee, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $employee->contact_name,
+                    'title' => $employee->worker_number,
                     'meta'  => [
                         [
-                            'name'     => $employee->worker_number,
+                            'name'     => $employee->contact_name,
                             'leftIcon' => [
                                 'icon'    => 'fal fa-id-card',
                                 'tooltip' => __('Worker number')

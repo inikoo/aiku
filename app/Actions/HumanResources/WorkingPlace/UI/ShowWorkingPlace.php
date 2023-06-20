@@ -11,6 +11,7 @@ use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
+use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\WorkingPlaceTabsEnum;
 use App\Http\Resources\HumanResources\ClockingResource;
@@ -24,6 +25,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowWorkingPlace extends InertiaAction
 {
+    use WithElasticsearch;
+
     public function handle(Workplace $workplace): Workplace
     {
         return $workplace;
@@ -37,6 +40,7 @@ class ShowWorkingPlace extends InertiaAction
 
     public function asController(Workplace $workplace, ActionRequest $request): Workplace
     {
+
         $this->initialisation($request)->withTab(WorkingPlaceTabsEnum::values());
         return $this->handle($workplace);
     }
@@ -120,7 +124,7 @@ class ShowWorkingPlace extends InertiaAction
             ]
         )->table(
             IndexClockings::make()->tableStructure(
-                [
+                /* modelOperations:[
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'hr.working-places.show.clockings.create',
@@ -128,11 +132,11 @@ class ShowWorkingPlace extends InertiaAction
                         ],
                         'label' => __('clocking')
                     ] : false,
-                ]
+                ], prefix: 'clockings' */
             ),
         )->table(
             IndexClockingMachines::make()->tableStructure(
-                [
+                /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'hr.working-places.show.clocking-machines.create',
@@ -140,7 +144,7 @@ class ShowWorkingPlace extends InertiaAction
                         ],
                         'label' => __('clocking machine')
                     ] : false,
-                ]
+                ], prefix: 'clocking_machines' */
             )
         )->table(IndexHistories::make()->tableStructure());
     }
