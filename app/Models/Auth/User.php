@@ -9,6 +9,7 @@ namespace App\Models\Auth;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Enums\Auth\User\UserAuthTypeEnum;
+use App\Models\Assets\Language;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
@@ -60,6 +61,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
  * @property-read \App\Models\Auth\GroupUser|null $groupUser
+ * @property-read Language $language
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
@@ -158,5 +160,10 @@ class User extends Authenticatable implements Auditable
         return new Attribute(
             get: fn () => Arr::get($this->data, 'avatar')
         );
+    }
+
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class);
     }
 }

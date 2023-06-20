@@ -7,9 +7,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\GetLayout;
+use App\Http\Resources\Assets\LanguageResource;
+use App\Models\Assets\Language;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
@@ -37,10 +39,24 @@ class HandleCentralInertiaRequests extends Middleware
         /** @var \App\Models\Auth\User $user */
         $user = $request->user();
 
+        if ($user) {
+            $language = $user->language;
+        } else {
+            $language = Language::where('code', App::currentLocale())->first();
+        }
+        if (!$language) {
+            $language = Language::where('code', 'en')->first();
+        }
 
         $firstLoadOnlyProps = (!$request->inertia() or Session::get('redirectFromLogin')) ? [
 
-            'language' => $user ? Arr::get($user->settings, 'language') : App::currentLocale(),
+            'localeData' =>
+                [
+                    'language'        => LanguageResource::make($language)->getArray(),
+                    'languageOptions' => GetLanguagesOptions::make()->translated(),
+                ],
+
+
             'layout'   => function () use ($user) {
                 if ($user) {
                     return GetLayout::run($user);
