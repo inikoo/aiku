@@ -2,6 +2,7 @@
 
 namespace App\Exports\Accounting;
 
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
@@ -10,32 +11,28 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class PaymentExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
+class InvoicesExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
 {
     public function query(): Relation|\Illuminate\Database\Eloquent\Builder|Payment|Builder
     {
-        return Payment::query();
+        return Invoice::query();
     }
 
-    /** @var Payment $row */
+    /** @var Invoice $row */
     public function map($row): array
     {
         return [
             $row->id,
             $row->slug,
-            $row->paymentAccount->name,
             $row->type,
-            $row->reference,
             $row->shop->name,
             $row->customer->name,
-            $row->currency->name,
-            $row->amount,
-            $row->tc_amount,
-            $row->gc_amount,
-            $row->with_refund,
-            $row->status,
-            $row->state,
-            $row->date,
+            $row->currency->code,
+            $row->exchange,
+            $row->net,
+            $row->total,
+            $row->payment,
+            $row->paid_at
         ];
     }
 
@@ -44,19 +41,15 @@ class PaymentExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadi
         return [
             '#',
             'Slug',
-            'Payment Account Name',
             'Type',
-            'Reference',
             'Shop Name',
             'Customer Name',
-            'Currency Name',
-            'Amount',
-            'TC Amount',
-            'GC Amount',
-            'With Refund',
-            'Status',
-            'State',
-            'Date'
+            'Currency',
+            'Exchange',
+            'Net',
+            'Total',
+            'Payment',
+            'Paid At'
         ];
     }
 }

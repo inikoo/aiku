@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class PaymentAccountExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
+class PaymentAccountsExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
 {
     public function query(): Relation|\Illuminate\Database\Eloquent\Builder|PaymentAccount|Builder
     {

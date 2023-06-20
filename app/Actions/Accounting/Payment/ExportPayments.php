@@ -9,10 +9,10 @@ namespace App\Actions\Accounting\Payment;
 
 use App\Actions\Traits\WithExportData;
 use App\Enums\Helpers\Export\ExportTypeEnum;
-use App\Exports\Accounting\InvoiceExport;
-use App\Exports\Accounting\PaymentAccountExport;
-use App\Exports\Accounting\PaymentExport;
-use App\Exports\Accounting\PaymentServiceProviderExport;
+use App\Exports\Accounting\InvoicesExport;
+use App\Exports\Accounting\PaymentAccountsExport;
+use App\Exports\Accounting\PaymentsExport;
+use App\Exports\Accounting\PaymentServiceProvidersExport;
 use App\Exports\HumanResources\WorkingPlacesExport;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -34,7 +34,7 @@ class ExportPayments
     {
         $type = $objectData['type'];
 
-        return $this->export(new InvoiceExport, 'invoices', $type);
+        return $this->export(new InvoicesExport, 'invoices', $type);
     }
 
     /**

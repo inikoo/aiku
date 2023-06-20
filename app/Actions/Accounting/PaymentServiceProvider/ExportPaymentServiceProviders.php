@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Actions\Traits\WithExportData;
 use App\Enums\Helpers\Export\ExportTypeEnum;
-use App\Exports\Accounting\PaymentServiceProviderExport;
+use App\Exports\Accounting\PaymentServiceProvidersExport;
 use App\Exports\HumanResources\WorkingPlacesExport;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -31,7 +31,7 @@ class ExportPaymentServiceProviders
     {
         $type = $objectData['type'];
 
-        return $this->export(new PaymentServiceProviderExport, 'payment-service-providers', $type);
+        return $this->export(new PaymentServiceProvidersExport, 'payment-service-providers', $type);
     }
 
     /**

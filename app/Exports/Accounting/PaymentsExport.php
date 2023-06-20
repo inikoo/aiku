@@ -2,7 +2,6 @@
 
 namespace App\Exports\Accounting;
 
-use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
@@ -11,28 +10,32 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class InvoiceExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
+class PaymentsExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
 {
     public function query(): Relation|\Illuminate\Database\Eloquent\Builder|Payment|Builder
     {
-        return Invoice::query();
+        return Payment::query();
     }
 
-    /** @var Invoice $row */
+    /** @var Payment $row */
     public function map($row): array
     {
         return [
             $row->id,
             $row->slug,
+            $row->paymentAccount->name,
             $row->type,
+            $row->reference,
             $row->shop->name,
             $row->customer->name,
-            $row->currency->name,
-            $row->exchange,
-            $row->net,
-            $row->total,
-            $row->payment,
-            $row->paid_at
+            $row->currency->code,
+            $row->amount,
+            $row->tc_amount,
+            $row->gc_amount,
+            $row->with_refund,
+            $row->status,
+            $row->state,
+            $row->date,
         ];
     }
 
@@ -41,15 +44,19 @@ class InvoiceExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadi
         return [
             '#',
             'Slug',
+            'Payment Account Name',
             'Type',
+            'Reference',
             'Shop Name',
             'Customer Name',
-            'Currency Name',
-            'Exchange',
-            'Net',
-            'Total',
-            'Payment',
-            'Paid At'
+            'Currency',
+            'Amount',
+            'TC Amount',
+            'GC Amount',
+            'With Refund',
+            'Status',
+            'State',
+            'Date'
         ];
     }
 }

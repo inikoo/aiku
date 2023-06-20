@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Procurement\Agent\ExportAgents;
 use App\Actions\Procurement\Agent\UI\IndexAgents;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
@@ -30,6 +31,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', ProcurementDashboard::class)->name('dashboard');
 Route::get('/suppliers', IndexSuppliers::class)->name('suppliers.index');
 Route::get('/suppliers/{supplier}', ShowSupplier::class)->name('suppliers.show');
+
+Route::get('/agents/export', ExportAgents::class)->name('agents.export');
 
 Route::get('/agents', IndexAgents::class)->name('agents.index');
 Route::get('/agents/{agent}', ShowAgent::class)->name('agents.show');
