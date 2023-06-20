@@ -32,8 +32,7 @@ class IndexClockings extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('clockings.slug', 'ILIKE', "%$value%")
-                    ->orWhere('clockings.type', 'ILIKE', "%$value%");
+                $query->where('clockings.slug', 'ILIKE', "%$value%");
             });
         });
 
@@ -64,7 +63,7 @@ class IndexClockings extends InertiaAction
                         break;
                 }
             })
-            ->allowedSorts(['slug','type'])
+            ->allowedSorts(['slug'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -83,7 +82,6 @@ class IndexClockings extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
     }

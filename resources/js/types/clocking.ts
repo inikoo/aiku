@@ -6,7 +6,6 @@
 
 export interface Clocking {
     slug: string
-    type: string,
     workplace_slug: string,
     clocking_machine_slug: string,
 }

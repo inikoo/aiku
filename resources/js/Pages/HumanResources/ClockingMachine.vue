@@ -52,7 +52,6 @@ const props = defineProps<{
     clockings?: object;
     history?: object;
 }>()
-
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 

@@ -8,7 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faEmptySet, faPeopleArrows} from '@/../private/pro-light-svg-icons';
-import {faPencil,faArrowLeft} from '@/../private/pro-regular-svg-icons';
+import {faPencil,faArrowLeft } from '@/../private/pro-regular-svg-icons';
 
 import {faPlus} from '@/../private/pro-solid-svg-icons';
 import Button from '@/Components/Elements/Buttons/Button.vue';
@@ -20,7 +20,7 @@ import {trans} from 'laravel-vue-i18n';
 library.add(faEmptySet, faPeopleArrows, faPlus, faPencil,faArrowLeft);
 const props = defineProps(['data']);
 const locale = useLocaleStore();
-console.log(props)
+console.log('heqad',props)
 
 </script>
 <template>
@@ -78,11 +78,24 @@ console.log(props)
                 </Link>
             </span>
 
-            <span v-if="data['create']" class="">
-                <Link :href="route(data['create']['route']['name'],data['create']['route']['parameters'])">
-                <Button type='secondary' action="create" class="capitalize">
-                 {{data['create']['label']}}
-                </Button>
+            <span v-if="data['create'] && data['create']['withMulti']">
+                <Link :href="route(data['create']['withMulti']['route']['name'],data['create']['withMulti']['route']['parameters'])">
+            <Button type="secondary" class="capitalize rounded-r-none">
+                tes
+            </Button>
+                 </Link>
+                <Link :href="route(data['create']['route']['name'], data['create']['route']['parameters'])">
+            <Button type='secondary' action="create" class="capitalize rounded-l-none">
+                {{ data['create']['label'] }}
+            </Button>
+                </Link>
+            </span>
+
+            <span v-if="data['create'] && !data['create']['withMulti']" class="">
+                <Link :href="route(data['create']['route']['name'], data['create']['route']['parameters'])">
+                   <Button type='secondary' action="create" class="capitalize">
+                      {{ data['create']['label'] }}
+                   </Button>
                 </Link>
             </span>
 
@@ -133,6 +146,7 @@ console.log(props)
                     </MenuItems>
                 </transition>
             </Menu> -->
+            
         </div>
     </div>
 </template>

@@ -115,19 +115,8 @@ class ShowClockingMachine extends InertiaAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($clockingMachine)))
 
             ]
-        )->table(
-            IndexClockings::make()->tableStructure(
-                [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'hr.clocking-machines.show.clockings.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('clocking')
-                    ] : false,
-                ]
-            ),
-        )->table(IndexHistories::make()->tableStructure());
+        )->table(IndexClockings::make()->tableStructure())
+            ->table(IndexHistories::make()->tableStructure());
     }
 
 
@@ -157,7 +146,6 @@ class ShowClockingMachine extends InertiaAction
                 ],
             ];
         };
-
         return match ($routeName) {
             'hr.clocking-machines.show' =>
             array_merge(
@@ -206,14 +194,14 @@ class ShowClockingMachine extends InertiaAction
 
     public function getPrevious(ClockingMachine $clockingMachine, ActionRequest $request): ?array
     {
-        $previous = ClockingMachine::where('slug', '<', $clockingMachine->slug)->orderBy('slug', 'desc')->first();
+        $previous = ClockingMachine::where('code', '<', $clockingMachine->code)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(ClockingMachine $clockingMachine, ActionRequest $request): ?array
     {
-        $next = ClockingMachine::where('slug', '>', $clockingMachine->slug)->orderBy('slug')->first();
+        $next = ClockingMachine::where('code', '>', $clockingMachine->code)->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
