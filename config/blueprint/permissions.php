@@ -11,8 +11,8 @@ return [
     'tenant',
     'tenant.view',
 
-    'business_intelligence',
-    'business_intelligence.view',
+    'business-intelligence',
+    'business-intelligence.view',
 
     'shops',
     'shops.view',

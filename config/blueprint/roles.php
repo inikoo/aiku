@@ -11,7 +11,7 @@ return
     [
         'super-admin' => [
             'tenant',
-            'business_intelligence',
+            'business-intelligence',
             'shops',
             'websites',
             'crm',
@@ -125,6 +125,7 @@ return
         ],
 
         'business-intelligence-analyst' => [
+            'business-intelligence',
 
         ],
 

@@ -53,7 +53,7 @@ class GetLayout
             ];
 
 
-        if ($user->can('business_intelligence.view')) {
+        if ($user->can('business-intelligence.view')) {
             $navigation['business_intelligence'] = [
                 'name'         => __('Business Intelligence'),
                 'icon'         => ['fal', 'fa-lightbulb'],
@@ -258,7 +258,7 @@ class GetLayout
             $navigation['marketing'] = [
                 'name'  => __('Marketing'),
                 'icon'  => ['fal', 'fa-bullhorn'],
-                'route' => 'customers.index'
+                'route' => 'marketing.hub'
             ];
         }
 
