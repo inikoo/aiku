@@ -36,40 +36,41 @@ class CreateShopsBySpreadSheet extends InertiaAction
     }
 
 
-
     public function htmlResponse(ActionRequest $request): Response
     {
-
         return Inertia::render(
-            'CreateShopsBySpreadSheet',
+            'CreateModelBySpreadSheet',
             [
-                'title'       => __('shops'),
-                'pageHead'    => [
-                    'title'   => __('Upload shops'),
-
+                'title'     => __('shops'),
+                'pageHead'  => [
+                    'title' => __('Upload shops'),
                 ],
-                'data'       => [
-                    'fields'=> [
+                'sheetData' => [
+
+                    'columns' => [
                         [
-                            'id'   => 'code',
-                            'label'=> __('code'),
-                            'type' => 'string'
-
-
+                            'id'       => 'code',
+                            'name'     => __('Code'),
+                            'type'     => 'string',
+                            'prop'     => 'code',
+                            'required' => true,
                         ],
                         [
-                            'id'   => 'name',
-                            'label'=> __('label'),
-                            'type' => 'string'
-
-                        ]
-
-                    ]
+                            'id'       => 'name',
+                            'name'     => __('Label'),
+                            'type'     => 'string',
+                            'prop'     => 'name',
+                            'required' => true,
+                        ],
+                    ],
+                ],
+                'saveRoute' => [
+                    'name' => 'models.shop.store-multi',
                 ]
-
 
             ]
         );
     }
+
 
 }

@@ -410,7 +410,7 @@ function dataForNewQueryString() {
 
 function generateNewQueryString() {
     const queryStringData = qs.parse(location.search.substring(1));
-
+    
     const prefix = props.name === 'default' ? '' : props.name + '_';
 
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
@@ -560,7 +560,7 @@ const handleElementsChange = (data) => {
         <fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
             <!-- Wrapper -->
-
+            
             <slot @changed="handleElementsChange">
                 <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>

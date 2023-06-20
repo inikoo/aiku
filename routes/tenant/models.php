@@ -52,8 +52,9 @@ use App\Actions\Sales\Order\UpdateOrder;
 use App\Actions\UI\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/shop/', StoreShop::class)->name('show.store');
-Route::post('/shops/', StoreShops::class)->name('store');
+Route::post('/shop/', StoreShop::class)->name('shop.store');
+Route::post('/shops/', StoreShops::class)->name('shop.store-multi');
+
 Route::patch('/shop/{shop}', UpdateShop::class)->name('show.update');
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
