@@ -53,6 +53,44 @@ class GetLayout
             ];
 
 
+        if ($user->can('shops.view')) {
+            $navigation['business_intelligence'] = [
+                'name'         => __('Business Intelligence'),
+                'icon'         => ['fal', 'fa-lightbulb'],
+                'route'        => 'business_intelligence.dashboard',
+                'routeOption'  => 'business_intelligence.shop.dashboard',
+                'labelShowAll' => __('All shops'),
+                'currentData'  => [
+                    'slug' => null,
+                    'name' => __('All shops'),
+                    'code' => __('All')
+                ],
+                'topMenu'      => [
+
+                    'dropdown' => [
+                        'type'        => 'shops',
+                        'options'     => $shops,
+                        'subsections' => [
+                            [
+                                'label'   => __('dashboard'),
+                                'tooltip' => __('Dashboard'),
+
+
+                                'icon'  => ['fal', 'fa-tasks-alt'],
+                                'route' =>
+                                    [
+                                        'all'      => ['business_intelligence.dashboard'],
+                                        'selected' => ['business_intelligence.shop.dashboard'],
+
+                                    ]
+                            ],
+
+
+                        ]
+                    ]
+                ],
+            ];
+        }
 
         if ($user->can('shops.view')) {
             $navigation['shops'] = [
