@@ -11,7 +11,6 @@ use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\ClockingResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
@@ -28,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexClockings extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle($parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,7 +36,9 @@ class IndexClockings extends InertiaAction
         });
 
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::CLOCKINGS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(Clocking::class)
             ->defaultSort('clockings.slug')
@@ -65,20 +66,20 @@ class IndexClockings extends InertiaAction
             })
             ->allowedSorts(['slug'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::CLOCKINGS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
 
-    public function tableStructure(?array $modelOperations = null): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::CLOCKINGS->value)
-                ->pageName(TabsAbbreviationEnum::CLOCKINGS->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)

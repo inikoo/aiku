@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\WorkingPlace\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
+use App\Enums\UI\WorkingPlaceTabsEnum;
 use App\Http\Resources\HumanResources\WorkPlaceInertiaResource;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
 use App\InertiaTable\InertiaTable;
@@ -25,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWorkingPlaces extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -34,26 +34,30 @@ class IndexWorkingPlaces extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WORKING_PLACES->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(Workplace::class)
             ->defaultSort('slug')
             ->select(['slug', 'id', 'name', 'type'])
             ->allowedSorts(['slug','name'])
             ->allowedFilters([$globalSearch, 'slug', 'name', 'type'])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure($prefix = null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($prefix) {
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
             $table
-                ->name(TabsAbbreviationEnum::WORKING_PLACES->value)
-                ->pageName(TabsAbbreviationEnum::WORKING_PLACES->value.'Page')
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
@@ -64,7 +68,7 @@ class IndexWorkingPlaces extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit = $request->user()->can('hr.working-places.edit');
 
         return
             (
@@ -97,6 +101,10 @@ class IndexWorkingPlaces extends InertiaAction
                         ],
                         'label' => __('working place')
                     ] : false,
+                ],
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => WorkingPlaceTabsEnum::navigation(),
                 ],
                 'data'        => WorkPlaceInertiaResource::collection($workplace),
             ]
