@@ -81,7 +81,7 @@ class StoreProductCategory
     {
         $request->validate();
         $this->handle($shop, $request->all());
-        return  Redirect::route('catalogue.shop.departments.index', $shop);
+        return  Redirect::route('shops.show.departments.index', $shop);
     }
 
     public function asFetch(Shop $shop, array $productCategoryData, int $hydratorsDelay=60): ProductCategory

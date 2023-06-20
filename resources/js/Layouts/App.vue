@@ -8,7 +8,7 @@
 
 
 <script setup>
-import { ref, watchEffect, computed } from "vue";
+import { ref, watchEffect } from "vue";
 import {
     Menu,
     MenuButton,
@@ -22,6 +22,7 @@ import SearchBar from "@/Components/SearchBar.vue";
 import AppFooter from "@/Layouts/AppFooter.vue"
 import { usePage } from "@inertiajs/vue3";
 import { useLayoutStore } from "@/Stores/layout";
+import { useLocaleStore } from "@/Stores/locale";
 
 import Breadcrumbs from "@/Components/Navigation/Breadcrumbs.vue";
 import { loadLanguageAsync, trans } from "laravel-vue-i18n";
@@ -43,8 +44,13 @@ import {
     faParachuteBox,
     faDollyEmpty,
     faShoppingCart,
-    faAbacus, faChevronDown, faCube, faGlobe
+    faAbacus, faChevronDown, faCube, faGlobe,faLanguage
 } from "@/../private/pro-light-svg-icons";
+
+
+
+import AppLeftSideBar from "@/Layouts/AppLeftSideBar.vue";
+import AppTopBar from "@/Layouts/AppTopBar.vue";
 
 library.add(
     faHome,
@@ -65,17 +71,15 @@ library.add(
     faAbacus,
     faChevronDown,
     faCube,
-    faGlobe
+    faGlobe,
+    faLanguage
 );
-
-import AppLeftSideBar from "@/Layouts/AppLeftSideBar.vue";
-import AppTopBar from "@/Layouts/AppTopBar.vue";
-
 const initialiseApp = () => {
     const layout = useLayoutStore();
+    const locale = useLocaleStore();
 
-    if (usePage().props.language) {
-        loadLanguageAsync(usePage().props.language);
+    if (usePage().props.localeData) {
+        loadLanguageAsync(usePage().props.localeData.language.code);
     }
     watchEffect(() => {
         if (usePage().props.layout) {
@@ -97,6 +101,11 @@ const initialiseApp = () => {
 
         if (usePage().props.layoutShopsList) {
             layout.shops = usePage().props.layoutShopsList;
+        }
+
+        if (usePage().props.localeData) {
+            locale.language = usePage().props.localeData.language;
+            locale.languageOptions = usePage().props.localeData.languageOptions;
         }
 
         layout.currentShopData = layout.shops[layout.currentShopSlug] ?? {

@@ -52,15 +52,15 @@ use App\Actions\Sales\Order\UpdateOrder;
 use App\Actions\UI\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/shop/', StoreShop::class)->name('shop.store');
-Route::post('/shops/', StoreShops::class)->name('shops.store');
-Route::patch('/shop/{shop}', UpdateShop::class)->name('shop.update');
+Route::post('/shop/', StoreShop::class)->name('show.store');
+Route::post('/shops/', StoreShops::class)->name('store');
+Route::patch('/shop/{shop}', UpdateShop::class)->name('show.update');
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
-Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('shop.customer.store');
-Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
-Route::post('/shop/{shop}/product/', [StoreProduct::class, 'inShop'])->name('shop.product.store');
-Route::post('/shop/{shop}/order/', [StoreOrder::class, 'inShop'])->name('shop.order.store');
+Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('show.customer.store');
+Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('show.department.store');
+Route::post('/shop/{shop}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
+Route::post('/shop/{shop}/order/', [StoreOrder::class, 'inShop'])->name('show.order.store');
 
 Route::post('/product/', StoreProduct::class)->name('product.store');
 Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');

@@ -30,18 +30,17 @@ class GetLayout
         }
 
 
-        $shops      = ShopsNavigationResource::collection(Shop::with('website')->get()->all());
+        $shops = ShopsNavigationResource::collection(Shop::with('website')->get()->all());
 
 
+        $websites = WebsitesNavigationResource::collection(Website::with('shop')->get()->all());
 
-        $websites   = WebsitesNavigationResource::collection(Website::with('shop')->get()->all());
 
-
-        $selectedWarehouse=0;
-        $warehouses       =Warehouse::all();
-        $numberWarehouses =$warehouses->count();
-        if($numberWarehouses>0) {
-            $selectedWarehouse=Warehouse::first()->slug;
+        $selectedWarehouse = 0;
+        $warehouses        = Warehouse::all();
+        $numberWarehouses  = $warehouses->count();
+        if ($numberWarehouses > 0) {
+            $selectedWarehouse = Warehouse::first()->slug;
         }
 
         $navigation = [];
@@ -54,49 +53,44 @@ class GetLayout
             ];
 
 
-        if ($user->can('shops.products.view')) {
-            $navigation['shops'] = match ($shopCount) {
-                1 => [
-                    'name'            => __('shop'),
-                    'icon'            => ['fal', 'fa-store-alt'],
-                    'route'           => 'shops.show',
-                    'routeParameters' => [$currentShopInstance->slug]
-                ],
-                default => [
-                    'name'  => __('shops'),
-                    'icon'  => ['fal', 'fa-store-alt'],
-                    'route' => 'shops.index'
-                ]
-            };
-        }
 
-        if ($user->can('products.view')) {
-            $navigation['catalogue'] = [
-                'name'        => __('Products'),
-                'icon'        => ['fal', 'fa-folder-tree'],
-                'route'       => 'catalogue.hub',
-                'routeOption' => 'catalogue.shop.hub',
-                'labelShowAll'=> __('All shops'),
-                'currentData' => [
+        if ($user->can('shops.view')) {
+            $navigation['shops'] = [
+                'name'         => __('Shops'),
+                'icon'         => ['fal', 'fa-store-alt'],
+                'route'        => 'shops.index',
+                'routeOption'  => 'shops.show',
+                'labelShowAll' => __('All shops'),
+                'currentData'  => [
                     'slug' => null,
                     'name' => __('All shops'),
                     'code' => __('All')
                 ],
-                'topMenu' => [
+                'topMenu'      => [
                     'dropdown' => [
                         'type'        => 'shops',
                         'options'     => $shops,
                         'subsections' => [
 
+                            [
+                                'hideOnSelected' => true,
+                                'label'          => __('shops'),
+                                'tooltip'        => __('shops'),
+                                'icon'           => ['fal', 'fa-store-alt'],
+                                'route'          => [
+                                    'all'      => ['shops.index'],
+                                    'selected' => ['shops.show'],
 
+                                ]
+                            ],
 
                             [
                                 'label'   => __('departments'),
                                 'tooltip' => __('Departments'),
                                 'icon'    => ['fal', 'fa-folders'],
                                 'route'   => [
-                                    'all'      => ['catalogue.departments.index'],
-                                    'selected' => ['catalogue.shop.departments.index'],
+                                    'all'      => ['shops.departments.index'],
+                                    'selected' => ['shops.show.departments.index'],
                                 ]
                             ],
                             [
@@ -104,8 +98,8 @@ class GetLayout
                                 'tooltip' => __('Families'),
                                 'icon'    => ['fal', 'fa-folder'],
                                 'route'   => [
-                                    'all'      => ['catalogue.families.index'],
-                                    'selected' => ['catalogue.shop.families.index'],
+                                    'all'      => ['shops.families.index'],
+                                    'selected' => ['shops.show.families.index'],
                                 ]
                             ],
                             [
@@ -113,8 +107,8 @@ class GetLayout
                                 'tooltip' => __('Products'),
                                 'icon'    => ['fal', 'fa-cube'],
                                 'route'   => [
-                                    'all'      => ['catalogue.products.index'],
-                                    'selected' => ['catalogue.shop.products.index'],
+                                    'all'      => ['shops.products.index'],
+                                    'selected' => ['shops.show.products.index'],
                                 ]
                             ],
                         ]
@@ -126,17 +120,17 @@ class GetLayout
 
         if ($user->can('websites.view')) {
             $navigation['websites'] = [
-                'name'          => __('Websites'),
-                'icon'          => ['fal', 'fa-globe'],
-                'route'         => 'websites.dashboard',
-                'routeOption'   => 'websites.show',
-                'labelShowAll'  => __('All websites'),
-                'currentData'   => [
+                'name'         => __('Websites'),
+                'icon'         => ['fal', 'fa-globe'],
+                'route'        => 'websites.dashboard',
+                'routeOption'  => 'websites.show',
+                'labelShowAll' => __('All websites'),
+                'currentData'  => [
                     'slug' => null,
                     'name' => __('All websites'),
                     'code' => __('All')
                 ],
-                'topMenu' => [
+                'topMenu'      => [
 
                     'dropdown' => [
 
@@ -176,17 +170,17 @@ class GetLayout
 
         if ($user->can('customers.view')) {
             $navigation['crm'] = [
-                'name'          => __('CRM'),
-                'icon'          => ['fal', 'fa-tasks-alt'],
-                'route'         => 'crm.dashboard',
-                'routeOption'   => 'crm.shop.dashboard',
-                'labelShowAll'  => __('All shops'),
-                'currentData'   => [
+                'name'         => __('CRM'),
+                'icon'         => ['fal', 'fa-tasks-alt'],
+                'route'        => 'crm.dashboard',
+                'routeOption'  => 'crm.shop.dashboard',
+                'labelShowAll' => __('All shops'),
+                'currentData'  => [
                     'slug' => null,
                     'name' => __('All shops'),
                     'code' => __('All')
                 ],
-                'topMenu' => [
+                'topMenu'      => [
 
                     'dropdown' => [
                         'type'        => 'shops',
@@ -241,17 +235,17 @@ class GetLayout
 
         if ($user->can('inventory.view')) {
             $navigation['inventory'] = [
-                'name'          => __('inventory'),
-                'icon'          => ['fal', 'fa-inventory'],
-                'route'         => 'inventory.dashboard',
-                'routeOption'   => 'inventory.warehouses.show',
-                'labelShowAll'  => __('All warehouses'),
-                'currentData'   => [
+                'name'         => __('inventory'),
+                'icon'         => ['fal', 'fa-inventory'],
+                'route'        => 'inventory.dashboard',
+                'routeOption'  => 'inventory.warehouses.show',
+                'labelShowAll' => __('All warehouses'),
+                'currentData'  => [
                     'slug' => null,
                     'name' => __('All warehouses'),
                     'code' => __('All')
                 ],
-                'topMenu' => [
+                'topMenu'      => [
                     'subSections' => [
                         [
                             'label' => __('stocks'),

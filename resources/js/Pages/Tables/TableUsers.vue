@@ -14,8 +14,6 @@ import { trans } from "laravel-vue-i18n";
 const props = defineProps<{
     data: object,
     tab?:string,
-
-
 }>()
 
 

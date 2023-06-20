@@ -410,7 +410,7 @@ function dataForNewQueryString() {
 
 function generateNewQueryString() {
     const queryStringData = qs.parse(location.search.substring(1));
-    
+
     const prefix = props.name === 'default' ? '' : props.name + '_';
 
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
@@ -560,7 +560,7 @@ const handleElementsChange = (data) => {
         <fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
             <!-- Wrapper -->
-            
+
             <slot @changed="handleElementsChange">
                 <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>
@@ -586,14 +586,6 @@ const handleElementsChange = (data) => {
 
                 <!-- Search Group -->
                 <div class="flex flex-row justify-end items-start flex-nowrap space-x-2">
-                    <div>
-                        <Link :href="route(props.resource.editRow.route.name,props.resource.editRow.route.parameters)">
-                        <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent  border-indigo-500">
-                                New Row
-                        </Button>
-                        </Link>
-                     </div>
-
                     <div class="order-2 sm:order-1 mr-2 sm:mr-4" v-if="queryBuilderProps.hasFilters">
                         <slot name="tableFilter" :has-filters="queryBuilderProps.hasFilters"
                             :has-enabled-filters="queryBuilderProps.hasEnabledFilters" :filters="queryBuilderProps.filters"

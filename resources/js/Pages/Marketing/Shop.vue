@@ -4,35 +4,71 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
-import {Head} from '@inertiajs/vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
+<script setup lang="ts">
+import { Head } from "@inertiajs/vue3";
+import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faCube,
     faFileInvoice,
     faFolder,
     faFolderTree,
-    faIdCard,
-    faShoppingCart, faStickyNote,
-    faUser,
-} from '@/../private/pro-light-svg-icons';
-import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
+    faChartLine,
+    faShoppingCart, faStickyNote
+} from "@/../private/pro-light-svg-icons";
+import { faCheckCircle } from "@/../private/pro-solid-svg-icons";
 
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue';
-import { capitalize } from "@/Composables/capitalize"
+import PageHeading from "@/Components/Headings/PageHeading.vue";
+import { capitalize } from "@/Composables/capitalize";
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import { computed, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
+import TableDepartments from "@/Pages/Tables/TableDepartments.vue";
+import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
+import TableProducts from "@/Pages/Tables/TableProducts.vue";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import ShopShowcase from "@/Pages/Marketing/ShopShowcase.vue";
 
-library.add(faIdCard, faUser, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice, faStickyNote);
+library.add(faChartLine, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice, faStickyNote);
 
-const props = defineProps(['title', 'pageHead', 'shop', 'flatTreeMaps']);
+const props = defineProps<{
+    pageHead: object
+    tabs: {
+        current: string;
+        navigation: object;
+    },
+    title: string
+    showcase?: object
+    departments?: object
+    families?: object
+    products?: object
 
+}>();
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        showcase: ShopShowcase,
+        departments: TableDepartments,
+        families: TableFamilies,
+        products: TableProducts,
+        details: ModelDetails,
+        history: TableHistories
+    };
+    return components[currentTab.value];
+
+});
 
 </script>
 
 
 <template layout="App">
-    <Head :title="capitalize(title)"/>
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <FlatTreeMap class="mx-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
 </template>
 

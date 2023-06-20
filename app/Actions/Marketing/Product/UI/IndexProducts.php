@@ -8,13 +8,12 @@
 namespace App\Actions\Marketing\Product\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Shop\UI\ShowShop;
 use App\Actions\UI\Catalogue\CatalogueHub;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Marketing\ProductResource;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Product;
 use App\Models\Marketing\Shop;
-use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -27,8 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexProducts extends InertiaAction
 {
-    private Shop|Tenant $parent;
-    public function handle($parent): LengthAwarePaginator
+    public function handle($parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,7 +35,10 @@ class IndexProducts extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PRODUCTS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
         return QueryBuilder::for(Product::class)
             ->defaultSort('products.code')
             ->select([
@@ -47,7 +48,8 @@ class IndexProducts extends InertiaAction
                 'products.created_at',
                 'products.updated_at',
                 'products.slug',
-                'shops.slug as shop_slug'])
+                'shops.slug as shop_slug'
+            ])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id')
             ->leftJoin('shops', 'products.shop_id', 'shops.id')
             ->when($parent, function ($query) use ($parent) {
@@ -59,19 +61,19 @@ class IndexProducts extends InertiaAction
             })
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::PRODUCTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::PRODUCTS->value)
-                ->pageName(TabsAbbreviationEnum::PRODUCTS->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -82,6 +84,7 @@ class IndexProducts extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('shops.products.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -110,9 +113,9 @@ class IndexProducts extends InertiaAction
                 'title'       => __('Products'),
                 'pageHead'    => [
                     'title'  => __('products'),
-                    'create' => $this->canEdit && $this->routeName == 'catalogue.shop.products.index' ? [
+                    'create' => $this->canEdit && $this->routeName == 'shops.show.products.index' ? [
                         'route' => [
-                            'name'       => 'catalogue.shop.products.create',
+                            'name'       => 'shops.show.products.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('products')
@@ -130,15 +133,18 @@ class IndexProducts extends InertiaAction
     {
         $this->routeName = $request->route()->getName();
         $this->initialisation($request);
+
         return $this->handle(app('currentTenant'));
     }
 
     public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle($shop);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inDepartmentInShop(Shop $shop, ProductCategory $department, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
@@ -160,10 +166,11 @@ class IndexProducts extends InertiaAction
                 ]
             ];
         };
+
         return match ($routeName) {
-            'catalogue.shop.products.index' =>
+            'shops.show.products.index' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('catalogue.shop.hub', $routeParameters),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
@@ -173,9 +180,9 @@ class IndexProducts extends InertiaAction
                 )
             ),
 
-            'catalogue.hub.products.index' =>
+            'shops.products.index' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('catalogue.hub', []),
+                CatalogueHub::make()->getBreadcrumbs('shops', []),
                 $headCrumb(
                     [
                         'name'       => $routeName,

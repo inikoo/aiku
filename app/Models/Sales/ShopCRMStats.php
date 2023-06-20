@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 26 Aug 2022 01:41:32 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia F
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 20 Jun 2023 08:05:06 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Sales;
 
 use App\Models\Marketing\Shop;
 use Eloquent;
@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * App\Models\Catalogue\ShopCRMStats
+ * App\Models\Sales\ShopCRMStats
  *
  * @property int $id
  * @property int $shop_id

@@ -8,14 +8,11 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\Traits\WithExportData;
-use App\Enums\Helpers\Export\ExportTypeEnum;
 use App\Exports\HumanResources\EmployeesExport;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use App\Exports\User\UsersExport;
 
 class ExportEmployees
 {
@@ -30,7 +27,7 @@ class ExportEmployees
     {
         $type = $objectData['type'];
 
-        return $this->export(new EmployeesExport, 'employees', $type);
+        return $this->export(new EmployeesExport(), 'employees', $type);
     }
 
     /**

@@ -8,10 +8,18 @@
 namespace App\Actions\Marketing\Shop\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Marketing\Product\UI\IndexProducts;
+use App\Actions\Marketing\ProductCategory\UI\IndexDepartments;
+use App\Actions\Marketing\ProductCategory\UI\IndexFamilies;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
+use App\Enums\UI\ShopTabsEnum;
+use App\Http\Resources\Marketing\DepartmentResource;
+use App\Http\Resources\Marketing\FamilyResource;
+use App\Http\Resources\Marketing\ProductResource;
 use App\Http\Resources\Marketing\ShopResource;
 use App\Models\Marketing\Shop;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -34,14 +42,21 @@ class ShowShop extends InertiaAction
         return $request->user()->hasPermissionTo("shops.view");
     }
 
-    public function asController(Shop $shop): Shop
+    public function asController(Shop $shop, ActionRequest $request): Shop
     {
+        $this->initialisation($request)->withTab(ShopTabsEnum::values());
+
         return $this->handle($shop);
     }
 
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
-        $this->validateAttributes();
+
+        $container = [
+            'icon'    => ['fal', 'fa-store-alt'],
+            'tooltip' => __('Shop'),
+            'label'   => Str::possessive($shop->name)
+        ];
 
         return Inertia::render(
             'Marketing/Shop',
@@ -50,26 +65,26 @@ class ShowShop extends InertiaAction
                 'breadcrumbs'  => $this->getBreadcrumbs(
                     $request->route()->parameters
                 ),
-                'navigation'                            => [
+                'navigation'   => [
                     'previous' => $this->getPrevious($shop, $request),
                     'next'     => $this->getNext($shop, $request),
                 ],
                 'pageHead'     => [
-                    'title' => $shop->name,
-                    'edit'  => $this->canEdit ? [
+                    'title'     => $shop->name,
+                    'container' => $container,
+                    'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => $request->route()->originalParameters()
                         ]
                     ] : false,
                 ],
-                'shop'         => new ShopResource($shop),
                 'flatTreeMaps' => [
                     [
                         [
                             'name'  => __('customers'),
                             'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['shops.show.customers.index', $shop->slug],
+                            'href'  => ['crm.shops.show.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->crmStats->number_customers
                             ]
@@ -77,7 +92,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('prospects'),
                             'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['shops.show.prospects.index', $shop->slug],
+                            'href'  => ['crm.shops.show.prospects.index', $shop->slug],
                             'index' => [
                                 'number' => 'TBD'// $shop->stats->number_customers
                             ]
@@ -87,7 +102,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('departments'),
                             'icon'  => ['fal', 'fa-folder-tree'],
-                            'href'  => ['catalogue.shop.departments.index', $shop->slug],
+                            'href'  => ['shops.show.departments.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_departments
                             ]
@@ -96,7 +111,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('families'),
                             'icon'  => ['fal', 'fa-folder'],
-                            'href'  => ['catalogue.shop.families.index', $shop->slug],
+                            'href'  => ['shops.show.families.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_families
                             ]
@@ -105,7 +120,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('products'),
                             'icon'  => ['fal', 'fa-cube'],
-                            'href'  => ['catalogue.shop.products.index', $shop->slug],
+                            'href'  => ['shops.show.products.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_products
                             ]
@@ -115,7 +130,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('orders'),
                             'icon'  => ['fal', 'fa-shopping-cart'],
-                            'href'  => ['shops.show.orders.index', $shop->slug],
+                            'href'  => ['crm.shops.show.orders.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_orders
                             ]
@@ -123,7 +138,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('invoices'),
                             'icon'  => ['fal', 'fa-file-invoice'],
-                            'href'  => ['shops.show.invoices.index', $shop->slug],
+                            'href'  => ['crm.shops.show.invoices.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_invoices
                             ]
@@ -131,14 +146,103 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('delivery-notes'),
                             'icon'  => ['fal', 'fa-sticky-note'],
-                            'href'  => ['shops.show.delivery-notes.index', $shop->slug],
+                            'href'  => ['crm.shops.show.delivery-notes.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_deliveries
                             ]
                         ]
                     ]
-                ]
+                ],
+                'tabs'         => [
+                    'current'    => $this->tab,
+                    'navigation' => ShopTabsEnum::navigation()
+                ],
+
+                ShopTabsEnum::DEPARTMENTS->value => $this->tab == ShopTabsEnum::DEPARTMENTS->value ?
+                    fn () => DepartmentResource::collection(
+                        IndexDepartments::run(
+                            parent: $shop,
+                            prefix: 'departments'
+                        )
+                    )
+                    : Inertia::lazy(fn () => DepartmentResource::collection(
+                        IndexDepartments::run(
+                            parent: $shop,
+                            prefix: 'departments'
+                        )
+                    )),
+
+                ShopTabsEnum::FAMILIES->value => $this->tab == ShopTabsEnum::FAMILIES->value ?
+                    fn () => FamilyResource::collection(
+                        IndexFamilies::run(
+                            parent: $shop,
+                            prefix: 'families'
+                        )
+                    )
+                    : Inertia::lazy(fn () => FamilyResource::collection(
+                        IndexFamilies::run(
+                            parent: $shop,
+                            prefix: 'families'
+                        )
+                    )),
+
+                ShopTabsEnum::PRODUCTS->value => $this->tab == ShopTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(
+                        IndexProducts::run(
+                            parent: $shop,
+                            prefix: 'products'
+                        )
+                    )
+                    : Inertia::lazy(fn () => ProductResource::collection(
+                        IndexProducts::run(
+                            parent: $shop,
+                            prefix: 'products'
+                        )
+                    )),
+
             ]
+        )->table(
+            IndexDepartments::make()->tableStructure(
+                parent: $shop,
+                modelOperations: [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'shops.show.departments.create',
+                            'parameters' => array_values([$shop->slug])
+                        ],
+                        'label' => __('products')
+                    ] : false
+                ],
+                prefix: 'departments'
+            )
+        )->table(
+            IndexFamilies::make()->tableStructure(
+                parent: $shop,
+                modelOperations: [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'shops.show.families.create',
+                            'parameters' => array_values([$shop->slug])
+                        ],
+                        'label' => __('families')
+                    ] : false
+                ],
+                prefix: 'families'
+            )
+        )->table(
+            IndexProducts::make()->tableStructure(
+                parent: $shop,
+                modelOperations: [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'shops.show.products.create',
+                            'parameters' => array_values([$shop->slug])
+                        ],
+                        'label' => __('product')
+                    ] : false
+                ],
+                prefix: 'products'
+            )
         );
     }
 
@@ -158,7 +262,6 @@ class ShowShop extends InertiaAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
         return
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
@@ -195,7 +298,6 @@ class ShowShop extends InertiaAction
         $previous = Shop::where('code', '<', $shop->code)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
-
     }
 
     public function getNext(Shop $shop, ActionRequest $request): ?array
@@ -207,16 +309,17 @@ class ShowShop extends InertiaAction
 
     private function getNavigation(?Shop $shop, string $routeName): ?array
     {
-        if(!$shop) {
+        if (!$shop) {
             return null;
         }
+
         return match ($routeName) {
-            'shops.show'=> [
-                'label'=> $shop->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'shop'=> $shop->slug
+            'shops.show' => [
+                'label' => $shop->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'shop' => $shop->slug
                     ]
 
                 ]
