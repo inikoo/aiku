@@ -5,16 +5,16 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\PurchaseOrder;
+namespace App\Actions\Marketing\Product;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\Procurement\PurchaseOrdersExport;
+use App\Exports\Procurement\AgentsExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class ExportPurchaseOrders
+class ExportProducts
 {
     use AsAction;
     use WithAttributes;
@@ -27,7 +27,7 @@ class ExportPurchaseOrders
     {
         $type = $objectData['type'];
 
-        return $this->export(new PurchaseOrdersExport, 'purchase-orders', $type);
+        return $this->export(new AgentsExport, 'products', $type);
     }
 
     /**
