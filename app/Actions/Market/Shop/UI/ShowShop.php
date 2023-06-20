@@ -59,7 +59,7 @@ class ShowShop extends InertiaAction
         ];
 
         return Inertia::render(
-            'Marketing/Shop',
+            'Market/Shop',
             [
                 'title'        => __('shop'),
                 'breadcrumbs'  => $this->getBreadcrumbs(

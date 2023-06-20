@@ -21,7 +21,7 @@ import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
 import TableCustomers from "@/Pages/Tables/TableCustomers.vue";
-import ProductShowcase from "@/Pages/Marketing/ProductShowcase.vue";
+import ProductShowcase from "@/Pages/Market/ProductShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(

@@ -110,7 +110,7 @@ class IndexShops extends InertiaAction
         $scope=app('currentTenant');
 
         return Inertia::render(
-            'Marketing/Shops',
+            'Market/Shops',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('shops'),

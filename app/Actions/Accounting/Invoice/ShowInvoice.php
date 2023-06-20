@@ -62,7 +62,7 @@ class ShowInvoice extends InertiaAction
 
 
         return Inertia::render(
-            'Marketing/Invoice',
+            'Market/Invoice',
             [
                 'title'                                 => __('invoice'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($invoice),

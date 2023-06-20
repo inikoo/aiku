@@ -55,7 +55,7 @@ class ShowProduct extends InertiaAction
     public function htmlResponse(Product $product, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Marketing/Product',
+            'Market/Product',
             [
                 'title'       => __('product'),
                 'breadcrumbs' => $this->getBreadcrumbs(
