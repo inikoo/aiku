@@ -42,12 +42,13 @@ class IndexWarehouses extends InertiaAction
         return QueryBuilder::for(Warehouse::class)
             ->defaultSort('warehouses.code')
             ->select([
-                'code',
+                'warehouses.code as code',
                 'warehouses.id',
-                'name',
-                'number_warehouse_areas',
-                'number_locations',
-                'slug'])
+                'warehouses.name',
+                'warehouse_stats.number_warehouse_areas',
+                'warehouse_stats.number_locations',
+                'warehouses.slug as slug'
+            ])
             ->leftJoin('warehouse_stats', 'warehouse_stats.warehouse_id', 'warehouses.id')
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
             ->allowedFilters([$globalSearch])
@@ -86,7 +87,7 @@ class IndexWarehouses extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        return $this->handle(prefix: 'warehouses');
+        return $this->handle();
     }
 
 
@@ -118,7 +119,7 @@ class IndexWarehouses extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent, prefix: 'warehouses'));
+        )->table($this->tableStructure($parent));
     }
 
     public function getBreadcrumbs($suffix=null): array

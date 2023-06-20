@@ -6,7 +6,8 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 import {Link} from '@inertiajs/vue3';
@@ -33,7 +34,7 @@ function clockingMachineRoute(clockingMachine : ClockingMachine) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'clkmc'" class="mt-5" >
+    <Table :resource="data" :name="tab" class="mt-5" >
         <template #cell(code)="{ item: clockingMachine }">
             <Link :href="clockingMachineRoute(clockingMachine)">
                 {{ clockingMachine['code'] }}

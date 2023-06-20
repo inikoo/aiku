@@ -9,7 +9,6 @@ namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -26,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexInvoices extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle($parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -36,7 +35,10 @@ class IndexInvoices extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::INVOICES->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
         return QueryBuilder::for(Invoice::class)
             ->defaultSort('invoices.number')
             ->select([
@@ -57,25 +59,24 @@ class IndexInvoices extends InertiaAction
             })
             ->allowedSorts(['number', 'total', 'net'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::INVOICES->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure($prefix=null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::INVOICES->value)
-                ->pageName(TabsAbbreviationEnum::INVOICES->value.'Page');
-
-            $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'total', label: __('total'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'net', label: __('net'), canBeHidden: false, sortable: true, searchable: true);
+                ->withGlobalSearch()
+                ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'total', label: __('total'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'net', label: __('net'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('number');
         };
     }
 
