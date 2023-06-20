@@ -8,15 +8,9 @@ library.add(faChevronUp, faCheckSquare, faSquare)
 
 
 const props = defineProps<{
-    // elements: Array<{
-    //     key: number
-    //     label: string
-    //     show: boolean
-    //     count: number
-    // }>
     elements: {},
 }>()
-console.log(props.elements)
+// console.log(props.elements)
 
 const emits = defineEmits(['changed'])
 const isChecked = ref({})

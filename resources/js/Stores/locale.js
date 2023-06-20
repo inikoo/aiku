@@ -20,13 +20,9 @@ export const useLocaleStore = defineStore('locale', {
     }),
 
     actions: {
-
         number(number) {
-
-            return new Intl.NumberFormat(this.language.code.value).format(number)
+            return new Intl.NumberFormat(this.language.code).format(number)
         }
-
     }
-
 })
 
