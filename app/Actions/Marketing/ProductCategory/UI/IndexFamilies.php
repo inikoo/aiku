@@ -9,8 +9,8 @@ namespace App\Actions\Marketing\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Marketing\Shop\UI\ShowShop;
-use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Http\Resources\Marketing\DepartmentResource;
+use App\Http\Resources\Marketing\FamilyResource;
 use App\Models\Marketing\ProductCategory;
 use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Tenant;
@@ -113,31 +113,31 @@ class IndexFamilies extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $families, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
-            'Marketing/Departments',
+            'Marketing/Families',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('Departments'),
+                'title'       => __('Families'),
                 'pageHead'    => [
-                    'title'  => __('departments'),
+                    'title'  => __('families'),
                     'create' => $this->canEdit &&
-                        $this->routeName == 'shops.show.departments.index'
+                        $this->routeName == 'shops.show.families.index'
                     ? [
                         'route' => [
-                            'name'       => 'shops.show.departments.create',
+                            'name'       => 'shops.show.families.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('departments')
+                        'label' => __('families')
                     ] : false,
                 ],
-                'data'        => DepartmentResource::collection($departments),
+                'data'        => FamilyResource::collection($families),
             ]
         )->table($this->tableStructure($parent));
     }
@@ -167,18 +167,6 @@ class IndexFamilies extends InertiaAction
                     [
                         'name'       => $routeName,
                         'parameters' => $routeParameters
-                    ],
-                    $suffix
-                )
-            ),
-
-            'shops.show.families.index' =>
-            array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops', []),
-                $headCrumb(
-                    [
-                        'name'       => $routeName,
-                        'parameters' => []
                     ],
                     $suffix
                 )
