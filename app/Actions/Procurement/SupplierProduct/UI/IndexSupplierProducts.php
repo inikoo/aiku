@@ -39,7 +39,11 @@ class IndexSupplierProducts extends InertiaAction
 
         return QueryBuilder::for(SupplierProduct::class)
             ->defaultSort('supplier_products.code')
-            ->select(['supplier_products.code', 'supplier_products.slug', 'supplier_products.name'])
+            ->select([
+                'supplier_products.code',
+                'supplier_products.slug',
+                'supplier_products.name'
+            ])
             ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
 
             ->when($parent, function ($query) use ($parent) {
@@ -73,7 +77,7 @@ class IndexSupplierProducts extends InertiaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
