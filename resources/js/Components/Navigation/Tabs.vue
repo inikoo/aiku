@@ -33,8 +33,7 @@ const tabIconClass = function (current, type, align, extraClass) {
     let iconClass = '-ml-0.5 h-5 w-5   ' + extraClass;
     iconClass += current ? 'text-indigo-500 ' : 'text-gray-400 group-hover:text-gray-500 ';
     iconClass += (type == 'icon' && align == 'right') ? 'ml-2 ' : 'mr-2 '
-    return iconClass;
-
+    return iconClass
 }
 
 </script>
@@ -50,8 +49,10 @@ const tabIconClass = function (current, type, align, extraClass) {
         </div>
         <div class="hidden sm:block">
             <div class="border-b border-gray-200 flex">
+                
+                <!-- Left section -->
                 <nav class="-mb-px flex grow space-x-6 ml-4" aria-label="Tabs">
-                    <template v-for="(tab,tabSlug) in navigation" :key="tabSlug">
+                    <template v-for="(tab, tabSlug) in navigation" :key="tabSlug">
                         <button
                             v-if="tab.align!=='right'"
                             @click="[$emit('update:tab', tabSlug),changeTab(tabSlug)]"
@@ -62,15 +63,17 @@ const tabIconClass = function (current, type, align, extraClass) {
                         </button>
                     </template>
                 </nav>
-                <nav class="-mb-px flex flex-row-reverse   mr-4" aria-label="Secondary Tabs">
+
+                <!-- Right section -->
+                <nav class="flex flex-row-reverse mr-4" aria-label="Secondary Tabs">
                     <template v-for="(tab,tabSlug) in navigation" :key="tabSlug">
                         <button
-                            v-if="tab.align==='right'"
-                            @click="[$emit('update:tab', tabSlug),changeTab(tabSlug)]"
-                            :class="[tabSlug===currentTab ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                            'group inline-flex items-center py-2 px-1 border-b-2 font-medium text-sm']"
-                            :aria-current="tabSlug===currentTab ? 'page' : undefined">
-                            <FontAwesomeIcon :title="capitalize(tab.title)" v-if="tab.icon" :icon="tab.icon" :class="tabIconClass(tabSlug===currentTab,tab.type,tab.align,tab.iconClass??'')" aria-hidden="true"/>
+                            v-if="tab.align === 'right'"
+                            @click="[$emit('update:tab', tabSlug), changeTab(tabSlug)]"
+                            :class="[tabSlug === currentTab ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                                'group inline-flex justify-center items-center py-2 px-2 border-b-2 font-medium text-sm']"
+                            :aria-current="tabSlug === currentTab ? 'page' : undefined">
+                            <FontAwesomeIcon :title="capitalize(tab.title)" v-if="tab.icon" :icon="tab.icon" class="h-5 w-5" aria-hidden="true"/>
                             <span v-if="tab.type!=='icon'" class="capitalize">{{ tab.title }}</span>
                         </button>
                     </template>
@@ -79,5 +82,5 @@ const tabIconClass = function (current, type, align, extraClass) {
         </div>
     </div>
 
-
+    <!-- Backup purpose for FontAwesomeIcon on Right Section = :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass??'')" -->
 </template>
