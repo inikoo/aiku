@@ -11,6 +11,7 @@ library.add(faDownload)
 
 
 const download = ref(null)
+const urlPage = location.pathname
 </script>
 
 <template>
@@ -23,14 +24,14 @@ const download = ref(null)
 
         <!-- The popup -->
         <div role="menu" aria-orientation="horizontal" aria-labelledby="table-download-data" class="grid w-40 min-w-max">
-            <a :href="`${route(route().current())}/export?type=xlsx`"
+            <a :href="`${urlPage}/export?type=xlsx`"
                 :dusk="`add-search-row-1`"
                 role="menuitem" download
                 class="text-left w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
             >
                 Export as Excel (.xlsx)
             </a>
-            <a :href="`${route(route().current())}/export?type=csv`"
+            <a :href="`${urlPage}/export?type=csv`"
                 :dusk="`add-search-row-2`"
                 role="menuitem" download
                 class="text-left w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"

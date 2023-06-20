@@ -574,13 +574,13 @@ const handleElementsChange = (data) => {
                         <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
                     </div>
                     <!-- Button -->
-                    <div v-if="queryBuilderProps.modelOperations.createLink">
+                    <!-- <div v-if="queryBuilderProps.modelOperations.createLink">
                         <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
                             <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent rounded-l-none border-indigo-500">
                                 {{queryBuilderProps.modelOperations.createLink.label}}
                             </Button>
                         </Link>
-                    </div>
+                    </div> -->
                 </div>
 
               <!-- <pre>{{queryBuilderProps.modelOperations}}</pre> -->
