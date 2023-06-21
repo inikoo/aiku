@@ -13,8 +13,12 @@ import { faSave, faPlus } from '@/../private/pro-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { router } from '@inertiajs/vue3'
-import SelectTypePlugin from "@revolist/revogrid-column-select";
-import Date from "@revolist/revogrid-column-date";
+//import Date from "@revolist/revogrid-column-date";
+import NumberColumnType from '@revolist/revogrid-column-numeral'; // import library
+//import SelectTypePlugin from '@revolist/revogrid-column-select;
+import Plugin from "@revolist/revogrid-column-date";
+
+
 library.add(faSave,faPlus);
 const props = defineProps({
   actionRoute: Object,
@@ -24,7 +28,14 @@ const props = defineProps({
   },
 });
 
-const plugin = { 'select': new SelectTypePlugin(), 'date': new Date() };
+//const plugin = { 'select': new SelectTypePlugin(), 'date': new Date() };
+
+const plugin = {
+    'select': new SelectTypePlugin(),
+    'numeric': new NumberColumnType('0,0')
+
+}; // create plugin entity
+
 const addMultipleRows = () => {
   const result = [];
   const arrayData = cloneDeep(props.data.columns);
@@ -39,21 +50,21 @@ const addMultipleRows = () => {
 };
 
 
-let vgrid = ref()
+let grid = ref()
 let gRowIndex = ref(0)
 let gColName = ref('')
 
 const onBeforeEditStart = (e: CustomEvent<{ rowIndex: number, prop: string }>) => {
   gRowIndex.value = e.detail.rowIndex
-  gColName.value = e.detail.prop 
+  gColName.value = e.detail.prop
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onFocusOut = async (e: any) => { // I don't know about this event, no docs
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  let viewData = await vgrid.value.$el.getVisibleSource()
+  let viewData = await grid.value.$el.getVisibleSource()
   viewData[gRowIndex.value][gColName.value] = e.target.value
-  setData.value = vgrid.value.source;
+  setData.value = grid.value.source;
 }
 
 const handleSave = () => {
@@ -107,15 +118,16 @@ const setData = ref([]);
   </div>
 
   <div class="py-0.5">
-    <v-grid 
-     ref="vgrid"
-     @beforeeditstart="onBeforeEditStart" 
-     @focusout="onFocusOut" 
-     theme='material' 
+    <v-grid
+     ref="grid"
+     @beforeeditstart="onBeforeEditStart"
+     @focusout="onFocusOut"
+     theme='material'
      :source="setData"
-     :columns="props.data.columns" 
-     class="custom-grid" 
-     :columnTypes='plugin'/>
+     :columns="props.data.columns"
+     class="custom-grid"
+     :columnTypes='plugin'
+    />
   </div>
 </template>
 

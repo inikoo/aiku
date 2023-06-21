@@ -67,7 +67,7 @@
 							:icon="menu.icon"
 							class="h-5 lg:h-3.5 w-auto pr-1 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
 							aria-hidden="true" />
-							
+
 						<p v-if="menu.route.selected != 'inventory.warehouses.show'" class="hidden lg:inline capitalize">
 							<!-- To hide label for Warehouse route -->
 							{{ menu.label }}
@@ -106,7 +106,8 @@ import {
 	faFolders,
 	faBrowser,
 	faBars,
-    faBuilding
+    faBuilding,
+    faCube
 } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
@@ -129,7 +130,8 @@ library.add(
 	faFolders,
 	faBrowser,
 	faBars,
-    faBuilding
+    faBuilding,
+    faCube
 )
 const layout = useLayoutStore()
 

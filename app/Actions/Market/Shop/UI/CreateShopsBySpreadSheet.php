@@ -65,6 +65,14 @@ class CreateShopsBySpreadSheet extends InertiaAction
                             'required'       => true,
                         ],
                         [
+                            'id'             => 'number',
+                            'name'           => __('Number'),
+                            'columnType'     => 'numeric',
+                            'prop'           => 'xxx',
+                            'required'       => true,
+                        ],
+
+                        [
                             'id'         => 'select',
                             'name'       => __('Type'),
                             'prop'       => 'type',
@@ -74,6 +82,7 @@ class CreateShopsBySpreadSheet extends InertiaAction
                             'labelKey'   => 'label',
                             'valueKey'   => 'value',
                         ],
+
                     ],
                 ],
                 'saveRoute' => [
