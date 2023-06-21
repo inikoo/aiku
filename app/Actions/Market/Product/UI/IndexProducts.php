@@ -39,6 +39,7 @@ class IndexProducts extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Product::class)
             ->defaultSort('products.code')
             ->select([

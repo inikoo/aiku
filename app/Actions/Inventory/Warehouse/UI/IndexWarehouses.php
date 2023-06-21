@@ -35,10 +35,13 @@ class IndexWarehouses extends InertiaAction
                     ->orWhere('warehouses.code', 'LIKE', "%$value%");
             });
         });
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Warehouse::class)
             ->defaultSort('warehouses.code')
             ->select([

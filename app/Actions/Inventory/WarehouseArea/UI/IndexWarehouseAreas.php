@@ -39,6 +39,7 @@ class IndexWarehouseAreas extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        /**  @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(WarehouseArea::class)
             ->defaultSort('warehouse_areas.code')
             ->select(

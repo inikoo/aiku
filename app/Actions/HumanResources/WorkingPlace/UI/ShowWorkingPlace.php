@@ -111,20 +111,31 @@ class ShowWorkingPlace extends InertiaAction
                     : Inertia::lazy(fn () => GetWorkingPlaceShowcase::run($workplace)),
 
                 WorkingPlaceTabsEnum::CLOCKINGS->value       => $this->tab == WorkingPlaceTabsEnum::CLOCKINGS->value ?
-                    fn () => ClockingResource::collection(IndexClockings::run($workplace))
-                    : Inertia::lazy(fn () => ClockingResource::collection(IndexClockings::run($workplace))),
+                    fn () => ClockingResource::collection(IndexClockings::run(
+                        parent: $workplace,
+                        prefix: 'clockings'
+                    ))
+                    : Inertia::lazy(fn () => ClockingResource::collection(IndexClockings::run(
+                        parent: $workplace,
+                        prefix: 'clockings'
+                    ))),
                 WorkingPlaceTabsEnum::CLOCKING_MACHINES->value => $this->tab == WorkingPlaceTabsEnum::CLOCKING_MACHINES->value
                     ?
-                    fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))
-                    : Inertia::lazy(fn () => ClockingMachineResource::collection(IndexClockingMachines::run($workplace))),
+                    fn () => ClockingMachineResource::collection(IndexClockingMachines::run(
+                        parent: $workplace,
+                        prefix: 'clocking_machines'
+                    ))
+                    : Inertia::lazy(fn () => ClockingMachineResource::collection(IndexClockingMachines::run(
+                        parent: $workplace,
+                        prefix: 'clocking_machines'
+                    ))),
 
                 WorkingPlaceTabsEnum::HISTORY->value => $this->tab == WorkingPlaceTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($workplace))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($workplace)))
             ]
-        )->table(
-            IndexClockings::make()->tableStructure(
-                /* modelOperations:[
+        )->table(IndexClockings::make()->tableStructure(
+            modelOperations:[
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'hr.working-places.show.clockings.create',
@@ -132,19 +143,20 @@ class ShowWorkingPlace extends InertiaAction
                         ],
                         'label' => __('clocking')
                     ] : false,
-                ], prefix: 'clockings' */
-            ),
-        )->table(
+                ],
+            prefix: 'clockings'
+        ))->table(
             IndexClockingMachines::make()->tableStructure(
-                /* modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'hr.working-places.show.clocking-machines.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('clocking machine')
-                    ] : false,
-                ], prefix: 'clocking_machines' */
+                modelOperations: [
+                        'createLink' => $this->canEdit ? [
+                            'route' => [
+                                'name'       => 'hr.working-places.show.clocking-machines.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'label' => __('clocking machine')
+                        ] : false,
+                    ],
+                prefix: 'clocking_machines'
             )
         )->table(IndexHistories::make()->tableStructure());
     }

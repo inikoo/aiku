@@ -41,9 +41,9 @@ class IndexCustomers extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Customer::class)
-            ->defaultSort('customers.reference')
+            ->defaultSort('customers.slug')
             ->select([
                 'reference',
                 'customers.id',
@@ -60,7 +60,7 @@ class IndexCustomers extends InertiaAction
                     $query->where('customers.shop_id', $parent->id);
                 }
             })
-            ->allowedSorts(['reference', 'name', 'number_active_clients'])
+            ->allowedSorts(['reference', 'name', 'number_active_clients','slug'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -78,15 +78,9 @@ class IndexCustomers extends InertiaAction
 
             $table
                 ->withModelOperations($modelOperations)
-                ->withGlobalSearch();
-
-            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-
-            if (class_basename($parent) == 'Tenant') {
-                $table->column(key: 'shop', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
-            }
-
-            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->withGlobalSearch()
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
             if (class_basename($parent) == 'Shop' and $parent->subtype == 'dropshipping') {
                 $table->column(key: 'number_active_clients', label: __('clients'), canBeHidden: false, sortable: true);
             }

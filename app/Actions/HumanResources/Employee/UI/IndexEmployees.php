@@ -54,6 +54,7 @@ class IndexEmployees extends InertiaAction
     }
 
 
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -67,6 +68,7 @@ class IndexEmployees extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+
         $queryBuilder=QueryBuilder::for(Employee::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -76,7 +78,6 @@ class IndexEmployees extends InertiaAction
                 engine: $elementGroup['engine']
             );
         }
-
 
 
         return $queryBuilder

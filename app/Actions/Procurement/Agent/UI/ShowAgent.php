@@ -144,10 +144,40 @@ class ShowAgent extends InertiaAction
                     fn () => HistoryResource::collection(IndexHistories::run($agent))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($agent)))
             ]
-        )->table(IndexPurchaseOrders::make()->tableStructure())
-            ->table(IndexSupplierProducts::make()->tableStructure())
-            ->table(IndexSuppliers::make()->tableStructure())
-            ->table(IndexHistories::make()->tableStructure());
+        )->table(IndexPurchaseOrders::make()->tableStructure(
+            modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    'route' => [
+                        'name'       => 'procurement.agents.show.purchase-orders.create',
+                        'parameters' => array_values([$agent->slug])
+                    ],
+                    'label' => __('purchase_orders')
+                ] : false
+            ],
+            prefix: 'purchase_orders'
+        ))->table(IndexSupplierProducts::make()->tableStructure(
+            modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    'route' => [
+                        'name'       => 'procurement.agents.show.supplier-products-orders.create',
+                        'parameters' => array_values([$agent->slug])
+                    ],
+                    'label' => __('supplier products')
+                ] : false
+            ],
+            prefix: 'supplier_products'
+        ))->table(IndexSuppliers::make()->tableStructure(
+            modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    'route' => [
+                        'name'       => 'procurement.agents.show.suppliers.create',
+                        'parameters' => array_values([$agent->slug])
+                    ],
+                    'label' => __('suppliers')
+                ] : false
+            ],
+            prefix: 'suppliers'
+        ))->table(IndexHistories::make()->tableStructure());
     }
 
 

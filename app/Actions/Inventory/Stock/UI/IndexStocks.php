@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\Stock\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
@@ -17,6 +16,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -27,7 +27,7 @@ class IndexStocks extends InertiaAction
     use HasUIStocks;
 
 
-    public function handle(StockFamily|Tenant $parent): LengthAwarePaginator
+    public function handle(StockFamily|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -36,7 +36,10 @@ class IndexStocks extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::STOCK_MOVEMENTS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
         return QueryBuilder::for(Stock::class)
             ->defaultSort('stocks.code')
             ->select([
@@ -57,20 +60,18 @@ class IndexStocks extends InertiaAction
             })
             ->allowedSorts(['code', 'family_code','description', 'number_locations', 'number_locations','quantity'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::STOCK_MOVEMENTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::STOCK_MOVEMENTS->value)
-                ->pageName(TabsAbbreviationEnum::STOCK_MOVEMENTS->value.'Page');
-
+        return function (InertiaTable $table) use ($parent, $prefix) {
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
 
 
@@ -107,7 +108,7 @@ class IndexStocks extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
@@ -130,6 +131,6 @@ class IndexStocks extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($parent));
     }
 }

@@ -8,9 +8,11 @@
 namespace App\Actions\Market\Shop\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 /**
  * @property array $breadcrumbs
@@ -49,18 +51,28 @@ class CreateShopsBySpreadSheet extends InertiaAction
 
                     'columns' => [
                         [
-                            'id'       => 'code',
-                            'name'     => __('Code'),
-                            'type'     => 'string',
-                            'prop'     => 'code',
-                            'required' => true,
+                            'id'             => 'code',
+                            'name'           => __('Code'),
+                            'columnType'     => 'string',
+                            'prop'           => 'code',
+                            'required'       => true,
                         ],
                         [
-                            'id'       => 'name',
-                            'name'     => __('Label'),
-                            'type'     => 'string',
-                            'prop'     => 'name',
-                            'required' => true,
+                            'id'             => 'name',
+                            'name'           => __('Label'),
+                            'columnType'     => 'string',
+                            'prop'           => 'name',
+                            'required'       => true,
+                        ],
+                        [
+                            'id'         => 'select',
+                            'name'       => __('Type'),
+                            'prop'       => 'type',
+                            'required'   => false,
+                            'columnType' => "select",
+                            'options'    => Options::forEnum(ShopTypeEnum::class),
+                            'labelKey'   => 'label',
+                            'valueKey'   => 'value',
                         ],
                     ],
                 ],

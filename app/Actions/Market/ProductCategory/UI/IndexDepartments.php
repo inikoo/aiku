@@ -9,7 +9,7 @@ namespace App\Actions\Market\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\IndexShops;
-use App\Actions\UI\Catalogue\CatalogueHub;
+//use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Http\Resources\Market\DepartmentResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -38,6 +38,7 @@ class IndexDepartments extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        /**  @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(ProductCategory::class)
             ->defaultSort('product_categories.code')
             ->select([
