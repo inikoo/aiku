@@ -24,7 +24,7 @@ class InvoicesExport implements FromQuery, WithMapping, ShouldAutoSize, WithHead
         return [
             $row->id,
             $row->slug,
-            $row->type,
+            $row->type->value,
             $row->shop->name,
             $row->customer->name,
             $row->currency->code,

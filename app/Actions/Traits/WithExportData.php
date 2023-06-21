@@ -22,6 +22,12 @@ trait WithExportData
     {
         $result = null;
 
+        $query = (new $callback())->query();
+
+        if($query->count() >= 2000) {
+            $type = ExportTypeEnum::CSV->value;
+        }
+
         if($type == ExportTypeEnum::XLSX->value) {
             $result = $this->xlsx($callback, $prefix);
         }

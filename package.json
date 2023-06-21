@@ -45,11 +45,13 @@
         "@vue-hero-icons/solid": "^1.7.2",
         "@vueform/multiselect": "^2.6.2",
         "@vuepic/vue-datepicker": "^5.1.1",
+        "firebase": "^9.22.2",
         "laravel-vue-i18n": "^2.2.2",
         "lodash-es": "^4.17.21",
         "pinia": "^2.0.20",
         "qs": "^6.11.1",
         "vue-cookies": "^1.8.1",
-        "vue-tel-input": "^8.1.1"
+        "vue-tel-input": "^8.1.1",
+        "vuefire": "^3.1.0"
     }
 }

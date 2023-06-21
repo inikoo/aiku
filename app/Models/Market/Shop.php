@@ -19,6 +19,7 @@ use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\PaymentServiceProviderShop;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
+use App\Models\Assets\Timezone;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\ShopCRMStats;
@@ -105,6 +106,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Market\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
+ * @property-read \App\Models\Assets\Timezone|null $timezone
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Website|null $website
  * @method static \Database\Factories\Market\ShopFactory factory($count = null, $state = [])
@@ -251,6 +253,11 @@ class Shop extends Model
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
+    }
+
+    public function timezone(): BelongsTo
+    {
+        return $this->belongsTo(Timezone::class);
     }
 
     public function paymentServiceProviders(): BelongsToMany

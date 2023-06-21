@@ -23,11 +23,14 @@ class StoreUserLogFirebase
         $reference = $database->getReference($tenant->slug . '/' . $user->username);
 
         $reference->set([
+            'user' => [
+                'username' => $user->username,
+                'contact_name' => $user->contact_name,
+                'avatar_id' => $user->avatar_id
+            ],
             'is_active' => true,
-            'username' => $user->username,
-            'contact_name' => $user->contact_name,
             'route' => $route,
-            'timestamp' => now()
+            'last_active' => now()
         ]);
 
         CheckUserStatusFirebase::dispatch($tenant);
