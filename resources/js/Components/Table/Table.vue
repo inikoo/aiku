@@ -680,11 +680,13 @@ const handleElementsChange = (data) => {
                                         <td v-for="column in queryBuilderProps.columns" v-show="show(column.key)"
                                             :key="`table-${name}-row-${key}-column-${column.key}`" :class="[
                                                 typeof item[column.key] == 'number' ? 'text-right' : '',
+                                                column.key == 'avatar' ? 'flex justify-center items-center' : '',
                                                 'text-sm py-4 px-6 text-gray-500 whitespace-normal min-w-fit max-w-[450px]',
 
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
-                                                {{ item[column.key] }}
+                                                <img v-if="column.key == 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5"/>
+                                                <div v-else>{{ item[column.key] }}</div>
                                             </slot>
                                         </td>
                                     </tr>
@@ -693,6 +695,7 @@ const handleElementsChange = (data) => {
                         </table>
                     </slot>
 
+                    <!-- Pagination -->
                     <slot name="pagination" :on-click="visit" :has-data="hasData" :meta="resourceMeta"
                         v-if="resourceMeta.total > 15" :per-page-options="queryBuilderProps.perPageOptions"
                         :on-per-page-change="onPerPageChange">
