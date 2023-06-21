@@ -568,21 +568,25 @@ const handleElementsChange = (data) => {
                 <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>
             <div class="grid grid-flow-col justify-between flex-nowrap px-4">
-                <!-- Result Number -->
-                <div class="flex border border-indigo-100 rounded-lg">
-                    <div class="grid justify-end items-center text-base font-normal text-gray-700"
-                        title="Results">
-                        <div v-if="resourceMeta.total" class="px-2 ">{{ locale.number(resourceMeta.total) }} {{ $t(resourceMeta.total > 1 ? 'records' : 'record') }}</div>
-                        <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
+                
+                <!-- Left Section: Records, -->
+                <div class="flex space-x-2">
+                    <!-- Result Number -->
+                    <div class="flex border border-indigo-100 rounded-md">
+                        <div class="grid justify-end items-center text-base font-normal text-gray-700"
+                            title="Results">
+                            <div v-if="resourceMeta.total" class="px-2 ">{{ locale.number(resourceMeta.total) }} {{ $t(resourceMeta.total > 1 ? 'records' : 'record') }}</div>
+                            <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
+                        </div>
+                        <!-- Button -->
+                        <!-- <div v-if="queryBuilderProps.modelOperations.createLink">
+                            <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
+                                <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent rounded-l-none border-indigo-500">
+                                    {{queryBuilderProps.modelOperations.createLink.label}}
+                                </Button>
+                            </Link>
+                        </div> -->
                     </div>
-                    <!-- Button -->
-                    <!-- <div v-if="queryBuilderProps.modelOperations.createLink">
-                        <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
-                            <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent rounded-l-none border-indigo-500">
-                                {{queryBuilderProps.modelOperations.createLink.label}}
-                            </Button>
-                        </Link>
-                    </div> -->
                 </div>
 
               <!-- <pre>{{queryBuilderProps.modelOperations}}</pre> -->
@@ -624,14 +628,7 @@ const handleElementsChange = (data) => {
                                 " :on-add="showSearchInput" />
                     </slot>
 
-                    <!-- Button: Download Table -->
-                    <slot name="tableDownload" :has-search-inputs="queryBuilderProps.hasSearchInputs"
-                        :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
-                        :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :on-add="showSearchInput">
-                        <TableDownload v-if="queryBuilderProps.hasSearchInputs" class="order-4"
-                            :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue
-                                " :on-add="showSearchInput" />
-                    </slot>
+                    
 
                     <!-- Button: Switch toggle filter the column of table -->
                     <slot name="tableColumns" :has-columns="queryBuilderProps.hasToggleableColumns"
