@@ -45,6 +45,7 @@ class IndexWebsites extends InertiaAction
     }
 
 
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -69,7 +70,8 @@ class IndexWebsites extends InertiaAction
         }
 
 
-        return $queryBuilder->defaultSort('websites.code')
+        return $queryBuilder
+            ->defaultSort('websites.code')
             ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'in_maintenance', 'websites.state'])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])

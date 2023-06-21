@@ -29,6 +29,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDispatchedEmails extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Mailshot|Outbox|Mailroom|Tenant|Shop $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -36,15 +37,24 @@ class IndexDispatchedEmails extends InertiaAction
                 $query->where('dispatched_emails.state', '~*', "\y$value\y")
                     ->orWhere('dispatched_emails.number_reads', '=', $value)
                     ->orWhere('dispatched_emails.number_clicks', '=', $value);
-            }); // reference status date data
+            });
         });
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
-        return QueryBuilder::for(DispatchedEmail::class)
+        $queryBuilder=QueryBuilder::for(DispatchedEmail::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('dispatched_emails.state')
             ->select(['dispatched_emails.state',
                 'dispatched_emails.id',
@@ -82,7 +92,8 @@ class IndexDispatchedEmails extends InertiaAction
                     ->pageName($prefix.'Page');
             }
 
-            $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+            $table
+                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_reads', label: __('reads'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_clicks', label: __('clicks'), canBeHidden: false, sortable: true, searchable: true);
         };

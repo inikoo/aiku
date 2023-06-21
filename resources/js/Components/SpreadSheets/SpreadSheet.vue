@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, onBeforeMount  } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import VGrid from '@revolist/vue3-datagrid';
 import { cloneDeep } from 'lodash';
 import Button from '../Elements/Buttons/Button.vue';
@@ -13,9 +13,10 @@ import { faSave, faPlus } from '@/../private/pro-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { router } from '@inertiajs/vue3'
-import SelectTypePlugin from "@revolist/revogrid-column-select";
-import Date from "@revolist/revogrid-column-date";
-library.add(faSave,faPlus);
+
+
+library.add(faSave, faPlus);
+
 const props = defineProps({
   actionRoute: Object,
   theme: String,
@@ -23,11 +24,22 @@ const props = defineProps({
     type: Object,
   },
 });
+const numberInputed = ref(1)
+const columns = [
+  {
+    id: '*',
+    name: '*',
+    columnType: '*',
+    prop: '*',
+    readonly: true, // Set the column as readonly
+  },
+  ...props.data.columns,
+];
 
-const plugin = { 'select': new SelectTypePlugin(), 'date': new Date() };
+
 const addMultipleRows = () => {
   const result = [];
-  const arrayData = cloneDeep(props.data.columns);
+  const arrayData = cloneDeep(columns);
   for (let i = 0; i < 20; i++) {
     const data = {};
     for (const field of arrayData) {
@@ -35,7 +47,20 @@ const addMultipleRows = () => {
     }
     result.push(data);
   }
-  setData.value =  [...setData.value,...result];
+  setData.value = [...setData.value, ...result];
+};
+
+const addRows = () => {
+  const result = [];
+  const arrayData = cloneDeep(columns);
+  for (let i = 0; i < numberInputed.value; i++) {
+    const data = {};
+    for (const field of arrayData) {
+      data[field.prop] = '';
+    }
+    result.push(data);
+  }
+  setData.value = [...setData.value, ...result];
 };
 
 
@@ -45,7 +70,7 @@ let gColName = ref('')
 
 const onBeforeEditStart = (e: CustomEvent<{ rowIndex: number, prop: string }>) => {
   gRowIndex.value = e.detail.rowIndex
-  gColName.value = e.detail.prop 
+  gColName.value = e.detail.prop
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,18 +85,21 @@ const handleSave = () => {
   const editableRows = [];
   for (const row of setData.value) {
     let isRowEditable = false;
+    const result = {}; // Initialize result as an empty object
     for (const column of props.data.columns) {
       if (row[column.prop] !== '') {
         isRowEditable = true;
-        break;
+        result[column.prop] = row[column.prop]; // Add non-empty values to result object
       }
     }
     if (isRowEditable) {
-      editableRows.push(row);
+      editableRows.push(result); // Push the result object to editableRows
     }
   }
+  console.log('datasend', editableRows);
   router.post(props.actionRoute.name, editableRows);
-};;
+};
+
 
 onBeforeMount(() => {
   addMultipleRows();
@@ -80,15 +108,7 @@ const setData = ref([]);
 </script>
 
 <template>
-   <div class="flex justify-end gap-x-3.5">
-    <div class="py-4 px-0 ">
-      <Button type="white" @click="addMultipleRows">
-        <span class="flex gap-3 items-center">
-          <FontAwesomeIcon icon="far fa-plus" />
-          <span>Add Row</span>
-        </span>
-      </Button>
-    </div>
+  <div class="flex justify-end gap-x-3.5">
     <div class="py-4 px-0 ">
       <Button type="white">
         <span class="flex gap-2 items-center">
@@ -107,16 +127,25 @@ const setData = ref([]);
   </div>
 
   <div class="py-0.5">
-    <v-grid 
-     ref="vgrid"
-     @beforeeditstart="onBeforeEditStart" 
-     @focusout="onFocusOut" 
-     theme='material' 
-     :source="setData"
-     :columns="props.data.columns" 
-     class="custom-grid" 
-     :columnTypes='plugin'/>
+    <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" theme='material' :source="setData"
+      :columns="columns" class="custom-grid" />
+
   </div>
+
+  <div class="pt-4 pb-6 pl-1 pr-0 flex">
+    <button type="button" @click="addRows"
+      class="flex rounded-r-none items-center gap-3 bg-white border border-gray-300 py-2 px-4 rounded">
+      <FontAwesomeIcon icon="far fa-plus" />
+      <span>Add Row</span>
+    </button>
+    <input type="number" v-model="numberInputed"
+      class="border border-gray-300 px-4 py-2 rounded-l-none rounded rounded-l-none custom-input">
+  </div>
+
+
+  <!-- <div class="py-0.5">
+   <iframe width="100%" height="600px" src="https://docs.google.com/spreadsheets/d/1vcDD6Mb9QIAXV2dfGkkzQlEcR8VbSddfRTjPMYf0zJQ/edit#gid=0"></iframe>
+  </div> -->
 </template>
 
 <style>
@@ -135,5 +164,10 @@ revo-grid {
 
 .custom-grid revo-grid[theme="material"] revogr-data .rgRow {
   box-shadow: 0 -1px 0 0 #f1f1f1 inset;
+}
+
+.custom-input {
+  border-left: none;
+  width: 120px;
 }
 </style>

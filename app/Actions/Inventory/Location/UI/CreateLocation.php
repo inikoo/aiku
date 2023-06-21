@@ -139,6 +139,12 @@ class CreateLocation extends InertiaAction
         return $this->handle($request);
     }
 
+    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): Response
+    {
+        $this->initialisation($request);
+
+        return $this->handle($request);
+    }
 
     public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): Response
     {

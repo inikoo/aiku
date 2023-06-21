@@ -33,8 +33,6 @@
         "@headlessui/vue": "^1.7.0",
         "@inertiajs/vue3": "^1.0.0",
         "@revolist/revo-dropdown": "^2.0.1",
-        "@revolist/revogrid-column-date": "^2.0.0",
-        "@revolist/revogrid-column-select": "^2.0.2",
         "@revolist/vue3-datagrid": "^3.2.17",
         "@tiptap/extension-character-count": "^2.0.3",
         "@tiptap/extension-list-item": "^2.0.3",

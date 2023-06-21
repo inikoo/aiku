@@ -28,6 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPaymentAccounts extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Shop|Tenant|PaymentServiceProvider $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -41,7 +42,17 @@ class IndexPaymentAccounts extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(PaymentAccount::class)
+        $queryBuilder=QueryBuilder::for(PaymentAccount::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('payment_accounts.code')
             ->select([
                 'payment_accounts.code as code',
@@ -68,9 +79,9 @@ class IndexPaymentAccounts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($prefix=null): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -78,9 +89,10 @@ class IndexPaymentAccounts extends InertiaAction
             }
             $table
                 ->withGlobalSearch()
-                ->defaultSort('code')
+                ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('code');
         };
     }
 

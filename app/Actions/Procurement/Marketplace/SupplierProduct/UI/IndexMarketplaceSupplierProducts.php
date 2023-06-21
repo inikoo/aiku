@@ -21,6 +21,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -28,7 +29,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexMarketplaceSupplierProducts extends InertiaAction
 {
-    public function handle(Tenant|Agent|Supplier $parent): LengthAwarePaginator
+    /** @noinspection PhpUndefinedMethodInspection */
+    public function handle(Tenant|Agent|Supplier $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -36,10 +38,22 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                     ->orWhere('supplier_products.name', 'ILIKE', "%$value%");
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value);
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
-        return QueryBuilder::for(SupplierProduct::class)
+        $queryBuilder=QueryBuilder::for(SupplierProduct::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('supplier_products.code')
             ->select(['supplier_products.code', 'supplier_products.slug', 'supplier_products.name'])
             ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
@@ -65,10 +79,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
             })
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
@@ -120,9 +131,8 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $supplier_products, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $supplier_products, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
             'Procurement/MarketplaceSupplierProducts',

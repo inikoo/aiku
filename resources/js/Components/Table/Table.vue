@@ -114,13 +114,13 @@ const props = defineProps(
             },
             required: false,
         },
-        prefix:{
-            type: String,
-            default: () => {
-                return '';
-            },
-            required: false,
-        }
+        // prefix:{
+        //     type: String,
+        //     default: () => {
+        //         return '';
+        //     },
+        //     required: false,
+        // }
     });
 
 const app = getCurrentInstance();
@@ -559,7 +559,7 @@ const handleElementsChange = (data) => {
 
 <template>
     <Transition>
-        <EmptyState v-if="resourceMeta.total == 0" />
+        <EmptyState v-if="resourceMeta.total === 0" />
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
             <!-- Wrapper -->
@@ -576,16 +576,16 @@ const handleElementsChange = (data) => {
                         <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
                     </div>
                     <!-- Button -->
-                    <!-- <div v-if="queryBuilderProps.modelOperations.createLink">
+                    <div v-if="queryBuilderProps.modelOperations.createLink">
                         <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
                             <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent rounded-l-none border-indigo-500">
                                 {{queryBuilderProps.modelOperations.createLink.label}}
                             </Button>
                         </Link>
-                    </div> -->
+                    </div>
                 </div>
 
-              <!-- <pre>{{queryBuilderProps.modelOperations}}</pre> -->
+<!--               <pre>{{queryBuilderProps.modelOperations}}</pre>-->
 
                 <!-- Search Group -->
                 <div class="flex flex-row justify-end items-start flex-nowrap space-x-2">
