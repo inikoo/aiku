@@ -31,8 +31,8 @@ class IndexMarketplaceSuppliers extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('suppliers.code', 'ILIKE', "%$value%")
-                    ->orWhere('suppliers.name', 'ILIKE', "%$value%");
+                $query->whereAnyWordStartWith('suppliers.contact_name', $value)
+                    ->orWhere('suppliers.slug', 'ILIKE', "$value%");
             });
         });
 
@@ -75,7 +75,11 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page')
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'adoption', label: 'z', canBeHidden: false)
+                ->column(key: 'adoption', label: [
+                    'type'   => 'icon',
+                    'data'   => ['fal','fa-yin-yang'],
+                    'tooltip'=> __('adoption')
+                ], canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
