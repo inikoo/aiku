@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\Firebase\DeleteUserLogFirebase;
 use App\Actions\Firebase\StoreUserLogFirebase;
 use Closure;
 use Illuminate\Http\Request;
@@ -17,6 +18,10 @@ class LogUserFirebaseMiddleware
 
         if($user) {
             StoreUserLogFirebase::run($user);
+
+            if($request->route()->getName() == 'logout') {
+                DeleteUserLogFirebase::run($user);
+            }
         }
 
         return $next($request);

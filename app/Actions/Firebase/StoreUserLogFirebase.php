@@ -18,8 +18,9 @@ class StoreUserLogFirebase
 
     public function handle(User $user): void
     {
+        $tenant = app('currentTenant');
         $database = app('firebase.database');
-        $reference = $database->getReference(app('currentTenant')->slug . '/' . $user->username);
+        $reference = $database->getReference($tenant->slug . '/' . $user->username);
 
         $reference->set([
             'is_active' => true,
@@ -29,8 +30,10 @@ class StoreUserLogFirebase
                 'module' => explode('.', request()->route()->getName())[0],
                 'name' => request()->route()->getName(),
                 'arguments' => request()->route()->originalParameters()
-            ]
+            ],
+            'timestamp' => now()
         ]);
-    }
 
+        CheckUserStatusFirebase::run($tenant);
+    }
 }
