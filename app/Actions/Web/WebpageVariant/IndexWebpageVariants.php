@@ -10,7 +10,6 @@ namespace App\Actions\Web\WebpageVariant;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Market\ShopResource;
 use App\Http\Resources\Market\WebpageResource;
 use App\InertiaTable\InertiaTable;
@@ -19,13 +18,15 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWebpageVariants extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    /** @noinspection PhpUndefinedMethodInspection */
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -33,27 +34,40 @@ class IndexWebpageVariants extends InertiaAction
                     ->orWhere('webpages.type', 'LIKE', "%$value%");
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::WEBPAGES->value);
 
-        return QueryBuilder::for(WebpageVariant::class)
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        $queryBuilder = QueryBuilder::for(WebpageVariant::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('webpages.code')
             ->select(['code', 'id', 'type', 'slug'])
             ->allowedSorts(['code', 'type'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::WEBSITES->value.'Page'
-            )
-
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::WEBPAGES->value)
-                ->pageName(TabsAbbreviationEnum::WEBPAGES->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
             $table
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -78,7 +92,7 @@ class IndexWebpageVariants extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $webpages, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $webpages, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
