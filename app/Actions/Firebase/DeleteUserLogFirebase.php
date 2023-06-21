@@ -8,6 +8,7 @@
 namespace App\Actions\Firebase;
 
 use App\Models\Auth\User;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -16,10 +17,10 @@ class DeleteUserLogFirebase
     use AsObject;
     use AsAction;
 
-    public function handle(User $user): void
+    public function handle(User $user, Tenant $tenant): void
     {
         $database = app('firebase.database');
-        $reference = $database->getReference(app('currentTenant')->slug . '/' . $user->username);
+        $reference = $database->getReference($tenant->slug . '/' . $user->username);
 
         $reference->remove();
     }

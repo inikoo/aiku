@@ -8,6 +8,7 @@
 namespace App\Actions\Firebase;
 
 use App\Models\Auth\User;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -16,9 +17,8 @@ class StoreUserLogFirebase
     use AsObject;
     use AsAction;
 
-    public function handle(User $user): void
+    public function handle(User $user, Tenant $tenant, array $route): void
     {
-        $tenant = app('currentTenant');
         $database = app('firebase.database');
         $reference = $database->getReference($tenant->slug . '/' . $user->username);
 
@@ -26,11 +26,7 @@ class StoreUserLogFirebase
             'is_active' => true,
             'username' => $user->username,
             'contact_name' => $user->contact_name,
-            'route' => [
-                'module' => explode('.', request()->route()->getName())[0],
-                'name' => request()->route()->getName(),
-                'arguments' => request()->route()->originalParameters()
-            ],
+            'route' => $route,
             'timestamp' => now()
         ]);
 

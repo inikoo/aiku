@@ -15,12 +15,19 @@ class LogUserFirebaseMiddleware
     public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
+        $tenant = app('currentTenant');
+
+        $route = [
+            'module' => explode('.', request()->route()->getName())[0],
+            'name' => request()->route()->getName(),
+            'arguments' => request()->route()->originalParameters()
+        ];
 
         if($user) {
-            StoreUserLogFirebase::dispatch($user);
+            StoreUserLogFirebase::dispatch($user, $tenant, $route);
 
             if($request->route()->getName() == 'logout') {
-                DeleteUserLogFirebase::dispatch($user);
+                DeleteUserLogFirebase::dispatch($user, $tenant);
             }
         }
 
