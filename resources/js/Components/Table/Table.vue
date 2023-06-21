@@ -615,14 +615,14 @@ const handleElementsChange = (data) => {
                         </slot>
                     </div>
                     
-                    <!-- Reset Button (If already searching) -->
+                    <!-- Button: Reset -->
                     <slot name="searchReset" can-be-reset="canBeReset" @resetSearch="() => resetQuery()">
                         <div v-if="canBeReset" class="order-3">
                             <SearchReset @resetSearch="() => resetQuery()" />
                         </div>
                     </slot>
                     
-                    <!-- Code/Name/State Button -->
+                    <!-- Button: Filter -->
                     <slot name="tableAddSearchRow" :has-search-inputs="queryBuilderProps.hasSearchInputs"
                         :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
                         :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :on-add="showSearchInput">
