@@ -74,7 +74,7 @@ const doubleClick = (key: string, element: string) => {
                 <div v-if="props.elements.length > 1" class="w-24 min-w-min">
                     <MenuButton class=" inline-flex relative w-full justify-end items-center pr-6 py-2 font-medium text-gray-800 capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-opacity-75">
                         {{ selectedElement }}
-                        <FontAwesomeIcon icon="far fa-chevron-down" class="absolute left-2 transition-all duration-200 ease-in-out" :class="[open ? 'rotate-180' : '']" aria-hidden="true" />
+                        <FontAwesomeIcon icon="far fa-chevron-down" class="absolute left-2.5 transition-all duration-200 ease-in-out" :class="[open ? 'rotate-180' : '']" aria-hidden="true" />
                     </MenuButton>
                 </div>
                 <!-- List of button -->
