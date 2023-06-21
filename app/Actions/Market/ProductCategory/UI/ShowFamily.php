@@ -152,7 +152,7 @@ class ShowFamily extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('departments')
+                            'label' => __('families')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -168,20 +168,20 @@ class ShowFamily extends InertiaAction
 
 
         return match ($routeName) {
-            'shops.show.departments.show' =>
+            'shops.show.families.show' =>
             array_merge(
                 CatalogueHub::make()->getBreadcrumbs('shops', []),
                 $headCrumb(
-                    $routeParameters['department'],
+                    $routeParameters['family'],
                     [
                         'index' => [
-                            'name'       => 'shops.show.departments.index',
+                            'name'       => 'shops.show.families.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'shops.show.departments.show',
+                            'name'       => 'shops.show.families.show',
                             'parameters' => [
-                                $routeParameters['department']->slug
+                                $routeParameters['family']->slug
                             ]
                         ]
                     ],

@@ -30,7 +30,7 @@ class IndexClockingMachines extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('clocking_machines.code', 'ILIKE', "%$value%");
+                $query->where('clocking_machines.slug', 'ILIKE', "%$value%");
             });
         });
 
@@ -38,6 +38,7 @@ class IndexClockingMachines extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        /**  @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(ClockingMachine::class)
             ->defaultSort('clocking_machines.code')
             ->select(
@@ -54,7 +55,7 @@ class IndexClockingMachines extends InertiaAction
                     $query->where('clocking_machines.workplace_id', $parent->id);
                 }
             })
-            ->allowedSorts(['code'])
+            ->allowedSorts(['slug','code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

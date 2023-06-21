@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\StockFamily\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Inventory\StockFamilyResource;
 use App\Models\Inventory\StockFamily;
 use Closure;
@@ -24,7 +23,7 @@ class IndexStockFamilies extends InertiaAction
 {
     use HasUIStockFamilies;
 
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -32,7 +31,9 @@ class IndexStockFamilies extends InertiaAction
                     ->orWhere('stock_families.name', 'LIKE', "%$value%");
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::STOCK_FAMILIES->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(StockFamily::class)
             ->defaultSort('stock_families.code')
@@ -46,19 +47,18 @@ class IndexStockFamilies extends InertiaAction
             ->leftJoin('stock_family_stats', 'stock_family_stats.stock_family_id', 'stock_families.id')
             ->allowedSorts(['code', 'name', 'number_stocks'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::STOCK_FAMILIES->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::STOCK_FAMILIES->value)
-                ->pageName(TabsAbbreviationEnum::STOCK_FAMILIES->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
                 ->withGlobalSearch()
                 ->column(key: 'code', label: 'code', canBeHidden: false, sortable: true, searchable: true)
@@ -117,6 +117,6 @@ class IndexStockFamilies extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure(parent: $stocks, prefix: 'stock'));
     }
 }

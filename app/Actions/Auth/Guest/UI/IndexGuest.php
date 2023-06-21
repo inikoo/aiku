@@ -37,6 +37,7 @@ class IndexGuest extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Guest::class)
             ->defaultSort('guests.slug')
             ->select(['id', 'slug', 'contact_name',])

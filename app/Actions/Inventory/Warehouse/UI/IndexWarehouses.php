@@ -40,7 +40,8 @@ class IndexWarehouses extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        /**  @noinspection PhpUndefinedMethodInspection */
+
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Warehouse::class)
             ->defaultSort('warehouses.code')
             ->select([

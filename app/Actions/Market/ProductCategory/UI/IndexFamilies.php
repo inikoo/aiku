@@ -37,6 +37,8 @@ class IndexFamilies extends InertiaAction
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
+
+        /**  @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(ProductCategory::class)
             ->defaultSort('product_categories.code')
             ->select([
@@ -160,7 +162,7 @@ class IndexFamilies extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.show.families.index' =>
+            'shops.families.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
@@ -171,7 +173,6 @@ class IndexFamilies extends InertiaAction
                     $suffix
                 )
             ),
-
             'shops.show.families.index' =>
             array_merge(
                 CatalogueHub::make()->getBreadcrumbs('shops', []),
