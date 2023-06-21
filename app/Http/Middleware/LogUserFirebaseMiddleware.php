@@ -17,10 +17,10 @@ class LogUserFirebaseMiddleware
         $user = $request->user();
 
         if($user) {
-            StoreUserLogFirebase::run($user);
+            StoreUserLogFirebase::dispatch($user);
 
             if($request->route()->getName() == 'logout') {
-                DeleteUserLogFirebase::run($user);
+                DeleteUserLogFirebase::dispatch($user);
             }
         }
 

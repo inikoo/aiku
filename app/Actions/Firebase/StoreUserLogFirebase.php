@@ -34,6 +34,6 @@ class StoreUserLogFirebase
             'timestamp' => now()
         ]);
 
-        CheckUserStatusFirebase::run($tenant);
+        CheckUserStatusFirebase::dispatch($tenant);
     }
 }
