@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Fri, 28 Apr 2023 17:02:43 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Jun 2023 07:56:46 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace Database\Factories\Sales;
+namespace Database\Factories\OMS;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 

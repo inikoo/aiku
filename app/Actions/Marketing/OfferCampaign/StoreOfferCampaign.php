@@ -1,14 +1,14 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 18 Apr 2023 15:08:02 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Jun 2023 08:04:01 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\OfferCampaign;
+namespace App\Actions\Marketing\OfferCampaign;
 
-use App\Models\Market\OfferCampaign;
 use App\Models\Market\Shop;
+use App\Models\Marketing\OfferCampaign;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

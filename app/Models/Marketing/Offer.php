@@ -1,13 +1,16 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Jun 2023 08:02:55 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Market;
+namespace App\Models\Marketing;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -15,10 +18,11 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Market\OfferCampaign
+ * App\Models\Marketing\Offer
  *
  * @property int $id
  * @property int $shop_id
+ * @property int $offer_campaign_id
  * @property string $slug
  * @property string $code
  * @property string $name
@@ -26,24 +30,21 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, \App\Models\Market\OfferComponent> $offerComponent
- * @property-read Collection<int, \App\Models\Market\Offer> $offers
- * @method static \Database\Factories\Marketing\OfferCampaignFactory factory($count = null, $state = [])
- * @method static Builder|OfferCampaign newModelQuery()
- * @method static Builder|OfferCampaign newQuery()
- * @method static Builder|OfferCampaign onlyTrashed()
- * @method static Builder|OfferCampaign query()
- * @method static Builder|OfferCampaign withTrashed()
- * @method static Builder|OfferCampaign withoutTrashed()
+ * @method static \Database\Factories\Marketing\OfferFactory factory($count = null, $state = [])
+ * @method static Builder|Offer newModelQuery()
+ * @method static Builder|Offer newQuery()
+ * @method static Builder|Offer onlyTrashed()
+ * @method static Builder|Offer query()
+ * @method static Builder|Offer withTrashed()
+ * @method static Builder|Offer withoutTrashed()
  * @mixin Eloquent
  */
-class OfferCampaign extends Model
+class Offer extends Model
 {
     use SoftDeletes;
     use UsesTenantConnection;
     use HasSlug;
     use HasFactory;
-
 
     protected $casts = [
         'data' => 'array'
@@ -67,15 +68,5 @@ class OfferCampaign extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    public function offers(): HasMany
-    {
-        return $this->hasMany(Offer::class);
-    }
-
-    public function offerComponent(): HasMany
-    {
-        return $this->hasMany(OfferComponent::class);
     }
 }

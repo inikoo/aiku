@@ -1,15 +1,15 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 17 Apr 2023 10:48:24 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Jun 2023 08:04:13 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\OfferComponent;
+namespace App\Actions\Marketing\OfferComponent;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Market\OfferComponentResource;
-use App\Models\Market\OfferComponent;
+use App\Models\Marketing\OfferComponent;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOfferComponent
@@ -21,10 +21,10 @@ class UpdateOfferComponent
         return $this->update($offerComponent, $modelData);
     }
 
-//    public function authorize(ActionRequest $request): bool
-//    {
-//        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-//    }
+    //    public function authorize(ActionRequest $request): bool
+    //    {
+    //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    //    }
 
     public function rules(): array
     {

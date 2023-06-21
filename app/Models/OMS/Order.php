@@ -43,7 +43,7 @@ use Spatie\Sluggable\HasSlug;
  * @property string|null $number
  * @property string|null $customer_number Customers own order number
  * @property OrderStateEnum $state
- * @property \App\Enums\OMS\Order\OrderStatusEnum $status
+ * @property OrderStatusEnum $status
  * @property string $date
  * @property string|null $submitted_at
  * @property string|null $in_warehouse_at
@@ -79,7 +79,7 @@ use Spatie\Sluggable\HasSlug;
  * @property-read \App\Models\OMS\OrderStats|null $stats
  * @property-read Collection<int, \App\Models\OMS\Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Sales\OrderFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\OMS\OrderFactory factory($count = null, $state = [])
  * @method static Builder|Order newModelQuery()
  * @method static Builder|Order newQuery()
  * @method static Builder|Order onlyTrashed()

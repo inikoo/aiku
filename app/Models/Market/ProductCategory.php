@@ -56,12 +56,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read array $es_audits
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Market\Product> $products
- * @property-read \App\Models\BI\SalesStats|null $salesStats
- * @property-read \App\Models\BI\SalesStats|null $salesTenantCurrencyStats
+ * @property-read SalesStats|null $salesStats
+ * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductCategoryStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Marketing\ProductCategoryFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Market\ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
  * @method static Builder|ProductCategory newQuery()
  * @method static Builder|ProductCategory onlyTrashed()

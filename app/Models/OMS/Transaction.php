@@ -51,13 +51,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \App\Models\CRM\Customer $customer
+ * @property-read Customer $customer
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
  * @property-read Model|\Eloquent $item
  * @property-read \App\Models\OMS\Order|null $order
  * @property-write mixed $quantity
  * @property-read Shop $shop
- * @method static \Database\Factories\Sales\TransactionFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\OMS\TransactionFactory factory($count = null, $state = [])
  * @method static Builder|Transaction newModelQuery()
  * @method static Builder|Transaction newQuery()
  * @method static Builder|Transaction onlyTrashed()

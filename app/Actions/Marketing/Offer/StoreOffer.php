@@ -1,14 +1,14 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 18 Apr 2023 15:08:02 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Jun 2023 08:03:50 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\Offer;
+namespace App\Actions\Marketing\Offer;
 
-use App\Models\Market\Offer;
-use App\Models\Market\OfferCampaign;
+use App\Models\Marketing\Offer;
+use App\Models\Marketing\OfferCampaign;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -20,7 +20,7 @@ class StoreOffer
     public function handle(OfferCampaign $offerCampaign, array $modelData): Offer
     {
         $modelData['shop_id'] = $offerCampaign->shop_id;
-        /** @var Offer $offer */
+        /** @var \App\Models\Marketing\Offer $offer */
         $offer = $offerCampaign->offers()->create($modelData);
 
         return $offer;

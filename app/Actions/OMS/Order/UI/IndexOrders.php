@@ -106,7 +106,7 @@ class IndexOrders extends InertiaAction
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
-            'Market/Orders',
+            'OMS/Orders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

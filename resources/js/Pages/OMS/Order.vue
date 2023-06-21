@@ -1,8 +1,8 @@
 
 <!--
-  - Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
-  - Created: Wed, 22 Feb 2023 10:36:47 Central European Standard Time, Malaga, Spain
-  - Copyright (c) 2023, Inikoo LTD
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Wed, 21 Jun 2023 08:06:24 Malaysia Time, Pantai Lembeng, Bali, Id
+  - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -12,7 +12,7 @@ import {
     faBars,
     faDollarSign, faEnvelope, faFileInvoiceDollar,
     faPaperclip, faRoad, faStickyNote, faTag, faThList, faTruck, faUserTag
-} from "@/../private/pro-light-svg-icons";
+} from "../../../private/pro-light-svg-icons";
 import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import TableInvoices from "@/Pages/Tables/TableInvoices.vue";
 import TableDeliveryNotes from "@/Pages/Tables/TableDeliveryNotes.vue";

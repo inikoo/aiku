@@ -1,6 +1,11 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Jun 2023 08:03:16 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Market;
+namespace App\Models\Marketing;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,10 +18,9 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Market\Offer
+ * App\Models\Marketing\OfferComponent
  *
  * @property int $id
- * @property int $shop_id
  * @property int $offer_campaign_id
  * @property string $slug
  * @property string $code
@@ -25,16 +29,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static \Database\Factories\Marketing\OfferFactory factory($count = null, $state = [])
- * @method static Builder|Offer newModelQuery()
- * @method static Builder|Offer newQuery()
- * @method static Builder|Offer onlyTrashed()
- * @method static Builder|Offer query()
- * @method static Builder|Offer withTrashed()
- * @method static Builder|Offer withoutTrashed()
+ * @method static \Database\Factories\Marketing\OfferComponentFactory factory($count = null, $state = [])
+ * @method static Builder|OfferComponent newModelQuery()
+ * @method static Builder|OfferComponent newQuery()
+ * @method static Builder|OfferComponent onlyTrashed()
+ * @method static Builder|OfferComponent query()
+ * @method static Builder|OfferComponent withTrashed()
+ * @method static Builder|OfferComponent withoutTrashed()
  * @mixin Eloquent
  */
-class Offer extends Model
+class OfferComponent extends Model
 {
     use SoftDeletes;
     use UsesTenantConnection;

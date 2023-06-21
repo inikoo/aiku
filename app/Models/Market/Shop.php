@@ -28,6 +28,7 @@ use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Leads\Prospect;
 use App\Models\Mail\Outbox;
+use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
@@ -84,16 +85,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
  * @property-read Country $country
- * @property-read \App\Models\CRM\ShopCRMStats|null $crmStats
+ * @property-read ShopCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read Collection<int, \App\Models\CRM\Customer> $customers
+ * @property-read Collection<int, Customer> $customers
  * @property-read Collection<int, \App\Models\Market\ProductCategory> $departments
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats
- * @property-read Collection<int, \App\Models\Market\OfferCampaign> $offerCampaigns
- * @property-read Collection<int, \App\Models\OMS\Order> $orders
+ * @property-read Collection<int, OfferCampaign> $offerCampaigns
+ * @property-read Collection<int, Order> $orders
  * @property-read Collection<int, Outbox> $outboxes
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
  * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
@@ -106,7 +107,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read TaxNumber|null $taxNumber
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Website|null $website
- * @method static \Database\Factories\Marketing\ShopFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Market\ShopFactory factory($count = null, $state = [])
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop onlyTrashed()
