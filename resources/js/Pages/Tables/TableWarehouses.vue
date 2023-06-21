@@ -20,7 +20,7 @@ function warehouseRoute(warehouse: Warehouse) {
         case 'inventory.warehouses.index':
             return route(
                 'inventory.warehouses.show',
-                [warehouse.slug]);
+                [warehouse.slug, warehouse.slug]);
     }
 
 }

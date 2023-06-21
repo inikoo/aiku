@@ -35,11 +35,11 @@ class IndexLocations extends InertiaAction
             });
         });
 
-
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        /**  @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Location::class)
             ->defaultSort('locations.code')
             ->select(
