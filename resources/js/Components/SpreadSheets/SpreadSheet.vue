@@ -14,7 +14,9 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { router } from '@inertiajs/vue3'
 
+
 library.add(faSave, faPlus);
+
 const props = defineProps({
   actionRoute: Object,
   theme: String,
@@ -23,6 +25,7 @@ const props = defineProps({
   },
 });
 const numberInputed = ref(1)
+
 const addMultipleRows = () => {
   const result = [];
   const arrayData = cloneDeep(props.data.columns);
@@ -50,7 +53,7 @@ const addRows = () => {
 };
 
 
-let vgrid = ref()
+let grid = ref()
 let gRowIndex = ref(0)
 let gColName = ref('')
 
@@ -62,9 +65,9 @@ const onBeforeEditStart = (e: CustomEvent<{ rowIndex: number, prop: string }>) =
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onFocusOut = async (e: any) => { // I don't know about this event, no docs
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  let viewData = await vgrid.value.$el.getVisibleSource()
+  let viewData = await grid.value.$el.getVisibleSource()
   viewData[gRowIndex.value][gColName.value] = e.target.value
-  setData.value = vgrid.value.source;
+  setData.value = grid.value.source;
 }
 
 const handleSave = () => {
@@ -112,6 +115,7 @@ const setData = ref([]);
   <div class="py-0.5">
     <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" theme='material' :source="setData"
       :columns="props.data.columns" class="custom-grid" />
+
   </div>
 
   <div class="pt-4 pb-6 pl-1 pr-0 flex">
