@@ -26,6 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexOutboxes extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Mailroom|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -39,8 +40,17 @@ class IndexOutboxes extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
-        return QueryBuilder::for(Outbox::class)
+        $queryBuilder=QueryBuilder::for(Outbox::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('outboxes.name')
             ->select(['outboxes.name', 'outboxes.slug', 'outboxes.data', 'mailrooms.id as mailrooms_id'])
             ->leftJoin('outbox_stats', 'outbox_stats.id', 'outbox_stats.outbox_id')

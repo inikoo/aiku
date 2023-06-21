@@ -23,6 +23,7 @@ class IndexStockFamilies extends InertiaAction
 {
     use HasUIStockFamilies;
 
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -35,7 +36,17 @@ class IndexStockFamilies extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(StockFamily::class)
+        $queryBuilder=QueryBuilder::for(StockFamily::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('stock_families.code')
             ->select([
                 'slug',
