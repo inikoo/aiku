@@ -1,9 +1,9 @@
 <script setup>
 import ButtonWithDropdown from "./ButtonWithDropdown.vue";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSearch } from "@/../private/pro-regular-svg-icons"
+import { faFilter } from "@/../private/pro-solid-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faSearch)
+library.add(faFilter)
 import { ref } from "vue";
 
 const props = defineProps({
@@ -36,7 +36,7 @@ function enableSearch(key) {
     class="w-auto">
     <template #button>
       <div class="h-5 w-5 flex justify-center items-center">
-        <FontAwesomeIcon icon="far fa-search" class="h-4 w-4 text-gray-400" aria-hidden="true" />
+        <FontAwesomeIcon icon="fas fa-filter" class="h-4 w-4 text-gray-400" aria-hidden="true" />
       </div>
     </template>
 

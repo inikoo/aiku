@@ -601,9 +601,10 @@ const handleElementsChange = (data) => {
                                 :filters="queryBuilderProps.filters" :on-filter-change="changeFilterValue" />
                         </slot>
                     </div>
+
                     <!-- Search Input Button -->
                     <div v-if="queryBuilderProps.globalSearch"
-                        class="flex flex-row w-44 order-1 md:order-2 focus-within:w-64 md:focus-within:w-80 transition-all ease-in-out duration-100">
+                        class="flex flex-row w-64 order-1 md:order-2 transition-all ease-in-out duration-100">
                         <slot name="tableGlobalSearch" :has-global-search="queryBuilderProps.globalSearch"
                             :label="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.label : null"
                             :value="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.value : null"
@@ -613,12 +614,14 @@ const handleElementsChange = (data) => {
                                 :on-change="changeGlobalSearchValue" />
                         </slot>
                     </div>
+                    
                     <!-- Reset Button (If already searching) -->
                     <slot name="searchReset" can-be-reset="canBeReset" @resetSearch="() => resetQuery()">
                         <div v-if="canBeReset" class="order-3">
                             <SearchReset @resetSearch="() => resetQuery()" />
                         </div>
                     </slot>
+                    
                     <!-- Code/Name/State Button -->
                     <slot name="tableAddSearchRow" :has-search-inputs="queryBuilderProps.hasSearchInputs"
                         :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
