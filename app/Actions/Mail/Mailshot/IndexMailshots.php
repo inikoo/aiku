@@ -9,7 +9,6 @@ namespace App\Actions\Mail\Mailshot;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\UI\HasUIMailshots;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
@@ -19,6 +18,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -29,7 +29,7 @@ class IndexMailshots extends InertiaAction
     use HasUIMailshots;
 
     private Outbox|Mailroom|Tenant $parent;
-    public function handle($parent): LengthAwarePaginator
+    public function handle($parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,8 +37,12 @@ class IndexMailshots extends InertiaAction
                     ->orWhere('mailshots.data', '=', $value);
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::MAILSHOTS->value);
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Mailshot::class)
             ->defaultSort('mailshots.state')
             ->select([
@@ -57,23 +61,22 @@ class IndexMailshots extends InertiaAction
             })
             ->allowedSorts(['mailshots.state', 'mailshots.data'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::MAILSHOTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::MAILSHOTS->value)
-                ->pageName(TabsAbbreviationEnum::MAILSHOTS->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
 
-            $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true);
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
 
-            $table->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -94,7 +97,7 @@ class IndexMailshots extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $mailshots, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $mailshots, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
@@ -120,7 +123,7 @@ class IndexMailshots extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($parent));
     }
 
 
@@ -137,19 +140,22 @@ class IndexMailshots extends InertiaAction
         return $this->handle($mailroom);
     }
 
+    /** @noinspection PhpUnused */
     public function inOutbox(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($outbox);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
+    /** @noinspection PhpUnused */
     public function inMailroomInShop(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($outbox);
     }
 
+
+    /** @noinspection PhpUnused */
     public function inOutboxInShop(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
