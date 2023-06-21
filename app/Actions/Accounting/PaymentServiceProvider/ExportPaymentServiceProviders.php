@@ -27,7 +27,7 @@ class ExportPaymentServiceProviders
     {
         $type = $objectData['type'];
 
-        return $this->export(new PaymentServiceProvidersExport, 'payment-service-providers', $type);
+        return $this->export(new PaymentServiceProvidersExport(), 'payment-service-providers', $type);
     }
 
     /**

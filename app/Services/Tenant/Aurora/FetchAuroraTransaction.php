@@ -7,9 +7,9 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Enums\Sales\Transaction\TransactionStateEnum;
-use App\Enums\Sales\Transaction\TransactionStatusEnum;
-use App\Enums\Sales\Transaction\TransactionTypeEnum;
+use App\Enums\OMS\Transaction\TransactionStateEnum;
+use App\Enums\OMS\Transaction\TransactionStatusEnum;
+use App\Enums\OMS\Transaction\TransactionTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraTransaction extends FetchAurora

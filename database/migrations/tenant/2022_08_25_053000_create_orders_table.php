@@ -1,7 +1,7 @@
 <?php
 
-use App\Enums\Sales\Order\OrderStateEnum;
-use App\Enums\Sales\Order\OrderStatusEnum;
+use App\Enums\OMS\Order\OrderStateEnum;
+use App\Enums\OMS\Order\OrderStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

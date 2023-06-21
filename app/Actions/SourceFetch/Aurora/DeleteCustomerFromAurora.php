@@ -7,8 +7,8 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Sales\Customer\DeleteCustomer;
-use App\Models\Sales\Customer;
+use App\Actions\CRM\Customer\DeleteCustomer;
+use App\Models\CRM\Customer;
 use App\Services\Tenant\SourceTenantService;
 use Lorisleiva\Actions\Concerns\AsAction;
 

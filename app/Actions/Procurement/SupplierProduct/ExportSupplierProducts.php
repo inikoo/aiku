@@ -8,7 +8,6 @@
 namespace App\Actions\Procurement\SupplierProduct;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\Procurement\PurchaseOrdersExport;
 use App\Exports\Procurement\SupplierProductsExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,7 +27,7 @@ class ExportSupplierProducts
     {
         $type = $objectData['type'];
 
-        return $this->export(new SupplierProductsExport, 'supplier-products', $type);
+        return $this->export(new SupplierProductsExport(), 'supplier-products', $type);
     }
 
     /**

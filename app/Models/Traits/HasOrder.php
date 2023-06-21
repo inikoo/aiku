@@ -7,10 +7,10 @@
 
 namespace App\Models\Traits;
 
+use App\Models\CRM\Customer;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\Models\Market\Shop;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Sluggable\SlugOptions;

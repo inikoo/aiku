@@ -11,17 +11,17 @@ use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
-use App\Actions\Sales\Order\UI\GetOrderShowcase;
+use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\OMS\Order\UI\GetOrderShowcase;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Http\Resources\Sales\OrderResource;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
-use App\Models\Sales\Order;
+use App\Models\CRM\Customer;
+use App\Models\Market\Shop;
+use App\Models\OMS\Order;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -77,7 +77,7 @@ class ShowfulfilmentOrder extends InertiaAction
 
 
         return Inertia::render(
-            'Marketing/Order',
+            'Market/Order',
             [
                 'title'       => __('order'),
                 'breadcrumbs' => $this->getBreadcrumbs(

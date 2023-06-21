@@ -10,7 +10,6 @@ namespace App\Actions\Procurement\SupplierProduct\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\SupplierProduct;
@@ -26,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSupplierProducts extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle($parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -34,11 +33,17 @@ class IndexSupplierProducts extends InertiaAction
                     ->orWhere('supplier_products.name', 'ILIKE', "%$value%");
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(SupplierProduct::class)
             ->defaultSort('supplier_products.code')
-            ->select(['supplier_products.code', 'supplier_products.slug', 'supplier_products.name'])
+            ->select([
+                'supplier_products.code',
+                'supplier_products.slug',
+                'supplier_products.name'
+            ])
             ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
 
             ->when($parent, function ($query) use ($parent) {
@@ -57,22 +62,22 @@ class IndexSupplierProducts extends InertiaAction
             })
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations=null): Closure
+    public function tableStructure(array $modelOperations=null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page')
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };

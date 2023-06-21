@@ -8,10 +8,10 @@
 namespace App\Actions\Web\WebUser;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\Web\WebUser\WebUserTypeEnum;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\Models\CRM\Customer;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use App\Models\Web\Website;
 use Inertia\Inertia;
@@ -30,7 +30,7 @@ class CreateWebUser extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('customers.view')
+                $request->user()->hasPermissionTo('crm.customers.view')
             );
     }
 

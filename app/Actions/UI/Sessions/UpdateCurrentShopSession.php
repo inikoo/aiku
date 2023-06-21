@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Sessions;
 
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Session;
 use Lorisleiva\Actions\ActionRequest;

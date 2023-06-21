@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\WebUser;
 
-use App\Actions\Sales\Customer\Hydrators\CustomerHydrateWebUsers;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\WithActionUpdate;
 use App\Actions\WithTenantArgument;
 use App\Models\Web\WebUser;

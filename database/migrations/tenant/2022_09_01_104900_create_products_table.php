@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Enums\Marketing\Product\ProductTradeUnitCompositionEnum;
+use App\Enums\Market\Product\ProductTradeUnitCompositionEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

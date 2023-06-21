@@ -114,7 +114,7 @@ class ProcurementDashboard
 
                         ],
                         ['name'     => __('supplier deliveries'),
-                            'icon'  => ['fal', 'fa-truck'],
+                            'icon'  => ['fal', 'fa-truck-container'],
                             'href'  => ['procurement.supplier-deliveries.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_deliveries

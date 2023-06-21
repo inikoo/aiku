@@ -8,8 +8,8 @@
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
 use App\Actions\WithTenantJob;
-use App\Enums\Sales\Order\OrderStateEnum;
-use App\Models\Sales\Order;
+use App\Enums\OMS\Order\OrderStateEnum;
+use App\Models\OMS\Order;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;

@@ -8,14 +8,13 @@
 namespace App\Http\Resources\Web;
 
 use App\Http\Resources\Sales\CustomerResource;
-use App\Models\Sales\Customer;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property mixed $email
  * @property mixed $created_at
  * @property mixed $updated_at
- * @property Customer $customer
+ * @property \App\Models\CRM\Customer $customer
  */
 class WebUserResource extends JsonResource
 {

@@ -7,9 +7,9 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Sales\Customer\CustomerStateEnum;
-use App\Enums\Sales\Customer\CustomerTradeStateEnum;
-use App\Enums\Sales\Order\OrderStateEnum;
+use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\CRM\Customer\CustomerTradeStateEnum;
+use App\Enums\OMS\Order\OrderStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasCRMStats

@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Sales\Transaction\StoreTransaction;
-use App\Models\Sales\Order;
-use App\Models\Sales\Transaction;
+use App\Actions\OMS\Transaction\StoreTransaction;
+use App\Models\OMS\Order;
+use App\Models\OMS\Transaction;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;

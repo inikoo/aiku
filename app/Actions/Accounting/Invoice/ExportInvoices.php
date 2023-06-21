@@ -8,18 +8,11 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Traits\WithExportData;
-use App\Enums\Helpers\Export\ExportTypeEnum;
 use App\Exports\Accounting\InvoicesExport;
-use App\Exports\Accounting\PaymentAccountsExport;
-use App\Exports\Accounting\PaymentsExport;
-use App\Exports\Accounting\PaymentServiceProvidersExport;
-use App\Exports\HumanResources\WorkingPlacesExport;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use App\Exports\User\UsersExport;
 
 class ExportInvoices
 {
@@ -34,7 +27,7 @@ class ExportInvoices
     {
         $type = $objectData['type'];
 
-        return $this->export(new InvoicesExport, 'invoices', $type);
+        return $this->export(new InvoicesExport(), 'invoices', $type);
     }
 
     /**

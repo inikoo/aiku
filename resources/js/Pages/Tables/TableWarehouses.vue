@@ -6,7 +6,8 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
@@ -30,14 +31,14 @@ function warehouseRoute(warehouse: Warehouse) {
 
 
 <template>
-    <Table :resource="data" :name="'w'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: warehouse }">
             <Link :href="warehouseRoute(warehouse)">
                 {{ warehouse['code'] }}
             </Link>
         </template>
         <template #cell(number_warehouse_areas)="{ item: warehouse }">
-            <Link :href="route('inventory.warehouses.show.warehouse-areas.index',warehouse.slug)">
+            <Link :href="route('inventory.warehouses.show.warehouse-areas.index',warehouse['slug'])">
                 {{ warehouse['number_warehouse_areas'] }}
             </Link>
         </template>

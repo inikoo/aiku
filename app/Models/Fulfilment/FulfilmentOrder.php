@@ -7,11 +7,11 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Models\CRM\Customer;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\Models\Market\Shop;
 use App\Models\Traits\HasOrder;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

@@ -7,17 +7,14 @@
 
 namespace App\Actions\Web\WebpageVariant;
 
+use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
-use App\Actions\Marketing\Product\UI\IndexProducts;
-use App\Actions\Sales\Customer\UI\IndexCustomers;
+use App\Actions\Market\Product\UI\IndexProducts;
 use App\Enums\UI\WebpageTabsEnum;
-use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Marketing\WebpageResource;
-use App\Http\Resources\Marketing\ProductResource;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Models\Marketing\ProductCategory;
-use App\Models\Marketing\Shop;
+use App\Http\Resources\Market\WebpageResource;
+use App\Models\Market\ProductCategory;
+use App\Models\Market\Shop;
 use App\Models\Web\WebpageVariant;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -66,7 +63,7 @@ class ShowWebpageVariant extends InertiaAction
 
 
         return Inertia::render(
-            'Marketing/WebpageVariant',
+            'Market/WebpageVariant',
             [
                 'title'       => __('webpage variant'),
                 'breadcrumbs' => $this->getBreadcrumbs($webpageVariant),

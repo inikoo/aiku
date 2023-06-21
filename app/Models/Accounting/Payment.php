@@ -9,15 +9,15 @@ namespace App\Models\Accounting;
 
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
-use App\Actions\Marketing\Shop\Hydrators\ShopHydratePayments;
+use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentSubsequentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
 use App\Models\Assets\Currency;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\Models\CRM\Customer;
+use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -57,9 +57,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property bool $with_refund
  * @property int|null $source_id
- * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
- * @property-read Customer $customer
  * @property-read Currency $currency
+ * @property-read Customer $customer
+ * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\PaymentFactory factory($count = null, $state = [])

@@ -10,10 +10,10 @@ namespace App\Actions\Fulfilment\FulfilmentOrder;
 use App\Actions\Fulfilment\FulfilmentOrderItem\StoreFulfilmentOrderItem;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
-use App\Models\Sales\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreFulfilmentOrder

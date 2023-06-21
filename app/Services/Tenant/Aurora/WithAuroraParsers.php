@@ -44,27 +44,27 @@ use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Auth\Guest;
+use App\Models\CRM\Customer;
+use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\Warehouse;
-use App\Models\Leads\Prospect;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
-use App\Models\Marketing\HistoricProduct;
-use App\Models\Marketing\Product;
-use App\Models\Marketing\ProductCategory;
-use App\Models\Marketing\Shop;
+use App\Models\Market\HistoricProduct;
+use App\Models\Market\Product;
+use App\Models\Market\ProductCategory;
+use App\Models\Market\Shop;
+use App\Models\OMS\Order;
+use App\Models\OMS\Transaction;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\AgentTenant;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierTenant;
-use App\Models\Sales\Customer;
-use App\Models\Sales\Order;
-use App\Models\Sales\Transaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
@@ -75,8 +75,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          != '' && $value != '0000-00-00 00:00:00'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 

@@ -7,10 +7,10 @@
 
 namespace App\Models\Web;
 
-use App\Actions\Sales\Customer\Hydrators\CustomerHydrateWebUsers;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Enums\Web\WebUser\WebUserLoginVersionEnum;
 use App\Enums\Web\WebUser\WebUserTypeEnum;
-use App\Models\Sales\Customer;
+use App\Models\CRM\Customer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

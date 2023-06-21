@@ -9,7 +9,6 @@ namespace App\Actions\Procurement\PurchaseOrderItem\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\PurchaseOrderItemResource;
 use App\Models\Procurement\PurchaseOrderItem;
 use Closure;
@@ -22,7 +21,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPurchaseOrderItems extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->whereHas('supplierProduct', function ($query) use ($value) {
@@ -31,26 +30,26 @@ class IndexPurchaseOrderItems extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::ITEMS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(PurchaseOrderItem::class)
             ->defaultSort('purchase_order_items.id')
             ->allowedFilters([$globalSearch])
-
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::ITEMS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
 
-    public function tableStructure(): Closure
+    public function tableStructure($prefix=null): Closure
     {
-        return function (InertiaTable $table) {
-            $table
-                ->name(TabsAbbreviationEnum::ITEMS->value)
-                ->pageName(TabsAbbreviationEnum::ITEMS->value.'Page');
+        return function (InertiaTable $table) use ($prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
                 ->withGlobalSearch()
                 ->withModelOperations()

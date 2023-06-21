@@ -9,7 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\WithTenantsArgument;
 use App\Actions\WithTenantSource;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\SourceTenantService;
 use Exception;

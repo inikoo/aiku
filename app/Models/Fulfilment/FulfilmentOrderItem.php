@@ -7,9 +7,9 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Models\CRM\Customer;
 use App\Models\Inventory\Stock;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\Models\Market\Shop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

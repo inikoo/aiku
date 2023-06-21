@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {Payment} from "@/types/payment";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 
@@ -47,7 +48,7 @@ function paymentsRoute(payment: Payment) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'p'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: payment }">
             <Link :href="paymentsRoute(payment)">
                 {{ payment['reference'] }}

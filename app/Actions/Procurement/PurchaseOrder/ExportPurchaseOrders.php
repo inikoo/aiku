@@ -8,7 +8,6 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\Procurement\AgentsExport;
 use App\Exports\Procurement\PurchaseOrdersExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,7 +27,7 @@ class ExportPurchaseOrders
     {
         $type = $objectData['type'];
 
-        return $this->export(new PurchaseOrdersExport, 'purchase-orders', $type);
+        return $this->export(new PurchaseOrdersExport(), 'purchase-orders', $type);
     }
 
     /**

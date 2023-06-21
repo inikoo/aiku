@@ -9,7 +9,6 @@ namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -18,6 +17,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -64,12 +64,15 @@ class IndexSuppliers extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations=null): Closure
+    public function tableStructure(array $modelOperations=null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::SUPPLIERS->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page')
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -110,12 +113,8 @@ class IndexSuppliers extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters == []
-            ?
-            app('currentTenant') :
-            last($request->route()->parameters);
         return Inertia::render(
             'Procurement/Suppliers',
             [

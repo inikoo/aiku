@@ -11,8 +11,9 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -24,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPaymentServiceProviders extends InertiaAction
 {
-    public function handle(Tenant|Shop $parent): LengthAwarePaginator
+    public function handle(Tenant|Shop $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -33,6 +34,9 @@ class IndexPaymentServiceProviders extends InertiaAction
             });
         });
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(PaymentServiceProvider::class)
             ->defaultSort('payment_service_providers.code')
@@ -49,8 +53,25 @@ class IndexPaymentServiceProviders extends InertiaAction
             })
             ->allowedSorts(['code', 'number_accounts', 'number_payments'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->withPaginator($prefix)
             ->withQueryString();
+    }
+
+    public function tableStructure($prefix = null): Closure
+    {
+        return function (InertiaTable $table) use ($prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+            $table
+                ->withGlobalSearch()
+                ->defaultSort('code')
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true);
+        };
     }
 
     public function authorize(ActionRequest $request): bool
@@ -83,17 +104,7 @@ class IndexPaymentServiceProviders extends InertiaAction
 
 
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->defaultSort('code');
-
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'number_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true);
-        });
+        )->table($this->tableStructure());
     }
 
 

@@ -9,7 +9,6 @@ namespace App\Actions\Procurement\SupplierPurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
@@ -27,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSupplierPurchaseOrders extends InertiaAction
 {
-    public function handle(Tenant|Agent|Supplier $parent): LengthAwarePaginator
+    public function handle(Tenant|Agent|Supplier $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -35,7 +34,10 @@ class IndexSupplierPurchaseOrders extends InertiaAction
                     ->orWhere('purchase_orders.status', 'ILIKE', "%$value%");
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PURCHASE_ORDERS->value);
+
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
         ;
         return QueryBuilder::for(PurchaseOrder::class)
             ->defaultSort('purchase_orders.number')
@@ -53,19 +55,18 @@ class IndexSupplierPurchaseOrders extends InertiaAction
             })
             ->allowedSorts(['number', 'slug'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::PURCHASE_ORDERS->value)
-                ->pageName(TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
                 ->withGlobalSearch()
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)

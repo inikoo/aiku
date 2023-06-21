@@ -1,14 +1,14 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 17 Apr 2023 10:48:24 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Jun 2023 08:03:50 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Marketing\Offer;
 
 use App\Actions\WithActionUpdate;
-use App\Http\Resources\Marketing\OfferResource;
+use App\Http\Resources\Market\OfferResource;
 use App\Models\Marketing\Offer;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -21,10 +21,10 @@ class UpdateOffer
         return $this->update($offer, $modelData);
     }
 
-//    public function authorize(ActionRequest $request): bool
-//    {
-//        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-//    }
+    //    public function authorize(ActionRequest $request): bool
+    //    {
+    //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    //    }
 
     public function rules(): array
     {

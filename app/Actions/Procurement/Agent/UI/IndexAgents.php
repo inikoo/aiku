@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
+use App\Enums\UI\AgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\AgentTenant;
 use Closure;
@@ -24,7 +24,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexAgents extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -33,7 +33,9 @@ class IndexAgents extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(AgentTenant::class)
             ->defaultSort('agents.code')
@@ -42,19 +44,18 @@ class IndexAgents extends InertiaAction
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
             ->where('agent_tenant.tenant_id', app('currentTenant')->id)
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::AGENTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::AGENTS->value)
-                ->pageName(TabsAbbreviationEnum::AGENTS->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -81,7 +82,7 @@ class IndexAgents extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->routeName = $request->route()->getName();
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(AgentTabsEnum::values());
 
         return $this->handle();
     }
@@ -119,7 +120,7 @@ class IndexAgents extends InertiaAction
                 ],
                 'data'        => AgentResource::collection($agents),
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($parent, prefix: 'agents'));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

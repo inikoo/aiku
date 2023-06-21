@@ -2249,8 +2249,8 @@
       "HEAD"
     ]
   },
-  "osm.hub": {
-    "name": "osm.hub",
+  "oms.hub": {
+    "name": "oms.hub",
     "domain": null,
     "action": "App\\Actions\\Sales\\Order\\ShowOSMHub",
     "uri": "osm",

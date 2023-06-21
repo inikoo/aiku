@@ -8,7 +8,7 @@
 namespace App\Models\Goods;
 
 use App\Models\Inventory\Stock;
-use App\Models\Marketing\Product;
+use App\Models\Market\Product;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\UsesGroupConnection;
 use Eloquent;

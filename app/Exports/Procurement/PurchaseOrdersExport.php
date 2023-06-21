@@ -7,17 +7,20 @@
 
 namespace App\Exports\Procurement;
 
-use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class PurchaseOrdersExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
+class PurchaseOrdersExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings, WithChunkReading
 {
+    use Exportable;
+
     public function query(): Relation|\Illuminate\Database\Eloquent\Builder|PurchaseOrder|Builder
     {
         return PurchaseOrder::query();
@@ -84,5 +87,10 @@ class PurchaseOrdersExport implements FromQuery, WithMapping, ShouldAutoSize, Wi
             'Cost Total',
             'Created At'
         ];
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 }

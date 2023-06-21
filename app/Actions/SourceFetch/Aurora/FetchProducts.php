@@ -7,11 +7,11 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Marketing\Product\StoreProduct;
-use App\Actions\Marketing\Product\SyncProductTradeUnits;
-use App\Actions\Marketing\Product\UpdateProduct;
-use App\Models\Marketing\HistoricProduct;
-use App\Models\Marketing\Product;
+use App\Actions\Market\Product\StoreProduct;
+use App\Actions\Market\Product\SyncProductTradeUnits;
+use App\Actions\Market\Product\UpdateProduct;
+use App\Models\Market\HistoricProduct;
+use App\Models\Market\Product;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

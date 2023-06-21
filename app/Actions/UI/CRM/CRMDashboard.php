@@ -9,7 +9,7 @@ namespace App\Actions\UI\CRM;
 
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -79,22 +79,12 @@ class CRMDashboard
                                 [
                                     'name'  => __('customers'),
                                     'icon'  => ['fal', 'fa-money-check-alt'],
-                                    'href'  => ['crm.shop.customers.index', $scope->slug],
+                                    'href'  => ['crm.shops.show.customers.index', $scope->slug],
                                     'index' => [
                                         'number' => $scope->crmStats->number_customers
                                     ]
 
                                 ],
-                                [
-                                    'name'  => __('orders'),
-                                    'icon'  => ['fal', 'fa-coins'],
-                                    'href'  => ['crm.shop.orders.index', $scope->slug],
-                                    'index' => [
-                                        'number' => $scope->crmStats->number_orders
-                                    ]
-
-                                ],
-
 
                             ]
                         ],
@@ -111,15 +101,7 @@ class CRMDashboard
                                     ]
 
                                 ],
-                                [
-                                    'name'  => __('orders'),
-                                    'icon'  => ['fal', 'fa-money-check-alt'],
-                                    'href'  => ['crm.orders.index'],
-                                    'index' => [
-                                        'number' => $scope->crmStats->number_orders
-                                    ]
 
-                                ],
 
 
                             ],
@@ -138,7 +120,7 @@ class CRMDashboard
 
 
         return match ($routeName) {
-            'crm.shop.dashboard' =>
+            'crm.shops.show.dashboard' =>
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 [
@@ -146,7 +128,7 @@ class CRMDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'crm.shop.dashboard',
+                                'name'       => 'crm.shops.show.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('CRM').' ('.$routeParameters['shop']->code.')',

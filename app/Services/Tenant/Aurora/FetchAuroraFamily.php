@@ -7,7 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraFamily extends FetchAurora

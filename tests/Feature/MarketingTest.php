@@ -6,27 +6,27 @@
  */
 
 
+use App\Actions\Market\Product\DeleteProduct;
+use App\Actions\Market\Product\StoreProduct;
+use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\ProductCategory\StoreProductCategory;
+use App\Actions\Market\ProductCategory\UpdateProductCategory;
+use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Marketing\Offer\StoreOffer;
 use App\Actions\Marketing\Offer\UpdateOffer;
 use App\Actions\Marketing\OfferCampaign\StoreOfferCampaign;
 use App\Actions\Marketing\OfferCampaign\UpdateOfferCampaign;
 use App\Actions\Marketing\OfferComponent\StoreOfferComponent;
 use App\Actions\Marketing\OfferComponent\UpdateOfferComponent;
-use App\Actions\Marketing\Product\DeleteProduct;
-use App\Actions\Marketing\Product\StoreProduct;
-use App\Actions\Marketing\Product\UpdateProduct;
-use App\Actions\Marketing\ProductCategory\StoreProductCategory;
-use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
-use App\Actions\Marketing\Shop\StoreShop;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
-use App\Enums\Marketing\Product\ProductTypeEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
+use App\Models\Market\Product;
+use App\Models\Market\ProductCategory;
+use App\Models\Market\Shop;
 use App\Models\Marketing\Offer;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;
-use App\Models\Marketing\Product;
-use App\Models\Marketing\ProductCategory;
-use App\Models\Marketing\Shop;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 

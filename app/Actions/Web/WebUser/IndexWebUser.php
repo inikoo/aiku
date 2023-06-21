@@ -7,12 +7,13 @@
 
 namespace App\Actions\Web\WebUser;
 
+use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\InertiaAction;
-use App\Actions\Sales\Customer\UI\ShowCustomer;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Web\InertiaTableWebUserResource;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\InertiaTable\InertiaTable;
+use App\Models\CRM\Customer;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use App\Models\Web\Website;
 use App\Models\Web\WebUser;
@@ -21,7 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -61,7 +61,7 @@ class IndexWebUser extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('customers.view')
+                $request->user()->hasPermissionTo('crm.customers.view')
             );
     }
 

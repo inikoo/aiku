@@ -7,14 +7,14 @@
 
 namespace App\Models\Accounting;
 
-use App\Actions\Marketing\Shop\Hydrators\ShopHydrateInvoices;
-use App\Actions\Sales\Customer\Hydrators\CustomerHydrateInvoices;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Assets\Currency;
+use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
-use App\Models\Sales\Order;
+use App\Models\Market\Shop;
+use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
@@ -55,12 +55,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
+ * @property-read Currency $currency
  * @property-read Customer $customer
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Collection<int, Order> $order
  * @property-read Collection<int, Order> $orders
  * @property-read Shop $shop
- * @property-read Currency $currency
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])

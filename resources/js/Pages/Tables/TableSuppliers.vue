@@ -11,7 +11,8 @@ import {Supplier} from "@/types/supplier";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 
@@ -34,7 +35,7 @@ function supplierRoute(supplier: Supplier) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'su'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: supplier }">
             <Link :href="supplierRoute(supplier)">
                 {{ supplier['code'] }}

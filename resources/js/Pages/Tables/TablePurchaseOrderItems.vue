@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {PurchaseOrder} from "@/types/purchase-order";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 
@@ -30,7 +31,7 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'itms'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(number)="{ item: purchaseOrderItem }">
             <Link :href="PurchaseOrderRoute(purchaseOrderItem)">
                 {{ purchaseOrderItem['number'] }}

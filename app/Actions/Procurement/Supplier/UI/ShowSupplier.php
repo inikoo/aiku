@@ -130,7 +130,10 @@ class ShowSupplier extends InertiaAction
                     : Inertia::lazy(fn () => GetSupplierShowcase::run($supplier)),
 
                 SupplierTabsEnum::PURCHASES_SALES->value => $this->tab == SupplierTabsEnum::PURCHASES_SALES->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run(
+                        parent: $supplier,
+                        prefix: 'supplier_products'
+                    ))
                     : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
 
                 SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
@@ -232,10 +235,10 @@ class ShowSupplier extends InertiaAction
 
 
 
-   public function jsonResponse(Supplier $supplier): SupplierResource
-   {
-       return new SupplierResource($supplier);
-   }
+    public function jsonResponse(Supplier $supplier): SupplierResource
+    {
+        return new SupplierResource($supplier);
+    }
 
     public function getPrevious(Supplier $supplier, ActionRequest $request): ?array
     {

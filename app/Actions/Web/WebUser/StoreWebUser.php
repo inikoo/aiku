@@ -7,9 +7,8 @@
 
 namespace App\Actions\Web\WebUser;
 
-use App\Actions\Sales\Customer\Hydrators\CustomerHydrateWebUsers;
-use App\Models\Sales\Customer;
-
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
+use App\Models\CRM\Customer;
 use App\Models\Web\WebUser;
 use Illuminate\Support\Facades\Hash;
 use Lorisleiva\Actions\Concerns\AsAction;

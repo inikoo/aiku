@@ -43,14 +43,14 @@ class StoreSupplierDelivery
         ];
     }
 
-     public function afterValidator(Validator $validator): void
-     {
-         $supplierDelivery = $this->parent->SupplierDeliveries()->count();
+    public function afterValidator(Validator $validator): void
+    {
+        $supplierDelivery = $this->parent->SupplierDeliveries()->count();
 
-         if(!$this->force && $supplierDelivery>= 1) {
-             $validator->errors()->add('supplier_delivery', 'Are you sure want to create new supplier delivery?');
-         }
-     }
+        if(!$this->force && $supplierDelivery>= 1) {
+            $validator->errors()->add('supplier_delivery', 'Are you sure want to create new supplier delivery?');
+        }
+    }
 
     public function action(Agent|Supplier $parent, array $objectData, bool $force = false): SupplierDelivery
     {

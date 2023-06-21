@@ -8,13 +8,13 @@
 namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
-use App\Actions\Sales\Order\UI\ShowOrder;
+use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\DeliveryNoteTabsEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Dispatch\DeliveryNote;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Order;
+use App\Models\Market\Shop;
+use App\Models\OMS\Order;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -63,7 +63,7 @@ class ShowDeliveryNote extends InertiaAction
     public function htmlResponse(DeliveryNote $deliveryNote, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Marketing/DeliveryNote',
+            'Market/DeliveryNote',
             [
                 'title'                                 => __('delivery_note'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters(), $deliveryNote),

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Dropshipping\CustomerClient;
 
-use App\Actions\Sales\Customer\Hydrators\CustomerHydrateClients;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\WithActionUpdate;
 use App\Actions\WithTenantArgument;
 use App\Models\Dropshipping\CustomerClient;

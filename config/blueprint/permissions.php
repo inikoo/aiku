@@ -11,13 +11,11 @@ return [
     'tenant',
     'tenant.view',
 
-    'business_intelligence',
-    'business_intelligence.view',
+    'business-intelligence',
+    'business-intelligence.view',
 
     'shops',
-    'shops.view',
-    'shops.products',
-    'shops.products.view',
+    'shops',
     'shops.products.edit',
 
     'websites',
@@ -26,12 +24,16 @@ return [
 
     'crm',
     'crm.view',
-    'crm.orders',
-    'crm.orders.view',
-    'crm.orders.edit',
     'crm.customers',
     'crm.customers.view',
     'crm.customers.edit',
+
+    'oms',
+    'oms.view',
+    'oms.orders',
+    'oms.orders.view',
+    'oms.orders.edit',
+
 
     'marketing',
     'marketing.view',

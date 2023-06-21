@@ -14,7 +14,7 @@ use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Address;
-use App\Models\Sales\Order;
+use App\Models\OMS\Order;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

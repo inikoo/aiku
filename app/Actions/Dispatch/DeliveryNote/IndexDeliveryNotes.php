@@ -8,12 +8,12 @@
 namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatch\DeliveryNote;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -98,7 +98,7 @@ class IndexDeliveryNotes extends InertiaAction
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
-            'Marketing/DeliveryNotes',
+            'Market/DeliveryNotes',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

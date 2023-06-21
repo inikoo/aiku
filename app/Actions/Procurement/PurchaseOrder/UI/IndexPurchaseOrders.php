@@ -9,7 +9,6 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
@@ -25,7 +24,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPurchaseOrders extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle($parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -33,7 +32,9 @@ class IndexPurchaseOrders extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PURCHASE_ORDERS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(PurchaseOrder::class)
             ->with('provider')
@@ -51,19 +52,19 @@ class IndexPurchaseOrders extends InertiaAction
                     $query->where('provider_id', $parent->id);
                 }
             })
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations = null): Closure
+    public function tableStructure(array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::PURCHASE_ORDERS->value)
-                ->pageName(TabsAbbreviationEnum::PURCHASE_ORDERS->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
@@ -110,7 +111,6 @@ class IndexPurchaseOrders extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $purchaseOrders, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
             'Procurement/PurchaseOrders',

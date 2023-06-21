@@ -10,6 +10,8 @@ import TableFilter from '@/Components/Table/TableFilter.vue';
 import TableSearchRows from '@/Components/Table/TableSearchRows.vue';
 import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import EmptyState from '@/Components/Common/EmptyState.vue'
+import TableDownload from '@/Components/Table/TableDownload.vue'
 import { Link } from "@inertiajs/vue3"
 
 import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from 'vue';
@@ -20,10 +22,8 @@ import findKey from 'lodash-es/findKey';
 import forEach from 'lodash-es/forEach';
 import isEqual from 'lodash-es/isEqual';
 import map from 'lodash-es/map';
-import pickBy from 'lodash-es/pickBy';
 
 import {useLocaleStore} from '@/Stores/locale.js';
-import {trans} from 'laravel-vue-i18n';
 const locale = useLocaleStore();
 
 const props = defineProps(
@@ -114,7 +114,13 @@ const props = defineProps(
             },
             required: false,
         },
-
+        prefix:{
+            type: String,
+            default: () => {
+                return '';
+            },
+            required: false,
+        }
     });
 
 const app = getCurrentInstance();
@@ -130,6 +136,7 @@ const queryBuilderProps = computed(() => {
 
     return data;
 });
+
 
 const queryBuilderData = ref(queryBuilderProps.value);
 queryBuilderData.value.elementFilter = {
@@ -409,7 +416,7 @@ function dataForNewQueryString() {
 
 function generateNewQueryString() {
     const queryStringData = qs.parse(location.search.substring(1));
-    
+
     const prefix = props.name === 'default' ? '' : props.name + '_';
 
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
@@ -452,8 +459,6 @@ const isVisiting = ref(false);
 const visitCancelToken = ref(null);
 
 function visit(url) {
-    // console.log("on visit")
-    // console.log(url)
     if (!url) {
         return;
     }
@@ -545,21 +550,20 @@ function header(key) {
 }
 
 const handleElementsChange = (data) => {
-    // console.log("====== TableElement Changed")
     queryBuilderData.value.elementFilter = data
     // visit(location.pathname + '?elements[state]=' + data)
     //queryBuilderData.value.elements[0].checked=true
 
-};
+}
 </script>
 
 <template>
-    <!-- <pre>{{queryBuilderProps.elementGroups}}</pre> -->
     <Transition>
-        <fieldset ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
+        <EmptyState v-if="resourceMeta.total == 0" />
+        <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
             <!-- Wrapper -->
-            
+
             <slot @changed="handleElementsChange">
                 <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>
@@ -572,13 +576,13 @@ const handleElementsChange = (data) => {
                         <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
                     </div>
                     <!-- Button -->
-                    <div v-if="queryBuilderProps.modelOperations.createLink">
+                    <!-- <div v-if="queryBuilderProps.modelOperations.createLink">
                         <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
                             <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent rounded-l-none border-indigo-500">
                                 {{queryBuilderProps.modelOperations.createLink.label}}
                             </Button>
                         </Link>
-                    </div>
+                    </div> -->
                 </div>
 
               <!-- <pre>{{queryBuilderProps.modelOperations}}</pre> -->
@@ -619,6 +623,17 @@ const handleElementsChange = (data) => {
                             :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue
                                 " :on-add="showSearchInput" />
                     </slot>
+
+                    <!-- Button: Download Table -->
+                    <slot name="tableDownload" :has-search-inputs="queryBuilderProps.hasSearchInputs"
+                        :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
+                        :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :on-add="showSearchInput">
+                        <TableDownload v-if="queryBuilderProps.hasSearchInputs" class="order-4"
+                            :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue
+                                " :on-add="showSearchInput" />
+                    </slot>
+
+                    <!-- Button: Switch toggle filter the column of table -->
                     <slot name="tableColumns" :has-columns="queryBuilderProps.hasToggleableColumns"
                         :columns="queryBuilderProps.columns" :has-hidden-columns="queryBuilderProps.hasHiddenColumns"
                         :on-change="changeColumnStatus">

@@ -7,9 +7,9 @@
 
 namespace App\Actions\Helpers\TaxNumber;
 
+use App\Models\CRM\Customer;
 use App\Models\Helpers\TaxNumber;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
+use App\Models\Market\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreTaxNumber

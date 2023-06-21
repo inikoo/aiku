@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Marketing\ProductCategory\StoreProductCategory;
-use App\Actions\Marketing\ProductCategory\UpdateProductCategory;
-use App\Models\Marketing\ProductCategory;
+use App\Actions\Market\ProductCategory\StoreProductCategory;
+use App\Actions\Market\ProductCategory\UpdateProductCategory;
+use App\Models\Market\ProductCategory;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

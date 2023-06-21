@@ -58,9 +58,9 @@ Route::middleware([
         Route::prefix("search")
             ->name("search.")
             ->group(__DIR__."/search.php");
-        Route::prefix("osm")
-            ->name("osm.")
-            ->group(__DIR__."/osm.php");
+        Route::prefix("oms")
+            ->name("oms.")
+            ->group(__DIR__."/oms.php");
         Route::prefix("dispatch")
             ->name("dispatch.")
             ->group(__DIR__."/dispatch.php");
@@ -73,9 +73,9 @@ Route::middleware([
         Route::prefix("accounting")
             ->name("accounting.")
             ->group(__DIR__."/accounting.php");
-        Route::prefix("mail")
-            ->name("mail.")
-            ->group(__DIR__."/mail.php");
+        Route::prefix("marketing")
+            ->name("marketing.")
+            ->group(__DIR__."/marketing.php");
         Route::prefix("sessions")
             ->name("sessions.")
             ->group(__DIR__."/sessions.php");
@@ -87,24 +87,7 @@ Route::middleware([
             ->group(__DIR__."/media.php");
 
 
-        Route::prefix("customers")
-            ->name("customers.")
-            ->group(function () {
-                $parent='tenant';
-                require __DIR__.'/customers.php';
-            });
-        Route::prefix("orders")
-            ->name("orders.")
-            ->group(function () {
-                $parent='tenant';
-                require __DIR__.'/orders.php';
-            });
-        Route::prefix("mail")
-            ->name("mail.")
-            ->group(function () {
-                $parent='tenant';
-                require __DIR__.'/mail.php';
-            });
+
     });
 
     require __DIR__."/auth.php";

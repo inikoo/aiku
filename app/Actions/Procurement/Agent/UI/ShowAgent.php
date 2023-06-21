@@ -111,26 +111,43 @@ class ShowAgent extends InertiaAction
                     fn () => GetAgentShowcase::run($agent)
                     : Inertia::lazy(fn () => GetAgentShowcase::run($agent)),
 
-                AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
-                    fn () => SupplierResource::collection(IndexSuppliers::run($agent))
-                    : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run($agent))),
-
-                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($agent))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($agent))),
 
                 AgentTabsEnum::PURCHASE_ORDERS->value => $this->tab == AgentTabsEnum::PURCHASE_ORDERS->value ?
-                    fn () => PurchaseOrderResource::collection(IndexSupplierPurchaseOrders::run($agent))
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexSupplierPurchaseOrders::run($agent))),
+                    fn () => PurchaseOrderResource::collection(IndexSupplierPurchaseOrders::run(
+                        parent: $agent,
+                        prefix: 'purchase_orders'
+                    ))
+                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexSupplierPurchaseOrders::run(
+                        parent: $agent,
+                        prefix: 'purchase_orders'
+                    ))),
+                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run(
+                        parent: $agent,
+                        prefix: 'supplier_products'
+                    ))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run(
+                        parent: $agent,
+                        prefix: 'supplier_products'
+                    ))),
+                AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
+                    fn () => SupplierResource::collection(IndexSuppliers::run(
+                        parent: $agent,
+                        prefix: 'suppliers'
+                    ))
+                    : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run(
+                        parent: $agent,
+                        prefix: 'suppliers'
+                    ))),
 
                 AgentTabsEnum::HISTORY->value => $this->tab == AgentTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($agent))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($agent)))
             ]
-        )->table(IndexSuppliers::make()->tableStructure())
+        )->table(IndexPurchaseOrders::make()->tableStructure())
             ->table(IndexSupplierProducts::make()->tableStructure())
-            ->table(IndexHistories::make()->tableStructure())
-            ->table(IndexPurchaseOrders::make()->tableStructure());
+            ->table(IndexSuppliers::make()->tableStructure())
+            ->table(IndexHistories::make()->tableStructure());
     }
 
 

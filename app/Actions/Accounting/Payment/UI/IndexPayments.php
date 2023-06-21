@@ -11,12 +11,11 @@ use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -82,21 +81,20 @@ class IndexPayments extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure($prefix=null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::PAYMENTS->value)
-                ->pageName(TabsAbbreviationEnum::PAYMENTS->value.'Page')
                 ->withGlobalSearch()
-                ->defaultSort('reference');
-
-            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true);
-
-
-            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+                ->defaultSort('reference')
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

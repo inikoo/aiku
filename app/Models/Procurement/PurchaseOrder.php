@@ -20,12 +20,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -65,12 +65,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
- * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
+ * @property-read Currency $currency
  * @property-read array $es_audits
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
  * @property-read Model|\Eloquent $provider
- * @property-read Currency $currency
- * @property-read Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrder newModelQuery()
  * @method static Builder|PurchaseOrder newQuery()
@@ -119,11 +118,11 @@ class PurchaseOrder extends Model implements Auditable
     {
         return $this->morphTo();
     }
-
-    public function supplierDeliveries(): BelongsToMany
-    {
-        return $this->belongsToMany(SupplierDelivery::class);
-    }
+    //
+    //    public function supplierDeliveries(): BelongsToMany
+    //    {
+    //        return $this->belongsToMany(SupplierDelivery::class);
+    //    }
 
     public function items(): HasMany
     {

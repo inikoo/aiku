@@ -12,7 +12,7 @@ use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Http\Resources\UI\WebsitesNavigationResource;
 use App\Models\Auth\User;
 use App\Models\Inventory\Warehouse;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -53,7 +53,7 @@ class GetLayout
             ];
 
 
-        if ($user->can('business_intelligence.view')) {
+        if ($user->can('business-intelligence.view')) {
             $navigation['business_intelligence'] = [
                 'name'         => __('Business Intelligence'),
                 'icon'         => ['fal', 'fa-lightbulb'],
@@ -206,12 +206,21 @@ class GetLayout
             ];
         }
 
+        if ($user->can('marketing.view')) {
+            $navigation['marketing'] = [
+                'name'  => __('Marketing'),
+                'icon'  => ['fal', 'fa-bullhorn'],
+                'route' => 'marketing.hub'
+            ];
+        }
+
+
         if ($user->can('crm.view')) {
             $navigation['crm'] = [
-                'name'         => __('CRM'),
-                'icon'         => ['fal', 'fa-tasks-alt'],
+                'name'         => _('Customers'),
+                'icon'         => ['fal', 'fa-user'],
                 'route'        => 'crm.dashboard',
-                'routeOption'  => 'crm.shop.dashboard',
+                'routeOption'  => 'crm.shops.show.dashboard',
                 'labelShowAll' => __('All shops'),
                 'currentData'  => [
                     'slug' => null,
@@ -233,7 +242,7 @@ class GetLayout
                                 'route' =>
                                     [
                                         'all'      => ['crm.dashboard'],
-                                        'selected' => ['crm.shop.dashboard'],
+                                        'selected' => ['crm.shops.show.dashboard'],
 
                                     ]
                             ],
@@ -243,10 +252,21 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-user'],
                                 'route'   => [
                                     'all'      => ['crm.customers.index'],
-                                    'selected' => ['crm.shop.customers.index'],
+                                    'selected' => ['crm.shops.show.customers.index'],
 
                                 ]
                             ],
+                            [
+                                'label'   => __('prospects'),
+                                'tooltip' => __('Prospects'),
+                                'icon'    => ['fal', 'fa-user-plus'],
+                                'route'   => [
+                                    'all'      => ['crm.prospects.index'],
+                                    'selected' => ['crm.shops.show.prospects.index'],
+
+                                ]
+                            ],
+
 
                         ]
                     ]
@@ -254,11 +274,72 @@ class GetLayout
             ];
         }
 
-        if ($user->can('marketing.view')) {
-            $navigation['marketing'] = [
-                'name'  => __('Marketing'),
-                'icon'  => ['fal', 'fa-bullhorn'],
-                'route' => 'customers.index'
+        if ($user->can('oms.view')) {
+            $navigation['oms'] = [
+                'name'         => _('Orders'),
+                'icon'         => ['fal', 'fa-shopping-cart'],
+                'route'        => 'oms.dashboard',
+                'routeOption'  => 'oms.shops.show.dashboard',
+                'labelShowAll' => __('All shops'),
+                'currentData'  => [
+                    'slug' => null,
+                    'name' => __('All shops'),
+                    'code' => __('All')
+                ],
+                'topMenu'      => [
+
+                    'dropdown' => [
+                        'type'        => 'shops',
+                        'options'     => $shops,
+                        'subsections' => [
+                            [
+                                'label'   => 'OMS',
+                                'tooltip' => 'OMS',
+
+
+                                'icon'  => ['fal', 'fa-tasks-alt'],
+                                'route' =>
+                                    [
+                                        'all'      => ['oms.dashboard'],
+                                        'selected' => ['oms.shops.show.dashboard'],
+
+                                    ]
+                            ],
+
+                            [
+                                'label'   => __('orders'),
+                                'tooltip' => __('Orders'),
+                                'icon'    => ['fal', 'fa-shopping-cart'],
+                                'route'   => [
+                                    'all'      => ['oms.orders.index'],
+                                    'selected' => ['oms.shops.show.orders.index'],
+
+                                ]
+                            ],
+                            [
+                                'label'   => __('delivery notes'),
+                                'tooltip' => __('Delivery notes'),
+                                'icon'    => ['fal', 'fa-truck'],
+                                'route'   => [
+                                    'all'      => ['oms.delivery-notes.index'],
+                                    'selected' => ['oms.shops.show.delivery-notes.index'],
+
+                                ]
+                            ],
+                            [
+                                'label'   => __('invoices'),
+                                'tooltip' => __('Invoices'),
+                                'icon'    => ['fal', 'fa-file-invoice-dollar'],
+                                'route'   => [
+                                    'all'      => ['oms.invoices.index'],
+                                    'selected' => ['oms.shops.show.invoices.index'],
+
+                                ]
+                            ],
+
+                        ]
+                    ]
+                ],
             ];
         }
 
@@ -286,15 +367,15 @@ class GetLayout
                 'topMenu'      => [
                     'subSections' => [
                         [
-                            'label' => __('stocks'),
+                            'label' => __('SKUs'),
                             'icon'  => ['fal', 'fa-box'],
                             'route' => [
                                 'name' => 'inventory.stocks.index',
                             ]
                         ],
                         [
-                            'label'   => __('categories'),
-                            'tooltip' => __('Stock categories'),
+                            'label'   => __('SKUs Families'),
+                            'tooltip' => __('SKUs families'),
                             'icon'    => ['fal', 'fa-boxes-alt'],
                             'route'   => [
                                 'name' => 'inventory.stock-families.index',
@@ -310,14 +391,12 @@ class GetLayout
                         'optionRoute' => 'inventory.warehouses.show',
                         'subsections' => [
                             [
-                                'label'   => __('warehouse'),
-                                'tooltip' => __('Warehouse'),
-
-
+                                'label'           => __('warehouse'),
+                                'tooltip'         => __('Warehouse'),
                                 'labelSelected'   => __('warehouse'),
                                 'tooltipSelected' => __('Warehouse'),
+                                'icon'            => ['fal', 'fa-warehouse'],
 
-                                'icon'  => ['fal', 'fa-warehouse'],
                                 'route' =>
                                     [
                                         'all'      => ['inventory.warehouses.index'],

@@ -6,11 +6,11 @@
  */
 
 
-use App\Actions\Sales\Customer\UI\CreateCustomer;
-use App\Actions\Sales\Customer\UI\EditCustomer;
-use App\Actions\Sales\Customer\UI\IndexCustomers;
-use App\Actions\Sales\Customer\UI\ShowCustomer;
-use App\Actions\Sales\Order\UI\ShowOrder;
+use App\Actions\CRM\Customer\UI\CreateCustomer;
+use App\Actions\CRM\Customer\UI\EditCustomer;
+use App\Actions\CRM\Customer\UI\IndexCustomers;
+use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\Web\WebUser\CreateWebUser;
 use App\Actions\Web\WebUser\IndexWebUser;
 use App\Actions\Web\WebUser\ShowWebUser;

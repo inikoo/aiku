@@ -8,7 +8,7 @@
 namespace App\Actions\Helpers\SerialReference;
 
 use App\Models\Helpers\SerialReference;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Illuminate\Support\Facades\DB;
 

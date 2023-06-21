@@ -8,7 +8,7 @@
 namespace App\Models\Mail;
 
 use App\Actions\Utils\Abbreviate;
-use App\Models\Marketing\Shop;
+use App\Models\Market\Shop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

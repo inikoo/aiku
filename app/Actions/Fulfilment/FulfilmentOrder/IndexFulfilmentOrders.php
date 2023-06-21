@@ -8,14 +8,14 @@
 namespace App\Actions\Fulfilment\FulfilmentOrder;
 
 use App\Actions\InertiaAction;
-use App\Actions\Marketing\Shop\UI\ShowShop;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Marketing\Shop;
-use App\Models\Sales\Customer;
-use App\Models\Sales\Order;
+use App\Models\CRM\Customer;
+use App\Models\Market\Shop;
+use App\Models\OMS\Order;
 use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -105,7 +105,7 @@ class IndexFulfilmentOrders extends InertiaAction
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
-            'Marketing/Orders',
+            'Market/Orders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

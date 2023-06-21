@@ -10,7 +10,6 @@ namespace App\Actions\HumanResources\ClockingMachine\UI;
 use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
@@ -45,8 +44,8 @@ class IndexClockingMachines extends InertiaAction
                 [
                     'clocking_machines.code as code',
                     'clocking_machines.id',
-                    'clocking_machines.slug',
                     'workplaces.slug as workplace_slug',
+                    'clocking_machines.slug'
                 ]
             )
             ->leftJoin('workplaces', 'clocking_machines.workplace_id', 'workplaces.id')
@@ -61,12 +60,15 @@ class IndexClockingMachines extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::CLOCKING_MACHINES->value)
-                ->pageName(TabsAbbreviationEnum::CLOCKING_MACHINES->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -101,16 +103,16 @@ class IndexClockingMachines extends InertiaAction
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $clockingMachines): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $clockingMachine): AnonymousResourceCollection
     {
-        return ClockingMachineResource::collection($clockingMachines);
+        return ClockingMachineResource::collection($clockingMachine);
     }
 
 
     public function htmlResponse(LengthAwarePaginator $clockingMachines, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/ClockingMachine',
+            'HumanResources/ClockingMachines',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -124,11 +126,10 @@ class IndexClockingMachines extends InertiaAction
                             'name'       => 'hr.working-places.show.clocking-machines.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('clocking machines')
+                        'label' => __('clocking machine')
                     ] : false,
                 ],
                 'data'        => ClockingMachineResource::collection($clockingMachines)
-
 
             ]
         )->table($this->tableStructure());
@@ -149,6 +150,7 @@ class IndexClockingMachines extends InertiaAction
                 ],
             ];
         };
+
         return match ($routeName) {
             'hr.clocking-machines.index' =>
             array_merge(

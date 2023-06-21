@@ -21,10 +21,10 @@ class UpdateGroup
         return $this->update($group, $modelData);
     }
 
-//    public function authorize(ActionRequest $request): bool
-//    {
-//        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-//    }
+    //    public function authorize(ActionRequest $request): bool
+    //    {
+    //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    //    }
 
     public function rules(): array
     {

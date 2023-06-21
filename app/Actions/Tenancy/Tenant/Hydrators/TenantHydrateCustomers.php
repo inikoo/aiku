@@ -7,9 +7,9 @@
 
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
-use App\Enums\Sales\Customer\CustomerStateEnum;
-use App\Enums\Sales\Customer\CustomerTradeStateEnum;
-use App\Models\Sales\Customer;
+use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\CRM\Customer\CustomerTradeStateEnum;
+use App\Models\CRM\Customer;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
