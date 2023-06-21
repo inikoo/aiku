@@ -1,15 +1,15 @@
 <template>
 	<div class="flex flex-1 items-center justify-between lg:justify-start">
-		<div class="md:pl-3 xl:pl-5 flex items-center h-full xl:w-56 space-x-2">
+		<div class="md:pl-3 xl:pl-5 flex items-center h-full xl:w-56 space-x-2 mr-6 xl:mr-0">
 			<img class="h-7 hidden sm:inline" src="/art/logo-color-trimmed.png" alt="Aiku" />
 			<span class="font-logo hidden md:inline xl:hidden whitespace-nowrap text-xs">
 				{{ props.tenantName }}
 			</span>
 		</div>
 
-		<!-- Left Menu -->
 		<div class="flex">
-			<div class="text-sm flex items-center divide-x divide-gray-100 justify-center overflow-hidden">
+			<!-- Left Menu -->
+			<div class="text-sm flex items-center divide-x divide-gray-300 justify-center overflow-hidden">
 				<Link
 					v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections "
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections"
@@ -20,21 +20,19 @@
 				>
 					<FontAwesomeIcon
 						:icon="menu.icon"
-						class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
+						class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
 						aria-hidden="true" />
 					<span class="hidden lg:inline capitalize">{{ menu.label }}</span>
 				</Link>
 			</div>
 
 			<!-- Dropdown -->
-			<div v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1">
-				<TopBarMenu :currentPage="currentUrl" />
-			</div>
-
+			<TopBarMenu v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1" :currentPage="currentUrl" />
+			
 			<!-- Right Menu -->
 			<div
 				class="text-sm text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
-				:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'border border-l-0 border-indigo-300' : 'border-l border-gray-100 divide-x divide-gray-100 ']"
+				:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'border border-l-0 border-indigo-300' : 'border-l border-gray-300 divide-x divide-gray-300 ']"
 			>
 				<!-- href:
 					If the slug is initial state (which is null) then the menu will show all shop,
@@ -49,30 +47,28 @@
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.dropdown.subsections"
 					:href="generateLink(menu)"
 					:title="capitalize(menu.tooltip)"
-					class="group flex justify-center items-center cursor-pointer py-1 space-x-1 px-4"
+					class="group flex justify-center items-center cursor-pointer h-7 py-1 space-x-1 px-4"
 					:class="[
 						layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'hover:text-indigo-600' : '',
-						menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug ? 'border-l-4 border-l-transparent border-r border-r-gray-200' : '',
+						menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug ? 'border-l-4 border-l-transparent' : '',
 						route(currentRoute, route().params) == generateLink(menu) ? 'text-indigo-600' : 'text-gray-600'
 					]"
 				>
 					<FontAwesomeIcon
 						v-if="menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug"
 						icon="fal fa-bars"
-						class="h-5 lg:h-3.5 w-auto pr-1 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
+						class="w-auto pr-1 group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
 						aria-hidden="true" />
-					<div
-						v-else>
-						<FontAwesomeIcon
-							:icon="menu.icon"
-							class="h-5 lg:h-3.5 w-auto pr-1 group-hover:opacity-100 opacity-30 transition duration-100 ease-in-out"
-							aria-hidden="true" />
-							
-						<p v-if="menu.route.selected != 'inventory.warehouses.show'" class="hidden lg:inline capitalize">
-							<!-- To hide label for Warehouse route -->
-							{{ menu.label }}
-						</p>
-					</div>
+					<FontAwesomeIcon
+						v-else
+						:icon="menu.icon"
+						class="w-auto pr-1 group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
+						aria-hidden="true" />
+						
+					<p v-if="menu.route.selected != 'inventory.warehouses.show'" class="hidden lg:inline capitalize">
+						<!-- To hide label for Warehouse route -->
+						{{ menu.label }}
+					</p>
 				</Link>
 			</div>
 		</div>
