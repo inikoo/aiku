@@ -20,6 +20,7 @@ use App\Models\Procurement\SupplierProductTenant;
 use App\Models\Procurement\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
 use App\Models\TenantWebStats;
+use Database\Factories\Tenancy\TenantFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -31,6 +32,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Multitenancy\Models\Tenant as SpatieTenant;
 use Spatie\Multitenancy\TenantCollection;
@@ -80,17 +83,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SysUser|null $sysUser
  * @property-read TenantWebStats|null $webStats
  * @method static TenantCollection<int, static> all($columns = ['*'])
- * @method static \Database\Factories\Tenancy\TenantFactory factory($count = null, $state = [])
+ * @method static TenantFactory factory($count = null, $state = [])
  * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()
  * @method static Builder|Tenant query()
  * @mixin Eloquent
  */
-class Tenant extends SpatieTenant
+class Tenant extends SpatieTenant implements HasMedia
 {
     use HasFactory;
     use HasSlug;
+    use InteractsWithMedia;
+
 
     protected $casts = [
         'data'   => 'array',
@@ -238,13 +243,24 @@ class Tenant extends SpatieTenant
         return PaymentServiceProvider::where('data->service-code', 'accounts')->first();
     }
 
-    public function centralMedia(): BelongsToMany
-    {
-        return $this->belongsToMany(CentralMedia::class)->withTimestamps();
-    }
-
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class, 'group_id');
+    }
+
+    public function logo(): HasOne
+    {
+        return $this->hasOne(CentralMedia::class, 'id', 'logo_id');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')
+            ->singleFile()
+            ->registerMediaConversions(function () {
+                $this->addMediaConversion('thumb')
+                    ->width(256)
+                    ->height(256);
+            });
     }
 }

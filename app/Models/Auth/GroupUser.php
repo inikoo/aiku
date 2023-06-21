@@ -83,9 +83,6 @@ class GroupUser extends Model implements HasMedia
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
-        //        return $this->BelongsToMany(User::class)
-        //            ->using(GroupUserUser::class)
-        //            ->withPivot(['user_id']);
     }
 
     public function avatar(): HasOne

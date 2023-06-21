@@ -32,6 +32,7 @@ return new class () extends Migration {
             $table->foreign('timezone_id')->references('id')->on('public.timezones');
             $table->unsignedSmallInteger('currency_id')->comment('tenant accounting currency');
             $table->foreign('currency_id')->references('id')->on('public.currencies');
+            $table->unsignedInteger('logo_id')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
         });
