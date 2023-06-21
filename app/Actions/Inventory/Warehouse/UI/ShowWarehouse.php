@@ -110,24 +110,33 @@ class ShowWarehouse extends InertiaAction
                     : Inertia::lazy(fn () => GetWarehouseShowcase::run($this->warehouse)),
 
                 WarehouseTabsEnum::LOCATIONS->value       => $this->tab == WarehouseTabsEnum::LOCATIONS->value ?
-                    fn () => LocationResource::collection(IndexLocations::run(
-                        parent: $this->warehouse,
-                        prefix: 'locations'
-                    ))
-                    : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run(
-                        parent: $this->warehouse,
-                        prefix: 'locations'
-                    ))),
+                    fn () => LocationResource::collection(
+                        IndexLocations::run(
+                            parent: $this->warehouse,
+                            prefix: 'locations'
+                        )
+                    )
+                    : Inertia::lazy(fn () => LocationResource::collection(
+                        IndexLocations::run(
+                            parent: $this->warehouse,
+                            prefix: 'locations'
+                        )
+                    )),
                 WarehouseTabsEnum::WAREHOUSE_AREAS->value => $this->tab == WarehouseTabsEnum::WAREHOUSE_AREAS->value
                     ?
-                    fn () => WarehouseAreaResource::collection(IndexWarehouseAreas::run(
-                        parent: $this->warehouse,
-                        prefix: 'warehouse_areas'
-                    ))
-                    : Inertia::lazy(fn () => WarehouseAreaResource::collection(IndexWarehouseAreas::run(
-                        parent: $this->warehouse,
-                        prefix: 'warehouse_areas'
-                    ))),
+                    fn () => WarehouseAreaResource::collection(
+                        IndexWarehouseAreas::run(
+                            parent: $this->warehouse,
+                            prefix: 'warehouse_areas'
+                        )
+                    )
+                    : Inertia::lazy(fn () => WarehouseAreaResource::collection(
+                        IndexWarehouseAreas::run(
+                            parent: $this->warehouse,
+                            prefix: 'warehouse_areas'
+                        )
+                    )),
+
 
                 WarehouseTabsEnum::HISTORY->value => $this->tab == WarehouseTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($this->warehouse))
@@ -135,14 +144,14 @@ class ShowWarehouse extends InertiaAction
 
             ]
         )->table(IndexLocations::make()->tableStructure(
-            //             modelOperations: [
-            //                 'createLink' => $this->canEdit ? [
-            //                     'route' => [
+            //            modelOperations: [
+            //                'createLink' => $this->canEdit ? [
+            //                    'route' => [
             //                        'name'       => 'inventory.warehouses.show.locations.create',
             //                        'parameters' => array_values($this->originalParameters)
-            //                     ],
-            //                     'label' => __('location')
-            //                 ] : false,
+            //                    ],
+            //                    'label' => __('location')
+            //                ] : false,
             //            ],
             //            prefix: 'locations'
         ))->table(IndexWarehouseAreas::make()->tableStructure(

@@ -27,6 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexCustomers extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Tenant|Shop $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -41,8 +42,17 @@ class IndexCustomers extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
-        return QueryBuilder::for(Customer::class)
+        $queryBuilder=QueryBuilder::for(Customer::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('customers.slug')
             ->select([
                 'reference',

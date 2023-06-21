@@ -23,6 +23,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexMailrooms extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -36,8 +37,17 @@ class IndexMailrooms extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
-        return QueryBuilder::for(Mailroom::class)
+        $queryBuilder=QueryBuilder::for(Mailroom::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('mailrooms.code')
             ->select(['code', 'number_outboxes', 'number_mailshots', 'number_dispatched_emails'])
             ->leftJoin('mailroom_stats', 'mailrooms.id', 'mailroom_stats.mailroom_id')

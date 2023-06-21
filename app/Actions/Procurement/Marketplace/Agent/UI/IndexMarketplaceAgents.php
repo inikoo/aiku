@@ -9,7 +9,6 @@ namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\MarketplaceAgentResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\AgentTenant;
@@ -17,6 +16,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -24,7 +24,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexMarketplaceAgents extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    /** @noinspection PhpUndefinedMethodInspection */
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -33,9 +34,21 @@ class IndexMarketplaceAgents extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::AGENTS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
-        return QueryBuilder::for(Agent::class)
+        $queryBuilder=QueryBuilder::for(Agent::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->leftJoin('agent_stats', 'agent_stats.agent_id', '=', 'agents.id')
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug', 'number_suppliers', 'number_supplier_products', 'location'])
@@ -47,19 +60,20 @@ class IndexMarketplaceAgents extends InertiaAction
             ])
             ->allowedFilters([$globalSearch])
             ->allowedSorts(['code', 'name', 'number_suppliers', 'number_supplier_products'])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::AGENTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::AGENTS->value)
-                ->pageName(TabsAbbreviationEnum::AGENTS->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
+
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
             $table
                 ->withGlobalSearch()
                 ->column(key: 'adoption', label: [
@@ -102,17 +116,14 @@ class IndexMarketplaceAgents extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $agent, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $agent, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
             'Procurement/MarketplaceAgents',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __("agent's marketplace"),
                 'pageHead'    => [
                     'title'  => __("agent's marketplace"),

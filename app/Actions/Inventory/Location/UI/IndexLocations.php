@@ -27,6 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexLocations extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -39,8 +40,17 @@ class IndexLocations extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        /**  @noinspection PhpUndefinedMethodInspection */
-        return QueryBuilder::for(Location::class)
+        $queryBuilder=QueryBuilder::for(Location::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('locations.code')
             ->select(
                 [

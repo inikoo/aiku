@@ -83,11 +83,13 @@ class IndexSuppliers extends InertiaAction
                     $query->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
                     $query->addSelect('agents.slug as agent_slug');
                     $query->addSelect('agents.name as agent_name');
+
                 } else {
-                    $query->leftJoin('supplier_tenant', 'suppliers.id', 'supplier_tenant.supplier_id');
+                    $query ->leftJoin('supplier_tenant', 'suppliers.id', 'supplier_tenant.supplier_id');
 
                     $query->where('suppliers.type', 'supplier');
                     $query->where('supplier_tenant.tenant_id', app('currentTenant')->id);
+
                 }
             })
             ->allowedSorts(['code', 'name', 'agent_name', 'supplier_locations', 'number_supplier_products', 'number_purchase_orders'])

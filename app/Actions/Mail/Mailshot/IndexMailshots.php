@@ -28,8 +28,8 @@ class IndexMailshots extends InertiaAction
 {
     use HasUIMailshots;
 
-    private Outbox|Mailroom|Tenant $parent;
-    public function handle($parent, $prefix=null): LengthAwarePaginator
+    /** @noinspection PhpUndefinedMethodInspection */
+    public function handle(Outbox|Mailroom|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -42,8 +42,17 @@ class IndexMailshots extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
-        return QueryBuilder::for(Mailshot::class)
+        $queryBuilder=QueryBuilder::for(Mailshot::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('mailshots.state')
             ->select([
                 'mailshots.state',
@@ -75,7 +84,8 @@ class IndexMailshots extends InertiaAction
                     ->pageName($prefix.'Page');
             }
 
-            $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+            $table
+                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
         };
     }

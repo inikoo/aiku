@@ -30,6 +30,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPayments extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -45,7 +46,17 @@ class IndexPayments extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(Payment::class)
+        $queryBuilder=QueryBuilder::for(Payment::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('payments.reference')
             ->select([
                 'payments.reference',
@@ -81,9 +92,9 @@ class IndexPayments extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($prefix=null): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -91,6 +102,7 @@ class IndexPayments extends InertiaAction
             }
             $table
                 ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
                 ->defaultSort('reference')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true)
@@ -124,6 +136,7 @@ class IndexPayments extends InertiaAction
         return $this->handle($paymentServiceProvider);
     }
 
+    /** @noinspection PhpUnused */
     public function inPaymentAccount(PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
@@ -131,7 +144,7 @@ class IndexPayments extends InertiaAction
         return $this->handle($paymentAccount);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
+    /** @noinspection PhpUnused */
     public function inPaymentAccountInShop(Shop $shop, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);

@@ -27,7 +27,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexMarketplaceSuppliers extends InertiaAction
 {
-    public function handle(Agent|Tenant $parent): LengthAwarePaginator
+    /** @noinspection PhpUndefinedMethodInspection */
+    public function handle(Agent|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -36,9 +37,21 @@ class IndexMarketplaceSuppliers extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::SUPPLIERS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
-        return QueryBuilder::for(Supplier::class)
+        $queryBuilder=QueryBuilder::for(Supplier::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('suppliers.code')
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
             ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'number_supplier_products', 'suppliers.location'])
@@ -60,10 +73,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
             })
             ->allowedSorts(['code', 'name', 'number_supplier_products'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::SUPPLIERS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
