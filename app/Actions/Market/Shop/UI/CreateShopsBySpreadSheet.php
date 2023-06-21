@@ -8,11 +8,11 @@
 namespace App\Actions\Market\Shop\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
-use App\Enums\Marketing\Shop\ShopTypeEnum;
 
 /**
  * @property array $breadcrumbs
@@ -51,28 +51,28 @@ class CreateShopsBySpreadSheet extends InertiaAction
 
                     'columns' => [
                         [
-                            'id'       => 'code',
-                            'name'     => __('Code'),
+                            'id'             => 'code',
+                            'name'           => __('Code'),
                             'columnType'     => 'string',
-                            'prop'     => 'code',
-                            'required' => true,
+                            'prop'           => 'code',
+                            'required'       => true,
                         ],
                         [
-                            'id'       => 'name',
-                            'name'     => __('Label'),
+                            'id'             => 'name',
+                            'name'           => __('Label'),
                             'columnType'     => 'string',
-                            'prop'     => 'name',
-                            'required' => true,
+                            'prop'           => 'name',
+                            'required'       => true,
                         ],
                         [
-                            'id'       => 'select',
-                            'name'     => __('Type'),
-                            'prop'     => 'type',
-                            'required' =>  false,
+                            'id'         => 'select',
+                            'name'       => __('Type'),
+                            'prop'       => 'type',
+                            'required'   => false,
                             'columnType' => "select",
                             'options'    => Options::forEnum(ShopTypeEnum::class),
-                            'labelKey' => 'label',
-                            'valueKey'=> 'value',
+                            'labelKey'   => 'label',
+                            'valueKey'   => 'value',
                         ],
                     ],
                 ],
