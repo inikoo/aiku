@@ -42,14 +42,14 @@ class StoreSupplierPurchaseOrder
         ];
     }
 
-     public function afterValidator(Validator $validator): void
-     {
-         $supplierPurchaseOrder = $this->parent->purchaseOrders()->count();
+    public function afterValidator(Validator $validator): void
+    {
+        $supplierPurchaseOrder = $this->parent->purchaseOrders()->count();
 
-         if($supplierPurchaseOrder>= 1) {
-             $validator->errors()->add('purchase_order', 'Are you sure want to create new supplier purchase order?');
-         }
-     }
+        if($supplierPurchaseOrder>= 1) {
+            $validator->errors()->add('purchase_order', 'Are you sure want to create new supplier purchase order?');
+        }
+    }
 
     public function action(Agent|Supplier $parent, array $objectData): PurchaseOrder
     {

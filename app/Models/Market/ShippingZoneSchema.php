@@ -31,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, \App\Models\Market\ShippingZone> $shippingZone
- * @method static \Database\Factories\Marketing\ShippingZoneSchemaFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Market\ShippingZoneSchemaFactory factory($count = null, $state = [])
  * @method static Builder|ShippingZoneSchema newModelQuery()
  * @method static Builder|ShippingZoneSchema newQuery()
  * @method static Builder|ShippingZoneSchema onlyTrashed()

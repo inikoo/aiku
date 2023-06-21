@@ -32,7 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static \Database\Factories\Marketing\ShippingZoneFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Market\ShippingZoneFactory factory($count = null, $state = [])
  * @method static Builder|ShippingZone newModelQuery()
  * @method static Builder|ShippingZone newQuery()
  * @method static Builder|ShippingZone onlyTrashed()

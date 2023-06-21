@@ -66,8 +66,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $contact_website
  * @property array $location
  * @property CustomerStatusEnum $status
- * @property \App\Enums\CRM\Customer\CustomerStateEnum $state
- * @property \App\Enums\CRM\Customer\CustomerTradeStateEnum $trade_state number of invoices
+ * @property CustomerStateEnum $state
+ * @property CustomerTradeStateEnum $trade_state number of invoices
  * @property bool $is_fulfilment
  * @property bool $is_dropshipping
  * @property array $data
@@ -81,7 +81,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, GroupMedia> $media
- * @property-read Collection<int, \App\Models\OMS\Order> $orders
+ * @property-read Collection<int, Order> $orders
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products
  * @property-read Shop|null $shop
@@ -91,7 +91,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read TaxNumber|null $taxNumber
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, WebUser> $webUsers
- * @method static \Database\Factories\Sales\CustomerFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\CRM\CustomerFactory factory($count = null, $state = [])
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static Builder|Customer onlyTrashed()

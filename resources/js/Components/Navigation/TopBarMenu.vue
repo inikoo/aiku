@@ -27,7 +27,8 @@ import {
     faCube,
     faGlobe,
     faFileInvoiceDollar,
-    faTruck
+    faTruck,
+    faUserPlus
 } from "@/../private/pro-light-svg-icons";
 library.add(
     faDollyFlatbedAlt,
@@ -49,7 +50,8 @@ library.add(
     faCube,
     faGlobe,
     faFileInvoiceDollar,
-    faTruck
+    faTruck,
+    faUserPlus
 
 );
 

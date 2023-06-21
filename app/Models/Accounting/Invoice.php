@@ -55,12 +55,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
+ * @property-read Currency $currency
  * @property-read Customer $customer
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Collection<int, Order> $order
  * @property-read Collection<int, Order> $orders
  * @property-read Shop $shop
- * @property-read Currency $currency
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])

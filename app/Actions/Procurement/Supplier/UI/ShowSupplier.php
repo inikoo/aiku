@@ -235,10 +235,10 @@ class ShowSupplier extends InertiaAction
 
 
 
-   public function jsonResponse(Supplier $supplier): SupplierResource
-   {
-       return new SupplierResource($supplier);
-   }
+    public function jsonResponse(Supplier $supplier): SupplierResource
+    {
+        return new SupplierResource($supplier);
+    }
 
     public function getPrevious(Supplier $supplier, ActionRequest $request): ?array
     {

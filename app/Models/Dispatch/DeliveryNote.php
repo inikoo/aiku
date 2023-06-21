@@ -69,7 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
- * @property-read \App\Models\CRM\Customer $customer
+ * @property-read Customer $customer
  * @property-read Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
  * @property-read Collection<int, Order> $orders
  * @property-read \App\Models\Dispatch\Shipment|null $shipments

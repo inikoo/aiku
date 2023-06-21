@@ -256,6 +256,16 @@ class GetLayout
 
                                 ]
                             ],
+                            [
+                                'label'   => __('prospects'),
+                                'tooltip' => __('Prospects'),
+                                'icon'    => ['fal', 'fa-user-plus'],
+                                'route'   => [
+                                    'all'      => ['crm.prospects.index'],
+                                    'selected' => ['crm.shops.show.prospects.index'],
+
+                                ]
+                            ],
 
 
                         ]
@@ -334,7 +344,6 @@ class GetLayout
         }
 
 
-
         if ($user->can('dispatch.view')) {
             $navigation['dispatch'] = [
                 'name'  => __('Dispatch'),
@@ -358,15 +367,15 @@ class GetLayout
                 'topMenu'      => [
                     'subSections' => [
                         [
-                            'label' => __('stocks'),
+                            'label' => __('SKUs'),
                             'icon'  => ['fal', 'fa-box'],
                             'route' => [
                                 'name' => 'inventory.stocks.index',
                             ]
                         ],
                         [
-                            'label'   => __('categories'),
-                            'tooltip' => __('Stock categories'),
+                            'label'   => __('SKUs Families'),
+                            'tooltip' => __('SKUs families'),
                             'icon'    => ['fal', 'fa-boxes-alt'],
                             'route'   => [
                                 'name' => 'inventory.stock-families.index',
@@ -382,14 +391,12 @@ class GetLayout
                         'optionRoute' => 'inventory.warehouses.show',
                         'subsections' => [
                             [
-                                'label'   => __('warehouse'),
-                                'tooltip' => __('Warehouse'),
-
-
+                                'label'           => __('warehouse'),
+                                'tooltip'         => __('Warehouse'),
                                 'labelSelected'   => __('warehouse'),
                                 'tooltipSelected' => __('Warehouse'),
+                                'icon'            => ['fal', 'fa-warehouse'],
 
-                                'icon'  => ['fal', 'fa-warehouse'],
                                 'route' =>
                                     [
                                         'all'      => ['inventory.warehouses.index'],

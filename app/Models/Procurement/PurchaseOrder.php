@@ -14,7 +14,6 @@ use App\Models\Helpers\Address;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\PurchaseOrderFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -67,12 +66,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, Audit> $audits
- * @property-read array $es_audits
- * @property-read Collection<int, PurchaseOrderItem> $items
- * @property-read Model|Eloquent $provider
  * @property-read Currency $currency
- * @property-read Collection<int, SupplierDelivery> $supplierDeliveries
- * @method static PurchaseOrderFactory factory($count = null, $state = [])
+ * @property-read array $es_audits
+ * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
+ * @property-read Model|\Eloquent $provider
+ * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrder newModelQuery()
  * @method static Builder|PurchaseOrder newQuery()
  * @method static Builder|PurchaseOrder onlyTrashed()
@@ -120,11 +118,11 @@ class PurchaseOrder extends Model implements Auditable
     {
         return $this->morphTo();
     }
-//
-//    public function supplierDeliveries(): BelongsToMany
-//    {
-//        return $this->belongsToMany(SupplierDelivery::class);
-//    }
+    //
+    //    public function supplierDeliveries(): BelongsToMany
+    //    {
+    //        return $this->belongsToMany(SupplierDelivery::class);
+    //    }
 
     public function items(): HasMany
     {

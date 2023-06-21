@@ -53,10 +53,11 @@ class InventoryDashboard
 
             ];
             $warehouseAreasNode = [
-                'name'  => __('warehouses areas'),
-                'icon'  => ['fal', 'fa-map-signs'],
-                'href'  => ['inventory.warehouses.show.warehouse-areas.index', $warehouse->slug],
-                'index' => [
+                'name'      => __('warehouses areas'),
+                'shortName' => __('areas'),
+                'icon'      => ['fal', 'fa-map-signs'],
+                'href'      => ['inventory.warehouses.show.warehouse-areas.index', $warehouse->slug],
+                'index'     => [
                     'number' => $this->tenant->inventoryStats->number_warehouse_areas
                 ]
             ];
@@ -79,10 +80,11 @@ class InventoryDashboard
                 ]
             ];
             $warehouseAreasNode = [
-                'name'  => __('warehouses areas'),
-                'icon'  => ['fal', 'fa-map-signs'],
-                'href'  => ['inventory.warehouse-areas.index'],
-                'index' => [
+                'name'      => __('warehouses areas'),
+                'shortName' => __('areas'),
+                'icon'      => ['fal', 'fa-map-signs'],
+                'href'      => ['inventory.warehouse-areas.index'],
+                'index'     => [
                     'number' => $this->tenant->inventoryStats->number_warehouse_areas
                 ]
             ];
@@ -101,12 +103,12 @@ class InventoryDashboard
         return Inertia::render(
             'Inventory/InventoryDashboard',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('inventory'),
-                'pageHead'    => [
+                'breadcrumbs'  => $this->getBreadcrumbs(),
+                'title'        => __('inventory'),
+                'pageHead'     => [
                     'title' => __('inventory'),
                 ],
-                'flatTreeMaps'    => [
+                'flatTreeMaps' => [
                     [
                         $warehousesNode,
                         $warehouseAreasNode,
@@ -114,7 +116,7 @@ class InventoryDashboard
                     ],
                     [
                         [
-                            'name'  => __('families'),
+                            'name'  => __('SKUs families'),
                             'icon'  => ['fal', 'fa-boxes-alt'],
                             'href'  => ['inventory.stock-families.index'],
                             'index' => [
