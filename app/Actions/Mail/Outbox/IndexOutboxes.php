@@ -10,7 +10,6 @@ namespace App\Actions\Mail\Outbox;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\UI\Mail\MailHub;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
@@ -19,6 +18,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -26,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexOutboxes extends InertiaAction
 {
-    public function handle(Mailroom|Tenant $parent): LengthAwarePaginator
+    public function handle(Mailroom|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -34,8 +34,12 @@ class IndexOutboxes extends InertiaAction
                     ->orWhere('outboxes.data', '=', $value);
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::OUTBOXES->value);
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Outbox::class)
             ->defaultSort('outboxes.name')
             ->select(['outboxes.name', 'outboxes.slug', 'outboxes.data', 'mailrooms.id as mailrooms_id'])
@@ -48,19 +52,19 @@ class IndexOutboxes extends InertiaAction
             })
             ->allowedSorts(['name', 'data'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::OUTBOXES->value . 'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::OUTBOXES->value)
-                ->pageName(TabsAbbreviationEnum::OUTBOXES->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
@@ -83,7 +87,7 @@ class IndexOutboxes extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $outboxes, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $outboxes, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
@@ -101,7 +105,7 @@ class IndexOutboxes extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($parent));
     }
 
 
@@ -112,6 +116,7 @@ class IndexOutboxes extends InertiaAction
         return $this->handle(app('currentTenant'));
     }
 
+    /** @noinspection PhpUnused */
     public function inMailroom(Mailroom $mailroom, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
@@ -135,7 +140,10 @@ class IndexOutboxes extends InertiaAction
         return match ($routeName) {
             'mail.outboxes.index' =>
             array_merge(
-                (new MailHub())->getBreadcrumbs(),
+                (new MailHub())->getBreadcrumbs(
+                    $routeName,
+                    $this->originalParameters
+                ),
                 $headCrumb()
             ),
             'mail.mailrooms.show.outboxes.index' =>

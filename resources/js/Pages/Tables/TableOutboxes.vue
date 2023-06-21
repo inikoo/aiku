@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {Outbox} from "@/types/outbox";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 
@@ -30,7 +31,7 @@ function outboxRoute(outbox: Outbox) {
 
 <template>
 
-    <Table :resource="data" :name="'out'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
 
 
         <template #cell(name)="{ item: outbox }">

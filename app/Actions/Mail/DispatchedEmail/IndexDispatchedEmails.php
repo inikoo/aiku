@@ -10,7 +10,6 @@ namespace App\Actions\Mail\DispatchedEmail;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\UI\Mail\MailHub;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailroom;
@@ -22,6 +21,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -29,8 +29,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDispatchedEmails extends InertiaAction
 {
-    private Mailshot|Outbox|Mailroom|Tenant $parent;
-    public function handle($parent): LengthAwarePaginator
+    public function handle(Mailshot|Outbox|Mailroom|Tenant|Shop $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -40,7 +39,11 @@ class IndexDispatchedEmails extends InertiaAction
             }); // reference status date data
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DISPATCHED_EMAILS->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(DispatchedEmail::class)
             ->defaultSort('dispatched_emails.state')
             ->select(['dispatched_emails.state',
@@ -65,25 +68,23 @@ class IndexDispatchedEmails extends InertiaAction
             })
             ->allowedSorts(['dispatched_emails.state', 'dispatched_emails.number_reads', 'dispatched_emails.number_clicks'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::DISPATCHED_EMAILS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::DISPATCHED_EMAILS->value)
-                ->pageName(TabsAbbreviationEnum::DISPATCHED_EMAILS->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
 
-            $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true);
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
 
-            $table->column(key: 'number_reads', label: __('reads'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'number_clicks', label: __('clicks'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_reads', label: __('reads'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_clicks', label: __('clicks'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
     public function authorize(ActionRequest $request): bool
@@ -103,7 +104,7 @@ class IndexDispatchedEmails extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $dispatched_emails, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $dispatched_emails, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
@@ -121,7 +122,7 @@ class IndexDispatchedEmails extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($parent));
     }
 
 
@@ -138,13 +139,14 @@ class IndexDispatchedEmails extends InertiaAction
         return $this->handle($shop);
     }
 
+    /** @noinspection PhpUnused */
     public function inMailroomInShop(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($outbox);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
+    /** @noinspection PhpUnused */
     public function inMailroomInOutboxInShop(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
@@ -167,12 +169,15 @@ class IndexDispatchedEmails extends InertiaAction
         };
 
         return match ($routeName) {
-            'mail.outboxes.index' =>
+            'mail.dispatched-emails.index' =>
             array_merge(
-                (new MailHub())->getBreadcrumbs(),
+                (new MailHub())->getBreadcrumbs(
+                    $routeName,
+                    $this->originalParameters
+                ),
                 $headCrumb()
             ),
-            'mail.mailrooms.show.outboxes.index' =>
+            'mail.mailrooms.show.dispatched-emails.index' =>
             array_merge(
                 (new ShowMailroom())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])

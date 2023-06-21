@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {DispatchedEmail} from "@/types/dispatched-email";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 
@@ -32,7 +33,7 @@ function dispatchedEmailRoute(dispatchedEmail: DispatchedEmail) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'de'"  class="mt-5">
+    <Table :resource="data" :name="tab"  class="mt-5">
 
         <template #cell(name)="{ item: dispatchedEmail }">
             <Link :href="route(dispatchedEmailRoute(dispatchedEmail))">

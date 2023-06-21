@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {Mailshot} from "@/types/mailshot";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 
@@ -33,8 +34,7 @@ function mailshotRoute(mailshot: Mailshot) {
 
 <template>
 
-
-    <Table :resource="data" :name="'ms'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(name)="{ item: mailshot }">
             <Link :href="route(mailshotRoute(mailshot))">
                 {{ mailshot["name"] }}
